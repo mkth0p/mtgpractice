@@ -68,7 +68,7 @@ window.MIKU_GUIDE = [
         "<i-c>Prosperous Innkeeper</i-c>: 1 life whenever another creature you control enters.",
         "<i-c>Cleric Class</i-c>: every gain is 1 bigger.",
         "Lifelink: <i-c>Archangel of Thune</i-c>, <i-c>Lathiel, the Bounteous Dawn</i-c>, <i-c>Speaker of the Heavens</i-c>, and the Vampire tokens from <i-c>Ghalta and Mavren</i-c> and <i-c>Elenda's Hierophant</i-c>.",
-        "Small extras: gain lands (<i-c>Blossoming Sands</i-c>, <i-c>Graypelt Refuge</i-c>, <i-c>Radiant Fountain</i-c>, <i-c>Seraph Sanctuary</i-c>, <i-c>Brokers Hideout</i-c>), <i-c>Spike Feeder</i-c> and <i-c>Aetherflux Reservoir</i-c>.",
+        "Small extras: gain lands (<i-c>Blossoming Sands</i-c>, <i-c>Graypelt Refuge</i-c>, <i-c>Brokers Hideout</i-c>), <i-c>Spike Feeder</i-c> and <i-c>Aetherflux Reservoir</i-c>.",
         "Big single gains: <i-c>Camaraderie</i-c> and <i-c>Shamanic Revelation</i-c>. One big gain is exactly what <i-c>Nykthos Paragon</i-c> wants."
       ] },
       { t: "h", text: "Role 3: payoffs" },
@@ -295,7 +295,7 @@ window.MIKU_GUIDE = [
         ["<i-c>Sunpetal Grove</i-c>", "After any Forest or Plains"],
         ["<i-c>Canopy Vista</i-c>", "After two basics, or fetched tapped by Farseek at any time"],
         ["<i-c>Bountiful Promenade</i-c>, <i-c>Command Tower</i-c>", "Any time: always untapped in a multiplayer game"],
-        ["<i-c>Blossoming Sands</i-c>, <i-c>Graypelt Refuge</i-c>, <i-c>Restless Prairie</i-c>, <i-c>Sapseep Forest</i-c>", "They enter tapped: a turn you don't need all your mana"],
+        ["<i-c>Blossoming Sands</i-c>, <i-c>Graypelt Refuge</i-c>, <i-c>Restless Prairie</i-c>, <i-c>Scattered Groves</i-c>", "They enter tapped: a turn you don't need all your mana"],
         ["<i-c>Krosan Verge</i-c>", "Early. Pay {2} and sacrifice it for a Forest and a Plains"],
         ["<i-c>Selesnya Sanctuary</i-c>", "Turn 3 or later, returning a land you've already used"],
         ["Colorless lands like <i-c>Gavony Township</i-c> and <i-c>Rogue's Passage</i-c>", "Once you have both colors covered"]

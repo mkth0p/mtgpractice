@@ -1,4 +1,4 @@
-/* The Miku deck (Trostani, Selesnya's Voice) for the game engine: all 88 different cards.
+/* The Miku deck (Trostani, Selesnya's Voice) for the game engine: every card in the list, plus a few that were cut.
    Card text follows the printed Oracle text. Where the engine simplifies a card, the comment on
    that card says how. `ai` hints tell the bots when to cast or use a card; see ENGINE.md. */
 (function (root) {
@@ -824,6 +824,11 @@
   land("Overgrown Farmland", { etbTapped: (g, o) => otherLands(g, o) < 2, mana: [{ tap: true, produce: gw }] });
   land("Razorverge Thicket", { etbTapped: (g, o) => otherLands(g, o) > 2, mana: [{ tap: true, produce: gw }] });
   land("Sunpetal Grove", { etbTapped: (g, o) => !hasLand(g, o.controller, "Forest") && !hasLand(g, o.controller, "Plains"), mana: [{ tap: true, produce: gw }] });
+  land("Scattered Groves", { type: "Land — Forest Plains", etbTapped: true, note: "Cycling isn't in this game.", mana: [{ tap: true, produce: gw }] });
+  land("Brushland", {
+    note: "Its colored mana isn't used while you're at 1 life.",
+    mana: [{ tap: true, produce: "C" }, { tap: true, produce: gw, condition: (g, o) => o.controller.life > 1, after: (g, o) => g.damage(o, o.controller, 1) }]
+  });
   land("Command Tower", { mana: [{ tap: true, produce: "any" }] });
   land("Radiant Fountain", { triggers: [gainOnEnter(2)], mana: [{ tap: true, produce: "C" }] });
   land("Seraph Sanctuary", {
@@ -957,8 +962,8 @@
     commander: "Trostani, Selesnya's Voice",
     identity: ["G", "W"],
     list: (function () {
-      const counts = { Plains: 7, Forest: 7 };
-      const singles = ["Adeline, Resplendent Cathar", "Aetherflux Reservoir", "Ajani's Pridemate", "Arcane Signet", "Archangel of Thune", "Avacyn's Pilgrim", "Beast Within", "Beastmaster Ascension", "Blossoming Bogbeast", "Blossoming Sands", "Bountiful Promenade", "Bramble Sovereign", "Break Down", "Brokers Hideout", "Camaraderie", "Canopy Vista", "Cathars' Crusade", "Cleric Class", "Command Tower", "Conclave Evangelist", "Crashing Drawbridge", "Craterhoof Behemoth", "Cultivate", "Dazzling Theater // Prop Room", "Elenda's Hierophant", "Elspeth, Sun's Champion", "Elvish Mystic", "Esika's Chariot", "Excavation Technique", "Fanatic of Rhonas", "Farseek", "Finale of Devastation", "Gavony Township", "Generous Gift", "Ghalta and Mavren", "Grand Crescendo", "Graypelt Refuge", "Grove of the Guardian", "Halo Fountain", "Heliod, Sun-Crowned", "Hero of Bladehold", "Hour of Reckoning", "Intangible Virtue", "Jazal Goldmane", "Krosan Verge", "Lathiel, the Bounteous Dawn", "Lazotep Quarry", "Llanowar Elves", "Mirror Entity", "Nature's Lore", "Nykthos Paragon", "Overgrown Farmland", "Overwhelming Stampede", "Path to Exile", "Prosperous Innkeeper", "Radiant Fountain", "Razorverge Thicket", "Resplendent Angel", "Restless Prairie", "Return of the Wildspeaker", "Rogue's Passage", "Rootborn Defenses", "Sapseep Forest", "Selesnya Sanctuary", "Selesnya Signet", "Seraph Sanctuary", "Shalai, Voice of Plenty", "Shamanic Revelation", "Skullclamp", "Sol Ring", "Song of the Worldsoul", "Soul Warden", "Soul of Eternity", "Speaker of the Heavens", "Spike Feeder", "Springleaf Drum", "Sundering Growth", "Sungrass Prairie", "Sunpetal Grove", "Swords to Plowshares", "Triumph of the Hordes", "Voice of Resurgence", "Voice of the Blessed", "Vorinclex, Voice of Hunger", "Walking Ballista"];
+      const counts = { Plains: 9, Forest: 6 };
+      const singles = ["Adeline, Resplendent Cathar", "Aetherflux Reservoir", "Ajani's Pridemate", "Arcane Signet", "Archangel of Thune", "Avacyn's Pilgrim", "Beast Within", "Beastmaster Ascension", "Blossoming Bogbeast", "Blossoming Sands", "Bountiful Promenade", "Bramble Sovereign", "Break Down", "Brokers Hideout", "Brushland", "Camaraderie", "Canopy Vista", "Cathars' Crusade", "Cleric Class", "Command Tower", "Conclave Evangelist", "Crashing Drawbridge", "Craterhoof Behemoth", "Cultivate", "Dazzling Theater // Prop Room", "Elenda's Hierophant", "Elspeth, Sun's Champion", "Elvish Mystic", "Esika's Chariot", "Excavation Technique", "Fanatic of Rhonas", "Farseek", "Finale of Devastation", "Gavony Township", "Generous Gift", "Ghalta and Mavren", "Grand Crescendo", "Graypelt Refuge", "Grove of the Guardian", "Halo Fountain", "Heliod, Sun-Crowned", "Hero of Bladehold", "Hour of Reckoning", "Intangible Virtue", "Jazal Goldmane", "Krosan Verge", "Lathiel, the Bounteous Dawn", "Lazotep Quarry", "Llanowar Elves", "Mirror Entity", "Nature's Lore", "Nykthos Paragon", "Overgrown Farmland", "Overwhelming Stampede", "Path to Exile", "Prosperous Innkeeper", "Razorverge Thicket", "Resplendent Angel", "Restless Prairie", "Return of the Wildspeaker", "Rogue's Passage", "Rootborn Defenses", "Scattered Groves", "Selesnya Sanctuary", "Selesnya Signet", "Shalai, Voice of Plenty", "Shamanic Revelation", "Skullclamp", "Sol Ring", "Song of the Worldsoul", "Soul Warden", "Soul of Eternity", "Speaker of the Heavens", "Spike Feeder", "Springleaf Drum", "Sundering Growth", "Sungrass Prairie", "Sunpetal Grove", "Swords to Plowshares", "Triumph of the Hordes", "Voice of Resurgence", "Voice of the Blessed", "Vorinclex, Voice of Hunger", "Walking Ballista"];
       const out = [];
       for (const n of singles) out.push(n);
       for (const n in counts) for (let i = 0; i < counts[n]; i++) out.push(n);
