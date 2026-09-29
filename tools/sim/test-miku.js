@@ -326,6 +326,14 @@ const named = (g, p, name) => g.battlefield.filter(o => o.controller === p && o.
     check("Ward counters Swords (no creature to sacrifice)", sw.zone === "graveyard" && vr.zone === "battlefield", { sw: sw.zone, vr: vr.zone });
     check("The spell below is still waiting for its own round", g.stack.length === 1 && g.stack[0].o === below, g.stack.map(it => it.name)); }
 
+  // auto-pay keeps the scarce color open: generic mana comes from the spare Forests, not the Plains
+  { const { g, a } = table(); const ls = ["Plains", "Plains", "Forest", "Forest", "Forest"].map(n => put(g, a, n)); await g.settle();
+    g.pay(a, MK.parseCost("{2}{G}"));
+    check("Paying {2}{G} with 2 Plains and 3 Forests leaves both Plains untapped", ls.filter(o => !o.tapped).every(o => o.def.name === "Plains") && ls.filter(o => !o.tapped).length === 2, ls.filter(o => !o.tapped).map(o => o.def.name)); }
+  { const { g, a } = table(); hand(g, a, "Swords to Plowshares"); const ls = ["Plains", "Forest", "Plains", "Forest"].map(n => put(g, a, n)); await g.settle();
+    g.pay(a, MK.parseCost("{2}{G}"));
+    check("With a white card in hand, {2}{G} leaves a Plains open", ls.filter(o => !o.tapped).map(o => o.def.name).join() === "Plains", ls.filter(o => !o.tapped).map(o => o.def.name)); }
+
   console.log(`${passed} checks passed, ${failed} failed.`);
   process.exitCode = failed ? 1 : 0;
 })().catch(e => { console.error(e); process.exitCode = 1; });

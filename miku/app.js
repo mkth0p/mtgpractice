@@ -11,7 +11,7 @@
   const GLOSSARY = window.MIKU_GLOSSARY || [];
   const CUTS = window.MIKU_CUTS || [];
   const FAQ = window.MIKU_FAQ || [];
-  const V = "8"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  const V = "9"; // asset version: keep in step with the ?v= links in index.html and sw.js
   const byName = new Map(CARDS.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -1315,7 +1315,7 @@
     const sorted = up.map(c => c.eur).sort((a, b) => a - b);
     const median = (sorted[10] + sorted[11]) / 2;
     const el = $("#priceStats");
-    el.innerHTML = `<div class="eq-card"><div class="eq-head"><b>The 22 upgrades by price</b><span class="muted mono small">~${Math.round(total)}€ in all</span></div><div class="typebars prices" id="priceBars"></div></div>
+    el.innerHTML = `<div class="eq-card"><div class="eq-head"><b>The 24 upgrades by price</b><span class="muted mono small">~${Math.round(total)}€ in all</span></div><div class="typebars prices" id="priceBars"></div></div>
       <div class="eq-card"><div class="eq-head"><b>Price bands</b><span class="muted mono small">median ${median.toFixed(2)}€</span></div>
         <div class="bands">${bands.map(([l, n, e]) => `<div class="band"><b>${n}</b><span>${l}</span><em class="mono">${Math.round(e)}€</em></div>`).join("")}</div>
         <p class="muted small">Two cards, Craterhoof Behemoth and Heliod, are ${Math.round((up[0].eur + up[1].eur) / total * 100)}% of the upgrade money. Half the upgrades cost less than ${median.toFixed(2)}€.</p></div>`;
@@ -1447,15 +1447,15 @@
     render();
     return { render, update, set(newItems, newTiers) { items = newItems; tiers = newTiers || {}; render(); } };
   }
-  const SWAP_ORDER = ["Overwhelming Stampede", "Beastmaster Ascension", "Intangible Virtue", "Mirror Entity", "Beast Within", "Adeline, Resplendent Cathar", "Spike Feeder", "Jazal Goldmane", "Elspeth, Sun's Champion", "Esika's Chariot", "Arcane Signet", "Elvish Mystic", "Crashing Drawbridge", "Return of the Wildspeaker", "Generous Gift", "Razorverge Thicket", "Heliod, Sun-Crowned", "Walking Ballista", "Cathars' Crusade", "Hero of Bladehold", "Triumph of the Hordes", "Craterhoof Behemoth"];
+  const SWAP_ORDER = ["Overwhelming Stampede", "Beastmaster Ascension", "Intangible Virtue", "Mirror Entity", "Beast Within", "Adeline, Resplendent Cathar", "Spike Feeder", "Jazal Goldmane", "Elspeth, Sun's Champion", "Esika's Chariot", "Arcane Signet", "Elvish Mystic", "Crashing Drawbridge", "Return of the Wildspeaker", "Generous Gift", "Razorverge Thicket", "Scattered Groves", "Brushland", "Heliod, Sun-Crowned", "Walking Ballista", "Cathars' Crusade", "Hero of Bladehold", "Triumph of the Hordes", "Craterhoof Behemoth"];
   function renderSwaps() {
     const items = [{ id: "miku:precon", name: "Secret Lair Commander Deck: Hatsune Miku", eur: 200, note: "Sealed. Sold for 199.90€ on eBay.de; check what you pay.", link: false }]
       .concat(SWAP_ORDER.map(n => { const c = byName.get(n); return { id: "miku:" + n, name: n, cut: c.cut, eur: c.eur }; }));
     const swapTotal = sum(items.slice(1), it => it.eur);
     checklist({
       body: $("#swapBody"), progress: $("#swapProgress"), items, budget: 300, budgetLabel: "300€ budget",
-      tiers: { 0: ["The deck", "~200€"], 1: ["Cheap core", "~25€"], 17: ["The infinite-damage combo", "~24€"], 19: ["Power", "~12€"], 21: ["Splurge", "~33€"] },
-      footer: () => `<div class="swap-total"><span>Deck + all 22 swaps</span><span class="mono">~${Math.round(200 + swapTotal)}€</span></div>`,
+      tiers: { 0: ["The deck", "~200€"], 1: ["Cheap core", "~28€"], 19: ["The infinite-damage combo", "~24€"], 21: ["Power", "~12€"], 23: ["Splurge", "~33€"] },
+      footer: () => `<div class="swap-total"><span>Deck + all 24 swaps</span><span class="mono">~${Math.round(200 + swapTotal)}€</span></div>`,
       done: "Deck bought and every upgrade in. Enjoy it."
     });
   }

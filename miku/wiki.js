@@ -88,7 +88,7 @@ window.MIKU_WIKI = {
    { q: "What happens with two Thunes, one of them a Bramble Sovereign copy?", a: "Each triggers separately, so every life gain event puts two counters on each creature. The copy is a token with the same abilities." }
   ],
   tips: [
-   "If Thune is about to die, respond with instant-speed lifegain like Spike Feeder or Sapseep Forest for one last counter wave.",
+   "If Thune is about to die, respond with instant-speed lifegain like Spike Feeder for one last counter wave.",
    "Finale of Devastation for X=5 can bring it back from your graveyard, not just your library."
   ],
   combos: ["Spike Feeder", "Trostani, Selesnya's Voice", "Soul Warden", "Bramble Sovereign", "Ghalta and Mavren"]
@@ -208,11 +208,23 @@ window.MIKU_WIKI = {
   when: "Turns 1-3",
   tags: ["fetch land", "deck thinning"],
   rulings: [
-   { q: "Can it find Canopy Vista or Sapseep Forest?", a: "No. It only finds a basic Forest, Plains or Island card." },
+   { q: "Can it find Canopy Vista or Scattered Groves?", a: "No. It only finds a basic Forest, Plains or Island card." },
    { q: "Can I tap it for mana first?", a: "No. It has no mana ability of its own. It only turns into a basic land." }
   ],
   tips: [
    "The basic arrives tapped, so play it on turn 1 or on a turn you have mana to spare."
+  ]
+ },
+ "Brushland": {
+  rating: 2,
+  when: "Any turn",
+  tags: ["painland", "dual", "untapped"],
+  rulings: [
+   { q: "Does the colorless mana hurt?", a: "No. Only {G} or {W} deals 1 damage to you." },
+   { q: "Is the damage life lost?", a: "It's damage from the land. It lowers your life like any damage, and it doesn't count as paying life." }
+  ],
+  tips: [
+   "Tap it for {C} when a cost has a generic part. The Play tab does this for you."
   ]
  },
  "Camaraderie": {
@@ -665,13 +677,13 @@ window.MIKU_WIKI = {
   when: "Turn 1 or 2, cracked by turn 3",
   tags: ["enters tapped", "fetch land", "deck thinning"],
   rulings: [
-   { q: "Can it get two Plains?", a: "No. It finds one Forest card and one Plains card. <i-c>Canopy Vista</i-c> can fill either slot, and <i-c>Sapseep Forest</i-c> can be the Forest." },
+   { q: "Can it get two Plains?", a: "No. It finds one Forest card and one Plains card. <i-c>Canopy Vista</i-c> and <i-c>Scattered Groves</i-c> can each fill either slot." },
    { q: "Can I tap it for mana and then sacrifice it?", a: "No. The sacrifice ability also needs {T}, so the {2} has to come from other lands." }
   ],
   tips: [
    "Crack it at the end of an opponent's turn: the two lands enter tapped anyway and untap on your turn."
   ],
-  combos: ["Canopy Vista", "Sapseep Forest"]
+  combos: ["Canopy Vista", "Scattered Groves"]
  },
  "Lathiel, the Bounteous Dawn": {
   rating: 3,
@@ -724,25 +736,25 @@ window.MIKU_WIKI = {
    { q: "Do repeated activations add up?", a: "No. Each one sets base power and toughness, and the latest one wins. X=3 then X=5 gives 5/5, not 8/8." },
    { q: "Does it shrink big creatures?", a: "Yes. It replaces <i-c>Soul of Eternity</i-c>'s life-total size, <i-c>Adeline, Resplendent Cathar</i-c>'s power and the Voice of Resurgence Elemental's size. Counters and pumps still add on top." },
    { q: "Does it affect creatures that enter after I activate it?", a: "No, only creatures you control when the ability resolves." },
-   { q: "Is Mirror Entity an Angel?", a: "Yes. Changeling makes it every creature type, so <i-c>Seraph Sanctuary</i-c> triggers when it enters. It's also a Human, so <i-c>Return of the Wildspeaker</i-c> never counts it." }
+   { q: "Is Mirror Entity an Angel?", a: "Yes. Changeling makes it every creature type. It's also a Human, so <i-c>Return of the Wildspeaker</i-c> never counts it." }
   ],
   tips: [
    "With Triumph of the Hordes, X=9 plus Triumph's +1/+1 is 10 poison from every unblocked creature."
   ],
-  combos: ["Triumph of the Hordes", "Fanatic of Rhonas", "Vorinclex, Voice of Hunger", "Seraph Sanctuary"]
+  combos: ["Triumph of the Hordes", "Fanatic of Rhonas", "Vorinclex, Voice of Hunger"]
  },
  "Nature's Lore": {
   rating: 3,
   when: "Turn 2",
   tags: ["untapped ramp", "fixing"],
   rulings: [
-   { q: "Does the land always enter untapped?", a: "Nature's Lore doesn't tap it, but the land's own rules still apply: <i-c>Sapseep Forest</i-c> enters tapped, and <i-c>Canopy Vista</i-c> enters tapped unless you control two or more basic lands." },
-   { q: "Can it find a Plains?", a: "Only a card with the Forest type: a basic Forest, Canopy Vista or Sapseep Forest." }
+   { q: "Does the land always enter untapped?", a: "Nature's Lore doesn't tap it, but the land's own rules still apply: <i-c>Scattered Groves</i-c> enters tapped, and <i-c>Canopy Vista</i-c> enters tapped unless you control two or more basic lands." },
+   { q: "Can it find a Plains?", a: "Only a card with the Forest type: a basic Forest, Canopy Vista or Scattered Groves. Both of those are Plains too." }
   ],
   tips: [
    "On turn 2, fetch a basic Forest and spend it right away on Sol Ring, Springleaf Drum or a green mana creature."
   ],
-  combos: ["Canopy Vista", "Sapseep Forest"]
+  combos: ["Canopy Vista", "Scattered Groves"]
  },
  "Nykthos Paragon": {
   rating: 4,
@@ -814,17 +826,6 @@ window.MIKU_WIKI = {
   ],
   combos: ["Archangel of Thune", "Esika's Chariot"]
  },
- "Radiant Fountain": {
-  rating: 1,
-  when: "Any turn",
-  tags: ["colorless", "untapped"],
-  rulings: [
-   { q: "Does it enter tapped?", a: "No. It enters untapped and gains you 2 life, but it only makes colorless mana." }
-  ],
-  tips: [
-   "Play it on a turn you're already gaining life, to help Resplendent Angel reach 5."
-  ]
- },
  "Razorverge Thicket": {
   rating: 2,
   when: "Turns 1-3",
@@ -846,10 +847,9 @@ window.MIKU_WIKI = {
    { q: "Does it work on opponents' turns?", a: "Yes, at every end step. <i-c>Soul Warden</i-c> seeing their creatures, or your own instant-speed plays, can get you to 5." }
   ],
   tips: [
-   "Its six-mana pump adds lifelink: a 5/5 lifelinker that connects makes the Angel by itself.",
-   "Each 4/4 Angel it makes is 4 life from Trostani and 1 from Seraph Sanctuary."
+   "Its six-mana pump adds lifelink: a 5/5 lifelinker that connects makes the Angel by itself.", 
   ],
-  combos: ["Trostani, Selesnya's Voice", "Seraph Sanctuary", "Soul Warden", "Spike Feeder"]
+  combos: ["Trostani, Selesnya's Voice", "Soul Warden", "Spike Feeder"]
  },
  "Restless Prairie": {
   rating: 2,
@@ -907,18 +907,18 @@ window.MIKU_WIKI = {
   ],
   combos: ["Hour of Reckoning", "Elspeth, Sun's Champion", "Voice of Resurgence"]
  },
- "Sapseep Forest": {
-  rating: 1,
-  when: "Turns 1-2",
-  tags: ["enters tapped", "forest type"],
+ "Scattered Groves": {
+  rating: 2,
+  when: "Turns 1-2, or cycle it late",
+  tags: ["enters tapped", "forest type", "plains type", "cycling"],
   rulings: [
-   { q: "Do Forests count as green permanents?", a: "No. Lands are colorless. You need two green permanents such as Trostani, a mana Elf, or green tokens like Citizens and Cats." },
-   { q: "When can I use the lifegain?", a: "Not the turn it enters, since it's tapped. Later it needs {G} from another land, because Sapseep taps itself for the ability." }
+   { q: "What can fetch it?", a: "Anything that finds a Forest card or a Plains card: <i-c>Nature's Lore</i-c>, <i-c>Farseek</i-c> and <i-c>Krosan Verge</i-c>. Not <i-c>Cultivate</i-c> or <i-c>Brokers Hideout</i-c>, which need a basic." },
+   { q: "Does it count for Canopy Vista?", a: "No. Vista counts basic lands, and Groves isn't basic even with the Forest and Plains types." }
   ],
   tips: [
-   "Keep {G} and Sapseep up on opponents' turns: 1 life at instant speed is enough to use Nykthos Paragon or reach Resplendent Angel's 5."
+   "Fetch it with Farseek on turn 2 when your hand has {W}{W} cards: it's a Plains and a Forest at once."
   ],
-  combos: ["Nykthos Paragon", "Archangel of Thune"]
+  combos: ["Farseek", "Nature's Lore", "Sunpetal Grove"]
  },
  "Selesnya Sanctuary": {
   rating: 2,
@@ -946,18 +946,6 @@ window.MIKU_WIKI = {
    "Feed it Sol Ring's colorless mana: the pair covers the colored costs that Sol Ring alone can't."
   ],
   combos: ["Sol Ring"]
- },
- "Seraph Sanctuary": {
-  rating: 1,
-  when: "Any turn",
-  tags: ["colorless", "angels"],
-  rulings: [
-   { q: "Which of my creatures are Angels?", a: "<i-c>Archangel of Thune</i-c>, <i-c>Resplendent Angel</i-c> and its tokens, <i-c>Shalai, Voice of Plenty</i-c>, the tokens from <i-c>Speaker of the Heavens</i-c>, and <i-c>Mirror Entity</i-c> through changeling." }
-  ],
-  tips: [
-   "Each Angel is a separate 1-life event: with Archangel of Thune out, every Angel you make is an extra counter on your team."
-  ],
-  combos: ["Resplendent Angel", "Speaker of the Heavens", "Mirror Entity"]
  },
  "Shalai, Voice of Plenty": {
   rating: 4,
@@ -1068,7 +1056,7 @@ window.MIKU_WIKI = {
   tips: [
    "Heliod's and Cleric Class's counters make its lifelink hits bigger, and it keeps its vigilance."
   ],
-  combos: ["Seraph Sanctuary", "Trostani, Selesnya's Voice"]
+  combos: ["Trostani, Selesnya's Voice"]
  },
  "Spike Feeder": {
   rating: 3,
@@ -1128,12 +1116,12 @@ window.MIKU_WIKI = {
   when: "Turns 2+",
   tags: ["checkland", "dual"],
   rulings: [
-   { q: "Do Canopy Vista and Sapseep Forest turn it on?", a: "Yes. It checks for any land with the Forest or Plains type, not just basics." }
+   { q: "Do Canopy Vista and Scattered Groves turn it on?", a: "Yes. It checks for any land with the Forest or Plains type, not just basics." }
   ],
   tips: [
    "Don't lead with it on turn 1: with no other land out, it enters tapped."
   ],
-  combos: ["Canopy Vista", "Sapseep Forest"]
+  combos: ["Canopy Vista", "Scattered Groves"]
  },
  "Swords to Plowshares": {
   rating: 4,
@@ -1225,7 +1213,7 @@ window.MIKU_WIKI = {
   when: "Any turn",
   tags: ["basic", "miku art"],
   rulings: [
-   { q: "Why can I play seven Plains in a singleton deck?", a: "Basic lands are exempt from Commander's one-copy rule." },
+   { q: "Why can I play nine Plains in a singleton deck?", a: "Basic lands are exempt from Commander's one-copy rule." },
    { q: "What can fetch it?", a: "<i-c>Cultivate</i-c>, <i-c>Brokers Hideout</i-c>, <i-c>Farseek</i-c> and <i-c>Krosan Verge</i-c>." }
   ],
   tips: [
@@ -1237,8 +1225,7 @@ window.MIKU_WIKI = {
   when: "Any turn",
   tags: ["basic", "miku art"],
   rulings: [
-   { q: "What can fetch it?", a: "<i-c>Nature's Lore</i-c>, <i-c>Cultivate</i-c>, <i-c>Brokers Hideout</i-c> and <i-c>Krosan Verge</i-c>." },
-   { q: "Does a Forest count as a green permanent for Sapseep Forest?", a: "No. Lands are colorless, even the ones that make green mana." }
+   { q: "What can fetch it?", a: "<i-c>Nature's Lore</i-c>, <i-c>Cultivate</i-c>, <i-c>Brokers Hideout</i-c> and <i-c>Krosan Verge</i-c>." }
   ],
   tips: [
    "Count your {G} sources before keeping a hand: Craterhoof Behemoth needs {G}{G}{G}."
@@ -1265,7 +1252,7 @@ window.MIKU_GLOSSARY = [
  { term: "First strike", html: "The creature deals combat damage in an earlier, separate step. If it kills the creature it's fighting there, it takes no damage back.", cards: ["Jazal Goldmane"] },
  { term: "Haste", html: "The creature can attack and use {T} abilities the turn it comes under your control.", cards: ["Craterhoof Behemoth", "Crashing Drawbridge", "Finale of Devastation", "Soul of Eternity"] },
  { term: "Defender", html: "The creature can't attack. It can still block and use its abilities.", cards: ["Crashing Drawbridge"] },
- { term: "Changeling", html: "The card is every creature type, in every zone. <i-c>Mirror Entity</i-c> counts as an Angel for <i-c>Seraph Sanctuary</i-c> and as a Human for <i-c>Return of the Wildspeaker</i-c>.", cards: ["Mirror Entity"] },
+ { term: "Changeling", html: "The card is every creature type, in every zone. <i-c>Mirror Entity</i-c> counts as an Angel and as a Human, so <i-c>Return of the Wildspeaker</i-c> never counts it.", cards: ["Mirror Entity"] },
  { term: "Crew and Vehicles", html: "A Vehicle is an artifact that becomes an artifact creature until end of turn when you crew it: tap any untapped creatures you control with total power equal to or greater than the crew number. Summoning-sick creatures can crew, but the Vehicle still can't attack the turn it came under your control without haste.", cards: ["Esika's Chariot"] },
  { term: "Rooms", html: "A Room is one enchantment card with two doors. You cast one door, and it enters unlocked. Later, as a sorcery, you can pay the other door's mana cost to unlock it. Unlocking isn't casting a spell.", cards: ["Dazzling Theater // Prop Room"] },
  { term: "Classes", html: "A Class enchantment enters at level 1. Pay the next level's cost as a sorcery to gain that level's ability, one level at a time. Leveling up is an activated ability, not a spell.", cards: ["Cleric Class"] },
@@ -1277,7 +1264,7 @@ window.MIKU_GLOSSARY = [
  { term: "Emblems", html: "An emblem sits in the command zone for the rest of the game. It can't be destroyed or removed.", cards: ["Elspeth, Sun's Champion"] },
  { term: "The legend rule", html: "If you control two or more legendary permanents with the same name, you choose one to keep and put the rest into their owners' graveyards. That's why copying a legendary creature with <i-c>Bramble Sovereign</i-c> is a waste.", cards: ["Trostani, Selesnya's Voice", "Adeline, Resplendent Cathar", "Shalai, Voice of Plenty", "Jazal Goldmane", "Lathiel, the Bounteous Dawn", "Ghalta and Mavren", "Vorinclex, Voice of Hunger", "Heliod, Sun-Crowned", "Esika's Chariot", "Elspeth, Sun's Champion"] },
  { term: "The stack and triggered abilities", html: "Spells and abilities wait on the stack, and the last one added resolves first. When several of your abilities trigger at once, you choose their order: the one you put on last resolves first. Players can respond before each one resolves.", cards: ["Hero of Bladehold", "Adeline, Resplendent Cathar", "Ghalta and Mavren", "Blossoming Bogbeast", "Bramble Sovereign"] },
- { term: "Enters triggers", html: "Abilities like Trostani's trigger for anything that enters the battlefield, cast or not: tokens, populate copies, myriad copies, and creatures put onto the battlefield by <i-c>Finale of Devastation</i-c>. A permanent that becomes a creature, like an animated <i-c>Restless Prairie</i-c>, doesn't enter.", cards: ["Trostani, Selesnya's Voice", "Soul Warden", "Prosperous Innkeeper", "Cathars' Crusade", "Craterhoof Behemoth", "Seraph Sanctuary", "Bramble Sovereign"] },
+ { term: "Enters triggers", html: "Abilities like Trostani's trigger for anything that enters the battlefield, cast or not: tokens, populate copies, myriad copies, and creatures put onto the battlefield by <i-c>Finale of Devastation</i-c>. A permanent that becomes a creature, like an animated <i-c>Restless Prairie</i-c>, doesn't enter.", cards: ["Trostani, Selesnya's Voice", "Soul Warden", "Prosperous Innkeeper", "Cathars' Crusade", "Craterhoof Behemoth", "Bramble Sovereign"] },
  { term: "Commander tax", html: "Each time you cast your commander from the command zone, it costs {2} more for each previous time you cast it from there this game. The tax is generic mana, so any mana, or convoke from Dazzling Theater, can pay it.", cards: ["Trostani, Selesnya's Voice"] },
  { term: "Command zone", html: "Your commander starts the game here, and you can cast it from here. If it goes to your graveyard or into exile, you may move it here right after. If it would go to your hand or library, you may put it here instead. Emblems live here too.", cards: ["Trostani, Selesnya's Voice", "Elspeth, Sun's Champion"] },
  { term: "Commander damage (21)", html: "A player who has been dealt 21 or more combat damage by the same commander over the course of the game loses. <i-c>Trostani, Selesnya's Voice</i-c> is a 2/5 engine, so this rarely matters for you.", cards: ["Trostani, Selesnya's Voice"] },
@@ -1309,6 +1296,9 @@ window.MIKU_CUTS = [
  { name: "Silverquill Lecturer", why: "A creature with little impact in this deck. Crashing Drawbridge gives the whole team haste for two mana." },
  { name: "Angel of Indemnity", why: "A seven-drop the deck didn't need. Return of the Wildspeaker costs five and is either a big draw or a team pump, at instant speed." },
  { name: "Rhys the Redeemed", why: "Its token doubling needs six mana and a tap, so it's slow. Generous Gift answers any permanent for three." },
+ { name: "Radiant Fountain", why: "A colorless land in a deck that is short on white. Brushland makes either color and enters untapped too." },
+ { name: "Sapseep Forest", why: "It only makes green and always enters tapped. Scattered Groves also enters tapped but makes white, and Farseek can fetch it." },
+ { name: "Seraph Sanctuary", why: "Colorless, for a few points of life. A Plains helps cast the fifteen {W}{W} cards. One Forest also became a Plains: nine Plains and six Forests." },
  { name: "Temple of Plenty", why: "It always enters tapped. Razorverge Thicket enters untapped in your first three turns, when tempo matters most." },
  { name: "Pest Infestation", why: "A flexible X spell, but a slow one. Heliod is a lifegain engine by itself and an infinite combo with Walking Ballista or Spike Feeder." },
  { name: "Phyrexian Processor", why: "Eight mana and a chunk of life before the first token. Walking Ballista is flexible removal and half of the Heliod combo." },
@@ -1327,7 +1317,7 @@ window.MIKU_FAQ = [
  { q: "What does 'populate' copy?", a: "One creature token you control, your choice. The copy has the original's printed stats and abilities but not its counters or pumps, and it enters untapped and not attacking. It counts as a creature entering, so <i-c>Trostani, Selesnya's Voice</i-c> triggers again." },
  { q: "How fast does the deck win?", a: "In a 5,000-game goldfish test with no opposing interaction, the median kill turn was 9, and 55% of games were won by turn 9. Real games with blockers and removal are slower, so treat that as a ceiling." },
  { q: "What wins most games?", a: "Plain combat. In the speed test, about two thirds of the wins were combat damage, and most of the rest came from <i-c>Overwhelming Stampede</i-c>, <i-c>Triumph of the Hordes</i-c>, <i-c>Craterhoof Behemoth</i-c> or <i-c>Return of the Wildspeaker</i-c>. The combos added only a few points." },
- { q: "How much does the deck cost?", a: "About 295€ in total: about 200€ for the sealed deck and about 95€ for the 22 upgrades. Singles prices are estimates from MTGGoldfish USD x 0.85, so check Cardmarket before buying." },
+ { q: "How much does the deck cost?", a: "About 297€ in total: about 200€ for the sealed deck and about 97€ for the 24 upgrades. Singles prices are estimates from MTGGoldfish USD x 0.85, so check Cardmarket before buying." },
  { q: "Can I play the Miku-named cards?", a: "Yes. Names like 'Miku, Song of the People' are flavor names. The card is still <i-c>Trostani, Selesnya's Voice</i-c> for every rule, and it plays alongside normal printings of everything else." },
  { q: "Does 'whenever you gain life' care how much I gain?", a: "No, only how many times. Each life gain event is one trigger for <i-c>Archangel of Thune</i-c>, <i-c>Heliod, Sun-Crowned</i-c> and <i-c>Ajani's Pridemate</i-c>, so ten 1-life triggers beat one 10-life gain. <i-c>Nykthos Paragon</i-c> is the exception: it wants one big gain." },
  { q: "Which cards should I protect first?", a: "<i-c>Archangel of Thune</i-c>, <i-c>Cathars' Crusade</i-c> and <i-c>Heliod, Sun-Crowned</i-c> turn lifegain into a bigger board. Trostani matters most, because every recast costs {2} more. <i-c>Shalai, Voice of Plenty</i-c> covers your other creatures against targeted removal." },

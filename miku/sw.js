@@ -1,7 +1,7 @@
 /* Offline support for the Miku deck wiki: the page works at a game store with no signal.
    Site files: network first, cache as fallback. Fonts and card images: cache first. */
-const VERSION = "miku-v8";
-const V = "?v=8";
+const VERSION = "miku-v9";
+const V = "?v=9";
 const GAME = ["engine.js", "cards-miku.js", "decks-edgar.js", "decks-ghalta.js", "decks-krenko.js", "decks-talrand.js", "decks-urdragon.js", "precon-ghired.js", "precon-isperia.js", "precon-kaalia.js", "precon-lathril.js", "precon-wilhelt.js", "ai.js", "game-ui.js", "game.css"].map(f => "./game/" + f + V);
 const CORE = ["./", "./index.html", "./icon.svg", "./manifest.webmanifest"]
   .concat(["styles.css", "kit.js", "cards.js", "azusa.js", "wiki.js", "guide.js", "app.js"].map(f => "./" + f + V), GAME);

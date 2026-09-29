@@ -333,6 +333,25 @@ window.MIKU_CARDS = [
   "syn": []
  },
  {
+  "name": "Brushland",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "pt": "",
+  "text": "{T}: Add {C}.\n{T}: Add {G} or {W}. Brushland deals 1 damage to you.",
+  "roles": [
+   "land"
+  ],
+  "new": true,
+  "cut": "Radiant Fountain",
+  "eur": 3.0,
+  "why": "An untapped dual land. It makes {G} or {W} for 1 damage, or {C} for free. The deck has more white pips than green but had fewer white sources; this is one more.",
+  "how": "Play it the turn you need white right away. Tap it for {C} when a cost has a generic part and keep the damage for colored pips. Trostani pays the life back many times over.",
+  "syn": []
+ },
+ {
   "name": "Camaraderie",
   "qty": 1,
   "cost": "{4}{G}{W}",
@@ -1038,7 +1057,7 @@ window.MIKU_CARDS = [
    "ramp"
   ],
   "why": "Pay 2 and sacrifice it to fetch a Forest card and a Plains card. It's ramp in land form.",
-  "how": "Crack it early. It can fetch Canopy Vista and Sapseep Forest.",
+  "how": "Crack it early. It can fetch Canopy Vista and Scattered Groves.",
   "syn": [
    "Canopy Vista"
   ]
@@ -1141,7 +1160,7 @@ window.MIKU_CARDS = [
   "roles": [
    "ramp"
   ],
-  "why": "Two mana: put a Forest card from your library onto the battlefield. A basic Forest enters untapped. Canopy Vista and Sapseep Forest are Forests too, but Sapseep always enters tapped and Vista does unless you control two or more basic lands.",
+  "why": "Two mana: put a Forest card from your library onto the battlefield. A basic Forest enters untapped. Canopy Vista and Scattered Groves are Forests too, but Groves always enters tapped and Vista does unless you control two or more basic lands.",
   "how": "Cast it on turn 2 and fetch a basic Forest: it enters untapped, so you have one more mana that turn for a one-drop like Llanowar Elves or Soul Warden.",
   "syn": [
    "Canopy Vista",
@@ -1251,23 +1270,6 @@ window.MIKU_CARDS = [
   ]
  },
  {
-  "name": "Radiant Fountain",
-  "qty": 1,
-  "cost": "",
-  "mv": 0,
-  "type": "Land",
-  "cat": "Land",
-  "pt": "",
-  "text": "When Radiant Fountain enters, you gain 2 life.\n{T}: Add {C}.",
-  "roles": [
-   "land",
-   "gain"
-  ],
-  "why": "Colorless land that gains 2 life.",
-  "how": "A small lifegain trigger.",
-  "syn": []
- },
- {
   "name": "Razorverge Thicket",
   "qty": 1,
   "cost": "",
@@ -1303,7 +1305,6 @@ window.MIKU_CARDS = [
   "how": "Get to 5 life gained before the end step begins, on your turn and on opponents' turns too. The Angel checks at the start of the end step, so a Trostani populate during an opponent's combat or second main phase counts, but one during their end step is too late. Late game, {3}{W}{W}{W} makes it a 5/5 lifelinker.",
   "syn": [
    "Trostani, Selesnya's Voice",
-   "Seraph Sanctuary",
    "Grand Crescendo",
    "Soul Warden"
   ]
@@ -1394,22 +1395,27 @@ window.MIKU_CARDS = [
   ]
  },
  {
-  "name": "Sapseep Forest",
+  "name": "Scattered Groves",
   "qty": 1,
   "cost": "",
   "mv": 0,
-  "type": "Land — Forest",
+  "type": "Land — Forest Plains",
   "cat": "Land",
   "pt": "",
-  "text": "({T}: Add {G}.)\nSapseep Forest enters tapped.\n{G}, {T}: You gain 1 life. Activate only if you control two or more green permanents.",
+  "text": "({T}: Add {G} or {W}.)\nScattered Groves enters tapped.\nCycling {2} ({2}, Discard this card: Draw a card.)",
   "roles": [
-   "land",
-   "gain"
+   "land"
   ],
-  "why": "A Forest that enters tapped; later {G}, tap gains 1 life.",
-  "how": "Late game, it's a lifegain trigger on demand for Thune or Heliod.",
+  "new": true,
+  "cut": "Sapseep Forest",
+  "eur": 0.25,
+  "why": "A dual land with both basic land types, so Farseek, Nature's Lore and Krosan Verge can all fetch it, and it turns on Sunpetal Grove and Canopy Vista. Late in the game, cycle it for a card.",
+  "how": "Play it on a turn you don't need all your mana. Fetch it with Farseek or Nature's Lore when you need white. When you're flooded, cycle it for {2}.",
   "syn": [
-   "Archangel of Thune"
+   "Farseek",
+   "Nature's Lore",
+   "Krosan Verge",
+   "Sunpetal Grove"
   ]
  },
  {
@@ -1449,26 +1455,6 @@ window.MIKU_CARDS = [
   "syn": [
    "Sol Ring",
    "Arcane Signet"
-  ]
- },
- {
-  "name": "Seraph Sanctuary",
-  "qty": 1,
-  "cost": "",
-  "mv": 0,
-  "type": "Land",
-  "cat": "Land",
-  "pt": "",
-  "text": "When Seraph Sanctuary enters, you gain 1 life.\nWhenever an Angel you control enters, you gain 1 life.\n{T}: Add {C}.",
-  "roles": [
-   "land",
-   "gain"
-  ],
-  "why": "Gains 1 life when it enters and 1 more whenever an Angel you control enters.",
-  "how": "Angels: Archangel of Thune, Resplendent Angel, Shalai, Speaker tokens, Resplendent tokens.",
-  "syn": [
-   "Resplendent Angel",
-   "Speaker of the Heavens"
   ]
  },
  {
@@ -1638,10 +1624,9 @@ window.MIKU_CARDS = [
    "tokens"
   ],
   "why": "Once you are at 47 life or more (7 above the Commander starting 40), tap it to make a 4/4 flying Angel each turn.",
-  "how": "Easy to turn on in this deck by the midgame. The Angels are good populate targets and trigger Seraph Sanctuary. The tap ability is sorcery-speed only.",
+  "how": "Easy to turn on in this deck by the midgame. The Angels are good populate targets. The tap ability is sorcery-speed only.",
   "syn": [
    "Trostani, Selesnya's Voice",
-   "Seraph Sanctuary",
    "Spike Feeder"
   ]
  },
@@ -1883,7 +1868,7 @@ window.MIKU_CARDS = [
  },
  {
   "name": "Plains",
-  "qty": 7,
+  "qty": 9,
   "cost": "",
   "mv": 0,
   "type": "Basic Land — Plains",
@@ -1893,13 +1878,14 @@ window.MIKU_CARDS = [
   "roles": [
    "land"
   ],
-  "why": "Seven Miku-art basic Plains.",
+  "why": "Seven Miku-art basic Plains plus two regular ones. The extra two replaced Seraph Sanctuary and a Forest: the deck asks for more white than green (47 white pips, 15 cards with {W}{W}), so it needs more white sources.",
   "how": "",
-  "syn": []
+  "syn": [],
+  "cut": "Seraph Sanctuary"
  },
  {
   "name": "Forest",
-  "qty": 7,
+  "qty": 6,
   "cost": "",
   "mv": 0,
   "type": "Basic Land — Forest",
@@ -1909,7 +1895,7 @@ window.MIKU_CARDS = [
   "roles": [
    "land"
   ],
-  "why": "Seven Miku-art basic Forests.",
+  "why": "Six Miku-art basic Forests. The seventh became a Plains for more white sources.",
   "how": "",
   "syn": []
  }
