@@ -1,0 +1,1275 @@
+/* Miku Commander: the table on the Play tab. It draws the game, runs the human seat (every
+   engine question becomes a tap), paces the bots so their turns can be followed, and keeps a
+   small record of your games. Needs engine.js, the card files, ai.js and ../kit.js. */
+(function (root) {
+  "use strict";
+  const MK = root.MK, K = root.MikuKit;
+  const esc = K.esc, mana = K.mana;
+
+  const SETTINGS_KEY = "mikuWiki.game.settings.v1";
+  const STATS_KEY = "mikuWiki.game.stats.v1";
+  const DEFAULTS = { opponents: 3, level: "sharp", speed: "normal", askTriggers: false, stopOnSpells: false, picks: [] };
+  const SPEED = {
+    slow: { think: 650, cast: 1500, attack: 950, damage: 850, banner: 1300, block: 700 },
+    normal: { think: 360, cast: 950, attack: 620, damage: 560, banner: 1050, block: 420 },
+    fast: { think: 110, cast: 460, attack: 300, damage: 280, banner: 650, block: 160 }
+  };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const reduced = () => root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const settings = () => Object.assign({}, DEFAULTS, K.store.json(SETTINGS_KEY, {}));
+  const saveSettings = s => K.store.put(SETTINGS_KEY, s);
+  const PLAYER_COLORS = ["#39c5bb", "#ff3d8b", "#ffd166", "#8fb8ff", "#b58cff", "#7ee0a1"];
+  const COLOR_BG = { W: "#7d6f45", U: "#2d5a80", B: "#3e3542", R: "#86382a", G: "#2c6a3d", C: "#50575e" };
+  const KW_ICON = { flying: "✈", trample: "⇶", lifelink: "♥", deathtouch: "☠", "first strike": "⚔", "double strike": "⚔", vigilance: "◎", hexproof: "◇", indestructible: "⛨", haste: "»", menace: "⩚", infect: "☣", reach: "↟", defender: "▣" };
+
+  /* ------------------------------------------------------------ card data for the screen */
+  const MIKU = new Map((root.MIKU_CARDS || []).map(c => [c.name, c]));
+  function textOf(def) {
+    const m = MIKU.get(def.name);
+    if (m && !def.token) return m.text || "";
+    if (def.text) return def.text;
+    const bits = [];
+    if (def.keywords && def.keywords.length) bits.push(def.keywords.map(k => k[0].toUpperCase() + k.slice(1)).join(", "));
+    for (const ab of def.abilities || []) bits.push((ab.cost ? ab.cost + (ab.tap ? ", {T}" : "") : ab.tap ? "{T}" : "") + ": " + (ab.label || "Ability"));
+    for (const m2 of def.mana || []) bits.push("{T}: Add mana.");
+    return bits.join("\n");
+  }
+  function colorKey(def) {
+    const c = def.colors || [];
+    if (!c.length) return def.types && def.types.includes("Land") ? "C" : "C";
+    return c.length > 1 ? "M" : c[0];
+  }
+  function bgFor(def) {
+    const c = def.colors || [];
+    if (c.length > 1) return `linear-gradient(135deg, ${COLOR_BG[c[0]]}, ${COLOR_BG[c[1]] || COLOR_BG.C})`;
+    return COLOR_BG[c[0]] || COLOR_BG.C;
+  }
+  function artFor(def, kind) {
+    if (def.token) return null;
+    const a = K.art(def.name);
+    return a ? a[kind || "crop"] : null;
+  }
+  function artStyle(def) {
+    const u = artFor(def, "crop");
+    return u ? `background-image:url('${u.replace(/'/g, "%27")}')` : `--c-bg:${bgFor(def)};background:${bgFor(def)}`;
+  }
+  const shortName = n => n.split(" // ")[0].replace(/,.*$/, "");
+  /* The cost shown on a cast button: X first, then the rest ({X}{X} for Walking Ballista). */
+  function wayCost(w) {
+    const base = MK.costString(w.cost, null);
+    return (w.xCount ? "{X}".repeat(w.xCount) : "") + (w.xCount && base === "{0}" ? "" : base);
+  }
+  function ptOf(g, o) {
+    if (!g.isCreature(o)) return null;
+    return [g.power(o), g.toughness(o)];
+  }
+
+  /* The human seat is called "You", and the engine writes "You casts". Fix the verb. */
+  function youText(t) {
+    t = String(t);
+    if (!/\bYou\b/.test(t)) return t;
+    t = t.replace(/\bYou's\b/g, "Your");
+    t = t.replace(/(^|[.!?:]\s+)You (has|is|was|\w+?)(?=[\s.,!:;)]|$)/g, (m, pre, v) => {
+      let w = v;
+      if (v === "has") w = "have"; else if (v === "is") w = "are"; else if (v === "was") w = "were";
+      else if (/ies$/.test(v)) w = v.slice(0, -3) + "y";
+      else if (/(ch|sh|ss|x|z)es$/.test(v)) w = v.slice(0, -2);
+      else if (/[^s]s$/.test(v)) w = v.slice(0, -1);
+      return pre + "You " + w;
+    });
+    if (/^You /.test(t)) t = t.replace(/ and is /, " and are ").replace(/ and finds /, " and find ").replace(/ and gets /, " and get ");
+    t = t.replace(/([^.!?:]\s)You\b/g, "$1you");
+    return t;
+  }
+
+  /* ------------------------------------------------------------ the record of your games */
+  function loadStats() { return K.store.json(STATS_KEY, { games: 0, wins: 0, losses: 0, draws: 0, best: null, most: 0, life: 0, decks: {}, recent: [] }); }
+  function saveStats(s) { K.store.put(STATS_KEY, s); }
+
+  /* ================================================================ the table */
+  class Table {
+    constructor(opts) {
+      this.opts = opts;
+      this.s = settings();
+      this.sp = SPEED[this.s.speed] || SPEED.normal;
+      this.mode = "wait";
+      this.resolver = null;
+      this.focusId = null;
+      this.atk = new Map();          // attacker id -> target (player or planeswalker)
+      this.blk = new Map();          // blocker id -> attacker
+      this.sel = null;               // selected incoming attacker when blocking
+      this.floats = 0;
+      this.ticker = "";
+      this.elMap = new Map();
+      this.build();
+    }
+
+    /* -------------------------------------------------------- DOM skeleton */
+    build() {
+      const el = this.el = document.createElement("div");
+      el.className = "mg";
+      el.setAttribute("role", "application");
+      el.setAttribute("aria-label", "Commander game");
+      el.innerHTML = `
+        <header class="mg-top">
+          <button class="mg-icon" data-act="menu" aria-label="Game menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+          <div class="mg-phase" aria-live="polite"></div>
+          <button class="mg-icon" data-act="log" aria-label="Game log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></button>
+        </header>
+        <div class="mg-seats"></div>
+        <section class="mg-board opp" aria-label="Opponent's board"></section>
+        <div class="mg-mid"></div>
+        <section class="mg-board me" aria-label="Your board">
+          <div class="mg-row cre" data-empty="Your creatures appear here"></div>
+          <div class="mg-row small oth"></div>
+        </section>
+        <div class="mg-mybar"></div>
+        <div class="mg-hand"><div class="fan"></div></div>
+        <div class="mg-actions"></div>
+        <div class="mg-scrim"></div>
+        <div class="mg-sheet" role="dialog" aria-modal="true"><div class="grab"></div><div class="hd"></div><div class="bd"></div><div class="ft"></div></div>
+        <aside class="mg-log" aria-label="Game log"><div class="hd"><h3>Game log</h3><button class="mg-icon" data-act="log" aria-label="Close log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><ol></ol></aside>
+        <div class="mg-menu" role="menu"></div>
+        <div class="mg-fx" aria-hidden="true"></div>`;
+      const $ = s => el.querySelector(s);
+      this.$ = { phase: $(".mg-phase"), seats: $(".mg-seats"), opp: $(".mg-board.opp"), mid: $(".mg-mid"), meCre: $(".mg-board.me .cre"), meOth: $(".mg-board.me .oth"), mybar: $(".mg-mybar"), hand: $(".mg-hand"), fan: $(".mg-hand .fan"), actions: $(".mg-actions"), scrim: $(".mg-scrim"), sheet: $(".mg-sheet"), log: $(".mg-log"), logList: $(".mg-log ol"), menu: $(".mg-menu"), fx: $(".mg-fx") };
+      el.addEventListener("click", e => this.onClick(e));
+      this.$.scrim.addEventListener("click", () => this.scrimTap());
+      this.bindSheetSwipe();
+      document.body.appendChild(el);
+      document.documentElement.classList.add("mg-open");
+      this.onResize = () => this.render();
+      root.addEventListener("resize", this.onResize);
+    }
+    destroy() {
+      this.dead = true;
+      root.removeEventListener("resize", this.onResize);
+      document.documentElement.classList.remove("mg-open");
+      this.el.remove();
+      if (this.resolver) { const r = this.resolver; this.resolver = null; r(null); }
+    }
+
+    /* -------------------------------------------------------- starting a game */
+    start(seats) {
+      this.seats = seats;
+      const lvl = this.s.level === "casual" ? { skill: 0.55 } : { skill: 0.9 };
+      const players = seats.map((d, i) => {
+        if (d.human) return { name: "You", commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, human: true, agent: this.humanAgent() };
+        const bot = MK.AI.create({ skill: lvl.skill, aggression: d.deck.aggression == null ? 0.55 : d.deck.aggression });
+        return { name: d.deck.name, commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, agent: this.paced(bot), deckId: d.deck.id };
+      });
+      this.helper = MK.AI.create({ skill: 1 });
+      const seed = Math.floor(Math.random() * 2 ** 31);
+      const g = this.g = new MK.Game({ seed, players, endOnHumanLoss: true, maxTurns: 160, ui: { log: e => this.onLog(e), anim: (k, d) => this.onAnim(k, d), pace: (k, d) => this.onPace(k, d) } });
+      g.players.forEach((p, i) => { p.color = PLAYER_COLORS[i % PLAYER_COLORS.length]; p.deckId = players[i].deckId || "miku"; });
+      this.me = g.players.find(p => p.human);
+      g.activeIdx = g.rand(g.players.length);
+      const opp = this.opps();
+      this.focusId = opp[0] && opp[0].id;
+      const names = new Set();
+      for (const p of g.players) { for (const o of p.library) names.add(o.def.name); for (const o of p.command) names.add(o.def.name); }
+      K.ensure([...names], { miku: true }).then(() => this.render());
+      K.onArt(() => this.render());
+      this.render();
+      this.startedAt = Date.now();
+      g.play().then(() => this.finish()).catch(err => this.crash(err));
+    }
+    opps() {
+      const g = this.g, me = this.me, out = [];
+      for (let k = 1; k < g.players.length; k++) out.push(g.players[(me.idx + k) % g.players.length]);
+      return out;
+    }
+
+    /* -------------------------------------------------------- bots, slowed down to be watchable */
+    paced(bot) {
+      const t = this;
+      return Object.assign({}, bot, {
+        async mulligan(g, p, ctx) { return bot.mulligan(g, p, ctx); },
+        async main(g, p, ctx) { await t.beat(t.sp.think); return bot.main(g, p, ctx); },
+        async attack(g, p, ctx) { t.focusOn(p); await t.beat(t.sp.think); return bot.attack(g, p, ctx); },
+        async block(g, p, ctx) { await t.beat(t.sp.block); return bot.block(g, p, ctx); },
+        async respond(g, p, ctx) { return bot.respond(g, p, ctx); },
+        async choose(g, p, req) { return bot.choose(g, p, req); }
+      });
+    }
+    async beat(ms) { this.render(); if (!this.dead) await sleep(this.fastForward ? 0 : ms); }
+    focusOn(p) { if (p && p !== this.me) { this.focusId = p.id; this.render(); } }
+
+    /* -------------------------------------------------------- the human seat */
+    humanAgent() {
+      const t = this;
+      return {
+        mulligan: (g, p, ctx) => t.askMulligan(ctx),
+        main: (g, p, ctx) => t.askMain(ctx),
+        attack: (g, p, ctx) => t.askAttack(ctx),
+        block: (g, p, ctx) => t.askBlock(ctx),
+        respond: (g, p, ctx) => t.askRespond(ctx),
+        choose: (g, p, req) => t.askChoice(req)
+      };
+    }
+    wait(mode) {
+      if (mode === "block" || mode === "respond") this.$.fx.querySelectorAll(".mg-banner").forEach(x => x.remove());
+      this.mode = mode;
+      this.fastForward = false;
+      const p = new Promise(res => { this.resolver = res; });
+      this.render();
+      return p;
+    }
+    resolve(v) {
+      const r = this.resolver;
+      if (!r) return;
+      this.resolver = null;
+      this.mode = "wait";
+      this.closeSheet(true);
+      this.atk.clear(); this.blk.clear(); this.sel = null;
+      r(v);
+      this.render();
+    }
+
+    /* -------------------------------------------------------- engine hooks */
+    onLog(e) {
+      if (this.dead) return;
+      const important = ["cast", "attack", "block", "die", "exile", "search", "win", "lose", "token", "counter", "big", "repeat", "land", "emblem", "bounce", "impulse"].includes(e.kind) || !e.kind;
+      if (important && e.kind !== "turn") { this.ticker = youText(e.text); this.tickNew = true; }
+      this.appendLog(e);
+      this.soon();
+    }
+    onAnim(kind, d) {
+      if (this.dead) return;
+      const g = this.g;
+      switch (kind) {
+        case "turn": this.banner(d.p); if (d.p !== this.me) this.focusOn(d.p); break;
+        case "cast": this.spotlight(d.o, d.p, d.item); break;
+        case "resolve": this.spotOut(); break;
+        case "countered": this.spotOut(true); break;
+        case "life": this.floatLife(d.p, d.delta); break;
+        case "poison": this.floatAt(this.seatEl(d.p), `+${d.n}☣`, "hurt"); break;
+        case "damage": this.floatAt(this.cardEl(d.o), `-${d.n}`, "hurt"); break;
+        case "counter": if (d.kind === "p1" && d.n > 0) this.floatAt(this.cardEl(d.o), `+${d.n}`, "ctr"); break;
+        case "lose": this.soon(); break;
+        case "ability": { const el = this.cardEl(d.o); if (el && !reduced()) { el.classList.remove("pulse"); void el.offsetWidth; el.classList.add("pulse"); } break; }
+        default: break;
+      }
+      this.soon();
+    }
+    async onPace(kind, d) {
+      if (this.dead) return;
+      this.render();
+      const human = d && d.p && d.p.human;
+      let ms = 0;
+      if (kind === "cast") ms = human ? Math.min(420, this.sp.cast) : this.sp.cast;
+      else if (kind === "attack") ms = this.sp.attack;
+      else if (kind === "damage") ms = this.sp.damage;
+      if (this.fastForward) ms = 0;
+      if (ms) await sleep(ms);
+    }
+    soon() {
+      if (this.raf || this.dead) return;
+      this.raf = requestAnimationFrame(() => { this.raf = 0; this.render(); });
+    }
+
+    /* -------------------------------------------------------- rendering */
+    render() {
+      if (this.dead || !this.g) return;
+      if (this.raf) { cancelAnimationFrame(this.raf); this.raf = 0; }
+      const g = this.g;
+      this.canCache = null;
+      if (this.el.dataset.mode !== this.mode) this.el.dataset.mode = this.mode;
+      this.renderPhase();
+      this.renderSeats();
+      this.renderOpp();
+      this.renderMid();
+      this.renderMine();
+      this.renderMyBar();
+      this.renderHand();
+      this.renderActions();
+    }
+    renderPhase() {
+      const g = this.g;
+      const steps = ["untap", "upkeep", "draw", "main1", "combat", "main2", "end"];
+      const ph = { untap: 0, upkeep: 1, draw: 2, main1: 3, combat: 4, attackers: 4, blockers: 4, damage: 4, endCombat: 4, main2: 5, end: 6, cleanup: 6, setup: -1 }[g.phase];
+      const label = { setup: "Getting ready", untap: "Untap", upkeep: "Upkeep", draw: "Draw", main1: "Main phase", combat: "Combat", attackers: "Attackers", blockers: "Blockers", damage: "Combat damage", endCombat: "End of combat", main2: "Second main", end: "End step", cleanup: "Cleanup" }[g.phase] || g.phase;
+      const who = g.phase === "setup" ? "Mulligans" : g.active === this.me ? "Your turn" : g.active.name;
+      this.$.phase.innerHTML = `<b>Turn ${Math.max(1, g.round)}</b><span class="steps">${steps.map((s, i) => `<i class="${i === ph ? "on" : ""}"></i>`).join("")}</span><span class="who">${esc(who)} · ${esc(label)}</span>`;
+    }
+    seatEl(p) { return p === this.me ? this.$.mybar.querySelector(".mg-life") : this.$.seats.querySelector(`[data-pid="${p.id}"]`); }
+    renderSeats() {
+      const g = this.g;
+      const attackMode = this.mode === "attack";
+      const incoming = {};
+      if (g.combat) for (const a of g.combat.attackers) if (a.combat) { const q = g.defenderOf(a.combat.attacking); incoming[q.id] = (incoming[q.id] || 0) + 1; }
+      if (attackMode) for (const [, tg] of this.atk) { const q = g.defenderOf(tg); incoming[q.id] = (incoming[q.id] || 0) + 1; }
+      this.$.seats.innerHTML = this.opps().map(p => {
+        const cmd = p.commanders[0];
+        const a = cmd && K.art(cmd.def.name);
+        const cls = ["mg-seat", p.id === this.focusId ? "focus" : "", g.active === p ? "active" : "", p.lost ? "out" : "", attackMode && !p.lost ? "pick" : "", attackMode && this.atkTarget === p ? "target" : ""].join(" ");
+        const myCmd = this.me.commanders[0];
+        const cmdDmg = myCmd && p.cmdDmg[myCmd.id] ? `<span class="cmd" title="Commander damage from Trostani">⚔${p.cmdDmg[myCmd.id]}</span>` : "";
+        const taken = cmd && this.me.cmdDmg[cmd.id] ? `<span class="cmd" title="Commander damage you took from ${esc(cmd.def.name)}">↓${this.me.cmdDmg[cmd.id]}</span>` : "";
+        return `<button class="${cls}" data-pid="${p.id}" style="--c1:${p.color}" aria-label="${esc(p.name)}, ${p.life} life${p.lost ? ", out" : ""}">
+          <span class="av" style="${a ? `background-image:url('${a.crop}')` : `background:${bgFor(cmd ? cmd.def : { colors: [] })}`}"></span>
+          <span class="who"><span class="nm">${esc(p.name)}</span><span class="life">${p.lost ? "Out" : p.life}</span>
+          <span class="meta"><span title="Cards in hand">✋${p.hand.length}</span><span title="Cards in library">▤${p.library.length}</span>${p.poison ? `<span class="psn">☣${p.poison}</span>` : ""}${cmdDmg}${taken}</span></span>
+          ${incoming[p.id] && g.combat && g.combat.attacker !== p ? `<span class="inc">${incoming[p.id]}⚔</span>` : ""}
+        </button>`;
+      }).join("");
+    }
+    /* Permanents grouped: identical tokens (and identical lands) share one pile with a count. */
+    pileKey(o, loose) {
+      const g = this.g;
+      if (o.zone !== "battlefield") return "c:" + o.def.name;
+      if (!o.isToken && !g.isLand(o)) return "o" + o.id;
+      const pt = ptOf(g, o);
+      const kws = g.isCreature(o) ? [...g.ch(o).kws].sort().join(",") : "";
+      const c = o.combat ? (o.combat.attacking ? "A" + o.combat.attacking.id : "B" + (o.combat.blocking ? o.combat.blocking.id : "")) : "";
+      const mine = loose ? "" : [this.atk.has(o.id) ? "atk" : "", this.blk.has(o.id) ? "blk" + this.blk.get(o.id).id : ""].join("");
+      return [o.def.name, o.def.__token || "", o.controller.id, o.tapped, o.sick, pt ? pt.join("/") : "", JSON.stringify(o.counters), c, kws, o.attachedTo ? o.attachedTo.id : "", o.damage, mine].join("|");
+    }
+    groups(p) {
+      const out = new Map();
+      for (const o of this.g.battlefield) {
+        if (o.controller !== p) continue;
+        const key = this.pileKey(o);
+        if (!out.has(key)) out.set(key, []);
+        out.get(key).push(o);
+      }
+      return [...out.values()];
+    }
+    split(p) {
+      const g = this.g;
+      const cre = [], oth = [], lands = [];
+      for (const grp of this.groups(p)) {
+        const o = grp[0];
+        if (g.isCreature(o)) cre.push(grp);
+        else if (g.isLand(o)) lands.push(grp);
+        else oth.push(grp);
+      }
+      const order = o => (o.isCommander ? 0 : 1) * 1000 + (o.isToken ? 500 : 0) + o.ts * 1e-9;
+      cre.sort((a, b) => order(a[0]) - order(b[0]));
+      return { cre, oth, lands };
+    }
+    cardHTML(grp, opts) {
+      const g = this.g, o = grp[0], d = o.def;
+      opts = opts || {};
+      const pt = ptOf(g, o);
+      const base = d.pt || [0, 0];
+      const cls = ["mc"];
+      if (o.tapped) cls.push("tapped");
+      if (o.sick && g.isCreature(o) && !g.kw(o, "haste") && o.controller === g.active) cls.push("sick");
+      if (o.combat && o.combat.attacking) cls.push("attacking");
+      if (o.combat && o.combat.blocking) cls.push("blocking");
+      if (this.atk.has(o.id)) cls.push("attacking");
+      if (this.blk.has(o.id)) cls.push("blocking");
+      if (opts.can) cls.push("can");
+      if (opts.sel) cls.push("sel");
+      if (opts.dim) cls.push("dim");
+      const art = artFor(d, "crop");
+      const counters = o.counters.loyalty != null && g.isPlaneswalker(o) ? `<span class="ct loy">${o.counters.loyalty}</span>` : o.counters.p1 ? `<span class="ct">+${o.counters.p1}</span>` : o.counters.m1 ? `<span class="ct" style="background:#ff5a6e">-${o.counters.m1}</span>` : o.counters.quest ? `<span class="ct q">${o.counters.quest}</span>` : "";
+      const kws = pt ? [...g.ch(o).kws].filter(k => KW_ICON[k]).slice(0, 3).map(k => `<i title="${esc(k)}">${KW_ICON[k]}</i>`).join("") : "";
+      const ptCls = pt ? (pt[0] > base[0] || pt[1] > base[1] ? "up" : pt[0] < base[0] || pt[1] < base[1] ? "down" : "") : "";
+      const n = opts.count != null ? opts.count : grp.length;
+      return `<button class="${cls.join(" ")}" data-oid="${o.id}" data-n="${grp.length}" aria-label="${esc(d.name)}${n > 1 ? " times " + n : ""}${o.tapped ? ", tapped" : ""}">
+        <span class="art${art ? "" : " txt"}" style="${artStyle(d)}">${art ? "" : esc(shortName(d.name))}</span>
+        ${art || d.token ? `<span class="nm">${esc(shortName(d.name))}</span>` : ""}
+        ${kws ? `<span class="kws">${kws}</span>` : ""}
+        ${pt ? `<span class="pt ${ptCls}">${pt[0]}/${pt[1]}</span>` : ""}
+        ${counters}
+        ${n > 1 ? `<span class="qty">×${n}</span>` : ""}
+        ${o.damage > 0 && pt ? `<span class="dmg">${o.damage}</span>` : ""}
+        ${opts.dot ? `<span class="dot"></span>` : ""}
+      </button>`;
+    }
+    landsHTML(p, lands) {
+      const g = this.g;
+      const all = lands.flat();
+      if (!all.length) return "";
+      const ready = all.filter(o => !o.tapped).length;
+      const pips = all.slice(0, 16).map(o => {
+        const prod = (o.def.mana[0] && o.def.mana[0].produce) || "C";
+        const k = Array.isArray(prod) ? prod[0] : String(prod)[0];
+        const col = { W: "#f3e3b0", U: "#8ec4ee", B: "#b9aeb4", R: "#f39a80", G: "#8fd0a0", C: "#c8c2bc", a: "#e9d7ff" }[k] || "#c8c2bc";
+        return `<i class="${o.tapped ? "used" : ""}" style="background:${col}"></i>`;
+      }).join("");
+      return `<button class="mg-lands" data-lands="${p.id}" aria-label="${all.length} lands, ${ready} untapped"><b>${all.length}</b><span>${ready} ready</span><span class="pips">${pips}</span></button>`;
+    }
+    syncRow(row, grps, optsFn) {
+      // keyed by the first object of each pile, so piles keep their element (and animations)
+      const keep = new Map();
+      for (const el of [...row.children]) if (el.dataset.oid) keep.set(el.dataset.oid, el);
+      const frag = [];
+      for (const grp of grps) {
+        const html = this.cardHTML(grp, optsFn ? optsFn(grp) : {});
+        const id = String(grp[0].id);
+        let el = keep.get(id);
+        if (el) {
+          keep.delete(id);
+          if (el._html !== html) { const tmp = document.createElement("div"); tmp.innerHTML = html; const nu = tmp.firstElementChild; nu._html = html; el.replaceWith(nu); el = nu; }
+        } else {
+          const tmp = document.createElement("div"); tmp.innerHTML = html; el = tmp.firstElementChild; el._html = html; el.classList.add("enter");
+          setTimeout(() => el.classList.remove("enter"), 600);
+        }
+        frag.push(el);
+      }
+      for (const [, el] of keep) { el.classList.add("gone"); setTimeout(() => el.remove(), 480); }
+      frag.forEach((el, i) => { const at = row.children[i]; if (at !== el) row.insertBefore(el, at || null); });
+    }
+    renderOpp() {
+      const g = this.g;
+      const wide = root.innerWidth >= 900;
+      const box = this.$.opp;
+      const opps = this.opps();
+      if (!opps.some(p => p.id === this.focusId)) this.focusId = (opps.find(p => !p.lost) || opps[0]).id;
+      const cols = wide ? opps : opps.filter(p => p.id === this.focusId);
+      box.classList.toggle("desk", wide);
+      box.style.setProperty("--n", cols.length);
+      // one column per shown opponent, rebuilt only when the set of columns changes
+      const sig = cols.map(p => p.id).join(",") + (wide ? "w" : "n");
+      if (box._sig !== sig) {
+        box._sig = sig;
+        box.innerHTML = cols.map(p => `<div class="col" data-col="${p.id}"><span class="label">${esc(p.name)}</span><div class="mg-row cre" data-empty="No creatures"></div><div class="mg-row small oth"></div></div>`).join("");
+      }
+      for (const p of cols) {
+        const col = box.querySelector(`[data-col="${p.id}"]`);
+        col.classList.toggle("focus", p.id === this.focusId);
+        const { cre, oth, lands } = this.split(p);
+        const pickable = this.mode === "attack" ? grp => ({ can: g.isPlaneswalker(grp[0]) }) : null;
+        this.syncRow(col.querySelector(".cre"), cre, pickable);
+        const othRow = col.querySelector(".oth");
+        this.syncRow(othRow, oth, pickable);
+        let lc = othRow.querySelector(".mg-lands");
+        const lh = this.landsHTML(p, lands);
+        if (lh) {
+          if (!lc || lc._html !== lh) { const tmp = document.createElement("div"); tmp.innerHTML = lh; const nu = tmp.firstElementChild; nu._html = lh; if (lc) lc.replaceWith(nu); else othRow.insertBefore(nu, othRow.firstChild); }
+          else if (othRow.firstChild !== lc) othRow.insertBefore(lc, othRow.firstChild);
+        } else if (lc) lc.remove();
+      }
+    }
+    renderMine() {
+      const g = this.g, me = this.me;
+      const { cre, oth, lands } = this.split(me);
+      const acting = this.acting();
+      let optsFn = null;
+      if (this.mode === "attack") {
+        const cands = new Set((this.atkCands || []).map(o => o.id));
+        optsFn = grp => ({ can: grp.some(o => cands.has(o.id)) && !grp.some(o => this.atk.has(o.id)), sel: grp.some(o => this.atk.has(o.id)) });
+      } else if (this.mode === "block") {
+        const att = this.sel;
+        optsFn = grp => ({ can: !!att && grp.some(o => !this.blk.has(o.id) && g.canBlock(o, att)), sel: grp.some(o => this.blk.has(o.id)) });
+      } else if (acting) {
+        optsFn = grp => ({ dot: this.hasAbility(grp[0]) });
+      }
+      this.syncRow(this.$.meCre, cre, optsFn);
+      this.syncRow(this.$.meOth, oth, acting ? grp => ({ dot: this.hasAbility(grp[0]) }) : null);
+      const row = this.$.meOth;
+      let lc = row.querySelector(".mg-lands");
+      const lh = this.landsHTML(me, lands);
+      if (lh) {
+        if (!lc || lc._html !== lh) { const tmp = document.createElement("div"); tmp.innerHTML = lh; const nu = tmp.firstElementChild; nu._html = lh; if (lc) lc.replaceWith(nu); else row.insertBefore(nu, row.firstChild); }
+        else if (row.firstChild !== lc) row.insertBefore(lc, row.firstChild);
+      } else if (lc) lc.remove();
+    }
+    zoneLive(zone) {
+      if (!this.acting()) return false;
+      const g = this.g, me = this.me, can = this.castable();
+      return me[zone].some(o => can.has(o.id) || (zone === "graveyard" && g.graveyardAbilities(o).some(e => g.canActivate(me, o, e, { instant: this.mode !== "main" }))));
+    }
+    acting() { return (this.mode === "main" || this.mode === "respond") && !!this.resolver; }
+    hasAbility(o) {
+      const g = this.g, me = this.me;
+      const instant = this.mode !== "main";
+      return g.abilitiesOf(o).some(e => g.canActivate(me, o, e, { instant }));
+    }
+    castable() {
+      if (this.canCache) return this.canCache;
+      const g = this.g, me = this.me, set = new Set();
+      if (this.acting()) {
+        const instant = this.mode !== "main";
+        for (const a of g.legalActions(me, { instant })) if (a.type === "cast" || a.type === "land") set.add(a.card.id);
+      }
+      return (this.canCache = set);
+    }
+    renderMid() {
+      const g = this.g, box = this.$.mid;
+      if (this.mode === "block") {
+        const att = (this.blockCtx || []);
+        box.innerHTML = `<div class="mg-incoming">${att.map(a => {
+          const by = [...this.blk].filter(([, x]) => x === a).map(([id]) => g.find(+id)).filter(Boolean);
+          return `<div class="blk">${this.cardHTML([a], { sel: this.sel === a, can: this.sel !== a })}<span class="by">${by.length ? "⛨ " + esc(by.map(b => shortName(b.def.name)).join(", ")) : esc(this.targetName(a))}</span></div>`;
+        }).join("")}</div>`;
+        return;
+      }
+      let text = this.ticker ? esc(this.ticker) : "";
+      if (g.stack.length > 1) text = `On the stack: ${g.stack.slice().reverse().map((it, i) => i ? esc(it.name) : `<b>${esc(it.name)}</b>`).join(" ← ")}`;
+      if (this.mode === "respond" && this.respondCtx) {
+        const c = this.respondCtx;
+        const tg = c.window === "stack" && c.top.targets && c.top.targets.filter(Boolean).length ? ` targeting ${esc(youText(c.top.targets.filter(Boolean).map(t => g.nameOf(t)).join(" and ")).replace(/^You$/, "you"))}` : "";
+        text = c.window === "stack" ? `<b>${esc(c.top.p.name)}</b> casts <b>${esc(c.top.name)}</b>${tg}. Respond?` : c.window === "combat" ? `Blockers are set. Anything before damage?` : `End of <b>${esc(c.turnOf.name)}</b>'s turn. Anything before yours?`;
+      }
+      const html = `<div class="mg-ticker${this.tickNew ? " new" : ""}">${text || "&nbsp;"}</div>`;
+      if (box._html !== html) { box.innerHTML = html; box._html = html; }
+      this.tickNew = false;
+    }
+    targetName(a) { const t = a.combat && a.combat.attacking; return t ? (this.g.isPlayer(t) ? (t === this.me ? "at you" : "at " + t.name) : "at " + t.def.name) : ""; }
+    renderMyBar() {
+      const g = this.g, me = this.me;
+      const cmd = me.commanders[0];
+      const inZone = cmd && cmd.zone === "command";
+      const tax = inZone ? g.commanderTax(me, cmd) : 0;
+      const can = inZone && this.castable().has(cmd.id);
+      const a = cmd && K.art(cmd.def.name);
+      const html = `<div class="mg-life"><b>${me.life}</b><span>life${me.poison ? ` · ☣${me.poison}` : ""}</span></div>
+        ${inZone ? `<button class="mg-cmd${can ? " can" : ""}" data-oid="${cmd.id}" aria-label="Trostani in the command zone${tax ? ", tax " + tax : ""}"><span class="av" style="${a ? `background-image:url('${a.crop}')` : `background:${bgFor(cmd.def)}`}"></span><span>Command<br><span class="tax">${tax ? "+" + tax + " tax" : "no tax"}</span></span></button>` : ""}
+        <div class="mg-zones">
+          <button class="mg-zone${this.zoneLive("graveyard") ? " can" : ""}" data-zone="graveyard" aria-label="Your graveyard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 21V9a6 6 0 0 1 12 0v12zM4 21h16"/></svg>${me.graveyard.length}</button>
+          <button class="mg-zone${this.zoneLive("exile") ? " can" : ""}" data-zone="exile" aria-label="Your exile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M8 8l8 8"/></svg>${me.exile.length}</button>
+          <span class="mg-zone" title="Cards in your library">▤ ${me.library.length}</span>
+        </div>`;
+      const box = this.$.mybar;
+      if (box._html !== html) {
+        const old = box.querySelector(".mg-life b");
+        const oldLife = old ? +old.textContent : me.life;
+        box.innerHTML = html; box._html = html;
+        if (oldLife !== me.life) { const l = box.querySelector(".mg-life"); l.classList.add("bump"); }
+      }
+    }
+    renderHand() {
+      const g = this.g, me = this.me;
+      const can = this.castable();
+      const acting = this.acting();
+      const fan = this.$.fan;
+      const hand = me.hand.slice();
+      const w = this.$.hand.clientWidth - 20;
+      const hw = root.innerWidth >= 900 ? 96 : 76;
+      const ov = hand.length > 1 && hand.length * (hw + 4) > w ? Math.min(Math.ceil((hand.length * hw - w) / (hand.length - 1)), Math.round(hw * .72)) : -4;
+      fan.style.setProperty("--ov", ov + "px");
+      const keep = new Map([...fan.children].map(el => [el.dataset.oid, el]));
+      const els = hand.map(o => {
+        const cls = ["hc", acting ? (can.has(o.id) ? "can" : "no") : ""].join(" ");
+        const art = artFor(o.def, "crop");
+        const html = `<button class="${cls}" data-oid="${o.id}" aria-label="${esc(o.def.name)}${acting && can.has(o.id) ? ", can be played" : ""}"><span class="art" style="${artStyle(o.def)}"></span><span class="cost">${mana(o.def.cost || "")}</span><span class="nm">${esc(o.def.name.split(" // ")[0])}</span></button>`;
+        let el = keep.get(String(o.id));
+        if (el) { keep.delete(String(o.id)); if (el._html !== html) { el.className = cls; el.innerHTML = html.replace(/^<button[^>]*>|<\/button>$/g, ""); el._html = html; } }
+        else { const tmp = document.createElement("div"); tmp.innerHTML = html; el = tmp.firstElementChild; el._html = html; el.classList.add("enter"); setTimeout(() => el.classList.remove("enter"), 500); }
+        return el;
+      });
+      for (const [, el] of keep) el.remove();
+      els.forEach((el, i) => { if (fan.children[i] !== el) fan.insertBefore(el, fan.children[i] || null); });
+      let empty = this.$.hand.querySelector(".empty");
+      if (!hand.length && !empty) { empty = document.createElement("span"); empty.className = "empty"; empty.textContent = "No cards in hand"; this.$.hand.appendChild(empty); }
+      if (hand.length && empty) empty.remove();
+    }
+    renderActions() {
+      const g = this.g, box = this.$.actions;
+      let html = "";
+      const m = this.mode;
+      if (m === "main") {
+        const p1 = g.phase === "main1";
+        html = `<div class="hint">${p1 ? "Play a land, cast spells, then attack." : "Anything else before you pass the turn?"}</div>
+          ${p1 ? `<button class="mg-btn" data-act="endturn">End turn</button><button class="mg-btn go" data-act="pass">Attack ▸</button>` : `<button class="mg-btn go wide" data-act="pass">End turn ▸</button>`}`;
+      } else if (m === "attack") {
+        const n = this.atk.size;
+        const pw = [...this.atk.keys()].map(id => g.find(+id)).filter(Boolean).reduce((s, o) => s + Math.max(0, g.power(o)), 0);
+        const tgt = this.atkTarget ? (g.isPlayer(this.atkTarget) ? this.atkTarget.name : this.atkTarget.def.name) : "";
+        html = `<div class="hint">${n ? `${n} attacking, ${pw} power` : `Tap creatures to attack <b>${esc(tgt)}</b>. Tap a seat to switch.`}</div>
+          <button class="mg-btn" data-act="atkall">All</button>
+          <button class="mg-btn go" data-act="atkgo">${n ? "Attack" : "No attack"}</button>`;
+      } else if (m === "block") {
+        const inc = (this.blockCtx || []).filter(a => ![...this.blk.values()].includes(a));
+        const dmg = inc.reduce((s, a) => s + Math.max(0, g.power(a)), 0);
+        html = `<div class="hint">${this.sel ? `Tap your creatures to block <b>${esc(shortName(this.sel.def.name))}</b>.` : "Tap an attacker, then your blockers."} Unblocked: ${dmg}</div>
+          <button class="mg-btn" data-act="blkauto">Suggest</button>
+          <button class="mg-btn go" data-act="blkgo">${this.blk.size ? "Block" : "No blocks"}</button>`;
+      } else if (m === "respond") {
+        const n = this.respondCtx ? this.respondCtx.actions.length : 0;
+        html = `<div class="hint">Tap a glowing card, or see all ${n} option${n === 1 ? "" : "s"}.</div><button class="mg-btn" data-act="respond">Options</button><button class="mg-btn go" data-act="rpass">Pass</button>`;
+      } else if (m === "wait") {
+        const who = g.active === this.me ? "Resolving..." : `${esc(g.active.name)} is playing.`;
+        html = `<div class="hint">${who}</div><button class="mg-btn" data-act="ff" aria-label="Skip the animations for this turn">Skip ▸▸</button>`;
+      } else html = `<div class="hint"></div>`;
+      if (box._html !== html) { box.innerHTML = html; box._html = html; }
+    }
+
+    /* -------------------------------------------------------- log */
+    appendLog(e) {
+      const li = document.createElement("li");
+      const p = e.p;
+      if (e.kind === "turn") { li.className = "turn"; li.textContent = e.text.replace(/\.$/, ""); }
+      else {
+        li.className = e.kind || "";
+        if (p && p.color) li.style.setProperty("--pc", p.color);
+        let t = esc(youText(e.text));
+        for (const n of e.cards || []) t = t.split(esc(n)).join(`<b>${esc(n)}</b>`);
+        li.innerHTML = t;
+      }
+      const ol = this.$.logList;
+      ol.appendChild(li);
+      while (ol.children.length > 400) ol.removeChild(ol.firstChild);
+      if (this.$.log.classList.contains("on")) ol.scrollTop = ol.scrollHeight;
+    }
+
+    /* -------------------------------------------------------- effects */
+    cardEl(o) { return o && this.el.querySelector(`.mc[data-oid="${o.id}"]`); }
+    floatAt(el, text, cls) {
+      if (!el || reduced()) return;
+      if (this.floats > 14) return;
+      const r = el.getBoundingClientRect(), R = this.el.getBoundingClientRect();
+      const f = document.createElement("span");
+      f.className = "mg-float " + cls;
+      f.textContent = text;
+      f.style.left = (r.left + r.width / 2 - R.left) + "px";
+      f.style.top = (r.top + r.height / 2 - R.top) + "px";
+      this.$.fx.appendChild(f);
+      this.floats++;
+      setTimeout(() => { f.remove(); this.floats--; }, 1150);
+    }
+    floatLife(p, delta) {
+      if (!p || !delta) return;
+      this.floatAt(this.seatEl(p), (delta > 0 ? "+" : "") + delta, delta > 0 ? "gain" : "hurt");
+      if (delta < 0 && p !== this.me) { const s = this.seatEl(p); if (s) { s.classList.remove("hit"); void s.offsetWidth; s.classList.add("hit"); } }
+    }
+    banner(p) {
+      if (reduced() || this.fastForward) return;
+      this.$.fx.querySelectorAll(".mg-banner").forEach(x => x.remove());
+      const b = document.createElement("div");
+      b.className = "mg-banner" + (p === this.me ? " me" : "");
+      b.innerHTML = `<b>TURN ${Math.max(1, this.g.round)}</b><span>${p === this.me ? "Your turn" : esc(p.name)}</span>`;
+      this.$.fx.appendChild(b);
+      setTimeout(() => b.remove(), 1500);
+    }
+    spotlight(o, p, item) {
+      if (this.fastForward) return;
+      this.spotOut();
+      const d = o.def;
+      const a = artFor(d, "normal");
+      const s = document.createElement("div");
+      s.className = "mg-spot";
+      const tg = item && item.targets && item.targets.filter(Boolean).length ? " → " + item.targets.filter(Boolean).map(t => this.g.nameOf(t)).join(", ") : "";
+      s.innerHTML = a ? `<div class="card" style="background-image:url('${a}')"></div>` : `<div class="card frame" style="--c-bg:${bgFor(d)}"><b>${esc(item ? item.name : d.name)}</b><span>${mana(d.cost || "")}</span><span>${esc(d.type)}</span><div>${K.rules(textOf(d))}</div></div>`;
+      s.insertAdjacentHTML("beforeend", `<div class="cap">${esc(p.name === "You" ? "You cast" : p.name + " casts")} ${esc(item ? item.name : d.name)}${esc(tg)}</div>`);
+      this.$.fx.appendChild(s);
+      this.spot = s;
+    }
+    spotOut(countered) {
+      const s = this.spot;
+      if (!s) return;
+      this.spot = null;
+      s.classList.add(countered ? "countered" : "out");
+      setTimeout(() => s.remove(), 520);
+    }
+    notes() {
+      if (reduced()) return;
+      for (let i = 0; i < 16; i++) {
+        const n = document.createElement("span");
+        n.className = "mg-note";
+        n.textContent = ["♪", "♫", "♬", "♩"][i % 4];
+        n.style.left = (5 + Math.random() * 90) + "%";
+        n.style.top = (80 + Math.random() * 20) + "%";
+        n.style.animationDelay = (Math.random() * 1.2) + "s";
+        n.style.color = i % 3 ? "#39c5bb" : "#ff3d8b";
+        this.$.fx.appendChild(n);
+        setTimeout(() => n.remove(), 4200);
+      }
+    }
+
+    /* -------------------------------------------------------- clicks */
+    onClick(e) {
+      const t = e.target;
+      const act = t.closest("[data-act]");
+      if (act) return this.action(act.dataset.act, act);
+      if (t.closest(".mg-menu")) return;
+      this.$.menu.classList.remove("on");
+      const seat = t.closest(".mg-seat");
+      if (seat) return this.seatTap(this.g.players.find(p => p.id === seat.dataset.pid));
+      const lands = t.closest("[data-lands]");
+      if (lands) return this.showLands(this.g.players.find(p => p.id === lands.dataset.lands));
+      const zone = t.closest("[data-zone]");
+      if (zone) return this.showZone(this.me, zone.dataset.zone);
+      const card = t.closest("[data-oid]");
+      if (card && !t.closest(".mg-sheet")) return this.cardTap(+card.dataset.oid, card);
+    }
+    findObj(id) {
+      const g = this.g;
+      return g.find(id) || this.me.hand.find(o => o.id === id) || this.me.command.find(o => o.id === id) || (this.blockCtx || []).find(o => o.id === id) || null;
+    }
+    pile(o) {
+      const grp = this.groups(o.controller).find(gr => gr.includes(o));
+      return grp || [o];
+    }
+    cardTap(id) {
+      const g = this.g, o = this.findObj(id);
+      if (!o) return;
+      if (this.mode === "attack" && o.zone === "battlefield") {
+        if (o.controller === this.me) return this.toggleAttack(o);
+        if (g.isPlaneswalker(o) && o.controller !== this.me) { this.atkTarget = o; this.render(); return; }
+      }
+      if (this.mode === "block") {
+        if ((this.blockCtx || []).includes(o)) { this.sel = this.sel === o ? null : o; this.render(); return; }
+        if (o.controller === this.me && g.isCreature(o)) return this.toggleBlock(o);
+      }
+      this.inspect(o);
+    }
+    seatTap(p) {
+      if (!p || p === this.me) return;
+      if (this.mode === "attack" && !p.lost) { this.atkTarget = p; }
+      this.focusId = p.id;
+      this.render();
+    }
+    scrimTap() {
+      if (this.sheetMode === "prompt" && this.sheetCancel) { const c = this.sheetCancel; this.sheetCancel = null; c(); return; }
+      if (this.sheetMode === "prompt") return; // a question must be answered
+      this.closeSheet();
+    }
+    action(a, el) {
+      const g = this.g;
+      switch (a) {
+        case "menu": this.toggleMenu(); break;
+        case "log": { const on = !this.$.log.classList.contains("on"); this.$.log.classList.toggle("on", on); if (on) this.$.logList.scrollTop = this.$.logList.scrollHeight; break; }
+        case "pass": if (this.mode === "main") this.resolve({ type: "pass" }); break;
+        case "endturn": if (this.mode === "main") { this.skipMain2 = g.turn; this.resolve({ type: "pass", skipCombat: true }); } break;
+        case "atkall": for (const o of this.atkCands || []) if (!this.atk.has(o.id)) this.atk.set(o.id, this.atkTarget); this.render(); break;
+        case "atkgo": { const decl = [...this.atk].map(([id, tg]) => ({ attacker: g.find(+id), target: tg })).filter(d => d.attacker); this.resolve(decl); break; }
+        case "blkauto": { const sug = this.helper.block(g, this.me, { attackers: this.blockCtx }); this.blk.clear(); for (const b of sug) this.blk.set(b.blocker.id, b.attacker); this.render(); break; }
+        case "blkgo": { const out = [...this.blk].map(([id, att]) => ({ blocker: g.find(+id), attacker: att })).filter(b => b.blocker); this.resolve(out); break; }
+        case "respond": this.showResponses(); break;
+        case "rpass": this.resolve(null); break;
+        case "ff": this.fastForward = true; this.spotOut(); this.render(); break;
+        case "concede": this.$.menu.classList.remove("on"); if (confirm("Concede this game?")) { this.conceded = true; g.lose(this.me, "concede"); if (!g.over) g.end(null, { humanLost: true }); this.resolve(null); } break;
+        case "leave": this.$.menu.classList.remove("on"); if (g.over || confirm("Leave this game? It won't be saved.")) { this.left = true; if (!g.over) { this.conceded = true; g.lose(this.me, "concede"); if (!g.over) g.end(null, { humanLost: true }); } this.resolve(null); this.destroy(); if (this.opts.onExit) this.opts.onExit(); } break;
+        case "rules": this.$.menu.classList.remove("on"); this.showRules(); break;
+        case "close": this.closeSheet(); break;
+        default: break;
+      }
+    }
+    toggleMenu() {
+      const m = this.$.menu, s = this.s;
+      if (m.classList.contains("on")) { m.classList.remove("on"); return; }
+      m.innerHTML = `
+        <label>Speed <select data-set="speed"><option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option></select></label>
+        <label><input type="checkbox" data-set="stopOnSpells"${s.stopOnSpells ? " checked" : ""}> Stop on every opponent spell</label>
+        <label><input type="checkbox" data-set="askTriggers"${s.askTriggers ? " checked" : ""}> Choose targets for my triggers</label>
+        <div class="sep"></div>
+        <button data-act="rules">What's simplified</button>
+        <button data-act="concede">Concede</button>
+        <button data-act="leave">Leave game</button>`;
+      m.querySelector("select").value = s.speed;
+      m.querySelectorAll("[data-set]").forEach(inp => inp.addEventListener("change", () => {
+        const k = inp.dataset.set;
+        s[k] = inp.type === "checkbox" ? inp.checked : inp.value;
+        saveSettings(Object.assign(settings(), { [k]: s[k] }));
+        this.sp = SPEED[s.speed] || SPEED.normal;
+      }));
+      m.classList.add("on");
+    }
+
+    /* -------------------------------------------------------- sheet */
+    openSheet(mode, head, body, foot, cancel) {
+      const sh = this.$.sheet;
+      this.sheetMode = mode;
+      this.sheetCancel = cancel || null;
+      sh.querySelector(".hd").innerHTML = head;
+      sh.querySelector(".bd").innerHTML = body;
+      const ft = sh.querySelector(".ft");
+      ft.innerHTML = foot || "";
+      ft.style.display = foot ? "" : "none";
+      sh.querySelector(".bd").scrollTop = 0;
+      sh.classList.add("on");
+      this.$.scrim.classList.add("on");
+      return sh;
+    }
+    closeSheet(force) {
+      if (this.sheetMode === "prompt" && !force) return;
+      this.sheetMode = null;
+      this.sheetCancel = null;
+      this.$.sheet.classList.remove("on");
+      this.$.scrim.classList.remove("on");
+    }
+    bindSheetSwipe() {
+      const sh = this.$.sheet;
+      let y0 = null, dy = 0;
+      sh.addEventListener("touchstart", e => { if (sh.querySelector(".bd").scrollTop > 0) return; y0 = e.touches[0].clientY; dy = 0; }, { passive: true });
+      sh.addEventListener("touchmove", e => { if (y0 == null) return; dy = Math.max(0, e.touches[0].clientY - y0); if (dy > 0 && this.sheetMode !== "prompt") sh.style.transform = `translateY(${dy}px)`; }, { passive: true });
+      sh.addEventListener("touchend", () => { if (y0 == null) return; sh.style.transform = ""; if (dy > 90 && this.sheetMode !== "prompt") this.closeSheet(); y0 = null; });
+    }
+
+    /* the card inspector: what it is, its state, and what you can do with it right now */
+    inspect(o) {
+      const g = this.g, me = this.me, d = o.def;
+      const grp = o.zone === "battlefield" ? this.pile(o) : [o];
+      const big = artFor(d, "normal");
+      const pt = o.zone === "battlefield" ? ptOf(g, o) : d.pt;
+      const state = [];
+      if (o.zone === "battlefield") {
+        if (grp.length > 1) state.push(`${grp.length} identical`);
+        if (o.tapped) state.push("tapped");
+        if (o.sick && g.isCreature(o) && !g.kw(o, "haste")) state.push("summoning sick");
+        for (const k in o.counters) if (o.counters[k]) state.push(`${o.counters[k]} ${k === "p1" ? "+1/+1" : k === "m1" ? "-1/-1" : k} counter${o.counters[k] > 1 ? "s" : ""}`);
+        if (o.damage) state.push(`${o.damage} damage`);
+        if (g.isCreature(o)) { const kws = [...g.ch(o).kws]; if (kws.length) state.push(kws.join(", ")); }
+        if (o.attachedTo) state.push("attached to " + o.attachedTo.def.name);
+        if (o.controller !== me) state.push(o.controller.name + "'s");
+      }
+      if (o.isCommander && o.zone === "command") state.push(`commander tax ${g.commanderTax(me, o)}`);
+      const acts = this.actionsFor(o);
+      const body = `<div class="mg-insp">
+        ${big ? `<div class="big" style="background-image:url('${big}')"></div>` : `<div class="big frame" style="--c-bg:${bgFor(d)}"><b>${esc(d.name)}</b><span>${mana(d.cost || "")}</span><span>${esc(d.type)}</span>${pt ? `<b>${pt[0]}/${pt[1]}</b>` : ""}</div>`}
+        <div><div class="type">${mana(d.cost || "")} ${esc(d.type)}${pt ? ` · <b>${pt[0]}/${pt[1]}</b>` : ""}</div>
+        <div class="text">${K.rules(textOf(d))}</div>
+        ${state.length ? `<div class="state">${state.map(s => `<span>${esc(s)}</span>`).join("")}</div>` : ""}
+        ${d.note ? `<div class="note">In this game: ${esc(d.note)}</div>` : ""}
+        </div></div>
+        ${acts.length ? `<div class="mg-abil">${acts.map((a, i) => `<div class="row"><button class="use${a.primary ? " go" : ""}" data-i="${i}"${a.ok ? "" : " disabled"}><span>${a.label}</span>${a.cost ? `<span>${mana(a.cost)}</span>` : ""}</button>${a.repeat && a.ok ? `<button class="rep" data-rep="${i}" aria-label="Repeat">×N</button>` : ""}</div>`).join("")}</div>` : ""}`;
+      const sh = this.openSheet("inspect", `<h3>${esc(shortName(d.name))}</h3><button class="mg-icon" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`, body, "");
+      sh.querySelectorAll("[data-i]").forEach(b => b.addEventListener("click", () => { const a = acts[+b.dataset.i]; if (a && a.ok) { this.closeSheet(); a.run(); } }));
+      sh.querySelectorAll("[data-rep]").forEach(b => b.addEventListener("click", () => { const a = acts[+b.dataset.rep]; if (a) this.askRepeat(a); }));
+    }
+    actionsFor(o) {
+      const g = this.g, me = this.me;
+      const out = [];
+      const acting = this.acting();
+      const instant = this.mode !== "main";
+      if (!acting || !this.resolver) return out;
+      if (o.zone === "hand" || o.zone === "command" || o.zone === "graveyard" || o.zone === "exile") {
+        if (o.def.types.includes("Land")) {
+          const ok = !instant && g.canPlayLand(me, o);
+          out.push({ label: "Play this land", ok, primary: true, run: () => this.resolve({ type: "land", card: o }) });
+        } else {
+          const ways = g.castOptions(me, o);
+          if (!ways.length) out.push({ label: instant && !g.isInstantSpeed(me, o) ? "Only at sorcery speed" : "Can't cast now", ok: false });
+          for (const w of ways) {
+            const cost = wayCost(w);
+            const how = o.zone === "command" ? "Cast from the command zone" : o.zone === "exile" ? "Cast from exile" : "Cast";
+            out.push({ label: w.label ? `Cast ${esc(w.label)}` : how, cost, ok: true, primary: true, run: () => this.resolve({ type: "cast", card: o, door: w.door, alt: w.alt }) });
+          }
+        }
+        if (o.zone === "graveyard") for (const e of g.graveyardAbilities(o)) {
+          const ok = g.canActivate(me, o, e, { instant });
+          out.push({ label: esc(e.ab.label || "Ability"), cost: e.ab.cost || "", ok, run: () => this.resolve({ type: "activate", card: o, idx: e.i }) });
+        }
+        return out;
+      }
+      if (o.zone !== "battlefield" || o.controller !== me) return out;
+      for (const e of g.abilitiesOf(o)) {
+        const ab = e.ab;
+        const ok = g.canActivate(me, o, e, { instant });
+        const cost = (ab.cost || "") + (ab.tap ? "{T}" : "");
+        const extra = [ab.loyalty != null ? (ab.loyalty > 0 ? "+" : "") + ab.loyalty + " loyalty" : "", ab.removeCounters ? "remove a counter" : "", ab.payLife ? `pay ${ab.payLife} life` : "", ab.sacSelf ? "sacrifice it" : "", ab.untapCreatures ? `untap ${ab.untapCreatures}` : "", ab.tapCreatures ? `tap ${ab.tapCreatures} creatures` : ""].filter(Boolean).join(", ");
+        const repeat = !ab.tap && ab.loyalty == null && !ab.once && !ab.sacSelf && !ab.exileSelf && !ab.crew && !ab.levelUp && ab.unlock == null;
+        out.push({ label: esc(ab.label || "Ability") + (extra ? ` <small>(${esc(extra)})</small>` : ""), cost, ok, repeat, run: (n) => this.resolve({ type: "activate", card: o, idx: e.i, repeat: n || 1, record: (n || 1) > 1 }) });
+      }
+      return out;
+    }
+    askRepeat(a) {
+      this.closeSheet();
+      this.numberSheet("How many times?", 1, 99, 10, "Repeat", n => { if (n > 0) a.run(n); }, true);
+    }
+    showLands(p) {
+      const g = this.g;
+      const lands = g.battlefield.filter(o => o.controller === p && g.isLand(o));
+      const grps = this.groups(p).filter(gr => g.isLand(gr[0]));
+      const body = `<div class="mg-grid">${grps.map(gr => this.cardHTML(gr, { dot: p === this.me && this.acting() && this.hasAbility(gr[0]) })).join("")}</div>`;
+      const sh = this.openSheet("inspect", `<h3>${p === this.me ? "Your lands" : esc(p.name) + "'s lands"}</h3><p>${lands.length} lands, ${lands.filter(o => !o.tapped).length} untapped</p>`, body, `<button class="mg-btn wide" data-act="close">Close</button>`);
+      sh.querySelectorAll(".bd [data-oid]").forEach(b => b.addEventListener("click", () => { const o = g.find(+b.dataset.oid); if (o) this.inspect(o); }));
+    }
+    showZone(p, zone) {
+      const list = p[zone].slice().reverse();
+      const body = list.length ? `<div class="mg-grid">${list.map(o => `<div class="opt">${this.cardHTML([o], { dot: false })}</div>`).join("")}</div>` : `<p style="color:var(--dim)">Nothing here yet.</p>`;
+      const sh = this.openSheet("inspect", `<h3>${zone === "graveyard" ? "Graveyard" : "Exile"}</h3><p>${list.length} card${list.length === 1 ? "" : "s"}</p>`, body, `<button class="mg-btn wide" data-act="close">Close</button>`);
+      sh.querySelectorAll(".bd [data-oid]").forEach(b => b.addEventListener("click", () => { const o = list.find(x => x.id === +b.dataset.oid); if (o) this.inspect(o); }));
+    }
+    /* Every instant-speed thing you can do right now, as one list. */
+    showResponses() {
+      const acts = (this.respondCtx && this.respondCtx.actions) || [];
+      const rows = acts.map((a, i) => {
+        const o = a.card;
+        const label = a.type === "cast" ? `Cast ${o.def.name}${a.label ? " (" + a.label + ")" : ""}` : `${a.ab.label || "Ability"}: ${shortName(o.def.name)}`;
+        const cost = a.type === "cast" ? wayCost(a) : (a.ab.cost || "") + (a.ab.tap ? "{T}" : "");
+        return `<div class="row"><button class="use${a.type === "cast" ? " go" : ""}" data-i="${i}"><span>${esc(label)}</span>${cost ? `<span>${mana(cost)}</span>` : ""}</button></div>`;
+      }).join("");
+      const sh = this.openSheet("inspect", `<h3>Your options</h3><button class="mg-icon" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`, `<div class="mg-abil">${rows}</div>`, "");
+      sh.querySelectorAll("[data-i]").forEach(b => b.addEventListener("click", () => {
+        const a = acts[+b.dataset.i];
+        if (!a) return;
+        this.closeSheet();
+        this.resolve({ type: a.type, card: a.card, idx: a.idx, door: a.door, alt: a.alt });
+      }));
+    }
+    showRules() {
+      const body = `<ol style="padding-left:18px;margin:0;display:flex;flex-direction:column;gap:8px;font-size:.84rem;line-height:1.4">${MK.SIMPLIFICATIONS.map(s => `<li>${esc(s)}</li>`).join("")}</ol>`;
+      this.openSheet("inspect", `<h3>How this game differs from paper Magic</h3>`, body, `<button class="mg-btn wide" data-act="close">Got it</button>`);
+    }
+
+    /* -------------------------------------------------------- the questions the engine asks */
+    async askMulligan(ctx) {
+      this.mode = "mulligan";
+      this.render();
+      const hand = ctx.hand;
+      const lands = hand.filter(o => o.def.types.includes("Land")).length;
+      const ramp = hand.filter(o => !o.def.types.includes("Land") && o.def.ai && o.def.ai.ramp).length;
+      const verdict = lands >= 3 && lands <= 5 ? "A keep: enough lands to cast Trostani on time." : lands === 2 && ramp ? "Two lands and ramp: a fine keep." : lands < 2 ? "Too few lands. Mulligan unless you feel lucky." : lands > 5 ? "Very land-heavy. A mulligan is reasonable." : "Two lands and no ramp: risky.";
+      const over = document.createElement("div");
+      over.className = "mg-over";
+      over.innerHTML = `<div class="mg-mull"><h2 style="font-size:1.6rem">Opening hand</h2>
+        <div class="hand7">${hand.map(o => `<div class="hc" data-oid="${o.id}"><span class="art" style="${artStyle(o.def)}"></span><span class="cost">${mana(o.def.cost || "")}</span><span class="nm">${esc(o.def.name.split(" // ")[0])}</span></div>`).join("")}</div>
+        <p class="facts">${lands} land${lands === 1 ? "" : "s"}${ramp ? `, ${ramp} ramp` : ""}. ${esc(verdict)}</p></div>
+        <div class="btns"><button class="mg-btn" data-m="0">Mulligan${ctx.mulls === 0 ? " (free)" : ""}</button><button class="mg-btn go" data-m="1">Keep ${7 - Math.max(0, ctx.mulls - 1)}</button></div>`;
+      this.el.appendChild(over);
+      over.querySelectorAll(".hc").forEach(c => c.addEventListener("click", () => { const o = hand.find(x => x.id === +c.dataset.oid); if (o) this.inspect(o); }));
+      const keep = await new Promise(res => over.querySelectorAll("[data-m]").forEach(b => b.addEventListener("click", () => res(b.dataset.m === "1"))));
+      over.remove();
+      this.closeSheet(true);
+      this.mode = "wait";
+      return keep;
+    }
+    async askMain(ctx) {
+      const g = this.g;
+      if (ctx.phase === "main2" && this.skipMain2 === g.turn) return { type: "pass" };
+      this.closeSheet(true);
+      return this.wait("main");
+    }
+    async askAttack(ctx) {
+      this.atkCands = ctx.candidates;
+      const opps = this.opps().filter(p => !p.lost);
+      this.atkTarget = opps.find(p => p.id === this.focusId) || opps[0];
+      this.atk.clear();
+      const r = await this.wait("attack");
+      this.atkCands = null;
+      return r || [];
+    }
+    toggleAttack(o) {
+      const cands = new Set((this.atkCands || []).map(x => x.id));
+      if (!cands.has(o.id)) return;
+      const key = this.pileKey(o, true);
+      const mates = (this.atkCands || []).filter(x => this.pileKey(x, true) === key);
+      const inNow = mates.filter(x => this.atk.has(x.id));
+      if (!this.atk.has(o.id)) { mates.forEach(x => { if (!this.atk.has(x.id)) this.atk.set(x.id, this.atkTarget); }); this.render(); return; }
+      if (mates.length < 2) { this.atk.delete(o.id); this.render(); return; }
+      this.numberSheet(`How many ${shortName(o.def.name)} attack?`, 0, mates.length, inNow.length, "Set", n => {
+        mates.forEach((x, i) => { if (i < n) { if (!this.atk.has(x.id)) this.atk.set(x.id, this.atkTarget); } else this.atk.delete(x.id); });
+        this.render();
+      }, true);
+    }
+    async askBlock(ctx) {
+      this.blockCtx = ctx.attackers;
+      this.sel = ctx.attackers[0] || null;
+      this.blk.clear();
+      const r = await this.wait("block");
+      this.blockCtx = null;
+      return r || [];
+    }
+    toggleBlock(o) {
+      const g = this.g;
+      if (this.blk.has(o.id)) { this.blk.delete(o.id); this.render(); return; }
+      if (!this.sel) return;
+      const grp = this.pile(o).filter(x => !this.blk.has(x.id) && g.canBlock(x, this.sel));
+      if (!grp.length) return;
+      this.blk.set(grp[0].id, this.sel);
+      this.render();
+    }
+    async askRespond(ctx) {
+      const g = this.g, me = this.me;
+      const acts = ctx.actions || [];
+      const spells = acts.filter(a => a.type === "cast");
+      if (ctx.window === "stack") {
+        if (!spells.length && !this.s.stopOnSpells) return null;
+        if (!acts.length) return null;
+      } else if (ctx.window === "combat") {
+        const c = g.combat;
+        const involved = c && (c.attacker === me || c.attackers.some(a => a.combat && g.defenderOf(a.combat.attacking) === me));
+        if (!involved || !acts.length) return null;
+      } else if (ctx.window === "end") {
+        if (g.nextPlayer(ctx.turnOf) !== me || !acts.length) return null;
+      }
+      if (this.fastForward) this.fastForward = false;
+      this.respondCtx = ctx;
+      const r = await this.wait("respond");
+      this.respondCtx = null;
+      return r;
+    }
+
+    /* One sheet per question type. Trigger targets are picked for you unless you asked for them. */
+    async askChoice(req) {
+      const g = this.g;
+      const fromTrigger = (req.spec && req.spec.trigger) || (req.type === "distribute" && req.src && req.src.zone === "battlefield");
+      if (fromTrigger && !this.s.askTriggers) return this.helper.choose(g, this.me, req);
+      if (req.auto && req.options && req.options.length === 1) return req.type === "cards" ? req.options.slice() : req.options[0];
+      if (req.purpose === "manaColor" || req.purpose === "altExile" && req.options.length === 1) return this.helper.choose(g, this.me, req);
+      const prev = this.mode;
+      this.mode = "prompt";
+      this.render();
+      let r;
+      switch (req.type) {
+        case "confirm": r = await this.confirmSheet(req); break;
+        case "number": r = req.min === req.max ? req.min : await new Promise(res => this.numberSheet(req.prompt, req.min, req.max, req.max, "OK", res, false)); break;
+        case "option": r = await this.optionSheet(req); break;
+        case "target": case "player": r = await this.targetSheet(req); break;
+        case "cards": case "targets": r = await this.cardsSheet(req); break;
+        case "distribute": r = await this.distributeSheet(req); break;
+        default: r = this.helper.choose(g, this.me, req);
+      }
+      this.closeSheet(true);
+      this.mode = prev === "prompt" ? "wait" : prev;
+      this.render();
+      return r;
+    }
+    srcLine(req) { return req.src && req.src.def ? `<p>${esc(req.src.def.name)}</p>` : ""; }
+    confirmSheet(req) {
+      return new Promise(res => {
+        const sh = this.openSheet("prompt", `<div><h3>${esc(req.prompt)}</h3>${this.srcLine(req)}</div>`, "", `<button class="mg-btn wide" data-y="0">No</button><button class="mg-btn go wide" data-y="1">Yes</button>`);
+        sh.querySelectorAll("[data-y]").forEach(b => b.addEventListener("click", () => res(b.dataset.y === "1"), { once: true }));
+      });
+    }
+    numberSheet(title, min, max, start, ok, done, cancellable) {
+      let v = Math.max(min, Math.min(max, start));
+      const body = `<div class="mg-num"><button data-d="-1" aria-label="Less">−</button><b>${v}</b><button data-d="1" aria-label="More">+</button></div>
+        <input class="mg-range" type="range" min="${min}" max="${max}" value="${v}" aria-label="Amount">
+        <div class="mg-quick">${[min, Math.floor((min + max) / 2), max].filter((x, i, a) => a.indexOf(x) === i).map(x => `<button data-q="${x}">${x}</button>`).join("")}</div>`;
+      const sh = this.openSheet("prompt", `<div><h3>${esc(title)}</h3><p>From ${min} to ${max}</p></div>`, body, `${cancellable ? `<button class="mg-btn wide" data-c>Cancel</button>` : ""}<button class="mg-btn go wide" data-ok>${esc(ok)}</button>`, cancellable ? () => { this.closeSheet(true); } : null);
+      const b = sh.querySelector(".mg-num b"), range = sh.querySelector(".mg-range");
+      const set = x => { v = Math.max(min, Math.min(max, x)); b.textContent = v; range.value = v; };
+      sh.querySelectorAll("[data-d]").forEach(x => x.addEventListener("click", () => set(v + +x.dataset.d)));
+      sh.querySelectorAll("[data-q]").forEach(x => x.addEventListener("click", () => set(+x.dataset.q)));
+      range.addEventListener("input", () => set(+range.value));
+      sh.querySelector("[data-ok]").addEventListener("click", () => { if (cancellable) this.closeSheet(true); done(v); }, { once: true });
+      const c = sh.querySelector("[data-c]");
+      if (c) c.addEventListener("click", () => this.closeSheet(true), { once: true });
+    }
+    optionSheet(req) {
+      return new Promise(res => {
+        const sh = this.openSheet("prompt", `<div><h3>${esc(req.prompt)}</h3>${this.srcLine(req)}</div>`, `<div class="mg-opts">${req.options.map(o => `<button data-o="${esc(o.id)}">${esc(o.label)}</button>`).join("")}</div>`, "");
+        sh.querySelectorAll("[data-o]").forEach(b => b.addEventListener("click", () => { const o = req.options.find(x => String(x.id) === b.dataset.o); res(o ? o.id : req.options[0].id); }, { once: true }));
+      });
+    }
+    playerChip(p, sel) {
+      const cmd = p.commanders[0], a = cmd && K.art(cmd.def.name);
+      return `<button class="mg-pl${sel ? " sel" : ""}" data-p="${p.id}"><span class="av" style="${a ? `background-image:url('${a.crop}')` : ""}"></span><span>${esc(p === this.me ? "You" : p.name)}</span><b>${p.life}</b></button>`;
+    }
+    targetSheet(req) {
+      const g = this.g;
+      return new Promise(res => {
+        const players = req.options.filter(o => g.isPlayer(o));
+        const objs = req.options.filter(o => !g.isPlayer(o));
+        const byOwner = new Map();
+        for (const o of objs) { const k = o.zone === "battlefield" ? o.controller : o.owner; if (!byOwner.has(k)) byOwner.set(k, []); byOwner.get(k).push(o); }
+        let body = players.length ? `<div class="mg-players">${players.map(p => this.playerChip(p)).join("")}</div>` : "";
+        for (const [owner, list] of byOwner) {
+          body += `<div class="mg-sub">${owner === this.me ? (list[0].zone === "graveyard" ? "Your graveyard" : "Yours") : esc(owner.name) + (list[0].zone === "graveyard" ? "'s graveyard" : "")}</div><div class="mg-grid">${list.map(o => `<div class="opt">${this.cardHTML([o], {})}</div>`).join("")}</div>`;
+        }
+        const foot = req.optional ? `<button class="mg-btn wide" data-none>Skip</button>` : "";
+        const sh = this.openSheet("prompt", `<div><h3>${esc(req.prompt || "Choose a target")}</h3>${this.srcLine(req)}</div>`, body, foot);
+        sh.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => res(players.find(p => p.id === b.dataset.p)), { once: true }));
+        sh.querySelectorAll(".bd [data-oid]").forEach(b => b.addEventListener("click", () => res(objs.find(o => o.id === +b.dataset.oid)), { once: true }));
+        const none = sh.querySelector("[data-none]");
+        if (none) none.addEventListener("click", () => res(null), { once: true });
+      });
+    }
+    cardsSheet(req) {
+      const g = this.g;
+      return new Promise(res => {
+        const min = req.min || 0, max = req.max == null ? req.options.length : req.max;
+        // identical cards share a tile with a count (seven Plains, twenty Soldier tokens)
+        const piles = new Map();
+        for (const o of req.options) { const k = this.pileKey(o, true); if (!piles.has(k)) piles.set(k, []); piles.get(k).push(o); }
+        const keys = [...piles.keys()];
+        const chosen = new Map();
+        const picked = () => { const out = []; for (const [k, n] of chosen) out.push(...piles.get(k).slice(0, n)); return out; };
+        const total = () => [...chosen.values()].reduce((a, b) => a + b, 0);
+        const crew = req.purpose === "crew" ? req.need : 0;
+        const power = () => picked().reduce((a, o) => a + Math.max(0, g.power(o)), 0);
+        const body = `<div class="mg-grid">${keys.map((k, i) => `<div class="opt" data-k="${i}">${this.cardHTML([piles.get(k)[0]], { count: piles.get(k).length })}${piles.get(k)[0].zone === "battlefield" && piles.get(k)[0].controller !== this.me ? `<span class="who">${esc(piles.get(k)[0].controller.name)}</span>` : ""}</div>`).join("")}</div>`;
+        const label = crew ? `Tap creatures with total power ${crew} or more` : min === max ? `Choose ${min}` : max >= req.options.length && min === 0 ? "Choose any number" : `Choose ${min ? min + " to " : "up to "}${max}`;
+        const auto = min > 0 || req.purpose === "cultivate" || req.purpose === "tutor";
+        const sh = this.openSheet("prompt", `<div><h3>${esc(req.prompt || "Choose cards")}</h3><p>${label}</p></div>`, body, `${auto ? `<button class="mg-btn" data-auto>Pick for me</button>` : ""}<button class="mg-btn go wide" data-ok>Done</button>`);
+        const okBtn = sh.querySelector("[data-ok]");
+        const ok = () => { const n = total(); return n >= min && n <= max && (!crew || power() >= crew); };
+        const refresh = () => {
+          const n = total();
+          okBtn.disabled = !ok();
+          okBtn.textContent = crew ? `Crew (${power()}/${crew})` : n ? `Done (${n})` : min ? `Choose ${min}` : "None";
+          sh.querySelectorAll(".opt").forEach(el => {
+            const k = keys[+el.dataset.k], list = piles.get(k), c = chosen.get(k) || 0;
+            const mc = el.querySelector(".mc");
+            mc.classList.toggle("sel", c > 0);
+            let q = mc.querySelector(".qty");
+            if (list.length > 1) { if (!q) { q = document.createElement("span"); q.className = "qty"; mc.appendChild(q); } q.textContent = c ? `${c}/${list.length}` : "×" + list.length; }
+          });
+        };
+        sh.querySelectorAll(".opt").forEach(el => el.addEventListener("click", () => {
+          const k = keys[+el.dataset.k], list = piles.get(k);
+          const c = chosen.get(k) || 0;
+          if (max === 1) { const was = c; chosen.clear(); if (!was) chosen.set(k, 1); }
+          else if (c >= list.length || total() >= max) chosen.set(k, 0);
+          else chosen.set(k, c + 1);
+          refresh();
+          if (max === 1 && min === 1 && total() === 1) res(picked());
+        }));
+        okBtn.addEventListener("click", () => { if (ok()) res(picked()); });
+        const a = sh.querySelector("[data-auto]");
+        if (a) a.addEventListener("click", () => {
+          let r = this.helper.choose(g, this.me, req);
+          if (!Array.isArray(r)) r = r ? [r] : [];
+          r = r.filter(o => req.options.includes(o)).slice(0, max);
+          if (r.length < min) for (const o of req.options) { if (r.length >= min) break; if (!r.includes(o)) r.push(o); }
+          res(r);
+        });
+        refresh();
+      });
+    }
+    distributeSheet(req) {
+      return new Promise(res => {
+        const opts = req.options;
+        const map = {};
+        let left = req.total;
+        const body = `<p style="margin:0 0 10px;color:var(--soft);font-size:.8rem"><b data-left>${left}</b> left to place</p><div class="mg-dist">${opts.map(o => `<div class="row" data-id="${o.id}">${this.cardHTML([o], {})}<span class="nm2">${esc(o.def.name)}</span><span class="step"><button data-d="-1">−</button><b>0</b><button data-d="1">+</button></span></div>`).join("")}</div>`;
+        const sh = this.openSheet("prompt", `<div><h3>${esc(req.prompt)}</h3>${this.srcLine(req)}</div>`, body, `<button class="mg-btn wide" data-auto>Spread for me</button><button class="mg-btn go wide" data-ok>Done</button>`);
+        const paint = () => { sh.querySelector("[data-left]").textContent = left; sh.querySelectorAll(".row").forEach(r => { r.querySelector(".step b").textContent = map[r.dataset.id] || 0; }); };
+        sh.querySelectorAll(".row").forEach(r => r.querySelectorAll("[data-d]").forEach(b => b.addEventListener("click", () => {
+          const id = r.dataset.id, d = +b.dataset.d, cur = map[id] || 0;
+          if (d > 0 && left <= 0) return;
+          if (d < 0 && cur <= 0) return;
+          map[id] = cur + d; left -= d; paint();
+        })));
+        sh.querySelector("[data-auto]").addEventListener("click", () => res(this.helper.choose(this.g, this.me, req)), { once: true });
+        sh.querySelector("[data-ok]").addEventListener("click", () => res(map), { once: true });
+      });
+    }
+
+    /* -------------------------------------------------------- the end */
+    finish() {
+      if (this.dead) return;
+      const g = this.g, me = this.me;
+      this.mode = "over";
+      this.render();
+      const win = g.winner === me;
+      const draw = !g.winner && g.endInfo && g.endInfo.draw;
+      const rounds = Math.max(1, g.round);
+      const killer = !win && !draw ? youText((g.logs.slice().reverse().find(e => e.kind === "lose" && e.p === me) || {}).text || "") : "";
+      const st = loadStats();
+      st.games++;
+      if (win) { st.wins++; if (!st.best || rounds < st.best) st.best = rounds; } else if (draw) st.draws++; else st.losses++;
+      st.most = Math.max(st.most || 0, me.stats.dmg);
+      st.life = Math.max(st.life || 0, me.life);
+      for (const p of this.opps()) {
+        const id = p.deckId || p.name;
+        st.decks[id] = st.decks[id] || { w: 0, l: 0 };
+        if (win) st.decks[id].w++; else if (!draw) st.decks[id].l++;
+      }
+      st.recent = [{ t: Date.now(), win, draw, rounds, vs: this.opps().map(p => p.deckId), dmg: me.stats.dmg, gained: me.stats.gained, tokens: me.stats.tokens }].concat(st.recent || []).slice(0, 20);
+      if (!this.left) saveStats(st);
+      if (this.left) return;
+      const over = document.createElement("div");
+      over.className = "mg-over";
+      const title = win ? "Victory" : draw ? "Draw" : "Defeated";
+      const sub = win ? `You won in ${rounds} round${rounds === 1 ? "" : "s"}.` : draw ? "The game hit the turn limit." : this.conceded ? "You conceded." : esc(killer || "You're out of the game.");
+      over.innerHTML = `<h2 class="${win ? "win" : "loss"}">${title}</h2><p>${sub}</p>
+        <div class="stats">
+          <div><b>${me.stats.dmg}</b><span>damage dealt</span></div>
+          <div><b>${me.stats.gained}</b><span>life gained</span></div>
+          <div><b>${me.stats.tokens}</b><span>tokens made</span></div>
+          <div><b>${Object.values(me.stats.cast).reduce((a, b) => a + b, 0)}</b><span>spells cast</span></div>
+        </div>
+        <p>Record: ${st.wins} win${st.wins === 1 ? "" : "s"} in ${st.games} game${st.games === 1 ? "" : "s"}.</p>
+        <div class="btns"><button class="mg-btn" data-e="log">Game log</button><button class="mg-btn" data-e="lobby">Lobby</button><button class="mg-btn go" data-e="again">Rematch</button></div>`;
+      this.el.appendChild(over);
+      if (win) this.notes();
+      over.addEventListener("click", e => {
+        const b = e.target.closest("[data-e]");
+        if (!b) return;
+        if (b.dataset.e === "log") { over.style.display = "none"; this.$.log.classList.add("on"); const back = () => { over.style.display = ""; this.$.log.removeEventListener("transitionend", back); }; this.$.log.querySelector("[data-act]").addEventListener("click", () => { over.style.display = ""; }, { once: true }); }
+        if (b.dataset.e === "lobby") { this.destroy(); if (this.opts.onExit) this.opts.onExit(); }
+        if (b.dataset.e === "again") { this.destroy(); if (this.opts.onRematch) this.opts.onRematch(this.seats); }
+      });
+    }
+    crash(err) {
+      if (this.dead) return;
+      console.error(err);
+      const over = document.createElement("div");
+      over.className = "mg-over";
+      over.innerHTML = `<h2 class="loss" style="font-size:2rem">Something broke</h2><p>The game hit an error it couldn't recover from. Sorry. You can start a new one.</p><p style="font-family:var(--f-mono,monospace);font-size:.7rem;color:var(--dim)">${esc(err && err.message || err)}</p><div class="btns"><button class="mg-btn go" data-e="lobby">Back to the lobby</button></div>`;
+      this.el.appendChild(over);
+      over.querySelector("[data-e]").addEventListener("click", () => { this.destroy(); if (this.opts.onExit) this.opts.onExit(); });
+    }
+  }
+
+  /* ================================================================ the lobby on the Play tab */
+  const Lobby = {
+    host: null,
+    table: null,
+    mount(host) {
+      this.host = host;
+      this.render();
+    },
+    decks() { return (MK.BOT_DECKS || []).slice(); },
+    render() {
+      const host = this.host;
+      if (!host) return;
+      const s = settings();
+      const decks = this.decks();
+      const st = loadStats();
+      const rate = st.games ? Math.round(100 * st.wins / st.games) : 0;
+      const colorDots = ids => (ids || []).map(k => `<i class="pip ${k.toLowerCase()}"></i>`).join("");
+      host.innerHTML = `
+        <div class="lobby">
+          <div class="lobby-hero">
+            <p class="eyebrow">Play</p>
+            <h2 class="lobby-title">Take Miku to a<br><span>four-player pod</span></h2>
+            <p class="lede">Your upgraded Trostani deck against Bracket 4 bots, dealt at random. Mana is paid for you, everything else is real Commander: the stack, combat, commander tax and damage, and every card in your deck.</p>
+          </div>
+          <div class="lobby-setup">
+            <div class="set-row"><span class="set-label">Opponents</span><div class="seg small" role="radiogroup" aria-label="Number of opponents">${[1, 2, 3].map(n => `<button role="radio" aria-checked="${s.opponents === n}" data-opp="${n}">${n}</button>`).join("")}</div></div>
+            <div class="set-row"><span class="set-label">Bots</span><div class="seg small" role="radiogroup" aria-label="Bot skill">${[["casual", "Casual"], ["sharp", "Sharp"]].map(([k, l]) => `<button role="radio" aria-checked="${s.level === k}" data-level="${k}">${l}</button>`).join("")}</div></div>
+            <div class="set-row"><span class="set-label">Speed</span><div class="seg small" role="radiogroup" aria-label="Game speed">${[["slow", "Slow"], ["normal", "Normal"], ["fast", "Fast"]].map(([k, l]) => `<button role="radio" aria-checked="${s.speed === k}" data-speed="${k}">${l}</button>`).join("")}</div></div>
+            <div class="set-row col"><span class="set-label">Who you face <small>${s.picks && s.picks.length ? "picked" : "random each game"}</small></span>
+              <div class="bot-picks">${decks.map(d => `<button class="bot-pick${(s.picks || []).includes(d.id) ? " on" : ""}" data-pick="${esc(d.id)}" aria-pressed="${(s.picks || []).includes(d.id)}"><span class="bp-art" data-art-crop="${esc(d.commander)}"></span><span class="bp-name">${esc(d.name)}</span><span class="bp-dots">${colorDots(d.identity)}</span></button>`).join("")}</div></div>
+            <button class="btn primary big start" data-start>Shuffle up and play</button>
+          </div>
+          <div class="lobby-record">
+            <div class="rec"><b>${st.games}</b><span>games</span></div>
+            <div class="rec"><b>${st.wins}</b><span>wins</span></div>
+            <div class="rec"><b>${st.games ? rate + "%" : "–"}</b><span>win rate</span></div>
+            <div class="rec"><b>${st.best ? "R" + st.best : "–"}</b><span>fastest win</span></div>
+          </div>
+          <div class="bot-gallery">
+            ${decks.map(d => `<article class="bot-card">
+              <div class="bc-art" data-art-crop="${esc(d.commander)}"></div>
+              <div class="bc-body"><p class="eyebrow">${esc(d.style || "Bracket 4")} · ${colorDots(d.identity)}</p><h3>${esc(d.title || d.commander)}</h3><p>${esc(d.blurb || "")}</p>
+              ${d.watch && d.watch.length ? `<p class="watch"><span>Watch out for</span> ${d.watch.map(n => `<b>${esc(n)}</b>`).join(", ")}</p>` : ""}
+              ${st.decks[d.id] ? `<p class="bc-rec">You're ${st.decks[d.id].w}–${st.decks[d.id].l} against it</p>` : ""}</div>
+            </article>`).join("")}
+          </div>
+          <details class="panel simp"><summary>How this game differs from paper Magic</summary><ol>${MK.SIMPLIFICATIONS.map(x => `<li>${esc(x)}</li>`).join("")}</ol></details>
+        </div>`;
+      const paint = () => host.querySelectorAll("[data-art-crop]").forEach(el => { const a = K.art(el.dataset.artCrop); if (a) el.style.backgroundImage = `url('${a.crop}')`; });
+      paint();
+      K.ensure(decks.map(d => d.commander).concat(["Trostani, Selesnya's Voice"]), { miku: true }).then(paint);
+      host.querySelectorAll("[data-opp]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { opponents: +b.dataset.opp })); this.render(); }));
+      host.querySelectorAll("[data-level]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { level: b.dataset.level })); this.render(); }));
+      host.querySelectorAll("[data-speed]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { speed: b.dataset.speed })); this.render(); }));
+      host.querySelectorAll("[data-pick]").forEach(b => b.addEventListener("click", () => {
+        const cur = settings(); const picks = new Set(cur.picks || []);
+        if (picks.has(b.dataset.pick)) picks.delete(b.dataset.pick); else picks.add(b.dataset.pick);
+        saveSettings(Object.assign(cur, { picks: [...picks] })); this.render();
+      }));
+      host.querySelector("[data-start]").addEventListener("click", () => this.start());
+    },
+    seats() {
+      const s = settings();
+      const decks = this.decks();
+      const n = Math.max(1, Math.min(3, s.opponents || 3));
+      let pool = decks.filter(d => (s.picks || []).includes(d.id));
+      const out = [];
+      const rnd = a => a.splice(Math.floor(Math.random() * a.length), 1)[0];
+      const left = decks.slice();
+      while (out.length < n && pool.length) { const d = rnd(pool); out.push(d); left.splice(left.indexOf(d), 1); }
+      while (out.length < n && left.length) out.push(rnd(left));
+      while (out.length < n) out.push(decks[out.length % decks.length] || MK.MIKU_DECK);
+      return [{ human: true, deck: MK.MIKU_DECK }].concat(out.map(d => ({ deck: d })));
+    },
+    start(seats) {
+      if (this.table) this.table.destroy();
+      const t = this.table = new Table({ onExit: () => { this.table = null; this.render(); }, onRematch: prev => this.start(prev) });
+      t.start(seats || this.seats());
+    }
+  };
+
+  root.MikuGame = { Table, Lobby, mount: host => Lobby.mount(host), loadStats, SPEED };
+})(window);

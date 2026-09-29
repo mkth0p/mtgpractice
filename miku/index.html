@@ -3,34 +3,35 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Miku Deck Wiki</title>
-<meta name="description" content="Everything about the upgraded Hatsune Miku (Trostani, Selesnya's Voice) Commander deck: every card explained, the combos step by step, how to pilot it, and the 300€ upgrade plan.">
-<meta name="theme-color" content="#f5f3ee" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0b1012" media="(prefers-color-scheme: dark)">
+<title>Miku Deck</title>
+<meta name="description" content="The upgraded Hatsune Miku (Trostani, Selesnya's Voice) Commander deck: a step-by-step guide, every card with rulings, the combos, deck stats, the upgrade plan, and a playable Commander game against Bracket 4 bots.">
+<meta name="theme-color" content="#f3f0e8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#07090c" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Miku Deck">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cards.scryfall.io" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Dela+Gothic+One&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,700;1,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=3">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Martian+Mono:wght@400;500;600&family=Unbounded:wght@500;700;800;900&display=swap">
+<link rel="stylesheet" href="styles.css?v=4">
+<script>try { var t = localStorage.getItem("mikuWiki.theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="topbar" id="topbar">
-  <div class="bar-main">
-    <div class="wrap">
-      <a class="brand" href="#deck" aria-label="Miku Deck Wiki home">
-        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="9" fill="var(--teal-fill)"/><path d="M9 22V11l7 7 7-7v11" fill="none" stroke="var(--on-teal)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="25" cy="7" r="3.6" fill="var(--pink)"/></svg>
-        <span><b>MIKU DECK</b><small>Trostani · Selesnya · 100</small></span>
-      </a>
-      <nav class="topnav" aria-label="Sections" data-nav></nav>
+  <div class="wrap bar">
+    <a class="brand" href="#guide" aria-label="Miku Deck, home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="9" class="bm-bg"/><path d="M8 22V11l8 8 8-8v11" fill="none" class="bm-m" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="25.5" cy="6.5" r="3.4" class="bm-dot"/></svg>
+      <span class="brand-txt"><b>Miku Deck</b><small>Trostani · Selesnya · 100</small></span>
+    </a>
+    <nav class="topnav" aria-label="Sections" data-nav></nav>
+    <div class="bar-actions">
       <button class="icon-btn" id="searchBtn" type="button" aria-label="Search cards">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       </button>
@@ -40,27 +41,32 @@
       </button>
     </div>
   </div>
-  <nav class="subnav" id="subnav" aria-label="On this page"><div class="wrap"><div class="subnav-track" id="subnavTrack"></div></div></nav>
+  <div class="segbar" id="segbar"><div class="wrap"><div class="seg-track" id="segTrack" role="tablist"></div></div></div>
 </header>
 
 <main id="main">
-<!-- ============================================================ DECK (home) -->
-<div class="view" id="view-deck" data-view="deck">
-  <section class="hero" id="overview" data-sub="Overview">
-    <div class="wrap">
-      <div class="hero-grid">
+<!-- ================================================================== GUIDE -->
+<div class="view" id="view-guide" data-view="guide" data-segs="start:Overview,chapters:Chapters,combos:Combos,plan:Game plan">
+
+  <div class="segment" data-segment="start">
+    <section class="hero" id="overview">
+      <div class="marquee" aria-hidden="true"><div class="marquee-track"><span>Now playing</span><b>Trostani, Selesnya's Voice</b><span>Bracket 3 · Upgraded</span><b>22 upgrades</b><span>3 infinite combos</span><b>~295€ of 300€</b><span>Now playing</span><b>Trostani, Selesnya's Voice</b><span>Bracket 3 · Upgraded</span><b>22 upgrades</b><span>3 infinite combos</span><b>~295€ of 300€</b></div></div>
+      <div class="wrap hero-grid">
         <div class="hero-copy">
-          <p class="kicker"><span class="dot" aria-hidden="true"></span>Secret Lair Commander Deck · upgraded</p>
-          <h1 class="hero-title"><span class="l1">Hatsune</span><span class="l2">Miku<i>.</i></span></h1>
+          <p class="kicker"><span class="live-dot" aria-hidden="true"></span>Secret Lair Commander Deck · upgraded</p>
+          <h1 class="hero-title" aria-label="Hatsune Miku"><span class="ht-1">Hatsune</span><span class="ht-2" data-t="Miku">Miku</span></h1>
           <span class="jp" aria-hidden="true">初音ミク</span>
-          <div class="wave" aria-hidden="true" id="wave"></div>
-          <p class="hero-lede">A Selesnya token and lifegain deck, rebuilt to end games. Every creature that enters gains you life, every life gained grows your team, and then the team runs over the table. This is the full manual: every card, every combo, and how to play it.</p>
+          <p class="hero-lede">A Selesnya token and lifegain deck, rebuilt to end games. Every creature that enters gains you life, every life gained grows your team, and then the team runs over the table. This is the full manual: a guide you can read in steps, every card with rulings, the combos, the numbers, and a real game to practise against.</p>
           <ul class="ticket-strip" aria-label="Deck facts">
             <li class="teal">Bracket 3 · Upgraded</li>
             <li>~295€ total</li>
             <li class="pink">22 upgrades</li>
             <li>3 infinite combos</li>
           </ul>
+          <div class="hero-cta">
+            <a class="btn primary" href="#ch-deck-in-60-seconds">Start the guide</a>
+            <a class="btn ghost" href="#play"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>Play a game</a>
+          </div>
         </div>
         <button class="cmdr" type="button" data-card="Trostani, Selesnya's Voice">
           <span class="foil" data-tilt><span class="mini-card" data-art="Trostani, Selesnya's Voice"></span><span class="shine" aria-hidden="true"></span></span>
@@ -68,502 +74,631 @@
             <span class="label">Commander</span>
             <span class="cmdr-name">Trostani, Selesnya's Voice</span>
             <span class="muted cmdr-desc">Printed as <i>Miku, Song of the People</i>. {G}{G}{W}{W}, 2/5. Gains you life whenever another creature enters, and populates at instant speed.</span>
-            <span class="go">Open card <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
           </span>
         </button>
       </div>
-      <dl class="stats">
+      <div class="wave" aria-hidden="true" id="wave"></div>
+    </section>
+
+    <div class="wrap">
+      <dl class="hero-stats">
         <div class="stat"><dt><b data-count="100">100</b></dt><dd>cards, 34 lands, 14 of them Miku-art basics</dd></div>
         <div class="stat"><dt><b data-count="3.3" data-dec="1">3.3</b></dt><dd>average mana value of the nonland cards</dd></div>
         <div class="stat"><dt><b>T7–9</b></dt><dd>typical kill turn at a 4-player table (median 9 in the speed test)</dd></div>
         <div class="stat"><dt><b>6.5–7</b></dt><dd>out of 10 on the old power scale</dd></div>
       </dl>
+
+      <section class="block" id="engine">
+        <div class="section-head">
+          <p class="eyebrow">How the deck wins</p>
+          <h2>One engine, four beats</h2>
+        </div>
+        <ol class="flow">
+          <li><span class="beat">1</span><div><b>Creatures enter</b><p>Tokens from Hero of Bladehold, Adeline, Elspeth, Grand Crescendo and populate. Each one is a separate trigger.</p></div></li>
+          <li><span class="beat">2</span><div><b>You gain life</b><p><i-c>Trostani, Selesnya's Voice</i-c>, <i-c>Soul Warden</i-c> and <i-c>Prosperous Innkeeper</i-c> turn every body into a lifegain event.</p></div></li>
+          <li><span class="beat">3</span><div><b>The team grows</b><p><i-c>Archangel of Thune</i-c>, <i-c>Heliod, Sun-Crowned</i-c>, <i-c>Nykthos Paragon</i-c> and <i-c>Cathars' Crusade</i-c> turn those events into +1/+1 counters.</p></div></li>
+          <li><span class="beat">4</span><div><b>Overrun or combo</b><p><i-c>Craterhoof Behemoth</i-c>, <i-c>Overwhelming Stampede</i-c> and friends end it. If the board stalls, <a href="#combos">the combos</a> win anyway.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="block" id="continue">
+        <div class="section-head">
+          <p class="eyebrow">The guide</p>
+          <h2>Learn it track by track</h2>
+          <p class="muted">Sixteen short chapters, from the deck in 60 seconds to the trickiest rules questions. Your place is saved on this device.</p>
+        </div>
+        <div class="resume" id="resume"></div>
+      </section>
+
+      <section class="block" id="play-promo">
+        <a class="play-promo" href="#play">
+          <span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="pp-copy"><span class="eyebrow">Live</span><b>Take Miku to a four-player pod</b><span class="muted">A real Commander game against Bracket 4 bots, dealt at random. Built for one thumb.</span></span>
+          <span class="pp-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span>
+        </a>
+      </section>
     </div>
-  </section>
-
-  <div class="wrap">
-    <section class="block" id="engine" data-sub="Engine">
-      <div class="section-head">
-        <p class="eyebrow">How the deck wins</p>
-        <h2>One engine, four beats</h2>
-      </div>
-      <ol class="flow">
-        <li><span class="beat">1</span><div><b>Creatures enter</b><p>Tokens from Hero of Bladehold, Adeline, Elspeth, Grand Crescendo and populate. Each one is a separate trigger.</p></div></li>
-        <li><span class="beat">2</span><div><b>You gain life</b><p><i-c>Trostani, Selesnya's Voice</i-c>, <i-c>Soul Warden</i-c> and <i-c>Prosperous Innkeeper</i-c> turn every body into a lifegain event.</p></div></li>
-        <li><span class="beat">3</span><div><b>The team grows</b><p><i-c>Archangel of Thune</i-c>, <i-c>Heliod, Sun-Crowned</i-c>, <i-c>Nykthos Paragon</i-c> and <i-c>Cathars' Crusade</i-c> turn those events into +1/+1 counters.</p></div></li>
-        <li><span class="beat">4</span><div><b>Overrun or combo</b><p><i-c>Craterhoof Behemoth</i-c>, <i-c>Overwhelming Stampede</i-c> and friends end it. If the board stalls, <a href="#combos">the combos</a> win anyway.</p></div></li>
-      </ol>
-    </section>
-
-    <section class="block" id="curve" data-sub="Mana curve">
-      <div class="section-head">
-        <p class="eyebrow">Mana curve</p>
-        <h2>The levels</h2>
-        <p class="muted">Nonland cards by mana value. X costs count as 0 plus their fixed symbols. Tap a bar to list its cards.</p>
-      </div>
-      <div class="split">
-        <div class="eq-card">
-          <div class="eq-head"><b>66 nonland cards</b><span class="muted mono small">peak at 2 mana</span></div>
-          <div class="eq" id="eq" role="group" aria-label="Mana curve"></div>
-          <div class="eq-readout" id="eqReadout" aria-live="polite"></div>
-        </div>
-        <div class="eq-card">
-          <div class="eq-head"><b>Card types</b><span class="muted mono small">100 cards</span></div>
-          <div class="typebars" id="typebars"></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="block" id="speed" data-sub="Speed test">
-      <div class="section-head">
-        <p class="eyebrow">Speed test</p>
-        <h2>How fast it kills</h2>
-        <p class="muted">5,000 simulated solo games of the final 100 cards against three opponents at 40 life, with no blockers and no removal. Real games are slower, so read these as a ceiling. Tap a bar for the details.</p>
-      </div>
-      <div class="split">
-        <div class="eq-card">
-          <div class="eq-head"><b>Games won by the end of turn…</b><span class="muted mono small">median turn 9</span></div>
-          <div class="speed" id="speedChart" role="group" aria-label="Share of games won by each turn"></div>
-          <div class="eq-readout speed-readout" id="speedReadout" aria-live="polite"></div>
-        </div>
-        <div class="eq-card">
-          <div class="eq-head"><b>How the games ended</b><span class="muted mono small">with combos</span></div>
-          <div class="typebars endings" id="endings"></div>
-          <p class="muted small">The combos add only a few points. The deck wins by going wide and growing its creatures with lifegain triggers.</p>
-        </div>
-      </div>
-      <details class="faq assumptions"><summary>What the test assumes</summary><div>
-        <p>You go first with no draw on turn 1, take one free mulligan, and keep 2 to 5 lands. Colors are ignored, and a simple AI casts the best card it can afford, holding Stampede, Triumph, Craterhoof and Return of the Wildspeaker until they win that turn. Removal never gets cast, so 8 cards do nothing here. A skilled player would do a bit better; real opponents make it slower.</p>
-      </div></details>
-    </section>
-
-    <section class="block" id="setlist-sec" data-sub="All 100">
-      <div class="section-head">
-        <p class="eyebrow">The setlist</p>
-        <h2>All 100 cards</h2>
-        <p class="muted">Tap any card for its full entry. <span class="new-dot">NEW</span> marks the 22 upgrades.</p>
-      </div>
-      <div class="setlist" id="setlist"></div>
-      <div class="btn-row">
-        <button class="btn primary" type="button" data-copy="names">Copy decklist</button>
-        <button class="btn" type="button" data-copy="qty">Copy with quantities</button>
-        <a class="btn" href="#cards">Open the card wiki</a>
-      </div>
-    </section>
   </div>
-</div>
 
-<!-- ============================================================ CARDS -->
-<div class="view" id="view-cards" data-view="cards">
-  <div class="wrap">
-    <section class="block cards-head">
-      <div class="section-head">
-        <p class="eyebrow">Card wiki</p>
-        <h2>Every card, explained</h2>
-        <p class="muted">What each card does, why it's in the deck, how to play it, and what it combos with.</p>
-      </div>
-    </section>
-  </div>
-  <div class="toolbar" id="toolbar">
+  <div class="segment" data-segment="chapters">
     <div class="wrap">
-      <div class="tool-row">
-        <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="sr">Search cards</span><input id="q" type="search" placeholder="Search names and rules text" autocomplete="off" enterkeyhint="search"><button class="clear" type="button" id="qClear" aria-label="Clear search" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 7l10 10M17 7 7 17"/></svg></button></label>
-        <label class="sort-wrap"><span class="sr">Sort cards</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></svg>
-          <select class="sort" id="sort">
-            <option value="role">Group by role</option>
-            <option value="type">Group by type</option>
-            <option value="mv">Sort by mana value</option>
-            <option value="az">A to Z</option>
-          </select>
-        </label>
-        <button class="icon-btn view-toggle" type="button" id="viewToggle" aria-pressed="false" aria-label="Show card images">
-          <svg class="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="9" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="9" rx="1.5"/><rect x="3.5" y="15.5" width="7" height="5" rx="1.5"/><rect x="13.5" y="15.5" width="7" height="5" rx="1.5"/></svg>
-          <svg class="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
-        </button>
-      </div>
-      <div class="chips" id="roleChips" role="group" aria-label="Filter by role"></div>
+      <section class="block" id="chapters">
+        <div class="section-head">
+          <p class="eyebrow">The guide · 16 tracks</p>
+          <h2>Step by step</h2>
+          <p class="muted" id="guideMeta">Tap a track to read it. Each one ends with the next.</p>
+        </div>
+        <ol class="tracklist" id="tracklist"></ol>
+      </section>
     </div>
   </div>
-  <div class="wrap">
-    <p class="count" id="count" aria-live="polite"></p>
-    <div class="card-list" id="cardList"></div>
+
+  <div class="segment" data-segment="combos">
+    <div class="wrap">
+      <section class="block" id="kills">
+        <div class="section-head">
+          <p class="eyebrow">Combos &amp; kills</p>
+          <h2>How to actually win</h2>
+          <p class="prose">The deck has three ways to end a game: a wide attack with a pump spell (most games), one of the infinite combos (when the board stalls or you need to win at instant speed), and Halo Fountain's alternate win. Tell your table about the infinite combos before you play: Bracket 3 allows them late in the game, but some groups don't.</p>
+        </div>
+      </section>
+
+      <section class="block" id="combo-ballista">
+        <details class="ticket" open>
+          <summary class="stub"><span class="admit">Combo 1</span><span class="kind">Infinite damage</span><span class="serial mono" aria-hidden="true">No. 01 · Instant</span><span class="t-title">Heliod + Walking Ballista</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <div class="pieces"><button class="chip" type="button" data-card="Heliod, Sun-Crowned">Heliod, Sun-Crowned</button><span class="plus">+</span><button class="chip" type="button" data-card="Walking Ballista">Walking Ballista</button></div>
+            <dl class="kv">
+              <dt>You need</dt><dd>Heliod on the battlefield (it doesn't need to be a creature), Walking Ballista with <b>at least two</b> +1/+1 counters, and {1}{W}.</dd>
+              <dt>Total mana</dt><dd>7 to 9 across one or more turns: Heliod 3, Ballista 2 to 4, lifelink 2.</dd>
+              <dt>Speed</dt><dd>Instant. Everything after casting Ballista can happen on an opponent's turn.</dd>
+            </dl>
+            <ol class="steps">
+              <li><span>Have <i-c>Heliod, Sun-Crowned</i-c> out. Cast <i-c>Walking Ballista</i-c> with X=2. With Trostani or Soul Warden out, X=1 is enough: Ballista entering gains you life, and Heliod puts a second counter on it.</span></li>
+              <li><span>Pay {1}{W} for Heliod's ability: Walking Ballista gains lifelink until end of turn.</span></li>
+              <li><span>Remove a counter from Ballista: it deals 1 damage to an opponent. It still has a counter left, so it survives.</span></li>
+              <li><span>Lifelink gains you 1 life. Heliod triggers and puts a +1/+1 counter back on Ballista.</span></li>
+              <li><span>Ballista is back where it started. Repeat step 3 until every opponent is dead.</span></li>
+            </ol>
+            <div class="sim" data-widget="ballistaSim"></div>
+            <div class="faqs">
+              <details class="faq"><summary>Why two counters and not one?</summary><div><p>If Ballista has one counter and you remove it, it becomes a 0/0 and dies before the ping resolves. The damage and lifelink still happen, but Heliod's trigger has no Ballista to target, so the loop ends. With two counters, Ballista survives each ping.</p></div></details>
+              <details class="faq"><summary>What if they respond?</summary><div><p>If someone tries to kill Ballista in response to the lifelink activation, remove its counters in response and ping anyway. If Heliod gets exiled or bounced mid-loop, you keep whatever damage you already dealt. Heliod's indestructible, so destroy effects do nothing to it.</p></div></details>
+              <details class="faq"><summary>How do I find the pieces?</summary><div><p><i-c>Finale of Devastation</i-c> for X=3 puts Heliod directly onto the battlefield. Don't use Finale for Ballista: it enters with zero counters and dies.</p></div></details>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="block" id="combo-feeder">
+        <details class="ticket pinkish">
+          <summary class="stub"><span class="admit">Combo 2</span><span class="kind">Infinite life</span><span class="serial mono" aria-hidden="true">No. 02 · Free</span><span class="t-title">Spike Feeder + Heliod, Thune or Cleric Class</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <div class="pieces"><button class="chip" type="button" data-card="Spike Feeder">Spike Feeder</button><span class="plus">+</span><button class="chip" type="button" data-card="Heliod, Sun-Crowned">Heliod</button><span class="muted">or</span><button class="chip" type="button" data-card="Archangel of Thune">Archangel of Thune</button><span class="muted">or</span><button class="chip" type="button" data-card="Cleric Class">Cleric Class (level 2)</button></div>
+            <dl class="kv">
+              <dt>You need</dt><dd>Spike Feeder with <b>at least two</b> counters (it enters with two), plus one of the three engines. No extra mana.</dd>
+              <dt>Speed</dt><dd>Instant, and free. You can do it in response to a board wipe.</dd>
+              <dt>Win with</dt><dd><i-c>Aetherflux Reservoir</i-c> (50 damage per 50 life), or Archangel of Thune's infinite counters and an attack.</dd>
+            </dl>
+            <ol class="steps">
+              <li><span>Remove a +1/+1 counter from <i-c>Spike Feeder</i-c>: you gain 2 life (3 with Cleric Class).</span></li>
+              <li><span>The engine triggers. <b>Heliod</b> or <b>Cleric Class</b> puts a counter on target creature: pick Spike Feeder. <b>Archangel of Thune</b> puts a counter on every creature you control, including Feeder.</span></li>
+              <li><span>Feeder has its counter back. Repeat as many times as you like.</span></li>
+              <li><span>With Archangel of Thune, every loop also grows your whole team by +1/+1. Stop at any size and attack.</span></li>
+              <li><span>With Aetherflux Reservoir out, pay 50 life for 50 damage to each opponent in turn.</span></li>
+            </ol>
+            <div class="sim" data-widget="feederSim"></div>
+            <div class="faqs">
+              <details class="faq"><summary>Why two counters?</summary><div><p>Removing the last counter is part of the cost, so Feeder dies as a 0/0 before the life arrives and the engine has nothing to put the counter back on. Loop with two or more and it survives every time.</p></div></details>
+              <details class="faq"><summary>Is infinite life a win on its own?</summary><div><p>No. It makes you nearly impossible to kill by damage, but you still need to finish. The payoffs in this deck are <i-c>Aetherflux Reservoir</i-c>, <i-c>Soul of Eternity</i-c> (its size is your life total), <i-c>Lathiel, the Bounteous Dawn</i-c> (that many counters at end of turn), and Archangel of Thune growing the team.</p></div></details>
+              <details class="faq"><summary>What protects it?</summary><div><p><i-c>Shalai, Voice of Plenty</i-c> gives your other creatures hexproof, which covers Feeder, Thune and Ballista. It doesn't cover Heliod while Heliod isn't a creature, or Aetherflux Reservoir (an artifact). Keep <i-c>Grand Crescendo</i-c> or <i-c>Rootborn Defenses</i-c> up against wipes.</p></div></details>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="block" id="combo-fountain">
+        <details class="ticket plain">
+          <summary class="stub"><span class="admit">Alt win</span><span class="kind">Fifteen untaps</span><span class="serial mono" aria-hidden="true">No. 03 · In combat</span><span class="t-title">Halo Fountain: untap fifteen, win the game</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <p class="prose">For {W}{W}{W}{W}{W}, tap <i-c>Halo Fountain</i-c> and untap fifteen tapped creatures you control, and you win. The creatures need to be tapped first, so the timing is: attack with fifteen or more creatures without vigilance, then activate it right after attackers are declared, before blockers can kill any of them. Convoke (<i-c>Hour of Reckoning</i-c>, <i-c>Dazzling Theater // Prop Room</i-c>) also taps creatures, and so does <i-c>Springleaf Drum</i-c>.</p>
+            <div class="note warn"><h4>Watch out</h4><p><i-c>Intangible Virtue</i-c> gives your tokens vigilance, so they won't tap when they attack.</p></div>
+          </div>
+        </details>
+      </section>
+
+      <section class="block" id="finishers">
+        <div class="section-head">
+          <p class="eyebrow">Overruns</p>
+          <h2>Lethal calculator</h2>
+          <p class="muted">Most games end with a wide attack and a pump spell. Put in your board and see which finisher kills. It assumes your attackers aren't blocked, so treat it as a best case.</p>
+        </div>
+        <div data-widget="lethalCalc"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="plan">
+    <div class="wrap">
+      <section class="block" id="plan">
+        <div class="section-head">
+          <p class="eyebrow">Game plan</p>
+          <h2>How to pilot it</h2>
+          <p class="prose">You're the midrange deck at the table: faster than the control players, slower than the combo players. Ramp early, build an engine in the midgame, and end it in one big turn. The whole game is about sequencing: lifegain sources before the creatures that trigger them, bait before your best threat, and protection held up before you commit.</p>
+        </div>
+        <div class="phases snap-row">
+          <div class="phase"><span class="turns-lbl">Turns 1–3</span><span class="when">Soundcheck</span>
+            <ul>
+              <li>Play a mana source every turn: <i-c>Llanowar Elves</i-c>, <i-c>Elvish Mystic</i-c>, <i-c>Sol Ring</i-c>, <i-c>Arcane Signet</i-c>, <i-c>Nature's Lore</i-c>.</li>
+              <li>Drop cheap engines early: <i-c>Soul Warden</i-c>, <i-c>Cleric Class</i-c>, <i-c>Ajani's Pridemate</i-c>, <i-c>Voice of the Blessed</i-c>.</li>
+              <li>A good turn 3 is <i-c>Adeline, Resplendent Cathar</i-c> or, off a mana creature, Trostani.</li>
+            </ul></div>
+          <div class="phase"><span class="turns-lbl">Turns 4–6</span><span class="when">The build</span>
+            <ul>
+              <li>Land Trostani, then the payoffs: <i-c>Archangel of Thune</i-c>, <i-c>Hero of Bladehold</i-c>, <i-c>Elspeth, Sun's Champion</i-c>, <i-c>Cathars' Crusade</i-c>.</li>
+              <li>Attack with Adeline and Hero every turn, at the player with the fewest blockers.</li>
+              <li>Keep <i-c>Grand Crescendo</i-c> or <i-c>Rootborn Defenses</i-c> mana open once your board is worth protecting.</li>
+            </ul></div>
+          <div class="phase"><span class="turns-lbl">Turn 7+</span><span class="when">Encore</span>
+            <ul>
+              <li>Count lethal with the <a href="#finishers">calculator</a>, then cast the overrun precombat.</li>
+              <li>If the board is stalled, go for a combo: <a href="#combo-ballista">Heliod + Ballista</a> or <a href="#combo-feeder">Spike Feeder</a>.</li>
+              <li><i-c>Finale of Devastation</i-c> at X=10 or more is a Craterhoof by itself.</li>
+            </ul></div>
+        </div>
+      </section>
+
+      <section class="block" id="trainer">
+        <div class="section-head">
+          <p class="eyebrow">Practice</p>
+          <h2>Opening hand trainer</h2>
+          <p class="muted">Draw seven from the real 99 and see whether it's a keep. Your first mulligan in multiplayer Commander is free.</p>
+        </div>
+        <div data-widget="handTrainer"></div>
+        <div class="grid-2">
+          <div class="panel rule keep"><h3>Keep</h3><ul class="prose">
+            <li>3 or 4 lands with at least one ramp piece.</li>
+            <li>2 lands plus Sol Ring or a mana creature and cheap plays.</li>
+            <li>Anything with Trostani castable by turn 4.</li></ul></div>
+          <div class="panel rule mull"><h3>Mulligan</h3><ul class="prose">
+            <li>0 or 1 land, even with ramp.</li>
+            <li>6 or 7 lands.</li>
+            <li>Only 5+ mana spells. Don't mulligan to find combo pieces: the deck wins without them.</li></ul></div>
+        </div>
+      </section>
+
+      <section class="block" id="example">
+        <div class="section-head">
+          <p class="eyebrow">Example</p>
+          <h2>A good draw, turn by turn</h2>
+          <p class="muted">A sample goldfish with no interaction from opponents, to show how fast the engine snowballs.</p>
+        </div>
+        <ol class="turns">
+          <li><span class="tn">T1</span><div><p>Forest, <i-c>Elvish Mystic</i-c></p><span class="after">1 creature</span></div></li>
+          <li><span class="tn">T2</span><div><p>Plains, <i-c>Arcane Signet</i-c>, <i-c>Soul Warden</i-c></p><span class="after">2 creatures, 4 mana next turn</span></div></li>
+          <li><span class="tn">T3</span><div><p>Sunpetal Grove, <i-c>Trostani, Selesnya's Voice</i-c> (+1 from Warden)</p><span class="after">Engine online, 41 life</span></div></li>
+          <li><span class="tn">T4</span><div><p>Plains, <i-c>Hero of Bladehold</i-c> (+4 Trostani, +1 Warden), <i-c>Intangible Virtue</i-c></p><span class="after">46 life</span></div></li>
+          <li><span class="tn">T5</span><div><p>Land, <i-c>Archangel of Thune</i-c> (+4, +1: two counters on everything). Hero attacks: two Soldiers enter, each gains 2 and 1 more, four more counter waves.</p><span class="after">Your older creatures carry six counters each</span></div></li>
+          <li><span class="tn">T6</span><div><p><i-c>Overwhelming Stampede</i-c> or <i-c>Beastmaster Ascension</i-c> and swing</p><span class="after">At least one player dead</span></div></li>
+        </ol>
+      </section>
+
+      <section class="block" id="habits">
+        <div class="section-head">
+          <p class="eyebrow">Sequencing</p>
+          <h2>Ten habits that win games</h2>
+        </div>
+        <ol class="habits">
+          <li><span><b>Lifegain first, bodies second.</b> Soul Warden, Trostani and Innkeeper only count creatures that enter after them.</span></li>
+          <li><span><b>Populate at the end of the opponent's turn.</b> Trostani's ability works at instant speed. Hold the mana, bluff, and still get the token.</span></li>
+          <li><span><b>Bait before the Angel.</b> Hero of Bladehold and Adeline must be answered. Once they've eaten removal, Archangel of Thune lives longer.</span></li>
+          <li><span><b>Skip small Nykthos Paragon triggers.</b> It works once per turn and it's optional. Wait for a big gain.</span></li>
+          <li><span><b>Order Hero of Bladehold's triggers.</b> Make the tokens first, then battle cry, so the Soldiers get +1/+0.</span></li>
+          <li><span><b>Don't overextend into a wipe.</b> Keep a token maker in hand, or hold Grand Crescendo or Rootborn Defenses.</span></li>
+          <li><span><b>Clamp your 1/1s.</b> Skullclamp on a Citizen or Soldier is two cards for one mana. Intangible Virtue turns this off.</span></li>
+          <li><span><b>Hour of Reckoning is yours.</b> It only kills nontoken creatures. When your board is tokens and theirs isn't, it's one-sided.</span></li>
+          <li><span><b>Save Swords and Path.</b> Use them on combo pieces and commanders, not on the first creature you see.</span></li>
+          <li><span><b>Announce the combo turn clearly.</b> Walk the table through the loop, state how many times you repeat it, and move on.</span></li>
+        </ol>
+      </section>
+
+      <section class="block" id="matchups">
+        <div class="section-head">
+          <p class="eyebrow">Matchups</p>
+          <h2>Reading the table</h2>
+        </div>
+        <div class="matchups">
+          <details class="mu" data-auto-open><summary><span class="mu-ic" aria-hidden="true">◐</span>Against control and board wipes</summary><div><p>Commit two or three threats at a time, not your whole hand. <i-c>Voice of Resurgence</i-c> punishes instant-speed removal on your turn, and <i-c>Grand Crescendo</i-c> cast at the end of their turn rebuilds a board from nothing. <i-c>Elenda's Hierophant</i-c> leaves tokens behind.</p></div></details>
+          <details class="mu" data-auto-open><summary><span class="mu-ic" aria-hidden="true">∞</span>Against combo decks</summary><div><p>You have no counterspells, so your answer is pressure and removal. Attack the combo player early, and save <i-c>Beast Within</i-c>, <i-c>Generous Gift</i-c> and <i-c>Swords to Plowshares</i-c> for their key piece. <i-c>Walking Ballista</i-c> can snipe small combo creatures.</p></div></details>
+          <details class="mu" data-auto-open><summary><span class="mu-ic" aria-hidden="true">⚔</span>Against aggro and voltron</summary><div><p>Your life total is a resource. Chump block with tokens, keep gaining, and use <i-c>Swords to Plowshares</i-c> or <i-c>Path to Exile</i-c> on a suited-up commander. <i-c>Shalai, Voice of Plenty</i-c> stops targeted burn at your face.</p></div></details>
+          <details class="mu" data-auto-open><summary><span class="mu-ic" aria-hidden="true">⚙</span>Against artifacts and enchantments</summary><div><p><i-c>Break Down</i-c>, <i-c>Sundering Growth</i-c> and <i-c>Excavation Technique</i-c> handle rocks, equipment and stax pieces. Sundering Growth also populates.</p></div></details>
+        </div>
+      </section>
+    </div>
   </div>
 </div>
 
-<!-- ============================================================ COMBOS -->
-<div class="view" id="view-combos" data-view="combos">
-  <div class="wrap">
-    <section class="block" id="kills" data-sub="Ways to win">
-      <div class="section-head">
-        <p class="eyebrow">Combos &amp; kills</p>
-        <h2>How to actually win</h2>
-        <p class="prose">The deck has three ways to end a game: a wide attack with a pump spell (most games), one of the infinite combos (when the board stalls or you need to win at instant speed), and Halo Fountain's alternate win. Tell your table about the infinite combos before you play: Bracket 3 allows them late in the game, but some groups don't.</p>
+<!-- ================================================================== CARDS -->
+<div class="view" id="view-cards" data-view="cards" data-segs="browse:Cards,setlist:Setlist,glossary:Glossary,faq:FAQ">
+  <div class="segment" data-segment="browse">
+    <div class="toolbar" id="toolbar">
+      <div class="wrap">
+        <div class="tool-row">
+          <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="sr">Search cards</span><input id="q" type="search" placeholder="Search names, rules and rulings" autocomplete="off" enterkeyhint="search"><button class="clear" type="button" id="qClear" aria-label="Clear search" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 7l10 10M17 7 7 17"/></svg></button></label>
+          <label class="sort-wrap"><span class="sr">Sort cards</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></svg>
+            <select class="sort" id="sort">
+              <option value="role">Shelves by role</option>
+              <option value="type">Shelves by type</option>
+              <option value="rating">Best first</option>
+              <option value="mv">By mana value</option>
+              <option value="az">A to Z</option>
+            </select>
+          </label>
+          <button class="icon-btn view-toggle" type="button" id="viewToggle" aria-pressed="false" aria-label="Show as a list">
+            <svg class="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="9" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="9" rx="1.5"/><rect x="3.5" y="15.5" width="7" height="5" rx="1.5"/><rect x="13.5" y="15.5" width="7" height="5" rx="1.5"/></svg>
+            <svg class="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+          </button>
+        </div>
+        <div class="chips" id="roleChips" role="group" aria-label="Filter by role"></div>
       </div>
-    </section>
+    </div>
+    <div class="wrap">
+      <p class="count" id="count" aria-live="polite"></p>
+      <div class="card-list" id="cardList"></div>
+    </div>
+  </div>
 
-    <section class="block" id="combo-ballista" data-sub="Heliod + Ballista">
-      <article class="ticket">
-        <header class="stub"><span class="admit">Combo 1</span><span class="kind">Infinite damage</span><span class="serial mono" aria-hidden="true">No. 01 · Instant</span></header>
-        <div class="ticket-body">
-          <h3>Heliod + Walking Ballista</h3>
-          <div class="pieces"><button class="chip" data-card="Heliod, Sun-Crowned">Heliod, Sun-Crowned</button><span class="plus">+</span><button class="chip" data-card="Walking Ballista">Walking Ballista</button></div>
-          <dl class="kv">
-            <dt>You need</dt><dd>Heliod on the battlefield (it doesn't need to be a creature), Walking Ballista with <b>at least two</b> +1/+1 counters, and {1}{W}.</dd>
-            <dt>Total mana</dt><dd>7 to 9 across one or more turns: Heliod 3, Ballista 2 to 4, lifelink 2.</dd>
-            <dt>Speed</dt><dd>Instant. Everything after casting Ballista can happen on an opponent's turn.</dd>
-          </dl>
-          <ol class="steps">
-            <li><span>Have <i-c>Heliod, Sun-Crowned</i-c> out. Cast <i-c>Walking Ballista</i-c> with X=2. With Trostani or Soul Warden out, X=1 is enough: Ballista entering gains you life, and Heliod puts a second counter on it.</span></li>
-            <li><span>Pay {1}{W} for Heliod's ability: Walking Ballista gains lifelink until end of turn.</span></li>
-            <li><span>Remove a counter from Ballista: it deals 1 damage to an opponent. It still has a counter left, so it survives.</span></li>
-            <li><span>Lifelink gains you 1 life. Heliod triggers and puts a +1/+1 counter back on Ballista.</span></li>
-            <li><span>Ballista is back where it started. Repeat step 3 until every opponent is dead.</span></li>
-          </ol>
-          <div class="sim" id="simBallista"></div>
-          <div class="faqs">
-            <details class="faq"><summary>Why two counters and not one?</summary><div><p>If Ballista has one counter and you remove it, it becomes a 0/0 and dies before the ping resolves. The damage and lifelink still happen, but Heliod's trigger has no Ballista to target, so the loop ends. With two counters, Ballista survives each ping.</p></div></details>
-            <details class="faq"><summary>What if they respond?</summary><div><p>If someone tries to kill Ballista in response to the lifelink activation, remove its counters in response and ping anyway. If Heliod gets exiled or bounced mid-loop, you keep whatever damage you already dealt. Heliod's indestructible, so destroy effects do nothing to it.</p></div></details>
-            <details class="faq"><summary>How do I find the pieces?</summary><div><p><i-c>Finale of Devastation</i-c> for X=3 puts Heliod directly onto the battlefield. Don't use Finale for Ballista: it enters with zero counters and dies.</p></div></details>
+  <div class="segment" data-segment="setlist">
+    <div class="wrap">
+      <section class="block" id="setlist-sec">
+        <div class="section-head">
+          <p class="eyebrow">The setlist</p>
+          <h2>All 100 cards</h2>
+          <p class="muted">Tap any card for its full entry. <span class="new-dot">NEW</span> marks the 22 upgrades.</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" type="button" data-copy="names">Copy decklist</button>
+          <button class="btn" type="button" data-copy="qty">Copy with quantities</button>
+        </div>
+        <div class="setlist" id="setlist"></div>
+      </section>
+      <section class="block" id="cuts">
+        <div class="section-head">
+          <p class="eyebrow">Out of the box</p>
+          <h2>The 22 cards that came out</h2>
+          <p class="muted">What each upgrade replaced from the sealed deck, and why it had to go.</p>
+        </div>
+        <ol class="cuts" id="cutList"></ol>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="glossary">
+    <div class="wrap">
+      <section class="block" id="glossary">
+        <div class="section-head">
+          <p class="eyebrow">Glossary</p>
+          <h2>Every keyword in this deck</h2>
+          <p class="muted">What each term means, and which of your cards use it.</p>
+        </div>
+        <label class="search small-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="sr">Filter the glossary</span><input id="glossQ" type="search" placeholder="Filter terms" autocomplete="off"></label>
+        <div class="gloss" id="gloss"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="faq">
+    <div class="wrap">
+      <section class="block" id="faq">
+        <div class="section-head">
+          <p class="eyebrow">FAQ</p>
+          <h2>Questions people ask about this deck</h2>
+        </div>
+        <div class="faq-list" id="faqList"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== PLAY -->
+<div class="view view-play" id="view-play" data-view="play">
+  <div class="wrap">
+    <div class="play-host" id="playHost">
+      <div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Setting up the table…</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== STATS -->
+<div class="view" id="view-stats" data-view="stats" data-segs="deck:Deck,speed:Speed,odds:Odds,power:Power,you:You">
+  <div class="segment" data-segment="deck">
+    <div class="wrap">
+      <section class="block" id="roll">
+        <div class="section-head">
+          <p class="eyebrow">Piano roll</p>
+          <h2>The whole deck as a score</h2>
+          <p class="muted">Every nonland card is a note: its lane is its role, its position is its mana value. Tap a note to open the card.</p>
+        </div>
+        <div class="roll" id="roll-chart"></div>
+      </section>
+      <section class="block" id="curve">
+        <div class="section-head">
+          <p class="eyebrow">Mana curve</p>
+          <h2>The levels</h2>
+          <p class="muted">Nonland cards by mana value. X costs count as 0 plus their fixed symbols. Tap a bar to list its cards.</p>
+        </div>
+        <div class="split">
+          <div class="eq-card">
+            <div class="eq-head"><b>66 nonland cards</b><span class="muted mono small">peak at 2 mana</span></div>
+            <div class="eq" id="eq" role="group" aria-label="Mana curve"></div>
+            <div class="eq-readout" id="eqReadout" aria-live="polite"></div>
+          </div>
+          <div class="eq-card">
+            <div class="eq-head"><b>Card types</b><span class="muted mono small">100 cards</span></div>
+            <div class="typebars" id="typebars"></div>
           </div>
         </div>
-      </article>
-    </section>
+      </section>
+      <section class="block" id="colors">
+        <div class="section-head">
+          <p class="eyebrow">Colors</p>
+          <h2>Pips against sources</h2>
+          <p class="muted">How much each color is asked for in mana costs, and how many of your lands and mana cards make it.</p>
+        </div>
+        <div class="split" id="colorStats"></div>
+      </section>
+      <section class="block" id="roles">
+        <div class="section-head">
+          <p class="eyebrow">Roles</p>
+          <h2>What the 99 do</h2>
+          <p class="muted">A card can fill more than one role, so the bars add up to more than 99.</p>
+        </div>
+        <div class="typebars roles-bars" id="roleBars"></div>
+      </section>
+      <section class="block" id="prices">
+        <div class="section-head">
+          <p class="eyebrow">Money</p>
+          <h2>Where the upgrade budget went</h2>
+        </div>
+        <div class="split" id="priceStats"></div>
+      </section>
+    </div>
+  </div>
 
-    <section class="block" id="combo-feeder" data-sub="Spike Feeder">
-      <article class="ticket pinkish">
-        <header class="stub"><span class="admit">Combo 2</span><span class="kind">Infinite life</span><span class="serial mono" aria-hidden="true">No. 02 · Free</span></header>
-        <div class="ticket-body">
-          <h3>Spike Feeder + Heliod, Archangel of Thune or Cleric Class</h3>
-          <div class="pieces"><button class="chip" data-card="Spike Feeder">Spike Feeder</button><span class="plus">+</span><button class="chip" data-card="Heliod, Sun-Crowned">Heliod</button><span class="muted">or</span><button class="chip" data-card="Archangel of Thune">Archangel of Thune</button><span class="muted">or</span><button class="chip" data-card="Cleric Class">Cleric Class (level 2)</button></div>
-          <dl class="kv">
-            <dt>You need</dt><dd>Spike Feeder with a counter, plus one of the three engines. No extra mana.</dd>
-            <dt>Speed</dt><dd>Instant, and free. You can do it in response to a board wipe.</dd>
-            <dt>Win with</dt><dd><i-c>Aetherflux Reservoir</i-c> (50 damage per 50 life), or Archangel of Thune's infinite counters and an attack.</dd>
-          </dl>
-          <ol class="steps">
-            <li><span>Remove a +1/+1 counter from <i-c>Spike Feeder</i-c>: you gain 2 life (3 with Cleric Class).</span></li>
-            <li><span>The engine triggers. <b>Heliod</b> or <b>Cleric Class</b> puts a counter on target creature: pick Spike Feeder. <b>Archangel of Thune</b> puts a counter on every creature you control, including Feeder.</span></li>
-            <li><span>Feeder has its counter back. Repeat as many times as you like.</span></li>
-            <li><span>With Archangel of Thune, every loop also grows your whole team by +1/+1. Stop at any size and attack.</span></li>
-            <li><span>With Aetherflux Reservoir out, pay 50 life for 50 damage to each opponent in turn.</span></li>
-          </ol>
-          <div class="sim" id="simFeeder"></div>
-          <div class="faqs">
-            <details class="faq"><summary>Is infinite life a win on its own?</summary><div><p>No. It makes you nearly impossible to kill by damage, but you still need to finish. The payoffs in this deck are <i-c>Aetherflux Reservoir</i-c>, <i-c>Soul of Eternity</i-c> (its size is your life total), <i-c>Lathiel, the Bounteous Dawn</i-c> (that many counters at end of turn), and Archangel of Thune growing the team.</p></div></details>
-            <details class="faq"><summary>What protects it?</summary><div><p><i-c>Shalai, Voice of Plenty</i-c> gives your other creatures hexproof, which covers Feeder, Thune and Ballista. It doesn't cover Heliod while Heliod isn't a creature, or Aetherflux Reservoir (an artifact). Keep <i-c>Grand Crescendo</i-c> or <i-c>Rootborn Defenses</i-c> up against wipes.</p></div></details>
+  <div class="segment" data-segment="speed">
+    <div class="wrap">
+      <section class="block" id="speed">
+        <div class="section-head">
+          <p class="eyebrow">Speed test</p>
+          <h2>How fast it kills</h2>
+          <p class="muted">5,000 simulated solo games of the final 100 cards against three opponents at 40 life, with no blockers and no removal. Real games are slower, so read these as a ceiling. Tap a bar for the details.</p>
+        </div>
+        <div class="split">
+          <div class="eq-card">
+            <div class="eq-head"><b>Games won by the end of turn…</b><span class="muted mono small">median turn 9</span></div>
+            <div class="speed" id="speedChart" role="group" aria-label="Share of games won by each turn"></div>
+            <div class="eq-readout speed-readout" id="speedReadout" aria-live="polite"></div>
+          </div>
+          <div class="eq-card">
+            <div class="eq-head"><b>How the games ended</b><span class="muted mono small">with combos</span></div>
+            <div class="typebars endings" id="endings"></div>
+            <p class="muted small">The combos add only a few points. The deck wins by going wide and growing its creatures with lifegain triggers.</p>
           </div>
         </div>
-      </article>
-    </section>
-
-    <section class="block" id="combo-fountain" data-sub="Halo Fountain">
-      <article class="ticket plain">
-        <header class="stub"><span class="admit">Alt win</span><span class="kind">Fifteen untaps</span><span class="serial mono" aria-hidden="true">No. 03 · Sorcery-ish</span></header>
-        <div class="ticket-body">
-          <h3>Halo Fountain: untap fifteen, win the game</h3>
-          <p class="prose">For {W}{W}{W}{W}{W}, tap <i-c>Halo Fountain</i-c> and untap fifteen tapped creatures you control, and you win. The creatures need to be tapped first, so the timing is: attack with fifteen or more creatures without vigilance, then activate it in your second main phase. Convoke (<i-c>Hour of Reckoning</i-c>, <i-c>Dazzling Theater // Prop Room</i-c>) also taps creatures, and so does <i-c>Springleaf Drum</i-c>.</p>
-          <div class="note warn"><h4>Watch out</h4><p><i-c>Intangible Virtue</i-c> gives your tokens vigilance, so they won't tap when they attack.</p></div>
+        <details class="faq assumptions"><summary>What the test assumes</summary><div>
+          <p>You go first with no draw on turn 1, take one free mulligan, and keep 2 to 5 lands. Colors are ignored, and a simple AI casts the best card it can afford, holding Stampede, Triumph, Craterhoof and Return of the Wildspeaker until they win that turn. Removal never gets cast, so 8 cards do nothing here. A skilled player would do a bit better; real opponents make it slower.</p>
+        </div></details>
+      </section>
+      <section class="block" id="vsbots">
+        <div class="section-head">
+          <p class="eyebrow">Against real opponents</p>
+          <h2>Miku against the bots</h2>
+          <p class="muted">Games played by the same engine as the Play tab, with bots on every seat: Miku against three random Bracket 4 decks that block, remove and counter.</p>
         </div>
-      </article>
-    </section>
+        <div class="split" id="botStats"></div>
+      </section>
+    </div>
+  </div>
 
-    <section class="block" id="finishers" data-sub="Lethal calculator">
-      <div class="section-head">
-        <p class="eyebrow">Overruns</p>
-        <h2>Lethal calculator</h2>
-        <p class="muted">Most games end with a wide attack and a pump spell. Put in your board and see which finisher kills. It assumes your attackers aren't blocked, so treat it as a best case.</p>
-      </div>
-      <div class="calc">
-        <div class="calc-inputs">
-          <div class="field"><span id="lN">Creatures that can attack</span><div class="stepper"><button type="button" data-step="n:-1" aria-label="Fewer creatures">−</button><input id="cN" type="number" inputmode="numeric" min="1" max="60" value="10" aria-labelledby="lN"><button type="button" data-step="n:1" aria-label="More creatures">+</button></div></div>
-          <div class="field"><span id="lP">Their average power</span><div class="stepper"><button type="button" data-step="p:-1" aria-label="Lower power">−</button><input id="cP" type="number" inputmode="numeric" min="0" max="99" value="2" aria-labelledby="lP"><button type="button" data-step="p:1" aria-label="Higher power">+</button></div></div>
-          <div class="field"><span id="lB">Your biggest creature's power</span><div class="stepper"><button type="button" data-step="b:-1" aria-label="Lower">−</button><input id="cB" type="number" inputmode="numeric" min="0" max="999" value="5" aria-labelledby="lB"><button type="button" data-step="b:1" aria-label="Higher">+</button></div></div>
-          <div class="field"><span id="lL">Opponent life (each)</span><div class="stepper"><button type="button" data-step="l:-5" aria-label="Less life">−</button><input id="cL" type="number" inputmode="numeric" min="1" max="200" value="40" aria-labelledby="lL"><button type="button" data-step="l:5" aria-label="More life">+</button></div></div>
+  <div class="segment" data-segment="odds">
+    <div class="wrap">
+      <section class="block" id="odds">
+        <div class="section-head">
+          <p class="eyebrow">Draw odds</p>
+          <h2>What are the chances?</h2>
+          <p class="muted">Exact odds from the real 99: how likely you are to see a card, or a group of cards, by a given turn.</p>
         </div>
-        <div class="lethal" id="calcBody" aria-live="polite"></div>
-        <p class="muted small">Damage is the total you could deal this combat. "Kills" counts how many opponents at that life total the damage could cover if you split attackers perfectly. Triumph of the Hordes counts poison: 10 kills a player whatever their life.</p>
-      </div>
-    </section>
+        <div data-widget="drawOdds"></div>
+      </section>
+      <section class="block" id="opener">
+        <div class="section-head">
+          <p class="eyebrow">Opening hands</p>
+          <h2>Lands in your first seven</h2>
+          <p class="muted">34 lands in 99 cards. How often each count shows up in a fresh seven.</p>
+        </div>
+        <div class="land-odds" id="landOdds"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="power">
+    <div class="wrap">
+      <section class="block" id="strength">
+        <div class="section-head">
+          <p class="eyebrow">Strength</p>
+          <h2>A solid Bracket 3</h2>
+          <p class="prose">That's "Upgraded" in the official brackets, roughly 6.5 to 7 on the old 1 to 10 scale. Strong at a casual or upgraded-precon table, nowhere near cEDH. This is a judgement from reading the list, not from tested games.</p>
+        </div>
+        <div class="power" aria-hidden="true"><div class="power-track"><i style="--from:65%;--to:70%"></i></div><div class="power-scale"><span>1</span><span>casual</span><span>upgraded</span><span>optimized</span><span>cEDH 10</span></div></div>
+        <div class="grid-2">
+          <div class="panel rule keep"><h3>Why it's strong</h3><ul class="prose">
+            <li>Two compact infinite combos, and Finale of Devastation can fetch the pieces.</li>
+            <li>Five single-card finishers once a board is out.</li>
+            <li>Real ramp: Sol Ring, two Signets, four mana creatures and three land-ramp spells.</li></ul></div>
+          <div class="panel rule mull"><h3>What holds it back</h3><ul class="prose">
+            <li>A 4-mana commander that isn't a threat alone. Games end around turn 7 to 9.</li>
+            <li>Light interaction and no counterspells, so fast combo decks can race it.</li>
+            <li>Thin card draw: mostly Skullclamp, Camaraderie and Shamanic Revelation.</li></ul></div>
+        </div>
+        <div class="panel callout"><h3>Before you sit down</h3><p class="prose">Bracket 3 allows two-card infinite combos as long as they aren't early-game ones, which fits here. Mention Heliod + Walking Ballista at the pregame talk, since some tables ban any infinite. Game Changers limits change over time, so check the current official list against this deck before a bracketed event.</p></div>
+      </section>
+
+      <section class="block" id="versus">
+        <div class="section-head">
+          <p class="eyebrow">Your other deck</p>
+          <h2>Miku vs Etrata</h2>
+          <p class="prose">They're close, and both are Bracket 3. The upgraded Miku deck is slightly ahead at about 6.5 to 7, with your Etrata, Deadly Fugitive deck from the <a href="../">Opening Lab</a> at about 6 to 6.5. Miku hits harder once it's set up. Etrata is faster, more interactive, and would give Miku a hard time head to head. This comes from reading both lists, not from playtesting.</p>
+        </div>
+        <div class="power duo" aria-hidden="true"><div class="power-track"><i class="etr" style="--from:60%;--to:65%"><em>Etrata</em></i><i style="--from:65%;--to:70%"><em>Miku</em></i></div><div class="power-scale"><span>1</span><span>casual</span><span>upgraded</span><span>optimized</span><span>cEDH 10</span></div></div>
+        <div class="vs" id="vsList">
+          <div class="vs-head"><span class="side m">Miku</span><span class="side e">Etrata</span></div>
+          <details class="vs-row" data-lean="m"><summary><span class="vs-cat">Finishers</span><span class="vs-meter"><i></i></span></summary><p>Craterhoof, Overwhelming Stampede, Triumph of the Hordes and Beastmaster Ascension each end the game by themselves once you have a board. Etrata's closers (Wound Reflection, Unstoppable Slasher, Strixhaven Stadium) need a few turns of hitting first.</p></details>
+          <details class="vs-row" data-lean="m"><summary><span class="vs-cat">Ramp</span><span class="vs-meter"><i></i></span></summary><p>Miku has mana creatures, land-ramp spells and rocks. Etrata runs rocks only.</p></details>
+          <details class="vs-row" data-lean="m"><summary><span class="vs-cat">Recovering from a wipe</span><span class="vs-meter"><i></i></span></summary><p>Trostani, Elspeth and the token makers rebuild quickly.</p></details>
+          <details class="vs-row" data-lean="e"><summary><span class="vs-cat">Speed</span><span class="vs-meter"><i></i></span></summary><p>Etrata costs 3 mana instead of 4 and starts cloaking cards from turn 4. Trostani does little until turn 5 or 6.</p></details>
+          <details class="vs-row" data-lean="e"><summary><span class="vs-cat">Interaction</span><span class="vs-meter"><i></i></span></summary><p>Etrata runs 4 counterspells, spot removal and Toxic Deluge. Miku has no counterspells and only one wrath.</p></details>
+          <details class="vs-row" data-lean="e"><summary><span class="vs-cat">Card flow</span><span class="vs-meter"><i></i></span></summary><p>Gix, Mask of Memory, Key to the City and Night's Whisper give Etrata much more card draw than Miku, which relies mostly on Skullclamp.</p></details>
+          <details class="vs-row" data-lean="e"><summary><span class="vs-cat">Evasion</span><span class="vs-meter"><i></i></span></summary><p>Etrata's assassins get past blockers. Miku mostly has to swing into boards.</p></details>
+          <details class="vs-row" data-lean="even"><summary><span class="vs-cat">Combos</span><span class="vs-meter"><i></i></span></summary><p>About even. Mindcrank + Duskmantle Guildmage and Heliod + Walking Ballista each take about 7 mana across two or three turns. Ramses adds a second win condition to Etrata on top of that.</p></details>
+        </div>
+        <div class="grid-2 vs-verdict">
+          <div class="panel verdict-card e"><span class="label">1 v 1</span><h3>Etrata is favoured</h3><p>It can counter or kill Trostani and the overrun cards.</p></div>
+          <div class="panel verdict-card m"><span class="label">4-player pod</span><h3>Miku is favoured</h3><p>Its overruns can knock out several players in one swing, while Etrata hits one player at a time.</p></div>
+        </div>
+        <p class="muted small">This compares the 22-swap Trostani list. The Azusa deck in the Shop tab is the plan for a stronger Miku deck.</p>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="you">
+    <div class="wrap">
+      <section class="block" id="record">
+        <div class="section-head">
+          <p class="eyebrow">Your record</p>
+          <h2>Your games against the bots</h2>
+          <p class="muted">Saved on this device when you finish a game in the Play tab.</p>
+        </div>
+        <div id="myStats"></div>
+      </section>
+    </div>
   </div>
 </div>
 
-<!-- ============================================================ PLAY -->
-<div class="view" id="view-play" data-view="play">
-  <div class="wrap">
-    <section class="block" id="plan" data-sub="Game plan">
-      <div class="section-head">
-        <p class="eyebrow">Game plan</p>
-        <h2>How to pilot it</h2>
-        <p class="prose">You're the midrange deck at the table: faster than the control players, slower than the combo players. Ramp early, build an engine in the midgame, and end it in one big turn. The whole game is about sequencing: lifegain sources before the creatures that trigger them, bait before your best threat, and protection held up before you commit.</p>
-      </div>
-      <div class="phases">
-        <div class="phase"><span class="turns-lbl">Turns 1–3</span><span class="when">Soundcheck</span>
-          <ul>
-            <li>Play a mana source every turn: <i-c>Llanowar Elves</i-c>, <i-c>Elvish Mystic</i-c>, <i-c>Sol Ring</i-c>, <i-c>Arcane Signet</i-c>, <i-c>Nature's Lore</i-c>.</li>
-            <li>Drop cheap engines early: <i-c>Soul Warden</i-c>, <i-c>Cleric Class</i-c>, <i-c>Ajani's Pridemate</i-c>, <i-c>Voice of the Blessed</i-c>.</li>
-            <li>A good turn 3 is <i-c>Adeline, Resplendent Cathar</i-c> or, off a mana creature, Trostani.</li>
-          </ul></div>
-        <div class="phase"><span class="turns-lbl">Turns 4–6</span><span class="when">The build</span>
-          <ul>
-            <li>Land Trostani, then the payoffs: <i-c>Archangel of Thune</i-c>, <i-c>Hero of Bladehold</i-c>, <i-c>Elspeth, Sun's Champion</i-c>, <i-c>Cathars' Crusade</i-c>.</li>
-            <li>Attack with Adeline and Hero every turn, at the player with the fewest blockers.</li>
-            <li>Keep <i-c>Grand Crescendo</i-c> or <i-c>Rootborn Defenses</i-c> mana open once your board is worth protecting.</li>
-          </ul></div>
-        <div class="phase"><span class="turns-lbl">Turn 7+</span><span class="when">Encore</span>
-          <ul>
-            <li>Count lethal with the <a href="#finishers">calculator</a>, then cast the overrun precombat.</li>
-            <li>If the board is stalled, go for a combo: <a href="#combo-ballista">Heliod + Ballista</a> or <a href="#combo-feeder">Spike Feeder</a>.</li>
-            <li><i-c>Finale of Devastation</i-c> at X=10 or more is a Craterhoof by itself.</li>
-          </ul></div>
-      </div>
-    </section>
-
-    <section class="block" id="trainer" data-sub="Hand trainer">
-      <div class="section-head">
-        <p class="eyebrow">Practice</p>
-        <h2>Opening hand trainer</h2>
-        <p class="muted">Draw seven from the real 99 and see whether it's a keep. Your first mulligan in multiplayer Commander is free.</p>
-      </div>
-      <div class="trainer">
-        <div class="hand-verdict" id="handVerdict" aria-live="polite"></div>
-        <div class="hand" id="hand"></div>
-        <div class="btn-row trainer-btns">
-          <button class="btn primary" type="button" id="drawHand">New hand</button>
-          <button class="btn" type="button" id="mullHand">Mulligan</button>
-          <button class="btn" type="button" id="drawOne">Draw a card</button>
+<!-- ================================================================== SHOP -->
+<div class="view" id="view-shop" data-view="shop" data-segs="upgrades:Upgrades,azusa:Azusa,bling:Bling">
+  <div class="segment" data-segment="upgrades">
+    <div class="wrap">
+      <section class="block" id="budget">
+        <div class="section-head">
+          <p class="eyebrow">Budget · 300€ cap</p>
+          <h2>What it costs</h2>
         </div>
-      </div>
-      <div class="grid-2">
-        <div class="panel rule keep"><h3>Keep</h3><ul class="prose">
-          <li>3 or 4 lands with at least one ramp piece.</li>
-          <li>2 lands plus Sol Ring or a mana creature and cheap plays.</li>
-          <li>Anything with Trostani castable by turn 4.</li></ul></div>
-        <div class="panel rule mull"><h3>Mulligan</h3><ul class="prose">
-          <li>0 or 1 land, even with ramp.</li>
-          <li>6 or 7 lands.</li>
-          <li>Only 5+ mana spells. Don't mulligan to find combo pieces: the deck wins without them.</li></ul></div>
-      </div>
-    </section>
+        <div class="panel">
+          <div class="budget-num"><b>~295€</b><span class="muted">of 300€</span></div>
+          <div class="budget-bar" role="img" aria-label="About 200 euros for the sealed deck and about 95 euros for upgrades, out of 300"><i style="--w:66.6%;background:var(--teal-fill)"></i><i style="--w:31.6%;background:var(--pink-fill)"></i></div>
+          <div class="legend"><span><i style="background:var(--teal-fill)"></i>Sealed deck ~200€</span><span><i style="background:var(--pink-fill)"></i>22 upgrades ~95€</span><span><i style="background:var(--line-strong)"></i>Left ~5€</span></div>
+          <div class="table-wrap"><table class="stack">
+            <thead><tr><th>If you pay for the deck</th><th>Buy</th><th class="num">Total</th></tr></thead>
+            <tbody>
+              <tr><td>~200€</td><td>All 22 upgrades</td><td class="num">~295€</td></tr>
+              <tr><td>~230€</td><td>Rows 1 to 20, skip Triumph of the Hordes and Craterhoof (put back Crested Sunmare and Idol of Oblivion)</td><td class="num">~292€</td></tr>
+              <tr><td>250€+</td><td>Rows 1 to 18: the cheap core plus both combo pieces</td><td class="num">~299€</td></tr>
+            </tbody>
+          </table></div>
+          <p class="muted small">Sealed price: a copy sold on eBay.de for 199.90€ on 3 Sep 2026; US listings run $255 to $280. The EU reprint wave ships in June 2027, so prices may stay high until then. Singles prices are MTGGoldfish USD × 0.85, because Cardmarket couldn't be read automatically. Check each card on Cardmarket before buying: it's usually the same or cheaper.</p>
+        </div>
+      </section>
 
-    <section class="block" id="example" data-sub="Sample game">
-      <div class="section-head">
-        <p class="eyebrow">Example</p>
-        <h2>A good draw, turn by turn</h2>
-        <p class="muted">A sample goldfish with no interaction from opponents, to show how fast the engine snowballs.</p>
-      </div>
-      <ol class="turns">
-        <li><span class="tn">T1</span><div><p>Forest, <i-c>Elvish Mystic</i-c></p><span class="after">1 creature</span></div></li>
-        <li><span class="tn">T2</span><div><p>Plains, <i-c>Arcane Signet</i-c>, <i-c>Soul Warden</i-c></p><span class="after">2 creatures, 4 mana next turn</span></div></li>
-        <li><span class="tn">T3</span><div><p>Sunpetal Grove, <i-c>Trostani, Selesnya's Voice</i-c> (+1 from Warden)</p><span class="after">Engine online, 41 life</span></div></li>
-        <li><span class="tn">T4</span><div><p>Plains, <i-c>Hero of Bladehold</i-c> (+4 Trostani, +1 Warden), <i-c>Intangible Virtue</i-c></p><span class="after">46 life</span></div></li>
-        <li><span class="tn">T5</span><div><p>Land, <i-c>Archangel of Thune</i-c> (+4, +1: two counters on everything). Hero attacks: two Soldiers enter, each gains 2 and 1 more, four more counter waves.</p><span class="after">Your older creatures carry six counters each</span></div></li>
-        <li><span class="tn">T6</span><div><p><i-c>Overwhelming Stampede</i-c> or <i-c>Beastmaster Ascension</i-c> and swing</p><span class="after">At least one player dead</span></div></li>
-      </ol>
-    </section>
+      <section class="block" id="swaps">
+        <div class="section-head">
+          <p class="eyebrow">The 22 swaps</p>
+          <h2>Cut this, add that</h2>
+          <p class="muted">In buying order, starting with the sealed deck. Stop when the budget runs out. Tap a card name for its wiki entry, or the price to search Cardmarket. Tick what you've bought and the total updates against the 300€ budget. Your ticks stay on this device.</p>
+        </div>
+        <div class="swap-progress" id="swapProgress"></div>
+        <div class="swaps" id="swapBody"></div>
+      </section>
 
-    <section class="block" id="habits" data-sub="Ten habits">
-      <div class="section-head">
-        <p class="eyebrow">Sequencing</p>
-        <h2>Ten habits that win games</h2>
-      </div>
-      <ol class="habits">
-        <li><span><b>Lifegain first, bodies second.</b> Soul Warden, Trostani and Innkeeper only count creatures that enter after them.</span></li>
-        <li><span><b>Populate at the end of the opponent's turn.</b> Trostani's ability works at instant speed. Hold the mana, bluff, and still get the token.</span></li>
-        <li><span><b>Bait before the Angel.</b> Hero of Bladehold and Adeline must be answered. Once they've eaten removal, Archangel of Thune lives longer.</span></li>
-        <li><span><b>Skip small Nykthos Paragon triggers.</b> It works once per turn and it's optional. Wait for a big gain.</span></li>
-        <li><span><b>Order Hero of Bladehold's triggers.</b> Make the tokens first, then battle cry, so the Soldiers get +1/+0.</span></li>
-        <li><span><b>Don't overextend into a wipe.</b> Keep a token maker in hand, or hold Grand Crescendo or Rootborn Defenses.</span></li>
-        <li><span><b>Clamp your 1/1s.</b> Skullclamp on a Citizen or Soldier is two cards for one mana. Intangible Virtue turns this off.</span></li>
-        <li><span><b>Hour of Reckoning is yours.</b> It only kills nontoken creatures. When your board is tokens and theirs isn't, it's one-sided.</span></li>
-        <li><span><b>Save Swords and Path.</b> Use them on combo pieces and commanders, not on the first creature you see.</span></li>
-        <li><span><b>Announce the combo turn clearly.</b> Walk the table through the loop, state how many times you repeat it, and move on.</span></li>
-      </ol>
-    </section>
-
-    <section class="block" id="matchups" data-sub="Matchups">
-      <div class="section-head">
-        <p class="eyebrow">Matchups</p>
-        <h2>Reading the table</h2>
-      </div>
-      <div class="matchups">
-        <details class="mu" data-auto-open><summary><span class="mu-ic" aria-hidden="true">◐</span>Against control and board wipes</summary><div><p>Commit two or three threats at a time, not your whole hand. <i-c>Voice of Resurgence</i-c> punishes instant-speed removal on your turn, and <i-c>Grand Crescendo</i-c> cast at the end of their turn rebuilds a board from nothing. <i-c>Elenda's Hierophant</i-c> leaves tokens behind.</p></div></details>
-        <details class="mu" data-auto-open><summary><span class="mu-ic" aria-hidden="true">∞</span>Against combo decks</summary><div><p>You have no counterspells, so your answer is pressure and removal. Attack the combo player early, and save <i-c>Beast Within</i-c>, <i-c>Generous Gift</i-c> and <i-c>Swords to Plowshares</i-c> for their key piece. <i-c>Walking Ballista</i-c> can snipe small combo creatures.</p></div></details>
-        <details class="mu" data-auto-open><summary><span class="mu-ic" aria-hidden="true">⚔</span>Against aggro and voltron</summary><div><p>Your life total is a resource. Chump block with tokens, keep gaining, and use <i-c>Swords to Plowshares</i-c> or <i-c>Path to Exile</i-c> on a suited-up commander. <i-c>Shalai, Voice of Plenty</i-c> stops targeted burn at your face.</p></div></details>
-        <details class="mu" data-auto-open><summary><span class="mu-ic" aria-hidden="true">⚙</span>Against artifacts and enchantments</summary><div><p><i-c>Break Down</i-c>, <i-c>Sundering Growth</i-c> and <i-c>Excavation Technique</i-c> handle rocks, equipment and stax pieces. Sundering Growth also populates.</p></div></details>
-      </div>
-    </section>
-
-    <section class="block" id="glossary" data-sub="Glossary">
-      <div class="section-head">
-        <p class="eyebrow">Glossary</p>
-        <h2>Keywords in this deck</h2>
-      </div>
-      <div class="gloss">
-        <details class="faq"><summary>Populate</summary><div><p>Create a token that's a copy of a creature token you control. The copy enters, so it triggers Trostani, Soul Warden and Cathars' Crusade. Used by Trostani, Rootborn Defenses, Sundering Growth and Song of the Worldsoul.</p></div></details>
-        <details class="faq"><summary>Convoke</summary><div><p>Your creatures can help pay: tap one to pay {1} or one mana of its color. Hour of Reckoning has it, and Dazzling Theater gives it to your creature spells.</p></div></details>
-        <details class="faq"><summary>Devotion (Heliod)</summary><div><p>Count the {W} symbols in the mana costs of your permanents. Heliod is only a creature at five or more. Its abilities work either way.</p></div></details>
-        <details class="faq"><summary>Myriad (Conclave Evangelist)</summary><div><p>When it attacks, make a copy attacking each other opponent. The copies are exiled at end of combat.</p></div></details>
-        <details class="faq"><summary>Demonstrate (Excavation Technique)</summary><div><p>You may copy the spell when you cast it. If you do, an opponent of your choice also gets a copy.</p></div></details>
-        <details class="faq"><summary>Encore (Soul of Eternity)</summary><div><p>Exile it from your graveyard to make a hasty token copy attacking each opponent. The tokens are sacrificed at end of turn.</p></div></details>
-        <details class="faq"><summary>Infect (Triumph of the Hordes)</summary><div><p>Damage to players is dealt as poison counters. Ten poison and that player loses.</p></div></details>
-        <details class="faq"><summary>Battle cry (Hero of Bladehold)</summary><div><p>When this attacks, each other attacking creature gets +1/+0.</p></div></details>
-        <details class="faq"><summary>Ferocious (Fanatic of Rhonas, Shamanic Revelation)</summary><div><p>A bonus that turns on if you control a creature with 4 or more power.</p></div></details>
-        <details class="faq"><summary>Rooms and Classes</summary><div><p>A Room (Dazzling Theater // Prop Room) is two enchantments on one card: you cast one door and can unlock the other later by paying its cost. A Class (Cleric Class) starts at level 1 and you pay to level it up at sorcery speed.</p></div></details>
-      </div>
-    </section>
+      <section class="block" id="later">
+        <div class="section-head">
+          <p class="eyebrow">Later</p>
+          <h2>Next upgrades after 300€</h2>
+        </div>
+        <div class="grid-3 later">
+          <div class="panel"><span class="step-n">1</span><h3>Card draw first</h3><p>Sylvan Library, Guardian Project and Welcoming Vampire fix the deck's biggest weakness. Cut Vorinclex and a slow lifegain card.</p></div>
+          <div class="panel"><span class="step-n">2</span><h3>Then protection</h3><p>Heroic Intervention (~10–16€) and Teferi's Protection. Teferi's Protection is on the Game Changers list, so it counts against Bracket 3's limit.</p></div>
+          <div class="panel"><span class="step-n">3</span><h3>Alternates if a price is off</h3><p>Akroma's Will, Moonshaker Cavalry, Lightning Greaves, Felidar Sovereign, Avenger of Zendikar, Exemplar of Light.</p></div>
+        </div>
+      </section>
+    </div>
   </div>
-</div>
 
-<!-- ============================================================ BUY / UPGRADES -->
-<div class="view" id="view-buy" data-view="buy">
-  <div class="wrap">
-    <section class="block" id="strength" data-sub="Strength">
-      <div class="section-head">
-        <p class="eyebrow">Strength</p>
-        <h2>A solid Bracket 3</h2>
-        <p class="prose">That's "Upgraded" in the official brackets, roughly 6.5 to 7 on the old 1 to 10 scale. Strong at a casual or upgraded-precon table, nowhere near cEDH. This is a judgement from reading the list, not from tested games.</p>
-      </div>
-      <div class="power" aria-hidden="true"><div class="power-track"><i style="--from:65%;--to:70%"></i></div><div class="power-scale"><span>1</span><span>casual</span><span>upgraded</span><span>optimized</span><span>cEDH 10</span></div></div>
-      <div class="grid-2">
-        <div class="panel rule keep"><h3>Why it's strong</h3><ul class="prose">
-          <li>Two compact infinite combos, and Finale of Devastation can fetch the pieces.</li>
-          <li>Five single-card finishers once a board is out.</li>
-          <li>Real ramp: Sol Ring, two Signets, four mana creatures and three land-ramp spells.</li></ul></div>
-        <div class="panel rule mull"><h3>What holds it back</h3><ul class="prose">
-          <li>A 5-drop commander that isn't a threat alone. Games end around turn 7 to 9.</li>
-          <li>Light interaction and no counterspells, so fast combo decks can race it.</li>
-          <li>Thin card draw: mostly Skullclamp, Camaraderie and Shamanic Revelation.</li></ul></div>
-      </div>
-      <div class="panel callout"><h3>Before you sit down</h3><p class="prose">Bracket 3 allows two-card infinite combos as long as they aren't early-game ones, which fits here. Mention Heliod + Walking Ballista at the pregame talk, since some tables ban any infinite. Game Changers limits change over time, so check the current official list against this deck before a bracketed event.</p></div>
-    </section>
+  <div class="segment" data-segment="azusa">
+    <div class="wrap">
+      <section class="block" id="azusa">
+        <div class="section-head">
+          <p class="eyebrow">The second deck</p>
+          <h2>The road to Bracket 4: Azusa</h2>
+          <p class="prose">This deck stays your Bracket 3 deck. For a Bracket 4 Miku deck, the plan is a separate mono-green lands deck led by <b>Azusa, Lost but Seeking</b>, printed as <i>Miku, Lost but Singing</i>. It plays extra lands every turn and wins with Dark Depths and Thespian's Stage, which make a 20/20 indestructible flyer. You buy it in stages, and each stage is a playable deck. Prices are estimates, so check Cardmarket.</p>
+        </div>
+        <ol class="stages">
+          <li class="now"><div class="st-head"><span class="st-n">0</span><span class="st-tag">now</span><span class="st-eur mono">~295€</span></div><p>This precon and its 22 swaps</p><span class="st-res">Bracket 3 Trostani</span></li>
+          <li><div class="st-head"><span class="st-n">1</span><span class="st-eur mono">~150€</span></div><p>Miku Azusa, Craterhoof, the Dark Depths + Thespian's Stage combo and its tutors, and every card under about 9€. Fill the 9 empty slots with Forests or cards borrowed from this deck (Vorinclex, Cultivate, Farseek, Finale of Devastation, Krosan Verge).</p><span class="st-res">Playable Azusa</span></li>
+          <li><div class="st-head"><span class="st-n">2</span><span class="st-eur mono">~133€</span></div><p>Exploration, Field of the Dead, Sylvan Library, Strip Mine, Birds of Paradise, Dryad of the Ilysian Grove, Heroic Intervention, Castle Garenbrig, Scute Swarm</p><span class="st-res">Strong Bracket 3</span></li>
+          <li><div class="st-head"><span class="st-n">3</span><span class="st-eur mono">~330€</span></div><p>Scapeshift, Crucible of Worlds, Burgeoning, Green Sun's Zenith, Boseiju, Wasteland and more, plus the Game Changers Natural Order, Worldly Tutor and Seedborn Muse</p><span class="st-res">Bracket 4 (5 Game Changers)</span></li>
+        </ol>
+        <p class="muted small">Stages 1 to 3 add up to about 615€ on top of today's 300€. Beyond that, Chrome Mox, Ancient Tomb, Survival of the Fittest and Gaea's Cradle cost a lot for a small power gain, so they only make sense if you move to cEDH.</p>
+      </section>
 
-    <section class="block" id="versus" data-sub="vs Etrata">
-      <div class="section-head">
-        <p class="eyebrow">Your other deck</p>
-        <h2>Miku vs Etrata</h2>
-        <p class="prose">They're close, and both are Bracket 3. The upgraded Miku deck is slightly ahead at about 6.5 to 7, with your Etrata, Deadly Fugitive deck from the <a href="../">Opening Lab</a> at about 6 to 6.5. Miku hits harder once it's set up. Etrata is faster, more interactive, and would give Miku a hard time head to head. This comes from reading both lists, not from playtesting.</p>
-      </div>
-      <div class="power duo" aria-hidden="true"><div class="power-track"><i class="etr" style="--from:60%;--to:65%"><em>Etrata</em></i><i style="--from:65%;--to:70%"><em>Miku</em></i></div><div class="power-scale"><span>1</span><span>casual</span><span>upgraded</span><span>optimized</span><span>cEDH 10</span></div></div>
-      <div class="vs" id="vsList">
-        <div class="vs-head"><span class="side m">Miku</span><span class="side e">Etrata</span></div>
-        <details class="vs-row" data-lean="m"><summary><span class="vs-cat">Finishers</span><span class="vs-meter"><i></i></span></summary><p>Craterhoof, Overwhelming Stampede, Triumph of the Hordes and Beastmaster Ascension each end the game by themselves once you have a board. Etrata's closers (Wound Reflection, Unstoppable Slasher, Strixhaven Stadium) need a few turns of hitting first.</p></details>
-        <details class="vs-row" data-lean="m"><summary><span class="vs-cat">Ramp</span><span class="vs-meter"><i></i></span></summary><p>Miku has mana creatures, land-ramp spells and rocks. Etrata runs rocks only.</p></details>
-        <details class="vs-row" data-lean="m"><summary><span class="vs-cat">Recovering from a wipe</span><span class="vs-meter"><i></i></span></summary><p>Trostani, Elspeth and the token makers rebuild quickly.</p></details>
-        <details class="vs-row" data-lean="e"><summary><span class="vs-cat">Speed</span><span class="vs-meter"><i></i></span></summary><p>Etrata costs 3 mana instead of 5 and starts cloaking cards from turn 4. Trostani does little until turn 5 or 6.</p></details>
-        <details class="vs-row" data-lean="e"><summary><span class="vs-cat">Interaction</span><span class="vs-meter"><i></i></span></summary><p>Etrata runs 4 counterspells, spot removal and Toxic Deluge. Miku has no counterspells and only one wrath.</p></details>
-        <details class="vs-row" data-lean="e"><summary><span class="vs-cat">Card flow</span><span class="vs-meter"><i></i></span></summary><p>Gix, Mask of Memory, Key to the City and Night's Whisper give Etrata much more card draw than Miku, which relies mostly on Skullclamp.</p></details>
-        <details class="vs-row" data-lean="e"><summary><span class="vs-cat">Evasion</span><span class="vs-meter"><i></i></span></summary><p>Etrata's assassins get past blockers. Miku mostly has to swing into boards.</p></details>
-        <details class="vs-row" data-lean="even"><summary><span class="vs-cat">Combos</span><span class="vs-meter"><i></i></span></summary><p>About even. Mindcrank + Duskmantle Guildmage and Heliod + Walking Ballista each take about 7 mana across two or three turns. Ramses adds a second win condition to Etrata on top of that.</p></details>
-      </div>
-      <div class="grid-2 vs-verdict">
-        <div class="panel verdict-card e"><span class="label">1 v 1</span><h3>Etrata is favoured</h3><p>It can counter or kill Trostani and the overrun cards.</p></div>
-        <div class="panel verdict-card m"><span class="label">4-player pod</span><h3>Miku is favoured</h3><p>Its overruns can knock out several players in one swing, while Etrata hits one player at a time.</p></div>
-      </div>
-      <p class="muted small">This compares the 22-swap Trostani list. The Azusa deck further down this tab is the plan for a stronger Miku deck.</p>
-    </section>
+      <section class="block" id="azusa-list">
+        <div class="section-head">
+          <p class="eyebrow">Azusa shopping list</p>
+          <h2>Buy it stage by stage</h2>
+          <p class="muted">Every card in each Azusa stage with its estimated price. Tick cards as you buy them. Prices are MTGGoldfish USD × 0.85, so check Cardmarket before buying.</p>
+        </div>
+        <div class="seg" role="tablist" aria-label="Azusa stage" id="azSeg">
+          <button type="button" role="tab" data-stage="s1" aria-selected="true">Stage 1<small>Playable</small></button>
+          <button type="button" role="tab" data-stage="s2" aria-selected="false">Stage 2<small>Strong B3</small></button>
+          <button type="button" role="tab" data-stage="s3" aria-selected="false">Stage 3<small>Bracket 4</small></button>
+        </div>
+        <div class="swap-progress" id="azProgress"></div>
+        <p class="muted small az-note" id="azNote"></p>
+        <div class="swaps az-list" id="azBody"></div>
+      </section>
+    </div>
+  </div>
 
-    <section class="block" id="budget" data-sub="Budget">
-      <div class="section-head">
-        <p class="eyebrow">Budget · 300€ cap</p>
-        <h2>What it costs</h2>
-      </div>
-      <div class="panel">
-        <div class="budget-num"><b>~295€</b><span class="muted">of 300€</span></div>
-        <div class="budget-bar" role="img" aria-label="About 200 euros for the sealed deck and about 95 euros for upgrades, out of 300"><i style="--w:66.6%;background:var(--teal-fill)"></i><i style="--w:31.6%;background:var(--pink)"></i></div>
-        <div class="legend"><span><i style="background:var(--teal-fill)"></i>Sealed deck ~200€</span><span><i style="background:var(--pink)"></i>22 upgrades ~95€</span><span><i style="background:var(--line)"></i>Left ~5€</span></div>
+  <div class="segment" data-segment="bling">
+    <div class="wrap">
+      <section class="block" id="bling">
+        <div class="section-head">
+          <p class="eyebrow">Other Miku Secret Lair cards</p>
+          <h2>Worth the bling?</h2>
+          <p class="prose">Only green, white and colorless cards are legal here. None of them is worth the Miku premium inside a 300€ cap: the normal printings do the same job for 1 to 4€. The deck already comes with Miku versions of Trostani, Archangel of Thune, Shalai, Soul Warden, Halo Fountain, Finale of Devastation, Vorinclex and more.</p>
+        </div>
         <div class="table-wrap"><table class="stack">
-          <thead><tr><th>If you pay for the deck</th><th>Buy</th><th class="num">Total</th></tr></thead>
+          <thead><tr><th>Card (Miku name)</th><th class="num">Miku price</th><th class="num">Normal</th><th>Verdict</th></tr></thead>
           <tbody>
-            <tr><td>~200€</td><td>All 22 upgrades</td><td class="num">~295€</td></tr>
-            <tr><td>~230€</td><td>Rows 1 to 20, skip Triumph of the Hordes and Craterhoof (put back Crested Sunmare and Idol of Oblivion)</td><td class="num">~292€</td></tr>
-            <tr><td>250€+</td><td>Rows 1 to 18: the cheap core plus both combo pieces</td><td class="num">~299€</td></tr>
+            <tr><td>Elspeth Tirel (Miku, Divine Diva)</td><td class="num">~55€</td><td class="num">~3€</td><td>Good card, buy the normal one</td></tr>
+            <tr><td>Sol Ring (Digital Sensation)</td><td class="num">$45–125</td><td class="num">~1.5€</td><td>Already in the deck</td></tr>
+            <tr><td>Elvish Mystic (bonus card)</td><td class="num">~42€</td><td class="num">&lt;1€</td><td>Buy the normal one</td></tr>
+            <tr><td>Command Tower (bonus card)</td><td class="num">~$90</td><td class="num">&lt;1€</td><td>Already in the deck</td></tr>
+            <tr><td>Chord of Calling</td><td class="num">~11€ foil</td><td class="num">~6€</td><td>Optional creature tutor</td></tr>
+            <tr><td>Beloved Princess (bonus card)</td><td class="num">~3€</td><td class="num">&lt;1€</td><td>Cheapest Miku bling, weak card</td></tr>
+            <tr><td>Azusa, Freyalise, Giada, Harmonize</td><td class="num">$14–80</td><td class="num">&lt;5€</td><td>Off-plan for this build</td></tr>
           </tbody>
         </table></div>
-        <p class="muted small">Sealed price: a copy sold on eBay.de for 199.90€ on 3 Sep 2026; US listings run $255 to $280. The EU reprint wave ships in June 2027, so prices may stay high until then. Singles prices are MTGGoldfish USD × 0.85, because Cardmarket couldn't be read automatically. Check each card on Cardmarket before buying: it's usually the same or cheaper.</p>
-      </div>
-    </section>
-
-    <section class="block" id="swaps" data-sub="22 swaps">
-      <div class="section-head">
-        <p class="eyebrow">The 22 swaps</p>
-        <h2>Cut this, add that</h2>
-        <p class="muted">In buying order, starting with the sealed deck. Stop when the budget runs out. Tap a card name for its wiki entry, or the price to search Cardmarket. Tick what you've bought and the total updates against the 300€ budget. Your ticks stay on this device.</p>
-      </div>
-      <div class="swap-progress" id="swapProgress"></div>
-      <div class="swaps" id="swapBody"></div>
-    </section>
-
-    <section class="block" id="later" data-sub="After 300€">
-      <div class="section-head">
-        <p class="eyebrow">Later</p>
-        <h2>Next upgrades after 300€</h2>
-      </div>
-      <div class="grid-3 later">
-        <div class="panel"><span class="step-n">1</span><h3>Card draw first</h3><p>Sylvan Library, Guardian Project and Welcoming Vampire fix the deck's biggest weakness. Cut Vorinclex and a slow lifegain card.</p></div>
-        <div class="panel"><span class="step-n">2</span><h3>Then protection</h3><p>Heroic Intervention (~10–16€) and Teferi's Protection. Teferi's Protection is on the Game Changers list, so it counts against Bracket 3's limit.</p></div>
-        <div class="panel"><span class="step-n">3</span><h3>Alternates if a price is off</h3><p>Akroma's Will, Moonshaker Cavalry, Lightning Greaves, Felidar Sovereign, Avenger of Zendikar, Exemplar of Light.</p></div>
-      </div>
-    </section>
-
-    <section class="block" id="azusa" data-sub="Azusa · B4">
-      <div class="section-head">
-        <p class="eyebrow">The second deck</p>
-        <h2>The road to Bracket 4: Azusa</h2>
-        <p class="prose">This deck stays your Bracket 3 deck. For a Bracket 4 Miku deck, the plan is a separate mono-green lands deck led by <b>Azusa, Lost but Seeking</b>, printed as <i>Miku, Lost but Singing</i>. It plays extra lands every turn and wins with Dark Depths and Thespian's Stage, which make a 20/20 indestructible flyer. You buy it in stages, and each stage is a playable deck. Prices are estimates, so check Cardmarket.</p>
-      </div>
-      <ol class="stages">
-        <li class="now"><div class="st-head"><span class="st-n">0</span><span class="st-tag">now</span><span class="st-eur mono">~295€</span></div><p>This precon and its 22 swaps</p><span class="st-res">Bracket 3 Trostani</span></li>
-        <li><div class="st-head"><span class="st-n">1</span><span class="st-eur mono">~150€</span></div><p>Miku Azusa, Craterhoof, the Dark Depths + Thespian's Stage combo and its tutors, and every card under about 9€. Fill the 9 empty slots with Forests or cards borrowed from this deck (Vorinclex, Cultivate, Farseek, Finale of Devastation, Krosan Verge).</p><span class="st-res">Playable Azusa</span></li>
-        <li><div class="st-head"><span class="st-n">2</span><span class="st-eur mono">~133€</span></div><p>Exploration, Field of the Dead, Sylvan Library, Strip Mine, Birds of Paradise, Dryad of the Ilysian Grove, Heroic Intervention, Castle Garenbrig, Scute Swarm</p><span class="st-res">Strong Bracket 3</span></li>
-        <li><div class="st-head"><span class="st-n">3</span><span class="st-eur mono">~330€</span></div><p>Scapeshift, Crucible of Worlds, Burgeoning, Green Sun's Zenith, Boseiju, Wasteland and more, plus the Game Changers Natural Order, Worldly Tutor and Seedborn Muse</p><span class="st-res">Bracket 4 (5 Game Changers)</span></li>
-      </ol>
-      <p class="muted small">Stages 1 to 3 add up to about 615€ on top of today's 300€. Beyond that, Chrome Mox, Ancient Tomb, Survival of the Fittest and Gaea's Cradle cost a lot for a small power gain, so they only make sense if you move to cEDH.</p>
-    </section>
-
-    <section class="block" id="azusa-list" data-sub="Azusa list">
-      <div class="section-head">
-        <p class="eyebrow">Azusa shopping list</p>
-        <h2>Buy it stage by stage</h2>
-        <p class="muted">Every card in each Azusa stage with its estimated price. Tick cards as you buy them. Prices are MTGGoldfish USD × 0.85, so check Cardmarket before buying.</p>
-      </div>
-      <div class="seg" role="tablist" aria-label="Azusa stage" id="azSeg">
-        <button type="button" role="tab" data-stage="s1" aria-selected="true">Stage 1<small>Playable</small></button>
-        <button type="button" role="tab" data-stage="s2" aria-selected="false">Stage 2<small>Strong B3</small></button>
-        <button type="button" role="tab" data-stage="s3" aria-selected="false">Stage 3<small>Bracket 4</small></button>
-      </div>
-      <div class="swap-progress" id="azProgress"></div>
-      <p class="muted small az-note" id="azNote"></p>
-      <div class="swaps az-list" id="azBody"></div>
-    </section>
-
-    <section class="block" id="bling" data-sub="Miku bling">
-      <div class="section-head">
-        <p class="eyebrow">Other Miku Secret Lair cards</p>
-        <h2>Worth the bling?</h2>
-        <p class="prose">Only green, white and colorless cards are legal here. None of them is worth the Miku premium inside a 300€ cap: the normal printings do the same job for 1 to 4€. The deck already comes with Miku versions of Trostani, Archangel of Thune, Shalai, Soul Warden, Halo Fountain, Finale of Devastation, Vorinclex and more.</p>
-      </div>
-      <div class="table-wrap"><table class="stack">
-        <thead><tr><th>Card (Miku name)</th><th class="num">Miku price</th><th class="num">Normal</th><th>Verdict</th></tr></thead>
-        <tbody>
-          <tr><td>Elspeth Tirel (Miku, Divine Diva)</td><td class="num">~55€</td><td class="num">~3€</td><td>Good card, buy the normal one</td></tr>
-          <tr><td>Sol Ring (Digital Sensation)</td><td class="num">$45–125</td><td class="num">~1.5€</td><td>Already in the deck</td></tr>
-          <tr><td>Elvish Mystic (bonus card)</td><td class="num">~42€</td><td class="num">&lt;1€</td><td>Buy the normal one</td></tr>
-          <tr><td>Command Tower (bonus card)</td><td class="num">~$90</td><td class="num">&lt;1€</td><td>Already in the deck</td></tr>
-          <tr><td>Chord of Calling</td><td class="num">~11€ foil</td><td class="num">~6€</td><td>Optional creature tutor</td></tr>
-          <tr><td>Beloved Princess (bonus card)</td><td class="num">~3€</td><td class="num">&lt;1€</td><td>Cheapest Miku bling, weak card</td></tr>
-          <tr><td>Azusa, Freyalise, Giada, Harmonize</td><td class="num">$14–80</td><td class="num">&lt;5€</td><td>Off-plan for this build</td></tr>
-        </tbody>
-      </table></div>
-    </section>
+      </section>
+    </div>
   </div>
 </div>
 </main>
 
-<div class="wrap"><footer class="foot">
+<footer class="foot"><div class="wrap">
   <p>Built for the upgraded Secret Lair Commander Deck: Hatsune Miku. Research and prices from 29 Sep 2026.</p>
   <p>Card images and links via Scryfall. Magic: The Gathering is © Wizards of the Coast. This is an unofficial fan page.</p>
-</footer></div>
+</div></footer>
 
 <nav class="tabbar" id="tabbar" aria-label="Sections"><div class="tabs" data-nav></div></nav>
 
@@ -573,11 +708,25 @@
     <button class="icon-btn close" type="button" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
   <div class="sheet-body" id="sheetBody"></div>
 </div>
+
+<div class="reader" id="reader" role="dialog" aria-modal="true" aria-labelledby="readerTitle" aria-hidden="true">
+  <div class="reader-bar">
+    <button class="icon-btn" type="button" id="readerClose" aria-label="Back to the chapters"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="reader-now"><span class="mono" id="readerNo"></span><b id="readerBarTitle"></b></div>
+    <span class="mono reader-time" id="readerTime"></span>
+    <div class="scrubber" aria-hidden="true"><i id="readerProgress"></i></div>
+  </div>
+  <div class="reader-body" id="readerBody"></div>
+</div>
+
 <div class="peek" id="peek" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="cards.js?v=3"></script>
-<script src="azusa.js?v=3"></script>
-<script src="app.js?v=3"></script>
+<script src="kit.js?v=4"></script>
+<script src="cards.js?v=4"></script>
+<script src="azusa.js?v=4"></script>
+<script src="wiki.js?v=4"></script>
+<script src="guide.js?v=4"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
