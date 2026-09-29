@@ -1215,7 +1215,9 @@
       if (!host) return;
       const s = settings();
       const decks = this.pool(s);
-      const poolInfo = POOLS.find(p => p[0] === s.pool) || POOLS[0];
+      // the switch only makes sense once both precons and Bracket 4 decks are loaded
+      const all = this.decks(), both = all.some(d => bracketOf(d) < 4) && all.some(d => bracketOf(d) >= 4);
+      const poolInfo = both ? POOLS.find(p => p[0] === s.pool) || POOLS[0] : ["", "", all.every(d => bracketOf(d) >= 4) ? "Bracket 4 decks" : "Retail precons"];
       const st = loadStats();
       const rate = st.games ? Math.round(100 * st.wins / st.games) : 0;
       const colorDots = ids => (ids || []).map(k => `<i class="pip ${k.toLowerCase()}"></i>`).join("");
@@ -1227,7 +1229,7 @@
             <p class="lede">Your upgraded Trostani deck against bots dealt at random: retail precons for a fair fight, or Bracket 4 decks when you want to be punished. Mana is paid for you, everything else is real Commander: the stack, combat, commander tax and damage, and every card in your deck.</p>
           </div>
           <div class="lobby-setup">
-            <div class="set-row"><span class="set-label">Decks</span><div class="seg small" role="radiogroup" aria-label="Which bot decks to face">${POOLS.map(([k, l, t]) => `<button role="radio" aria-checked="${s.pool === k}" data-pool="${k}" title="${t}">${l}</button>`).join("")}</div></div>
+            ${both ? `<div class="set-row"><span class="set-label">Decks</span><div class="seg small" role="radiogroup" aria-label="Which bot decks to face">${POOLS.map(([k, l, t]) => `<button role="radio" aria-checked="${s.pool === k}" data-pool="${k}" title="${t}">${l}</button>`).join("")}</div></div>` : ""}
             <div class="set-row"><span class="set-label">Opponents</span><div class="seg small" role="radiogroup" aria-label="Number of opponents">${[1, 2, 3].map(n => `<button role="radio" aria-checked="${s.opponents === n}" data-opp="${n}">${n}</button>`).join("")}</div></div>
             <div class="set-row"><span class="set-label">Bots</span><div class="seg small" role="radiogroup" aria-label="Bot skill">${[["casual", "Casual"], ["sharp", "Sharp"]].map(([k, l]) => `<button role="radio" aria-checked="${s.level === k}" data-level="${k}">${l}</button>`).join("")}</div></div>
             <div class="set-row"><span class="set-label">Speed</span><div class="seg small" role="radiogroup" aria-label="Game speed">${[["slow", "Slow"], ["normal", "Normal"], ["fast", "Fast"]].map(([k, l]) => `<button role="radio" aria-checked="${s.speed === k}" data-speed="${k}">${l}</button>`).join("")}</div></div>
