@@ -100,6 +100,15 @@ async function runOne(seed, seats) {
 
 (async () => {
   const pool = deckPool();
+  // --cut "miku-precon:Boon Reflection" plays that deck with the card replaced by a basic land (to test a card's weight)
+  const cut = opt("cut", null);
+  if (cut) {
+    const [id, name] = String(cut).split(":");
+    const d = pool[id];
+    const i = d ? d.list.indexOf(name) : -1;
+    if (i < 0) { console.error(`--cut: no ${name} in ${id}`); process.exit(2); }
+    pool[id] = Object.assign({}, d, { list: d.list.map((n, k) => (k === i ? (d.identity.includes("W") ? "Plains" : d.identity.includes("U") ? "Island" : "Forest") : n)) });
+  }
   const wanted = String(opt("decks", "miku")).split(",");
   const results = [];
   const wins = {};

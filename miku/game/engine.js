@@ -302,6 +302,7 @@
       const out = [];
       for (const o of this.battlefield) if (o.def.statics.length || o.def.levels || this.roomStatics(o).length) out.push(o);
       this._ss = out; this._ssv = this.v;
+      this._grantsMana = out.some(o => o.def.statics.some(st => st.grantMana));
       return out;
     }
     roomStatics(o) {
@@ -980,6 +981,8 @@
     gainLife(p, n, src) {
       if (p.lost || n <= 0) return 0;
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.lifeGainPlus) n += st.lifeGainPlus(this, s, p) || 0;
+      // "you gain twice that much life instead" (Boon Reflection)
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.lifeGainTimes && s.controller === p) n *= st.lifeGainTimes;
       if (this.cantGainLife && this.cantGainLife(p)) return 0;
       p.life += n; p.gained += n; p.stats.gained += n;
       this.log(`${p.name} gains ${n} life${src && src.def && !src.emblem ? " (" + src.def.name + ")" : ""}.`, { p, kind: "life", n });
@@ -1202,6 +1205,8 @@
     }
     manaAbilities(o) {
       const out = o.def.mana.slice();
+      // mana abilities a static gives (Song of Freyalise: "creatures you control gain {T}: Add one mana of any color")
+      if (o.zone === "battlefield" && (this.staticSources(), this._grantsMana)) for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.grantMana && st.applies && st.applies(this, s, o)) out.push(...st.grantMana);
       if (o.def.levels) (o.def.levels || []).forEach((L, i) => { if (i < (o.state.level || 1) && L.mana) out.push(...L.mana); });
       return out;
     }
@@ -1542,18 +1547,22 @@
       const sorc = this.canSorcery(p);
       if (!sorc && !this.isInstantSpeed(p, o)) return [];
       if (o.def.canCast && !o.def.canCast(this, p, o)) return [];
+      // no legal target for the normal spell: only an alternative cost with its own targets (cleave) can be cast
+      let noTargets = false;
       if (o.def.spell && o.def.spell.targets) {
-        for (const spec of o.def.spell.targets) if (!spec.optional && !this.targetOptions(p, spec, o).length) return [];
+        for (const spec of o.def.spell.targets) if (!spec.optional && !this.targetOptions(p, spec, o).length) noTargets = true;
+        if (noTargets && !(o.def.altCosts || []).some(a => a.targets)) return [];
       }
+      const altOk = alt => !alt.targets || alt.targets.every(spec => spec.optional || this.targetOptions(p, spec, o).length > 0);
       const ways = [];
       // "you may cast it without paying its mana cost" for as long as it stays exiled (Kheru Spellsnatcher, Gix)
       if (o.zone === "exile" && o.playable && o.playable.free && o.playable.by === p) {
         return [{ door: o.def.doors ? 0 : null, xMax: 0, xCount: 0, cost: parseCost(""), convoke: false, free: true, label: "Without paying its mana cost" }];
       }
       // morph: cast it face down as a 2/2 for {3}
-      if (o.def.morph && o.zone === "hand" && sorc && this.canPay(p, this.morphCost(p))) ways.push({ door: null, xMax: 0, xCount: 0, cost: this.morphCost(p), convoke: false, faceDown: true, label: "Face down" });
+      if (o.def.morph && o.zone === "hand" && sorc && !noTargets && this.canPay(p, this.morphCost(p))) ways.push({ door: null, xMax: 0, xCount: 0, cost: this.morphCost(p), convoke: false, faceDown: true, label: "Face down" });
       const doors = o.def.doors ? o.def.doors.map((_, i) => i) : [null];
-      for (const door of doors) {
+      for (const door of noTargets ? [] : doors) {
         const ch = { door: door == null ? 0 : door, x: 0 };
         const base = this.spellCost(p, o, ch);
         const conv = this.hasConvoke(p, o);
@@ -1566,6 +1575,8 @@
       // alternative costs (Fierce Guardianship, Force of Will...)
       (o.def.altCosts || []).forEach((alt, i) => {
         if (o.zone === "graveyard") return;
+        if (noTargets && !alt.targets) return;
+        if (!altOk(alt)) return;
         if (alt.condition && !alt.condition(this, p, o)) return;
         if (alt.payLife && p.life <= alt.payLife) return;
         if (alt.exileFromHand && !p.hand.some(c => c !== o && alt.exileFromHand.filter(this, c))) return;

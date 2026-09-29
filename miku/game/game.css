@@ -376,3 +376,12 @@ html.mg-open, html.mg-open body { overflow: hidden; overscroll-behavior: none; }
   .mg-board.opp { --cw: 36px; }
   .mg-actions .hint { display: none; }
 }
+
+/* face-down permanents (cloak, manifest, morph): a card back; your own show their name */
+.mc.fd .art.fdb { background: repeating-linear-gradient(135deg, #1b2230 0 6px, #232c3d 6px 12px); box-shadow: inset 0 0 0 1px rgba(143, 184, 255, .35), inset 0 0 18px rgba(0, 0, 0, .6); display: grid; place-items: center; }
+.mc.fd .art.fdb::before { content: "?"; font: 800 1.1rem/1 var(--f-display, sans-serif); color: rgba(143, 184, 255, .55); }
+.mc.fd .art.fdb .fdn { position: absolute; left: 3px; right: 3px; top: 3px; font-size: .46rem; font-weight: 700; line-height: 1.05; color: #cfe0ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; z-index: 1; }
+.mc.fd .kws { top: auto; bottom: 16px; }
+/* no "save image" menu or drag on cards; press and hold opens the preview instead */
+.mg, .mg * { -webkit-touch-callout: none; }
+.mg .mg-log [data-card] { cursor: pointer; text-decoration: underline dotted rgba(255, 255, 255, .35); text-underline-offset: 2px; }

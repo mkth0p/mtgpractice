@@ -208,6 +208,31 @@
       for (const c of sorted) { if (pw >= need) break; out.push(c); pw += Math.max(0, g.power(c)); }
       return out;
     }
+    if (pur === "scry" || pur === "surveil") {
+      // keep what we need: lands while short of them, cheap spells otherwise
+      const lands = g.controlled(p, o => g.isLand(o)).length + p.hand.filter(o => o.def.types.includes("Land")).length;
+      return opts.filter(o => o.def.types.includes("Land") ? lands >= 6 : o.def.mv > lands + 2 || (o.def.ai && o.def.ai.never));
+    }
+    if (pur === "dread") {
+      // manifest dread: the creature we'd most like to turn face up, else anything but a land we need
+      const cre = opts.filter(o => o.def.types.includes("Creature")).sort((a, b) => cardScore(g, p, b, req) - cardScore(g, p, a, req));
+      if (cre.length) return [cre[0]];
+      return [opts.slice().sort((a, b) => cardScore(g, p, a, req) - cardScore(g, p, b, req))[0]];
+    }
+    if (pur === "manifestHand") {
+      const w = AI.manifestWorth || (() => 0);
+      return [opts.slice().sort((a, b) => w(g, p, b) - w(g, p, a))[0]];
+    }
+    if (pur === "plumbSac") {
+      // Unstoppable Slasher comes back if it has no counters; face-down lands are only 2/2s
+      return opts.filter(o => (o.def.name === "Unstoppable Slasher" && !Object.values(o.counters).some(n => n > 0)) || (o.faceDown && o.cardDef.types.includes("Land") && p.hand.length < 3));
+    }
+    if (pur === "phaseOut") {
+      const mineOnly = opts.filter(o => o.controller === p);
+      const silencer = mineOnly.find(o => o.def.name === "Etrata, the Silencer" && g.pending.some(t => t.src === o));
+      if (silencer) return [silencer];
+      return mineOnly.sort((a, b) => value(g, b) - value(g, a)).slice(0, max);
+    }
     if (pur === "tapCost") return opts.slice().sort((a, b) => value(g, a) - value(g, b)).slice(0, min);
     if (pur === "untapCost") return opts.slice().sort((a, b) => value(g, b) - value(g, a)).slice(0, min);
     if (pur === "cultivate") {
@@ -397,6 +422,13 @@
       }
       return s;
     }
+    /* Casting a morph card face down: only when its hint says so. */
+    function morphScore(g, p, act) {
+      const ai = act.card.def.ai || {};
+      if (!ai.morph) return -1;
+      const r = ai.morph(g, p, act.card);
+      return typeof r === "number" ? r : -1;
+    }
     function chooseX(g, p, o, xMax) {
       const ai = o.def.ai || {};
       if (ai.x) return Math.max(0, Math.min(xMax, ai.x(g, p, o, xMax) | 0));
@@ -490,7 +522,7 @@
         if (l) { noteTry(l, win); return l; }
       }
       // 3. spells
-      const casts = acts.filter(a => a.type === "cast" && fresh(a)).map(a => ({ a, s: scoreCast(g, p, a, win) - (a.alt ? 2 : 0) })).filter(x => x.s > 0);
+      const casts = acts.filter(a => a.type === "cast" && fresh(a)).map(a => ({ a, s: a.faceDown ? morphScore(g, p, a) : scoreCast(g, p, a, win) - (a.alt ? 2 : 0) })).filter(x => x.s > 0);
       // rooms: keep only the door the hint prefers
       const byCard = new Map();
       for (const c of casts) {
@@ -502,7 +534,7 @@
       if (list.length) {
         const pick = list[0].a;
         noteTry(pick, win);
-        const out = { type: "cast", card: pick.card, door: pick.door, alt: pick.alt };
+        const out = { type: "cast", card: pick.card, door: pick.door, alt: pick.alt, faceDown: pick.faceDown };
         if (pick.xCount) out.x = chooseX(g, p, pick.card, pick.xMax);
         return out;
       }
@@ -638,6 +670,15 @@
       if (ai.tutor) s += 3;
       return s;
     }
+    /* The counterspell can target that spell (Dispel, An Offer You Can't Refuse, Wash Away). */
+    function counterFits(g, q, act, top) {
+      const d = act.card.def;
+      if (d.modes) return true;
+      const specs = act.alt && d.altCosts && d.altCosts[act.alt - 1].targets ? d.altCosts[act.alt - 1].targets : ((d.spell && d.spell.targets) || []);
+      const spec = specs[0];
+      if (!spec || spec.kind !== "spell") return true;
+      return g.legalTarget(q, spec, top, act.card);
+    }
     function respond(g, q, ctx) {
       resetTurn(g);
       const acts = ctx.actions || [];
@@ -654,10 +695,16 @@
         if (!top || !isOppSpell(g, q, top)) return null;
         const danger = spellDanger(g, q, top);
         // counterspells
-        const counters = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.counter);
+        const counters = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.counter && counterFits(g, q, a, top));
         if (counters.length && danger >= 6 * (1.2 - skill * 0.4)) {
           const c = counters.sort((x, y) => x.card.def.mv - y.card.def.mv)[0];
           if (attempts(c, win) < 1) { noteTry(c, win); return { type: "cast", card: c.card, targets: [top], alt: c.alt }; }
+        }
+        // abilities that answer a spell (turning Kheru Spellsnatcher or Willbender face up)
+        for (const a of acts) {
+          if (a.type !== "activate" || !a.ab.ai || !a.ab.ai.inStack || attempts(a, win) >= 1) continue;
+          const u = abilityUse(g, q, a, win, ctx.turnOf);
+          if (u) { noteTry(a, win); return Object.assign({ type: "activate", card: a.card, idx: a.idx }, u); }
         }
         // protection against a wipe or removal on our best creature
         const hurts = (top.o.def.ai && top.o.def.ai.wipe) || (top.o.def.ai && top.o.def.ai.removal && top.targets.some(t => t && !g.isPlayer(t) && t.controller === q && value(g, t) >= 6));
@@ -800,7 +847,11 @@
           }
         }
         case "targets": return (req.options || []).slice(0, req.max || 1);
-        case "cards": return pickCards(g, p, req);
+        case "cards": {
+          // a card can pick for itself (Azusa's land searches find the missing Dark Depths piece)
+          if (def && def.ai && def.ai.cards) { try { const r = def.ai.cards(g, p, req); if (r) return r; } catch (e) { /* fall back */ } }
+          return pickCards(g, p, req);
+        }
         case "distribute": {
           const opts = req.options.slice().sort((a, b) => helpScore(g, b) - helpScore(g, a));
           const top = opts.slice(0, Math.min(3, opts.length));
