@@ -284,6 +284,10 @@ const named = (g, p, name) => g.battlefield.filter(o => o.controller === p && o.
     check("a borrowed creature goes back to its owner", pm.zone === "battlefield" && pm.controller === b, { zone: pm.zone, ctl: pm.controller.name });
     check("the loser's own creature leaves the game", own.zone === "gone", own.zone);
     check("the game goes on with three players", !g.over && !b.lost && !c.lost); }
+  { const { g, a, b } = table(); const eq = put(g, b, "Skullclamp"); const own = put(g, a, "Ajani's Pridemate");
+    eq.attachedTo = own; g.bump();
+    g.lose(a, "concede");
+    check("Equipment falls off a creature that left with its owner", eq.zone === "battlefield" && eq.attachedTo === null); }
 
   console.log(`${passed} checks passed, ${failed} failed.`);
   process.exitCode = failed ? 1 : 0;

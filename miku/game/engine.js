@@ -2025,6 +2025,8 @@
         o.controller = o.owner; o.sick = true; delete o.state.dieAtEnd;
         this.log(`${o.def.name} returns to ${o.owner.name}.`, { p: o.owner, cards: [o.def.name] });
       }
+      // Equipment left on the battlefield falls off whatever just left (Auras go to the graveyard with the next check)
+      for (const o of this.battlefield) if (o.attachedTo && o.attachedTo.zone !== "battlefield" && !o.def.aura) o.attachedTo = null;
       this.stack = this.stack.filter(it => it.p !== p);
       this.bump();
       this.emit("playerLost", { p });

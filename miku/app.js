@@ -11,7 +11,7 @@
   const GLOSSARY = window.MIKU_GLOSSARY || [];
   const CUTS = window.MIKU_CUTS || [];
   const FAQ = window.MIKU_FAQ || [];
-  const V = "5"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  const V = "6"; // asset version: keep in step with the ?v= links in index.html and sw.js
   const byName = new Map(CARDS.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -1487,7 +1487,7 @@
   }
 
   /* ---------------------------------------------------------------- Play: the game loads on demand */
-  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/decks-edgar.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-urdragon.js", "game/ai.js", "game/game-ui.js"];
+  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/decks-edgar.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/ai.js", "game/game-ui.js"];
   let gameP = null, gameMounted = false;
   function loadGame() {
     if (gameP) return gameP;
