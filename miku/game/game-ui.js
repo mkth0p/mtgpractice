@@ -316,14 +316,17 @@
       const g = this.g;
       this.canCache = null;
       if (this.el.dataset.mode !== this.mode) this.el.dataset.mode = this.mode;
-      this.renderPhase();
-      this.renderSeats();
-      this.renderOpp();
-      this.renderMid();
-      this.renderMine();
-      this.renderMyBar();
-      this.renderHand();
-      this.renderActions();
+      // one part that fails to draw must not freeze the rest of the table (or the buttons)
+      for (const part of ["renderPhase", "renderSeats", "renderOpp", "renderMid", "renderMine", "renderMyBar", "renderHand", "renderActions"]) {
+        try { this[part](); } catch (err) { this.drawError(part, err); }
+      }
+    }
+    drawError(part, err) {
+      console.error("[miku game] " + part, err);
+      const msg = `${part}: ${err && err.message || err}`;
+      if (this.lastDrawError === msg) return;
+      this.lastDrawError = msg;
+      this.appendLog({ text: `Display error (${msg}). The game goes on; please report it.`, kind: "big" });
     }
     renderPhase() {
       const g = this.g;
@@ -632,6 +635,8 @@
       } else if (m === "wait") {
         const who = g.active === this.me ? "Resolving..." : `${esc(g.active.name)} is playing.`;
         html = `<div class="hint">${who}</div><button class="mg-btn" data-act="ff" aria-label="Skip the animations for this turn">Skip ▸▸</button>`;
+      } else if (m === "prompt") {
+        html = `<div class="hint">Answer the question to go on.</div><button class="mg-btn go" data-act="prompt">Show question</button>`;
       } else html = `<div class="hint"></div>`;
       if (box._html !== html) { box.innerHTML = html; box._html = html; }
     }
@@ -836,6 +841,7 @@
         case "leave": this.$.menu.classList.remove("on"); if (g.over || confirm("Leave this game? It won't be saved.")) { this.left = true; if (!g.over) { this.conceded = true; g.lose(this.me, "concede"); if (!g.over) g.end(null, { humanLost: true }); } this.resolve(null); this.destroy(); if (this.opts.onExit) this.opts.onExit(); } break;
         case "rules": this.$.menu.classList.remove("on"); this.showRules(); break;
         case "close": this.closeSheet(); break;
+        case "prompt": this.showPrompt(); break;
         default: break;
       }
     }
@@ -863,6 +869,8 @@
     /* -------------------------------------------------------- sheet */
     openSheet(mode, head, body, foot, cancel) {
       const sh = this.$.sheet;
+      // a question is waiting for an answer: nothing else may take its place
+      if (this.asking && mode !== "prompt") { this.showPrompt(); return document.createElement("div"); }
       this.sheetMode = mode;
       this.sheetCancel = cancel || null;
       sh.querySelector(".hd").innerHTML = head;
@@ -871,16 +879,26 @@
       ft.innerHTML = foot || "";
       ft.style.display = foot ? "" : "none";
       sh.querySelector(".bd").scrollTop = 0;
+      sh.style.transform = "";   // a swipe the browser cut short must not leave the sheet off screen
       sh.classList.add("on");
       this.$.scrim.classList.add("on");
       return sh;
     }
     closeSheet(force) {
       if (this.sheetMode === "prompt" && !force) return;
+      if (this.asking && force !== "answered") { this.showPrompt(); return; }
       this.sheetMode = null;
       this.sheetCancel = null;
       this.$.sheet.classList.remove("on");
       this.$.scrim.classList.remove("on");
+    }
+    /* Bring the open question back on screen (it can't be dismissed without an answer). */
+    showPrompt() {
+      if (!this.asking || this.dead) return;
+      this.sheetMode = "prompt";
+      this.$.sheet.style.transform = "";
+      this.$.sheet.classList.add("on");
+      this.$.scrim.classList.add("on");
     }
     bindSheetSwipe() {
       const sh = this.$.sheet;
@@ -888,6 +906,7 @@
       sh.addEventListener("touchstart", e => { if (sh.querySelector(".bd").scrollTop > 0) return; y0 = e.touches[0].clientY; dy = 0; }, { passive: true });
       sh.addEventListener("touchmove", e => { if (y0 == null) return; dy = Math.max(0, e.touches[0].clientY - y0); if (dy > 0 && this.sheetMode !== "prompt") sh.style.transform = `translateY(${dy}px)`; }, { passive: true });
       sh.addEventListener("touchend", () => { if (y0 == null) return; sh.style.transform = ""; if (dy > 90 && this.sheetMode !== "prompt") this.closeSheet(); y0 = null; });
+      sh.addEventListener("touchcancel", () => { sh.style.transform = ""; y0 = null; });
     }
 
     /* the card inspector: what it is, its state, and what you can do with it right now */
@@ -1112,6 +1131,8 @@
       this.mode = "prompt";
       this.render();
       let r;
+      this.asking = (this.asking || 0) + 1;
+      try {
       switch (req.type) {
         case "confirm": r = await this.confirmSheet(req); break;
         case "number": r = req.min === req.max ? req.min : await new Promise(res => this.numberSheet(req.prompt, req.min, req.max, req.max, "OK", res, false)); break;
@@ -1121,7 +1142,13 @@
         case "distribute": r = await this.distributeSheet(req); break;
         default: r = this.helper.choose(g, this.me, req);
       }
-      this.closeSheet(true);
+      } catch (err) {
+        // a question that can't be drawn is answered for you rather than leaving the game waiting
+        console.error("[miku game] question", err);
+        this.appendLog({ text: `Display error (${err && err.message || err}). That choice was made for you.`, kind: "big" });
+        r = this.helper.choose(g, this.me, req);
+      } finally { this.asking--; }
+      if (!this.asking) this.closeSheet("answered");
       this.mode = prev === "prompt" ? "wait" : prev;
       this.render();
       return r;

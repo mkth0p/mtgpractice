@@ -825,6 +825,11 @@
           const opts = req.options;
           if (!opts.length) return null;
           if (def && def.ai && def.ai.target) { const t = def.ai.target(g, p, req); if (t !== undefined && (t === null ? req.optional : opts.includes(t))) return t; }
+          // a spell on the stack (counterspells): the most dangerous opponent's spell, never our own
+          if (req.spec && req.spec.kind === "spell" && pur !== "redirect") {
+            const theirs = opts.filter(it => it && it.p && it.p !== p);
+            return theirs.sort((a, b) => spellDanger(g, p, b) - spellDanger(g, p, a))[0] || null;
+          }
           switch (pur) {
             case "harm": return pickHarm(g, p, opts, req);
             case "help": case "equip":

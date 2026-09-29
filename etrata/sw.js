@@ -1,7 +1,7 @@
 /* Offline support for the Etrata deck wiki. It shares the Miku site's kit, styles, shell and game
    engine (../miku/). Site files: network first, cache as fallback. Fonts and card images: cache first. */
-const VERSION = "etrata-v11";
-const V = "?v=11";
+const VERSION = "etrata-v12";
+const V = "?v=12";
 const GAME = ["engine.js", "cards-miku.js", "cards-etrata.js", "cards-miku-precon.js", "decks-azusa.js", "decks-edgar.js", "decks-ghalta.js", "decks-krenko.js", "decks-talrand.js", "decks-urdragon.js", "precon-ghired.js", "precon-isperia.js", "precon-kaalia.js", "precon-lathril.js", "precon-wilhelt.js", "ai.js", "game-ui.js", "game.css"].map(f => "../miku/game/" + f + V);
 const CORE = ["./", "./index.html", "./icon.svg", "./manifest.webmanifest"]
   .concat(["theme.css", "cards.js", "wiki.js", "guide.js", "site.js"].map(f => "./" + f + V))
