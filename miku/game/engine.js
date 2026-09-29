@@ -2017,8 +2017,14 @@
       const text = { life: "has no life left", poison: "has 10 poison counters", commander: "took 21 commander damage", library: "had to draw from an empty library", concede: "conceded", alt: "lost to an alternate win" }[why] || "lost";
       this.log(`${p.name} ${text} and is out of the game.`, { p, kind: "lose" });
       this.anim("lose", { p, why });
-      // their things leave the game
-      for (const o of this.battlefield.slice()) if (o.owner === p || o.controller === p) { this.removeFromZone(o); o.zone = "gone"; if (this.combat) this.removeFromCombat(o); }
+      // their things leave the game, and things they control but don't own go back to their owners
+      for (const o of this.battlefield.slice()) {
+        if (o.owner !== p && o.controller !== p) continue;
+        if (this.combat) this.removeFromCombat(o);
+        if (o.owner === p || o.owner.lost) { this.removeFromZone(o); o.zone = "gone"; continue; }
+        o.controller = o.owner; o.sick = true; delete o.state.dieAtEnd;
+        this.log(`${o.def.name} returns to ${o.owner.name}.`, { p: o.owner, cards: [o.def.name] });
+      }
       this.stack = this.stack.filter(it => it.p !== p);
       this.bump();
       this.emit("playerLost", { p });
@@ -2045,13 +2051,15 @@
     async play() {
       await this.mulligans();
       this.round = 1;
+      // a round ends when play passes the seat that went first, which need not be seat 0
+      const n = this.players.length, first = this.activeIdx, seat = i => (i - first + n) % n;
       while (!this.over) {
         const p = this.active;
         if (!p.lost) await this.takeTurn(p);
         if (this.over) break;
         if (this.turn >= this.maxTurns) { this.log("The turn limit was reached. The game is a draw."); this.end(null, { draw: true }); break; }
         const next = this.nextPlayer(p);
-        if (next.idx <= p.idx) this.round++;
+        if (seat(next.idx) <= seat(p.idx)) this.round++;
         this.activeIdx = next.idx;
       }
       return this.winner;

@@ -1482,7 +1482,7 @@
   }
 
   /* ---------------------------------------------------------------- Play: the game loads on demand */
-  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/decks-edgar.js", "game/decks-ghalta.js", "game/decks-urdragon.js", "game/ai.js", "game/game-ui.js"];
+  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/decks-edgar.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-urdragon.js", "game/ai.js", "game/game-ui.js"];
   let gameP = null, gameMounted = false;
   function loadGame() {
     if (gameP) return gameP;

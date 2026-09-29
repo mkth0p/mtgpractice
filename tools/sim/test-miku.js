@@ -277,6 +277,14 @@ const named = (g, p, name) => g.battlefield.filter(o => o.controller === p && o.
     g.pay(a, MK.parseCost("{2}"));
     check("{2} uses Sol Ring alone", sr.tapped && ls.every(o => !o.tapped)); }
 
+  // A player who loses takes their own cards out of the game and gives back what they borrowed
+  { const { g, a, b, c } = table(); const pm = put(g, b, "Ajani's Pridemate"); const own = put(g, a, "Ajani's Pridemate");
+    pm.controller = a; g.bump();
+    g.lose(a, "concede");
+    check("a borrowed creature goes back to its owner", pm.zone === "battlefield" && pm.controller === b, { zone: pm.zone, ctl: pm.controller.name });
+    check("the loser's own creature leaves the game", own.zone === "gone", own.zone);
+    check("the game goes on with three players", !g.over && !b.lost && !c.lost); }
+
   console.log(`${passed} checks passed, ${failed} failed.`);
   process.exitCode = failed ? 1 : 0;
 })().catch(e => { console.error(e); process.exitCode = 1; });

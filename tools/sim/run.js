@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /* Headless games between bots, to test the Miku game engine, the cards and the bot decks.
-   node tools/sim/run.js --games 50 --seed 1 --decks miku,random --players 4 [--strict] [--verbose]
-   Prints win rates, game lengths and any engine errors or broken invariants. */
+   node tools/sim/run.js --games 50 --seed 1 --decks miku,random --players 4 [--strict] [--verbose] [--first random]
+   Prints win rates, game lengths and any engine errors or broken invariants.
+   --first random picks who goes first at random, like the Play tab does (the default is the first seat). */
 "use strict";
 const path = require("path");
 const dir = path.join(__dirname, "../../miku/game");
@@ -24,6 +25,7 @@ const STRICT = !!opt("strict", false);
 const VERBOSE = !!opt("verbose", false);
 const LOGGAME = opt("log", null);
 const MAXTURNS = +opt("turns", 80);
+const FIRST = opt("first", "0");
 
 function deckPool() {
   const pool = { miku: MK.MIKU_DECK };
@@ -74,6 +76,7 @@ async function runOne(seed, seats) {
     log(e) { if (LOGGAME) console.log(`  t${e.turn} ${e.text}`); }
   };
   g = new MK.Game({ seed, players, strict: STRICT, maxTurns: MAXTURNS, ui });
+  g.activeIdx = FIRST === "random" ? g.rand(players.length) : (+FIRST || 0) % players.length;
   for (const p of g.players) p.startCards = p.library.length + p.command.length;
   const origWarn = g.warn.bind(g);
   g.warn = (err, o) => { errors.push(`${o && o.def ? o.def.name : "?"}: ${err && err.stack ? err.stack.split("\n").slice(0, 3).join(" | ") : err}`); if (STRICT) throw err; };
