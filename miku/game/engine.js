@@ -25,7 +25,8 @@
     "The legend rule keeps the newest copy.",
     "A commander that would go to the graveyard or exile always goes back to the command zone.",
     "Bots never look at your hand or library. They follow simple rules of thumb, not a search of every line.",
-    "A few rules none of these decks need aren't in the game: extra turns and extra combats, phasing, protection from colors, sagas, split second and cycling. Where a card is simplified, its details say how, under \"In this game\".",
+    "Face-down creatures (cloak, manifest, morph) are hidden from your opponents. Turning one face up is instant, like in paper, and doesn't use the stack.",
+    "A few rules none of these decks need aren't in the game: extra turns and extra combats, protection from colors, split second and the initiative's dungeon. Where a card is simplified, its details say how, under \"In this game\".",
     "There is no undo, and there are no timers."
   ];
 
@@ -154,6 +155,57 @@
   T.goblin = MK.tokenDef({ key: "goblin-r", name: "Goblin", pt: [1, 1], colors: "R", subtypes: ["Goblin"] });
   T.zombie = MK.tokenDef({ key: "zombie-b2", name: "Zombie", pt: [2, 2], colors: "B", subtypes: ["Zombie"] });
 
+  /* Ward {n} against spells: the caster pays {n} or the spell is countered. (Abilities resolve right
+     away in this engine, so ward only checks spells.) */
+  MK.wardTrigger = n => ({
+    on: "cast", when: (g, s, ev) => ev.p !== s.controller && !!ev.item && ev.item.targets.includes(s),
+    do: async (g, s, ev) => {
+      const q = ev.p, item = ev.item;
+      if (!g.stack.includes(item) || q.lost) return;
+      const cost = parseCost(`{${n}}`);
+      let paid = false;
+      if (g.canPay(q, cost)) {
+        const ok = await g.ask(q, { type: "confirm", prompt: `Ward {${n}}: pay {${n}}, or ${item.name} is countered`, src: s, purpose: "wardPay" });
+        if (ok) paid = g.pay(q, cost);
+      }
+      if (paid) g.log(`${q.name} pays {${n}} for ward.`, { p: q, cards: [s.def.name] });
+      else { g.log(`${q.name} doesn't pay for ward.`, { p: q, cards: [s.def.name] }); g.counterSpell(item, s); }
+    }
+  });
+
+  /* ============================================================ face-down permanents
+     Cloak, manifest, manifest dread and morph put a card onto the battlefield face down: a nameless,
+     colorless 2/2 creature with no creature types (a cloaked one also has ward {2}). The object keeps
+     its card in `o.cardDef`; `o.def` is the face-down definition until the card is turned face up or
+     leaves the battlefield. The bots only ever read `o.def`, so they never learn what it is. */
+  const FACE_KIND = { cloak: "Cloaked", manifest: "Manifested", dread: "Manifested", morph: "Morph" };
+  MK.FACE_DOWN_NAME = "Face-down creature";
+  MK.faceDownDef = function (card, kind) {
+    const abilities = [];
+    const creature = card.types.includes("Creature");
+    const upAi = card.faceUpAi || { use: (g, p, o, ctx) => AIfaceUp(g, p, o, ctx) };
+    // turning a face-down permanent face up is a special action: no stack, any time you have priority
+    if (creature && card.cost) abilities.push({ label: "Turn face up", cost: card.cost, special: true, faceUp: true, do: (g, src) => g.turnFaceUp(src), ai: upAi });
+    if (card.morph) abilities.push({ label: "Turn face up (morph)", cost: card.morph, special: true, faceUp: true, do: (g, src) => g.turnFaceUp(src), ai: upAi });
+    const def = normalize({
+      name: MK.FACE_DOWN_NAME, types: ["Creature"], subtypes: [], pt: [2, 2], colors: [], faceDownOf: card, faceKind: kind,
+      keywords: kind === "cloak" ? ["ward"] : [],
+      text: `${FACE_KIND[kind] || "Face-down"} 2/2 with no name, color or creature type.${kind === "cloak" ? "\nWard {2}" : ""}`,
+      triggers: kind === "cloak" ? [MK.wardTrigger(2)] : [],
+      abilities
+    });
+    return def;
+  };
+  /* Default bot rule for turning its own face-down creature up: in a main phase, when the card is a
+     real improvement on a 2/2 and the mana is spare. */
+  function AIfaceUp(g, p, o, ctx) {
+    if (!(ctx.window === "main1" || ctx.window === "main2")) return false;
+    const d = o.cardDef;
+    if (!d.types.includes("Creature")) return false;
+    const pt = d.pt || [0, 0];
+    return pt[0] + pt[1] >= 5 || d.statics.length > 0 || d.triggers.some(t => t.on === "turnedFaceUp");
+  }
+
   /* ============================================================ the game */
   let objSeq = 0;
   class Game {
@@ -181,6 +233,8 @@
       this.maxTurns = this.opts.maxTurns || 60;
       this.guard = 0;
       this.stats = { spells: 0, triggers: 0 };
+      this.tempTriggers = [];         // triggers that last until end of turn (Duskmantle Guildmage)
+      this.phased = [];               // phased-out permanents (March of Swirling Mist)
       this.players = (this.opts.players || []).map((cfg, i) => this.makePlayer(cfg, i));
     }
 
@@ -192,7 +246,7 @@
         library: [], hand: [], graveyard: [], exile: [], command: [], emblems: [],
         pool: { W: 0, U: 0, B: 0, R: 0, G: 0, C: 0 }, landsPlayed: 0, gained: 0, lifeLostThisTurn: 0,
         spellsCast: 0, lost: false, lostReason: "", identity: [], commanders: [], cmdCasts: {},
-        mulls: 0, turnsTaken: 0, dealt: 0, stats: { cast: {}, dmg: 0, gained: 0, tokens: 0, kills: 0 }
+        mulls: 0, turnsTaken: 0, dealt: 0, energy: 0, attackedBy: [], stats: { cast: {}, dmg: 0, gained: 0, tokens: 0, kills: 0 }
       };
       const cmdNames = [].concat(cfg.commander || []);
       for (const n of cmdNames) {
@@ -212,7 +266,7 @@
       return {
         id: ++objSeq, def, owner, controller: owner, zone, isToken: !!def.token, tapped: false, sick: false,
         counters: {}, damage: 0, dtDamage: false, attachedTo: null, state: {}, ts: ++this.ts, zc: 0,
-        isCommander: false, combat: null, x: 0, playable: null
+        isCommander: false, combat: null, x: 0, playable: null, cardDef: def
       };
     }
     bump() { this.v++; }
@@ -343,6 +397,8 @@
             if (st.cantBlock) cantBlock = true;
             if (st.cantAttack) cantAttack = true;
             if (st.allTypes) allTypes = true;
+            if (st.unblockable) unblockable = true;
+            if (st.subtypes) { const v = typeof st.subtypes === "function" ? st.subtypes(this, s, o) : st.subtypes; if (v) v.forEach(x => subtypes.add(x)); }
           }
           for (const e of this.effects) {
             if (!this.affects(e, o)) continue;
@@ -406,6 +462,7 @@
         const add = d => { for (const t of d.triggers || []) set.add(t.on); if (d.levels) d.levels.forEach(L => (L.triggers || []).forEach(t => set.add(t.on))); };
         for (const o of this.battlefield) add(o.def);
         for (const p of this.players) { for (const o of p.graveyard) add(o.def); for (const o of p.command) add(o.def); for (const em of p.emblems) add(em); }
+        for (const t of this.tempTriggers) add(t.def);
         this._lt = set; this._ltv = this.ts;
       }
       return this._lt.has(type);
@@ -445,8 +502,14 @@
         for (const o of p.graveyard) if (o.def.triggers.some(t => t.zone === "graveyard")) scan(o);
         for (const em of p.emblems) for (const tr of em.triggers || []) if (tr.on === type && (!tr.when || tr.when(this, { controller: p, emblem: true }, ev))) found.push({ src: { controller: p, def: em, emblem: true }, tr, ev, controller: p });
       }
-      if (ev.lki && ev.o && ev.o.zone !== "battlefield") scan(ev.o, ev.lki);
-      if (ev.batch) for (const b of ev.batch) if (b.o !== ev.o && b.o.zone !== "battlefield") scanBatch(this, b, type, ev, found);
+      // "this turn" triggers made by an ability (Duskmantle Guildmage)
+      for (const t of this.tempTriggers) {
+        if (t.controller.lost) continue;
+        for (const tr of t.def.triggers) if (tr.on === type && (!tr.when || tr.when(this, t, ev))) found.push({ src: t, tr, ev, controller: t.controller });
+      }
+      // a face-down creature that leaves had no abilities, so its card's own leave triggers don't fire
+      if (ev.lki && ev.o && ev.o.zone !== "battlefield" && !ev.lki.faceDown) scan(ev.o, ev.lki);
+      if (ev.batch) for (const b of ev.batch) if (b.o !== ev.o && b.o.zone !== "battlefield" && !(b.lki && b.lki.faceDown)) scanBatch(this, b, type, ev, found);
       if (!found.length) return;
       // APNAP: the active player's triggers go on the stack first, so they resolve last.
       const order = this.orderFrom(this.active);
@@ -473,6 +536,16 @@
         const { src, tr, ev, controller } = t;
         if (controller.lost) continue;
         if (tr.intervening && !tr.intervening(this, src, ev)) continue;
+        // a trigger its controller may answer before it resolves (Etrata, the Silencer and March of Swirling Mist)
+        if (tr.respond) {
+          let k = 0;
+          while (k++ < 4 && !this.over) {
+            const act = await this.askRespond(controller, { window: "trigger", src, trigger: tr, ev });
+            if (!act) break;
+            await this.perform(controller, act);
+          }
+          if (this.over || controller.lost) continue;
+        }
         try {
           if (tr.optional) {
             const ok = await this.ask(controller, { type: "confirm", prompt: tr.optional === true ? `Use ${src.def.name}?` : tr.optional, src, purpose: tr.ai || "may", ev, trigger: tr });
@@ -590,7 +663,7 @@
       if (arr) { const i = arr.indexOf(o); if (i >= 0) arr.splice(i, 1); }
     }
     lki(o) {
-      return { controller: o.controller, power: this.power(o), toughness: this.toughness(o), counters: Object.assign({}, o.counters), isToken: o.isToken, creature: this.isCreature(o), name: o.def.name, types: [...this.typesOf(o)], subtypes: [...this.ch(o).subtypes], attached: this.battlefield.filter(a => a.attachedTo === o), mv: this.mvOf(o), colors: [...this.colorsOf(o)] };
+      return { controller: o.controller, power: this.power(o), toughness: this.toughness(o), counters: Object.assign({}, o.counters), isToken: o.isToken, creature: this.isCreature(o), name: o.def.name, types: [...this.typesOf(o)], subtypes: [...this.ch(o).subtypes], attached: this.battlefield.filter(a => a.attachedTo === o), mv: this.mvOf(o), colors: [...this.colorsOf(o)], faceDown: !!o.faceDown };
     }
     /* Move an object between zones. Returns where it ended up. Leaving the battlefield resets it. */
     moveTo(o, zone, opts) {
@@ -610,6 +683,10 @@
       o.zone = to; o.zc++;
       o.tapped = false; o.sick = false; o.counters = {}; o.damage = 0; o.dtDamage = false; o.state = {}; o.combat = null;
       o.controller = o.owner; o.playable = null;
+      // a face-down card, a copy (Spark Double, Thespian's Stage) or a land face goes back to being its card
+      if (o.cardDef && o.def !== o.cardDef && !o.isToken) { o.def = o.cardDef; this.ts++; }
+      o.faceDown = null;
+      if (from === "exile") o.hitCounter = false;
       if (o.isToken && to !== "battlefield") {
         o.gone = true; // tokens stop existing outside the battlefield
       } else if (to === "library") {
@@ -621,6 +698,7 @@
       o.ts = ++this.ts;
       this.bump();
       this.anim("move", { o, from, to, info });
+      if (to === "graveyard" && !o.isToken) this.emit("putInGraveyard", { o, p: o.owner, from });
       return { to, info, from };
     }
 
@@ -643,6 +721,9 @@
       if (d.types.includes("Planeswalker")) o.counters.loyalty = d.loyalty;
       if (d.doors) o.state.doors = d.doors.map((_, i) => i === (opts.door || 0));
       if (d.levels) o.state.level = 1;
+      if (d.saga) o.counters.lore = 1;
+      // "as this enters, choose a creature type" and other choices kept on the permanent
+      if (d.etbState) { try { Object.assign(o.state, d.etbState(this, o, opts) || {}); } catch (e) { this.warn(e, o); } }
       if (d.etbCounters) { const add = d.etbCounters(this, o, opts); for (const k in add) if (add[k] > 0) o.counters[k] = (o.counters[k] || 0) + add[k]; }
       if (opts.counters) for (const k in opts.counters) o.counters[k] = (o.counters[k] || 0) + opts.counters[k];
       o.x = opts.x || 0;
@@ -659,7 +740,17 @@
     enterMany(list) {
       for (const it of list) this.enterBattlefield(it.o, it.controller, it.opts);
       for (const it of list) this.emit("enters", { o: it.o, p: it.o.controller, token: it.o.isToken, batch: list.length > 1 ? list : null });
+      for (const it of list) if (it.o.def.saga && it.o.zone === "battlefield") this.sagaChapter(it.o);
       return list.map(it => it.o);
+    }
+    /* A Saga's chapter ability for its current lore count. After the last one it's sacrificed. */
+    sagaChapter(o) {
+      const n = o.counters.lore || 0, chapters = o.def.saga;
+      const ch = chapters[n - 1];
+      this.pending.push({ src: o, controller: o.controller, ev: {}, tr: { do: async (g, src, ev, ctx) => {
+        if (ch) { g.log(`${src.def.name}: chapter ${["I", "II", "III", "IV", "V"][n - 1] || n}.`, { p: ctx.p, cards: [src.def.name] }); await ch(g, src, ctx.p); }
+        if ((src.counters.lore || 0) >= chapters.length && src.zone === "battlefield") g.sacrifice(src);
+      } } });
     }
     createToken(p, spec, opts) {
       opts = opts || {};
@@ -732,6 +823,11 @@
       for (const o of list) {
         if (o.zone !== "battlefield") continue;
         const wasCreature = this.isCreature(o);
+        // "if a creature an opponent controls would die, instead exile it with a hit counter"
+        if (wasCreature && why !== "destroyed-noreplace") {
+          const rep = this.staticSources().find(s => this.staticsOf(s).some(st => st.exileInsteadOfDying && st.exileInsteadOfDying(this, s, o)));
+          if (rep) { this.exileWithHit(o, rep); continue; }
+        }
         const info = this.lki(o);
         const owner = o.owner;
         const r = this.moveTo(o, "graveyard", { dies: wasCreature });
@@ -770,6 +866,115 @@
       this.moveTo(o, "library", { bottom, noCommandZone: false });
       if (info) this.emit("leaves", { o, lki: info, p: info.controller, to: "library" });
     }
+    /* Exile a permanent and put a hit counter on the exiled card (Etrata, the Silencer, Ravenloft
+       Adventurer). Tokens stop existing, so only cards keep a hit counter. */
+    exileWithHit(o, src) {
+      if (o.zone !== "battlefield") return null;
+      const owner = o.owner;
+      const info = this.exile(o, src);
+      if (o.zone === "exile" && !o.isToken) { o.hitCounter = true; this.log(`${o.def.name} gets a hit counter (${owner.name} has ${this.hitCount(owner)}).`, { p: owner, cards: [o.def.name], kind: "exile" }); }
+      this.bump();
+      return info;
+    }
+    hitCount(p) { return p.exile.filter(o => o.hitCounter).length; }
+
+    /* Phasing (March of Swirling Mist): the permanent and anything attached to it are treated as
+       though they don't exist until its controller's next untap step. No leave or enter events. */
+    phaseOut(list) {
+      const all = [];
+      for (const o of [].concat(list)) {
+        if (!o || o.zone !== "battlefield") continue;
+        all.push(o);
+        for (const a of this.battlefield) if (a.attachedTo === o && !all.includes(a)) all.push(a);
+      }
+      for (const o of all) {
+        if (this.combat) this.removeFromCombat(o);
+        this.removeFromZone(o);
+        o.zone = "phased"; o.phasedBy = o.controller;
+        this.phased.push(o);
+        this.log(`${o.def.name} phases out.`, { p: o.controller, cards: [o.def.name], kind: "phase" });
+      }
+      this.bump();
+      return all;
+    }
+    phaseIn(p) {
+      const back = this.phased.filter(o => o.phasedBy === p);
+      if (!back.length) return;
+      this.phased = this.phased.filter(o => o.phasedBy !== p);
+      for (const o of back) { o.zone = "battlefield"; o.phasedBy = null; this.battlefield.push(o); }
+      this.log(`${back.map(o => o.def.name).join(", ")} phase${back.length > 1 ? "" : "s"} in.`, { p, cards: back.map(o => o.def.name), kind: "phase" });
+      this.bump();
+    }
+
+    /* ------------------------------------------------ face down */
+    /* Put cards (from a library, hand or anywhere) onto the battlefield face down under p's control.
+       kind: "cloak" (ward {2}), "manifest", "dread" (manifest dread) or "morph". */
+    putFaceDown(p, list, opts) {
+      opts = opts || {};
+      const kind = opts.kind || "manifest";
+      const items = [];
+      for (const o of [].concat(list).filter(Boolean)) {
+        if (o.zone !== "new") this.removeFromZone(o);
+        o.zone = "new";
+        o.def = MK.faceDownDef(o.cardDef, kind);
+        o.faceDown = { kind };
+        items.push({ o, controller: p, opts: { tapped: !!opts.tapped } });
+      }
+      if (!items.length) return [];
+      this.ts++;
+      const verb = { cloak: "cloaks", manifest: "manifests", dread: "manifests", morph: "casts face down" }[kind] || "puts face down";
+      if (opts.log !== false) this.log(`${p.name} ${verb} ${opts.what || (items.length > 1 ? items.length + " cards" : "a card")}.`, { p, kind: "faceDown" });
+      return this.enterMany(items);
+    }
+    /* Look at the top two, one goes onto the battlefield face down, the other into the graveyard. */
+    async manifestDread(p, src) {
+      const top = p.library.slice(0, 2);
+      if (!top.length) return null;
+      let pick = top[0];
+      if (top.length > 1) {
+        const ans = await this.ask(p, { type: "cards", prompt: "Manifest dread: choose the card to put onto the battlefield face down (the other goes to your graveyard)", options: top, min: 1, max: 1, purpose: "dread", src });
+        pick = (ans && ans[0] && top.includes(ans[0])) ? ans[0] : top[0];
+      }
+      const made = this.putFaceDown(p, [pick], { kind: "dread", what: "a card (manifest dread)" });
+      for (const o of top) if (o !== pick && o.zone === "library") this.moveTo(o, "graveyard");
+      return made[0] || null;
+    }
+    cloakTop(p, from, src) {
+      const lib = (from || p).library;
+      if (!lib.length) return null;
+      return this.putFaceDown(p, [lib[0]], { kind: "cloak", what: from && from !== p ? `the top card of ${from.name}'s library` : "the top card of their library" })[0] || null;
+    }
+    canTurnFaceUp(o) { return !!o.faceDown && o.zone === "battlefield" && (o.cardDef.types.includes("Creature") || !!o.cardDef.morph); }
+    turnFaceUp(o) {
+      if (!o.faceDown || o.zone !== "battlefield") return false;
+      const p = o.controller;
+      o.def = o.cardDef; o.faceDown = null;
+      this.ts++; this.bump();
+      this.log(`${p.name} turns ${o.def.name} face up.`, { p, cards: [o.def.name], kind: "faceup" });
+      this.anim("faceUp", { o });
+      this.emit("turnedFaceUp", { o, p });
+      return true;
+    }
+
+    /* ------------------------------------------------ small helpers for card files */
+    async scry(p, n, src) {
+      const top = p.library.slice(0, n);
+      if (!top.length) return;
+      const bottom = await this.ask(p, { type: "cards", prompt: `Scry ${top.length}: choose the cards to put on the bottom of your library`, options: top, min: 0, max: top.length, purpose: "scry", src });
+      for (const o of (bottom || []).filter(x => top.includes(x))) { this.removeFromZone(o); p.library.push(o); }
+      const k = (bottom || []).length;
+      this.log(`${p.name} scries ${top.length}${k ? `, ${k} to the bottom` : ""}.`, { p, kind: "scry" });
+      this.bump();
+    }
+    async surveil(p, n, src) {
+      const top = p.library.slice(0, n);
+      if (!top.length) return;
+      const out = await this.ask(p, { type: "cards", prompt: `Surveil ${top.length}: choose the cards to put into your graveyard`, options: top, min: 0, max: top.length, purpose: "surveil", src });
+      const list = (out || []).filter(x => top.includes(x));
+      for (const o of list) this.moveTo(o, "graveyard");
+      this.log(`${p.name} surveils ${top.length}${list.length ? `, ${list.map(o => o.def.name).join(" and ")} to the graveyard` : ""}.`, { p, kind: "scry", cards: list.map(o => o.def.name) });
+    }
+    addEnergy(p, n) { p.energy = (p.energy || 0) + n; this.bump(); this.log(`${p.name} gets ${n} energy (${p.energy}).`, { p, kind: "energy" }); }
 
     /* ------------------------------------------------ life, damage, counters */
     gainLife(p, n, src) {
@@ -965,7 +1170,9 @@
     /* ------------------------------------------------ mana */
     identityOf(p) { return p.identity.length ? p.identity : ["C"]; }
     /* Every way p could produce mana right now: [{o, ab, units: [["G"], ...] options, cost}] */
-    manaSources(p, exclude) {
+    /* forWhat: "spell" (default), "ability" or "special"; mana that can only be spent on abilities
+       (Omen Hawker) is left out of everything else. */
+    manaSources(p, exclude, forWhat) {
       const out = [];
       const ex = exclude instanceof Set ? exclude : new Set(exclude || []);
       const vorinclex = this.battlefield.some(o => o.controller === p && o.def.doublesLandMana);
@@ -979,6 +1186,7 @@
           if (ab.tap && this.isCreature(o) && o.sick && !this.kw(o, "haste")) continue;
           if (ab.condition && !ab.condition(this, o)) continue;
           if (ab.noAuto) continue;
+          if (ab.onlyFor && ab.onlyFor !== (forWhat || "spell")) continue;
           const prod = typeof ab.produce === "function" ? ab.produce(this, o) : ab.produce;
           if (!prod) continue;
           for (const units of this.expandProduce(prod, p)) options.push({ units, ab, cost: ab.cost ? parseCost(ab.cost) : null, tapCreature: ab.tapCreature || 0 });
@@ -1023,7 +1231,7 @@
       const fromPool = Math.min(poolLeft, need.g);
       need.g -= fromPool;
       const exclude = new Set(opts.exclude || []);
-      let sources = this.manaSources(p, exclude);
+      let sources = this.manaSources(p, exclude, opts.for);
       // Which colors to keep open: the ones the hand and the commander still need, over how many
       // untapped sources make them. Generic mana then comes from the spare color (a Forest, not
       // the only Plains, pays the {2} of a green spell). A tie-break worth well under 1 rank point.
@@ -1240,7 +1448,7 @@
     maxX(p, baseCost, xCount, opts) {
       if (!xCount) return 0;
       let lo = 0, hi = 0;
-      const sources = this.manaSources(p, new Set(opts && opts.exclude || []));
+      const sources = this.manaSources(p, new Set(opts && opts.exclude || []), opts && opts.for);
       hi = this.poolTotal(p) + sources.reduce((s, x) => s + x.options[0].units.length * x.mult, 0);
       if (opts && opts.convoke) hi += this.creatures(p).filter(o => !o.tapped).length;
       hi = Math.max(0, Math.floor(hi / xCount));
@@ -1263,12 +1471,21 @@
       if (!this.canSorcery(p)) return false;
       if (p.landsPlayed >= this.landDrops(p)) return false;
       if (!o.def.types.includes("Land")) return false;
-      return o.zone === "hand" || (o.zone === "exile" && o.playable && o.playable.by === p && o.playable.turn === this.turn);
+      return o.zone === "hand" || this.playableFromExile(p, o) || (o.zone === "graveyard" && o.owner === p && this.landsFrom(p, "graveyard")) || (o.zone === "library" && o.owner === p && p.library[0] === o && this.landsFrom(p, "top"));
     }
-    playLand(p, o) {
-      if (!this.canPlayLand(p, o)) return false;
+    playableFromExile(p, o) { return o.zone === "exile" && !!o.playable && o.playable.by === p && (o.playable.turn === this.turn || o.playable.forever); }
+    /* Lands p may play from other zones: "graveyard" (Ramunap Excavator), "top" (Oracle of Mul Daya, Courser of Kruphix). */
+    landsFrom(p, zone) {
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.playLandsFrom && s.controller === p && st.playLandsFrom.includes(zone)) return true;
+      return false;
+    }
+    playLand(p, o, back) {
+      if (back && o.def.mdfcLand) { if (!this.canSorcery(p) || p.landsPlayed >= this.landDrops(p) || !(o.zone === "hand" || this.playableFromExile(p, o))) return false; }
+      else if (!this.canPlayLand(p, o)) return false;
       p.landsPlayed++;
       this.removeFromZone(o); o.zone = "new";
+      // a modal double-faced card played as its land face
+      if (back && o.def.mdfcLand) o.def = o.def.mdfcLand;
       this.log(`${p.name} plays ${o.def.name}.`, { p, cards: [o.def.name], kind: "land" });
       this.enterMany([{ o, controller: p, opts: {} }]);
       this.emit("landPlayed", { o, p });
@@ -1279,10 +1496,11 @@
     castZones(p) {
       const out = p.hand.slice();
       for (const o of p.command) if (o.isCommander) out.push(o);
-      for (const o of p.exile) if (o.playable && o.playable.by === p && o.playable.turn === this.turn) out.push(o);
+      for (const o of p.exile) if (this.playableFromExile(p, o)) out.push(o);
       for (const o of p.graveyard) if (o.def.flashback || (o.def.castFromGraveyard && o.def.castFromGraveyard(this, p, o))) out.push(o);
       return out;
     }
+    morphCost(p) { return parseCost("{3}"); }
     commanderTax(p, o) { return o.isCommander && o.zone === "command" ? 2 * (p.cmdCasts[o.id] || 0) : 0; }
     /* Total cost of casting o with choices (x, door, alt). */
     spellCost(p, o, ch) {
@@ -1328,6 +1546,12 @@
         for (const spec of o.def.spell.targets) if (!spec.optional && !this.targetOptions(p, spec, o).length) return [];
       }
       const ways = [];
+      // "you may cast it without paying its mana cost" for as long as it stays exiled (Kheru Spellsnatcher, Gix)
+      if (o.zone === "exile" && o.playable && o.playable.free && o.playable.by === p) {
+        return [{ door: o.def.doors ? 0 : null, xMax: 0, xCount: 0, cost: parseCost(""), convoke: false, free: true, label: "Without paying its mana cost" }];
+      }
+      // morph: cast it face down as a 2/2 for {3}
+      if (o.def.morph && o.zone === "hand" && sorc && this.canPay(p, this.morphCost(p))) ways.push({ door: null, xMax: 0, xCount: 0, cost: this.morphCost(p), convoke: false, faceDown: true, label: "Face down" });
       const doors = o.def.doors ? o.def.doors.map((_, i) => i) : [null];
       for (const door of doors) {
         const ch = { door: door == null ? 0 : door, x: 0 };
@@ -1357,10 +1581,13 @@
       const ways = this.castOptions(p, o);
       if (!ways.length) return false;
       let way = ways[0];
-      if (choice.alt) way = ways.find(w => w.alt === choice.alt) || null;
-      else if (choice.door != null) way = ways.find(w => w.door === choice.door && !w.alt) || ways.find(w => !w.alt) || null;
-      else way = ways.find(w => !w.alt) || ways[0];
+      if (choice.faceDown) way = ways.find(w => w.faceDown) || null;
+      else if (choice.alt) way = ways.find(w => w.alt === choice.alt) || null;
+      else if (choice.door != null) way = ways.find(w => w.door === choice.door && !w.alt && !w.faceDown) || ways.find(w => !w.alt && !w.faceDown) || null;
+      else way = ways.find(w => !w.alt && !w.faceDown) || ways[0];
       if (!way) return false;
+      if (way.faceDown) return this.castFaceDown(p, o, way);
+      if (way.free) { const ok = await this.castWithoutPaying(p, o, { forever: true }); return ok; }
       const d = o.def;
       const item = { kind: "spell", o, p, x: 0, door: way.door || 0, alt: way.alt || 0, targets: [], mode: null, id: ++this.ts, name: d.doors ? d.doors[way.door || 0].name : d.name };
       // X
@@ -1413,10 +1640,19 @@
       if (fromZone === "graveyard" && d.flashback) item.exileAfter = true;
       return this.putOnStack(p, o, item);
     }
+    /* Morph: a face-down 2/2 creature spell for {3}. Nobody else sees what it is. */
+    async castFaceDown(p, o, way) {
+      if (!this.pay(p, way.cost, {})) return false;
+      o.def = MK.faceDownDef(o.cardDef, "morph");
+      o.faceDown = { kind: "morph" };
+      const item = { kind: "spell", o, p, x: 0, door: 0, alt: 0, targets: [], mode: null, id: ++this.ts, name: "a face-down creature", faceDown: true };
+      return this.putOnStack(p, o, item);
+    }
     /* A spell that has been paid for (or is free) goes on the stack, triggers "cast", and gets a
        priority round. Returns once it has resolved or been countered. */
     async putOnStack(p, o, item) {
       const d = o.def;
+      item.from = item.from || o.zone;       // where it was cast from (Wash Away)
       this.removeFromZone(o);
       o.zone = "stack"; o.zc++;
       this.stack.push(item);
@@ -1458,6 +1694,8 @@
     }
     spellTargets(o, item) {
       const d = o.def;
+      // an alternative cost can change the targets (cleave)
+      if (item && item.alt && d.altCosts && d.altCosts[item.alt - 1] && d.altCosts[item.alt - 1].targets) return d.altCosts[item.alt - 1].targets;
       if (d.modes && item.mode != null && d.modes[item.mode].targets) return d.modes[item.mode].targets;
       if (d.doors) return [];
       return (d.spell && d.spell.targets) || d.targets || [];
@@ -1517,7 +1755,10 @@
       if (this.isPermanentCard(o) && !item.isCopy) {
         o.zone = "new";
         if (d.aura && item.targets[0]) o.attachedTo = item.targets[0];
-        this.enterMany([{ o, controller: p, opts: { x: item.x, door: item.door } }]);
+        const eo = { x: item.x, door: item.door };
+        // "as this enters" choices (Spark Double's copy); they can change what enters
+        if (d.asEnters && !item.faceDown) { try { await d.asEnters(this, p, o, item, eo); } catch (e) { this.warn(e, o); } }
+        this.enterMany([{ o, controller: p, opts: eo }]);
         if (d.onResolve) { try { await d.onResolve(this, p, o, item); } catch (e) { this.warn(e, o); } }
       } else {
         try {
@@ -1532,10 +1773,12 @@
       const o = item.o;
       if (item.isCopy) { o.gone = true; return; }
       if (o.zone !== "stack") return;
+      if (o.cardDef && o.def !== o.cardDef) { o.def = o.cardDef; o.faceDown = null; this.ts++; }
       if (this.isPermanentCard(o)) { o.zone = "graveyard"; o.owner.graveyard.push(o); }
       else if (item.exileAfter) { o.zone = "exile"; o.owner.exile.push(o); }
       else { o.zone = "graveyard"; o.owner.graveyard.push(o); }
       if (o.isCommander && o.zone !== "command") this.moveTo(o, "command");
+      else if (o.zone === "graveyard") this.emit("putInGraveyard", { o, p: o.owner, from: "stack" });
       this.bump();
     }
     counterSpell(item, by) {
@@ -1582,6 +1825,15 @@
         o.def.levels.forEach((L, li) => { if (li < lv && L.abilities) L.abilities.forEach((ab, k) => out.push({ ab, i: 400 + li * 10 + k, key: "L" + li + k })); });
       }
       if (o.def.crew && o.zone === "battlefield") out.push({ ab: { label: `Crew ${o.def.crew}`, crew: o.def.crew, timing: "instant", do: (g, src) => { src.state.crewed = g.turn; g.bump(); g.log(`${src.controller.name} crews ${src.def.name}.`, { p: src.controller, cards: [src.def.name] }); } }, i: 500, key: "crew" });
+      // abilities a static gives this object (Etrata, Deadly Fugitive gives face-down creatures one)
+      if (o.zone === "battlefield") {
+        let k = 0;
+        for (const s of this.staticSources()) for (const st of this.staticsOf(s)) {
+          if (!st.grantAbilities || !st.applies || !st.applies(this, s, o)) continue;
+          const list = typeof st.grantAbilities === "function" ? st.grantAbilities(this, s, o) : st.grantAbilities;
+          for (const ab of list || []) { out.push({ ab, i: 800 + k, key: "G" + k, grantedBy: s }); k++; }
+        }
+      }
       if (o.def.equip && o.zone === "battlefield") out.push({ ab: { label: `Equip`, cost: o.def.equip, timing: "sorcery", targets: [{ kind: "creature", you: true, prompt: `Attach ${o.def.name} to`, purpose: "equip", filter: (g, t, p, src) => t.id !== (src.attachedTo && src.attachedTo.id) }], do: (g, src, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0] !== false && t.zone === "battlefield") { src.attachedTo = t; g.bump(); g.log(`${src.def.name} is attached to ${t.def.name}.`, { cards: [src.def.name, t.def.name] }); } } }, i: 600, key: "equip" });
       return out;
     }
@@ -1596,6 +1848,13 @@
       if (c.x) c.g += (x || 0) * c.x;
       if (ab.costReduce) c.g = Math.max(0, c.g - ab.costReduce(this, o));
       c.x = 0;
+      // "activated abilities of creatures you control cost {2} less" (Training Grounds): generic mana
+      // only, never below one mana in total, and not special actions like turning a card face up
+      if (!ab.special && o.zone === "battlefield" && this.isCreature(o)) {
+        let red = 0;
+        for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.abilityCostMod && s.controller === p) red += st.abilityCostMod(this, s, o, ab) || 0;
+        if (red > 0) c.g -= Math.max(0, Math.min(red, c.g, costMV(c) - 1));
+      }
       return c;
     }
     canActivate(p, o, entry, opts) {
@@ -1635,7 +1894,7 @@
       if (ab.discard && p.hand.length < ab.discard) return false;
       if (ab.targets) for (const spec of ab.targets) if (!spec.optional && !this.targetOptions(p, spec, o).length) return false;
       const cost = this.abilityCost(p, o, ab, ab.minXFn ? ab.minXFn(this, o, p) : (ab.minX || 0));
-      if (!this.canPay(p, cost, { exclude: excl })) return false;
+      if (!this.canPay(p, cost, { exclude: excl, for: ab.special ? "special" : "ability" })) return false;
       return true;
     }
     /* Activate an ability. It resolves right away (see SIMPLIFICATIONS). */
@@ -1646,11 +1905,12 @@
       const ab = entry.ab;
       const ctx = { p, src: o, targets: [], legal: [], x: 0, ability: ab, kws: new Set(o.zone === "battlefield" ? this.ch(o).kws : []), lki: o.zone === "battlefield" ? this.lki(o) : null };
       const excl = ab.tap || ab.noSelfMana ? [o.id] : [];
+      const forWhat = ab.special ? "special" : "ability";
       // X
       const baseC = parseCost(ab.cost || "");
       if (baseC.x && !ab.xFrom) {
         const base0 = this.abilityCost(p, o, ab, 0);
-        const xMax = this.maxX(p, base0, baseC.x, { exclude: excl });
+        const xMax = this.maxX(p, base0, baseC.x, { exclude: excl, for: forWhat });
         let x = choice.x;
         if (x == null) x = await this.ask(p, { type: "number", prompt: `Choose X for ${ab.label || o.def.name}`, min: ab.minX || 0, max: xMax, purpose: "x", src: o, ability: ab });
         ctx.x = Math.max(ab.minX || 0, Math.min(xMax, x | 0));
@@ -1662,7 +1922,7 @@
       }
       if (ab.xFrom) {
         ctx.x = ab.xFrom(this, ctx);
-        if (!this.canPay(p, this.abilityCost(p, o, ab, ctx.x), { exclude: excl })) { this.log(`${p.name} can't pay for that.`, { p }); return false; }
+        if (!this.canPay(p, this.abilityCost(p, o, ab, ctx.x), { exclude: excl, for: forWhat })) { this.log(`${p.name} can't pay for that.`, { p }); return false; }
       }
       // non-mana costs
       let sacrificed = null;
@@ -1695,7 +1955,7 @@
         discarded = await this.ask(p, { type: "cards", prompt: `Discard ${ab.discard}`, options: p.hand.slice(), min: ab.discard, max: ab.discard, purpose: "discard", src: o });
       }
       const cost = this.abilityCost(p, o, ab, ctx.x);
-      if (!this.pay(p, cost, { exclude: excl.concat(tappers ? tappers.map(c => c.id) : []).concat(crewers ? crewers.map(c => c.id) : []) })) return false;
+      if (!this.pay(p, cost, { exclude: excl.concat(tappers ? tappers.map(c => c.id) : []).concat(crewers ? crewers.map(c => c.id) : []), for: forWhat })) return false;
       if (ab.tap) this.tap(o);
       if (ab.untapSelf) this.untap(o);
       if (ab.loyalty != null) {
@@ -1736,15 +1996,21 @@
       if (sorc) {
         for (const o of p.hand) if (this.canPlayLand(p, o)) acts.push({ type: "land", card: o });
         for (const o of p.exile) if (o.def.types.includes("Land") && this.canPlayLand(p, o)) acts.push({ type: "land", card: o });
+        for (const o of p.graveyard) if (o.def.types.includes("Land") && this.canPlayLand(p, o)) acts.push({ type: "land", card: o });
+        if (p.library[0] && p.library[0].def.types.includes("Land") && this.canPlayLand(p, p.library[0])) acts.push({ type: "land", card: p.library[0] });
+        // the land face of a modal double-faced card (Boggart Trawler // Boggart Bog)
+        if (p.landsPlayed < this.landDrops(p)) for (const o of p.hand) if (o.def.mdfcLand) acts.push({ type: "land", card: o, back: true });
       }
       for (const o of this.castZones(p)) {
         if (o.def.types.includes("Land")) continue;
         const ways = this.castOptions(p, o);
         for (const w of ways) {
           if (opts.instant && !this.isInstantSpeed(p, o)) continue;
-          acts.push({ type: "cast", card: o, door: w.door, alt: w.alt, xMax: w.xMax, xCount: w.xCount, cost: w.cost, label: w.label });
+          acts.push({ type: "cast", card: o, door: w.door, alt: w.alt, faceDown: !!w.faceDown, free: !!w.free, xMax: w.xMax, xCount: w.xCount, cost: w.cost, label: w.label });
         }
       }
+      // cycling from hand
+      for (const o of p.hand) if (o.def.cycling && this.canPay(p, parseCost(o.def.cycling))) acts.push({ type: "cycle", card: o, cost: parseCost(o.def.cycling) });
       for (const o of this.battlefield) {
         if (o.controller !== p) continue;
         for (const entry of this.abilitiesOf(o)) {
@@ -1755,10 +2021,22 @@
       for (const o of p.graveyard) for (const entry of this.graveyardAbilities(o)) if (this.canActivate(p, o, entry, opts)) acts.push({ type: "activate", card: o, idx: entry.i, ab: entry.ab });
       return acts;
     }
+    /* Cycling: pay, discard it, draw a card. */
+    async cycle(p, o) {
+      if (o.zone !== "hand" || !o.def.cycling || this.over) return false;
+      if (!this.pay(p, parseCost(o.def.cycling), {})) return false;
+      this.log(`${p.name} cycles ${o.def.name}.`, { p, cards: [o.def.name], kind: "cycle" });
+      this.discard(p, o);
+      this.draw(p, 1);
+      this.emit("cycle", { p, o });
+      await this.settle();
+      return true;
+    }
     async perform(p, act) {
       if (!act || this.over) return false;
-      if (act.type === "land") return this.playLand(p, act.card);
+      if (act.type === "land") return this.playLand(p, act.card, act.back);
       if (act.type === "cast") return this.cast(p, act.card, act);
+      if (act.type === "cycle") return this.cycle(p, act.card);
       if (act.type === "activate") {
         const n = Math.max(1, act.repeat || 1);
         let ok = false, done = 0, raised = false;
@@ -1809,6 +2087,7 @@
       if (this.ch(a).unblockable) return false;
       if (this.kw(a, "flying") && !this.kw(b, "flying") && !this.kw(b, "reach")) return false;
       if (this.kw(a, "shadow") && !this.kw(b, "shadow")) return false;
+      if (this.kw(a, "fear") && !this.isArtifact(b) && !this.colorsOf(b).has("B")) return false;
       if (a.def.canBeBlockedBy && !a.def.canBeBlockedBy(this, a, b)) return false;
       if (this.kw(a, "mountainwalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Mountain"))) return false;
       if (this.kw(a, "islandwalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Island"))) return false;
@@ -1853,6 +2132,9 @@
         if (!this.kw(a, "vigilance")) a.tapped = true;
         a.combat = { attacking: d.target, blockedBy: [], wasBlocked: false, declared: true };
         this.combat.attackers.push(a);
+        // who attacked whom this turn, and with what (Ramses, Assassin Lord)
+        const q = this.defenderOf(d.target);
+        q.attackedBy.push({ by: p, o: a, assassin: this.hasSub(a, "Assassin"), turn: this.turn });
       }
       this.bump();
       const byTarget = new Map();
@@ -1989,6 +2271,9 @@
       }
       for (const [src, n] of lifelinkBySource) this.gainLife(src.controller, n, src);
       this.anim("combatDamage", { events });
+      // "whenever one or more creatures you control deal combat damage to a player"
+      const hits = events.filter(e => e.target && this.isPlayer(e.target) && e.n > 0 && e.src);
+      if (hits.length) this.emit("combatDamageStep", { hits: hits.map(e => ({ src: e.src, p: e.target, amount: e.n, controller: e.src.controller })) });
       await this.settle();
       await this.pace("damage", {});
     }
@@ -2118,31 +2403,45 @@
         }
         this.log(`${p.name} keeps ${p.hand.length} cards.`, { p, kind: "keep" });
       }
+      // "if this card is in your opening hand, you may begin the game with it on the battlefield"
+      for (const p of this.players) for (const o of p.hand.slice()) {
+        if (!o.def.openingHand) continue;
+        const ok = await this.ask(p, { type: "confirm", prompt: `Begin the game with ${o.def.name} on the battlefield?`, src: o, purpose: "leyline" });
+        if (!ok) continue;
+        this.putOntoBattlefield([o], p);
+        this.log(`${p.name} begins the game with ${o.def.name} on the battlefield.`, { p, cards: [o.def.name] });
+      }
+      await this.settle();
       this.bump();
     }
     async takeTurn(p) {
       this.turn++;
       p.turnsTaken++;
-      for (const q of this.players) { q.gained = 0; q.lifeLostThisTurn = 0; q.spellsCast = 0; }
+      for (const q of this.players) { q.gained = 0; q.lifeLostThisTurn = 0; q.spellsCast = 0; q.attackedBy = []; }
       this.spellsThisTurn = 0;
       p.landsPlayed = 0;
       this.loopHint = null;
       this.effects = this.effects.filter(e => !(e.until === "yourNextTurn" && e.player === p));
       this.log(`Turn ${this.turn}: ${p.name}.`, { p, kind: "turn" });
       this.anim("turn", { p });
-      // untap
+      // untap (phased-out permanents phase in first)
       this.phase = "untap";
+      this.phaseIn(p);
+      const untapped = [];
       for (const o of this.battlefield) {
         if (o.controller === p) {
           o.sick = false;
           if (o.skipUntap) { o.skipUntap = false; continue; }
           if (o.def.doesntUntap && o.def.doesntUntap(this, o)) continue;
+          if (o.tapped && o.counters.stun > 0) { o.counters.stun--; continue; } // a stun counter comes off instead
+          if (o.tapped) untapped.push(o);
           o.tapped = false;
         }
       }
       // "untap each creature you control during each other player's untap step" (Prop Room and friends)
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.untapOnOthersTurn && s.controller !== p) for (const c of this.creatures(s.controller)) c.tapped = false;
       this.bump();
+      if (untapped.length) this.emit("untapStep", { p, untapped });
       // upkeep
       this.phase = "upkeep";
       this.bump();
@@ -2157,10 +2456,14 @@
       this.emit("drawStep", { p });
       await this.settle();
       if (this.over || p.lost) return this.endTurnEarly(p);
-      // main 1
+      // main 1 (Sagas get their lore counter first)
       this.phase = "main1";
       this.emptyPools();
       this.bump();
+      for (const o of this.battlefield.slice()) if (o.controller === p && o.def.saga) { o.counters.lore = (o.counters.lore || 0) + 1; this.sagaChapter(o); }
+      this.emit("precombatMain", { p });
+      await this.settle();
+      if (this.over || p.lost) return this.endTurnEarly(p);
       const res = await this.mainPhase(p);
       if (this.over || p.lost) return this.endTurnEarly(p);
       // combat
@@ -2207,6 +2510,7 @@
     }
     cleanupEffects() {
       for (const o of this.battlefield) { o.damage = 0; o.dtDamage = false; }
+      if (this.tempTriggers.length) { this.tempTriggers = []; this.ts++; }
       this.effects = this.effects.filter(e => e.until !== "eot" && e.until !== "eoc");
       this.combat = null;
       this.emptyPools();

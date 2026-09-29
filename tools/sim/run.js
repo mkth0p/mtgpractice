@@ -9,6 +9,7 @@ const path = require("path");
 const dir = path.join(__dirname, "../../miku/game");
 require(path.join(dir, "engine.js"));
 require(path.join(dir, "cards-miku.js"));
+// cards-*.js (other player decks) load next, then the Bracket 4 bots (decks-*.js), then the precons
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf("--" + k); return i < 0 ? d : (args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : true); };
 // --files decks-krenko.js,precon-lathril.js loads only those deck files (default: all of them).
@@ -29,8 +30,11 @@ const LOGGAME = opt("log", null);
 const MAXTURNS = +opt("turns", 80);
 const FIRST = opt("first", "0");
 
+/* Every deck by id: the bot decks, plus the decks a player can pilot (MK.HERO_DECKS: the Miku
+   precon, budget and full upgrades, Azusa, Etrata). "miku" is the full upgraded Trostani list. */
 function deckPool() {
   const pool = { miku: MK.MIKU_DECK };
+  for (const d of MK.HERO_DECKS || []) pool[d.id] = d;
   for (const d of MK.BOT_DECKS || []) pool[d.id] = d;
   return pool;
 }
@@ -44,6 +48,7 @@ function checkInvariants(g, where) {
   for (const o of g.battlefield) { note(o, "battlefield"); if (o.zone !== "battlefield") problems.push(`${o.def.name} on battlefield has zone ${o.zone}`); }
   for (const p of g.players) {
     for (const z of ["library", "hand", "graveyard", "exile", "command"]) for (const o of p[z]) {
+      if (o.def !== o.cardDef && !o.isToken) problems.push(`${o.cardDef.name} in ${p.name}'s ${z} still looks like ${o.def.name}`);
       note(o, p.name + " " + z);
       if (o.zone !== z) problems.push(`${o.def.name} in ${p.name}'s ${z} has zone ${o.zone}`);
       if (o.isToken) problems.push(`token ${o.def.name} in ${z}`);
@@ -59,7 +64,7 @@ function checkInvariants(g, where) {
   // card count conservation per player (non-token cards)
   for (const p of g.players) {
     if (p.lost) continue;
-    const n = ["library", "hand", "graveyard", "exile", "command"].reduce((s, z) => s + p[z].length, 0) + g.battlefield.filter(o => o.owner === p && !o.isToken).length + g.stack.filter(it => it.o.owner === p && !it.isCopy).length;
+    const n = ["library", "hand", "graveyard", "exile", "command"].reduce((s, z) => s + p[z].length, 0) + g.battlefield.concat(g.phased).filter(o => o.owner === p && !o.isToken).length + g.stack.filter(it => it.o.owner === p && !it.isCopy).length;
     if (n !== p.startCards) problems.push(`${p.name} has ${n} cards, started with ${p.startCards}`);
   }
   return problems.map(s => `[${where}] ${s}`);
@@ -104,7 +109,8 @@ async function runOne(seed, seats) {
       const w = wanted[k % wanted.length];
       if (/^random[24]?$/.test(w)) {
         const br = +w.slice(6) || 0;
-        const ids = Object.keys(pool).filter(id => id !== "miku" && (!br || (pool[id].bracket || 4) === br));
+        const bots = new Set((MK.BOT_DECKS || []).map(d => d.id));
+        const ids = Object.keys(pool).filter(id => bots.has(id) && (!br || (pool[id].bracket || 4) === br));
         out.push(pool[ids[(SEED * 7919 + i * 31 + k * 17) % ids.length]] || pool.miku);
       } else out.push(pool[w] || pool.miku);
     }

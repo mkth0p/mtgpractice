@@ -958,6 +958,8 @@
   MK.MIKU_DECK = {
     id: "miku",
     name: "Miku",
+    hero: "miku", variant: "full", label: "Full upgrades", bracket: 3,
+    blurb: "The wiki's full upgrade list: the precon plus 24 upgrades, Craterhoof and the Heliod combos.",
     title: "Trostani, Selesnya's Voice",
     commander: "Trostani, Selesnya's Voice",
     identity: ["G", "W"],
@@ -970,4 +972,7 @@
       return out;
     })()
   };
+  /* Decks a player can pilot on the Play tab (and that the sim knows by id). The precon, budget and
+     Azusa versions are added by cards-miku-precon.js and decks-azusa.js; Etrata by cards-etrata.js. */
+  (MK.HERO_DECKS = MK.HERO_DECKS || []).push(MK.MIKU_DECK);
 })(typeof window !== "undefined" ? window : globalThis);
