@@ -5,13 +5,18 @@
   "use strict";
   const K = window.MikuKit;
   const esc = K.esc, store = K.store, mana = K.mana;
-  const CARDS = window.MIKU_CARDS || [];
-  const WIKI = window.MIKU_WIKI || {};
-  const GUIDE = window.MIKU_GUIDE || [];
-  const GLOSSARY = window.MIKU_GLOSSARY || [];
-  const CUTS = window.MIKU_CUTS || [];
-  const FAQ = window.MIKU_FAQ || [];
-  const V = "10"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  // Another deck's site (etrata/) reuses this shell: window.DECK_SITE swaps in its data, storage key,
+  // roles, colors, bot results and widgets, and points the game at ../miku/game/.
+  const D = window.DECK_SITE || {};
+  const CARDS = D.cards || window.MIKU_CARDS || [];
+  const WIKI = D.wiki || window.MIKU_WIKI || {};
+  const GUIDE = D.guide || window.MIKU_GUIDE || [];
+  const GLOSSARY = D.glossary || window.MIKU_GLOSSARY || [];
+  const CUTS = D.cuts || window.MIKU_CUTS || [];
+  const FAQ = D.faq || window.MIKU_FAQ || [];
+  const KEY = D.key || "mikuWiki"; // localStorage prefix
+  const SHORT = D.short || "Miku";
+  const V = "11"; // asset version: keep in step with the ?v= links in index.html and sw.js
   const byName = new Map(CARDS.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -30,7 +35,7 @@
   const LIBRARY = CARDS.filter(c => c !== COMMANDER).flatMap(c => Array(c.qty).fill(c)); // the 99
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 
-  const ROLES = [
+  const ROLES = D.roles || [
     ["cmd", "Commander"], ["ramp", "Ramp"], ["draw", "Card draw"], ["removal", "Removal"],
     ["protect", "Protection"], ["tokens", "Token makers"], ["gain", "Lifegain sources"],
     ["payoff", "Lifegain payoffs"], ["finisher", "Finishers"], ["combo", "Combo pieces"],
@@ -120,7 +125,7 @@
     stats: '<path d="M5 20v-8M10 20V5M15 20v-6M20 20V9"/>',
     shop: '<path d="M5 8h14l-1.3 11.1A2 2 0 0 1 15.7 21H8.3a2 2 0 0 1-2-1.9z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>'
   };
-  const VIEWS = [["guide", "Guide"], ["cards", "Cards"], ["play", "Play"], ["stats", "Stats"], ["shop", "Shop"]];
+  const VIEWS = [["guide", "Guide"], ["cards", "Cards"], ["play", "Play"], ["stats", "Stats"], ["shop", "Shop"]].filter(([id]) => document.getElementById("view-" + id));
   const VIEW_IDS = VIEWS.map(v => v[0]);
   const viewIndex = id => VIEW_IDS.indexOf(id);
   const SEGS = {};
@@ -131,7 +136,7 @@
     nav.innerHTML = VIEWS.map(([id, label]) =>
       `<a class="tab${id === "play" ? " tab-play" : ""}" href="#${id}" data-tab="${id}"><span class="tab-ic"><svg viewBox="0 0 24 24" fill="${id === "play" ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[id]}</svg></span><span class="tab-lb">${label}</span></a>`).join("");
   });
-  const cur = { view: null, seg: Object.assign({}, store.json("mikuWiki.seg.v1", {})) };
+  const cur = { view: null, seg: Object.assign({}, store.json(KEY + ".seg.v1", {})) };
   const scrollMem = {};
   const topbar = $("#topbar"), segTrack = $("#segTrack");
 
@@ -169,8 +174,8 @@
     if (prevView) scrollMem[prevView + "/" + prevSeg] = window.scrollY;
     cur.view = view;
     if (seg) cur.seg[view] = seg;
-    store.put("mikuWiki.seg.v1", cur.seg);
-    store.set("mikuWiki.tab", view);
+    store.put(KEY + ".seg.v1", cur.seg);
+    store.set(KEY + ".tab", view);
     const vEl = $("#view-" + view);
     $$(".view").forEach(v => v.classList.toggle("active", v === vEl));
     $$(".segment", vEl).forEach(s => s.classList.toggle("on", s.dataset.segment === seg));
@@ -224,7 +229,7 @@
   const LEGACY = { deck: ["guide", "start"], combos: ["guide", "combos"], buy: ["shop", "upgrades"], upgrades: ["shop", "upgrades"] };
   const chapterById = id => GUIDE.find(ch => ch.id === id);
   let tabTap = false;
-  function lastView() { const t = store.get("mikuWiki.tab"); return VIEW_IDS.includes(t) && t !== "play" ? t : "guide"; }
+  function lastView() { const t = store.get(KEY + ".tab"); return VIEW_IDS.includes(t) && t !== "play" ? t : "guide"; }
   function route() {
     const h = decodeURIComponent(location.hash.slice(1));
     if (h.startsWith("card-")) {
@@ -555,10 +560,10 @@
     const txt = [c.name, c.type, c.text, c.miku, c.why, c.how, c.warn, (c.faces || []).map(f => f.name + " " + f.text).join(" "), (w.tags || []).join(" "), (w.tips || []).join(" "), (w.rulings || []).map(r => r.q + " " + r.a).join(" "), w.when].join(" ");
     return [c.name, txt.replace(/<[^>]+>/g, "").toLowerCase()];
   }));
-  const cs = { q: "", role: "all", sort: store.get("mikuWiki.cards.sort") || "role", view: store.get("mikuWiki.cards.view") || "grid" };
+  const cs = { q: "", role: "all", sort: store.get(KEY + ".cards.sort") || "role", view: store.get(KEY + ".cards.view") || "grid" };
   if (!["role", "type", "rating", "mv", "az"].includes(cs.sort)) cs.sort = "role";
   const roleCount = r => CARDS.filter(c => r === "new" ? c.new : r === "miku" ? c.sld : c.roles.includes(r)).length;
-  const chipDefs = [["all", "All", CARDS.length], ["new", "Upgrades", roleCount("new")], ["miku", "Miku art", roleCount("miku")]]
+  const chipDefs = [["all", "All", CARDS.length], ["new", "Upgrades", roleCount("new")], ["miku", "Miku art", roleCount("miku")]].filter(([k, , n]) => k === "all" || n)
     .concat(ROLES.filter(r => r[0] !== "cmd").map(([k, l]) => [k, l, roleCount(k)]));
   $("#roleChips").innerHTML = chipDefs.map(([k, l, n]) => `<button class="chip" type="button" data-role="${k}" aria-pressed="${k === "all"}">${l} <span class="n">${n}</span></button>`).join("");
   $("#roleChips").addEventListener("click", e => {
@@ -574,13 +579,13 @@
   qClear.addEventListener("click", () => { qIn.value = ""; cs.q = ""; qClear.hidden = true; renderList(); qIn.focus(); });
   const sortSel = $("#sort");
   sortSel.value = cs.sort;
-  sortSel.addEventListener("change", () => { cs.sort = sortSel.value; store.set("mikuWiki.cards.sort", cs.sort); renderList(true); });
+  sortSel.addEventListener("change", () => { cs.sort = sortSel.value; store.set(KEY + ".cards.sort", cs.sort); renderList(true); });
   const vt = $("#viewToggle");
   function syncToggle() {
     vt.setAttribute("aria-pressed", String(cs.view === "list"));
     vt.setAttribute("aria-label", cs.view === "grid" ? "Show as a list" : "Show card images");
   }
-  vt.addEventListener("click", () => { cs.view = cs.view === "grid" ? "list" : "grid"; store.set("mikuWiki.cards.view", cs.view); syncToggle(); renderList(true); });
+  vt.addEventListener("click", () => { cs.view = cs.view === "grid" ? "list" : "grid"; store.set(KEY + ".cards.view", cs.view); syncToggle(); renderList(true); });
   syncToggle();
   function openSearch() {
     if (location.hash !== "#cards/browse") { tabTap = true; location.hash = "cards/browse"; }
@@ -663,6 +668,7 @@
     }).join("");
   }
   function renderCuts() {
+    if (!$("#cutList")) return;
     $("#cutList").innerHTML = CUTS.map((x, i) => {
       const inCard = CARDS.find(c => c.cut === x.name);
       return `<li class="cut-row"><span class="cut-n mono">${pad(i + 1)}</span><div><p class="cut-swap"><s>${esc(x.name)}</s><span class="arrow" aria-label="replaced by">→</span>${inCard ? cardLink(inCard.name) : ""}</p><p class="muted">${rich(x.why)}</p></div></li>`;
@@ -700,7 +706,7 @@
   });
 
   /* ---------------------------------------------------------------- Guide: tracklist and reader */
-  const READ_KEY = "mikuWiki.guide.read.v1";
+  const READ_KEY = KEY + ".guide.read.v1";
   let readSet = new Set(store.json(READ_KEY, []).filter(id => chapterById(id)));
   const saveRead = () => store.put(READ_KEY, [...readSet]);
   const EQ_ICON = '<span class="eq-ic" aria-hidden="true"><i></i><i></i><i></i></span>';
@@ -791,7 +797,7 @@
       reader.setAttribute("aria-hidden", "false");
       document.body.classList.add("reading");
     } else if (!calm()) restart($(".chapter", readerBody), "turn");
-    store.set("mikuWiki.guide.last", ch.id);
+    store.set(KEY + ".guide.last", ch.id);
     updateProgress();
     $("#readerClose").focus({ preventScroll: true });
   }
@@ -983,7 +989,7 @@
     const is = r => c => c.roles.includes(r);
     const names = list => c => list.includes(c.name);
     const LANDS = count(c => c.cat === "Land");
-    const GROUPS = [
+    const GROUPS = D.oddsGroups ? D.oddsGroups({ is, names }) : [
       { id: "cheapramp", label: "A ramp card costing 2 or less", f: c => c.cat !== "Land" && c.roles.includes("ramp") && c.mv <= 2 },
       { id: "ramp", label: "Any ramp card", f: c => c.cat !== "Land" && c.roles.includes("ramp") },
       { id: "l3", label: "At least 3 lands", lands: 3 },
@@ -999,7 +1005,7 @@
       { id: "combo2", label: "Spike Feeder and an engine for it", both: [["Spike Feeder"], ["Heliod, Sun-Crowned", "Archangel of Thune", "Cleric Class"]] }
     ];
     const singles = CARDS.filter(c => c !== COMMANDER).slice().sort((a, b) => a.name.localeCompare(b.name));
-    const saved = store.json("mikuWiki.odds.v1", {});
+    const saved = store.json(KEY + ".odds.v1", {});
     let what = saved.what || "cheapramp", firstPlayer = saved.first !== false, turn = saved.turn || 3;
     const find = id => GROUPS.find(g => g.id === id) || (id.startsWith("card:") && byName.has(id.slice(5)) ? { id, label: short(id.slice(5)), f: names([id.slice(5)]) } : GROUPS[0]);
     el.innerHTML = `<div class="odds">
@@ -1009,7 +1015,7 @@
       </div>
       <div class="odds-big" aria-live="polite"><b data-o="p">0%</b><span data-o="desc"></span></div>
       <div class="odds-bars" role="group" aria-label="Chance by turn"></div>
-      <p class="muted small">Draws only, from a fresh seven with no mulligan. The first player skips their first draw. Tutors like <i-c>Finale of Devastation</i-c> and <i-c>Nature's Lore</i-c> make the real odds better.</p>
+      <p class="muted small">Draws only, from a fresh seven with no mulligan. The first player skips their first draw. ${D.oddsNote || "Tutors like <i-c>Finale of Devastation</i-c> and <i-c>Nature's Lore</i-c> make the real odds better."}</p>
     </div>`;
     linkMentions(el);
     const sel = $("select", el);
@@ -1022,7 +1028,7 @@
     const seen = t => 7 + t - (firstPlayer ? 1 : 0);
     function draw() {
       const g = find(what);
-      store.put("mikuWiki.odds.v1", { what, first: firstPlayer, turn });
+      store.put(KEY + ".odds.v1", { what, first: firstPlayer, turn });
       $$("[data-first]", el).forEach(b => b.setAttribute("aria-checked", String((b.dataset.first === "1") === firstPlayer)));
       const ps = Array.from({ length: 10 }, (_, i) => prob(g, seen(i + 1)));
       const K_ = g.lands ? LANDS : g.both ? null : count(g.f);
@@ -1230,6 +1236,7 @@
     el.innerHTML = `<a class="play-promo" href="#play"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="pp-copy"><span class="pp-k mono">Practice</span><b>Play it against the bots</b><span class="muted">A real four-player Commander game against precons or Bracket 4 decks, built for one thumb.</span></span><span class="pp-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span></a>`;
   }
   const WIDGETS = { engineCalc, handTrainer, drawOdds, lethalCalc, ballistaSim, feederSim, playCta };
+  if (D.widgets) Object.assign(WIDGETS, D.widgets({ K, $, $$, esc, mana, sum, byName, LIBRARY, COMMANDER, choose, stepperHTML, bump, bindSteppers: typeof bindSteppers === "function" ? bindSteppers : null, cardLink, cardChip, ringHTML, makeRing, meterHTML, setMeter, numIn, miniCard, manaText, linkMentions, paintArt, observe, calm, restart, store, KEY }));
   function mountWidgets(scope) {
     $$("[data-widget]", scope).forEach(el => {
       if (el._w) return;
@@ -1288,20 +1295,20 @@
     el.innerHTML = rows.map(([l, n, extra]) => `<div class="typebar"><span class="tb-l">${l}</span><span class="bar"><i style="--w:${Math.max(1.5, n / max * 100).toFixed(1)}%"></i></span><span class="num mono">${opts.fmt ? opts.fmt(n) : n}</span>${extra ? `<span class="tb-x">${extra}</span>` : ""}</div>`).join("");
     el.dataset.reveal = "";
   }
+  // The deck's two colors: [symbol, name, basic land type]. The first draws as "g", the second as "w".
+  const COL = D.colors || [["G", "green", "Forest"], ["W", "white", "Plains"]];
   function landColors(c) {
     const t = c.text || "", ty = c.type || "";
-    const cmd = /any color in your commander/.test(t);
-    return {
-      g: cmd || /Add[^.]*\{G\}/.test(t) || /Forest/.test(ty) || /[Ss]earch[^.]*Forest/.test(t),
-      w: cmd || /Add[^.]*\{W\}/.test(t) || /Plains/.test(ty) || /[Ss]earch[^.]*Plains/.test(t)
-    };
+    const cmd = /any color in your commander|any color/.test(t);
+    const makes = ([sym, , basic]) => cmd || new RegExp("Add[^.]*\\{" + sym + "\\}").test(t) || ty.includes(basic) || new RegExp("[Ss]earch[^.]*" + basic).test(t) || (c.faces || []).some(f => new RegExp("Add[^.]*\\{" + sym + "\\}").test(f.text || ""));
+    return { g: makes(COL[0]), w: makes(COL[1]) };
   }
   function renderColors() {
     let g = 0, w = 0, hy = 0;
     CARDS.forEach(c => {
       if (c.cat === "Land") return;
       const costs = c.faces ? c.faces.map(f => f.cost) : [c.cost];
-      costs.forEach(cost => { for (const m of String(cost || "").matchAll(/\{([^}]+)\}/g)) { const s = m[1].toUpperCase(); if (s === "G") g += c.qty; else if (s === "W") w += c.qty; else if (/^[GW]\/[GW]$/.test(s)) hy += c.qty; } });
+      costs.forEach(cost => { for (const m of String(cost || "").matchAll(/\{([^}]+)\}/g)) { const s = m[1].toUpperCase(); if (s === COL[0][0]) g += c.qty; else if (s === COL[1][0]) w += c.qty; else if (s.includes("/") && s.split("/").every(x => x === COL[0][0] || x === COL[1][0])) hy += c.qty; } });
     });
     const lands = CARDS.filter(c => c.cat === "Land");
     let lg = 0, lw = 0, both = 0, colorless = 0;
@@ -1310,11 +1317,11 @@
     const tot = g + w, srcG = lg + both, srcW = lw + both;
     $("#colorStats").innerHTML = `
       <div class="eq-card color-card"><div class="eq-head"><b>Colored pips</b><span class="muted mono small">in mana costs</span></div>
-        <div class="tug" role="img" aria-label="${g} green pips and ${w} white pips"><i class="g" style="--w:${(g / tot * 100).toFixed(1)}%"><span>${mana("{G}")} ${g}</span></i><i class="w" style="--w:${(w / tot * 100).toFixed(1)}%"><span>${w} ${mana("{W}")}</span></i></div>
-        <p class="muted small">${Math.round(g / tot * 100)}% green, ${Math.round(w / tot * 100)}% white${hy ? `, plus ${hy} hybrid` : ""}. Trostani alone asks for {G}{G}{W}{W}.</p></div>
-      <div class="eq-card color-card"><div class="eq-head"><b>Lands that make each color</b><span class="muted mono small">34 lands</span></div>
-        <div class="tug" role="img" aria-label="${srcG} lands make green and ${srcW} make white"><i class="g" style="--w:${(srcG / (srcG + srcW) * 100).toFixed(1)}%"><span>${mana("{G}")} ${srcG}</span></i><i class="w" style="--w:${(srcW / (srcG + srcW) * 100).toFixed(1)}%"><span>${srcW} ${mana("{W}")}</span></i></div>
-        <ul class="src-list"><li><b class="mono">${both}</b> make either color</li><li><b class="mono">${lg}</b> green only</li><li><b class="mono">${lw}</b> white only</li><li><b class="mono">${colorless}</b> colorless utility lands</li><li><b class="mono">${rocks.length}</b> mana rocks and creatures on top</li></ul></div>`;
+        <div class="tug" role="img" aria-label="${g} ${COL[0][1]} pips and ${w} ${COL[1][1]} pips"><i class="g" style="--w:${(g / tot * 100).toFixed(1)}%"><span>${mana("{" + COL[0][0] + "}")} ${g}</span></i><i class="w" style="--w:${(w / tot * 100).toFixed(1)}%"><span>${w} ${mana("{" + COL[1][0] + "}")}</span></i></div>
+        <p class="muted small">${Math.round(g / tot * 100)}% ${COL[0][1]}, ${Math.round(w / tot * 100)}% ${COL[1][1]}${hy ? `, plus ${hy} hybrid` : ""}. ${D.pipNote || "Trostani alone asks for {G}{G}{W}{W}."}</p></div>
+      <div class="eq-card color-card"><div class="eq-head"><b>Lands that make each color</b><span class="muted mono small">${sum(lands, c => c.qty)} lands</span></div>
+        <div class="tug" role="img" aria-label="${srcG} lands make ${COL[0][1]} and ${srcW} make ${COL[1][1]}"><i class="g" style="--w:${(srcG / (srcG + srcW) * 100).toFixed(1)}%"><span>${mana("{" + COL[0][0] + "}")} ${srcG}</span></i><i class="w" style="--w:${(srcW / (srcG + srcW) * 100).toFixed(1)}%"><span>${srcW} ${mana("{" + COL[1][0] + "}")}</span></i></div>
+        <ul class="src-list"><li><b class="mono">${both}</b> make either color</li><li><b class="mono">${lg}</b> ${COL[0][1]} only</li><li><b class="mono">${lw}</b> ${COL[1][1]} only</li><li><b class="mono">${colorless}</b> colorless utility lands</li><li><b class="mono">${rocks.length}</b> mana rocks and creatures on top</li></ul></div>`;
     manaText($("#colorStats"));
   }
   function renderRoles() {
@@ -1322,6 +1329,7 @@
     bars($("#roleBars"), rows);
   }
   function renderPrices() {
+    const el0 = $("#priceStats"); if (!el0) return;
     const up = CARDS.filter(c => c.new).sort((a, b) => b.eur - a.eur);
     const total = sum(up, c => c.eur);
     const bands = [["Under 1€", c => c.eur < 1], ["1 to 3€", c => c.eur >= 1 && c.eur < 3], ["3 to 10€", c => c.eur >= 3 && c.eur < 10], ["10€ and up", c => c.eur >= 10]].map(([l, f]) => { const cs2 = up.filter(f); return [l, cs2.length, sum(cs2, c => c.eur)]; });
@@ -1338,6 +1346,7 @@
     const TURNS = [6, 7, 8, 9, 10, 11, 12];
     const COMBO = [4, 13, 31, 55, 75, 87, 94], BEAT = [2, 9, 27, 51, 72, 85, 93];
     const el = $("#speedChart"), out = $("#speedReadout");
+    if (!el) return;
     el.innerHTML = `<div class="sp-grid" aria-hidden="true"><span style="--y:75%">75%</span><span style="--y:50%">50%</span><span style="--y:25%">25%</span></div>` +
       TURNS.map((t, i) => `<button class="sp-col${t >= 7 && t <= 9 ? " key" : ""}" type="button" data-i="${i}" aria-pressed="false" aria-label="By turn ${t}: ${COMBO[i]}% of games">
         <span class="sp-stack"><span class="sp-bar-v" style="--h:${COMBO[i]}%;--i:${i}"><span class="sp-val mono">${COMBO[i]}%</span></span></span><span class="sp-lab mono">T${t}</span></button>`).join("");
@@ -1354,7 +1363,7 @@
   }
   // Results of headless games between bots, from tools/sim/run.js: Miku against three random precons,
   // and against three random Bracket 4 decks. Each is { games, wins, rounds, medianWin, decks: [{ name, games, wins }] }.
-  const BOT_SIM = {
+  const BOT_SIM = D.botSim || {
     precon: { games: 400, wins: 160, rounds: 12.3, medianWin: 11, decks: [{ name: "Lathril", games: 240, wins: 101 }, { name: "Isperia", games: 240, wins: 99 }, { name: "Ghired", games: 240, wins: 95 }, { name: "Wilhelt", games: 240, wins: 95 }, { name: "Kaalia", games: 240, wins: 90 }] },
     b4: { games: 400, wins: 113, rounds: 9.4, medianWin: 10, decks: [{ name: "Edgar", games: 240, wins: 76 }, { name: "Krenko", games: 240, wins: 71 }, { name: "Talrand", games: 240, wins: 69 }, { name: "Ur-Dragon", games: 240, wins: 62 }, { name: "Ghalta", games: 240, wins: 61 }] }
   };
@@ -1364,8 +1373,8 @@
     const tiers = BOT_SIM ? [["precon", "Against three precons", "B2"], ["b4", "Against three Bracket 4 decks", "B4"]].filter(([k]) => BOT_SIM[k]) : [];
     if (!tiers.length) { sec.hidden = true; return; }
     const pct = (w, n) => Math.round(w / n * 100);
-    el.innerHTML = `<div class="eq-card"><div class="eq-head"><b>Miku's results</b><span class="muted mono small">${sum(tiers, ([k]) => BOT_SIM[k].games)} games</span></div>
-        ${tiers.map(([k, label]) => { const S = BOT_SIM[k]; return `<div class="bs-tier"><p class="bs-label">${label}</p><div class="big-trio"><div><b>${pct(S.wins, S.games)}%</b><span>games won</span></div><div><b>${S.rounds.toFixed(1)}</b><span>rounds per game on average</span></div><div><b>${S.medianWin}</b><span>median round of a Miku win</span></div></div></div>`; }).join("")}
+    el.innerHTML = `<div class="eq-card"><div class="eq-head"><b>${esc(SHORT)}'s results</b><span class="muted mono small">${sum(tiers, ([k]) => BOT_SIM[k].games)} games</span></div>
+        ${tiers.map(([k, label]) => { const S = BOT_SIM[k]; return `<div class="bs-tier"><p class="bs-label">${label}</p><div class="big-trio"><div><b>${pct(S.wins, S.games)}%</b><span>games won</span></div><div><b>${S.rounds.toFixed(1)}</b><span>rounds per game on average</span></div><div><b>${S.medianWin}</b><span>median round of a ${esc(SHORT)} win</span></div></div></div>`; }).join("")}
         <p class="muted small">25% is par at a four-player table.</p></div>
       <div class="eq-card"><div class="eq-head"><b>Win rate by opponent</b><span class="muted mono small">tables that included it</span></div><div class="typebars" id="botBars"></div></div>`;
     const rows = [];
@@ -1386,7 +1395,7 @@
   /* ---------------------------------------------------------------- Stats: your games */
   function renderMyStats() {
     const el = $("#myStats"); if (!el) return;
-    const st = store.json("mikuWiki.game.stats.v1", null);
+    const st = store.json(KEY + ".game.stats.v1", null);
     if (!st || !st.games) {
       el.innerHTML = `<div class="empty-state"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><b>No games yet</b><p class="muted">Play a game against the bots and your record shows up here: wins, fastest kill, damage, life gained and tokens made.</p><a class="btn primary" href="#play">Play a game</a></div>`;
       return;
@@ -1410,12 +1419,12 @@
   document.addEventListener("click", e => {
     if (!e.target.closest("#clearStats")) return;
     if (!confirm("Clear your record against the bots on this device?")) return;
-    try { localStorage.removeItem("mikuWiki.game.stats.v1"); } catch (err) { /* ignore */ }
+    try { localStorage.removeItem(KEY + ".game.stats.v1"); } catch (err) { /* ignore */ }
     renderMyStats(); toast("Record cleared");
   });
 
   /* ---------------------------------------------------------------- Shop: buying checklists */
-  const BOUGHT_KEY = "mikuWiki.bought.v1";
+  const BOUGHT_KEY = KEY + ".bought.v1";
   let bought = new Set(store.json(BOUGHT_KEY, []));
   const saveBought = () => store.put(BOUGHT_KEY, [...bought]);
   const cmURL = n => "https://www.cardmarket.com/en/Magic/Products/Search?searchString=" + encodeURIComponent(n);
@@ -1481,7 +1490,7 @@
     };
     const itemsOf = st => A[st].map(x => ({ id: "az" + st + ":" + x.n, name: x.n, eur: x.eur, note: x.note, tags: [x.gc ? ["Game Changer", "new"] : null, x.est ? ["price estimated"] : null].filter(Boolean), link: x.n !== "24 Forest" }));
     const allItems = ["s1", "s2", "s3"].flatMap(itemsOf);
-    let st = store.get("mikuWiki.azStage") || "s1";
+    let st = store.get(KEY + ".azStage") || "s1";
     if (!A[st]) st = "s1";
     const list = checklist({
       body: $("#azBody"), progress: $("#azProgress"), items: itemsOf(st),
@@ -1493,7 +1502,7 @@
       }
     });
     const pick = s => {
-      st = s; store.set("mikuWiki.azStage", s);
+      st = s; store.set(KEY + ".azStage", s);
       $$("#azSeg [data-stage]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.stage === s)));
       $("#azNote").textContent = NOTES[s];
       list.set(itemsOf(s));
@@ -1503,16 +1512,17 @@
   }
 
   /* ---------------------------------------------------------------- Play: the game loads on demand */
+  const GAME_BASE = D.gameBase || "game/";
   const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/decks-azusa.js", "game/decks-edgar.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/game-ui.js"];
   let gameP = null, gameMounted = false;
   function loadGame() {
     if (gameP) return gameP;
     if (!$('link[data-game-css]')) {
       const l = document.createElement("link");
-      l.rel = "stylesheet"; l.href = "game/game.css?v=" + V; l.dataset.gameCss = "";
+      l.rel = "stylesheet"; l.href = GAME_BASE + "game.css?v=" + V; l.dataset.gameCss = "";
       document.head.appendChild(l);
     }
-    gameP = Promise.all(GAME_FILES.map(f => new Promise((res, rej) => {
+    gameP = Promise.all(GAME_FILES.map(f => f.replace(/^game\//, GAME_BASE)).map(f => new Promise((res, rej) => {
       const s = document.createElement("script");
       s.src = f + "?v=" + V; s.async = false;
       s.onload = res; s.onerror = () => rej(new Error("Could not load " + f));
@@ -1620,7 +1630,7 @@
     const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
     root.classList.add("theme-anim");
     root.dataset.theme = dark ? "light" : "dark";
-    store.set("mikuWiki.theme", root.dataset.theme);
+    store.set(KEY + ".theme", root.dataset.theme);
     syncThemeMeta();
     setTimeout(() => root.classList.remove("theme-anim"), 450);
   });
@@ -1635,7 +1645,7 @@
   paintArt();
   bindTilt(document);
   observe(document);
-  K.ensure(CARDS.map(c => c.name), { miku: true });
+  K.ensure(CARDS.map(c => c.name), { miku: !D.key });
   window.MikuApp = { route, openSheet, loadGame };
   if ("serviceWorker" in navigator && location.protocol === "https:" && /github\.io$|^localhost$/.test(location.hostname)) {
     window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => { /* offline mode is optional */ }));

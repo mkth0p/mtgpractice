@@ -1,16 +1,17 @@
-/* Offline support for the Miku deck wiki: the page works at a game store with no signal.
-   Site files: network first, cache as fallback. Fonts and card images: cache first. */
-const VERSION = "miku-v11";
+/* Offline support for the Etrata deck wiki. It shares the Miku site's kit, styles, shell and game
+   engine (../miku/). Site files: network first, cache as fallback. Fonts and card images: cache first. */
+const VERSION = "etrata-v11";
 const V = "?v=11";
-const GAME = ["engine.js", "cards-miku.js", "cards-etrata.js", "cards-miku-precon.js", "decks-azusa.js", "decks-edgar.js", "decks-ghalta.js", "decks-krenko.js", "decks-talrand.js", "decks-urdragon.js", "precon-ghired.js", "precon-isperia.js", "precon-kaalia.js", "precon-lathril.js", "precon-wilhelt.js", "ai.js", "game-ui.js", "game.css"].map(f => "./game/" + f + V);
+const GAME = ["engine.js", "cards-miku.js", "cards-etrata.js", "cards-miku-precon.js", "decks-azusa.js", "decks-edgar.js", "decks-ghalta.js", "decks-krenko.js", "decks-talrand.js", "decks-urdragon.js", "precon-ghired.js", "precon-isperia.js", "precon-kaalia.js", "precon-lathril.js", "precon-wilhelt.js", "ai.js", "game-ui.js", "game.css"].map(f => "../miku/game/" + f + V);
 const CORE = ["./", "./index.html", "./icon.svg", "./manifest.webmanifest"]
-  .concat(["styles.css", "kit.js", "cards.js", "azusa.js", "wiki.js", "guide.js", "app.js"].map(f => "./" + f + V), GAME);
+  .concat(["theme.css", "cards.js", "wiki.js", "guide.js", "site.js"].map(f => "./" + f + V))
+  .concat(["styles.css", "kit.js", "app.js"].map(f => "../miku/" + f + V), GAME);
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION && k !== VERSION + "-assets").map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith("etrata-") && k !== VERSION && k !== VERSION + "-assets").map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 self.addEventListener("fetch", e => {
   const req = e.request;

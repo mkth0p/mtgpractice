@@ -1,0 +1,14 @@
+/* Etrata's colors on top of the shared Miku stylesheet: violet in place of teal, crimson in place
+   of pink, and blue-black mana bars. */
+:root {
+  --teal: #5a45d6; --teal-fill: #7b6cf0; --teal-soft: #e6e2fd; --on-fill: #120d2b;
+  --pink: #b3183f; --pink-fill: #e0405f; --pink-soft: #fbdfe5;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --teal: #a99cff; --teal-soft: #1d1840; --on-fill: #120d2b; --pink: #ff6f8c; --pink-soft: #3a111b; }
+}
+:root[data-theme="dark"] { --teal: #a99cff; --teal-soft: #1d1840; --on-fill: #120d2b; --pink: #ff6f8c; --pink-soft: #3a111b; }
+.tug i.g { background: var(--mana-u); color: var(--mana-u-ink); }
+.tug i.w { background: var(--mana-b); color: var(--mana-b-ink); }
+.verdict-card.e { border-top-color: var(--teal-fill); }
+.verdict-card.m { border-top-color: #39c5bb; }
