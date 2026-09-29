@@ -1,11 +1,11 @@
 {
   "name": "Miku Deck Wiki",
   "short_name": "Miku Deck",
-  "description": "The upgraded Hatsune Miku (Trostani) Commander deck: every card, the combos, how to play it, and the upgrade plan.",
-  "start_url": "./#deck",
+  "description": "The upgraded Hatsune Miku (Trostani) Commander deck: a step-by-step guide, every card with rulings, the combos, deck stats, the upgrade plan, and a Commander game against bots.",
+  "start_url": "./#guide",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f3ee",
+  "background_color": "#07090c",
   "theme_color": "#39c5bb",
   "icons": [
     { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" },

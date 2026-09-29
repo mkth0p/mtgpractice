@@ -137,7 +137,7 @@ window.MIKU_CARDS = [
   "miku": "Archangel of Tunes",
   "sld": "2430",
   "why": "The best card in the deck. Every time you gain life, every creature you control gets a +1/+1 counter. With Trostani, Soul Warden or Prosperous Innkeeper, one token entering can mean two or three counters on your whole team. It is also half of an infinite combo with Spike Feeder.",
-  "how": "Protect it. Try to land it when Shalai is out or when you can follow up with Grand Crescendo or Rootborn Defenses. Its own lifelink means attacking with it is also a lifegain event, which puts counters on everything before damage is even finished.",
+  "how": "Protect it. Try to land it when Shalai is out or when you can follow up with Grand Crescendo or Rootborn Defenses. Its own lifelink makes every attack a lifegain event too: right after combat damage, every creature you control gets a counter.",
   "syn": [
    "Spike Feeder",
    "Trostani, Selesnya's Voice",
@@ -229,7 +229,7 @@ window.MIKU_CARDS = [
    "gain"
   ],
   "why": "When it attacks, you gain 2 life, then your whole team gets trample and +X/+X, where X is all the life you gained this turn, not just the 2. After a big precombat lifegain turn this is a surprise overrun.",
-  "how": "Load up the lifegain first: cast creatures precombat with Trostani out, populate, crack gain lands. Then attack with Bogbeast and everything else. Its own 2 life also triggers Archangel of Thune and Heliod before the pump resolves.",
+  "how": "Load up the lifegain first: cast creatures precombat with Trostani out, populate, crack gain lands. Then attack with Bogbeast and everything else. Its own 2 life also triggers Archangel of Thune and Heliod. Those counters land right after the pump resolves, still before combat damage.",
   "syn": [
    "Trostani, Selesnya's Voice",
    "Archangel of Thune",
@@ -292,10 +292,9 @@ window.MIKU_CARDS = [
    "Archangel of Thune",
    "Hero of Bladehold",
    "Spike Feeder",
-   "Walking Ballista",
    "Nykthos Paragon"
   ],
-  "warn": "Don't copy legendary creatures (Adeline, Jazal, Shalai, Lathiel, Ghalta and Mavren, Vorinclex): the legend rule makes you keep only one. It also triggers on opponents' creatures, but you choose whether to pay, so just don't."
+  "warn": "Don't copy legendary creatures (Adeline, Jazal, Shalai, Lathiel, Ghalta and Mavren, Vorinclex, or Heliod when it's a creature): the legend rule makes you keep only one. Don't copy Walking Ballista either: the copy isn't cast, so it enters with no counters and dies. It also triggers on opponents' creatures, but you choose whether to pay, so just don't."
  },
  {
   "name": "Break Down",
@@ -557,7 +556,7 @@ window.MIKU_CARDS = [
    "ramp"
   ],
   "why": "A Room with two doors. Dazzling Theater ({3}{W}): your creature spells have convoke, so your tokens pay for your creatures. Prop Room ({2}{W}): untap all your creatures during each other player's untap step, so everything that attacked is back as a blocker and every mana creature works on every turn.",
-  "how": "Usually unlock Dazzling Theater first for the mana. Prop Room shines once your board is big: attack with everything with no fear of the crack-back, and use mana creatures and Springleaf Drum on opponents' turns for instant-speed Trostani populates or Grand Crescendo.",
+  "how": "Usually unlock Dazzling Theater first for the mana. Prop Room shines once your board is big: attack with everything with no fear of the crack-back, and use your mana creatures on opponents' turns for instant-speed Trostani populates or Grand Crescendo. It untaps creatures only, so Springleaf Drum itself still untaps once a round.",
   "syn": [
    "Halo Fountain",
    "Springleaf Drum",
@@ -827,7 +826,7 @@ window.MIKU_CARDS = [
   ],
   "sld": "2432",
   "why": "Instant: make X 1/1 Citizens, and all your creatures gain indestructible until end of turn. It's a board-wipe answer, a combat trick and an instant-speed army in one.",
-  "how": "Hold it up against wrath-happy opponents. Otherwise cast it at the end of the opponent's turn before yours. Each Citizen enters separately, so X=5 is five Trostani triggers, five Soul Warden triggers and five Archangel of Thune counter waves.",
+  "how": "Hold it up against wrath-happy opponents. Otherwise cast it at the end of the opponent's turn before yours. The Citizens enter together, but each one triggers separately: X=5 is five Trostani triggers and five Soul Warden triggers, so ten Archangel of Thune counter waves.",
   "syn": [
    "Cathars' Crusade",
    "Archangel of Thune",
@@ -892,7 +891,7 @@ window.MIKU_CARDS = [
   "miku": "Cascade of Song",
   "sld": "2431",
   "why": "Turns tapped creatures into value: {W} and untap one creature for a Citizen, {W}{W} and untap two for a card, and {W}{W}{W}{W}{W} with fifteen untaps to win the game outright.",
-  "how": "Creatures get tapped by attacking, by Springleaf Drum, by convoke, by Grove of the Guardian and by Crashing Drawbridge. For the alternate win, attack with 15+ creatures, then in your second main phase pay {W}{W}{W}{W}{W}.",
+  "how": "Creatures get tapped by attacking, by Springleaf Drum, by convoke, by Grove of the Guardian and by Crashing Drawbridge. For the alternate win, attack with 15+ creatures and pay {W}{W}{W}{W}{W} right after attackers are declared, before blockers can kill any of them.",
   "syn": [
    "Springleaf Drum",
    "Crashing Drawbridge",
@@ -944,7 +943,7 @@ window.MIKU_CARDS = [
   ],
   "new": true,
   "cut": "Growing Ranks",
-  "eur": 5.0,
+  "eur": 5,
   "why": "Every attack makes two 1/1 Soldiers that are already attacking, and battle cry gives every other attacker +1/+0. It's a four-drop that has to be answered or it takes over.",
   "how": "When she attacks, you get two triggers. Put battle cry on the stack first and the token trigger on top, so the Soldiers are created first and then get pumped by battle cry.",
   "syn": [
@@ -1119,7 +1118,7 @@ window.MIKU_CARDS = [
   ],
   "new": true,
   "cut": "Angelic Chorus",
-  "eur": 2.0,
+  "eur": 2,
   "why": "A mana sink that wins games: pay X and every creature you control has base power and toughness X/X until end of turn. Ten 1/1 tokens become ten 5/5s for five mana.",
   "how": "Activate after blockers are declared. Counters still apply on top of the new base, so a token with three counters becomes (X+3)/(X+3). Vorinclex or Fanatic of Rhonas make X huge.",
   "syn": [
@@ -1142,8 +1141,8 @@ window.MIKU_CARDS = [
   "roles": [
    "ramp"
   ],
-  "why": "Two mana: any Forest card onto the battlefield untapped. Canopy Vista and Sapseep Forest are Forests.",
-  "how": "Turn 2, then use the untapped land immediately for another two-drop.",
+  "why": "Two mana: put a Forest card from your library onto the battlefield. A basic Forest enters untapped. Canopy Vista and Sapseep Forest are Forests too, but Sapseep always enters tapped and Vista does unless you control two or more basic lands.",
+  "how": "Cast it on turn 2 and fetch a basic Forest: it enters untapped, so you have one more mana that turn for a one-drop like Llanowar Elves or Soul Warden.",
   "syn": [
    "Canopy Vista",
    "Farseek"
@@ -1301,7 +1300,7 @@ window.MIKU_CARDS = [
    "payoff"
   ],
   "why": "A 3-mana flyer that makes a 4/4 flying vigilance Angel at every end step (yours and your opponents') in which you gained 5 or more life. That bar is easy for this deck.",
-  "how": "Get to 5 life gained on your turn and on opponents' turns too: a Trostani populate at end of turn often does it alone. Late game, {3}{W}{W}{W} makes it a 5/5 lifelinker.",
+  "how": "Get to 5 life gained before the end step begins, on your turn and on opponents' turns too. The Angel checks at the start of the end step, so a Trostani populate during an opponent's combat or second main phase counts, but one during their end step is too late. Late game, {3}{W}{W}{W} makes it a 5/5 lifelinker.",
   "syn": [
    "Trostani, Selesnya's Voice",
    "Seraph Sanctuary",
@@ -1661,9 +1660,9 @@ window.MIKU_CARDS = [
   ],
   "new": true,
   "cut": "Suture Priest",
-  "eur": 1.0,
+  "eur": 1,
   "why": "Remove a counter to gain 2 life. On its own, that's 4 life and a chump blocker. With Heliod, Archangel of Thune or Cleric Class at level 2, each 2 life puts a counter back on it, so you gain infinite life (and with Thune, every creature grows infinitely).",
-  "how": "Hold it until you can combo, or play it as bait: people rarely kill a 2/2. Finale of Devastation for X=3 fetches it.",
+  "how": "It enters with two counters. Keep at least two on it while looping: remove the last one and it dies as a 0/0 before the life comes back. Hold it until you can combo, or play it as bait: people rarely kill a 2/2. Finale of Devastation for X=3 fetches it.",
   "syn": [
    "Heliod, Sun-Crowned",
    "Archangel of Thune",
@@ -1878,8 +1877,7 @@ window.MIKU_CARDS = [
    "Heliod, Sun-Crowned",
    "Cathars' Crusade",
    "Archangel of Thune",
-   "Vorinclex, Voice of Hunger",
-   "Bramble Sovereign"
+   "Vorinclex, Voice of Hunger"
   ],
   "warn": "Don't fetch it with Finale of Devastation: it enters with 0 counters and dies immediately."
  },
