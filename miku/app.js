@@ -1214,7 +1214,7 @@
     reset();
   }
   function playCta(el) {
-    el.innerHTML = `<a class="play-promo" href="#play"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="pp-copy"><span class="pp-k mono">Practice</span><b>Play it against Bracket 4 bots</b><span class="muted">A real four-player Commander game, built for one thumb.</span></span><span class="pp-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span></a>`;
+    el.innerHTML = `<a class="play-promo" href="#play"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="pp-copy"><span class="pp-k mono">Practice</span><b>Play it against the bots</b><span class="muted">A real four-player Commander game against precons or Bracket 4 decks, built for one thumb.</span></span><span class="pp-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span></a>`;
   }
   const WIDGETS = { engineCalc, handTrainer, drawOdds, lethalCalc, ballistaSim, feederSim, playCta };
   function mountWidgets(scope) {
@@ -1339,17 +1339,22 @@
     const ENDS = [["Plain combat damage", 68], ["Overwhelming Stampede", 8], ["Triumph of the Hordes", 7], ["Craterhoof Behemoth", 6], ["Return of the Wildspeaker", 5], ["Heliod + Walking Ballista", 2.6], ["Finale for Craterhoof", 1], ["Spike Feeder + Aetherflux", .7], ["Aetherflux off big life", .7]];
     bars($("#endings"), ENDS.map(([l, n]) => [cardLink(l), n]), { fmt: n => (n < 1 ? n.toFixed(1) : n) + "%" });
   }
-  // Results of headless games between bots, from tools/sim/run.js: Miku against three random bot decks.
+  // Results of headless games between bots, from tools/sim/run.js: Miku against three random precons,
+  // and against three random Bracket 4 decks. Each is { games, wins, rounds, medianWin, decks: [{ name, games, wins }] }.
   const BOT_SIM = null;
   function renderBotStats() {
     const sec = $("#vsbots"), el = $("#botStats");
     if (!sec || !el) return;
-    if (!BOT_SIM) { sec.hidden = true; return; }
-    const S = BOT_SIM;
-    el.innerHTML = `<div class="eq-card"><div class="eq-head"><b>Miku's results</b><span class="muted mono small">${S.games} games</span></div>
-        <div class="big-trio"><div><b>${Math.round(S.wins / S.games * 100)}%</b><span>games won (25% is par at a four-player table)</span></div><div><b>${S.rounds.toFixed(1)}</b><span>rounds per game on average</span></div><div><b>${S.medianWin}</b><span>median round of a Miku win</span></div></div></div>
+    const tiers = BOT_SIM ? [["precon", "Against three precons", "B2"], ["b4", "Against three Bracket 4 decks", "B4"]].filter(([k]) => BOT_SIM[k]) : [];
+    if (!tiers.length) { sec.hidden = true; return; }
+    const pct = (w, n) => Math.round(w / n * 100);
+    el.innerHTML = `<div class="eq-card"><div class="eq-head"><b>Miku's results</b><span class="muted mono small">${sum(tiers, ([k]) => BOT_SIM[k].games)} games</span></div>
+        ${tiers.map(([k, label]) => { const S = BOT_SIM[k]; return `<div class="bs-tier"><p class="bs-label">${label}</p><div class="big-trio"><div><b>${pct(S.wins, S.games)}%</b><span>games won</span></div><div><b>${S.rounds.toFixed(1)}</b><span>rounds per game on average</span></div><div><b>${S.medianWin}</b><span>median round of a Miku win</span></div></div></div>`; }).join("")}
+        <p class="muted small">25% is par at a four-player table.</p></div>
       <div class="eq-card"><div class="eq-head"><b>Win rate by opponent</b><span class="muted mono small">tables that included it</span></div><div class="typebars" id="botBars"></div></div>`;
-    bars($("#botBars"), S.decks.map(d => [esc(d.name), Math.round(d.wins / d.games * 100), `${d.wins}/${d.games}`]), { max: 100, fmt: n => n + "%" });
+    const rows = [];
+    for (const [k, , tag] of tiers) for (const d of BOT_SIM[k].decks) rows.push([`${esc(d.name)} <small class="tb-tag mono">${tag}</small>`, pct(d.wins, d.games), `${d.wins}/${d.games}`]);
+    bars($("#botBars"), rows, { max: 100, fmt: n => n + "%" });
   }
   function renderLandOdds() {
     const el = $("#landOdds"); if (!el) return;

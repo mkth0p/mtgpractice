@@ -8,7 +8,13 @@
 
   const SETTINGS_KEY = "mikuWiki.game.settings.v1";
   const STATS_KEY = "mikuWiki.game.stats.v1";
-  const DEFAULTS = { opponents: 3, level: "sharp", speed: "normal", askTriggers: false, stopOnSpells: false, picks: [] };
+  const DEFAULTS = { opponents: 3, level: "sharp", speed: "normal", pool: "precon", askTriggers: false, stopOnSpells: false, picks: [] };
+  // which bot decks can be dealt: retail-style precons (Bracket 2), Bracket 4 decks, or both
+  const POOLS = [["precon", "Precons", "Retail precons"], ["mixed", "Mixed", "Precons and Bracket 4"], ["b4", "Bracket 4", "Bracket 4 decks"]];
+  const bracketOf = d => d.bracket || 4;
+  const inPool = (d, pool) => pool === "mixed" || (pool === "b4" ? bracketOf(d) >= 4 : bracketOf(d) < 4);
+  // "Elven Empire (Kaldheim Commander, 2021)" becomes "Precon: Elven Empire, Kaldheim Commander, 2021" with the name in bold
+  const preconLine = t => { const m = /^(.*?)\s*\((.*)\)$/.exec(t); return m ? `Precon: <b>${esc(m[1])}</b>, ${esc(m[2])}` : `Precon: <b>${esc(t)}</b>`; };
   const SPEED = {
     slow: { think: 650, cast: 1500, attack: 950, damage: 850, banner: 1300, block: 700 },
     normal: { think: 360, cast: 950, attack: 620, damage: 560, banner: 1050, block: 420 },
@@ -1198,12 +1204,18 @@
       this.host = host;
       this.render();
     },
-    decks() { return (MK.BOT_DECKS || []).slice(); },
+    decks() { return (MK.BOT_DECKS || []).slice().sort((a, b) => bracketOf(a) - bracketOf(b)); },
+    /* the decks the current setting deals from; falls back to every deck if that pool is empty */
+    pool(s) {
+      const all = this.decks(), mine = all.filter(d => inPool(d, (s || settings()).pool));
+      return mine.length ? mine : all;
+    },
     render() {
       const host = this.host;
       if (!host) return;
       const s = settings();
-      const decks = this.decks();
+      const decks = this.pool(s);
+      const poolInfo = POOLS.find(p => p[0] === s.pool) || POOLS[0];
       const st = loadStats();
       const rate = st.games ? Math.round(100 * st.wins / st.games) : 0;
       const colorDots = ids => (ids || []).map(k => `<i class="pip ${k.toLowerCase()}"></i>`).join("");
@@ -1212,13 +1224,14 @@
           <div class="lobby-hero">
             <p class="eyebrow">Play</p>
             <h2 class="lobby-title">Take Miku to a<br><span>four-player pod</span></h2>
-            <p class="lede">Your upgraded Trostani deck against Bracket 4 bots, dealt at random. Mana is paid for you, everything else is real Commander: the stack, combat, commander tax and damage, and every card in your deck.</p>
+            <p class="lede">Your upgraded Trostani deck against bots dealt at random: retail precons for a fair fight, or Bracket 4 decks when you want to be punished. Mana is paid for you, everything else is real Commander: the stack, combat, commander tax and damage, and every card in your deck.</p>
           </div>
           <div class="lobby-setup">
+            <div class="set-row"><span class="set-label">Decks</span><div class="seg small" role="radiogroup" aria-label="Which bot decks to face">${POOLS.map(([k, l, t]) => `<button role="radio" aria-checked="${s.pool === k}" data-pool="${k}" title="${t}">${l}</button>`).join("")}</div></div>
             <div class="set-row"><span class="set-label">Opponents</span><div class="seg small" role="radiogroup" aria-label="Number of opponents">${[1, 2, 3].map(n => `<button role="radio" aria-checked="${s.opponents === n}" data-opp="${n}">${n}</button>`).join("")}</div></div>
             <div class="set-row"><span class="set-label">Bots</span><div class="seg small" role="radiogroup" aria-label="Bot skill">${[["casual", "Casual"], ["sharp", "Sharp"]].map(([k, l]) => `<button role="radio" aria-checked="${s.level === k}" data-level="${k}">${l}</button>`).join("")}</div></div>
             <div class="set-row"><span class="set-label">Speed</span><div class="seg small" role="radiogroup" aria-label="Game speed">${[["slow", "Slow"], ["normal", "Normal"], ["fast", "Fast"]].map(([k, l]) => `<button role="radio" aria-checked="${s.speed === k}" data-speed="${k}">${l}</button>`).join("")}</div></div>
-            <div class="set-row col"><span class="set-label">Who you face <small>${s.picks && s.picks.length ? "picked" : "random each game"}</small></span>
+            <div class="set-row col"><span class="set-label">Who you face <small>${decks.some(d => (s.picks || []).includes(d.id)) ? "picked" : "random each game"}</small></span>
               <div class="bot-picks">${decks.map(d => `<button class="bot-pick${(s.picks || []).includes(d.id) ? " on" : ""}" data-pick="${esc(d.id)}" aria-pressed="${(s.picks || []).includes(d.id)}"><span class="bp-art" data-art-crop="${esc(d.commander)}"></span><span class="bp-name">${esc(d.name)}</span><span class="bp-dots">${colorDots(d.identity)}</span></button>`).join("")}</div></div>
             <button class="btn primary big start" data-start>Shuffle up and play</button>
           </div>
@@ -1228,19 +1241,24 @@
             <div class="rec"><b>${st.games ? rate + "%" : "–"}</b><span>win rate</span></div>
             <div class="rec"><b>${st.best ? "R" + st.best : "–"}</b><span>fastest win</span></div>
           </div>
-          <div class="bot-gallery">
+          <section class="bot-pool" aria-label="The decks you can be dealt">
+            <div class="pool-head"><b>${esc(poolInfo[2])}</b><span class="muted mono">${decks.length} decks</span></div>
+            <div class="bot-gallery">
             ${decks.map(d => `<article class="bot-card">
               <div class="bc-art" data-art-crop="${esc(d.commander)}"></div>
-              <div class="bc-body"><p class="eyebrow">${esc(d.style || "Bracket 4")} · ${colorDots(d.identity)}</p><h3>${esc(d.title || d.commander)}</h3><p>${esc(d.blurb || "")}</p>
+              <div class="bc-body"><p class="eyebrow"><span class="bc-br${bracketOf(d) < 4 ? " soft" : ""}">B${bracketOf(d)}</span> ${esc(d.style || "")} · ${colorDots(d.identity)}</p><h3>${esc(d.title || d.commander)}</h3><p>${esc(d.blurb || "")}</p>
+              ${d.precon ? `<p class="bc-precon">${preconLine(d.precon)}</p>` : ""}
               ${d.watch && d.watch.length ? `<p class="watch"><span>Watch out for</span> ${d.watch.map(n => `<b>${esc(n)}</b>`).join(", ")}</p>` : ""}
               ${st.decks[d.id] ? `<p class="bc-rec">You're ${st.decks[d.id].w}–${st.decks[d.id].l} against it</p>` : ""}</div>
             </article>`).join("")}
-          </div>
+            </div>
+          </section>
           <details class="panel simp"><summary>How this game differs from paper Magic</summary><ol>${MK.SIMPLIFICATIONS.map(x => `<li>${esc(x)}</li>`).join("")}</ol></details>
         </div>`;
       const paint = () => host.querySelectorAll("[data-art-crop]").forEach(el => { const a = K.art(el.dataset.artCrop); if (a) el.style.backgroundImage = `url('${a.crop}')`; });
       paint();
       K.ensure(decks.map(d => d.commander).concat(["Trostani, Selesnya's Voice"]), { miku: true }).then(paint);
+      host.querySelectorAll("[data-pool]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { pool: b.dataset.pool })); this.render(); }));
       host.querySelectorAll("[data-opp]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { opponents: +b.dataset.opp })); this.render(); }));
       host.querySelectorAll("[data-level]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { level: b.dataset.level })); this.render(); }));
       host.querySelectorAll("[data-speed]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { speed: b.dataset.speed })); this.render(); }));
@@ -1253,7 +1271,7 @@
     },
     seats() {
       const s = settings();
-      const decks = this.decks();
+      const decks = this.pool(s);
       const n = Math.max(1, Math.min(3, s.opponents || 3));
       let pool = decks.filter(d => (s.picks || []).includes(d.id));
       const out = [];

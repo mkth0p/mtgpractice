@@ -804,7 +804,7 @@ window.MIKU_GUIDE = [
         { title: "Punish them with Voice", html: "<i-c>Voice of Resurgence</i-c> makes an Elemental whenever an opponent casts a spell during your turn. Counterspells count." }
       ] },
       { t: "callout", tone: "warn", title: "Be honest about the matchup", html: "The speed test's median kill is turn 9, against opponents who do nothing. Many Bracket 4 decks aim to win before that. Your best games come from stopping one combo attempt and killing before the next one." },
-      { t: "p", html: "Want practice? The site has a playable game against Bracket 4 bots." },
+      { t: "p", html: "Want practice? The Play tab deals you Bracket 4 bots, or retail precons to warm up on." },
       { t: "widget", id: "playCta" }
     ]
   },
