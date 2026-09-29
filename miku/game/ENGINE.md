@@ -181,14 +181,21 @@ statics: [{
   counterPlus: (g, s, o, kind) => 1,              // Hardened Scales style
   costMod: (g, s, card) => 1,                     // reduce generic cost of your spells by n
   giveConvoke: (g, s, card) => bool, giveFlash: (g, s, card, p) => bool,
-  extraLands: 1, untapOnOthersTurn: true, noMaxHand: true
+  extraLands: 1, untapOnOthersTurn: true, noMaxHand: true,
+  playLandsFrom: ["top", "graveyard"],            // Courser of Kruphix, Ramunap Excavator
+  lifeGainTimes: 2,                               // Boon Reflection: your life gain is multiplied
+  grantMana: [{ tap: true, produce: "G" }]         // with applies: extra mana abilities (Song of Freyalise)
 }]
 commandStatics: [{ costMod }]    // eminence cost reductions that work from the command zone
 ```
 
 Other card fields: `etbTapped` (true or `(g, o) => bool`), `etbCounters: (g, o, opts) => ({ p1: n })`,
 `cda: (g, o) => [power, toughness]`, `notCreatureUnless: (g, o) => bool`, `doesntUntap: (g, o) => bool`,
-`canBeBlockedBy: (g, attacker, blocker) => bool`, `identity` (commander colors if they differ from cost).
+`canBeBlockedBy: (g, attacker, blocker) => bool`, `identity` (commander colors if they differ from cost),
+`asEnters: async (g, o) => {}` (a choice made as it enters, such as Phyrexian Processor's life payment),
+`etbState: (g, o, opts) => ({})` (state set as it enters), `mdfcLand` (the land back face of a modal card),
+`morph` (face-down casting), `cycling: "{2}"`, `doublesLandMana` (Mirari's Wake), and `altCosts[].targets`
+for an alternative cost with its own targets (cleave).
 
 ## Game methods to use in `do`
 
@@ -242,6 +249,8 @@ subtypes: ["Goblin"], keywords: [], abilities, triggers, mana })`. Keep `key` un
 | `target: (g, p, req) => option`, `confirm`, `option` | answers for this card's questions |
 | `threat` | bonus to how much opponents want this gone |
 | `never` | the bots never cast it |
+| `cards: (g, p, req) => [cards] | null` | picks for this card's "cards" questions (searches, hideaway); null falls back to the default |
+| `morph: (g, p, o) => number` | score for casting it face down (default: never) |
 
 `ability.ai.use(g, p, o, { window, turnOf })` says when to activate: window is `main1`, `main2`,
 `stack`, `combat` or `end` (end of another player's turn, `turnOf` is that player). Return false, true,
@@ -258,6 +267,12 @@ after `cards-miku.js`, the Bracket 4 files first, then the precons, in alphabeti
 site's `GAME_FILES` in `app.js`, `GAME` in `sw.js` and `tools/sim/run.js` all use that order). A card
 defined in two files keeps the first definition, so a precon only defines cards nobody else has.
 The lobby deals from the precons, the Bracket 4 decks or both, using each deck's `bracket`.
+
+Decks a player can pilot go in `MK.HERO_DECKS` with `hero` set to the site that offers them
+(`"miku"` or `"etrata"`, matching `MK_SITE.hero`) and a short `label` for the deck picker: the Miku
+site offers the precon, the 80€ upgrade, the full upgrade and the Bracket 4 Azusa deck. A hero deck
+can also sit at the table as a bot when it is pushed to `MK.BOT_DECKS` too. `cards-*.js` files hold
+other heroes' card pools (`cards-etrata.js`, `cards-miku-precon.js`) and load before the deck files.
 
 ```js
 (function (root) {
@@ -282,6 +297,7 @@ node tools/sim/run.js --games 40 --decks krenko,miku,random,random --players 4
 node tools/sim/run.js --games 40 --decks miku,random2,random2,random2 --first random   # random2: precons, random4: Bracket 4
 node tools/sim/run.js --games 1 --seed 7 --decks krenko,miku --players 2 --log 1   # full game log
 node tools/sim/run.js --games 20 --decks krenko --strict                           # throw on the first error
+node tools/sim/run.js --games 60 --decks miku-precon,random2 --cut "miku-precon:Boon Reflection"   # swap one card for a basic
 ```
 
 The run prints win rates, game length, engine errors and broken invariants (cards in two zones,

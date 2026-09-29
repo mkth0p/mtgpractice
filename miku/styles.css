@@ -1330,3 +1330,11 @@ body[data-view="play"] .foot { display: none; }
   .typebars[data-reveal]:not(.in) .bar i, .speed[data-reveal]:not(.in) .sp-bar-v, .land-odds[data-reveal]:not(.in) .lo-bar i { transform: none; }
   .eq[data-reveal]:not(.in) .eq-seg.on { opacity: .95; }
 }
+
+/* the Play tab's deck picker (precon, budget, full upgrades, Bracket 4) */
+.hero-seg { flex-wrap: wrap; }
+.hero-blurb { margin: 8px 0 0; font-size: .82rem; line-height: 1.45; color: var(--ink-soft); }
+.hero-blurb .bc-br { vertical-align: 1px; margin-right: 2px; }
+/* cards never offer the browser's "save image" menu: press and hold shows the card instead */
+.mini-card, .mini-card img, .inline-card, [data-art], [data-thumb] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.mini-card img { -webkit-user-drag: none; }

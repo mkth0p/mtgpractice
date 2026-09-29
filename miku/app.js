@@ -11,7 +11,7 @@
   const GLOSSARY = window.MIKU_GLOSSARY || [];
   const CUTS = window.MIKU_CUTS || [];
   const FAQ = window.MIKU_FAQ || [];
-  const V = "9"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  const V = "10"; // asset version: keep in step with the ?v= links in index.html and sw.js
   const byName = new Map(CARDS.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -534,6 +534,19 @@
     peek.classList.add("show");
   });
   document.addEventListener("pointerout", e => { if (peekFor && !peekFor.contains(e.relatedTarget)) hidePeek(); });
+  /* Press and hold (touch) or right-click any card for a full-screen preview with its text; phones
+     no longer offer to save the card image. The game table binds its own. */
+  K.bindPreview(document.body, el => {
+    if (el.closest(".mg")) return null;
+    const b = el.closest("[data-card], [data-art], [data-thumb]");
+    if (!b) return null;
+    const name = b.dataset.card || b.dataset.art || b.dataset.thumb;
+    const c = byName.get(name);
+    if (!c) return name && artOf(name) ? { name } : null;
+    hidePeek();
+    const txt = c.text || (c.faces || []).map(f => f.name + "\n" + f.text).join("\n");
+    return { name: c.name, cost: c.cost || "", type: c.type, text: txt, pt: c.pt || "", note: c.miku ? "Miku print: " + c.miku : "" };
+  }, { hover: false });
   window.addEventListener("scroll", () => { if (peekFor) hidePeek(); }, { passive: true });
 
   /* ---------------------------------------------------------------- Cards: browse */
@@ -1490,7 +1503,7 @@
   }
 
   /* ---------------------------------------------------------------- Play: the game loads on demand */
-  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/decks-edgar.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/game-ui.js"];
+  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/decks-azusa.js", "game/decks-edgar.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/game-ui.js"];
   let gameP = null, gameMounted = false;
   function loadGame() {
     if (gameP) return gameP;

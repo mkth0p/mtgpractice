@@ -6,11 +6,18 @@
   const MK = root.MK, K = root.MikuKit;
   const esc = K.esc, mana = K.mana;
 
-  const SETTINGS_KEY = "mikuWiki.game.settings.v1";
-  const STATS_KEY = "mikuWiki.game.stats.v1";
-  const DEFAULTS = { opponents: 3, level: "sharp", speed: "normal", pool: "precon", askTriggers: false, stopOnSpells: false, picks: [] };
-  // which bot decks can be dealt: retail-style precons (Bracket 2), Bracket 4 decks, or both
-  const POOLS = [["precon", "Precons", "Retail precons"], ["mixed", "Mixed", "Precons and Bracket 4"], ["b4", "Bracket 4", "Bracket 4 decks"]];
+  /* The site that hosts the table sets MK_SITE before loading this file (the Etrata pages do):
+     its storage prefix, which hero decks the player picks from, and the lobby's words. */
+  const SITE = Object.assign({
+    key: "mikuWiki", hero: "miku", defaultHero: "miku", heroOrder: ["miku-precon", "miku-budget", "miku", "azusa"],
+    title: "Take Miku to a<br><span>four-player pod</span>",
+    lede: "Your Miku deck against bots dealt at random: precons for a fair fight, or Bracket 4 decks when you want to be punished. Pick the precon, the budget upgrade, the full upgrade or the Bracket 4 Azusa build. Mana is paid for you, everything else is real Commander: the stack, combat, commander tax and damage, and every card in your deck."
+  }, root.MK_SITE || {});
+  const SETTINGS_KEY = SITE.key + ".game.settings.v1";
+  const STATS_KEY = SITE.key + ".game.stats.v1";
+  const DEFAULTS = { opponents: 3, level: "sharp", speed: "normal", pool: "precon", askTriggers: false, stopOnSpells: false, picks: [], hero: SITE.defaultHero };
+  // which bot decks can be dealt: precons and upgraded decks (Brackets 2 and 3), Bracket 4 decks, or both
+  const POOLS = [["precon", "Casual", "Precons and upgraded decks (Brackets 2 and 3)"], ["mixed", "Mixed", "Every deck"], ["b4", "Bracket 4", "Bracket 4 decks"]];
   const bracketOf = d => d.bracket || 4;
   const inPool = (d, pool) => pool === "mixed" || (pool === "b4" ? bracketOf(d) >= 4 : bracketOf(d) < 4);
   // "Elven Empire (Kaldheim Commander, 2021)" becomes "Precon: Elven Empire, Kaldheim Commander, 2021" with the name in bold
@@ -29,10 +36,15 @@
   const KW_ICON = { flying: "✈", trample: "⇶", lifelink: "♥", deathtouch: "☠", "first strike": "⚔", "double strike": "⚔", vigilance: "◎", hexproof: "◇", indestructible: "⛨", haste: "»", menace: "⩚", infect: "☣", reach: "↟", defender: "▣" };
 
   /* ------------------------------------------------------------ card data for the screen */
-  const MIKU = new Map((root.MIKU_CARDS || []).map(c => [c.name, c]));
+  // the wiki's card data (Oracle text as printed), by full name and by front face
+  const MIKU = new Map();
+  for (const c of (root.MIKU_CARDS || []).concat(root.ETRATA_CARDS || [])) { MIKU.set(c.name, c); if (c.name.includes(" // ")) MIKU.set(c.name.split(" // ")[0], c); }
   function textOf(def) {
     const m = MIKU.get(def.name);
-    if (m && !def.token && (m.text || !def.doors)) return m.text || "";
+    if (m && !def.token && !def.faceDownOf) {
+      const t = m.text || (!def.doors && m.faces ? m.faces.map(f => f.name + "\n" + (f.text || "")).join("\n") : "");
+      if (t || !def.doors) return t;
+    }
     if (def.doors) return def.doors.map(d => d.name + " " + d.cost + "\n" + (d.text || "")).join("\n");
     if (def.text) return def.text;
     const bits = [];
@@ -160,6 +172,8 @@
       const $ = s => el.querySelector(s);
       this.$ = { phase: $(".mg-phase"), seats: $(".mg-seats"), opp: $(".mg-board.opp"), mid: $(".mg-mid"), meCre: $(".mg-board.me .cre"), meOth: $(".mg-board.me .oth"), mybar: $(".mg-mybar"), hand: $(".mg-hand"), fan: $(".mg-hand .fan"), actions: $(".mg-actions"), scrim: $(".mg-scrim"), sheet: $(".mg-sheet"), log: $(".mg-log"), logList: $(".mg-log ol"), menu: $(".mg-menu"), fx: $(".mg-fx") };
       el.addEventListener("click", e => this.onClick(e));
+      // hover (mouse) or press and hold (touch) any card for its full text
+      if (K.bindPreview) K.bindPreview(el, t => this.previewFor(t), { hoverSel: ".mc[data-oid], .hc[data-oid], .mg-cmd[data-oid], [data-card]" });
       this.$.scrim.addEventListener("click", () => this.scrimTap());
       this.bindSheetSwipe();
       document.body.appendChild(el);
@@ -180,7 +194,7 @@
       this.seats = seats;
       const lvl = this.s.level === "casual" ? { skill: 0.55 } : { skill: 0.9 };
       const players = seats.map((d, i) => {
-        if (d.human) return { name: "You", commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, human: true, agent: this.humanAgent() };
+        if (d.human) return { name: "You", commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, human: true, agent: this.humanAgent(), deckId: d.deck.id };
         const bot = MK.AI.create({ skill: lvl.skill, aggression: d.deck.aggression == null ? 0.55 : d.deck.aggression });
         return { name: d.deck.name, commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, agent: this.paced(bot), deckId: d.deck.id };
       });
@@ -331,12 +345,12 @@
         const a = cmd && K.art(cmd.def.name);
         const cls = ["mg-seat", p.id === this.focusId ? "focus" : "", g.active === p ? "active" : "", p.lost ? "out" : "", attackMode && !p.lost ? "pick" : "", attackMode && this.atkTarget === p ? "target" : ""].join(" ");
         const myCmd = this.me.commanders[0];
-        const cmdDmg = myCmd && p.cmdDmg[myCmd.id] ? `<span class="cmd" title="Commander damage from Trostani">⚔${p.cmdDmg[myCmd.id]}</span>` : "";
+        const cmdDmg = myCmd && p.cmdDmg[myCmd.id] ? `<span class="cmd" title="Commander damage from ${esc(myCmd.def.name)}">⚔${p.cmdDmg[myCmd.id]}</span>` : "";
         const taken = cmd && this.me.cmdDmg[cmd.id] ? `<span class="cmd" title="Commander damage you took from ${esc(cmd.def.name)}">↓${this.me.cmdDmg[cmd.id]}</span>` : "";
         return `<button class="${cls}" data-pid="${p.id}" style="--c1:${p.color}" aria-label="${esc(p.name)}, ${p.life} life${p.lost ? ", out" : ""}">
           <span class="av" style="${a ? `background-image:url('${a.crop}')` : `background:${bgFor(cmd ? cmd.def : { colors: [] })}`}"></span>
           <span class="who"><span class="nm">${esc(p.name)}</span><span class="life">${p.lost ? "Out" : p.life}</span>
-          <span class="meta"><span title="Cards in hand">✋${p.hand.length}</span><span title="Cards in library">▤${p.library.length}</span>${p.poison ? `<span class="psn">☣${p.poison}</span>` : ""}${cmdDmg}${taken}</span></span>
+          <span class="meta"><span title="Cards in hand">✋${p.hand.length}</span><span title="Cards in library">▤${p.library.length}</span>${p.poison ? `<span class="psn">☣${p.poison}</span>` : ""}${g.hitCount(p) ? `<span class="psn" title="Exiled cards with hit counters (three and they lose)">◎${g.hitCount(p)}</span>` : ""}${cmdDmg}${taken}</span></span>
           ${incoming[p.id] && g.combat && g.combat.attacker !== p ? `<span class="inc">${incoming[p.id]}⚔</span>` : ""}
         </button>`;
       }).join("");
@@ -390,15 +404,19 @@
       if (opts.can) cls.push("can");
       if (opts.sel) cls.push("sel");
       if (opts.dim) cls.push("dim");
-      const art = artFor(d, "crop");
+      // face down: a card back; you may look at your own
+      const fd = o.faceDown && o.zone === "battlefield";
+      const peekDef = fd && o.controller === this.me ? o.cardDef : null;
+      if (fd) cls.push("fd");
+      const art = fd ? null : artFor(d, "crop");
       const counters = o.counters.loyalty != null && g.isPlaneswalker(o) ? `<span class="ct loy">${o.counters.loyalty}</span>` : o.counters.p1 ? `<span class="ct">+${o.counters.p1}</span>` : o.counters.m1 ? `<span class="ct" style="background:#ff5a6e">-${o.counters.m1}</span>` : o.counters.quest ? `<span class="ct q">${o.counters.quest}</span>` : "";
       const kws = pt ? [...g.ch(o).kws].filter(k => KW_ICON[k]).slice(0, 3).map(k => `<i title="${esc(k)}">${KW_ICON[k]}</i>`).join("") : "";
       const ptCls = pt ? (pt[0] > base[0] || pt[1] > base[1] ? "up" : pt[0] < base[0] || pt[1] < base[1] ? "down" : "") : "";
       const n = opts.count != null ? opts.count : grp.length;
       // a Room on the battlefield goes by its unlocked doors
-      const label = d.doors && o.zone === "battlefield" ? d.doors.filter((_, i) => (o.state.doors || [])[i]).map(x => x.name).join(" + ") || shortName(d.name) : shortName(d.name);
+      const label = fd ? (peekDef ? shortName(peekDef.name) : "Face down") : d.doors && o.zone === "battlefield" ? d.doors.filter((_, i) => (o.state.doors || [])[i]).map(x => x.name).join(" + ") || shortName(d.name) : shortName(d.name);
       return `<button class="${cls.join(" ")}" data-oid="${o.id}" data-n="${grp.length}" aria-label="${esc(d.name)}${n > 1 ? " times " + n : ""}${o.tapped ? ", tapped" : ""}">
-        <span class="art${art ? "" : " txt"}" style="${artStyle(d)}">${art ? "" : esc(label)}</span>
+        ${fd ? `<span class="art fdb">${peekDef ? `<span class="fdn">${esc(label)}</span>` : ""}</span>` : `<span class="art${art ? "" : " txt"}" style="${artStyle(d)}">${art ? "" : esc(label)}</span>`}
         ${art || d.token ? `<span class="nm">${esc(label)}</span>` : ""}
         ${kws ? `<span class="kws">${kws}</span>` : ""}
         ${pt ? `<span class="pt ${ptCls}">${pt[0]}/${pt[1]}</span>` : ""}
@@ -513,7 +531,7 @@
       const g = this.g, me = this.me, set = new Set();
       if (this.acting()) {
         const instant = this.mode !== "main";
-        for (const a of g.legalActions(me, { instant })) if (a.type === "cast" || a.type === "land") set.add(a.card.id);
+        for (const a of g.legalActions(me, { instant })) if (a.type === "cast" || a.type === "land" || a.type === "cycle") set.add(a.card.id);
       }
       return (this.canCache = set);
     }
@@ -532,7 +550,7 @@
       if (this.mode === "respond" && this.respondCtx) {
         const c = this.respondCtx;
         const tg = c.window === "stack" && c.top.targets && c.top.targets.filter(Boolean).length ? ` targeting ${esc(youText(c.top.targets.filter(Boolean).map(t => g.nameOf(t)).join(" and ")).replace(/^You$/, "you"))}` : "";
-        text = c.window === "stack" ? `<b>${esc(c.top.p.name)}</b> casts <b>${esc(c.top.name)}</b>${tg}. Respond?` : c.window === "combat" ? `Blockers are set. Anything before damage?` : `End of <b>${esc(c.turnOf.name)}</b>'s turn. Anything before yours?`;
+        text = c.window === "trigger" ? `<b>${esc(c.src.def.name)}</b>'s ability is about to resolve. Respond?` : c.window === "stack" ? `<b>${esc(c.top.p.name)}</b> casts <b>${esc(c.top.name)}</b>${tg}. Respond?` : c.window === "combat" ? `Blockers are set. Anything before damage?` : `End of <b>${esc(c.turnOf.name)}</b>'s turn. Anything before yours?`;
       }
       const html = `<div class="mg-ticker${this.tickNew ? " new" : ""}">${text || "&nbsp;"}</div>`;
       if (box._html !== html) { box.innerHTML = html; box._html = html; }
@@ -546,8 +564,8 @@
       const tax = inZone ? g.commanderTax(me, cmd) : 0;
       const can = inZone && this.castable().has(cmd.id);
       const a = cmd && K.art(cmd.def.name);
-      const html = `<div class="mg-life"><b>${me.life}</b><span>life${me.poison ? ` · ☣${me.poison}` : ""}</span></div>
-        ${inZone ? `<button class="mg-cmd${can ? " can" : ""}" data-oid="${cmd.id}" aria-label="Trostani in the command zone${tax ? ", tax " + tax : ""}"><span class="av" style="${a ? `background-image:url('${a.crop}')` : `background:${bgFor(cmd.def)}`}"></span><span>Command<br><span class="tax">${tax ? "+" + tax + " tax" : "no tax"}</span></span></button>` : ""}
+      const html = `<div class="mg-life"><b>${me.life}</b><span>life${me.poison ? ` · ☣${me.poison}` : ""}${me.energy ? ` · ⚡${me.energy}` : ""}</span></div>
+        ${inZone ? `<button class="mg-cmd${can ? " can" : ""}" data-oid="${cmd.id}" aria-label="${esc(cmd.def.name)} in the command zone${tax ? ", tax " + tax : ""}"><span class="av" style="${a ? `background-image:url('${a.crop}')` : `background:${bgFor(cmd.def)}`}"></span><span>Command<br><span class="tax">${tax ? "+" + tax + " tax" : "no tax"}</span></span></button>` : ""}
         <div class="mg-zones">
           <button class="mg-zone${this.zoneLive("graveyard") ? " can" : ""}" data-zone="graveyard" aria-label="Your graveyard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 21V9a6 6 0 0 1 12 0v12zM4 21h16"/></svg>${me.graveyard.length}</button>
           <button class="mg-zone${this.zoneLive("exile") ? " can" : ""}" data-zone="exile" aria-label="Your exile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M8 8l8 8"/></svg>${me.exile.length}</button>
@@ -627,7 +645,7 @@
         li.className = e.kind || "";
         if (p && p.color) li.style.setProperty("--pc", p.color);
         let t = esc(youText(e.text));
-        for (const n of e.cards || []) t = t.split(esc(n)).join(`<b>${esc(n)}</b>`);
+        for (const n of e.cards || []) t = t.split(esc(n)).join(`<b data-card="${esc(n)}">${esc(n)}</b>`);
         li.innerHTML = t;
       }
       const ol = this.$.logList;
@@ -708,6 +726,8 @@
       const act = t.closest("[data-act]");
       if (act) return this.action(act.dataset.act, act);
       if (t.closest(".mg-menu")) return;
+      const named = t.closest(".mg-log [data-card], .mg-spot [data-card]");
+      if (named) { const info = this.infoByName(named.dataset.card); if (info) K.preview.show(info); return; }
       this.$.menu.classList.remove("on");
       const seat = t.closest(".mg-seat");
       if (seat) return this.seatTap(this.g.players.find(p => p.id === seat.dataset.pid));
@@ -721,6 +741,54 @@
     findObj(id) {
       const g = this.g;
       return g.find(id) || this.me.hand.find(o => o.id === id) || this.me.command.find(o => o.id === id) || (this.blockCtx || []).find(o => o.id === id) || null;
+    }
+    /* Any object the screen can show (sheets list graveyards, exile and searched libraries). */
+    findAny(id) {
+      const g = this.g;
+      const hit = this.findObj(id);
+      if (hit) return hit;
+      for (const p of g.players) for (const z of ["graveyard", "exile", "command", "library"]) { const o = p[z].find(x => x.id === id); if (o) return o; }
+      for (const it of g.stack) if (it.o.id === id) return it.o;
+      return null;
+    }
+    /* What the preview shows for the card under el. */
+    previewFor(el) {
+      const named = el.closest("[data-card]");
+      if (named) return this.infoByName(named.dataset.card);
+      const b = el.closest("[data-oid]");
+      if (!b) return null;
+      const o = this.findAny(+b.dataset.oid);
+      return o ? this.infoFor(o) : null;
+    }
+    infoByName(name) {
+      const d = MK.defs.get(name) || MK.defs.get(String(name).split(" // ")[0]);
+      if (!d) return { name };
+      return { name: d.name, img: artFor(d, "normal"), cost: d.cost || "", type: d.type, text: rulesOf(d), html: true, pt: d.pt && d.types.includes("Creature") ? d.pt.join("/") : "", note: d.note ? "In this game: " + d.note : "" };
+    }
+    infoFor(o) {
+      const g = this.g, me = this.me;
+      const lines = [];
+      const onField = o.zone === "battlefield";
+      if (onField) {
+        if (o.tapped) lines.push("tapped");
+        if (o.sick && g.isCreature(o) && !g.kw(o, "haste")) lines.push("summoning sick");
+        for (const k in o.counters) if (o.counters[k]) lines.push(`${o.counters[k]} ${k === "p1" ? "+1/+1" : k === "m1" ? "-1/-1" : k} counter${o.counters[k] > 1 ? "s" : ""}`);
+        if (o.damage) lines.push(`${o.damage} damage`);
+        if (g.isCreature(o)) { const kws = [...g.ch(o).kws].filter(k => k !== "changeling"); if (kws.length) lines.push(kws.join(", ")); }
+        if (o.attachedTo) lines.push("on " + (o.attachedTo.faceDown ? "a face-down creature" : o.attachedTo.def.name));
+        if (o.controller !== me) lines.push(o.controller.name + "'s");
+      }
+      if (o.hitCounter) lines.push("hit counter");
+      if (o.playable && o.playable.by === me && o.zone === "exile") lines.push(o.playable.free ? "you may cast it for free" : "you may play it");
+      const pt = onField ? ptOf(g, o) : null;
+      if (o.faceDown && onField) {
+        if (o.controller !== me) return { name: "Face-down creature", text: o.def.text, pt: pt ? pt.join("/") : "2/2", type: "Creature", lines };
+        const c = o.cardDef;
+        lines.unshift("face down: a 2/2" + (o.faceDown.kind === "cloak" ? " with ward {2}" : ""));
+        return { name: c.name, img: artFor(c, "normal"), cost: c.cost || "", type: c.type, text: rulesOf(c), html: true, pt: pt ? pt.join("/") : "", lines, note: c.types.includes("Creature") || c.morph ? "Turn it face up for its " + (c.morph ? "morph cost " + c.morph + (c.cost ? " or its mana cost" : "") : "mana cost") + "." : "It can't be turned face up on its own." };
+      }
+      const d = o.def;
+      return { name: d.name, img: artFor(d, "normal"), cost: d.cost || "", type: d.type, text: rulesOf(d, o), html: true, pt: pt ? pt.join("/") : (d.pt && d.types.includes("Creature") ? d.pt.join("/") : ""), lines, note: d.note ? "In this game: " + d.note : "" };
     }
     pile(o) {
       const grp = this.groups(o.controller).find(gr => gr.includes(o));
@@ -824,7 +892,9 @@
 
     /* the card inspector: what it is, its state, and what you can do with it right now */
     inspect(o) {
-      const g = this.g, me = this.me, d = o.def;
+      const g = this.g, me = this.me;
+      // your own face-down permanents show the card underneath
+      const d = o.faceDown && o.zone === "battlefield" && o.controller === me ? o.cardDef : o.def;
       const grp = o.zone === "battlefield" ? this.pile(o) : [o];
       const big = artFor(d, "normal");
       const pt = o.zone === "battlefield" ? ptOf(g, o) : d.pt;
@@ -839,6 +909,9 @@
         if (o.attachedTo) state.push("attached to " + o.attachedTo.def.name);
         if (o.controller !== me) state.push(o.controller.name + "'s");
       }
+      if (o.faceDown && o.zone === "battlefield") state.unshift(o.controller === me ? `face down (a 2/2${o.faceDown.kind === "cloak" ? " with ward {2}" : ""})` : "face down");
+      if (o.hitCounter) state.push("hit counter");
+      if (o.playable && o.playable.by === me && o.zone === "exile") state.push(o.playable.free ? "you may cast it for free" : "you may play it");
       if (o.isCommander && o.zone === "command") state.push(`commander tax ${g.commanderTax(me, o)}`);
       const acts = this.actionsFor(o);
       const body = `<div class="mg-insp">
@@ -864,12 +937,21 @@
           const ok = !instant && g.canPlayLand(me, o);
           out.push({ label: "Play this land", ok, primary: true, run: () => this.resolve({ type: "land", card: o }) });
         } else {
+          // a modal double-faced card's land face (Boggart Trawler // Boggart Bog)
+          if (o.def.mdfcLand && o.zone === "hand") {
+            const ok = !instant && g.canSorcery(me) && me.landsPlayed < g.landDrops(me);
+            out.push({ label: `Play as ${esc(o.def.mdfcLand.name)} (land)`, ok, run: () => this.resolve({ type: "land", card: o, back: true }) });
+          }
           const ways = g.castOptions(me, o);
           if (!ways.length) out.push({ label: instant && !g.isInstantSpeed(me, o) ? "Only at sorcery speed" : "Can't cast now", ok: false });
           for (const w of ways) {
             const cost = wayCost(w);
             const how = o.zone === "command" ? "Cast from the command zone" : o.zone === "exile" ? "Cast from exile" : "Cast";
-            out.push({ label: w.label ? `Cast ${esc(w.label)}` : how, cost, ok: true, primary: true, run: () => this.resolve({ type: "cast", card: o, door: w.door, alt: w.alt }) });
+            out.push({ label: w.faceDown ? "Cast face down (a 2/2)" : w.free ? "Cast without paying its mana cost" : w.label ? `Cast ${esc(w.label)}` : how, cost, ok: true, primary: !w.faceDown, run: () => this.resolve({ type: "cast", card: o, door: w.door, alt: w.alt, faceDown: !!w.faceDown }) });
+          }
+          if (o.def.cycling && o.zone === "hand") {
+            const ok = g.canPay(me, MK.parseCost(o.def.cycling));
+            out.push({ label: "Cycle (discard it, draw a card)", cost: o.def.cycling, ok, run: () => this.resolve({ type: "cycle", card: o }) });
           }
         }
         if (o.zone === "graveyard") for (const e of g.graveyardAbilities(o)) {
@@ -912,8 +994,8 @@
       const acts = (this.respondCtx && this.respondCtx.actions) || [];
       const rows = acts.map((a, i) => {
         const o = a.card;
-        const label = a.type === "cast" ? `Cast ${o.def.name}${a.label ? " (" + a.label + ")" : ""}` : `${a.ab.label || "Ability"}: ${shortName(o.def.name)}`;
-        const cost = a.type === "cast" ? wayCost(a) : (a.ab.cost || "") + (a.ab.tap ? "{T}" : "");
+        const label = a.type === "cast" ? `Cast ${o.def.name}${a.label ? " (" + a.label + ")" : ""}` : a.type === "cycle" ? `Cycle ${o.def.name}` : `${a.ab.label || "Ability"}: ${shortName(o.def.name)}`;
+        const cost = a.type === "cast" ? wayCost(a) : a.type === "cycle" ? MK.costString(a.cost, null) : (a.ab.cost || "") + (a.ab.tap ? "{T}" : "");
         return `<div class="row"><button class="use${a.type === "cast" ? " go" : ""}" data-i="${i}"><span>${esc(label)}</span>${cost ? `<span>${mana(cost)}</span>` : ""}</button></div>`;
       }).join("");
       const sh = this.openSheet("inspect", `<h3>Your options</h3><button class="mg-icon" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`, `<div class="mg-abil">${rows}</div>`, "");
@@ -921,7 +1003,7 @@
         const a = acts[+b.dataset.i];
         if (!a) return;
         this.closeSheet();
-        this.resolve({ type: a.type, card: a.card, idx: a.idx, door: a.door, alt: a.alt });
+        this.resolve({ type: a.type, card: a.card, idx: a.idx, door: a.door, alt: a.alt, faceDown: a.faceDown });
       }));
     }
     showRules() {
@@ -936,7 +1018,7 @@
       const hand = ctx.hand;
       const lands = hand.filter(o => o.def.types.includes("Land")).length;
       const ramp = hand.filter(o => !o.def.types.includes("Land") && o.def.ai && o.def.ai.ramp).length;
-      const verdict = lands >= 3 && lands <= 5 ? "A keep: enough lands to cast Trostani on time." : lands === 2 && ramp ? "Two lands and ramp: a fine keep." : lands < 2 ? "Too few lands. Mulligan unless you feel lucky." : lands > 5 ? "Very land-heavy. A mulligan is reasonable." : "Two lands and no ramp: risky.";
+      const verdict = lands >= 3 && lands <= 5 ? `A keep: enough lands to cast ${shortName(this.me.commanders[0] ? this.me.commanders[0].def.name : "your commander")} on time.` : lands === 2 && ramp ? "Two lands and ramp: a fine keep." : lands < 2 ? "Too few lands. Mulligan unless you feel lucky." : lands > 5 ? "Very land-heavy. A mulligan is reasonable." : "Two lands and no ramp: risky.";
       const over = document.createElement("div");
       over.className = "mg-over";
       over.innerHTML = `<div class="mg-mull"><h2 style="font-size:1.6rem">Opening hand</h2>
@@ -1009,6 +1091,8 @@
         if (!involved || !acts.length) return null;
       } else if (ctx.window === "end") {
         if (g.nextPlayer(ctx.turnOf) !== me || !acts.length) return null;
+      } else if (ctx.window === "trigger") {
+        if (!spells.length) return null;
       }
       if (this.fastForward) this.fastForward = false;
       this.respondCtx = ctx;
@@ -1229,7 +1313,22 @@
       this.host = host;
       this.render();
     },
-    decks() { return (MK.BOT_DECKS || []).slice().sort((a, b) => bracketOf(a) - bracketOf(b)); },
+    /* The decks you can pilot on this site (Miku: precon, budget, full upgrades, Azusa). */
+    heroes() {
+      const list = (MK.HERO_DECKS || []).filter(d => (d.hero || "miku") === SITE.hero);
+      if (!list.length && MK.MIKU_DECK) list.push(MK.MIKU_DECK);
+      const at = d => { const i = SITE.heroOrder ? SITE.heroOrder.indexOf(d.id) : -1; return i < 0 ? 99 : i; };
+      return list.slice().sort((a, b) => at(a) - at(b));
+    },
+    hero(s) {
+      const hs = this.heroes();
+      return hs.find(d => d.id === (s || settings()).hero) || hs.find(d => d.id === SITE.defaultHero) || hs[0];
+    },
+    /* Bot decks, minus the one you're playing. */
+    decks() {
+      const h = this.hero();
+      return (MK.BOT_DECKS || []).filter(d => !h || (d.id !== h.id && d.commander !== h.commander)).sort((a, b) => bracketOf(a) - bracketOf(b));
+    },
     /* the decks the current setting deals from; falls back to every deck if that pool is empty */
     pool(s) {
       const all = this.decks(), mine = all.filter(d => inPool(d, (s || settings()).pool));
@@ -1242,7 +1341,8 @@
       const decks = this.pool(s);
       // the switch only makes sense once both precons and Bracket 4 decks are loaded
       const all = this.decks(), both = all.some(d => bracketOf(d) < 4) && all.some(d => bracketOf(d) >= 4);
-      const poolInfo = both ? POOLS.find(p => p[0] === s.pool) || POOLS[0] : ["", "", all.every(d => bracketOf(d) >= 4) ? "Bracket 4 decks" : "Retail precons"];
+      const poolInfo = both ? POOLS.find(p => p[0] === s.pool) || POOLS[0] : ["", "", all.every(d => bracketOf(d) >= 4) ? "Bracket 4 decks" : "Precons"];
+      const heroes = this.heroes(), hero = this.hero(s);
       const st = loadStats();
       const rate = st.games ? Math.round(100 * st.wins / st.games) : 0;
       const colorDots = ids => (ids || []).map(k => `<i class="pip ${k.toLowerCase()}"></i>`).join("");
@@ -1250,10 +1350,12 @@
         <div class="lobby">
           <div class="lobby-hero">
             <p class="eyebrow">Play</p>
-            <h2 class="lobby-title">Take Miku to a<br><span>four-player pod</span></h2>
-            <p class="lede">Your upgraded Trostani deck against bots dealt at random: retail precons for a fair fight, or Bracket 4 decks when you want to be punished. Mana is paid for you, everything else is real Commander: the stack, combat, commander tax and damage, and every card in your deck.</p>
+            <h2 class="lobby-title">${SITE.title}</h2>
+            <p class="lede">${esc(SITE.lede)}</p>
           </div>
           <div class="lobby-setup">
+            ${heroes.length > 1 ? `<div class="set-row col"><span class="set-label">Your deck</span><div class="seg small hero-seg" role="radiogroup" aria-label="Which deck you play">${heroes.map(d => `<button role="radio" aria-checked="${d === hero}" data-hero="${esc(d.id)}">${esc(d.label || d.name)}</button>`).join("")}</div>
+              ${hero ? `<p class="hero-blurb"><span class="bc-br${bracketOf(hero) < 4 ? " soft" : ""}">B${bracketOf(hero)}</span> <b>${esc(hero.title || hero.commander)}</b>. ${esc(hero.blurb || "")}</p>` : ""}</div>` : ""}
             ${both ? `<div class="set-row"><span class="set-label">Decks</span><div class="seg small" role="radiogroup" aria-label="Which bot decks to face">${POOLS.map(([k, l, t]) => `<button role="radio" aria-checked="${s.pool === k}" data-pool="${k}" title="${t}">${l}</button>`).join("")}</div></div>` : ""}
             <div class="set-row"><span class="set-label">Opponents</span><div class="seg small" role="radiogroup" aria-label="Number of opponents">${[1, 2, 3].map(n => `<button role="radio" aria-checked="${s.opponents === n}" data-opp="${n}">${n}</button>`).join("")}</div></div>
             <div class="set-row"><span class="set-label">Bots</span><div class="seg small" role="radiogroup" aria-label="Bot skill">${[["casual", "Casual"], ["sharp", "Sharp"]].map(([k, l]) => `<button role="radio" aria-checked="${s.level === k}" data-level="${k}">${l}</button>`).join("")}</div></div>
@@ -1284,7 +1386,8 @@
         </div>`;
       const paint = () => host.querySelectorAll("[data-art-crop]").forEach(el => { const a = K.art(el.dataset.artCrop); if (a) el.style.backgroundImage = `url('${a.crop}')`; });
       paint();
-      K.ensure(decks.map(d => d.commander).concat(["Trostani, Selesnya's Voice"]), { miku: true }).then(paint);
+      K.ensure(decks.map(d => d.commander).concat(heroes.map(d => d.commander)), { miku: true }).then(paint);
+      host.querySelectorAll("[data-hero]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { hero: b.dataset.hero })); this.render(); }));
       host.querySelectorAll("[data-pool]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { pool: b.dataset.pool })); this.render(); }));
       host.querySelectorAll("[data-opp]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { opponents: +b.dataset.opp })); this.render(); }));
       host.querySelectorAll("[data-level]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { level: b.dataset.level })); this.render(); }));
@@ -1307,7 +1410,7 @@
       while (out.length < n && pool.length) { const d = rnd(pool); out.push(d); left.splice(left.indexOf(d), 1); }
       while (out.length < n && left.length) out.push(rnd(left));
       while (out.length < n) out.push(decks[out.length % decks.length] || MK.MIKU_DECK);
-      return [{ human: true, deck: MK.MIKU_DECK }].concat(out.map(d => ({ deck: d })));
+      return [{ human: true, deck: this.hero(s) || MK.MIKU_DECK }].concat(out.map(d => ({ deck: d })));
     },
     start(seats) {
       if (this.table) this.table.destroy();
@@ -1316,5 +1419,5 @@
     }
   };
 
-  root.MikuGame = { Table, Lobby, mount: host => Lobby.mount(host), loadStats, SPEED };
+  root.MikuGame = { Table, Lobby, mount: host => Lobby.mount(host), loadStats, SPEED, SITE };
 })(window);
