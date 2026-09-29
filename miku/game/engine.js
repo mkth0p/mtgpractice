@@ -1024,6 +1024,27 @@
       need.g -= fromPool;
       const exclude = new Set(opts.exclude || []);
       let sources = this.manaSources(p, exclude);
+      // Which colors to keep open: the ones the hand and the commander still need, over how many
+      // untapped sources make them. Generic mana then comes from the spare color (a Forest, not
+      // the only Plains, pays the {2} of a green spell). A tie-break worth well under 1 rank point.
+      const keep = {};
+      {
+        const demand = {}, supply = {};
+        for (const o of p.hand.concat(p.command)) {
+          const c = o.def.costObj;
+          if (!c || o.def.types.includes("Land")) continue;
+          for (const k of COLORS) demand[k] = (demand[k] || 0) + (c[k] || 0);
+          for (const h of c.hyb) for (const k of h) demand[k] = (demand[k] || 0) + 0.5;
+        }
+        for (const s of sources) for (const k of new Set(s.options.map(x => x.units).flat())) supply[k] = (supply[k] || 0) + 1;
+        for (const k of COLORS) keep[k] = ((demand[k] || 0) + 0.25) / ((supply[k] || 0) + 1);
+      }
+      const keepCost = s => {
+        const ks = new Set(s.options.map(x => x.units).flat());
+        let v = 0;
+        for (const k of ks) if (keep[k] != null) v = Math.max(v, keep[k]);
+        return Math.min(0.9, v) / Math.max(20, sources.length);
+      };
       const rank = s => {
         if (s.rank != null) return s.rank;
         let r = 1;
@@ -1035,6 +1056,7 @@
         colorsOut.delete("C");
         r += colorsOut.size;
         if (s.options.length > 1) r += 1;
+        r += keepCost(s);
         return (s.rank = r);
       };
       sources.sort((a, b) => rank(a) - rank(b));
