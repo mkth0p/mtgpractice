@@ -1444,7 +1444,10 @@
 
     /* Everyone gets a chance to respond, in turn order after the caster. Resolves the stack. */
     async priorityRound(caster, item) {
-      const base = Math.max(0, this.stack.indexOf(item));
+      // countered while its cast triggers resolved (ward): nothing to wait for, and the spells
+      // below it belong to the rounds already running for them
+      const base = this.stack.indexOf(item);
+      if (base < 0) return;
       let guard = 0;
       while (this.stack.length > base && !this.over) {
         if (++guard > 60) { while (this.stack.length > base && !this.over) await this.resolveTop(); break; }
@@ -1482,6 +1485,7 @@
         const legal = item.targets.map((t, i) => t && this.legalTarget(p, specs[i], t, o));
         if (item.targets.length && legal.every(x => !x) && specs.every(s => !s.optional)) {
           this.log(`${item.name} has no legal target left and does nothing.`, { cards: [d.name] });
+          this.anim("fizzle", { item });
           this.finishSpell(item);
           return;
         }
