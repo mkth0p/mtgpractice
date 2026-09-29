@@ -32,13 +32,33 @@
   const MIKU = new Map((root.MIKU_CARDS || []).map(c => [c.name, c]));
   function textOf(def) {
     const m = MIKU.get(def.name);
-    if (m && !def.token) return m.text || "";
+    if (m && !def.token && (m.text || !def.doors)) return m.text || "";
+    if (def.doors) return def.doors.map(d => d.name + " " + d.cost + "\n" + (d.text || "")).join("\n");
     if (def.text) return def.text;
     const bits = [];
     if (def.keywords && def.keywords.length) bits.push(def.keywords.map(k => k[0].toUpperCase() + k.slice(1)).join(", "));
     for (const ab of def.abilities || []) bits.push((ab.cost ? ab.cost + (ab.tap ? ", {T}" : "") : ab.tap ? "{T}" : "") + ": " + (ab.label || "Ability"));
     for (const m2 of def.mana || []) bits.push("{T}: Add mana.");
     return bits.join("\n");
+  }
+  /* Rules text as HTML. A Room shows each door as its own block, with its cost and, for one on
+     the battlefield, whether that door is unlocked. */
+  function rulesOf(def, o) {
+    if (!def.doors) return K.rules(textOf(def));
+    const m = MIKU.get(def.name);
+    const faces = m && m.faces ? m.faces : def.doors;
+    const open = o && o.zone === "battlefield" ? (o.state.doors || []) : null;
+    const note = /^\(You may cast either half[^)]*\)\n?/;
+    return def.doors.map((d, i) => {
+      const f = faces.find(x => x.name === d.name) || d;
+      const state = open ? `<span class="door ${open[i] ? "on" : ""}">${open[i] ? "unlocked" : "locked"}</span>` : "";
+      return `<div class="door-h"><b>${esc(d.name)}</b> ${mana(d.cost)}${state}</div>${K.rules(String(f.text || "").replace(note, ""))}`;
+    }).join("");
+  }
+  /* Mana cost as HTML; a Room shows both doors' costs. */
+  function costOf(def) {
+    if (def.cost) return mana(def.cost);
+    return def.doors ? def.doors.map(d => mana(d.cost)).join(`<span class="or">/</span>`) : "";
   }
   function colorKey(def) {
     const c = def.colors || [];
@@ -215,6 +235,7 @@
     }
     wait(mode) {
       if (mode === "block" || mode === "respond") this.$.fx.querySelectorAll(".mg-banner").forEach(x => x.remove());
+      if (this.spotItem && !this.g.stack.includes(this.spotItem)) this.spotOut();
       this.mode = mode;
       this.fastForward = false;
       const p = new Promise(res => { this.resolver = res; });
@@ -247,7 +268,7 @@
         case "turn": this.banner(d.p); if (d.p !== this.me) this.focusOn(d.p); break;
         case "cast": this.spotlight(d.o, d.p, d.item); break;
         case "resolve": this.spotOut(); break;
-        case "countered": this.spotOut(true); break;
+        case "countered": case "fizzle": this.spotOut(true); break;
         case "life": this.floatLife(d.p, d.delta); break;
         case "poison": this.floatAt(this.seatEl(d.p), `+${d.n}☣`, "hurt"); break;
         case "damage": this.floatAt(this.cardEl(d.o), `-${d.n}`, "hurt"); break;
@@ -374,9 +395,11 @@
       const kws = pt ? [...g.ch(o).kws].filter(k => KW_ICON[k]).slice(0, 3).map(k => `<i title="${esc(k)}">${KW_ICON[k]}</i>`).join("") : "";
       const ptCls = pt ? (pt[0] > base[0] || pt[1] > base[1] ? "up" : pt[0] < base[0] || pt[1] < base[1] ? "down" : "") : "";
       const n = opts.count != null ? opts.count : grp.length;
+      // a Room on the battlefield goes by its unlocked doors
+      const label = d.doors && o.zone === "battlefield" ? d.doors.filter((_, i) => (o.state.doors || [])[i]).map(x => x.name).join(" + ") || shortName(d.name) : shortName(d.name);
       return `<button class="${cls.join(" ")}" data-oid="${o.id}" data-n="${grp.length}" aria-label="${esc(d.name)}${n > 1 ? " times " + n : ""}${o.tapped ? ", tapped" : ""}">
-        <span class="art${art ? "" : " txt"}" style="${artStyle(d)}">${art ? "" : esc(shortName(d.name))}</span>
-        ${art || d.token ? `<span class="nm">${esc(shortName(d.name))}</span>` : ""}
+        <span class="art${art ? "" : " txt"}" style="${artStyle(d)}">${art ? "" : esc(label)}</span>
+        ${art || d.token ? `<span class="nm">${esc(label)}</span>` : ""}
         ${kws ? `<span class="kws">${kws}</span>` : ""}
         ${pt ? `<span class="pt ${ptCls}">${pt[0]}/${pt[1]}</span>` : ""}
         ${counters}
@@ -552,7 +575,7 @@
       const els = hand.map(o => {
         const cls = ["hc", acting ? (can.has(o.id) ? "can" : "no") : ""].join(" ");
         const art = artFor(o.def, "crop");
-        const html = `<button class="${cls}" data-oid="${o.id}" aria-label="${esc(o.def.name)}${acting && can.has(o.id) ? ", can be played" : ""}"><span class="art" style="${artStyle(o.def)}"></span><span class="cost">${mana(o.def.cost || "")}</span><span class="nm">${esc(o.def.name.split(" // ")[0])}</span></button>`;
+        const html = `<button class="${cls}" data-oid="${o.id}" aria-label="${esc(o.def.name)}${acting && can.has(o.id) ? ", can be played" : ""}"><span class="art" style="${artStyle(o.def)}"></span><span class="cost">${costOf(o.def)}</span><span class="nm">${esc(o.def.name.split(" // ")[0])}</span></button>`;
         let el = keep.get(String(o.id));
         if (el) { keep.delete(String(o.id)); if (el._html !== html) { el.className = cls; el.innerHTML = html.replace(/^<button[^>]*>|<\/button>$/g, ""); el._html = html; } }
         else { const tmp = document.createElement("div"); tmp.innerHTML = html; el = tmp.firstElementChild; el._html = html; el.classList.add("enter"); setTimeout(() => el.classList.remove("enter"), 500); }
@@ -650,15 +673,17 @@
       const s = document.createElement("div");
       s.className = "mg-spot";
       const tg = item && item.targets && item.targets.filter(Boolean).length ? " → " + item.targets.filter(Boolean).map(t => this.g.nameOf(t)).join(", ") : "";
-      s.innerHTML = a ? `<div class="card" style="background-image:url('${a}')"></div>` : `<div class="card frame" style="--c-bg:${bgFor(d)}"><b>${esc(item ? item.name : d.name)}</b><span>${mana(d.cost || "")}</span><span>${esc(d.type)}</span><div>${K.rules(textOf(d))}</div></div>`;
+      s.innerHTML = a ? `<div class="card" style="background-image:url('${a}')"></div>` : `<div class="card frame" style="--c-bg:${bgFor(d)}"><b>${esc(item ? item.name : d.name)}</b><span>${d.doors && item ? mana(d.doors[item.door || 0].cost) : costOf(d)}</span><span>${esc(d.type)}</span><div>${rulesOf(d)}</div></div>`;
       s.insertAdjacentHTML("beforeend", `<div class="cap">${esc(p.name === "You" ? "You cast" : p.name + " casts")} ${esc(item ? item.name : d.name)}${esc(tg)}</div>`);
       this.$.fx.appendChild(s);
       this.spot = s;
+      this.spotItem = item || null;
     }
     spotOut(countered) {
       const s = this.spot;
       if (!s) return;
       this.spot = null;
+      this.spotItem = null;
       s.classList.add(countered ? "countered" : "out");
       setTimeout(() => s.remove(), 520);
     }
@@ -817,14 +842,14 @@
       if (o.isCommander && o.zone === "command") state.push(`commander tax ${g.commanderTax(me, o)}`);
       const acts = this.actionsFor(o);
       const body = `<div class="mg-insp">
-        ${big ? `<div class="big" style="background-image:url('${big}')"></div>` : `<div class="big frame" style="--c-bg:${bgFor(d)}"><b>${esc(d.name)}</b><span>${mana(d.cost || "")}</span><span>${esc(d.type)}</span>${pt ? `<b>${pt[0]}/${pt[1]}</b>` : ""}</div>`}
-        <div><div class="type">${mana(d.cost || "")} ${esc(d.type)}${pt ? ` · <b>${pt[0]}/${pt[1]}</b>` : ""}</div>
-        <div class="text">${K.rules(textOf(d))}</div>
+        ${big ? `<div class="big" style="background-image:url('${big}')"></div>` : `<div class="big frame" style="--c-bg:${bgFor(d)}"><b>${esc(d.name)}</b><span>${costOf(d)}</span><span>${esc(d.type)}</span>${pt ? `<b>${pt[0]}/${pt[1]}</b>` : ""}</div>`}
+        <div><div class="type">${costOf(d)} ${esc(d.type)}${pt ? ` · <b>${pt[0]}/${pt[1]}</b>` : ""}</div>
+        <div class="text">${rulesOf(d, o)}</div>
         ${state.length ? `<div class="state">${state.map(s => `<span>${esc(s)}</span>`).join("")}</div>` : ""}
         ${d.note ? `<div class="note">In this game: ${esc(d.note)}</div>` : ""}
         </div></div>
         ${acts.length ? `<div class="mg-abil">${acts.map((a, i) => `<div class="row"><button class="use${a.primary ? " go" : ""}" data-i="${i}"${a.ok ? "" : " disabled"}><span>${a.label}</span>${a.cost ? `<span>${mana(a.cost)}</span>` : ""}</button>${a.repeat && a.ok ? `<button class="rep" data-rep="${i}" aria-label="Repeat">×N</button>` : ""}</div>`).join("")}</div>` : ""}`;
-      const sh = this.openSheet("inspect", `<h3>${esc(shortName(d.name))}</h3><button class="mg-icon" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`, body, "");
+      const sh = this.openSheet("inspect", `<h3>${esc(d.doors ? d.name : shortName(d.name))}</h3><button class="mg-icon" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`, body, "");
       sh.querySelectorAll("[data-i]").forEach(b => b.addEventListener("click", () => { const a = acts[+b.dataset.i]; if (a && a.ok) { this.closeSheet(); a.run(); } }));
       sh.querySelectorAll("[data-rep]").forEach(b => b.addEventListener("click", () => { const a = acts[+b.dataset.rep]; if (a) this.askRepeat(a); }));
     }
@@ -915,7 +940,7 @@
       const over = document.createElement("div");
       over.className = "mg-over";
       over.innerHTML = `<div class="mg-mull"><h2 style="font-size:1.6rem">Opening hand</h2>
-        <div class="hand7">${hand.map(o => `<div class="hc" data-oid="${o.id}"><span class="art" style="${artStyle(o.def)}"></span><span class="cost">${mana(o.def.cost || "")}</span><span class="nm">${esc(o.def.name.split(" // ")[0])}</span></div>`).join("")}</div>
+        <div class="hand7">${hand.map(o => `<div class="hc" data-oid="${o.id}"><span class="art" style="${artStyle(o.def)}"></span><span class="cost">${costOf(o.def)}</span><span class="nm">${esc(o.def.name.split(" // ")[0])}</span></div>`).join("")}</div>
         <p class="facts">${lands} land${lands === 1 ? "" : "s"}${ramp ? `, ${ramp} ramp` : ""}. ${esc(verdict)}</p></div>
         <div class="btns"><button class="mg-btn" data-m="0">Mulligan${ctx.mulls === 0 ? " (free)" : ""}</button><button class="mg-btn go" data-m="1">Keep ${7 - Math.max(0, ctx.mulls - 1)}</button></div>`;
       this.el.appendChild(over);

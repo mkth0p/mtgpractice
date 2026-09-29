@@ -6,6 +6,7 @@ const path = require("path");
 const dir = path.join(__dirname, "../../miku/game");
 require(path.join(dir, "engine.js"));
 require(path.join(dir, "cards-miku.js"));
+require(path.join(dir, "decks-edgar.js")); // Vein Ripper, for ward
 require(path.join(dir, "ai.js"));
 const MK = globalThis.MK;
 
@@ -192,8 +193,8 @@ const named = (g, p, name) => g.battlefield.filter(o => o.controller === p && o.
   // Aetherflux Reservoir
   { const { g, a, b } = table(); put(g, a, "Aetherflux Reservoir"); lands(g, a, 3); a.life = 40;
     for (const n of ["Soul Warden", "Soul Warden", "Soul Warden"]) { const o = hand(g, a, n); await g.cast(a, o); }
-    // 1 + 2 + 3 from the Reservoir, plus Soul Warden triggers (0 + 1 + 2)
-    check("Aetherflux gains 1+2+3 (plus Soul Wardens)", a.life === 40 + 6 + 3, a.life); }
+    // 0 + 1 + 2 from the Reservoir (spells cast before each one), plus Soul Warden triggers (0 + 1 + 2)
+    check("Aetherflux gains 0+1+2 (plus Soul Wardens)", a.life === 40 + 3 + 3, a.life); }
 
   // Fanatic of Rhonas: GGGG with a 4-power creature
   { const { g, a } = table(); const fr = put(g, a, "Fanatic of Rhonas"); const big = hand(g, a, "Bramble Sovereign");
@@ -288,6 +289,42 @@ const named = (g, p, name) => g.battlefield.filter(o => o.controller === p && o.
     eq.attachedTo = own; g.bump();
     g.lose(a, "concede");
     check("Equipment falls off a creature that left with its owner", eq.zone === "battlefield" && eq.attachedTo === null); }
+
+  // Trostani checks each token after the other triggers have grown it (the guide's calculator)
+  const citizen = MK.tokenDef({ key: "test-citizen", name: "Citizen", pt: [1, 1], colors: "GW", subtypes: ["Citizen"] });
+  async function tokenGain(names, n) {
+    const { g, a } = table();
+    for (const nm of names) put(g, a, nm);
+    await g.settle(); a.life = 40;
+    g.createToken(a, citizen, { count: n }); await g.settle();
+    return a.life - 40;
+  }
+  { const got = await tokenGain(["Trostani, Selesnya's Voice", "Soul Warden", "Archangel of Thune"], 2);
+    check("Trostani + Soul Warden + Thune, two tokens: +9", got === 9, got); }
+  { const got = await tokenGain(["Trostani, Selesnya's Voice", "Cathars' Crusade"], 1);
+    check("Trostani sees Cathars' Crusade's counter: +2", got === 2, got); }
+  { const got = await tokenGain(["Trostani, Selesnya's Voice", "Soul Warden", "Archangel of Thune", "Cathars' Crusade"], 2);
+    check("Trostani + Warden + Thune + Crusade, two tokens: +13", got === 13, got); }
+  { const got = await tokenGain(["Trostani, Selesnya's Voice", "Heliod, Sun-Crowned", "Soul Warden"], 2);
+    check("Heliod's counters go on the token Trostani checks next: +7", got === 7, got); }
+
+  // removal whose target is gone does nothing, and the table is told (the card leaves the spotlight)
+  { const { g, a, b } = table(); lands(g, a, 1); const pm = put(g, b, "Ajani's Pridemate"); const sw = hand(g, a, "Swords to Plowshares");
+    const anims = []; g.ui = { anim: k => anims.push(k) };
+    g.opts.strict = false;
+    const realSettle = g.settle.bind(g);
+    let once = false;
+    g.settle = async function () { if (!once && g.stack.length) { once = true; g.moveTo(pm, "graveyard"); } return realSettle(); };
+    await g.cast(a, sw, { targets: [pm] });
+    check("Swords with its target gone fizzles", anims.includes("fizzle") && !anims.includes("resolve") && sw.zone === "graveyard", anims); }
+
+  // a spell countered by ward while another spell waits below it: that spell isn't resolved early
+  { const { g, a, b } = table(); lands(g, a, 1); const vr = put(g, b, "Vein Ripper"); const sw = hand(g, a, "Swords to Plowshares");
+    const below = g.newObj(MK.get("Grand Crescendo"), b, "stack");
+    g.stack.push({ kind: "spell", o: below, p: b, x: 0, door: 0, alt: 0, targets: [], mode: null, id: ++g.ts, name: "Grand Crescendo" });
+    await g.cast(a, sw, { targets: [vr] });
+    check("Ward counters Swords (no creature to sacrifice)", sw.zone === "graveyard" && vr.zone === "battlefield", { sw: sw.zone, vr: vr.zone });
+    check("The spell below is still waiting for its own round", g.stack.length === 1 && g.stack[0].o === below, g.stack.map(it => it.name)); }
 
   console.log(`${passed} checks passed, ${failed} failed.`);
   process.exitCode = failed ? 1 : 0;

@@ -75,11 +75,16 @@
   function ensure(names, opts) {
     opts = opts || {};
     const stale = Date.now() - (cache.t || 0) > 21 * 864e5;
-    for (const n of names) {
-      if (!n) continue;
-      if (cache.art[n] && !stale) continue;
-      if (cache.miss[n] && Date.now() - cache.miss[n] < 7 * 864e5) continue;
+    const want = n => {
+      if (!n || (cache.art[n] && !stale)) return false;
+      if (cache.miss[n] && Date.now() - cache.miss[n] < 7 * 864e5) return false;
       queue.add(n);
+      return true;
+    };
+    // Rooms and other split cards: ask by the front name too, in case the full name isn't matched
+    for (const n of names) {
+      want(n);
+      if (String(n || "").includes(" // ") && !cache.art[n]) want(n.split(" // ")[0]);
     }
     const prints = opts.miku && (stale || !Object.values(cache.art).some(a => a.miku));
     if (!queue.size && !prints) return Promise.resolve(false);

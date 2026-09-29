@@ -39,8 +39,10 @@
   /* ================================================================ commander */
   D({
     name: "Trostani, Selesnya's Voice", cost: "{G}{G}{W}{W}", type: "Legendary Creature — Dryad", pt: "2/5",
+    // late: her triggers wait for Soul Warden, Cathars' Crusade, Thune and the like, so each
+    // token is as big as it gets before she checks its toughness (the order a player would pick)
     triggers: [{
-      on: "enters",
+      on: "enters", late: true, checksToughness: true,
       when: (g, s, ev) => ev.o !== s && mine(s, ev.o) && g.isCreature(ev.o) && (ev.t0 == null ? ((ev.t0 = g.toughness(ev.o)), true) : true),
       do: (g, s, ev, { p }) => g.gainLife(p, Math.max(0, ev.o.zone === "battlefield" ? g.toughness(ev.o) : ev.t0), s)
     }],
@@ -455,7 +457,8 @@
   /* ================================================================ artifacts */
   D({
     name: "Aetherflux Reservoir", cost: "{4}", type: "Artifact",
-    triggers: [{ on: "cast", when: (g, s, ev) => ev.p === s.controller, do: (g, s, ev, { p }) => g.gainLife(p, p.spellsCast, s) }],
+    // 1 life for each spell cast before this one this turn (spellsCast already counts this one)
+    triggers: [{ on: "cast", when: (g, s, ev) => ev.p === s.controller, do: (g, s, ev, { p }) => { if (p.spellsCast > 1) g.gainLife(p, p.spellsCast - 1, s); } }],
     abilities: [{
       label: "Pay 50 life: 50 damage", payLife: 50,
       targets: [{ kind: "any", purpose: "harm", prompt: "Aetherflux Reservoir deals 50 damage to" }],

@@ -144,6 +144,11 @@
   }
   function pickCounter(g, p, options, req) {
     if (g.loopHint && options.includes(g.loopHint)) return g.loopHint;
+    // a counter on the creature Trostani checks next comes back as life too
+    for (let i = g.pending.length - 1; i >= 0; i--) {
+      const t = g.pending[i];
+      if (t.controller === p && t.tr.checksToughness && t.ev && options.includes(t.ev.o)) return t.ev.o;
+    }
     const src = req && req.src;
     const own = options.filter(o => !isPlayer(g, o) && o.controller === p && g.isCreature(o));
     if (!own.length) return options.find(o => o.controller === p) || (req && req.optional ? null : options[0]);
