@@ -1,4 +1,5 @@
-/* Miku Deck Wiki: routing, card wiki, charts, combo simulators, calculator, hand trainer. */
+/* Miku Deck Wiki: routing, jump bar, card wiki and sheet, charts, combo simulators,
+   lethal calculator, hand trainer, swap checklist, and the small motion details. */
 (function () {
   "use strict";
   const CARDS = window.MIKU_CARDS || [];
@@ -7,11 +8,16 @@
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const esc = s => String(s).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
   const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const short = n => n.split(" // ")[0];
   const bySlug = new Map(CARDS.map(c => [slug(c.name), c]));
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage unavailable */ } }
   };
+  const mqMobile = window.matchMedia("(max-width: 879px)");
+  const mqReduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const mqHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+  const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
 
   const ROLES = [
     ["cmd", "Commander"], ["ramp", "Ramp"], ["draw", "Card draw"], ["removal", "Removal"],
@@ -34,9 +40,7 @@
       return `<span class="ms ${cls}" title="${title}" aria-label="${title}">${label}</span>`;
     });
   }
-  function rulesHTML(text) {
-    return text.split("\n").filter(Boolean).map(l => `<p>${mana(l)}</p>`).join("");
-  }
+  const rulesHTML = text => text.split("\n").filter(Boolean).map(l => `<p>${mana(l)}</p>`).join("");
 
   /* ---------------------------------------------------------------- card art (Scryfall) */
   const MIKU_PRINTS = { "2429": "Trostani, Selesnya's Voice", "2430": "Archangel of Thune", "2431": "Halo Fountain", "2432": "Grand Crescendo", "2433": "Shalai, Voice of Plenty", "2434": "Song of the Worldsoul", "2435": "Soul Warden", "2436": "Break Down", "2437": "Cultivate", "2438": "Finale of Devastation", "2439": "Vorinclex, Voice of Hunger", "2440": "Bountiful Promenade" };
@@ -48,18 +52,19 @@
     return null;
   }
   async function loadArt() {
+    let fresh = false;
     try {
       const cached = JSON.parse(store.get(ART_KEY) || "null");
-      if (cached && Date.now() - cached.t < 7 * 864e5 && cached.art) { ART = cached.art; paintArt(); return; }
+      // Paint from the cache whatever its age, so the page still has art offline; refresh weekly.
+      if (cached && cached.art) { ART = cached.art; paintArt(); fresh = Date.now() - cached.t < 7 * 864e5; }
     } catch (e) { /* ignore bad cache */ }
+    if (fresh) return;
     const ids = CARDS.map(c => ({ name: c.name })).concat(Object.keys(MIKU_PRINTS).map(n => ({ set: "sld", collector_number: n })));
-    const batches = [];
-    for (let i = 0; i < ids.length; i += 75) batches.push(ids.slice(i, i + 75));
     const art = {};
     try {
-      for (const b of batches) {
+      for (let i = 0; i < ids.length; i += 75) {
         const r = await fetch("https://api.scryfall.com/cards/collection", {
-          method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ identifiers: b })
+          method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ identifiers: ids.slice(i, i + 75) })
         });
         if (!r.ok) throw new Error("scryfall " + r.status);
         const j = await r.json();
@@ -78,16 +83,27 @@
       store.set(ART_KEY, JSON.stringify({ t: Date.now(), art }));
       paintArt();
     } catch (e) {
-      /* Offline or blocked: the text frames stay, which still show every card's rules. */
+      /* Offline or blocked: the text frames stay, and they still show every card's rules. */
     }
+  }
+  function frameHTML(c) {
+    return `<div class="frame"><b>${esc(c.name)}</b><span class="muted">${mana(c.cost || "")}</span><span class="muted">${esc(c.type)}</span></div>`;
   }
   function miniCard(c) {
     const a = ART[c.name];
     if (a) return `<img src="${esc(a.normal)}" alt="${esc(c.name)}" loading="lazy" decoding="async">`;
-    return `<div class="frame"><b>${esc(c.name)}</b><span class="muted">${mana(c.cost || "")}</span><span class="muted">${esc(c.type)}</span></div>`;
+    return frameHTML(c);
   }
+  // Images fade in when loaded; a broken image falls back to the text frame.
+  document.addEventListener("load", e => { if (e.target.tagName === "IMG" && e.target.closest(".mini-card")) e.target.classList.add("ok"); }, true);
+  document.addEventListener("error", e => {
+    const img = e.target;
+    if (img.tagName !== "IMG") return;
+    const box = img.closest(".mini-card"), c = box && byName.get(img.alt);
+    if (c) box.innerHTML = frameHTML(c);
+  }, true);
   function paintArt() {
-    $$("[data-art]").forEach(el => { const c = byName.get(el.dataset.art); if (c) el.innerHTML = miniCard(c); });
+    $$("[data-art]").forEach(el => { const c = byName.get(el.dataset.art); if (c && !el.querySelector("img")) el.innerHTML = miniCard(c); });
     $$(".card-row .thumb[data-thumb]").forEach(el => {
       const a = ART[el.dataset.thumb];
       if (a && a.crop) { el.style.backgroundImage = `url("${a.crop}")`; el.textContent = ""; }
@@ -100,12 +116,11 @@
       const name = el.textContent.trim();
       const b = document.createElement("button");
       b.type = "button"; b.className = "inline-card"; b.dataset.card = name;
-      b.textContent = el.dataset.label || name.split(" // ")[0];
+      b.textContent = el.dataset.label || short(name);
       if (!byName.has(name)) console.warn("Unknown card mention", name);
       el.replaceWith(b);
     });
   }
-
   // Turn {G}{W}-style mana text written in the page's static copy into symbols.
   function manaText(root) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => /\{[^}]+\}/.test(n.nodeValue) && !n.parentElement.closest("script,style,textarea") ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
@@ -113,7 +128,18 @@
     nodes.forEach(n => { const span = document.createElement("span"); span.innerHTML = mana(n.nodeValue); n.replaceWith(...span.childNodes); });
   }
 
-  /* ---------------------------------------------------------------- navigation */
+  /* ---------------------------------------------------------------- header: tuck away on scroll */
+  const root = document.documentElement;
+  const topbar = $("#topbar"), subnav = $("#subnav"), subTrack = $("#subnavTrack");
+  let headerLock = 0;
+  function setHeader(up) {
+    if (!mqMobile.matches) up = false;
+    document.body.classList.toggle("hdr-up", up);
+  }
+  function measureHeader() { root.style.setProperty("--hdr-h", topbar.offsetHeight + "px"); }
+  window.addEventListener("resize", measureHeader);
+
+  /* ---------------------------------------------------------------- tabs */
   const TABS = [
     ["deck", "Deck", '<path d="M4 6h16M4 12h16M4 18h10"/>'],
     ["cards", "Cards", '<rect x="5" y="3" width="11" height="16" rx="2"/><path d="M19 7v12a2 2 0 0 1-2 2H9"/>'],
@@ -121,59 +147,159 @@
     ["play", "Play", '<circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/>'],
     ["buy", "Upgrades", '<path d="M4 4h2l2.2 11h10.3L21 8H7"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/>']
   ];
+  const tabIndex = id => TABS.findIndex(t => t[0] === id);
   $$("[data-nav]").forEach(nav => {
-    nav.innerHTML = TABS.map(([id, label, icon]) =>
+    nav.innerHTML = `<span class="tab-ind" aria-hidden="true"></span>` + TABS.map(([id, label, icon]) =>
       `<a class="tab" href="#${id}" data-tab="${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon}</svg><span>${label}</span></a>`).join("");
   });
-  let currentView = null;
-  function showView(id) {
-    if (currentView === id) return;
+  let currentView = null, tabTap = false;
+  const scrollMem = {};
+
+  function showView(id, how = {}) {
+    if (currentView === id) return false;
+    const from = currentView;
+    if (from) scrollMem[from] = window.scrollY;
     currentView = id;
-    $$(".view").forEach(v => v.classList.toggle("active", v.dataset.view === id));
+    $$(".view").forEach(v => {
+      const on = v.dataset.view === id;
+      v.classList.toggle("active", on);
+      v.classList.remove("enter-fwd", "enter-back");
+      if (on && from && !mqReduce.matches) {
+        v.classList.add(tabIndex(id) > tabIndex(from) ? "enter-fwd" : "enter-back");
+        v.addEventListener("animationend", () => v.classList.remove("enter-fwd", "enter-back"), { once: true });
+      }
+    });
     $$("[data-tab]").forEach(t => { if (t.dataset.tab === id) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current"); });
+    root.style.setProperty("--ti", tabIndex(id));
+    $$(".tab-ind").forEach(i => i.style.setProperty("--ti", tabIndex(id)));
     store.set("mikuWiki.tab", id);
+    buildSubnav(id);
+    setHeader(false);
+    measureHeader();
+    if (!how.keepScroll) window.scrollTo(0, how.top ? 0 : (scrollMem[id] || 0));
+    requestAnimationFrame(onScroll);
+    return true;
   }
+
+  /* ---------------------------------------------------------------- jump bar + scroll spy */
+  let subSections = [], activeSub = null;
+  function buildSubnav(view) {
+    subSections = $$(`[data-view="${view}"] [data-sub]`);
+    const has = subSections.length > 1;
+    subnav.hidden = !has;
+    document.body.classList.toggle("no-sub", !has);
+    subTrack.innerHTML = has ? subSections.map((s, i) => `<a class="sublink" href="#${s.id}" data-jump="${s.id}"><span class="n">${String(i + 1).padStart(2, "0")}</span>${esc(s.dataset.sub)}</a>`).join("") : "";
+    activeSub = null;
+  }
+  function jumpTo(el, smooth = true) {
+    const y = el.getBoundingClientRect().top + window.scrollY;
+    const down = y > window.scrollY + 4;
+    let offset;
+    if (mqMobile.matches && down && y > 200) {
+      setHeader(true);
+      offset = (subnav.hidden ? 0 : subnav.offsetHeight) + (el.closest("#view-cards") ? $("#toolbar").offsetHeight : 0) + 12;
+    } else {
+      setHeader(false);
+      offset = topbar.offsetHeight + 12;
+    }
+    headerLock = Date.now() + 900;
+    window.scrollTo({ top: Math.max(0, y - offset), behavior: smooth && !mqReduce.matches ? "smooth" : "auto" });
+  }
+  subTrack.addEventListener("click", e => {
+    const a = e.target.closest("[data-jump]"); if (!a) return;
+    e.preventDefault();
+    const el = document.getElementById(a.dataset.jump);
+    if (el) { jumpTo(el); history.replaceState(null, "", "#" + a.dataset.jump); }
+  });
+  function spy() {
+    if (!subSections.length) return;
+    const line = topbar.getBoundingClientRect().bottom + 60;
+    let cur = subSections[0];
+    for (const s of subSections) if (s.getBoundingClientRect().top <= line) cur = s;
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) cur = subSections[subSections.length - 1];
+    if (cur === activeSub) return;
+    activeSub = cur;
+    $$(".sublink", subTrack).forEach(a => a.setAttribute("aria-current", a.dataset.jump === cur.id ? "true" : "false"));
+    const a = $(`.sublink[data-jump="${cur.id}"]`, subTrack);
+    if (a) subTrack.scrollTo({ left: a.offsetLeft - 16, behavior: mqReduce.matches ? "auto" : "smooth" });
+  }
+
+  let lastY = window.scrollY, ticking = false;
+  function onScroll() {
+    ticking = false;
+    const y = window.scrollY, dy = y - lastY;
+    if (Date.now() > headerLock && !sheet.classList.contains("open")) {
+      if (y < 80) setHeader(false);
+      else if (dy > 6) setHeader(true);
+      else if (dy < -8) setHeader(false);
+    }
+    lastY = y;
+    spy();
+    flowFill();
+  }
+  window.addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+
+  /* ---------------------------------------------------------------- routing */
   let sheetFromApp = false;
   function route() {
     const h = decodeURIComponent(location.hash.slice(1));
     if (h.startsWith("card-")) {
       const c = bySlug.get(h.slice(5));
-      if (!currentView) showView("cards");
+      if (!currentView) showView(store.get("mikuWiki.tab") || "cards");
       if (c) { openSheet(c); return; }
     }
     closeSheet(true);
-    if (TABS.some(t => t[0] === h)) { showView(h); window.scrollTo(0, 0); return; }
+    if (TABS.some(t => t[0] === h)) {
+      const fromTab = tabTap; tabTap = false;
+      showView(h, { top: !fromTab });
+      return;
+    }
     const target = h && document.getElementById(h);
     if (target) {
       const v = target.closest("[data-view]");
-      if (v) showView(v.dataset.view);
-      requestAnimationFrame(() => target.scrollIntoView({ block: "start" }));
+      if (v) showView(v.dataset.view, { keepScroll: true });
+      requestAnimationFrame(() => requestAnimationFrame(() => jumpTo(target, currentView === (v && v.dataset.view) && !!window.scrollY)));
       return;
     }
     if (!currentView) showView(store.get("mikuWiki.tab") || "deck");
   }
   window.addEventListener("hashchange", route);
   document.addEventListener("click", e => {
+    const t = e.target.closest("[data-tab]");
+    if (t) {
+      if (t.dataset.tab === currentView && !location.hash.startsWith("#card-")) {
+        e.preventDefault();
+        setHeader(false);
+        window.scrollTo({ top: 0, behavior: mqReduce.matches ? "auto" : "smooth" });
+      } else tabTap = true;
+      return;
+    }
     const b = e.target.closest("[data-card]");
     if (!b) return;
     e.preventDefault();
+    hidePeek();
     const c = byName.get(b.dataset.card);
     if (!c) return;
-    if (b.closest("#sheet")) { history.replaceState(null, "", "#card-" + slug(c.name)); openSheet(c); return; }
+    if (b.closest("#sheet")) { history.replaceState(null, "", "#card-" + slug(c.name)); openSheet(c, b.dataset.dir); return; }
     sheetFromApp = true;
     location.hash = "card-" + slug(c.name);
   });
 
-  /* ---------------------------------------------------------------- sheet */
+  /* ---------------------------------------------------------------- card sheet */
   const sheet = $("#sheet"), scrim = $("#scrim"), sheetBody = $("#sheetBody");
-  let sheetList = CARDS, lastFocus = null;
-  function openSheet(c) {
-    if (!sheet.classList.contains("open")) lastFocus = document.activeElement;
-    const i = sheetList.indexOf(c);
-    const list = i >= 0 ? sheetList : CARDS;
+  let sheetList = CARDS, lastFocus = null, sheetCard = null;
+  function sheetNeighbours(c) {
+    const list = sheetList.includes(c) ? sheetList : CARDS;
     const idx = list.indexOf(c);
-    const prev = list[(idx - 1 + list.length) % list.length], next = list[(idx + 1) % list.length];
+    return { list, idx, prev: list[(idx - 1 + list.length) % list.length], next: list[(idx + 1) % list.length] };
+  }
+  function openSheet(c, dir) {
+    const wasOpen = sheet.classList.contains("open");
+    if (!wasOpen) lastFocus = document.activeElement;
+    sheetCard = c;
+    const { list, idx, prev, next } = sheetNeighbours(c);
     $("#sheetEyebrow").textContent = c.roles.map(r => ROLE_LABEL[r]).join(" · ");
+    $("#sheetPos").textContent = `${idx + 1} / ${list.length}`;
     const faces = c.faces
       ? c.faces.map(f => `<div class="face-name">${esc(f.name)} <span class="cost">${mana(f.cost)}</span></div>${rulesHTML(f.text)}`).join("")
       : rulesHTML(c.text || "");
@@ -183,36 +309,42 @@
       c.qty > 1 ? `<span class="tag">× ${c.qty}</span>` : "",
       `<span class="tag">MV ${c.mv}</span>`
     ].join("");
-    const cm = "https://www.cardmarket.com/en/Magic/Products/Search?searchString=" + encodeURIComponent(c.name.split(" // ")[0]);
+    const cm = "https://www.cardmarket.com/en/Magic/Products/Search?searchString=" + encodeURIComponent(short(c.name));
     const sf = (ART[c.name] && ART[c.name].uri) || ("https://scryfall.com/search?q=" + encodeURIComponent('!"' + c.name + '"'));
-    const edh = "https://edhrec.com/cards/" + slug(c.name.split(" // ")[0]);
+    const edh = "https://edhrec.com/cards/" + slug(short(c.name));
+    const art = !!ART[c.name];
+    const nm = n => esc(short(n).split(",")[0]);
     sheetBody.innerHTML = `
-      <div class="detail${ART[c.name] ? "" : " no-art"}">
-        ${ART[c.name] ? `<div class="art"><div class="mini-card" data-art="${esc(c.name)}">${miniCard(c)}</div></div>` : ""}
+      <div class="detail${art ? "" : " no-art"}${dir ? " swipe-" + dir : ""}">
+        ${art ? `<div class="art"><div class="foil" data-tilt><div class="mini-card" data-art="${esc(c.name)}">${miniCard(c)}</div>${c.sld ? '<span class="shine" aria-hidden="true"></span>' : ""}</div></div>` : ""}
         <div class="info">
-          <div style="display:grid;gap:6px">
+          <div style="display:grid;gap:8px">
             <h2 id="sheetTitle">${esc(c.name)}</h2>
             <div class="typeline">${c.cost ? `<span class="cost">${mana(c.cost)}</span> · ` : ""}${esc(c.type)}</div>
-            <div class="tags" style="display:flex;flex-wrap:wrap;gap:6px">${tags}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">${tags}</div>
           </div>
           <div class="oracle">${faces}${c.pt ? `<span class="pt">${esc(c.pt)}</span>` : ""}</div>
           ${c.new ? `<div class="swapbox"><span>Replaces <b>${esc(c.cut)}</b> from the stock deck</span><span class="muted">·</span><a href="${cm}" target="_blank" rel="noopener">~${c.eur.toFixed(2)}€ on Cardmarket</a></div>` : ""}
-          <div class="note"><h4>Why it's here</h4><p>${esc(c.why)}</p></div>
-          ${c.how ? `<div class="note"><h4>How to play it</h4><p>${esc(c.how)}</p></div>` : ""}
-          ${c.warn ? `<div class="note warn"><h4>Watch out</h4><p>${esc(c.warn)}</p></div>` : ""}
-          ${c.syn && c.syn.length ? `<div class="note"><h4>Works with</h4><div class="syn">${c.syn.map(n => `<button class="chip" type="button" data-card="${esc(n)}">${esc(n.split(" // ")[0])}</button>`).join("")}</div></div>` : ""}
-          <div class="ext"><a href="${sf}" target="_blank" rel="noopener">Scryfall</a><a href="${cm}" target="_blank" rel="noopener">Cardmarket</a><a href="${edh}" target="_blank" rel="noopener">EDHREC</a></div>
-          <div class="sheet-nav"><button class="btn" type="button" data-card="${esc(prev.name)}">← ${esc(prev.name.split(",")[0].split(" // ")[0])}</button><button class="btn" type="button" data-card="${esc(next.name)}">${esc(next.name.split(",")[0].split(" // ")[0])} →</button></div>
+          <div class="note"><h4>Why it's here</h4><p>${mana(c.why)}</p></div>
+          ${c.how ? `<div class="note"><h4>How to play it</h4><p>${mana(c.how)}</p></div>` : ""}
+          ${c.warn ? `<div class="note warn"><h4>Watch out</h4><p>${mana(c.warn)}</p></div>` : ""}
+          ${c.syn && c.syn.length ? `<div class="note"><h4>Works with</h4><div class="syn">${c.syn.map(n => `<button class="chip" type="button" data-card="${esc(n)}">${esc(short(n))}</button>`).join("")}</div></div>` : ""}
+          <div class="ext"><a href="${sf}" target="_blank" rel="noopener">Scryfall ↗</a><a href="${cm}" target="_blank" rel="noopener">Cardmarket ↗</a><a href="${edh}" target="_blank" rel="noopener">EDHREC ↗</a></div>
+          <div class="sheet-nav"><button class="btn" type="button" data-card="${esc(prev.name)}" data-dir="prev" aria-label="Previous card: ${esc(prev.name)}"><span>← ${nm(prev.name)}</span></button><button class="btn" type="button" data-card="${esc(next.name)}" data-dir="next" aria-label="Next card: ${esc(next.name)}"><span>${nm(next.name)} →</span></button></div>
+          <p class="swipe-hint">Swipe sideways for the next card</p>
         </div>
       </div>`;
     sheetBody.scrollTop = 0;
+    bindTilt(sheetBody);
+    sheet.style.removeProperty("--drag");
     sheet.classList.add("open"); scrim.classList.add("open"); sheet.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
-    $("#sheetClose").focus({ preventScroll: true });
+    if (!wasOpen) $("#sheetClose").focus({ preventScroll: true });
   }
   function closeSheet(fromRoute) {
     if (!sheet.classList.contains("open")) return;
-    sheet.classList.remove("open"); scrim.classList.remove("open"); sheet.setAttribute("aria-hidden", "true");
+    sheet.classList.remove("open", "dragging"); scrim.classList.remove("open"); sheet.setAttribute("aria-hidden", "true");
+    scrim.style.opacity = "";
     document.body.style.overflow = "";
     if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
     if (!fromRoute) {
@@ -220,19 +352,144 @@
       else history.replaceState(null, "", "#" + (currentView || "cards"));
     }
   }
+  function stepSheet(dir) {
+    if (!sheetCard) return;
+    const { prev, next } = sheetNeighbours(sheetCard);
+    const c = dir === "next" ? next : prev;
+    history.replaceState(null, "", "#card-" + slug(c.name));
+    openSheet(c, dir);
+  }
   $("#sheetClose").addEventListener("click", () => closeSheet(false));
   scrim.addEventListener("click", () => closeSheet(false));
-  document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(false); });
-  // drag the sheet down to close it on phones
-  (function () {
-    let y0 = null;
-    $(".sheet-bar").addEventListener("touchstart", e => { y0 = e.touches[0].clientY; }, { passive: true });
-    $(".sheet-bar").addEventListener("touchmove", e => { if (y0 != null) { const d = Math.max(0, e.touches[0].clientY - y0); sheet.style.transform = `translateY(${d}px)`; } }, { passive: true });
-    $(".sheet-bar").addEventListener("touchend", e => { const d = y0 == null ? 0 : e.changedTouches[0].clientY - y0; sheet.style.transform = ""; y0 = null; if (d > 90) closeSheet(false); });
+  document.addEventListener("keydown", e => {
+    if (!sheet.classList.contains("open")) {
+      if (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); openSearch(); }
+      return;
+    }
+    if (e.key === "Escape") closeSheet(false);
+    else if (e.key === "ArrowRight" && !/INPUT/.test(document.activeElement.tagName)) stepSheet("next");
+    else if (e.key === "ArrowLeft" && !/INPUT/.test(document.activeElement.tagName)) stepSheet("prev");
+    else if (e.key === "Tab") { // keep focus inside the sheet
+      const f = $$("button, a[href]", sheet).filter(x => x.offsetParent !== null);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+  // Gestures: drag down to close (from the handle, or from the top of the content), swipe sideways for the next card.
+  (function sheetGestures() {
+    let g = null;
+    const start = (e, fromBar) => {
+      if (!mqMobile.matches || e.touches.length > 1) return;
+      const t = e.touches[0];
+      g = { x0: t.clientX, y0: t.clientY, t0: Date.now(), fromBar, top: sheetBody.scrollTop <= 0, axis: fromBar ? "y" : null, dx: 0, dy: 0 };
+    };
+    const move = e => {
+      if (!g) return;
+      const t = e.touches[0];
+      g.dx = t.clientX - g.x0; g.dy = t.clientY - g.y0;
+      if (!g.axis) {
+        if (Math.abs(g.dx) < 9 && Math.abs(g.dy) < 9) return;
+        g.axis = Math.abs(g.dx) > Math.abs(g.dy) * 1.2 ? "x" : "y";
+        if (g.axis === "y" && (!g.top || g.dy < 0)) { g = null; return; } // normal scrolling
+      }
+      e.preventDefault();
+      if (g.axis === "y") {
+        const d = Math.max(0, g.dy);
+        sheet.classList.add("dragging");
+        sheet.style.setProperty("--drag", d + "px");
+        scrim.style.opacity = String(Math.max(.2, 1 - d / 500));
+      } else {
+        const det = $(".detail", sheetBody);
+        if (det) { det.style.transition = "none"; det.style.transform = `translateX(${g.dx * .9}px)`; det.style.opacity = String(1 - Math.min(.5, Math.abs(g.dx) / 400)); }
+      }
+    };
+    const end = () => {
+      if (!g) return;
+      const dt = Math.max(1, Date.now() - g.t0);
+      if (g.axis === "y") {
+        sheet.classList.remove("dragging");
+        scrim.style.opacity = "";
+        if (g.dy > 120 || (g.dy > 40 && g.dy / dt > .6)) closeSheet(false);
+        else sheet.style.setProperty("--drag", "0px");
+      } else if (g.axis === "x") {
+        const det = $(".detail", sheetBody);
+        if (Math.abs(g.dx) > 70 || (Math.abs(g.dx) > 30 && Math.abs(g.dx) / dt > .5)) stepSheet(g.dx < 0 ? "next" : "prev");
+        else if (det) { det.style.transition = "transform .3s var(--ease-out), opacity .3s"; det.style.transform = ""; det.style.opacity = ""; }
+      }
+      g = null;
+    };
+    const bar = $(".sheet-bar");
+    bar.addEventListener("touchstart", e => start(e, true), { passive: true });
+    sheetBody.addEventListener("touchstart", e => { if (!e.target.closest(".syn, .ext")) start(e, false); }, { passive: true });
+    [bar, sheetBody].forEach(el => { el.addEventListener("touchmove", move, { passive: false }); el.addEventListener("touchend", end); el.addEventListener("touchcancel", end); });
   })();
 
+  /* ---------------------------------------------------------------- foil tilt */
+  function tiltTo(el, px, py) { // px, py in 0..1
+    el.style.setProperty("--ry", ((px - .5) * 16).toFixed(2) + "deg");
+    el.style.setProperty("--rx", ((.5 - py) * 16).toFixed(2) + "deg");
+    el.style.setProperty("--mx", (px * 100).toFixed(1) + "%");
+    el.style.setProperty("--my", (py * 100).toFixed(1) + "%");
+    el.style.setProperty("--bx", (px * 100).toFixed(1) + "%");
+    el.style.setProperty("--by", (py * 100).toFixed(1) + "%");
+  }
+  function bindTilt(scope) {
+    if (mqReduce.matches) return;
+    $$("[data-tilt]", scope).forEach(el => {
+      if (el._tilt) return; el._tilt = true;
+      el.addEventListener("pointermove", e => {
+        if (e.pointerType === "touch") return;
+        const r = el.getBoundingClientRect();
+        el.classList.add("tracking");
+        tiltTo(el, (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+      });
+      el.addEventListener("pointerleave", () => { el.classList.remove("tracking"); ["--rx", "--ry", "--mx", "--my", "--bx", "--by"].forEach(p => el.style.removeProperty(p)); });
+    });
+  }
+  // Tilting the phone moves the foil too (Android and others that don't ask permission).
+  if (!mqReduce.matches && window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission !== "function" && !mqHover.matches) {
+    let base = null, raf = 0, last = null;
+    window.addEventListener("deviceorientation", e => {
+      if (e.beta == null) return;
+      if (!base) base = { b: e.beta, g: e.gamma };
+      last = e;
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const px = Math.max(0, Math.min(1, .5 + (last.gamma - base.g) / 40));
+        const py = Math.max(0, Math.min(1, .5 + (last.beta - base.b) / 40));
+        $$("[data-tilt]").forEach(el => { if (el.offsetParent) { el.classList.add("tracking"); tiltTo(el, px, py); } });
+      });
+    });
+  }
+
+  /* ---------------------------------------------------------------- desktop hover preview */
+  const peek = $("#peek");
+  let peekFor = null;
+  function hidePeek() { peek.classList.remove("show"); peekFor = null; }
+  document.addEventListener("pointerover", e => {
+    if (!mqHover.matches) return;
+    const b = e.target.closest(".inline-card, .set-row, .chip[data-card], .swap .inline-card");
+    if (!b || b.closest("#sheet")) return;
+    const c = byName.get(b.dataset.card);
+    if (!c || !ART[c.name]) return;
+    peekFor = b;
+    peek.innerHTML = `<div class="mini-card">${miniCard(c)}</div>`;
+    const img = peek.querySelector("img"); if (img) img.loading = "eager";
+    const r = b.getBoundingClientRect();
+    const left = Math.min(window.innerWidth - 236, Math.max(16, r.left));
+    const above = r.top > 330;
+    peek.style.left = left + "px";
+    peek.style.top = (above ? r.top - 316 : r.bottom + 10) + "px";
+    peek.classList.add("show");
+  });
+  document.addEventListener("pointerout", e => { if (peekFor && !peekFor.contains(e.relatedTarget)) hidePeek(); });
+  window.addEventListener("scroll", () => { if (peekFor) hidePeek(); }, { passive: true });
+
   /* ---------------------------------------------------------------- card list */
-  const state = { q: "", role: "all", sort: "role" };
+  const state = { q: "", role: "all", sort: "role", grid: store.get("mikuWiki.grid") === "1" };
   const roleCount = r => CARDS.filter(c => r === "new" ? c.new : r === "miku" ? c.sld : c.roles.includes(r)).length;
   const chipDefs = [["all", "All", CARDS.length], ["new", "Upgrades", roleCount("new")], ["miku", "Miku art", roleCount("miku")]]
     .concat(ROLES.filter(r => r[0] !== "cmd").map(([k, l]) => [k, l, roleCount(k)]));
@@ -241,25 +498,57 @@
     const b = e.target.closest("[data-role]"); if (!b) return;
     state.role = b.dataset.role;
     $$("#roleChips .chip").forEach(x => x.setAttribute("aria-pressed", x === b));
-    renderList();
+    b.scrollIntoView({ inline: "nearest", block: "nearest", behavior: mqReduce.matches ? "auto" : "smooth" });
+    renderList(true);
   });
-  $("#q").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); renderList(); });
-  $("#sort").addEventListener("change", e => { state.sort = e.target.value; renderList(); });
+  const qIn = $("#q"), qClear = $("#qClear");
+  qIn.addEventListener("input", () => { state.q = qIn.value.trim().toLowerCase(); qClear.hidden = !qIn.value; renderList(); });
+  qIn.addEventListener("keydown", e => { if (e.key === "Enter") qIn.blur(); });
+  qClear.addEventListener("click", () => { qIn.value = ""; state.q = ""; qClear.hidden = true; renderList(); qIn.focus(); });
+  $("#sort").addEventListener("change", e => { state.sort = e.target.value; renderList(true); });
+  const vt = $("#viewToggle");
+  function syncToggle() {
+    vt.setAttribute("aria-pressed", String(state.grid));
+    vt.setAttribute("aria-label", state.grid ? "Show as a list" : "Show card images");
+  }
+  vt.addEventListener("click", () => { state.grid = !state.grid; store.set("mikuWiki.grid", state.grid ? "1" : "0"); syncToggle(); renderList(true); });
+  syncToggle();
+  function openSearch() {
+    if (location.hash !== "#cards") { tabTap = true; location.hash = "cards"; }
+    showView("cards", { keepScroll: true });
+    const list = $("#view-cards .toolbar");
+    const y = list.getBoundingClientRect().top + window.scrollY - topbar.offsetHeight;
+    if (window.scrollY < y - 2) window.scrollTo(0, y);
+    qIn.focus({ preventScroll: true });
+    qIn.select();
+  }
+  $("#searchBtn").addEventListener("click", openSearch);
 
+  function hl(name) {
+    const q = state.q;
+    const i = q ? name.toLowerCase().indexOf(q) : -1;
+    if (i < 0) return esc(name);
+    return esc(name.slice(0, i)) + "<mark>" + esc(name.slice(i, i + q.length)) + "</mark>" + esc(name.slice(i + q.length));
+  }
   function rowHTML(c) {
     const initials = c.name.replace(/[^A-Za-z ]/g, "").split(" ").filter(Boolean).slice(0, 2).map(w => w[0]).join("");
     const a = ART[c.name];
     const thumbStyle = a && a.crop ? ` style="background-image:url('${esc(a.crop)}')"` : "";
     return `<button class="card-row" type="button" data-card="${esc(c.name)}">
       <span class="thumb" data-thumb="${esc(c.name)}"${thumbStyle}>${a && a.crop ? "" : esc(initials)}</span>
-      <span class="body"><span class="title">${esc(c.name)}${c.qty > 1 ? ` <span class="muted mono">×${c.qty}</span>` : ""}</span>
+      <span class="body"><span class="title">${hl(c.name)}${c.qty > 1 ? ` <span class="muted mono">×${c.qty}</span>` : ""}</span>
         <span class="sub">${esc(c.type)}</span>
         <span class="tags">${c.new ? '<span class="tag new">NEW</span>' : ""}${c.roles.slice(0, 2).map(r => `<span class="tag">${ROLE_LABEL[r]}</span>`).join("")}</span></span>
       <span class="cost">${mana(c.cost.split(" // ")[0])}</span></button>`;
   }
-  function renderList() {
+  function tileHTML(c) {
+    return `<button class="card-tile" type="button" data-card="${esc(c.name)}" aria-label="${esc(c.name)}">
+      ${c.new ? '<span class="badge">NEW</span>' : ""}${c.qty > 1 ? `<span class="qty">×${c.qty}</span>` : ""}
+      <span class="mini-card" data-art="${esc(c.name)}">${miniCard(c)}</span></button>`;
+  }
+  function renderList(resetScroll) {
     const q = state.q;
-    let list = CARDS.filter(c => {
+    const list = CARDS.filter(c => {
       if (state.role === "new" && !c.new) return false;
       if (state.role === "miku" && !c.sld) return false;
       if (!["all", "new", "miku"].includes(state.role) && !c.roles.includes(state.role)) return false;
@@ -268,10 +557,7 @@
     });
     let groups = [];
     if (state.sort === "role") {
-      for (const [k, l] of ROLES) {
-        const g = list.filter(c => c.roles[0] === k);
-        if (g.length) groups.push([l, g]);
-      }
+      for (const [k, l] of ROLES) { const g = list.filter(c => c.roles[0] === k); if (g.length) groups.push([l, g]); }
     } else if (state.sort === "type") {
       for (const t of TYPE_ORDER) { const g = list.filter(c => c.cat === t); if (g.length) groups.push([TYPE_PLURAL[t], g]); }
     } else if (state.sort === "mv") {
@@ -279,12 +565,28 @@
     } else {
       groups = [["", list.slice().sort((a, b) => a.name.localeCompare(b.name))]];
     }
+    // Put exact name hits first when searching.
+    if (q) groups = groups.map(([l, g]) => [l, g.slice().sort((a, b) => (b.name.toLowerCase().includes(q)) - (a.name.toLowerCase().includes(q)))]);
     sheetList = groups.flatMap(g => g[1]);
     $("#count").textContent = `${list.length} of ${CARDS.length} cards`;
-    $("#cardList").innerHTML = list.length
-      ? groups.map(([l, g]) => (l ? `<div class="group-label">${esc(l)} · ${g.length}</div>` : "") + g.map(rowHTML).join("")).join("")
-      : `<div class="empty">No cards match. Try a shorter search or pick "All".</div>`;
+    const cl = $("#cardList");
+    cl.classList.toggle("grid", state.grid);
+    const item = state.grid ? tileHTML : rowHTML;
+    cl.innerHTML = list.length
+      ? groups.map(([l, g]) => (l ? `<div class="group-label">${esc(l)} · ${g.length}</div>` : "") + g.map(item).join("")).join("")
+      : `<div class="empty"><span>No cards match "${esc(qIn.value)}".</span><button class="btn" type="button" id="resetFilters">Clear search and filters</button></div>`;
+    if (resetScroll && currentView === "cards") {
+      const tb = $("#toolbar");
+      const y = cl.getBoundingClientRect().top + window.scrollY - tb.offsetHeight - topbar.offsetHeight - 30;
+      if (window.scrollY > y) window.scrollTo(0, Math.max(0, y));
+    }
   }
+  document.addEventListener("click", e => {
+    if (!e.target.closest("#resetFilters")) return;
+    qIn.value = ""; state.q = ""; state.role = "all"; qClear.hidden = true;
+    $$("#roleChips .chip").forEach(x => x.setAttribute("aria-pressed", x.dataset.role === "all"));
+    renderList(true);
+  });
 
   /* ---------------------------------------------------------------- setlist + copy */
   function renderSetlist() {
@@ -292,13 +594,13 @@
     const groups = [["Commander", [commander]]].concat(TYPE_ORDER.map(t => [TYPE_PLURAL[t], CARDS.filter(c => c.cat === t && c !== commander)]));
     $("#setlist").innerHTML = groups.filter(g => g[1].length).map(([l, g]) => {
       const n = g.reduce((s, c) => s + c.qty, 0);
-      return `<div class="set-group"><h4><span>${l}</span><span>${n}</span></h4>${g.slice().sort((a, b) => a.mv - b.mv || a.name.localeCompare(b.name)).map(c =>
-        `<button class="set-row" type="button" data-card="${esc(c.name)}"><span class="q">${c.qty}</span><span class="nm">${esc(c.name)}</span>${c.new ? '<span class="new-dot">NEW</span>' : ""}</button>`).join("")}</div>`;
+      return `<details class="set-group" open><summary><span>${l}</span><span class="n">${n}</span></summary>${g.slice().sort((a, b) => a.mv - b.mv || a.name.localeCompare(b.name)).map(c =>
+        `<button class="set-row" type="button" data-card="${esc(c.name)}"><span class="q">${c.qty}</span><span class="nm">${esc(c.name)}</span>${c.new ? '<span class="new-dot">NEW</span>' : ""}</button>`).join("")}</details>`;
     }).join("");
   }
   function toast(msg) {
     const t = $("#toast"); t.textContent = msg; t.classList.add("show");
-    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 1800);
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 2000);
   }
   document.addEventListener("click", async e => {
     const b = e.target.closest("[data-copy]"); if (!b) return;
@@ -313,78 +615,121 @@
     }
   });
 
-  /* ---------------------------------------------------------------- mana curve (equalizer) */
+  /* ---------------------------------------------------------------- mana curve: an LED meter */
   function renderCurve() {
     const nonland = CARDS.filter(c => c.cat !== "Land");
     const buckets = [0, 1, 2, 3, 4, 5, 6, 7].map(v => nonland.filter(c => (v === 7 ? c.mv >= 7 : c.mv === v)));
+    const counts = buckets.map(b => b.reduce((s, c) => s + c.qty, 0));
+    const peakI = counts.indexOf(Math.max(...counts));
     const eq = $("#eq");
-    eq.innerHTML = `<div class="eq-grid" aria-hidden="true"><div></div><div></div><div></div><div></div></div>` + buckets.map((b, i) => {
-      const n = b.reduce((s, c) => s + c.qty, 0);
-      const segs = Array.from({ length: n }, (_, k) => `<i class="eq-seg${k === n - 1 ? " top" : ""}"></i>`).join("");
-      return `<div class="eq-col" tabindex="0" data-i="${i}" aria-label="${n} cards at mana value ${i === 7 ? "7 or more" : i}">
-        <div class="eq-stack">${segs}<span class="val">${n}</span></div><span class="lab">${i === 7 ? "7+" : i}</span></div>`;
+    eq.innerHTML = buckets.map((b, i) => {
+      const n = counts[i];
+      const segs = Array.from({ length: 14 }, (_, k) => `<i class="eq-seg${k < n ? " on" : ""}${k === n - 1 ? " top" : ""}" style="--k:${k};--c:${i}"></i>`).join("");
+      return `<button class="eq-col" type="button" data-i="${i}" aria-pressed="false" aria-label="${n} cards at mana value ${i === 7 ? "7 or more" : i}">
+        <span class="eq-stack">${segs}<span class="val">${n}</span></span><span class="lab">${i === 7 ? "7+" : i}</span></button>`;
     }).join("");
-    let tip = null;
-    const show = col => {
-      hide();
-      const i = +col.dataset.i, b = buckets[i];
-      tip = document.createElement("div"); tip.className = "eq-tip";
-      tip.innerHTML = `<b>MV ${i === 7 ? "7+" : i} · ${b.length} cards</b><br>${b.map(c => esc(c.name.split(",")[0].split(" // ")[0])).join(", ")}`;
-      eq.appendChild(tip);
-      const r = col.getBoundingClientRect(), er = eq.getBoundingClientRect();
-      const x = Math.min(Math.max(r.left - er.left + r.width / 2, 110), er.width - 110);
-      tip.style.left = x + "px"; tip.style.top = "0px";
+    const readout = $("#eqReadout");
+    const select = i => {
+      $$(".eq-col", eq).forEach(c => c.setAttribute("aria-pressed", String(+c.dataset.i === i)));
+      const b = buckets[i];
+      readout.innerHTML = `<b>Mana value ${i === 7 ? "7+" : i} · ${counts[i]} card${counts[i] === 1 ? "" : "s"}</b><div class="syn">${b.map(c => `<button class="chip" type="button" data-card="${esc(c.name)}">${esc(short(c.name))}</button>`).join("")}</div>`;
     };
-    const hide = () => { if (tip) { tip.remove(); tip = null; } };
-    $$(".eq-col", eq).forEach(col => {
-      col.addEventListener("mouseenter", () => show(col)); col.addEventListener("focus", () => show(col));
-      col.addEventListener("mouseleave", hide); col.addEventListener("blur", hide);
-      col.addEventListener("click", () => show(col));
-    });
-    // type bars
+    eq.addEventListener("click", e => { const c = e.target.closest(".eq-col"); if (c) select(+c.dataset.i); });
+    eq.addEventListener("pointerover", e => { if (!mqHover.matches) return; const c = e.target.closest(".eq-col"); if (c && c.getAttribute("aria-pressed") !== "true") select(+c.dataset.i); });
+    select(peakI);
     const types = TYPE_ORDER.map(t => [TYPE_PLURAL[t], CARDS.filter(c => c.cat === t).reduce((s, c) => s + c.qty, 0)]).filter(t => t[1]);
     const tmax = Math.max(...types.map(t => t[1]));
-    $("#typebars").innerHTML = types.map(([l, n]) => `<div class="typebar"><span>${l}</span><span class="bar" style="width:${(n / tmax) * 100}%"></span><span class="num">${n}</span></div>`).join("");
+    $("#typebars").innerHTML = types.map(([l, n]) => `<div class="typebar"><span>${l}</span><span class="bar" data-w="${(n / tmax) * 100}%"></span><span class="num">${n}</span></div>`).join("");
   }
 
   /* ---------------------------------------------------------------- combo simulators */
-  function meter(label, val, max, dead) {
-    const w = max ? Math.max(0, Math.min(100, (val / max) * 100)) : 100;
-    return `<div class="meter${dead ? " dead" : ""}"><span>${label}</span><b>${val}</b>${max ? `<span class="hp"><i style="width:${w}%"></i></span>` : ""}</div>`;
+  function ringHTML(labels, unit) {
+    const cx = 66, cy = 66, R = 50;
+    const nodes = labels.map((_, i) => {
+      const a = -Math.PI / 2 + i * 2 * Math.PI / labels.length;
+      const x = cx + R * Math.cos(a), y = cy + R * Math.sin(a);
+      return `<g><circle class="node" data-n="${i}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10"/><text x="${x.toFixed(1)}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" font-size="10" font-family="DM Mono, monospace" font-weight="700" fill="currentColor">${i + 1}</text></g>`;
+    }).join("");
+    return `<div class="sim-top">
+      <div class="ring"><svg viewBox="0 0 132 132" aria-hidden="true"><circle class="track" cx="66" cy="66" r="50"/><g class="orbit"><circle cx="66" cy="16" r="5"/></g>${nodes}</svg>
+        <div class="center"><b data-k="loops">0</b><span>${unit}</span></div></div>
+      <ol class="ring-legend">${labels.map(l => `<li>${l}</li>`).join("")}</ol></div>`;
+  }
+  function makeRing(el) {
+    const ring = $(".ring", el), nodes = $$(".node", el), legend = $$(".ring-legend li", el);
+    let timers = [];
+    const hot = i => { nodes.forEach((n, k) => n.classList.toggle("hot", k === i)); legend.forEach((n, k) => n.classList.toggle("hot", k === i)); };
+    return {
+      pulse() {
+        if (mqReduce.matches) return;
+        timers.forEach(clearTimeout); timers = [];
+        restart(ring, "spin");
+        nodes.forEach((_, i) => timers.push(setTimeout(() => hot(i), i * 200)));
+        timers.push(setTimeout(() => hot(-1), nodes.length * 200 + 150));
+      },
+      spin(on) { ring.classList.toggle("spinning", on && !mqReduce.matches); if (!on) hot(-1); },
+      count(n) { $("[data-k=loops]", el).textContent = n; }
+    };
+  }
+  function meterHTML(key, label, max) {
+    return `<div class="meter" data-m="${key}"><span>${label}</span><b>0</b>${max ? `<span class="hp"><i></i></span>` : ""}</div>`;
+  }
+  function setMeter(root, key, val, max) {
+    const m = $(`[data-m="${key}"]`, root); if (!m) return;
+    const b = $("b", m);
+    const old = b.textContent;
+    b.textContent = val;
+    if (String(val) !== old) { if (max && +val < +old) restart(m, "hit"); else restart(m, "bump"); }
+    if (max) {
+      $(".hp i", m).style.width = Math.max(0, Math.min(100, (val / max) * 100)) + "%";
+      m.classList.toggle("dead", val <= 0);
+      m.classList.toggle("low", val > 0 && val <= max * .25);
+    }
   }
   function ballistaSim() {
     const el = $("#simBallista");
+    el.innerHTML = ringHTML(["Remove a counter", "1 damage to a player", "Lifelink: gain 1", "Heliod: counter back"], "pings") +
+      `<div class="sim-meters">${meterHTML("c", "Ballista counters")}${meterHTML("life", "Your life")}${[1, 2, 3].map(i => meterHTML("o" + i, "Opponent " + i, 40)).join("")}</div>
+      <div class="sim-log" aria-live="polite"></div>
+      <div class="btn-row">
+        <button class="btn" type="button" data-a="ll"></button>
+        <button class="btn" type="button" data-a="ping">Ping once</button>
+        <button class="btn pink" type="button" data-a="all">Loop until the table is dead</button>
+        <button class="btn" type="button" data-a="reset">Reset</button></div>`;
+    const ring = makeRing(el);
     let s, timer;
-    const reset = () => { clearInterval(timer); s = { counters: 2, life: 40, opp: [40, 40, 40], lifelink: false, pings: 0, log: "Heliod is out. Walking Ballista has 2 counters. Give it lifelink to start." }; draw(); };
+    const done = () => s.opp.every(x => x <= 0);
+    const reset = () => { clearInterval(timer); ring.spin(false); s = { counters: 2, life: 40, opp: [40, 40, 40], lifelink: false, pings: 0, log: "Heliod is out. Walking Ballista has 2 counters. Give it lifelink to start." }; draw(); };
     const ping = () => {
       const t = s.opp.findIndex(x => x > 0);
       if (t < 0) return false;
       s.opp[t]--; s.pings++;
       if (s.lifelink) { s.life++; s.log = `Ping ${s.pings}: 1 damage to opponent ${t + 1}. Lifelink +1 life, Heliod puts the counter back.`; }
       else { s.counters--; s.log = `Ping without lifelink: Ballista loses a counter and nothing comes back.`; }
-      if (s.opp.every(x => x <= 0)) { s.log = `${s.pings} pings. Every opponent is dead.`; clearInterval(timer); }
+      if (done()) { s.log = `${s.pings} pings. Every opponent is dead.`; clearInterval(timer); ring.spin(false); }
       return true;
     };
     function draw() {
-      const done = s.opp.every(x => x <= 0);
-      el.innerHTML = `<div class="sim-meters">${meter("Ballista counters", s.counters)}${meter("Your life", s.life)}${s.opp.map((o, i) => meter("Opponent " + (i + 1), o, 40, o <= 0)).join("")}</div>
-        <div class="sim-log" aria-live="polite">${esc(s.log)}</div>
-        <div class="btn-row">
-          <button class="btn${s.lifelink ? "" : " primary"}" type="button" data-a="ll" ${s.lifelink ? "disabled" : ""}>${s.lifelink ? "Lifelink on" : "Pay " + mana("{1}{W}") + ": lifelink"}</button>
-          <button class="btn" type="button" data-a="ping" ${done || s.counters < 1 ? "disabled" : ""}>Ping once</button>
-          <button class="btn pink" type="button" data-a="all" ${done || !s.lifelink ? "disabled" : ""}>Loop until the table is dead</button>
-          <button class="btn" type="button" data-a="reset">Reset</button></div>`;
+      setMeter(el, "c", s.counters); setMeter(el, "life", s.life);
+      s.opp.forEach((o, i) => setMeter(el, "o" + (i + 1), o, 40));
+      ring.count(s.pings);
+      $(".sim-log", el).textContent = s.log;
+      const ll = $("[data-a=ll]", el);
+      ll.disabled = s.lifelink; ll.classList.toggle("primary", !s.lifelink);
+      ll.innerHTML = s.lifelink ? "Lifelink on" : "Pay " + mana("{1}{W}") + ": lifelink";
+      $("[data-a=ping]", el).disabled = done() || s.counters < 1;
+      $("[data-a=all]", el).disabled = done() || !s.lifelink;
     }
     el.addEventListener("click", e => {
       const a = e.target.closest("[data-a]"); if (!a) return;
       const k = a.dataset.a;
       if (k === "ll") { s.lifelink = true; s.log = "Ballista has lifelink until end of turn. Now every ping gains 1 life."; }
-      if (k === "ping") { if (s.counters < 1) return; ping(); }
+      if (k === "ping") { if (s.counters < 1) return; ping(); if (s.lifelink) ring.pulse(); }
       if (k === "all") {
         clearInterval(timer);
-        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (reduce) { while (ping()); draw(); return; }
-        timer = setInterval(() => { for (let i = 0; i < 3; i++) ping(); draw(); if (s.opp.every(x => x <= 0)) clearInterval(timer); }, 30);
+        if (mqReduce.matches) { while (ping()); draw(); return; }
+        ring.spin(true);
+        timer = setInterval(() => { for (let i = 0; i < 3; i++) ping(); draw(); if (done()) { clearInterval(timer); ring.spin(false); } }, 30);
         return;
       }
       if (k === "reset") return reset();
@@ -395,8 +740,19 @@
   function feederSim() {
     const el = $("#simFeeder");
     const ENG = { heliod: "Heliod", thune: "Archangel of Thune", cleric: "Cleric Class" };
+    el.innerHTML = `<div class="chips" role="group" aria-label="Engine">${Object.entries(ENG).map(([k, l]) => `<button class="chip" type="button" data-e="${k}" aria-pressed="false">${l}</button>`).join("")}</div>` +
+      ringHTML(["Remove a counter", "Gain 2 life", "Engine triggers", "Counter back on Feeder"], "loops") +
+      `<div class="sim-meters">${meterHTML("f", "Feeder counters")}${meterHTML("life", "Your life")}${meterHTML("team", "Team bonus +X/+X")}${[1, 2, 3].map(i => meterHTML("o" + i, "Opponent " + i, 40)).join("")}</div>
+      <div class="sim-log" aria-live="polite"></div>
+      <div class="btn-row">
+        <button class="btn" type="button" data-a="one">Loop once</button>
+        <button class="btn primary" type="button" data-a="many">Loop 25 times</button>
+        <button class="btn pink" type="button" data-a="flux">Aetherflux: pay 50</button>
+        <button class="btn" type="button" data-a="reset">Reset</button></div>`;
+    const ring = makeRing(el);
+    const legend = $$(".ring-legend li", el);
     let s, timer;
-    const reset = (eng = (s && s.eng) || "heliod") => { clearInterval(timer); s = { eng, feeder: 2, life: 40, team: 0, loops: 0, opp: [40, 40, 40], log: `Spike Feeder has 2 counters. Engine: ${ENG[eng]}. Aetherflux Reservoir is out.` }; draw(); };
+    const reset = (eng = (s && s.eng) || "heliod") => { clearInterval(timer); ring.spin(false); s = { eng, feeder: 2, life: 40, team: 0, loops: 0, opp: [40, 40, 40], log: `Spike Feeder has 2 counters. Engine: ${ENG[eng]}. Aetherflux Reservoir is out.` }; draw(); };
     const loop = () => {
       const gain = s.eng === "cleric" ? 3 : 2;
       s.life += gain; s.loops++;
@@ -405,24 +761,27 @@
     };
     function draw() {
       const alive = s.opp.some(x => x > 0);
-      el.innerHTML = `<div class="chips" role="group" aria-label="Engine" style="margin:0;padding:0">${Object.entries(ENG).map(([k, l]) => `<button class="chip" type="button" data-e="${k}" aria-pressed="${s.eng === k}">${l}</button>`).join("")}</div>
-        <div class="sim-meters">${meter("Feeder counters", s.feeder)}${meter("Your life", s.life)}${s.eng === "thune" ? meter("Team bonus +X/+X", s.team) : ""}${s.opp.map((o, i) => meter("Opponent " + (i + 1), o, 40, o <= 0)).join("")}</div>
-        <div class="sim-log" aria-live="polite">${esc(s.log)}</div>
-        <div class="btn-row">
-          <button class="btn" type="button" data-a="one">Loop once</button>
-          <button class="btn primary" type="button" data-a="many">Loop 25 times</button>
-          <button class="btn pink" type="button" data-a="flux" ${s.life > 50 && alive ? "" : "disabled"}>Aetherflux: pay 50</button>
-          <button class="btn" type="button" data-a="reset">Reset</button></div>`;
+      $$("[data-e]", el).forEach(b => b.setAttribute("aria-pressed", String(b.dataset.e === s.eng)));
+      legend[1].textContent = `Gain ${s.eng === "cleric" ? 3 : 2} life`;
+      legend[2].textContent = `${ENG[s.eng]} triggers`;
+      legend[3].textContent = s.eng === "thune" ? "Counter on every creature" : "Counter back on Feeder";
+      setMeter(el, "f", s.feeder); setMeter(el, "life", s.life); setMeter(el, "team", s.team);
+      $('[data-m="team"]', el).hidden = s.eng !== "thune";
+      s.opp.forEach((o, i) => setMeter(el, "o" + (i + 1), o, 40));
+      ring.count(s.loops);
+      $(".sim-log", el).textContent = s.log;
+      $("[data-a=flux]", el).disabled = !(s.life > 50 && alive);
     }
     el.addEventListener("click", e => {
       const eb = e.target.closest("[data-e]"); if (eb) return reset(eb.dataset.e);
       const a = e.target.closest("[data-a]"); if (!a) return;
       const k = a.dataset.a;
-      if (k === "one") loop();
+      if (k === "one") { loop(); ring.pulse(); }
       if (k === "many") {
         clearInterval(timer);
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { for (let i = 0; i < 25; i++) loop(); draw(); return; }
-        let n = 0; timer = setInterval(() => { loop(); draw(); if (++n >= 25) clearInterval(timer); }, 40); return;
+        if (mqReduce.matches) { for (let i = 0; i < 25; i++) loop(); draw(); return; }
+        ring.spin(true);
+        let n = 0; timer = setInterval(() => { loop(); draw(); if (++n >= 25) { clearInterval(timer); ring.spin(false); } }, 40); return;
       }
       if (k === "flux") {
         const t = s.opp.findIndex(x => x > 0);
@@ -435,39 +794,67 @@
   }
 
   /* ---------------------------------------------------------------- lethal calculator */
+  const CALC_ROWS = [
+    ["Just attack", 0, (N, P) => N * P, ""],
+    ["Beastmaster Ascension", 3, (N, P) => N >= 7 ? N * (P + 5) : N * P, N => N >= 7 ? "" : "needs 7 attackers"],
+    ["Triumph of the Hordes", 4, (N, P) => N * (P + 1), "poison"],
+    ["Overwhelming Stampede", 5, (N, P, B) => N * (P + B), ""],
+    ["Jazal Goldmane, 1 activation", 5, (N, P) => N * (P + N), "Jazal must attack"],
+    ["Return of the Wildspeaker", 5, (N, P) => N * (P + 3), "non-Humans only"],
+    ["Mirror Entity, X=6", 6, N => N * 6, "counters add on top"],
+    ["Craterhoof Behemoth", 8, (N, P) => N * P + 5 + (N + 1) * (N + 1), "Hoof attacks too"],
+    ["Finale of Devastation, X=10", 12, (N, P) => N * (P + 10), "plus a free creature"]
+  ];
+  function buildCalc() {
+    $("#calcBody").innerHTML = CALC_ROWS.map(([name, m], i) => {
+      const card = name.split(",")[0];
+      const nm = byName.has(card) ? `<button class="inline-card" type="button" data-card="${esc(card)}">${esc(name)}</button>` : esc(name);
+      return `<div class="lethal-row" data-r="${i}"><div class="lr-top"><span class="lr-name">${nm}</span><span class="lr-mana">${m ? m + " mana" : "free"}</span><span class="lr-dmg"></span></div>
+        <div class="lr-bar"><i></i><span class="tick" style="left:33.33%"></span><span class="tick" style="left:66.66%"></span></div>
+        <div class="lr-foot"><span class="lr-note"></span><span class="lr-res"></span></div></div>`;
+    }).join("");
+  }
   function calc() {
     const v = id => Math.max(0, parseInt($(id).value, 10) || 0);
     const N = Math.max(1, v("#cN")), P = v("#cP"), B = Math.max(v("#cB"), P), L = Math.max(1, v("#cL"));
-    const base = N * P;
-    const rows = [
-      ["Just attack", 0, base, ""],
-      ["Beastmaster Ascension", 3, N >= 7 ? N * (P + 5) : base, N >= 7 ? "" : "needs 7 attackers"],
-      ["Triumph of the Hordes", 4, N * (P + 1), "poison"],
-      ["Overwhelming Stampede", 5, N * (P + B), ""],
-      ["Jazal Goldmane, 1 activation", 5, N * (P + N), "Jazal must attack"],
-      ["Return of the Wildspeaker", 5, N * (P + 3), "non-Humans only"],
-      ["Mirror Entity, X=6", 6, N * 6, "counters add on top"],
-      ["Craterhoof Behemoth", 8, base + 5 + (N + 1) * (N + 1), "Hoof attacks too"],
-      ["Finale of Devastation, X=10", 12, N * (P + 10), "plus a free creature"]
-    ];
-    $("#calcBody").innerHTML = rows.map(([name, m, dmg, note]) => {
-      let kills;
-      if (note === "poison") kills = Math.min(3, Math.floor(dmg / 10));
-      else kills = Math.min(3, Math.floor(dmg / L));
-      const res = kills >= 3 ? `<span class="verdict win">Kills the table</span>` : kills > 0 ? `<span class="verdict win">Kills ${kills} of 3</span>` : `<span class="verdict no">Not lethal</span>`;
-      const card = name.split(",")[0].replace(" Behemoth", " Behemoth");
-      const nm = byName.has(card) ? `<button class="inline-card" type="button" data-card="${esc(card)}">${esc(name)}</button>` : esc(name);
-      return `<tr><td>${nm}${note && note !== "poison" ? `<br><span class="muted" style="font-size:.8rem">${note}</span>` : note === "poison" ? `<br><span class="muted" style="font-size:.8rem">${dmg} poison total</span>` : ""}</td><td class="num">${m || "–"}</td><td class="num">${note === "poison" ? "☠ " + dmg : dmg}</td><td>${res}</td></tr>`;
-    }).join("");
+    CALC_ROWS.forEach(([, , f, noteF], i) => {
+      const row = $(`[data-r="${i}"]`, $("#calcBody"));
+      const dmg = f(N, P, B);
+      const note = typeof noteF === "function" ? noteF(N) : noteF;
+      const poison = note === "poison";
+      const need = poison ? 10 : L;
+      const kills = Math.min(3, Math.floor(dmg / need));
+      row.classList.toggle("win", kills > 0); row.classList.toggle("all", kills >= 3);
+      $(".lr-dmg", row).textContent = poison ? "☠ " + dmg : dmg;
+      $(".lr-bar i", row).style.setProperty("--w", Math.min(100, (dmg / (need * 3)) * 100) + "%");
+      $(".lr-note", row).textContent = poison ? `${dmg} poison total` : note;
+      $(".lr-res", row).innerHTML = kills >= 3 ? `<span class="verdict win">Kills the table</span>` : kills > 0 ? `<span class="verdict win">Kills ${kills} of 3</span>` : `<span class="verdict no">Not lethal</span>`;
+    });
   }
   $$(".calc-inputs input").forEach(i => i.addEventListener("input", calc));
-  document.addEventListener("click", e => {
-    const b = e.target.closest("[data-step]"); if (!b) return;
-    const [k, d] = b.dataset.step.split(":");
-    const inp = $({ n: "#cN", p: "#cP", b: "#cB", l: "#cL" }[k]);
-    inp.value = Math.max(+inp.min, Math.min(+inp.max, (parseInt(inp.value, 10) || 0) + +d));
-    calc();
-  });
+  (function steppers() {
+    let hold = null;
+    const step = b => {
+      const [k, d] = b.dataset.step.split(":");
+      const inp = $({ n: "#cN", p: "#cP", b: "#cB", l: "#cL" }[k]);
+      inp.value = Math.max(+inp.min, Math.min(+inp.max, (parseInt(inp.value, 10) || 0) + +d));
+      calc();
+    };
+    const stop = () => { if (hold) { clearTimeout(hold.t); clearInterval(hold.i); hold = null; } };
+    // Mouse steps on press; touch steps on release so scrolling past a stepper never changes it.
+    // Holding either one repeats.
+    document.addEventListener("pointerdown", e => {
+      const b = e.target.closest("[data-step]"); if (!b || e.button > 0) return;
+      stop();
+      const touch = e.pointerType !== "mouse";
+      if (!touch) step(b);
+      hold = { b, touch, held: false, t: setTimeout(() => { hold.held = true; step(b); hold.i = setInterval(() => step(b), 70); }, 420) };
+    });
+    window.addEventListener("pointerup", e => { if (hold && hold.touch && !hold.held && e.target.closest && e.target.closest("[data-step]") === hold.b) step(hold.b); }, true);
+    ["pointerup", "pointercancel", "pointerleave", "blur"].forEach(ev => window.addEventListener(ev, stop, true));
+    document.addEventListener("click", e => { const b = e.target.closest("[data-step]"); if (b && e.detail === 0) step(b); }); // keyboard
+    document.addEventListener("contextmenu", e => { if (e.target.closest("[data-step]")) e.preventDefault(); });
+  })();
 
   /* ---------------------------------------------------------------- hand trainer */
   const LIBRARY = CARDS.filter(c => !c.roles.includes("cmd")).flatMap(c => Array(c.qty).fill(c));
@@ -475,7 +862,7 @@
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   function newHand(isMull) {
     mulls = isMull ? mulls + 1 : 0;
-    deck = shuffle(LIBRARY.slice()); hand = deck.splice(0, 7); drawHand();
+    deck = shuffle(LIBRARY.slice()); hand = deck.splice(0, 7); drawHand(true);
   }
   function verdict() {
     const opening = hand.slice(0, 7);
@@ -494,51 +881,156 @@
     else { cls = "keep"; head = "Keep"; why = `${L} lands, ${ramp} cheap ramp, ${cheap} play${cheap > 1 ? "s" : ""} at 3 mana or less.`; }
     const el = $("#handVerdict");
     el.className = "hand-verdict " + cls;
-    el.innerHTML = `<b>${head}</b><span>${why}${botTxt}</span>${hand.length > 7 ? `<span class="muted">Drew ${hand.length - 7} since the opener.</span>` : ""}`;
+    el.innerHTML = `<span class="stamp">${cls === "keep" ? "KEEP" : "MULL"}</span><b>${head}</b><span>${why}${botTxt}</span>${hand.length > 7 ? `<span class="muted">Drew ${hand.length - 7} since the opener.</span>` : ""}`;
   }
-  function drawHand() {
-    $("#hand").innerHTML = hand.map(c => `<button class="slot" type="button" data-card="${esc(c.name)}"><div class="mini-card" data-art="${esc(c.name)}">${miniCard(c)}</div></button>`).join("");
+  const slotHTML = (c, i, cls) => `<button class="slot ${cls}" type="button" data-card="${esc(c.name)}" style="--i:${i}" aria-label="${esc(c.name)}"><span class="mini-card" data-art="${esc(c.name)}">${miniCard(c)}</span></button>`;
+  function drawHand(deal) {
+    const h = $("#hand");
+    h.innerHTML = hand.map((c, i) => slotHTML(c, i, deal ? "deal" : "")).join("");
+    h.classList.toggle("more", hand.length > 7);
+    h.scrollLeft = 0;
     verdict();
   }
   $("#drawHand").addEventListener("click", () => newHand(false));
   $("#mullHand").addEventListener("click", () => newHand(true));
-  $("#drawOne").addEventListener("click", () => { if (deck.length) { hand.push(deck.shift()); drawHand(); } });
+  $("#drawOne").addEventListener("click", () => {
+    if (!deck.length) return;
+    const c = deck.shift(); hand.push(c);
+    const h = $("#hand");
+    h.insertAdjacentHTML("beforeend", slotHTML(c, 0, "drawn"));
+    h.classList.toggle("more", hand.length > 7);
+    h.scrollTo({ left: h.scrollWidth, behavior: mqReduce.matches ? "auto" : "smooth" });
+    verdict();
+  });
 
-  /* ---------------------------------------------------------------- swaps table */
+  /* ---------------------------------------------------------------- swaps checklist */
+  const SWAP_ORDER = ["Overwhelming Stampede", "Beastmaster Ascension", "Intangible Virtue", "Mirror Entity", "Beast Within", "Adeline, Resplendent Cathar", "Spike Feeder", "Jazal Goldmane", "Elspeth, Sun's Champion", "Esika's Chariot", "Arcane Signet", "Elvish Mystic", "Crashing Drawbridge", "Return of the Wildspeaker", "Generous Gift", "Razorverge Thicket", "Heliod, Sun-Crowned", "Walking Ballista", "Cathars' Crusade", "Hero of Bladehold", "Triumph of the Hordes", "Craterhoof Behemoth"];
+  const BOUGHT_KEY = "mikuWiki.bought.v1";
+  let bought = new Set();
+  try { bought = new Set(JSON.parse(store.get(BOUGHT_KEY) || "[]")); } catch (e) { /* ignore */ }
   function renderSwaps() {
-    const order = ["Overwhelming Stampede", "Beastmaster Ascension", "Intangible Virtue", "Mirror Entity", "Beast Within", "Adeline, Resplendent Cathar", "Spike Feeder", "Jazal Goldmane", "Elspeth, Sun's Champion", "Esika's Chariot", "Arcane Signet", "Elvish Mystic", "Crashing Drawbridge", "Return of the Wildspeaker", "Generous Gift", "Razorverge Thicket", "Heliod, Sun-Crowned", "Walking Ballista", "Cathars' Crusade", "Hero of Bladehold", "Triumph of the Hordes", "Craterhoof Behemoth"];
-    const tiers = { 0: "Cheap core · ~25€", 16: "The infinite-damage combo · ~24€", 18: "Power · ~12€", 20: "Splurge · ~33€" };
+    const tiers = { 0: ["Cheap core", "~25€"], 16: ["The infinite-damage combo", "~24€"], 18: ["Power", "~12€"], 20: ["Splurge", "~33€"] };
     let total = 0;
-    $("#swapBody").innerHTML = order.map((n, i) => {
+    $("#swapBody").innerHTML = SWAP_ORDER.map((n, i) => {
       const c = byName.get(n); total += c.eur;
       const cm = "https://www.cardmarket.com/en/Magic/Products/Search?searchString=" + encodeURIComponent(n);
-      return (tiers[i] ? `<tr><th colspan="4">${tiers[i]}</th></tr>` : "") +
-        `<tr><td class="num">${i + 1}</td><td class="muted">${esc(c.cut)}</td><td><button class="inline-card" type="button" data-card="${esc(n)}">${esc(n)}</button></td><td class="num"><a href="${cm}" target="_blank" rel="noopener">${c.eur.toFixed(2)}</a></td></tr>`;
-    }).join("") + `<tr><td></td><td></td><td><b>Total, all 22</b></td><td class="num"><b>~${Math.round(total)}</b></td></tr>`;
+      return (tiers[i] ? `<div class="tier"><span>${tiers[i][0]}</span><span>${tiers[i][1]}</span></div>` : "") +
+        `<div class="swap${bought.has(n) ? " done" : ""}" data-swap="${esc(n)}">
+          <button class="tick" type="button" aria-pressed="${bought.has(n)}" aria-label="I own ${esc(n)}"><span><em>${i + 1}</em><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>
+          <div class="who"><span class="cut">${esc(c.cut)}</span><span class="add"><button class="inline-card" type="button" data-card="${esc(n)}">${esc(n)}</button></span></div>
+          <a class="eur" href="${cm}" target="_blank" rel="noopener" aria-label="${c.eur.toFixed(2)} euros, search Cardmarket">${c.eur.toFixed(2)}</a></div>`;
+    }).join("") + `<div class="swap-total"><span>Total, all 22</span><span>~${Math.round(total)}€</span></div>`;
+    swapProgress();
+  }
+  function swapProgress() {
+    const all = SWAP_ORDER.map(n => byName.get(n));
+    const got = all.filter(c => bought.has(c.name));
+    const spent = got.reduce((s, c) => s + c.eur, 0), total = all.reduce((s, c) => s + c.eur, 0);
+    const next = all.find(c => !bought.has(c.name));
+    $("#swapProgress").innerHTML = `<div class="sp-top"><span><b>${got.length}</b> of 22 bought</span><span class="mono">${Math.round(spent)}€ / ~${Math.round(total)}€</span></div>
+      <div class="sp-bar"><i style="--w:${(got.length / 22) * 100}%"></i></div>
+      <div class="sp-top"><span>${next ? `Next: ${esc(next.name)}` : "Every upgrade is in. Enjoy the deck."}</span>${got.length ? '<button type="button" id="swapReset">Clear ticks</button>' : ""}</div>`;
+  }
+  $("#swapBody").addEventListener("click", e => {
+    const t = e.target.closest(".tick"); if (!t) return;
+    const row = t.closest("[data-swap]"), n = row.dataset.swap;
+    if (bought.has(n)) bought.delete(n); else bought.add(n);
+    row.classList.toggle("done", bought.has(n));
+    t.setAttribute("aria-pressed", String(bought.has(n)));
+    store.set(BOUGHT_KEY, JSON.stringify([...bought]));
+    swapProgress();
+  });
+  $("#swapProgress").addEventListener("click", e => {
+    if (!e.target.closest("#swapReset")) return;
+    bought.clear(); store.set(BOUGHT_KEY, "[]"); renderSwaps(); toast("Ticks cleared");
+  });
+
+  /* ---------------------------------------------------------------- tables that stack on phones */
+  $$("table.stack").forEach(t => {
+    const heads = $$("thead th", t).map(th => th.textContent.trim());
+    $$("tbody tr", t).forEach(tr => $$("td", tr).forEach((td, i) => td.setAttribute("data-label", heads[i] || "")));
+  });
+
+  /* ---------------------------------------------------------------- motion that carries meaning */
+  // the hero waveform: deterministic "voice" bars that sing while the hero is on screen
+  (function wave() {
+    const w = $("#wave"); let seed = 7;
+    const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    w.innerHTML = Array.from({ length: 44 }, (_, i) => {
+      const env = Math.sin(Math.PI * (i + .5) / 44) * .7 + .3;
+      const h = (.15 + rnd() * .45) * env, h2 = Math.min(1, (.45 + rnd() * .55) * env + .1);
+      return `<i style="--h:${h.toFixed(2)};--h2:${h2.toFixed(2)};--d:${(-rnd() * 1.4).toFixed(2)}s"></i>`;
+    }).join("");
+    if (mqReduce.matches || !("IntersectionObserver" in window)) return;
+    new IntersectionObserver(es => es.forEach(en => w.classList.toggle("live", en.isIntersecting))).observe(w);
+  })();
+  function countUp(el) {
+    const to = parseFloat(el.dataset.count), dec = +(el.dataset.dec || 0);
+    if (mqReduce.matches) return;
+    const t0 = performance.now(), dur = 1100;
+    const f = t => {
+      const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = (to * e).toFixed(dec);
+      if (p < 1) requestAnimationFrame(f);
+    };
+    el.textContent = (0).toFixed(dec);
+    requestAnimationFrame(f);
+  }
+  const flowEl = $(".flow");
+  function flowFill() {
+    if (mqReduce.matches || !flowEl.offsetParent) return;
+    const r = flowEl.getBoundingClientRect(), vh = window.innerHeight;
+    const wide = !mqMobile.matches && window.innerWidth >= 820;
+    const p = wide ? (vh * .9 - r.top) / (vh * .5) : (vh * .7 - r.top) / r.height;
+    flowEl.style.setProperty("--fill", Math.max(0, Math.min(1, p)).toFixed(3));
+  }
+  function reveals() {
+    const run = el => {
+      if (el.matches("[data-count]")) countUp(el);
+      else if (el.id === "eq") el.classList.add("lit");
+      else if (el.id === "typebars") $$(".bar", el).forEach(b => b.style.width = b.dataset.w);
+      else if (el.classList.contains("budget-bar")) el.classList.add("in");
+    };
+    const els = $$("[data-count], #eq, #typebars, .budget-bar");
+    if (!("IntersectionObserver" in window) || mqReduce.matches) {
+      els.forEach(el => { if (!el.matches("[data-count]")) run(el); });
+      return;
+    }
+    const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { io.unobserve(en.target); run(en.target); } }), { threshold: .35 });
+    els.forEach(el => io.observe(el));
   }
 
   /* ---------------------------------------------------------------- theme */
-  const root = document.documentElement;
   const savedTheme = store.get("mikuWiki.theme");
-  if (savedTheme === "dark" || savedTheme === "light") root.dataset.theme = savedTheme;
+  const themeColor = () => getComputedStyle(root).getPropertyValue("--bg").trim();
+  function syncThemeMeta() { $$('meta[name="theme-color"]').forEach(m => m.setAttribute("content", themeColor())); }
+  if (savedTheme === "dark" || savedTheme === "light") { root.dataset.theme = savedTheme; syncThemeMeta(); }
   $("#themeBtn").addEventListener("click", () => {
     const dark = root.dataset.theme ? root.dataset.theme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
     root.dataset.theme = dark ? "light" : "dark";
     store.set("mikuWiki.theme", root.dataset.theme);
+    syncThemeMeta();
   });
 
   /* ---------------------------------------------------------------- boot */
   linkMentions();
   manaText(document.querySelector("main"));
+  if (!mqMobile.matches) $$("details[data-auto-open]").forEach(d => d.open = true);
   renderSetlist();
   renderCurve();
   renderList();
   renderSwaps();
   ballistaSim();
   feederSim();
+  buildCalc();
   calc();
   newHand(false);
   route();
   paintArt();
+  bindTilt(document);
+  reveals();
   loadArt();
+  if ("serviceWorker" in navigator && location.protocol === "https:" && /github\.io$|^localhost$/.test(location.hostname)) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => { /* offline mode is optional */ }));
+  }
 })();
