@@ -242,9 +242,12 @@
     shuffleArr(a) { for (let i = a.length - 1; i > 0; i--) { const j = this.rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
     /* ------------------------------------------------ characteristics */
+    /* permanents with static abilities, cached per state version (every change to the battlefield bumps it) */
     staticSources() {
+      if (this._ssv === this.v && this._ss) return this._ss;
       const out = [];
       for (const o of this.battlefield) if (o.def.statics.length || o.def.levels || this.roomStatics(o).length) out.push(o);
+      this._ss = out; this._ssv = this.v;
       return out;
     }
     roomStatics(o) {
@@ -256,6 +259,7 @@
       return out;
     }
     staticsOf(o) {
+      if (!o.def.doors && !o.def.levels) return o.def.statics;
       const out = o.def.statics.slice();
       if (o.def.doors) out.push(...this.roomStatics(o));
       if (o.def.levels) { const lv = o.state.level || 1; o.def.levels.forEach((L, i) => { if (i < lv && L.statics) out.push(...L.statics); }); }
@@ -673,7 +677,7 @@
       const made = this.enterMany(list);
       if (opts.exileEoc) for (const o of made) o.state.exileEoc = true;
       if (opts.sacEnd) for (const o of made) this.delayed.push({ at: "endStep", once: true, do: g => { if (o.zone === "battlefield") g.sacrifice(o); } });
-      this.log(`${p.name} creates ${n > 1 ? n + " " : "a "}${def.name}${def.pt && def.types.includes("Creature") ? " " + def.pt.join("/") : ""} token${n > 1 ? "s" : ""}.`, { p, cards: [def.name], kind: "token" });
+      this.log(`${p.name} creates ${n > 1 ? n + " " : /^[AEIOU]/i.test(def.name) ? "an " : "a "}${def.name}${def.pt && def.types.includes("Creature") ? " " + def.pt.join("/") : ""} token${n > 1 ? "s" : ""}.`, { p, cards: [def.name], kind: "token" });
       return made;
     }
     /* Token copy of an object's copiable values (not counters, damage or tapped state). */
@@ -2017,8 +2021,16 @@
       const text = { life: "has no life left", poison: "has 10 poison counters", commander: "took 21 commander damage", library: "had to draw from an empty library", concede: "conceded", alt: "lost to an alternate win" }[why] || "lost";
       this.log(`${p.name} ${text} and is out of the game.`, { p, kind: "lose" });
       this.anim("lose", { p, why });
-      // their things leave the game
-      for (const o of this.battlefield.slice()) if (o.owner === p || o.controller === p) { this.removeFromZone(o); o.zone = "gone"; if (this.combat) this.removeFromCombat(o); }
+      // their things leave the game, and things they control but don't own go back to their owners
+      for (const o of this.battlefield.slice()) {
+        if (o.owner !== p && o.controller !== p) continue;
+        if (this.combat) this.removeFromCombat(o);
+        if (o.owner === p || o.owner.lost) { this.removeFromZone(o); o.zone = "gone"; continue; }
+        o.controller = o.owner; o.sick = true; delete o.state.dieAtEnd;
+        this.log(`${o.def.name} returns to ${o.owner.name}.`, { p: o.owner, cards: [o.def.name] });
+      }
+      // Equipment left on the battlefield falls off whatever just left (Auras go to the graveyard with the next check)
+      for (const o of this.battlefield) if (o.attachedTo && o.attachedTo.zone !== "battlefield" && !o.def.aura) o.attachedTo = null;
       this.stack = this.stack.filter(it => it.p !== p);
       this.bump();
       this.emit("playerLost", { p });
@@ -2045,13 +2057,15 @@
     async play() {
       await this.mulligans();
       this.round = 1;
+      // a round ends when play passes the seat that went first, which need not be seat 0
+      const n = this.players.length, first = this.activeIdx, seat = i => (i - first + n) % n;
       while (!this.over) {
         const p = this.active;
         if (!p.lost) await this.takeTurn(p);
         if (this.over) break;
         if (this.turn >= this.maxTurns) { this.log("The turn limit was reached. The game is a draw."); this.end(null, { draw: true }); break; }
         const next = this.nextPlayer(p);
-        if (next.idx <= p.idx) this.round++;
+        if (seat(next.idx) <= seat(p.idx)) this.round++;
         this.activeIdx = next.idx;
       }
       return this.winner;

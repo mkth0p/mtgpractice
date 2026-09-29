@@ -743,7 +743,7 @@
       switch (req.type) {
         case "confirm": {
           if (pur === "demonstrate") return false;
-          if (pur === "brambleCopy") return !!req.target && req.target.controller === p && value(g, req.target) >= 4;
+          if (pur === "brambleCopy") return !!req.target && req.target.controller === p && !req.target.def.supertypes.includes("Legendary") && value(g, req.target) >= 4;
           if (def && def.ai && def.ai.confirm) { try { return !!def.ai.confirm(g, p, req); } catch (e) { return true; } }
           return true;
         }

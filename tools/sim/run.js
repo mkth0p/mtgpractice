@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /* Headless games between bots, to test the Miku game engine, the cards and the bot decks.
-   node tools/sim/run.js --games 50 --seed 1 --decks miku,random --players 4 [--strict] [--verbose]
-   Prints win rates, game lengths and any engine errors or broken invariants. */
+   node tools/sim/run.js --games 50 --seed 1 --decks miku,random --players 4 [--strict] [--verbose] [--first random]
+   Prints win rates, game lengths and any engine errors or broken invariants.
+   In --decks, "random" is any bot deck, "random2" a Bracket 2 precon and "random4" a Bracket 4 deck.
+   --first random picks who goes first at random, like the Play tab does (the default is the first seat). */
 "use strict";
 const path = require("path");
 const dir = path.join(__dirname, "../../miku/game");
@@ -9,9 +11,10 @@ require(path.join(dir, "engine.js"));
 require(path.join(dir, "cards-miku.js"));
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf("--" + k); return i < 0 ? d : (args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : true); };
-// --files decks-krenko.js,decks-edgar.js loads only those deck files (default: all of them)
+// --files decks-krenko.js,precon-lathril.js loads only those deck files (default: all of them).
+// Bracket 4 decks (decks-*.js) load before the precons (precon-*.js), as on the site, so their cards win.
 const onlyFiles = opt("files", null);
-for (const f of require("fs").readdirSync(dir).filter(f => /^(cards|decks)-.*\.js$/.test(f) && f !== "cards-miku.js").sort()) {
+for (const f of require("fs").readdirSync(dir).filter(f => /^(cards|decks|precon)-.*\.js$/.test(f) && f !== "cards-miku.js").sort()) {
   if (onlyFiles && !String(onlyFiles).split(",").includes(f)) continue;
   try { require(path.join(dir, f)); } catch (e) { console.error(`Could not load ${f}: ${e.message}`); }
 }
@@ -24,6 +27,7 @@ const STRICT = !!opt("strict", false);
 const VERBOSE = !!opt("verbose", false);
 const LOGGAME = opt("log", null);
 const MAXTURNS = +opt("turns", 80);
+const FIRST = opt("first", "0");
 
 function deckPool() {
   const pool = { miku: MK.MIKU_DECK };
@@ -74,6 +78,7 @@ async function runOne(seed, seats) {
     log(e) { if (LOGGAME) console.log(`  t${e.turn} ${e.text}`); }
   };
   g = new MK.Game({ seed, players, strict: STRICT, maxTurns: MAXTURNS, ui });
+  g.activeIdx = FIRST === "random" ? g.rand(players.length) : (+FIRST || 0) % players.length;
   for (const p of g.players) p.startCards = p.library.length + p.command.length;
   const origWarn = g.warn.bind(g);
   g.warn = (err, o) => { errors.push(`${o && o.def ? o.def.name : "?"}: ${err && err.stack ? err.stack.split("\n").slice(0, 3).join(" | ") : err}`); if (STRICT) throw err; };
@@ -97,8 +102,9 @@ async function runOne(seed, seats) {
     const out = [];
     for (let k = 0; k < PLAYERS; k++) {
       const w = wanted[k % wanted.length];
-      if (w === "random") {
-        const ids = Object.keys(pool).filter(id => id !== "miku");
+      if (/^random[24]?$/.test(w)) {
+        const br = +w.slice(6) || 0;
+        const ids = Object.keys(pool).filter(id => id !== "miku" && (!br || (pool[id].bracket || 4) === br));
         out.push(pool[ids[(SEED * 7919 + i * 31 + k * 17) % ids.length]] || pool.miku);
       } else out.push(pool[w] || pool.miku);
     }

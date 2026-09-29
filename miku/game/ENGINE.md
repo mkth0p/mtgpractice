@@ -253,6 +253,12 @@ An action returned by a plan looks like `{ type: "cast", card, targets, x, alt }
 
 ## Deck files
 
+Bracket 4 decks live in `decks-<id>.js` and Bracket 2 precons in `precon-<id>.js`. Both load
+after `cards-miku.js`, the Bracket 4 files first, then the precons, in alphabetical order (the
+site's `GAME_FILES` in `app.js`, `GAME` in `sw.js` and `tools/sim/run.js` all use that order). A card
+defined in two files keeps the first definition, so a precon only defines cards nobody else has.
+The lobby deals from the precons, the Bracket 4 decks or both, using each deck's `bracket`.
+
 ```js
 (function (root) {
   "use strict";
@@ -263,6 +269,7 @@ An action returned by a plan looks like `{ type: "cast", card, targets, x, alt }
     identity: ["R"], bracket: 4, aggression: 0.7,
     style: "Goblin swarm", blurb: "One sentence a player reads before the game.",
     watch: ["Kiki-Jiki, Mirror Breaker", "Goblin Bombardment"],   // cards to watch out for
+    // precon: "Elven Empire (Kaldheim Commander, 2021)",         // Bracket 2 decks: the retail precon it is based on
     list: [ ...99 card names, basics repeated... ]
   });
 })(typeof window !== "undefined" ? window : globalThis);
@@ -272,6 +279,7 @@ An action returned by a plan looks like `{ type: "cast", card, targets, x, alt }
 
 ```
 node tools/sim/run.js --games 40 --decks krenko,miku,random,random --players 4
+node tools/sim/run.js --games 40 --decks miku,random2,random2,random2 --first random   # random2: precons, random4: Bracket 4
 node tools/sim/run.js --games 1 --seed 7 --decks krenko,miku --players 2 --log 1   # full game log
 node tools/sim/run.js --games 20 --decks krenko --strict                           # throw on the first error
 ```
