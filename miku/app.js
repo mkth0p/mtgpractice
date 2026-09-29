@@ -11,7 +11,7 @@
   const GLOSSARY = window.MIKU_GLOSSARY || [];
   const CUTS = window.MIKU_CUTS || [];
   const FAQ = window.MIKU_FAQ || [];
-  const V = "6"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  const V = "7"; // asset version: keep in step with the ?v= links in index.html and sw.js
   const byName = new Map(CARDS.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -1341,7 +1341,10 @@
   }
   // Results of headless games between bots, from tools/sim/run.js: Miku against three random precons,
   // and against three random Bracket 4 decks. Each is { games, wins, rounds, medianWin, decks: [{ name, games, wins }] }.
-  const BOT_SIM = null;
+  const BOT_SIM = {
+    precon: { games: 400, wins: 160, rounds: 12.3, medianWin: 11, decks: [{ name: "Lathril", games: 240, wins: 101 }, { name: "Isperia", games: 240, wins: 99 }, { name: "Ghired", games: 240, wins: 95 }, { name: "Wilhelt", games: 240, wins: 95 }, { name: "Kaalia", games: 240, wins: 90 }] },
+    b4: { games: 400, wins: 113, rounds: 9.4, medianWin: 10, decks: [{ name: "Edgar", games: 240, wins: 76 }, { name: "Krenko", games: 240, wins: 71 }, { name: "Talrand", games: 240, wins: 69 }, { name: "Ur-Dragon", games: 240, wins: 62 }, { name: "Ghalta", games: 240, wins: 61 }] }
+  };
   function renderBotStats() {
     const sec = $("#vsbots"), el = $("#botStats");
     if (!sec || !el) return;
@@ -1487,7 +1490,7 @@
   }
 
   /* ---------------------------------------------------------------- Play: the game loads on demand */
-  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/decks-edgar.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/ai.js", "game/game-ui.js"];
+  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/decks-edgar.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/game-ui.js"];
   let gameP = null, gameMounted = false;
   function loadGame() {
     if (gameP) return gameP;

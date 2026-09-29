@@ -1307,9 +1307,10 @@ body[data-view="play"] .foot { display: none; }
   .ch-body { font-size: 18px; }
 
   .swap-progress { top: calc(var(--top-h) + var(--seg-h) + 12px) !important; }
-  .lobby { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 20px; }
+  .lobby { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto 1fr auto; align-items: start; gap: 20px; }
   .lobby-hero { grid-column: 1 / -1; padding: 40px 36px 34px; }
   .lobby-setup { grid-column: 1; grid-row: 2 / span 2; }
+  .bot-picks { flex-wrap: wrap; overflow: visible; }
   .lobby-record { grid-column: 2; grid-row: 2; align-self: start; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .bot-pool { grid-column: 1 / -1; grid-row: 4; }
   .bot-gallery { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }

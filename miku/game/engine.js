@@ -242,9 +242,12 @@
     shuffleArr(a) { for (let i = a.length - 1; i > 0; i--) { const j = this.rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
     /* ------------------------------------------------ characteristics */
+    /* permanents with static abilities, cached per state version (every change to the battlefield bumps it) */
     staticSources() {
+      if (this._ssv === this.v && this._ss) return this._ss;
       const out = [];
       for (const o of this.battlefield) if (o.def.statics.length || o.def.levels || this.roomStatics(o).length) out.push(o);
+      this._ss = out; this._ssv = this.v;
       return out;
     }
     roomStatics(o) {
@@ -256,6 +259,7 @@
       return out;
     }
     staticsOf(o) {
+      if (!o.def.doors && !o.def.levels) return o.def.statics;
       const out = o.def.statics.slice();
       if (o.def.doors) out.push(...this.roomStatics(o));
       if (o.def.levels) { const lv = o.state.level || 1; o.def.levels.forEach((L, i) => { if (i < lv && L.statics) out.push(...L.statics); }); }
@@ -673,7 +677,7 @@
       const made = this.enterMany(list);
       if (opts.exileEoc) for (const o of made) o.state.exileEoc = true;
       if (opts.sacEnd) for (const o of made) this.delayed.push({ at: "endStep", once: true, do: g => { if (o.zone === "battlefield") g.sacrifice(o); } });
-      this.log(`${p.name} creates ${n > 1 ? n + " " : "a "}${def.name}${def.pt && def.types.includes("Creature") ? " " + def.pt.join("/") : ""} token${n > 1 ? "s" : ""}.`, { p, cards: [def.name], kind: "token" });
+      this.log(`${p.name} creates ${n > 1 ? n + " " : /^[AEIOU]/i.test(def.name) ? "an " : "a "}${def.name}${def.pt && def.types.includes("Creature") ? " " + def.pt.join("/") : ""} token${n > 1 ? "s" : ""}.`, { p, cards: [def.name], kind: "token" });
       return made;
     }
     /* Token copy of an object's copiable values (not counters, damage or tapped state). */
