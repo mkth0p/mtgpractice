@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cards.scryfall.io" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Dela+Gothic+One&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,700;1,400&display=swap">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -75,7 +75,7 @@
       <dl class="stats">
         <div class="stat"><dt><b data-count="100">100</b></dt><dd>cards, 34 lands, 14 of them Miku-art basics</dd></div>
         <div class="stat"><dt><b data-count="3.3" data-dec="1">3.3</b></dt><dd>average mana value of the nonland cards</dd></div>
-        <div class="stat"><dt><b>T7–9</b></dt><dd>typical kill turn at a 4-player table</dd></div>
+        <div class="stat"><dt><b>T7–9</b></dt><dd>typical kill turn at a 4-player table (median 9 in the speed test)</dd></div>
         <div class="stat"><dt><b>6.5–7</b></dt><dd>out of 10 on the old power scale</dd></div>
       </dl>
     </div>
@@ -112,6 +112,29 @@
           <div class="typebars" id="typebars"></div>
         </div>
       </div>
+    </section>
+
+    <section class="block" id="speed" data-sub="Speed test">
+      <div class="section-head">
+        <p class="eyebrow">Speed test</p>
+        <h2>How fast it kills</h2>
+        <p class="muted">5,000 simulated solo games of the final 100 cards against three opponents at 40 life, with no blockers and no removal. Real games are slower, so read these as a ceiling. Tap a bar for the details.</p>
+      </div>
+      <div class="split">
+        <div class="eq-card">
+          <div class="eq-head"><b>Games won by the end of turn…</b><span class="muted mono small">median turn 9</span></div>
+          <div class="speed" id="speedChart" role="group" aria-label="Share of games won by each turn"></div>
+          <div class="eq-readout speed-readout" id="speedReadout" aria-live="polite"></div>
+        </div>
+        <div class="eq-card">
+          <div class="eq-head"><b>How the games ended</b><span class="muted mono small">with combos</span></div>
+          <div class="typebars endings" id="endings"></div>
+          <p class="muted small">The combos add only a few points. The deck wins by going wide and growing its creatures with lifegain triggers.</p>
+        </div>
+      </div>
+      <details class="faq assumptions"><summary>What the test assumes</summary><div>
+        <p>You go first with no draw on turn 1, take one free mulligan, and keep 2 to 5 lands. Colors are ignored, and a simple AI casts the best card it can afford, holding Stampede, Triumph, Craterhoof and Return of the Wildspeaker until they win that turn. Removal never gets cast, so 8 cards do nothing here. A skilled player would do a bit better; real opponents make it slower.</p>
+      </div></details>
     </section>
 
     <section class="block" id="setlist-sec" data-sub="All 100">
@@ -415,6 +438,31 @@
       <div class="panel callout"><h3>Before you sit down</h3><p class="prose">Bracket 3 allows two-card infinite combos as long as they aren't early-game ones, which fits here. Mention Heliod + Walking Ballista at the pregame talk, since some tables ban any infinite. Game Changers limits change over time, so check the current official list against this deck before a bracketed event.</p></div>
     </section>
 
+    <section class="block" id="versus" data-sub="vs Etrata">
+      <div class="section-head">
+        <p class="eyebrow">Your other deck</p>
+        <h2>Miku vs Etrata</h2>
+        <p class="prose">They're close, and both are Bracket 3. The upgraded Miku deck is slightly ahead at about 6.5 to 7, with your Etrata, Deadly Fugitive deck from the <a href="../">Opening Lab</a> at about 6 to 6.5. Miku hits harder once it's set up. Etrata is faster, more interactive, and would give Miku a hard time head to head. This comes from reading both lists, not from playtesting.</p>
+      </div>
+      <div class="power duo" aria-hidden="true"><div class="power-track"><i class="etr" style="--from:60%;--to:65%"><em>Etrata</em></i><i style="--from:65%;--to:70%"><em>Miku</em></i></div><div class="power-scale"><span>1</span><span>casual</span><span>upgraded</span><span>optimized</span><span>cEDH 10</span></div></div>
+      <div class="vs" id="vsList">
+        <div class="vs-head"><span class="side m">Miku</span><span class="side e">Etrata</span></div>
+        <details class="vs-row" data-lean="m"><summary><span class="vs-cat">Finishers</span><span class="vs-meter"><i></i></span></summary><p>Craterhoof, Overwhelming Stampede, Triumph of the Hordes and Beastmaster Ascension each end the game by themselves once you have a board. Etrata's closers (Wound Reflection, Unstoppable Slasher, Strixhaven Stadium) need a few turns of hitting first.</p></details>
+        <details class="vs-row" data-lean="m"><summary><span class="vs-cat">Ramp</span><span class="vs-meter"><i></i></span></summary><p>Miku has mana creatures, land-ramp spells and rocks. Etrata runs rocks only.</p></details>
+        <details class="vs-row" data-lean="m"><summary><span class="vs-cat">Recovering from a wipe</span><span class="vs-meter"><i></i></span></summary><p>Trostani, Elspeth and the token makers rebuild quickly.</p></details>
+        <details class="vs-row" data-lean="e"><summary><span class="vs-cat">Speed</span><span class="vs-meter"><i></i></span></summary><p>Etrata costs 3 mana instead of 5 and starts cloaking cards from turn 4. Trostani does little until turn 5 or 6.</p></details>
+        <details class="vs-row" data-lean="e"><summary><span class="vs-cat">Interaction</span><span class="vs-meter"><i></i></span></summary><p>Etrata runs 4 counterspells, spot removal and Toxic Deluge. Miku has no counterspells and only one wrath.</p></details>
+        <details class="vs-row" data-lean="e"><summary><span class="vs-cat">Card flow</span><span class="vs-meter"><i></i></span></summary><p>Gix, Mask of Memory, Key to the City and Night's Whisper give Etrata much more card draw than Miku, which relies mostly on Skullclamp.</p></details>
+        <details class="vs-row" data-lean="e"><summary><span class="vs-cat">Evasion</span><span class="vs-meter"><i></i></span></summary><p>Etrata's assassins get past blockers. Miku mostly has to swing into boards.</p></details>
+        <details class="vs-row" data-lean="even"><summary><span class="vs-cat">Combos</span><span class="vs-meter"><i></i></span></summary><p>About even. Mindcrank + Duskmantle Guildmage and Heliod + Walking Ballista each take about 7 mana across two or three turns. Ramses adds a second win condition to Etrata on top of that.</p></details>
+      </div>
+      <div class="grid-2 vs-verdict">
+        <div class="panel verdict-card e"><span class="label">1 v 1</span><h3>Etrata is favoured</h3><p>It can counter or kill Trostani and the overrun cards.</p></div>
+        <div class="panel verdict-card m"><span class="label">4-player pod</span><h3>Miku is favoured</h3><p>Its overruns can knock out several players in one swing, while Etrata hits one player at a time.</p></div>
+      </div>
+      <p class="muted small">This compares the 22-swap Trostani list. The Azusa deck further down this tab is the plan for a stronger Miku deck.</p>
+    </section>
+
     <section class="block" id="budget" data-sub="Budget">
       <div class="section-head">
         <p class="eyebrow">Budget · 300€ cap</p>
@@ -440,7 +488,7 @@
       <div class="section-head">
         <p class="eyebrow">The 22 swaps</p>
         <h2>Cut this, add that</h2>
-        <p class="muted">In buying order. Stop when the budget runs out. Tap a card name for its wiki entry, or the price to search Cardmarket. Tick a swap once you own the card: your ticks stay on this device.</p>
+        <p class="muted">In buying order, starting with the sealed deck. Stop when the budget runs out. Tap a card name for its wiki entry, or the price to search Cardmarket. Tick what you've bought and the total updates against the 300€ budget. Your ticks stay on this device.</p>
       </div>
       <div class="swap-progress" id="swapProgress"></div>
       <div class="swaps" id="swapBody"></div>
@@ -471,6 +519,22 @@
         <li><div class="st-head"><span class="st-n">3</span><span class="st-eur mono">~330€</span></div><p>Scapeshift, Crucible of Worlds, Burgeoning, Green Sun's Zenith, Boseiju, Wasteland and more, plus the Game Changers Natural Order, Worldly Tutor and Seedborn Muse</p><span class="st-res">Bracket 4 (5 Game Changers)</span></li>
       </ol>
       <p class="muted small">Stages 1 to 3 add up to about 615€ on top of today's 300€. Beyond that, Chrome Mox, Ancient Tomb, Survival of the Fittest and Gaea's Cradle cost a lot for a small power gain, so they only make sense if you move to cEDH.</p>
+    </section>
+
+    <section class="block" id="azusa-list" data-sub="Azusa list">
+      <div class="section-head">
+        <p class="eyebrow">Azusa shopping list</p>
+        <h2>Buy it stage by stage</h2>
+        <p class="muted">Every card in each Azusa stage with its estimated price. Tick cards as you buy them. Prices are MTGGoldfish USD × 0.85, so check Cardmarket before buying.</p>
+      </div>
+      <div class="seg" role="tablist" aria-label="Azusa stage" id="azSeg">
+        <button type="button" role="tab" data-stage="s1" aria-selected="true">Stage 1<small>Playable</small></button>
+        <button type="button" role="tab" data-stage="s2" aria-selected="false">Stage 2<small>Strong B3</small></button>
+        <button type="button" role="tab" data-stage="s3" aria-selected="false">Stage 3<small>Bracket 4</small></button>
+      </div>
+      <div class="swap-progress" id="azProgress"></div>
+      <p class="muted small az-note" id="azNote"></p>
+      <div class="swaps az-list" id="azBody"></div>
     </section>
 
     <section class="block" id="bling" data-sub="Miku bling">
@@ -512,7 +576,8 @@
 <div class="peek" id="peek" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="cards.js"></script>
-<script src="app.js"></script>
+<script src="cards.js?v=3"></script>
+<script src="azusa.js?v=3"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

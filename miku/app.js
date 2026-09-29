@@ -903,47 +903,116 @@
     verdict();
   });
 
-  /* ---------------------------------------------------------------- swaps checklist */
-  const SWAP_ORDER = ["Overwhelming Stampede", "Beastmaster Ascension", "Intangible Virtue", "Mirror Entity", "Beast Within", "Adeline, Resplendent Cathar", "Spike Feeder", "Jazal Goldmane", "Elspeth, Sun's Champion", "Esika's Chariot", "Arcane Signet", "Elvish Mystic", "Crashing Drawbridge", "Return of the Wildspeaker", "Generous Gift", "Razorverge Thicket", "Heliod, Sun-Crowned", "Walking Ballista", "Cathars' Crusade", "Hero of Bladehold", "Triumph of the Hordes", "Craterhoof Behemoth"];
+  /* ---------------------------------------------------------------- buying checklists */
+  // One ticked set for every list on the page, saved on this device.
   const BOUGHT_KEY = "mikuWiki.bought.v1";
   let bought = new Set();
   try { bought = new Set(JSON.parse(store.get(BOUGHT_KEY) || "[]")); } catch (e) { /* ignore */ }
+  const saveBought = () => store.set(BOUGHT_KEY, JSON.stringify([...bought]));
+  const cmURL = n => "https://www.cardmarket.com/en/Magic/Products/Search?searchString=" + encodeURIComponent(n);
+  const eur = n => n >= 100 ? Math.round(n) + "€" : n.toFixed(2);
+  const TICK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  function itemHTML(it, i) {
+    const on = bought.has(it.id);
+    const name = byName.has(it.name) ? `<button class="inline-card" type="button" data-card="${esc(it.name)}">${esc(it.name)}</button>` : `<span>${esc(it.name)}</span>`;
+    const tags = (it.tags || []).map(t => `<span class="tag${t[1] ? " " + t[1] : ""}">${esc(t[0])}</span>`).join("");
+    return `<div class="swap${on ? " done" : ""}${it.cut ? "" : " plain"}" data-id="${esc(it.id)}">
+      <button class="tick" type="button" aria-pressed="${on}" aria-label="Bought ${esc(it.name)}"><span><em>${i + 1}</em>${TICK_SVG}</span></button>
+      <div class="who">${it.cut ? `<span class="cut">${esc(it.cut)}</span>` : ""}<span class="add">${name}</span>${it.note || tags ? `<span class="sub-note">${it.note ? esc(it.note) : ""}${tags}</span>` : ""}</div>
+      ${it.link === false ? `<span class="eur">${eur(it.eur)}</span>` : `<a class="eur" href="${cmURL(it.name)}" target="_blank" rel="noopener" aria-label="${it.eur.toFixed(2)} euros, search Cardmarket">${eur(it.eur)}</a>`}</div>`;
+  }
+  function checklist({ body, progress, items, tiers = {}, budget, budgetLabel, footer, done, extra }) {
+    const render = () => {
+      body.innerHTML = items.map((it, i) => (tiers[i] ? `<div class="tier"><span>${tiers[i][0]}</span><span>${tiers[i][1]}</span></div>` : "") + itemHTML(it, i)).join("") + (footer ? footer() : "");
+      update();
+    };
+    const update = () => {
+      const got = items.filter(it => bought.has(it.id));
+      const spent = got.reduce((s, it) => s + it.eur, 0), total = items.reduce((s, it) => s + it.eur, 0);
+      const next = items.find(it => !bought.has(it.id));
+      const cap = budget || total;
+      const over = budget && spent > budget;
+      progress.innerHTML = `<div class="sp-top"><span><b>${got.length}</b> of ${items.length} bought</span><span class="mono">${Math.round(spent)}€ / ${budgetLabel || "~" + Math.round(total) + "€"}</span></div>
+        <div class="sp-bar${over ? " over" : ""}"><i style="--w:${Math.min(100, (spent / cap) * 100)}%"></i></div>
+        <div class="sp-top"><span>${next ? `Next: ${esc(next.name)}` : esc(done)}</span>${got.length ? '<button type="button" data-clear>Clear ticks</button>' : ""}</div>${extra ? extra() : ""}`;
+    };
+    body.addEventListener("click", e => {
+      const t = e.target.closest(".tick"); if (!t) return;
+      const row = t.closest("[data-id]"), id = row.dataset.id;
+      if (bought.has(id)) bought.delete(id); else bought.add(id);
+      row.classList.toggle("done", bought.has(id));
+      t.setAttribute("aria-pressed", String(bought.has(id)));
+      saveBought(); update();
+    });
+    progress.addEventListener("click", e => {
+      if (!e.target.closest("[data-clear]")) return;
+      items.forEach(it => bought.delete(it.id)); saveBought(); render(); toast("Ticks cleared");
+    });
+    render();
+    return { render, update, set(newItems, newTiers) { items = newItems; tiers = newTiers || {}; render(); } };
+  }
+  const SWAP_ORDER = ["Overwhelming Stampede", "Beastmaster Ascension", "Intangible Virtue", "Mirror Entity", "Beast Within", "Adeline, Resplendent Cathar", "Spike Feeder", "Jazal Goldmane", "Elspeth, Sun's Champion", "Esika's Chariot", "Arcane Signet", "Elvish Mystic", "Crashing Drawbridge", "Return of the Wildspeaker", "Generous Gift", "Razorverge Thicket", "Heliod, Sun-Crowned", "Walking Ballista", "Cathars' Crusade", "Hero of Bladehold", "Triumph of the Hordes", "Craterhoof Behemoth"];
   function renderSwaps() {
-    const tiers = { 0: ["Cheap core", "~25€"], 16: ["The infinite-damage combo", "~24€"], 18: ["Power", "~12€"], 20: ["Splurge", "~33€"] };
-    let total = 0;
-    $("#swapBody").innerHTML = SWAP_ORDER.map((n, i) => {
-      const c = byName.get(n); total += c.eur;
-      const cm = "https://www.cardmarket.com/en/Magic/Products/Search?searchString=" + encodeURIComponent(n);
-      return (tiers[i] ? `<div class="tier"><span>${tiers[i][0]}</span><span>${tiers[i][1]}</span></div>` : "") +
-        `<div class="swap${bought.has(n) ? " done" : ""}" data-swap="${esc(n)}">
-          <button class="tick" type="button" aria-pressed="${bought.has(n)}" aria-label="I own ${esc(n)}"><span><em>${i + 1}</em><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>
-          <div class="who"><span class="cut">${esc(c.cut)}</span><span class="add"><button class="inline-card" type="button" data-card="${esc(n)}">${esc(n)}</button></span></div>
-          <a class="eur" href="${cm}" target="_blank" rel="noopener" aria-label="${c.eur.toFixed(2)} euros, search Cardmarket">${c.eur.toFixed(2)}</a></div>`;
-    }).join("") + `<div class="swap-total"><span>Total, all 22</span><span>~${Math.round(total)}€</span></div>`;
-    swapProgress();
+    const items = [{ id: "miku:precon", name: "Secret Lair Commander Deck: Hatsune Miku", eur: 200, note: "Sealed. Sold for 199.90€ on eBay.de; check what you pay.", link: false }]
+      .concat(SWAP_ORDER.map(n => { const c = byName.get(n); return { id: "miku:" + n, name: n, cut: c.cut, eur: c.eur }; }));
+    const swapTotal = items.slice(1).reduce((s, it) => s + it.eur, 0);
+    checklist({
+      body: $("#swapBody"), progress: $("#swapProgress"), items, budget: 300, budgetLabel: "300€ budget",
+      tiers: { 0: ["The deck", "~200€"], 1: ["Cheap core", "~25€"], 17: ["The infinite-damage combo", "~24€"], 19: ["Power", "~12€"], 21: ["Splurge", "~33€"] },
+      footer: () => `<div class="swap-total"><span>Deck + all 22 swaps</span><span>~${Math.round(200 + swapTotal)}€</span></div>`,
+      done: "Deck bought and every upgrade in. Enjoy it."
+    });
   }
-  function swapProgress() {
-    const all = SWAP_ORDER.map(n => byName.get(n));
-    const got = all.filter(c => bought.has(c.name));
-    const spent = got.reduce((s, c) => s + c.eur, 0), total = all.reduce((s, c) => s + c.eur, 0);
-    const next = all.find(c => !bought.has(c.name));
-    $("#swapProgress").innerHTML = `<div class="sp-top"><span><b>${got.length}</b> of 22 bought</span><span class="mono">${Math.round(spent)}€ / ~${Math.round(total)}€</span></div>
-      <div class="sp-bar"><i style="--w:${(got.length / 22) * 100}%"></i></div>
-      <div class="sp-top"><span>${next ? `Next: ${esc(next.name)}` : "Every upgrade is in. Enjoy the deck."}</span>${got.length ? '<button type="button" id="swapReset">Clear ticks</button>' : ""}</div>`;
+  function renderAzusa() {
+    const A = window.MIKU_AZUSA; if (!A) return;
+    const NOTES = {
+      s1: "Miku Azusa, Craterhoof, the Dark Depths + Thespian's Stage combo with its tutors, every card under about 9€, and 24 Forests. Fill the 9 empty slots with Forests or cards borrowed from the Trostani deck.",
+      s2: "Finishes the budget list. After this the deck has 2 Game Changers (Crop Rotation, Field of the Dead): a strong Bracket 3.",
+      s3: "The Bracket 4 push. Cut Arboreal Grazer, Traverse the Ulvenwald, Splendid Reclamation, Khalni Heart Expedition, Garruk's Uprising, Rampant Growth, Explore, Harrow, Terramorphic Expanse and 4 Forests for them. Ends at 5 Game Changers."
+    };
+    const itemsOf = st => A[st].map(x => ({ id: "az" + st + ":" + x.n, name: x.n, eur: x.eur, note: x.note, tags: [x.gc ? ["Game Changer", "new"] : null, x.est ? ["price estimated"] : null].filter(Boolean), link: x.n !== "24 Forest" }));
+    const allItems = ["s1", "s2", "s3"].flatMap(itemsOf);
+    let st = store.get("mikuWiki.azStage") || "s1";
+    const list = checklist({
+      body: $("#azBody"), progress: $("#azProgress"), items: itemsOf(st),
+      done: "This stage is complete.",
+      extra: () => {
+        const spent = allItems.filter(it => bought.has(it.id)).reduce((s, it) => s + it.eur, 0);
+        const total = allItems.reduce((s, it) => s + it.eur, 0);
+        return `<div class="sp-top sp-all"><span>All three stages</span><span class="mono">${Math.round(spent)}€ / ~${Math.round(total)}€</span></div>`;
+      }
+    });
+    const pick = s => {
+      st = s; store.set("mikuWiki.azStage", s);
+      $$("#azSeg [data-stage]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.stage === s)));
+      $("#azNote").textContent = NOTES[s];
+      list.set(itemsOf(s));
+    };
+    $("#azSeg").addEventListener("click", e => { const b = e.target.closest("[data-stage]"); if (b && b.dataset.stage !== st) { pick(b.dataset.stage); restart($("#azBody"), "swap-in"); } });
+    pick(st);
   }
-  $("#swapBody").addEventListener("click", e => {
-    const t = e.target.closest(".tick"); if (!t) return;
-    const row = t.closest("[data-swap]"), n = row.dataset.swap;
-    if (bought.has(n)) bought.delete(n); else bought.add(n);
-    row.classList.toggle("done", bought.has(n));
-    t.setAttribute("aria-pressed", String(bought.has(n)));
-    store.set(BOUGHT_KEY, JSON.stringify([...bought]));
-    swapProgress();
-  });
-  $("#swapProgress").addEventListener("click", e => {
-    if (!e.target.closest("#swapReset")) return;
-    bought.clear(); store.set(BOUGHT_KEY, "[]"); renderSwaps(); toast("Ticks cleared");
-  });
+
+  /* ---------------------------------------------------------------- speed test chart */
+  function renderSpeed() {
+    const TURNS = [6, 7, 8, 9, 10, 11, 12];
+    const COMBO = [4, 13, 31, 55, 75, 87, 94], BEAT = [2, 9, 27, 51, 72, 85, 93];
+    const el = $("#speedChart"), out = $("#speedReadout");
+    el.innerHTML = `<div class="sp-grid" aria-hidden="true"><span style="--y:75%">75%</span><span style="--y:50%">50%</span><span style="--y:25%">25%</span></div>` +
+      TURNS.map((t, i) => `<button class="sp-col${t >= 7 && t <= 9 ? " key" : ""}" type="button" data-i="${i}" aria-pressed="false" aria-label="By turn ${t}: ${COMBO[i]}% of games">
+        <span class="sp-stack"><span class="sp-bar-v" style="--h:${COMBO[i]}%;--i:${i}"><span class="sp-val">${COMBO[i]}%</span></span></span><span class="sp-lab">T${t}</span></button>`).join("");
+    const select = i => {
+      $$(".sp-col", el).forEach(c => c.setAttribute("aria-pressed", String(+c.dataset.i === i)));
+      out.innerHTML = `<b>Won by the end of turn ${TURNS[i]}: ${COMBO[i]}% of games</b><span class="muted">${BEAT[i]}% with the combos switched off, so they add ${COMBO[i] - BEAT[i]} point${COMBO[i] - BEAT[i] === 1 ? "" : "s"}.</span>`;
+    };
+    el.addEventListener("click", e => { const c = e.target.closest(".sp-col"); if (c) select(+c.dataset.i); });
+    el.addEventListener("pointerover", e => { if (!mqHover.matches) return; const c = e.target.closest(".sp-col"); if (c) select(+c.dataset.i); });
+    select(2);
+    const ENDS = [["Plain combat damage", 68], ["Overwhelming Stampede", 8], ["Triumph of the Hordes", 7], ["Craterhoof Behemoth", 6], ["Return of the Wildspeaker", 5], ["Heliod + Walking Ballista", 2.6], ["Finale for Craterhoof", 1], ["Spike Feeder + Aetherflux", .7], ["Aetherflux off big life", .7]];
+    $("#endings").innerHTML = ENDS.map(([l, n]) => {
+      const card = byName.has(l) ? `<button class="inline-card" type="button" data-card="${esc(l)}">${esc(l)}</button>` : esc(l);
+      return `<div class="typebar"><span>${card}</span><span class="bar" data-w="${Math.max(1, n / 68 * 100)}%"></span><span class="num">${n < 1 ? n.toFixed(1) : n}%</span></div>`;
+    }).join("");
+  }
 
   /* ---------------------------------------------------------------- tables that stack on phones */
   $$("table.stack").forEach(t => {
@@ -988,10 +1057,11 @@
     const run = el => {
       if (el.matches("[data-count]")) countUp(el);
       else if (el.id === "eq") el.classList.add("lit");
-      else if (el.id === "typebars") $$(".bar", el).forEach(b => b.style.width = b.dataset.w);
+      else if (el.id === "typebars" || el.id === "endings") $$(".bar", el).forEach(b => b.style.width = b.dataset.w);
+      else if (el.id === "speedChart") el.classList.add("lit");
       else if (el.classList.contains("budget-bar")) el.classList.add("in");
     };
-    const els = $$("[data-count], #eq, #typebars, .budget-bar");
+    const els = $$("[data-count], #eq, #typebars, #endings, #speedChart, .budget-bar");
     if (!("IntersectionObserver" in window) || mqReduce.matches) {
       els.forEach(el => { if (!el.matches("[data-count]")) run(el); });
       return;
@@ -1020,6 +1090,8 @@
   renderCurve();
   renderList();
   renderSwaps();
+  renderAzusa();
+  renderSpeed();
   ballistaSim();
   feederSim();
   buildCalc();

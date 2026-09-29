@@ -1,7 +1,7 @@
 /* Offline support for the Miku deck wiki: the page works at a game store with no signal.
    Site files: network first, cache as fallback. Fonts and card images: cache first. */
-const VERSION = "miku-v1";
-const CORE = ["./", "./index.html", "./styles.css", "./app.js", "./cards.js", "./icon.svg", "./manifest.webmanifest"];
+const VERSION = "miku-v3";
+const CORE = ["./", "./index.html", "./styles.css", "./app.js", "./cards.js", "./azusa.js", "./icon.svg", "./manifest.webmanifest"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
