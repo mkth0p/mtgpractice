@@ -1,0 +1,16 @@
+{
+  "name": "Etrata Deck Wiki",
+  "short_name": "Etrata Deck",
+  "description": "The Etrata, Deadly Fugitive Commander deck: a step-by-step guide, every card with rulings, the combos, deck stats, and a Commander game against bots.",
+  "start_url": "./#guide",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07090c",
+  "theme_color": "#7b6cf0",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

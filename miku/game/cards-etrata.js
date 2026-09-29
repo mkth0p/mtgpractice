@@ -237,7 +237,8 @@
         if (ids.includes(2) && best && AI().value(g, best) >= 8) return 2;
         if (ids.includes(0)) return 0;
         return ids.includes(1) ? 1 : ids[0];
-      }
+      },
+      target: (g, p, req) => req.purpose === "copy" ? req.options.filter(c => !c.def.legendary).sort((a, b) => AI().value(g, b) - AI().value(g, a))[0] || req.options[0] : undefined
     }
   });
   D({
@@ -579,10 +580,13 @@
   /* Which card of the hand to put face down: noncreature spells Etrata can cast for free, big creatures. */
   function manifestWorth(g, p, c) {
     const d = c.def;
-    if (d.types.includes("Land")) return p.hand.filter(x => x.def.types.includes("Land")).length >= 2 ? 1 : 0;
+    const lands = g.controlled(p, o => g.isLand(o)).length;
+    if (d.types.includes("Land")) return p.hand.filter(x => x.def.types.includes("Land")).length >= 2 || lands >= 6 ? 1 : 0;
     const etrata = g.controlled(p, o => o.def.name === "Etrata, Deadly Fugitive").length > 0;
-    if (!d.types.includes("Creature")) return etrata ? 3 + d.mv : 0.5;
-    return d.mv >= 4 ? 2 + d.mv * 0.3 : 0.2;
+    // a spell Etrata can later cast for free: only worth hiding when it costs more than her {2}{U}{B}
+    if (!d.types.includes("Creature")) return etrata && d.mv >= 5 && !(d.ai && (d.ai.counter || d.ai.protection)) ? 1 + d.mv * 0.3 : 0;
+    // a creature too expensive to cast now but cheap to flip later
+    return d.mv >= 5 && lands < d.mv ? 1 + d.mv * 0.3 : 0;
   }
   AI().manifestWorth = manifestWorth;
   D({

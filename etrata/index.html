@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Etrata Deck</title>
+<meta name="description" content="The Etrata, Deadly Fugitive Commander deck: a step-by-step guide, every card with rulings, the combos, deck stats, and a playable Commander game against precon and Bracket 4 bots.">
+<meta name="theme-color" content="#f3f0e8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#07090c" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Etrata Deck">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cards.scryfall.io" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Martian+Mono:wght@400;500;600&family=Unbounded:wght@500;700;800;900&display=swap">
+<link rel="stylesheet" href="../miku/styles.css?v=11">
+<link rel="stylesheet" href="theme.css?v=11">
+<script>try { var t = localStorage.getItem("etrataWiki.theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar" id="topbar">
+  <div class="wrap bar">
+    <a class="brand" href="#guide" aria-label="Etrata Deck, home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="9" class="bm-bg"/><path d="M21 9.5h-10v13h10M11 16h7" fill="none" class="bm-m" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="25.5" cy="6.5" r="3.4" class="bm-dot"/></svg>
+      <span class="brand-txt"><b>Etrata Deck</b><small>Etrata · Dimir · 100</small></span>
+    </a>
+    <nav class="topnav" aria-label="Sections" data-nav></nav>
+    <div class="bar-actions">
+      <button class="icon-btn" id="searchBtn" type="button" aria-label="Search cards">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch light or dark theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="segbar" id="segbar"><div class="wrap"><div class="seg-track" id="segTrack" role="tablist"></div></div></div>
+</header>
+
+<main id="main">
+<!-- ================================================================== GUIDE -->
+<div class="view" id="view-guide" data-view="guide" data-segs="start:Overview,chapters:Chapters,combos:Combos,plan:Game plan">
+
+  <div class="segment" data-segment="start">
+    <section class="hero" id="overview">
+      <div class="marquee" aria-hidden="true"><div class="marquee-track"><span>Now playing</span><b>Etrata, Deadly Fugitive</b><span>Bracket 3 · Dimir</span><b>Cloak their best cards</b><span>3 ways to make a player lose</span><b>Ramses wins the table</b><span>Now playing</span><b>Etrata, Deadly Fugitive</b><span>Bracket 3 · Dimir</span><b>Cloak their best cards</b><span>3 ways to make a player lose</span><b>Ramses wins the table</b></div></div>
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="kicker"><span class="live-dot" aria-hidden="true"></span>Dimir Assassins · face-down theft</p>
+          <h1 class="hero-title" aria-label="Etrata"><span class="ht-1">Deadly</span><span class="ht-2" data-t="Etrata">Etrata</span></h1>
+          <p class="hero-lede">A blue-black Assassin deck that steals the table's cards. Every Assassin that connects cloaks the top card of that player's library under your control. Their creatures fight for you, and Etrata turns their other cards face up or casts them for free. This is the full manual: a guide in steps, every card with rulings, the combos, the numbers, and a real game to practise against.</p>
+          <ul class="ticket-strip" aria-label="Deck facts">
+            <li class="teal">Bracket 3</li>
+            <li>35 lands</li>
+            <li class="pink">3 lose-the-game lines</li>
+            <li>2 two-card combos</li>
+          </ul>
+          <div class="hero-cta">
+            <a class="btn primary" href="#ch-deck-in-60-seconds">Start the guide</a>
+            <a class="btn ghost" href="#play"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>Play a game</a>
+          </div>
+        </div>
+        <button class="cmdr" type="button" data-card="Etrata, Deadly Fugitive">
+          <span class="foil" data-tilt><span class="mini-card" data-art="Etrata, Deadly Fugitive"></span><span class="shine" aria-hidden="true"></span></span>
+          <span class="cmdr-copy">
+            <span class="label">Commander</span>
+            <span class="cmdr-name">Etrata, Deadly Fugitive</span>
+            <span class="muted cmdr-desc">{1}{U}{B}, 1/4 deathtouch. Cloaks a card each time an Assassin hits an opponent, and lets your face-down creatures turn up or be cast for {2}{U}{B}.</span>
+          </span>
+        </button>
+      </div>
+      <div class="wave" aria-hidden="true" id="wave"></div>
+    </section>
+
+    <div class="wrap">
+      <dl class="hero-stats">
+        <div class="stat"><dt><b data-count="100">100</b></dt><dd>cards, 35 lands, 21 of them basics</dd></div>
+        <div class="stat"><dt><b data-count="2.3" data-dec="1">2.3</b></dt><dd>average mana value of the nonland cards</dd></div>
+        <div class="stat"><dt><b data-count="13">13</b></dt><dd>Assassins and changelings in the 99 to trigger Etrata</dd></div>
+        <div class="stat"><dt><b>6–6.5</b></dt><dd>out of 10 on the old power scale</dd></div>
+      </dl>
+
+      <section class="block" id="engine">
+        <div class="section-head">
+          <p class="eyebrow">How the deck wins</p>
+          <h2>Hit, cloak, flip, repeat</h2>
+        </div>
+        <ol class="flow">
+          <li><span class="beat">1</span><div><b>An Assassin connects</b><p>Cheap evasive Assassins do the work: <i-c>Changeling Outcast</i-c>, <i-c>Hookblade Veteran</i-c>, <i-c>Brotherhood Spy</i-c> and <i-c>Basim Ibn Ishaq</i-c>.</p></div></li>
+          <li><span class="beat">2</span><div><b>Etrata cloaks</b><p>Each hit puts the top card of that player's library onto the battlefield under your control, face down as a 2/2 with ward {2}.</p></div></li>
+          <li><span class="beat">3</span><div><b>The cloaks join in</b><p><i-c>Roshan, Hidden Magister</i-c>, <i-c>Maskwood Nexus</i-c> and <i-c>Arcane Adaptation</i-c> make them Assassins, so next turn they hit and cloak too.</p></div></li>
+          <li><span class="beat">4</span><div><b>Someone loses</b><p><i-c>Etrata, the Silencer</i-c>, <i-c>Strixhaven Stadium</i-c> or a combo knocks a player out, and <i-c>Ramses, Assassin Lord</i-c> turns that into a win. See <a href="#combos">the combos</a>.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="block" id="continue">
+        <div class="section-head">
+          <p class="eyebrow">The guide</p>
+          <h2>Learn it track by track</h2>
+          <p class="muted">Seventeen short chapters, from the deck in 60 seconds to the trickiest face-down rules. Your place is saved on this device.</p>
+        </div>
+        <div class="resume" id="resume"></div>
+      </section>
+
+      <section class="block" id="play-promo">
+        <a class="play-promo" href="#play">
+          <span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="pp-copy"><span class="eyebrow">Live</span><b>Take Etrata to a four-player pod</b><span class="muted">A real Commander game with cloaks, hit counters and Ramses, against bots dealt at random, from retail precons to Bracket 4. Built for one thumb.</span></span>
+          <span class="pp-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span>
+        </a>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="chapters">
+    <div class="wrap">
+      <section class="block" id="chapters">
+        <div class="section-head">
+          <p class="eyebrow">The guide · 17 tracks</p>
+          <h2>Step by step</h2>
+          <p class="muted" id="guideMeta">Tap a track to read it. Each one ends with the next.</p>
+        </div>
+        <ol class="tracklist" id="tracklist"></ol>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="combos">
+    <div class="wrap">
+      <section class="block" id="kills">
+        <div class="section-head">
+          <p class="eyebrow">Combos &amp; kills</p>
+          <h2>How to actually win</h2>
+          <p class="prose">Most games are won by stealing the table's best cards and attacking with more creatures than they can block. When the board stalls, the deck has two two-card combos and two cards that say "loses the game". <i-c>Ramses, Assassin Lord</i-c> turns any of those eliminations into a win for the whole table, as long as that player was attacked by one of your Assassins this turn. Tell your table about the combos before you play.</p>
+        </div>
+      </section>
+
+      <section class="block" id="combo-mindcrank">
+        <details class="ticket" open>
+          <summary class="stub"><span class="admit">Combo 1</span><span class="kind">Mill and drain</span><span class="serial mono" aria-hidden="true">No. 01 · Instant</span><span class="t-title">Duskmantle Guildmage + Mindcrank</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <div class="pieces"><button class="chip" type="button" data-card="Duskmantle Guildmage">Duskmantle Guildmage</button><span class="plus">+</span><button class="chip" type="button" data-card="Mindcrank">Mindcrank</button></div>
+            <dl class="kv">
+              <dt>You need</dt><dd>Both on the battlefield, {1}{U}{B} for Guildmage's first ability, and a starter: any life loss or any card going to an opponent's graveyard.</dd>
+              <dt>Total mana</dt><dd>7 across two or more turns: Guildmage 2, Mindcrank 2, the ability 3.</dd>
+              <dt>Speed</dt><dd>Instant. Activate it at the end of an opponent's turn, or during combat.</dd>
+            </dl>
+            <ol class="steps">
+              <li><span>Pay {1}{U}{B}: for the rest of the turn, whenever a card is put into an opponent's graveyard from anywhere, that player loses 1 life.</span></li>
+              <li><span>Start it: an Assassin hits them, or Guildmage's second ability ({2}{U}{B}) mills two cards.</span></li>
+              <li><span>They lose life. <i-c>Mindcrank</i-c> mills that many cards.</span></li>
+              <li><span>Each milled card makes them lose 1 life, which mills again. It stops when they're dead or out of cards.</span></li>
+            </ol>
+            <div class="sim" data-widget="mindcrankSim"></div>
+            <div class="faqs">
+              <details class="faq"><summary>Does it hit every opponent?</summary><div><p>Guildmage's ability covers every opponent, but each chain needs its own starter. A combat hit on each player starts all of them at once.</p></div></details>
+              <details class="faq"><summary>What stops it?</summary><div><p>Removing Guildmage before its ability resolves, or Mindcrank at any point. Once the ability has resolved, killing Guildmage doesn't stop it for that turn. <i-c>Dispel</i-c> and <i-c>Counterspell</i-c> protect the setup.</p></div></details>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="block" id="combo-slasher">
+        <details class="ticket pinkish">
+          <summary class="stub"><span class="admit">Combo 2</span><span class="kind">Half, then all</span><span class="serial mono" aria-hidden="true">No. 02 · End step</span><span class="t-title">Unstoppable Slasher + Wound Reflection</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <div class="pieces"><button class="chip" type="button" data-card="Unstoppable Slasher">Unstoppable Slasher</button><span class="plus">+</span><button class="chip" type="button" data-card="Wound Reflection">Wound Reflection</button></div>
+            <dl class="kv">
+              <dt>You need</dt><dd>Wound Reflection on the battlefield before the end step, and Slasher dealing combat damage to the player.</dd>
+              <dt>Speed</dt><dd>One combat and one end step.</dd>
+            </dl>
+            <ol class="steps">
+              <li><span><i-c>Unstoppable Slasher</i-c> hits: the player loses its damage, then half their remaining life, rounded up.</span></li>
+              <li><span>At the beginning of the end step, <i-c>Wound Reflection</i-c> makes them lose the life they lost this turn again. That's always more than they have left.</span></li>
+            </ol>
+            <div class="sim" data-widget="slasherCalc"></div>
+          </div>
+        </details>
+      </section>
+
+      <section class="block" id="combo-lose">
+        <details class="ticket plain">
+          <summary class="stub"><span class="admit">Alt wins</span><span class="kind">Loses the game</span><span class="serial mono" aria-hidden="true">No. 03 · Combat</span><span class="t-title">Etrata, the Silencer and Strixhaven Stadium</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <p class="prose"><i-c>Etrata, the Silencer</i-c> can't be blocked. Each time she deals combat damage to a player, she exiles one of their creatures with a hit counter, and that player loses once they own three exiled cards with hit counters. Then she shuffles into your library, so <i-c>March of Swirling Mist</i-c> phasing her out in response keeps her around. <i-c>Strixhaven Stadium</i-c> gains a point counter each time one of your creatures hits an opponent; the hit that brings it to ten makes that player lose.</p>
+            <div class="note warn"><h4>Pair them with Ramses</h4><p>With <i-c>Ramses, Assassin Lord</i-c> on the battlefield, a player who loses after being attacked by one of your Assassins this turn wins you the game.</p></div>
+          </div>
+        </details>
+      </section>
+
+      <section class="block" id="cloaks">
+        <div class="section-head">
+          <p class="eyebrow">The engine</p>
+          <h2>Cloak calculator</h2>
+          <p class="muted">How many cards you steal this combat, and how fast the face-down army grows when the cloaks are Assassins too.</p>
+        </div>
+        <div data-widget="cloakCalc"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="plan">
+    <div class="wrap">
+      <section class="block" id="plan">
+        <div class="section-head">
+          <p class="eyebrow">Game plan</p>
+          <h2>How to pilot it</h2>
+          <p class="prose">You're the tempo deck at the table: cheap threats, counterspells held up, and a commander that gets better every turn you connect. Stay small and hard to read, take the table's cards, and let the opponents spend their removal on each other.</p>
+        </div>
+        <div class="phases snap-row">
+          <div class="phase"><span class="turns-lbl">Turns 1–3</span><span class="when">The setup</span>
+            <ul>
+              <li>A one- or two-drop Assassin: <i-c>Changeling Outcast</i-c>, <i-c>Hookblade Veteran</i-c>, <i-c>Brotherhood Spy</i-c>.</li>
+              <li>A mana rock if you have no Assassin: <i-c>Sol Ring</i-c>, <i-c>Arcane Signet</i-c>, <i-c>Dimir Signet</i-c>.</li>
+              <li>Etrata on turn 3, before combat, with an Assassin ready to hit.</li>
+            </ul></div>
+          <div class="phase"><span class="turns-lbl">Turns 4–6</span><span class="when">The heist</span>
+            <ul>
+              <li>Attack every turn with evasive Assassins at the player with the fewest blockers.</li>
+              <li>Add a type enabler: <i-c>Roshan, Hidden Magister</i-c>, <i-c>Maskwood Nexus</i-c>, <i-c>Arcane Adaptation</i-c>.</li>
+              <li>Keep {U} or {U}{U} open for <i-c>Dispel</i-c> or <i-c>Counterspell</i-c> when the board is worth protecting.</li>
+            </ul></div>
+          <div class="phase"><span class="turns-lbl">Turn 7+</span><span class="when">The kill</span>
+            <ul>
+              <li>Flip the stolen bombs with Etrata's {2}{U}{B}.</li>
+              <li>Assemble a combo, or set up <i-c>Etrata, the Silencer</i-c> or the Stadium, with Ramses on the battlefield.</li>
+              <li>Toxic Deluge resets a table that got ahead of you.</li>
+            </ul></div>
+        </div>
+      </section>
+
+      <section class="block" id="trainer">
+        <div class="section-head">
+          <p class="eyebrow">Practice</p>
+          <h2>Opening hand trainer</h2>
+          <p class="muted">Draw seven from the real 99 and see whether it's a keep. Your first mulligan in multiplayer Commander is free.</p>
+        </div>
+        <div data-widget="handTrainer"></div>
+        <div class="grid-2">
+          <div class="panel rule keep"><h3>Keep</h3><ul class="prose">
+            <li>3 or 4 lands with both colors, or a rock that fixes them.</li>
+            <li>2 lands plus Sol Ring or a cheap rock, and a cheap Assassin.</li>
+            <li>Any hand that casts Etrata on turn 3 with an Assassin to follow.</li></ul></div>
+          <div class="panel rule mull"><h3>Mulligan</h3><ul class="prose">
+            <li>0 or 1 land.</li>
+            <li>6 or 7 lands.</li>
+            <li>Only counterspells and removal, with no threats.</li></ul></div>
+        </div>
+      </section>
+
+      <section class="block" id="example">
+        <div class="section-head">
+          <p class="eyebrow">Example</p>
+          <h2>A good draw, turn by turn</h2>
+          <p class="muted">A sample goldfish with no interaction from opponents, to show how the heist snowballs.</p>
+        </div>
+        <ol class="turns">
+          <li><span class="tn">T1</span><div><p>Swamp, <i-c>Changeling Outcast</i-c></p><span class="after">An unblockable Assassin</span></div></li>
+          <li><span class="tn">T2</span><div><p>Island, <i-c>Dimir Signet</i-c>. Outcast hits for 1</p><span class="after">4 mana next turn</span></div></li>
+          <li><span class="tn">T3</span><div><p>Land, <i-c>Etrata, Deadly Fugitive</i-c> before combat. Outcast hits</p><span class="after">First cloak</span></div></li>
+          <li><span class="tn">T4</span><div><p>Land, <i-c>Roshan, Hidden Magister</i-c>. Outcast and the cloak attack; the cloak has menace</p><span class="after">Two more cloaks</span></div></li>
+          <li><span class="tn">T5</span><div><p>Four Assassins attack. Flip the best stolen card with Etrata</p><span class="after">Seven cards taken from the table</span></div></li>
+        </ol>
+      </section>
+
+      <section class="block" id="habits">
+        <div class="section-head">
+          <p class="eyebrow">Sequencing</p>
+          <h2>Ten habits that win games</h2>
+        </div>
+        <ol class="habits">
+          <li><span><b>Cast Etrata before combat.</b> Her trigger only counts hits while she's on the battlefield.</span></li>
+          <li><span><b>Attack every turn.</b> Each Assassin that connects is a free card.</span></li>
+          <li><span><b>Look at your cloaks.</b> Know what you have before you plan the turn.</span></li>
+          <li><span><b>Flip creatures for their mana cost.</b> It's cheaper than Etrata's ability and nobody can respond.</span></li>
+          <li><span><b>Flip Roshan after blockers.</b> Menace and Assassin types arrive when blocks are locked in.</span></li>
+          <li><span><b>Counter the wipe.</b> Save a counterspell for the spell that clears your board.</span></li>
+          <li><span><b>Keep a blocker home.</b> Etrata's deathtouch keeps you alive while the cloaks work.</span></li>
+          <li><span><b>Cast Spark Double, never flip it.</b> It copies nothing when turned face up.</span></li>
+          <li><span><b>Line up Ramses.</b> Knock a player out on a turn your Assassin attacked them.</span></li>
+          <li><span><b>Tell the table about the combos.</b> Guildmage and Mindcrank, Slasher and Wound Reflection.</span></li>
+        </ol>
+      </section>
+
+      <section class="block" id="matchups">
+        <div class="section-head">
+          <p class="eyebrow">Matchups</p>
+          <h2>Reading the table</h2>
+        </div>
+        <div class="matchups">
+          <details class="mu" data-auto-open><summary><span class="mu-ic" aria-hidden="true">◐</span>Against board wipes</summary><div><p>Hold a counterspell or <i-c>March of Swirling Mist</i-c> once your board is worth protecting. Keep one or two cheap Assassins in hand to rebuild.</p></div></details>
+          <details class="mu" data-auto-open><summary><span class="mu-ic" aria-hidden="true">∞</span>Against combo decks</summary><div><p>You're the deck with counterspells. Keep <i-c>Counterspell</i-c>, <i-c>Arcane Denial</i-c> or <i-c>An Offer You Can't Refuse</i-c> for their key spell, and pressure them first.</p></div></details>
+          <details class="mu" data-auto-open><summary><span class="mu-ic" aria-hidden="true">⚔</span>Against big creature decks</summary><div><p>Etrata's deathtouch and your cloaks block well. Cloak their library: big creature decks give you big creatures. <i-c>Reality Shift</i-c> and <i-c>Infernal Grasp</i-c> handle the one that matters.</p></div></details>
+          <details class="mu" data-auto-open><summary><span class="mu-ic" aria-hidden="true">⚙</span>Against graveyard decks</summary><div><p><i-c>Bojuka Bog</i-c> exiles a graveyard. Cloaking the top of their library keeps those cards out of the graveyard too.</p></div></details>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== CARDS -->
+<div class="view" id="view-cards" data-view="cards" data-segs="browse:Cards,setlist:Setlist,glossary:Glossary,faq:FAQ">
+  <div class="segment" data-segment="browse">
+    <div class="toolbar" id="toolbar">
+      <div class="wrap">
+        <div class="tool-row">
+          <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="sr">Search cards</span><input id="q" type="search" placeholder="Search names, rules and rulings" autocomplete="off" enterkeyhint="search"><button class="clear" type="button" id="qClear" aria-label="Clear search" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 7l10 10M17 7 7 17"/></svg></button></label>
+          <label class="sort-wrap"><span class="sr">Sort cards</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></svg>
+            <select class="sort" id="sort">
+              <option value="role">Shelves by role</option>
+              <option value="type">Shelves by type</option>
+              <option value="rating">Best first</option>
+              <option value="mv">By mana value</option>
+              <option value="az">A to Z</option>
+            </select>
+          </label>
+          <button class="icon-btn view-toggle" type="button" id="viewToggle" aria-pressed="false" aria-label="Show as a list">
+            <svg class="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="9" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="9" rx="1.5"/><rect x="3.5" y="15.5" width="7" height="5" rx="1.5"/><rect x="13.5" y="15.5" width="7" height="5" rx="1.5"/></svg>
+            <svg class="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+          </button>
+        </div>
+        <div class="chips" id="roleChips" role="group" aria-label="Filter by role"></div>
+      </div>
+    </div>
+    <div class="wrap">
+      <p class="count" id="count" aria-live="polite"></p>
+      <div class="card-list" id="cardList"></div>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="setlist">
+    <div class="wrap">
+      <section class="block" id="setlist-sec">
+        <div class="section-head">
+          <p class="eyebrow">The setlist</p>
+          <h2>All 100 cards</h2>
+          <p class="muted">Tap any card for its full entry.</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" type="button" data-copy="names">Copy decklist</button>
+          <button class="btn" type="button" data-copy="qty">Copy with quantities</button>
+        </div>
+        <div class="setlist" id="setlist"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="glossary">
+    <div class="wrap">
+      <section class="block" id="glossary">
+        <div class="section-head">
+          <p class="eyebrow">Glossary</p>
+          <h2>Every keyword in this deck</h2>
+          <p class="muted">What each term means, and which of your cards use it.</p>
+        </div>
+        <label class="search small-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="sr">Filter the glossary</span><input id="glossQ" type="search" placeholder="Filter terms" autocomplete="off"></label>
+        <div class="gloss" id="gloss"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="faq">
+    <div class="wrap">
+      <section class="block" id="faq">
+        <div class="section-head">
+          <p class="eyebrow">FAQ</p>
+          <h2>Questions people ask about this deck</h2>
+        </div>
+        <div class="faq-list" id="faqList"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== PLAY -->
+<div class="view view-play" id="view-play" data-view="play">
+  <div class="wrap">
+    <div class="play-host" id="playHost">
+      <div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Setting up the table…</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== STATS -->
+<div class="view" id="view-stats" data-view="stats" data-segs="deck:Deck,odds:Odds,power:Power,you:You">
+  <div class="segment" data-segment="deck">
+    <div class="wrap">
+      <section class="block" id="roll">
+        <div class="section-head">
+          <p class="eyebrow">Piano roll</p>
+          <h2>The whole deck as a score</h2>
+          <p class="muted">Every nonland card is a note: its lane is its role, its position is its mana value. Tap a note to open the card.</p>
+        </div>
+        <div class="roll" id="roll-chart"></div>
+      </section>
+      <section class="block" id="curve">
+        <div class="section-head">
+          <p class="eyebrow">Mana curve</p>
+          <h2>The levels</h2>
+          <p class="muted">Nonland cards by mana value. X costs count as 0 plus their fixed symbols. Tap a bar to list its cards.</p>
+        </div>
+        <div class="split">
+          <div class="eq-card">
+            <div class="eq-head"><b>64 nonland cards</b><span class="muted mono small">peak at 2 mana</span></div>
+            <div class="eq" id="eq" role="group" aria-label="Mana curve"></div>
+            <div class="eq-readout" id="eqReadout" aria-live="polite"></div>
+          </div>
+          <div class="eq-card">
+            <div class="eq-head"><b>Card types</b><span class="muted mono small">100 cards</span></div>
+            <div class="typebars" id="typebars"></div>
+          </div>
+        </div>
+      </section>
+      <section class="block" id="colors">
+        <div class="section-head">
+          <p class="eyebrow">Colors</p>
+          <h2>Pips against sources</h2>
+          <p class="muted">How much each color is asked for in mana costs, and how many of your lands make it.</p>
+        </div>
+        <div class="split" id="colorStats"></div>
+      </section>
+      <section class="block" id="roles">
+        <div class="section-head">
+          <p class="eyebrow">Roles</p>
+          <h2>What the 99 do</h2>
+          <p class="muted">A card can fill more than one role, so the bars add up to more than 99.</p>
+        </div>
+        <div class="typebars roles-bars" id="roleBars"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="odds">
+    <div class="wrap">
+      <section class="block" id="odds">
+        <div class="section-head">
+          <p class="eyebrow">Draw odds</p>
+          <h2>What are the chances?</h2>
+          <p class="muted">Exact odds from the real 99: how likely you are to see a card, or a group of cards, by a given turn.</p>
+        </div>
+        <div data-widget="drawOdds"></div>
+      </section>
+      <section class="block" id="opener">
+        <div class="section-head">
+          <p class="eyebrow">Opening hands</p>
+          <h2>Lands in your first seven</h2>
+          <p class="muted">35 lands in 99 cards. How often each count shows up in a fresh seven.</p>
+        </div>
+        <div class="land-odds" id="landOdds"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="power">
+    <div class="wrap">
+      <section class="block" id="strength">
+        <div class="section-head">
+          <p class="eyebrow">Strength</p>
+          <h2>A fast, interactive Bracket 3</h2>
+          <p class="prose">That's "Upgraded" in the official brackets, roughly 6 to 6.5 on the old 1 to 10 scale. Strong at a casual or upgraded-precon table, nowhere near cEDH. This is a judgement from reading the list, not from tested games.</p>
+        </div>
+        <div class="power" aria-hidden="true"><div class="power-track"><i style="--from:60%;--to:65%"></i></div><div class="power-scale"><span>1</span><span>casual</span><span>upgraded</span><span>optimized</span><span>cEDH 10</span></div></div>
+        <div class="grid-2">
+          <div class="panel rule keep"><h3>Why it's strong</h3><ul class="prose">
+            <li>A 3-mana commander that starts stealing cards on turn 4.</li>
+            <li>Four counterspells, spot removal and Toxic Deluge.</li>
+            <li>Two two-card combos and two cards that make a player lose, all turned into a table win by Ramses.</li></ul></div>
+          <div class="panel rule mull"><h3>What holds it back</h3><ul class="prose">
+            <li>Small creatures: one board wipe undoes several turns of work.</li>
+            <li>No ramp beyond mana rocks, and no tutors.</li>
+            <li>Stolen cards are random: some turns you cloak a land.</li></ul></div>
+        </div>
+        <div class="panel callout"><h3>Before you sit down</h3><p class="prose">Bracket 3 allows two-card combos as long as they aren't early-game ones. Mention Duskmantle Guildmage + Mindcrank and Ramses at the pregame talk, since some tables ban them.</p></div>
+      </section>
+
+      <section class="block" id="versus">
+        <div class="section-head">
+          <p class="eyebrow">Your other deck</p>
+          <h2>Etrata vs Miku</h2>
+          <p class="prose">They're close, and both are Bracket 3. The upgraded <a href="../miku/">Miku deck</a> is slightly ahead at about 6.5 to 7, with Etrata at about 6 to 6.5. Miku hits harder once it's set up. Etrata is faster, more interactive, and would give Miku a hard time head to head. This comes from reading both lists, not from playtesting.</p>
+        </div>
+        <div class="grid-2 vs-verdict">
+          <div class="panel verdict-card e"><span class="label">1 v 1</span><h3>Etrata is favoured</h3><p>It can counter or kill Trostani and the overrun cards.</p></div>
+          <div class="panel verdict-card m"><span class="label">4-player pod</span><h3>Miku is favoured</h3><p>Its overruns can knock out several players in one swing, while Etrata hits one player at a time.</p></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="you">
+    <div class="wrap">
+      <section class="block" id="record">
+        <div class="section-head">
+          <p class="eyebrow">Your record</p>
+          <h2>Your games against the bots</h2>
+          <p class="muted">Saved on this device when you finish a game in the Play tab.</p>
+        </div>
+        <div id="myStats"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</main>
+
+<footer class="foot"><div class="wrap">
+  <p>Built for the Etrata, Deadly Fugitive deck. Rules text from 29 Sep 2026. Also see the <a href="../miku/">Miku deck</a>.</p>
+  <p>Card images and links via Scryfall. Magic: The Gathering is © Wizards of the Coast. This is an unofficial fan page.</p>
+</div></footer>
+
+<nav class="tabbar" id="tabbar" aria-label="Sections"><div class="tabs" data-nav></div></nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" aria-hidden="true">
+  <div class="sheet-bar"><span class="grab" aria-hidden="true"></span><span class="sheet-eyebrow" id="sheetEyebrow"></span><span class="sheet-pos mono" id="sheetPos"></span>
+    <button class="icon-btn close" type="button" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+
+<div class="reader" id="reader" role="dialog" aria-modal="true" aria-labelledby="readerTitle" aria-hidden="true">
+  <div class="reader-bar">
+    <button class="icon-btn" type="button" id="readerClose" aria-label="Back to the chapters"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="reader-now"><span class="mono" id="readerNo"></span><b id="readerBarTitle"></b></div>
+    <span class="mono reader-time" id="readerTime"></span>
+    <div class="scrubber" aria-hidden="true"><i id="readerProgress"></i></div>
+  </div>
+  <div class="reader-body" id="readerBody"></div>
+</div>
+
+<div class="peek" id="peek" aria-hidden="true"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../miku/kit.js?v=11"></script>
+<script src="cards.js?v=11"></script>
+<script src="wiki.js?v=11"></script>
+<script src="guide.js?v=11"></script>
+<script src="site.js?v=11"></script>
+<script src="../miku/app.js?v=11"></script>
+</body>
+</html>
