@@ -12,6 +12,7 @@ before anyone plays it.
 | `ai.js` | The bots. Generic rules of thumb plus the per-card hints described below. |
 | `game-ui.js`, `game.css` | The table on the page. |
 | `../../tools/sim/run.js` | Headless bot games with invariant checks. |
+| `../../tools/ui/*.js` | Playwright tests that play the Play tab through its screen. |
 
 Load order in the page and in the sim: `engine.js`, `cards-miku.js`, `decks-*.js` (alphabetical), `ai.js`.
 
@@ -298,8 +299,26 @@ node tools/sim/run.js --games 40 --decks miku,random2,random2,random2 --first ra
 node tools/sim/run.js --games 1 --seed 7 --decks krenko,miku --players 2 --log 1   # full game log
 node tools/sim/run.js --games 20 --decks krenko --strict                           # throw on the first error
 node tools/sim/run.js --games 60 --decks miku-precon,random2 --cut "miku-precon:Boon Reflection"   # swap one card for a basic
+node tools/sim/run.js --games 200 --decks miku-precon,random,random,random --strict --chaos --first random  # seat 1 plays like a careless human
 ```
 
 The run prints win rates, game length, engine errors and broken invariants (cards in two zones,
 negative counters, cards that vanished). A deck is ready when 100+ games show no errors or problems
 and the deck wins some games against the others.
+
+Bots only take the lines their hints give them. `--chaos` plays the first seat at random among
+everything the screen would offer a person (your own Swords on your own creature, X=0, skipped
+targets, odd blocks) and reports any play that did nothing.
+
+The screen itself has two Playwright tests (Scryfall is mocked, so they run offline; the cloud
+sandbox has Playwright and Chromium, elsewhere `npm i -g playwright`):
+
+```
+node tools/ui/cast-every-card.js --hero miku-precon     # cast every card of a deck through the screen, use each ability
+node tools/ui/cast-every-card.js --hero etrata --site etrata --only "Etrata, Deadly Fugitive" --verbose
+node tools/ui/random-play.js --hero azusa --games 3     # tap at random through whole games against the bots
+```
+
+They report page errors, "Display error" lines, cards that glow but can't be played, plays that
+do nothing, questions with no way out and stalls. Run both for every deck you can pilot after
+changing `game-ui.js` or anything a person's choices go through.
