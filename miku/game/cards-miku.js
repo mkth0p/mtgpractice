@@ -882,8 +882,10 @@
       label: "Make a creature unblockable", cost: "{4}", tap: true,
       targets: [{ kind: "creature", you: true, purpose: "help", prompt: "Can't be blocked this turn" }],
       do: (g, s, ctx) => { if (ctx.legal[0]) { g.addEffect({ objs: [ctx.targets[0]], unblockable: true }); g.log(`${ctx.targets[0].def.name} can't be blocked this turn.`, { p: ctx.p }); } },
-      ai: { use: (g, p, o, ctx) => ctx.window === "main1" && g.creatures(p).some(c => g.canAttack(c, p) && g.power(c) >= 6) }
-    }]
+      ai: { use: (g, p, o, ctx) => ctx.window === "main1" && g.creatures(p).some(c => g.canAttack(c, p) && (g.power(c) >= 6 || (c.def.ai && c.def.ai.unblock && c.def.ai.unblock(g, p, c)))) }
+    }],
+    // a creature whose hit matters more than its power (Unstoppable Slasher) asks for it with ai.unblock
+    ai: { target: (g, p, req) => { if (req.purpose !== "help") return undefined; const c = req.options.find(o => o.controller === p && o.def.ai && o.def.ai.unblock && o.def.ai.unblock(g, p, o)); return c || undefined; } }
   });
   land("Krosan Verge", {
     etbTapped: true,

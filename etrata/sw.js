@@ -1,10 +1,10 @@
 /* Offline support for the Etrata deck wiki. It shares the Miku site's kit, styles, shell and game
    engine (../miku/). Site files: network first, cache as fallback. Fonts and card images: cache first. */
-const VERSION = "etrata-v13";
-const V = "?v=13";
-const GAME = ["engine.js", "cards-miku.js", "cards-etrata.js", "cards-miku-precon.js", "decks-azusa.js", "decks-edgar.js", "decks-ghalta.js", "decks-krenko.js", "decks-talrand.js", "decks-urdragon.js", "precon-ghired.js", "precon-isperia.js", "precon-kaalia.js", "precon-lathril.js", "precon-wilhelt.js", "ai.js", "game-ui.js", "game.css"].map(f => "../miku/game/" + f + V);
+const VERSION = "etrata-v16";
+const V = "?v=16";
+const GAME = ["engine.js", "cards-miku.js", "cards-etrata.js", "cards-miku-precon.js", "decks-azusa.js", "decks-edgar.js", "decks-etrata4.js", "decks-ghalta.js", "decks-krenko.js", "decks-talrand.js", "decks-urdragon.js", "precon-ghired.js", "precon-isperia.js", "precon-kaalia.js", "precon-lathril.js", "precon-wilhelt.js", "ai.js", "game-ui.js", "game.css"].map(f => "../miku/game/" + f + V);
 const CORE = ["./", "./index.html", "./icon.svg", "./manifest.webmanifest"]
-  .concat(["theme.css", "cards.js", "wiki.js", "guide.js", "site.js"].map(f => "./" + f + V))
+  .concat(["theme.css", "cards.js", "b4.js", "wiki.js", "guide.js", "site.js"].map(f => "./" + f + V))
   .concat(["styles.css", "kit.js", "app.js"].map(f => "../miku/" + f + V), GAME);
 
 self.addEventListener("install", e => {

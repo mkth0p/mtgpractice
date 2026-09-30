@@ -833,6 +833,7 @@
         const owner = o.owner;
         const r = this.moveTo(o, "graveyard", { dies: wasCreature });
         batch.push({ o, lki: info, wasCreature, owner });
+        if (wasCreature) this.diedThisTurn = (this.diedThisTurn || 0) + 1;
         if (why === "destroy" || why === "sba") this.log(`${o.def.name} ${wasCreature ? "dies" : "is destroyed"}.`, { cards: [o.def.name], kind: "die", p: info.controller });
         else if (why === "sacrifice") this.log(`${info.controller.name} sacrifices ${o.def.name}.`, { cards: [o.def.name], kind: "die", p: info.controller });
       }
@@ -1018,6 +1019,8 @@
         if (infect) { target.poison += n; this.anim("poison", { p: target, n }); }
         else { target.life -= n; target.lifeLostThisTurn += n; this.anim("life", { p: target, delta: -n, src: srcObj, combat: opts.combat }); }
         if (opts.combat && srcObj && srcObj.isCommander) target.cmdDmg[srcObj.id] = (target.cmdDmg[srcObj.id] || 0) + n;
+        // freerunning: combat damage to a player this turn with an Assassin or a commander
+        if (opts.combat && srcObj && ctrl && (srcObj.isCommander || this.hasSub(srcObj, "Assassin"))) ctrl.freerun = this.turn;
         if (ctrl) { ctrl.dealt += n; ctrl.stats.dmg += n; }
         this.emit("damage", { src: srcObj, target, amount: n, combat: !!opts.combat, toPlayer: true });
         if (!infect) this.emit("loseLife", { p: target, amount: n, fromDamage: true });
@@ -1175,7 +1178,7 @@
     /* Every way p could produce mana right now: [{o, ab, units: [["G"], ...] options, cost}] */
     /* forWhat: "spell" (default), "ability" or "special"; mana that can only be spent on abilities
        (Omen Hawker) is left out of everything else. */
-    manaSources(p, exclude, forWhat) {
+    manaSources(p, exclude, forWhat, spell) {
       const out = [];
       const ex = exclude instanceof Set ? exclude : new Set(exclude || []);
       const vorinclex = this.battlefield.some(o => o.controller === p && o.def.doublesLandMana);
@@ -1190,6 +1193,8 @@
           if (ab.condition && !ab.condition(this, o)) continue;
           if (ab.noAuto) continue;
           if (ab.onlyFor && ab.onlyFor !== (forWhat || "spell")) continue;
+          // mana that can only pay for some spells (Cavern of Souls): spellOnly(g, spell card, source)
+          if (ab.spellOnly && !(spell && (forWhat || "spell") === "spell" && ab.spellOnly(this, spell, o))) continue;
           const prod = typeof ab.produce === "function" ? ab.produce(this, o) : ab.produce;
           if (!prod) continue;
           for (const units of this.expandProduce(prod, p)) options.push({ units, ab, cost: ab.cost ? parseCost(ab.cost) : null, tapCreature: ab.tapCreature || 0 });
@@ -1236,7 +1241,7 @@
       const fromPool = Math.min(poolLeft, need.g);
       need.g -= fromPool;
       const exclude = new Set(opts.exclude || []);
-      let sources = this.manaSources(p, exclude, opts.for);
+      let sources = this.manaSources(p, exclude, opts.for, opts.spell);
       // Which colors to keep open: the ones the hand and the commander still need, over how many
       // untapped sources make them. Generic mana then comes from the spare color (a Forest, not
       // the only Plains, pays the {2} of a green spell). A tie-break worth well under 1 rank point.
@@ -1567,8 +1572,8 @@
         const base = this.spellCost(p, o, ch);
         const conv = this.hasConvoke(p, o);
         const xCount = o.def.doors ? 0 : (o.zone === "graveyard" && o.def.flashback ? parseCost(o.def.flashback).x : o.def.costObj.x);
-        if (!this.canPay(p, base, { convoke: conv })) continue;
-        const xMax = xCount ? this.maxX(p, base, xCount, { convoke: conv }) : 0;
+        if (!this.canPay(p, base, { convoke: conv, spell: o })) continue;
+        const xMax = xCount ? this.maxX(p, base, xCount, { convoke: conv, spell: o }) : 0;
         if (xCount && o.def.minX && xMax < o.def.minX) continue;
         ways.push({ door, xMax, xCount, cost: base, convoke: conv, label: o.def.doors ? o.def.doors[door].name : (o.zone === "graveyard" && o.def.flashback ? "Flashback" : null) });
       }
@@ -1581,7 +1586,7 @@
         if (alt.payLife && p.life <= alt.payLife) return;
         if (alt.exileFromHand && !p.hand.some(c => c !== o && alt.exileFromHand.filter(this, c))) return;
         const base = this.spellCost(p, o, { alt: i + 1 });
-        if (!this.canPay(p, base, {})) return;
+        if (!this.canPay(p, base, { spell: o })) return;
         ways.push({ door: null, alt: i + 1, xMax: 0, xCount: 0, cost: base, convoke: false, label: alt.label || "Alternative cost" });
       });
       return ways;
@@ -1617,7 +1622,7 @@
       // kicker
       if (d.kicker && choice.kicked == null) {
         const kc = addCost(this.spellCost(p, o, { x: item.x }), parseCost(d.kicker));
-        if (this.canPay(p, kc, { convoke: way.convoke })) item.kicked = await this.ask(p, { type: "confirm", prompt: `Pay the kicker for ${d.name}?`, purpose: "kicker", src: o });
+        if (this.canPay(p, kc, { convoke: way.convoke, spell: o })) item.kicked = await this.ask(p, { type: "confirm", prompt: `Pay the kicker for ${d.name}?`, purpose: "kicker", src: o });
       } else item.kicked = !!choice.kicked;
       // targets
       const specs = this.spellTargets(o, item);
@@ -1641,7 +1646,7 @@
           altExile = pick;
         }
       }
-      if (!this.pay(p, cost, { convoke: way.convoke })) { this.log(`${p.name} can't pay for ${d.name}.`, { p }); return false; }
+      if (!this.pay(p, cost, { convoke: way.convoke, spell: o })) { this.log(`${p.name} can't pay for ${d.name}.`, { p }); return false; }
       if (item.alt) {
         const alt = d.altCosts[item.alt - 1];
         if (alt.payLife) this.payLife(p, alt.payLife);
@@ -1795,7 +1800,7 @@
     counterSpell(item, by) {
       const i = this.stack.indexOf(item);
       if (i < 0) return false;
-      if (item.o.def.cantBeCountered) { this.log(`${item.name} can't be countered.`, {}); return false; }
+      if (item.o.def.cantBeCountered || item.cantBeCountered) { this.log(`${item.name} can't be countered.`, {}); return false; }
       this.stack.splice(i, 1);
       item.countered = true;
       this.log(`${item.name} is countered.`, { cards: [item.o.def.name], kind: "counter" });
@@ -2431,6 +2436,7 @@
       this.turn++;
       p.turnsTaken++;
       for (const q of this.players) { q.gained = 0; q.lifeLostThisTurn = 0; q.spellsCast = 0; q.attackedBy = []; }
+      this.diedThisTurn = 0;
       this.spellsThisTurn = 0;
       p.landsPlayed = 0;
       this.loopHint = null;

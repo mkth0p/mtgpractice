@@ -600,18 +600,23 @@
           const bad = bl.some(b => { const f = fight(g, a, b); return f.aDies && !f.bDies; });
           const trade = bl.some(b => { const f = fight(g, a, b); return f.aDies && f.bDies; });
           if (!bad && !trade) go = true;
-          else if (!bad && trade) go = chance(g, aggro * 0.8) || value(g, a) < 3;
+          else if (!bad && trade) go = chance(g, aggro * 0.8) || value(g, a) < 3 || pushed(g, p, a);
           else go = g.kw(a, "indestructible") || (a.isToken && g.power(a) <= 1 && chance(g, aggro * 0.3));
         }
         if (a.def.mana.length && g.power(a) <= 1 && !alpha) go = false;
-        // a card's own say (an engine commander that shouldn't trade itself away)
-        if (go && !alpha && a.def.ai && a.def.ai.attack && a.def.ai.attack(g, p, a, bl) === false) go = false;
+        // a card's own say: false keeps it home (an engine commander), true sends it (a creature whose hit wins)
+        if (!alpha && a.def.ai && a.def.ai.attack) { const say = a.def.ai.attack(g, p, a, bl); if (say === false) go = false; else if (say === true) go = true; }
         if (go) decl.push({ attacker: a, target });
       }
       for (const d of decl) { const tq = g.defenderOf(d.target); mem.lastTarget = tq.id; }
       return decl;
     }
+    /* A permanent can ask for an attacker to go in even into a trade (ai.pushAttack): Etrata wants
+       every Assassin connecting, because each hit cloaks another card. */
+    function pushed(g, p, a) { return g.controlled(p, s => s.def.ai && s.def.ai.pushAttack).some(s => { try { return s.def.ai.pushAttack(g, p, a); } catch (e) { return false; } }); }
     function pickAttackTarget(g, p, a, q, targets) {
+      // a card's own say (Etrata, the Silencer stacks hit counters on one player)
+      if (a.def.ai && a.def.ai.attackTarget) { const t = a.def.ai.attackTarget(g, p, a, targets); if (t && targets.includes(t)) return t; }
       // a finisher hits whoever it kills, else whoever can't block it
       if (g.power(a) >= 10) {
         const opps = g.opponents(p).filter(o => targets.includes(o));
@@ -622,6 +627,11 @@
         if (open.length && !open.includes(q)) return open.sort((x, y) => x.life - y.life)[0];
       }
       // a planeswalker we can kill outright is worth it
+      // an attacker that wants to connect goes where nobody can block it
+      if (pushed(g, p, a) && canBeBlockedBySome(g, a, blockersOf(g, q)).length) {
+        const open = g.opponents(p).filter(o => targets.includes(o) && !canBeBlockedBySome(g, a, blockersOf(g, o)).length);
+        if (open.length) return open.sort((x, y) => x.life - y.life)[0];
+      }
       const pws = targets.filter(t => !g.isPlayer(t) && t.controller === q);
       for (const w of pws) if ((w.counters.loyalty || 0) <= g.power(a) && threat(g, w, p) >= 6) return w;
       return q;
@@ -724,7 +734,7 @@
         // protection against a wipe or removal on our best creature
         const hurts = (top.o.def.ai && top.o.def.ai.wipe) || (top.o.def.ai && top.o.def.ai.removal && top.targets.some(t => t && !g.isPlayer(t) && t.controller === q && value(g, t) >= 6));
         if (hurts) {
-          const prot = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.protection);
+          const prot = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.protection && (!a.card.def.ai.protects || a.card.def.ai.protects(g, q, top)));
           const cmdHit = top.targets.some(t => t && !g.isPlayer(t) && t.controller === q && t.isCommander);
           if (prot.length && (boardValue(g, q) >= 12 || cmdHit)) {
             const c = prot[0];
