@@ -74,6 +74,9 @@
   /* The opponent the Guildmage + Mindcrank loop kills: it drains life until the library is empty,
      so life at most library + 2; the lowest life first. */
   const guildVictim = (g, p, opts) => g.opponents(p).filter(q => (!opts || opts.includes(q)) && q.life <= q.library.length + 2).sort((a, b) => a.life - b.life)[0] || null;
+  /* Turning face-down creatures into Assassins is the deck's engine: cast the first enabler ahead of
+     everything else (Roshan, Arcane Adaptation, Leyline of Transformation, Maskwood Nexus). */
+  const enablerCast = (g, p) => (g.controlled(p, s => !!s.def.makesAssassins || s.def.name === "Maskwood Nexus").length ? undefined : 24);
   const specSpell = (prompt, f) => ({ kind: "spell", purpose: "counter", prompt, filter: (g, item, p) => item.p !== p && (!f || f(item, g)) });
   const counterAi = { counter: true, target: counterPick };
   function counterIt(g, ctx) {
@@ -132,6 +135,8 @@
     }],
     ai: {
       priority: 9,
+      // every Assassin that connects cloaks a card, so a face-down or cheap Assassin trading is fine
+      pushAttack: (g, p, a) => isAssassin(g, a) && (!!a.faceDown || g.power(a) <= 2) && a.def.name !== "Etrata, Deadly Fugitive",
       // she's the engine: attack only where no untapped blocker can kill her
       attack: (g, p, o, blockers) => (blockers.some(b => (AI().fight ? AI().fight(g, o, b).aDies : true)) ? false : undefined)
     }
@@ -301,7 +306,7 @@
       { applies: (g, s, o) => mine(s, o) && !!o.faceDown, kw: ["menace"] }
     ],
     triggers: [{ on: "turnedFaceUp", when: (g, s, ev) => ev.p === s.controller, do: (g, s, ev, { p }) => { g.draw(p, 1); g.loseLife(p, 1, s); } }],
-    ai: { priority: 8 }
+    ai: { priority: 8, cast: enablerCast }
   });
   D({
     name: "Etrata, the Silencer", cost: "{2}{U}{B}", type: "Legendary Creature — Vampire Assassin", pt: "3/5",
@@ -640,7 +645,8 @@
     abilities: [{
       label: "Return to hand", cost: "{1}{U}",
       do: (g, src) => { if (src.zone === "battlefield") g.bounce(src); },
-      ai: { use: (g, p, o, ctx) => (ctx.window === "main2" || endBeforeMe(g, p, ctx)) && (!o.attachedTo || o.attachedTo.zone !== "battlefield") && manaNow(g, p) >= 5 }
+      // back to hand at the end of the turn before ours, to cloak another card when it's cast again
+      ai: { use: (g, p, o, ctx) => ((ctx.window === "main2" && (!o.attachedTo || o.attachedTo.zone !== "battlefield") && manaNow(g, p) >= 5) || (endBeforeMe(g, p, ctx) && manaNow(g, p) >= 2)) }
     }],
     ai: { priority: 8 }
   });
@@ -657,7 +663,7 @@
     text: "Creatures you control are every creature type. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.\n{3}, {T}: Create a 2/2 blue Shapeshifter creature token with changeling. (It is every creature type.)",
     statics: [{ applies: (g, s, o) => mine(s, o) && g.isCreature(o), allTypes: true }],
     abilities: [{ label: "Create a 2/2 Shapeshifter", cost: "{3}", tap: true, do: (g, src, ctx) => g.createToken(ctx.p, T.etrataShapeshifter), ai: { use: (g, p, o, ctx) => endBeforeMe(g, p, ctx) } }],
-    ai: { priority: 5 }
+    ai: { priority: 5, cast: enablerCast }
   });
   D({
     name: "Key to the City", cost: "{2}", type: "Artifact",
@@ -711,7 +717,7 @@
     etbState: () => ({ chosenType: "Assassin" }),
     makesAssassins: () => true,
     statics: [{ applies: (g, s, o) => mine(s, o) && g.isCreature(o), subtypes: (g, s) => [s.state.chosenType || "Assassin"] }],
-    ai: { priority: 6 }
+    ai: { priority: 6, cast: enablerCast }
   }, extra || {}));
   assassinType("Arcane Adaptation", "{2}{U}");
   assassinType("Leyline of Transformation", "{2}{U}{U}", {
@@ -724,7 +730,7 @@
     note: "The chosen type is always Assassin (every player's Assassins get fear).",
     etbState: () => ({ chosenType: "Assassin" }),
     statics: [{ applies: (g, s, o) => g.isCreature(o) && isAssassin(g, o), kw: ["fear"] }],
-    ai: { priority: 7 }
+    ai: { priority: 7, cast: (g, p) => (g.controlled(p, s => s.def.name === "Cover of Darkness").length ? undefined : 24) }
   });
   D({
     name: "Reconnaissance Mission", cost: "{2}{U}{U}", type: "Enchantment",
@@ -831,6 +837,8 @@
     },
     ai: {
       priority: 4, protection: true, trick: true,
+      // it only brings back a creature that dies: useless against exile, bounce or tuck
+      protects: (g, p, top) => !/exile|owner's (hand|library)|put .* on (the )?(top|bottom)/i.test(top.o.def.text || ""),
       target: (g, p, req) => {
         const top = g.stack[g.stack.length - 1];
         const hit = top && top.p !== p && top.targets.find(t => t && !g.isPlayer(t) && t.controller === p && req.options.includes(t));
