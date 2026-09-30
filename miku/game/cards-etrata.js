@@ -119,7 +119,11 @@
       when: (g, s, ev) => !!ev.src && ev.src.controller === s.controller && isOpp(g, s.controller, ev.p) && isAssassin(g, ev.src),
       do: (g, s, ev, { p }) => { if (!ev.p.lost) g.cloakTop(p, ev.p, s); }
     }],
-    ai: { priority: 9 }
+    ai: {
+      priority: 9,
+      // she's the engine: attack only where no untapped blocker can kill her
+      attack: (g, p, o, blockers) => !blockers.some(b => (AI().fight ? AI().fight(g, o, b).aDies : true))
+    }
   });
 
   /* ================================================================ creatures */

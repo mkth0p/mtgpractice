@@ -582,7 +582,8 @@
       const keepBack = [];
       if (danger && !alpha) {
         // keep our best blockers home (vigilance ones can go)
-        const home = candidates.filter(c => !g.kw(c, "vigilance")).sort((a, b) => (g.toughness(b) + g.power(b)) - (g.toughness(a) + g.power(a)));
+        // a finisher (Marit Lage, a huge flier) goes on offence: keeping it home loses the race
+        const home = candidates.filter(c => !g.kw(c, "vigilance") && g.power(c) < 10).sort((a, b) => (g.toughness(b) + g.power(b)) - (g.toughness(a) + g.power(a)));
         const need = Math.min(home.length, Math.max(1, Math.ceil(opps.reduce((n, o) => n + g.creatures(o).length, 0) / 3)));
         keepBack.push(...home.slice(0, need));
       }
@@ -603,12 +604,23 @@
           else go = g.kw(a, "indestructible") || (a.isToken && g.power(a) <= 1 && chance(g, aggro * 0.3));
         }
         if (a.def.mana.length && g.power(a) <= 1 && !alpha) go = false;
+        // a card's own say (an engine commander that shouldn't trade itself away)
+        if (go && !alpha && a.def.ai && a.def.ai.attack && a.def.ai.attack(g, p, a, bl) === false) go = false;
         if (go) decl.push({ attacker: a, target });
       }
       for (const d of decl) { const tq = g.defenderOf(d.target); mem.lastTarget = tq.id; }
       return decl;
     }
     function pickAttackTarget(g, p, a, q, targets) {
+      // a finisher hits whoever it kills, else whoever can't block it
+      if (g.power(a) >= 10) {
+        const opps = g.opponents(p).filter(o => targets.includes(o));
+        const open = opps.filter(o => !canBeBlockedBySome(g, a, blockersOf(g, o)).length);
+        const pool = open.length ? open : opps;
+        const kill = pool.filter(o => o.life <= g.power(a));
+        if (kill.length) return kill.sort((x, y) => x.life - y.life)[0];
+        if (open.length && !open.includes(q)) return open.sort((x, y) => x.life - y.life)[0];
+      }
       // a planeswalker we can kill outright is worth it
       const pws = targets.filter(t => !g.isPlayer(t) && t.controller === q);
       for (const w of pws) if ((w.counters.loyalty || 0) <= g.power(a) && threat(g, w, p) >= 6) return w;
@@ -696,7 +708,10 @@
         const danger = spellDanger(g, q, top);
         // counterspells
         const counters = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.counter && counterFits(g, q, a, top));
-        if (counters.length && danger >= 6 * (1.2 - skill * 0.4)) {
+        // a hand full of counterspells spends them on smaller threats too
+        const held = q.hand.filter(o => o.def.ai && o.def.ai.counter).length;
+        const bar = Math.max(3, 6 * (1.2 - skill * 0.4) - Math.max(0, held - 1) * 1.5);
+        if (counters.length && danger >= bar) {
           const c = counters.sort((x, y) => x.card.def.mv - y.card.def.mv)[0];
           if (attempts(c, win) < 1) { noteTry(c, win); return { type: "cast", card: c.card, targets: [top], alt: c.alt }; }
         }
@@ -710,7 +725,8 @@
         const hurts = (top.o.def.ai && top.o.def.ai.wipe) || (top.o.def.ai && top.o.def.ai.removal && top.targets.some(t => t && !g.isPlayer(t) && t.controller === q && value(g, t) >= 6));
         if (hurts) {
           const prot = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.protection);
-          if (prot.length && boardValue(g, q) >= 12) {
+          const cmdHit = top.targets.some(t => t && !g.isPlayer(t) && t.controller === q && t.isCommander);
+          if (prot.length && (boardValue(g, q) >= 12 || cmdHit)) {
             const c = prot[0];
             if (attempts(c, win) < 1) { noteTry(c, win); const out = { type: "cast", card: c.card, alt: c.alt }; if (c.xCount) out.x = chooseX(g, q, c.card, c.xMax); return out; }
           }

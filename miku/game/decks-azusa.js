@@ -77,8 +77,8 @@
     }
     const playPiece = acts.find(a => a.type === "land" && (a.card.def.name === DEPTHS || a.card.def.name === STAGE));
     if (playPiece) return playPiece;
-    const d = has(g, p, DEPTHS), st = has(g, p, STAGE);
-    if (d !== st && ((d && inLib(p, STAGE)) || (st && inLib(p, DEPTHS)))) {
+    // a combo piece still in the library: go get it (the half that's missing, else Dark Depths)
+    if (comboMissing(g, p)) {
       const crop = acts.find(a => a.type === "cast" && a.card.def.name === "Crop Rotation");
       if (crop) return { type: "cast", card: crop.card };
       const rec = acts.find(a => a.type === "activate" && a.card.def.name === "Elvish Reclaimer");
@@ -137,7 +137,7 @@
       label: "Sacrifice a land: search for a land", cost: "{2}", tap: true,
       sacCost: { filter: (g, c, src) => c.controller === src.controller && g.isLand(c), prompt: "Sacrifice a land" },
       do: (g, s, ctx) => g.search(ctx.p, { filter: (g2, c) => isLandCard(c), to: "battlefield", tapped: true, prompt: "Search for a land card", src: s }),
-      ai: { use: (g, p, o, ctx) => endBeforeMe(g, p, ctx) && (has(g, p, DEPTHS) !== has(g, p, STAGE)) }
+      ai: { use: (g, p, o, ctx) => endBeforeMe(g, p, ctx) && comboMissing(g, p) }
     }],
     ai: {
       priority: 6, cards: pickLands,
