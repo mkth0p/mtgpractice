@@ -12,3 +12,9 @@
 .tug i.w { background: var(--mana-b); color: var(--mana-b-ink); }
 .verdict-card.e { border-top-color: var(--teal-fill); }
 .verdict-card.m { border-top-color: #39c5bb; }
+
+/* the upgrade's fact strip sits on the page, not on the dark hero */
+.ticket-strip.b4-strip li { border-color: var(--line-strong); background: var(--surface); color: var(--ink-soft); }
+.ticket-strip.b4-strip li.teal { border-color: var(--teal-fill); color: var(--teal); }
+.ticket-strip.b4-strip li.pink { border-color: var(--pink-fill); color: var(--pink); }
+#view-shop .grid-2 + .table-wrap, #view-shop .table-wrap + p { margin-top: 16px; }

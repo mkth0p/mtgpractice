@@ -852,5 +852,122 @@ window.ETRATA_GUIDE = [
       ] },
       { t: "widget", id: "playCta" }
     ]
+  },
+  {
+    id: "b4-aggro-the-deck",
+    title: "B4 aggro: the upgraded deck",
+    kicker: "Bracket 4 aggro",
+    minutes: 5,
+    summary: "What the Bracket 4 upgrade changes, the three stages, and how the new deck wins.",
+    blocks: [
+      { t: "p", html: "The upgrade in the Shop tab turns Etrata from a sneaky value deck into an Assassin rush. You keep the commander and the cheap evasive creatures, add 16 more creatures, and replace slow value cards with cards that draw whenever you hit. The last stage adds the fast mana, tutors and free counterspells that make it Bracket 4." },
+      { t: "h", text: "What changes in how you play" },
+      { t: "list", items: [
+        "<b>Attack every turn.</b> Today's deck waits for the right cloak to flip. The aggro deck attacks from turn 2 and treats every trade as fine, because most of its creatures have deathtouch and many draw a card when they die or connect.",
+        "<b>Etrata is a bonus.</b> Her cloaks still come, but the deck no longer stops when she's removed. <i-c>Black Widow, Deadly Hunter</i-c>, <i-c>Mari, the Killing Quill</i-c> and <i-c>Ezio, Blade of Vengeance</i-c> keep the cards flowing.",
+        "<b>Life totals are the target.</b> Two Assassin lords, menace for everyone from <i-c>Interceptor, Shadow's Hound</i-c>, and two halving creatures (<i-c>Unstoppable Slasher</i-c>, <i-c>Virtus the Veiled</i-c>) take players from 40 to 0 in three or four turns.",
+        "<b>Protect the board, not the combo.</b> <i-c>Fierce Guardianship</i-c>, <i-c>Swan Song</i-c> and <i-c>Force of Will</i-c> exist to stop the board wipe that would undo your attack."
+      ] },
+      { t: "table", head: ["Stage", "Adds", "Cost", "Bracket"], rows: [
+        ["1: aggro core", "16 creatures, Skullclamp, Kindred Discovery, Rooftop Bypass, cheap removal, haste equipment", "~53€", "3"],
+        ["2: top of B3", "Rhystic Study, Fierce Guardianship, Cyclonic Rift, Swan Song, Bitterblossom, fetch lands, Cavern of Souls", "~297€", "3 (3 Game Changers)"],
+        ["3: Bracket 4", "Mana Vault, Chrome Mox, Lotus Petal, Ancient Tomb, three tutors, Force of Will", "~742€", "4 (10 Game Changers)"]
+      ] },
+      { t: "cards", names: ["Mari, the Killing Quill", "Black Widow, Deadly Hunter", "Achilles Davenport"], caption: "The three cards that change the deck most: deathtouch for every Assassin, a card for every deathtouch hit, and a second lord." },
+      { t: "h", text: "Freerunning" },
+      { t: "p", html: "Four of the new cards have freerunning: <i-c>Achilles Davenport</i-c>, <i-c>Merciless Harlequin</i-c>, <i-c>Eagle Vision</i-c> and <i-c>Chain Assassination</i-c>. You may cast them for their freerunning cost if you dealt combat damage to a player this turn with an Assassin or with your commander. In practice: attack first, then cast them in your second main phase for two mana each." },
+      { t: "callout", tone: "key", title: "Attack before you cast", html: "The habit that matters most with this deck: in your first main phase, cast only what makes the attack better (a lord, Interceptor, haste equipment). Keep freerunning cards and card draw for after combat." },
+      { t: "callout", tone: "tip", title: "Tell the table", html: "Stage 3 is a Bracket 4 deck: fast mana, tutors and free counterspells. At stage 1 or 2 it's still Bracket 3, so say which one you brought." }
+    ]
+  },
+  {
+    id: "b4-aggro-first-turns",
+    title: "B4 aggro: the first four turns",
+    kicker: "Bracket 4 aggro",
+    minutes: 5,
+    summary: "Opening hands, fast mana, and a sample start that has a player at half life by turn 4.",
+    blocks: [
+      { t: "h", text: "What a keepable hand has" },
+      { t: "steps", items: [
+        { title: "Two or three mana sources", html: "With 32 lands, <i-c>Sol Ring</i-c>, <i-c>Mana Vault</i-c>, <i-c>Chrome Mox</i-c>, <i-c>Lotus Petal</i-c> and <i-c>Ancient Tomb</i-c>, a two-land hand with a rock is a keep." },
+        { title: "A creature for turn 1 or 2", html: "Twelve creatures cost 1 or 2. A hand without one is slow, whatever else it has." },
+        { title: "A card engine, or a tutor for one", html: "<i-c>Black Widow, Deadly Hunter</i-c>, <i-c>Mari, the Killing Quill</i-c>, <i-c>Skullclamp</i-c>, <i-c>Rhystic Study</i-c>, or <i-c>Demonic Tutor</i-c> to find one." }
+      ] },
+      { t: "callout", tone: "warn", title: "Don't keep a hand of counterspells", html: "Force of Will, Fierce Guardianship and Swan Song protect a board. With no creatures to protect, they're three dead cards." },
+      { t: "h", text: "A sample start" },
+      { t: "turns", items: [
+        { turn: "T1", play: "<i-c>Watery Grave</i-c> untapped (2 life). <i-c>Hired Poisoner</i-c>. <i-c>Chrome Mox</i-c>, imprinting a spare counterspell.", note: "Two mana next turn plus a land." },
+        { turn: "T2", play: "Island. <i-c>Black Widow, Deadly Hunter</i-c>. Poisoner attacks the player with no creatures: 1 damage, Black Widow draws a card.", note: "The engine is online on turn 2." },
+        { turn: "T3", play: "Swamp. <i-c>Etrata, Deadly Fugitive</i-c> and <i-c>Changeling Outcast</i-c> with the three lands and the Mox. Poisoner and Black Widow attack: two deathtouch hits, two cards, two cloaks.", note: "Hand stays full." },
+        { turn: "T4", play: "Land. Attack first with everything that can connect. Then, in main phase two, <i-c>Achilles Davenport</i-c> for {U}{B} with freerunning and <i-c>Mari, the Killing Quill</i-c> with the other three mana.", note: "Two engines and a lord by turn 4." }
+      ] },
+      { t: "p", html: "Notice what the deck didn't do: it never waited for a cloak worth flipping. Etrata's cloaks are extra attackers once <i-c>Roshan, Hidden Magister</i-c> or <i-c>Maskwood Nexus</i-c> makes them Assassins." },
+      { t: "h", text: "Fast mana, in order" },
+      { t: "list", items: [
+        "<b>Mana Vault</b> is a one-shot burst: cast it the turn you use it, then keep it as sacrifice fodder for <i-c>Shadow, Mysterious Assassin</i-c>.",
+        "<b>Lotus Petal</b>: hold it until the turn it makes a difference, like a turn-2 Mari.",
+        "<b>Chrome Mox</b>: imprint the card you need least. Never a creature you'll want later.",
+        "<b>Ancient Tomb</b>: 2 damage each use adds up with Bitterblossom and Black Widow. Use it on the turns that matter."
+      ] }
+    ]
+  },
+  {
+    id: "b4-aggro-card-flow",
+    title: "B4 aggro: a card for every hit",
+    kicker: "Bracket 4 aggro",
+    minutes: 5,
+    summary: "How Black Widow, Mari, Ezio, Skullclamp and friends stack, and the Mari + Silencer kill.",
+    blocks: [
+      { t: "p", html: "The old deck ran out of cards around turn 6. The new one draws off its attacks, so a good turn refills your hand. The engines stack: one Assassin hit can draw three cards." },
+      { t: "table", head: ["Card", "Draws when", "Notes"], rows: [
+        ["<i-c>Black Widow, Deadly Hunter</i-c>", "A creature of yours with deathtouch deals combat damage to a player", "You lose 1 life per card. With Mari out, every Assassin has deathtouch"],
+        ["<i-c>Mari, the Killing Quill</i-c>", "An Assassin, Mercenary or Rogue connects, if that player owns an exiled card with a hit counter", "Removes the hit counter: a card and two Treasures. Optional"],
+        ["<i-c>Ezio, Blade of Vengeance</i-c>", "An Assassin deals combat damage to a player", "No life cost"],
+        ["<i-c>Gix, Yawgmoth Praetor</i-c>", "Any creature deals combat damage to an opponent", "Pay 1 life per card"],
+        ["<i-c>Kindred Discovery</i-c>", "An Assassin enters or attacks", "Naming Assassin. Draws before combat, not on a hit"],
+        ["<i-c>Skullclamp</i-c>", "The equipped creature dies", "Two cards. Equip it to a 1-toughness creature and it dies at once"],
+        ["<i-c>Shadow, Mysterious Assassin</i-c>", "Shadow connects and you sacrifice another nonland permanent", "Two cards, and each opponent loses its mana value"]
+      ] },
+      { t: "callout", tone: "warn", title: "Watch your life total", html: "Black Widow, Gix, Bitterblossom, fetch lands, Ancient Tomb and the tutors all cost life. Against another aggro deck, stop paying for Gix and keep blockers home." },
+      { t: "h", text: "The Mari and Silencer kill" },
+      { t: "steps", items: [
+        { title: "Mari collects hit counters", html: "Whenever a creature an opponent controls dies, Mari exiles it with a hit counter. Deathtouch attackers and blockers make that happen every combat." },
+        { title: "Stop cashing them in", html: "Mari's draw removes a hit counter. Once a player owns two exiled cards with hit counters, stop drawing off that player." },
+        { title: "The Silencer finishes", html: "<i-c>Etrata, the Silencer</i-c> can't be blocked. Her hit exiles one of that player's creatures with a hit counter: that's three, and they lose the game." },
+        { title: "Ramses wins it", html: "With <i-c>Ramses, Assassin Lord</i-c> on the battlefield, a player who was attacked by one of your Assassins this turn losing the game means you win." }
+      ] },
+      { t: "callout", tone: "key", title: "Tutor targets", html: "Early: Mari or Black Widow. With a board: <i-c>Etrata, the Silencer</i-c> or <i-c>Ramses, Assassin Lord</i-c>. Facing a wipe: <i-c>Force of Will</i-c> or <i-c>Fierce Guardianship</i-c>. Late with mana: <i-c>Mindcrank</i-c> or <i-c>Duskmantle Guildmage</i-c> for the combo, or <i-c>Cyclonic Rift</i-c> to overload." }
+    ]
+  },
+  {
+    id: "b4-aggro-closing",
+    title: "B4 aggro: protecting the board and closing",
+    kicker: "Bracket 4 aggro",
+    minutes: 4,
+    summary: "When to hold up free counterspells, when to overload Rift, and the four ways the game ends.",
+    blocks: [
+      { t: "h", text: "Free counterspells" },
+      { t: "list", items: [
+        "<b><i-c>Fierce Guardianship</i-c></b> and <b><i-c>Deadly Rollick</i-c></b> are free while you control your commander. Keep Etrata on the battlefield, even if she never attacks: she turns them on.",
+        "<b><i-c>Force of Will</i-c></b> is free anywhere, but costs two cards. Save it for the spell that would lose you the game.",
+        "<b><i-c>Swan Song</i-c></b> is one mana for any wipe that's an instant, sorcery or enchantment. Keep {U} up once your board is worth more than a card.",
+        "<b><i-c>Cavern of Souls</i-c></b> naming Assassin makes your Assassin creature spells uncounterable. Use it for Mari, Ezio and Achilles into open blue mana."
+      ] },
+      { t: "callout", tone: "tip", title: "Tap out on your turn, not theirs", html: "An aggro deck spends its mana on its own turn. The free counterspells are what let it do that and still answer a wipe." },
+      { t: "h", text: "Four ways the game ends" },
+      { t: "steps", items: [
+        { title: "Damage", html: "Two lords, menace from Interceptor, Rooftop Bypass tokens, and a wide board. Most games end this way." },
+        { title: "Halving", html: "<i-c>Unstoppable Slasher</i-c> and <i-c>Virtus the Veiled</i-c> each halve a life total when they connect. Put <i-c>Brotherhood Regalia</i-c> on one of them: it can't be blocked. Two halvings and one normal attack kill a player from 40." },
+        { title: "Hit counters", html: "Mari plus Etrata, the Silencer, as in the last chapter. Ramses turns one loss into a win." },
+        { title: "The combo", html: "<i-c>Duskmantle Guildmage</i-c> and <i-c>Mindcrank</i-c>, unchanged from today's deck. The tutors make it findable." }
+      ] },
+      { t: "callout", tone: "key", title: "Overload Rift at the right time", html: "Overloaded <i-c>Cyclonic Rift</i-c> costs seven. Cast it at the end of the turn of the player before you: every opposing nonland permanent returns to its owner's hand, they can't recast much before your turn, and your whole board attacks into nothing." },
+      { t: "qa", items: [
+        { q: "Does Mari's hit counter work with Etrata, the Silencer?", a: "Yes. The Silencer counts exiled cards with hit counters that the player owns, wherever the hit counter came from. Mari's, the Silencer's own and <i-c>Ravenloft Adventurer</i-c>'s all count." },
+        { q: "Can I cast Achilles for {U}{B} if only a face-down creature hit?", a: "Only if that face-down creature is an Assassin (with Roshan or Maskwood Nexus out), or if Etrata herself dealt the damage: she's your commander." },
+        { q: "Does Interceptor return if it died this turn?", a: "Yes, from your graveyard, whenever you attack with one or more legendary creatures: pay {2}{B} and it comes back tapped and attacking." }
+      ] },
+      { t: "widget", id: "playCta" }
+    ]
   }
 ];

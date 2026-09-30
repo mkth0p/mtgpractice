@@ -18,8 +18,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cards.scryfall.io" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Martian+Mono:wght@400;500;600&family=Unbounded:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="../miku/styles.css?v=14">
-<link rel="stylesheet" href="theme.css?v=14">
+<link rel="stylesheet" href="../miku/styles.css?v=16">
+<link rel="stylesheet" href="theme.css?v=16">
 <script>try { var t = localStorage.getItem("etrataWiki.theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}</script>
 </head>
 <body>
@@ -105,9 +105,18 @@
         <div class="section-head">
           <p class="eyebrow">The guide</p>
           <h2>Learn it track by track</h2>
-          <p class="muted">Seventeen short chapters, from the deck in 60 seconds to the trickiest face-down rules. Your place is saved on this device.</p>
+          <p class="muted">Twenty-one short chapters, from the deck in 60 seconds to the trickiest face-down rules and the Bracket 4 aggro upgrade. Your place is saved on this device.</p>
         </div>
         <div class="resume" id="resume"></div>
+      </section>
+
+      <section class="block" id="b4-promo">
+        <div class="section-head">
+          <p class="eyebrow">The upgrade</p>
+          <h2>Make it a Bracket 4 aggro deck</h2>
+          <p class="muted">A three-stage plan in the Shop tab: 50 swaps, from a ~53€ aggro core to fast mana and tutors. Every stage is playable in the Play tab.</p>
+        </div>
+        <div class="btn-row"><a class="btn primary" href="#shop/b4">See the B4 aggro plan</a><a class="btn" href="#ch-b4-aggro-the-deck">Read the chapters</a></div>
       </section>
 
       <section class="block" id="play-promo">
@@ -477,7 +486,8 @@
           <div class="panel rule mull"><h3>What holds it back</h3><ul class="prose">
             <li>Small creatures: one board wipe undoes several turns of work.</li>
             <li>No ramp beyond mana rocks, and no tutors.</li>
-            <li>Stolen cards are random: some turns you cloak a land.</li></ul></div>
+            <li>Stolen cards are random: some turns you cloak a land.</li>
+            <li>The <a href="#shop/b4">Bracket 4 aggro upgrade</a> fixes all three.</li></ul></div>
         </div>
         <div class="panel callout"><h3>Before you sit down</h3><p class="prose">Bracket 3 allows two-card combos as long as they aren't early-game ones. Mention Duskmantle Guildmage + Mindcrank and Ramses at the pregame talk, since some tables ban them.</p></div>
       </section>
@@ -505,6 +515,202 @@
           <p class="muted">Saved on this device when you finish a game in the Play tab.</p>
         </div>
         <div id="myStats"></div>
+      </section>
+    </div>
+  </div>
+</div>
+<!-- ================================================================== SHOP: the Bracket 4 aggro upgrade -->
+<div class="view" id="view-shop" data-view="shop" data-segs="b4:B4 aggro,swaps:Buy it,list:Decklist,why:Choices">
+  <div class="segment" data-segment="b4">
+    <div class="wrap">
+      <section class="block" id="b4">
+        <div class="section-head">
+          <p class="eyebrow">The upgrade · Bracket 4 aggro</p>
+          <h2>From sneaky B3 to a Bracket 4 Assassin rush</h2>
+          <p class="prose">Today's deck is a strong Bracket 3: it steals cards, counters things and kills with two combos. What it doesn't do is hit hard. The upgrade turns it into an aggro deck: 30 cheap creatures, 28 of them Assassins, two Assassin lords, a card drawn for almost every hit, and at the top end the fast mana, tutors and free counterspells of a Bracket 4 deck. Etrata's cloaks become the bonus, not the plan. You buy it in three stages, and each stage is a legal 100-card deck you can play in the Play tab.</p>
+        </div>
+        <ul class="ticket-strip b4-strip" aria-label="Upgrade facts">
+          <li class="teal">50 swaps in 3 stages</li>
+          <li>30 creatures</li>
+          <li>10 Game Changers</li>
+          <li class="pink">~1,090€ for all three</li>
+        </ul>
+      </section>
+
+      <section class="block" id="b4-why">
+        <div class="section-head">
+          <p class="eyebrow">Why change it</p>
+          <h2>What holds today's deck back</h2>
+          <p class="muted">From the deck list and from bot games in the Play tab's engine (120 to 800 games per number).</p>
+        </div>
+        <div class="grid-2">
+          <div class="panel rule mull"><h3>It barely hits</h3><p class="prose">In bot games the deck deals about 16 combat damage to players per game, a third of what a retail precon deals. Most of its creatures are 1/1s and 1/3s, and only 13 of them trigger Etrata.</p></div>
+          <div class="panel rule mull"><h3>The engine dies with Etrata</h3><p class="prose">Cloaks only turn into Assassins with one of four enablers, and flipping them needs Etrata alive. Remove her twice and the deck is a pile of 2/2s with no card draw.</p></div>
+          <div class="panel rule mull"><h3>Nothing finds the key cards</h3><p class="prose">No tutors, and the card draw is slow: Mask of Memory, Reconnaissance Mission, They Came from the Pipes. Each combo piece shows up in only about one game in five.</p></div>
+          <div class="panel rule mull"><h3>Dead slots</h3><p class="prose"><i-c>March of Swirling Mist</i-c>, <i-c>Supernatural Stamina</i-c>, <i-c>Dispel</i-c>, <i-c>Aqueous Form</i-c> and <i-c>Training Grounds</i-c> rarely do anything, and <i-c>Wound Reflection</i-c> costs six for half a combo.</p></div>
+        </div>
+      </section>
+
+      <section class="block" id="b4-plan">
+        <div class="section-head">
+          <p class="eyebrow">The plan</p>
+          <h2>Three stages, each one playable</h2>
+        </div>
+        <ol class="stages">
+          <li class="now"><div class="st-head"><span class="st-n">0</span><span class="st-tag">now</span><span class="st-eur mono">owned</span></div><p>Today's list: cloaks, counterspells, Slasher + Wound Reflection and Guildmage + Mindcrank.</p><span class="st-res">Bracket 3</span></li>
+          <li><div class="st-head"><span class="st-n">1</span><span class="st-eur mono">~53€</span></div><p>The aggro core. 29 cheap swaps: <i-c>Mari, the Killing Quill</i-c>, <i-c>Black Widow, Deadly Hunter</i-c>, <i-c>Achilles Davenport</i-c>, <i-c>Ezio, Blade of Vengeance</i-c> and 12 more Assassins, <i-c>Skullclamp</i-c>, <i-c>Kindred Discovery</i-c>, <i-c>Rooftop Bypass</i-c>, cheap removal and both haste equipment.</p><span class="st-res">Fast Bracket 3</span></li>
+          <li><div class="st-head"><span class="st-n">2</span><span class="st-eur mono">~297€</span></div><p>Interaction and mana: <i-c>Rhystic Study</i-c>, <i-c>Fierce Guardianship</i-c>, <i-c>Cyclonic Rift</i-c>, <i-c>Swan Song</i-c>, <i-c>Mystic Remora</i-c>, <i-c>Deadly Rollick</i-c>, <i-c>Bitterblossom</i-c>, <i-c>Watery Grave</i-c>, two fetch lands and <i-c>Cavern of Souls</i-c>.</p><span class="st-res">Top of Bracket 3 (3 Game Changers)</span></li>
+          <li><div class="st-head"><span class="st-n">3</span><span class="st-eur mono">~742€</span></div><p>Fast mana (<i-c>Mana Vault</i-c>, <i-c>Chrome Mox</i-c>, <i-c>Lotus Petal</i-c>, <i-c>Ancient Tomb</i-c>), <i-c>Demonic Tutor</i-c>, <i-c>Vampiric Tutor</i-c>, <i-c>Imperial Seal</i-c>, <i-c>Force of Will</i-c> and two more fetch lands.</p><span class="st-res">Bracket 4 (10 Game Changers)</span></li>
+        </ol>
+        <p class="muted small">Prices are MTGGoldfish USD × 0.85, looked up on 29 and 30 Sep 2026, cheapest regular printing. Cardmarket couldn't be read from here, so check each card there before buying: it's usually the same or cheaper. MTGGoldfish shows no regular price for <i-c>Ezio, Blade of Vengeance</i-c> (it was only printed in the Assassin's Creed starter kit), so it isn't in the totals. The stage 3 budget swaps on the Buy it page bring the whole plan to about 660€.</p>
+        <div class="btn-row"><a class="btn primary" href="#shop/swaps">Buy it stage by stage</a><a class="btn" href="#shop/list">See the final list</a></div>
+      </section>
+
+      <section class="block" id="b4-engine">
+        <div class="section-head">
+          <p class="eyebrow">How the aggro deck wins</p>
+          <h2>Attack, draw, attack again</h2>
+        </div>
+        <ol class="flow">
+          <li><span class="beat">1</span><div><b>Turns 1 to 3: cheap Assassins</b><p>Twelve creatures cost 1 or 2. <i-c>Hired Poisoner</i-c>, <i-c>Changeling Outcast</i-c>, <i-c>Thrill-Kill Assassin</i-c> and <i-c>Guildsworn Prowler</i-c> attack from turn 2, and deathtouch makes every block a trade.</p></div></li>
+          <li><span class="beat">2</span><div><b>Every hit draws</b><p><i-c>Black Widow, Deadly Hunter</i-c> draws for each deathtouch creature that connects, <i-c>Mari, the Killing Quill</i-c> gives all your Assassins deathtouch, and <i-c>Ezio, Blade of Vengeance</i-c>, <i-c>Kindred Discovery</i-c>, <i-c>Gix, Yawgmoth Praetor</i-c> and <i-c>Skullclamp</i-c> stack on top.</p></div></li>
+          <li><span class="beat">3</span><div><b>Lords and evasion</b><p><i-c>Ramses, Assassin Lord</i-c> and <i-c>Achilles Davenport</i-c> give +1/+1 each, <i-c>Interceptor, Shadow's Hound</i-c> gives every Assassin menace, and <i-c>Rooftop Bypass</i-c> adds a menace Assassin for each player you hit.</p></div></li>
+          <li><span class="beat">4</span><div><b>The kill</b><p><i-c>Unstoppable Slasher</i-c> and <i-c>Virtus the Veiled</i-c> halve a life total per hit. Mari exiles every creature that dies with a hit counter, so <i-c>Etrata, the Silencer</i-c> often needs a single hit to make a player lose, and Ramses turns that into a win. Overloaded <i-c>Cyclonic Rift</i-c> clears the way for the last swing.</p></div></li>
+        </ol>
+        <div class="panel callout"><h3>The Mari and Silencer trick</h3><p class="prose">Etrata, the Silencer makes a player lose once they own three exiled cards with hit counters. Mari puts a hit counter on every opposing creature that dies, so a few trades in combat get a player to two. From then on, don't cash in that player's hit counters for cards: the Silencer's next hit exiles the third and that player is out. With Ramses on the battlefield and an Assassin attacking them that turn, you win the game.</p></div>
+      </section>
+
+      <section class="block" id="b4-compare">
+        <div class="section-head">
+          <p class="eyebrow">Before and after</p>
+          <h2>The deck in numbers</h2>
+          <p class="muted">Counted from the three lists.</p>
+        </div>
+        <div data-widget="b4Compare"></div>
+      </section>
+
+      <section class="block" id="b4-bracket">
+        <div class="section-head">
+          <p class="eyebrow">Bracket check</p>
+          <h2>Why stage 3 is Bracket 4</h2>
+          <p class="prose">Bracket 3 allows up to three Game Changers and no early two-card combos. Stage 2 stops at exactly three (<i-c>Rhystic Study</i-c>, <i-c>Fierce Guardianship</i-c>, <i-c>Cyclonic Rift</i-c>). Stage 3 adds seven more, and with three tutors <i-c>Duskmantle Guildmage</i-c> + <i-c>Mindcrank</i-c> becomes a combo you can find on turn 4 or 5: both put the deck in Bracket 4. It's not cEDH: no Thassa's Oracle line, no Mox Diamond, no mass land denial.</p>
+        </div>
+        <div class="table-wrap"><table class="stack">
+          <thead><tr><th>Game Changer</th><th>Stage</th><th>What it does here</th></tr></thead>
+          <tbody>
+            <tr><td><i-c>Rhystic Study</i-c></td><td>2</td><td>A card for most spells the table casts</td></tr>
+            <tr><td><i-c>Fierce Guardianship</i-c></td><td>2</td><td>Free counter for the wipe aimed at your board</td></tr>
+            <tr><td><i-c>Cyclonic Rift</i-c></td><td>2</td><td>Overloaded, the last attack meets empty boards</td></tr>
+            <tr><td><i-c>Mana Vault</i-c></td><td>3</td><td>Turn 2 Etrata or Mari</td></tr>
+            <tr><td><i-c>Chrome Mox</i-c></td><td>3</td><td>A free extra mana from turn 1</td></tr>
+            <tr><td><i-c>Ancient Tomb</i-c></td><td>3</td><td>A land that taps for two</td></tr>
+            <tr><td><i-c>Demonic Tutor</i-c></td><td>3</td><td>Mari, Black Widow, the Silencer or a combo piece</td></tr>
+            <tr><td><i-c>Vampiric Tutor</i-c></td><td>3</td><td>The same, at instant speed, on top</td></tr>
+            <tr><td><i-c>Imperial Seal</i-c></td><td>3</td><td>Turn 1 tutor</td></tr>
+            <tr><td><i-c>Force of Will</i-c></td><td>3</td><td>Free counter for anything</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section class="block" id="b4-sims">
+        <div class="section-head">
+          <p class="eyebrow">In the game</p>
+          <h2>How the bots do with it</h2>
+          <p class="prose">All three lists are in the Play tab: pick <b>Etrata aggro (stage 1)</b> or <b>Etrata B4 aggro</b> in the deck picker. The full list also sits at the table as a Bracket 4 bot. These are bot-vs-bot results from the game's engine, not human games: 800 games per row, Etrata's seat against three bots, random turn order.</p>
+        </div>
+        <div class="table-wrap"><table class="stack">
+          <thead><tr><th>Deck (bot-piloted)</th><th class="num">vs precons</th><th class="num">vs Bracket 4</th><th class="num">Combat damage to players</th></tr></thead>
+          <tbody>
+            <tr><td>Today's list</td><td class="num" data-label="vs precons">7.5%</td><td class="num" data-label="vs Bracket 4">8.4%</td><td class="num" data-label="Combat damage">16 a game</td></tr>
+            <tr><td>Stage 1</td><td class="num" data-label="vs precons">11.0%</td><td class="num" data-label="vs Bracket 4">9.5%</td><td class="num" data-label="Combat damage">28 a game</td></tr>
+            <tr><td>Stage 2</td><td class="num" data-label="vs precons">11.2%</td><td class="num" data-label="vs Bracket 4">not run</td><td class="num" data-label="Combat damage">not run</td></tr>
+            <tr><td>Stage 3 (B4)</td><td class="num" data-label="vs precons">6.8%</td><td class="num" data-label="vs Bracket 4">3.6%</td><td class="num" data-label="Combat damage">22 a game</td></tr>
+          </tbody>
+        </table></div>
+        <p class="muted small">A fair seat in a four-player game wins 25%. The bots pilot every Etrata list badly, and stage 3 worst: in tests, swapping its fast mana and tutors back for lands and Signets brought it back up, so the bots lose value on the cards a human uses best (a Vampiric Tutor to the top, a Chrome Mox imprint, when to spend Force of Will). Read the stage 3 row as a limit of the bots, not of the list. The stage 1 row is the useful one: the same bots with more Assassins deal two thirds more combat damage and win half again as often.</p>
+        <a class="play-promo" href="#play">
+          <span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="pp-copy"><span class="eyebrow">Try it</span><b>Play the B4 aggro list</b><span class="muted">Pick Etrata B4 aggro in the deck picker, and deal Bracket 4 bots to see it against real opposition.</span></span>
+          <span class="pp-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span>
+        </a>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="swaps">
+    <div class="wrap">
+      <section class="block" id="b4-swaps">
+        <div class="section-head">
+          <p class="eyebrow">Shopping list</p>
+          <h2>Cut this, add that</h2>
+          <p class="muted">Every swap, stage by stage: the struck-out card leaves, the new one comes in. Tap a card for its wiki entry, or the price to search Cardmarket. Tick what you've bought; your ticks stay on this device.</p>
+        </div>
+        <div data-widget="b4Swaps"></div>
+      </section>
+
+      <section class="block" id="b4-budget">
+        <div class="section-head">
+          <p class="eyebrow">Budget</p>
+          <h2>Cheaper stage 3</h2>
+          <p class="prose">Stage 3 is 742€, and four cards are 461€ of it. These swaps keep the deck in Bracket 4 (tutors and free counters are what matter) for about 430€ less.</p>
+        </div>
+        <div class="table-wrap"><table class="stack">
+          <thead><tr><th>Instead of</th><th>Play</th><th class="num">Saves</th></tr></thead>
+          <tbody>
+            <tr><td><i-c>Imperial Seal</i-c> (~155€)</td><td>Diabolic Intent (~13€): sacrifice a creature, tutor to hand. Skullclamp food works.</td><td class="num">~142€</td></tr>
+            <tr><td><i-c>Chrome Mox</i-c> (~139€)</td><td>Keep <i-c>Mind Stone</i-c></td><td class="num">~139€</td></tr>
+            <tr><td><i-c>Ancient Tomb</i-c> (~113€)</td><td>Keep a basic land</td><td class="num">~113€</td></tr>
+            <tr><td><i-c>Force of Will</i-c> (~54€)</td><td>Pact of Negation (~16€): free now, pay {3}{U}{U} next upkeep</td><td class="num">~38€</td></tr>
+          </tbody>
+        </table></div>
+        <p class="muted small">With all four swaps, stage 3 is about 310€ and the whole plan about 660€. The deck then has 6 Game Changers: still Bracket 4, which starts at four.</p>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="list">
+    <div class="wrap">
+      <section class="block" id="b4-list">
+        <div class="section-head">
+          <p class="eyebrow">The finished deck</p>
+          <h2>Etrata B4 aggro, all 100</h2>
+          <p class="muted">32 lands, 30 creatures, 8 mana rocks and rituals, 9 card draw cards, 3 tutors, 11 counterspells and removal spells, and 6 other artifacts and enchantments. Tap a card to read about it.</p>
+        </div>
+        <div data-widget="b4List"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="why">
+    <div class="wrap">
+      <section class="block" id="b4-choices">
+        <div class="section-head">
+          <p class="eyebrow">Design notes</p>
+          <h2>What stays, what goes, what didn't make it</h2>
+        </div>
+        <div class="grid-2">
+          <div class="panel rule keep"><h3>Kept from today's deck</h3><ul class="prose">
+            <li><b>Every evasive one- and two-drop.</b> <i-c>Changeling Outcast</i-c>, <i-c>Hookblade Veteran</i-c>, <i-c>Mothdust Changeling</i-c>, <i-c>Universal Automaton</i-c>, <i-c>Brotherhood Spy</i-c>, <i-c>Desmond Miles</i-c> and <i-c>Basim Ibn Ishaq</i-c> are exactly what an aggro deck wants.</li>
+            <li><b>The finishers.</b> <i-c>Ramses, Assassin Lord</i-c>, <i-c>Etrata, the Silencer</i-c> and <i-c>Unstoppable Slasher</i-c> get better with Mari and Virtus.</li>
+            <li><b>One cloak engine.</b> <i-c>Roshan, Hidden Magister</i-c> and <i-c>Maskwood Nexus</i-c> stay, so cloaks still become Assassins. <i-c>Spark Double</i-c> copies Etrata, Mari or Black Widow.</li>
+            <li><b>Guildmage + Mindcrank.</b> Four mana for a second win condition the tutors can find.</li></ul></div>
+          <div class="panel rule mull"><h3>Cut</h3><ul class="prose">
+            <li><b>Slow value.</b> <i-c>They Came from the Pipes</i-c>, <i-c>Reconnaissance Mission</i-c>, <i-c>Strixhaven Stadium</i-c>, <i-c>Scroll of Fate</i-c> and <i-c>Glitch Interpreter</i-c> cost a turn without adding pressure.</li>
+            <li><b>Morph tricks.</b> <i-c>Kheru Spellsnatcher</i-c> and <i-c>Willbender</i-c> need six and five mana of setup; free counterspells do the job.</li>
+            <li><b>Narrow spells.</b> <i-c>Dispel</i-c>, <i-c>March of Swirling Mist</i-c>, <i-c>Supernatural Stamina</i-c> and <i-c>Aqueous Form</i-c>.</li>
+            <li><b>Wound Reflection.</b> Six mana for half a combo. Virtus the Veiled is the same halving on a 3-mana creature.</li></ul></div>
+        </div>
+        <div class="table-wrap"><table class="stack">
+          <thead><tr><th>Considered</th><th>Why it's not in</th></tr></thead>
+          <tbody>
+            <tr><td>Orcish Bowmasters</td><td>A great Bracket 4 card, but it's an Orc, not an Assassin, and costs ~41€. First pick if you want an eleventh Game Changer.</td></tr>
+            <tr><td>Mox Amber</td><td>~80€ for a mox that only works with a legendary creature out. Fellwar Stone stays.</td></tr>
+            <tr><td>The One Ring, Necropotence</td><td>Strong draw, but both slow an aggro deck's turns. Black Widow and Ezio draw more here.</td></tr>
+            <tr><td>Opposition Agent, Notion Thief</td><td>Game Changers that don't attack well.</td></tr>
+            <tr><td>Jacob Frye, Brotherhood Ambushers</td><td>Good Assassins, just below the 30 in the list. Swap them in for Mistwalker or Lydia Frye if you like.</td></tr>
+            <tr><td>Toxic Deluge</td><td>A great wipe, but this deck is the board. It leaves at stage 2 for Cyclonic Rift.</td></tr>
+          </tbody>
+        </table></div>
       </section>
     </div>
   </div>
@@ -538,11 +744,12 @@
 <div class="peek" id="peek" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="../miku/kit.js?v=14"></script>
-<script src="cards.js?v=14"></script>
-<script src="wiki.js?v=14"></script>
-<script src="guide.js?v=14"></script>
-<script src="site.js?v=14"></script>
-<script src="../miku/app.js?v=14"></script>
+<script src="../miku/kit.js?v=16"></script>
+<script src="cards.js?v=16"></script>
+<script src="b4.js?v=16"></script>
+<script src="wiki.js?v=16"></script>
+<script src="guide.js?v=16"></script>
+<script src="site.js?v=16"></script>
+<script src="../miku/app.js?v=16"></script>
 </body>
 </html>

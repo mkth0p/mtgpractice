@@ -14,17 +14,21 @@
   const GLOSSARY = D.glossary || window.MIKU_GLOSSARY || [];
   const CUTS = D.cuts || window.MIKU_CUTS || [];
   const FAQ = D.faq || window.MIKU_FAQ || [];
+  // Cards outside the deck that still get a wiki entry (Etrata's Bracket 4 upgrade): qty 0, shown under their own filter.
+  const EXTRA = D.extraCards || [];
+  Object.assign(WIKI, D.extraWiki || {});
+  const ALL = CARDS.concat(EXTRA);
   const KEY = D.key || "mikuWiki"; // localStorage prefix
   const SHORT = D.short || "Miku";
-  const V = "14"; // asset version: keep in step with the ?v= links in index.html and sw.js
-  const byName = new Map(CARDS.map(c => [c.name, c]));
+  const V = "16"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  const byName = new Map(ALL.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const slug = n => String(n).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const short = n => String(n).split(" // ")[0];
   const pad = n => String(n).padStart(2, "0");
   const sum = (a, f) => a.reduce((s, x) => s + (f ? f(x) : x), 0);
-  const bySlug = new Map(CARDS.map(c => [slug(c.name), c]));
+  const bySlug = new Map(ALL.map(c => [slug(c.name), c]));
   const root = document.documentElement;
   const mqMobile = matchMedia("(max-width: 899px)");
   const mqReduce = matchMedia("(prefers-reduced-motion: reduce)");
@@ -324,6 +328,8 @@
       : K.rules(c.text || "");
     const tags = [
       c.new ? `<span class="tag new">NEW · upgrade</span>` : "",
+      c.b4 ? `<span class="tag new">${esc(D.extraTag || "Upgrade")} · stage ${c.b4}</span>` : "",
+      c.gc ? `<span class="tag when">Game Changer</span>` : "",
       c.miku ? `<span class="tag miku">Miku print: ${esc(c.miku)}</span>` : (c.sld ? `<span class="tag miku">Miku art</span>` : ""),
       c.qty > 1 ? `<span class="tag">× ${c.qty}</span>` : "",
       `<span class="tag">MV ${c.mv}</span>`,
@@ -352,6 +358,7 @@
           </div>
         </div>
         <div class="oracle">${oracle}</div>
+        ${c.b4 ? `<div class="swapbox"><span>Stage ${c.b4}: replaces <b>${esc(c.cut)}</b></span><a href="${cm}" target="_blank" rel="noopener">${c.eur != null ? "~" + c.eur.toFixed(2) + "€" : "Price"} on Cardmarket</a></div>` : ""}
         ${c.new ? `<div class="swapbox"><span>Replaces <b>${esc(c.cut)}</b> from the stock deck</span><a href="${cm}" target="_blank" rel="noopener">~${c.eur.toFixed(2)}€ on Cardmarket</a></div>` : ""}
         <div class="d-tabs" role="tablist" aria-label="About this card">
           <button type="button" role="tab" data-dt="play" aria-selected="${sheetTab === "play"}">How to play</button>
@@ -555,16 +562,16 @@
   window.addEventListener("scroll", () => { if (peekFor) hidePeek(); }, { passive: true });
 
   /* ---------------------------------------------------------------- Cards: browse */
-  const HAY = new Map(CARDS.map(c => {
+  const HAY = new Map(ALL.map(c => {
     const w = WIKI[c.name] || {};
     const txt = [c.name, c.type, c.text, c.miku, c.why, c.how, c.warn, (c.faces || []).map(f => f.name + " " + f.text).join(" "), (w.tags || []).join(" "), (w.tips || []).join(" "), (w.rulings || []).map(r => r.q + " " + r.a).join(" "), w.when].join(" ");
     return [c.name, txt.replace(/<[^>]+>/g, "").toLowerCase()];
   }));
   const cs = { q: "", role: "all", sort: store.get(KEY + ".cards.sort") || "role", view: store.get(KEY + ".cards.view") || "grid" };
   if (!["role", "type", "rating", "mv", "az"].includes(cs.sort)) cs.sort = "role";
-  const roleCount = r => CARDS.filter(c => r === "new" ? c.new : r === "miku" ? c.sld : c.roles.includes(r)).length;
-  const chipDefs = [["all", "All", CARDS.length], ["new", "Upgrades", roleCount("new")], ["miku", "Miku art", roleCount("miku")]].filter(([k, , n]) => k === "all" || n)
-    .concat(ROLES.filter(r => r[0] !== "cmd").map(([k, l]) => [k, l, roleCount(k)]));
+  const roleCount = r => r === "extra" ? EXTRA.length : CARDS.filter(c => r === "new" ? c.new : r === "miku" ? c.sld : c.roles.includes(r)).length;
+  const chipDefs = [["all", "All", CARDS.length], ["new", "Upgrades", roleCount("new")], ["extra", D.extraChip || "Upgrade", roleCount("extra")], ["miku", "Miku art", roleCount("miku")]].filter(([k, , n]) => k === "all" || n)
+    .concat(ROLES.filter(r => r[0] !== "cmd").map(([k, l]) => [k, l, roleCount(k)]).filter(([, , n]) => n));
   $("#roleChips").innerHTML = chipDefs.map(([k, l, n]) => `<button class="chip" type="button" data-role="${k}" aria-pressed="${k === "all"}">${l} <span class="n">${n}</span></button>`).join("");
   $("#roleChips").addEventListener("click", e => {
     const b = e.target.closest("[data-role]"); if (!b) return;
@@ -604,20 +611,20 @@
       <span class="thumb${a && a.crop ? " has-art" : ""}" data-thumb="${esc(c.name)}"${a && a.crop ? ` style="background-image:url('${esc(a.crop)}')"` : ""}><span>${esc(initials(c.name))}</span></span>
       <span class="c-body"><span class="c-title">${hl(c.name)}${c.qty > 1 ? ` <span class="muted mono">×${c.qty}</span>` : ""}</span>
         <span class="c-sub">${esc(c.type)}</span>
-        <span class="c-tags">${c.new ? '<span class="tag new">NEW</span>' : ""}${c.roles.slice(0, 2).map(r => `<span class="tag">${ROLE_LABEL[r]}</span>`).join("")}</span></span>
+        <span class="c-tags">${c.new ? '<span class="tag new">NEW</span>' : ""}${c.b4 ? `<span class="tag new">Stage ${c.b4}</span>` : ""}${c.roles.slice(0, 2).map(r => `<span class="tag">${ROLE_LABEL[r]}</span>`).join("")}</span></span>
       <span class="c-side"><span class="c-cost">${mana(c.cost.split(" // ")[0])}</span>${ratingOf(c) ? vu(ratingOf(c)) : ""}</span></button>`;
   }
   function tileHTML(c) {
     return `<button class="c-tile" type="button" data-card="${esc(c.name)}" aria-label="${esc(c.name)}">
       <span class="mini-card" data-art="${esc(c.name)}">${miniCard(c.name)}</span>
-      ${c.new ? '<span class="badge">NEW</span>' : ""}${c.qty > 1 ? `<span class="qty">×${c.qty}</span>` : ""}</button>`;
+      ${c.new ? '<span class="badge">NEW</span>' : ""}${c.b4 ? `<span class="badge">S${c.b4}</span>` : ""}${c.qty > 1 ? `<span class="qty">×${c.qty}</span>` : ""}</button>`;
   }
   function renderList(resetScroll) {
     const q = cs.q;
-    const list = CARDS.filter(c => {
+    const list = (cs.role === "extra" ? EXTRA : CARDS).filter(c => {
       if (cs.role === "new" && !c.new) return false;
       if (cs.role === "miku" && !c.sld) return false;
-      if (!["all", "new", "miku"].includes(cs.role) && !c.roles.includes(cs.role)) return false;
+      if (!["all", "new", "miku", "extra"].includes(cs.role) && !c.roles.includes(cs.role)) return false;
       return !q || HAY.get(c.name).includes(q);
     });
     let groups = [];
@@ -634,7 +641,7 @@
     }
     if (q) groups = groups.map(([l, g]) => [l, g.slice().sort((a, b) => (b.name.toLowerCase().includes(q)) - (a.name.toLowerCase().includes(q)))]);
     sheetList = groups.flatMap(g => g[1]);
-    $("#count").innerHTML = `<b>${list.length}</b> of ${CARDS.length} cards${q ? ` matching “${esc(qIn.value.trim())}”` : ""}`;
+    $("#count").innerHTML = `<b>${list.length}</b> of ${cs.role === "extra" ? EXTRA.length : CARDS.length} cards${q ? ` matching “${esc(qIn.value.trim())}”` : ""}`;
     const cl = $("#cardList");
     const grid = cs.view === "grid";
     const grouped = groups.length > 1 || (groups[0] && groups[0][0]);
@@ -1236,7 +1243,7 @@
     el.innerHTML = `<a class="play-promo" href="#play"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="pp-copy"><span class="pp-k mono">Practice</span><b>Play it against the bots</b><span class="muted">A real four-player Commander game against precons or Bracket 4 decks, built for one thumb.</span></span><span class="pp-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span></a>`;
   }
   const WIDGETS = { engineCalc, handTrainer, drawOdds, lethalCalc, ballistaSim, feederSim, playCta };
-  if (D.widgets) Object.assign(WIDGETS, D.widgets({ K, $, $$, esc, mana, sum, byName, LIBRARY, COMMANDER, choose, stepperHTML, bump, bindSteppers: typeof bindSteppers === "function" ? bindSteppers : null, cardLink, cardChip, ringHTML, makeRing, meterHTML, setMeter, numIn, miniCard, manaText, linkMentions, paintArt, observe, calm, restart, store, KEY }));
+  if (D.widgets) Object.assign(WIDGETS, D.widgets({ K, $, $$, esc, mana, sum, CARDS, EXTRA, checklist, rich, toast, byName, LIBRARY, COMMANDER, choose, stepperHTML, bump, bindSteppers: typeof bindSteppers === "function" ? bindSteppers : null, cardLink, cardChip, ringHTML, makeRing, meterHTML, setMeter, numIn, miniCard, manaText, linkMentions, paintArt, observe, calm, restart, store, KEY }));
   function mountWidgets(scope) {
     $$("[data-widget]", scope).forEach(el => {
       if (el._w) return;
@@ -1428,7 +1435,7 @@
   let bought = new Set(store.json(BOUGHT_KEY, []));
   const saveBought = () => store.put(BOUGHT_KEY, [...bought]);
   const cmURL = n => "https://www.cardmarket.com/en/Magic/Products/Search?searchString=" + encodeURIComponent(n);
-  const eur = n => n >= 100 ? Math.round(n) + "€" : n.toFixed(2);
+  const eur = n => n == null ? "?" : n >= 100 ? Math.round(n) + "€" : n.toFixed(2);
   const TICK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   function itemHTML(it, i) {
     const on = bought.has(it.id);
@@ -1437,7 +1444,7 @@
     return `<div class="swap${on ? " done" : ""}${it.cut ? "" : " plain"}" data-id="${esc(it.id)}">
       <button class="tick" type="button" aria-pressed="${on}" aria-label="Bought ${esc(it.name)}"><span><em>${i + 1}</em>${TICK_SVG}</span></button>
       <div class="who">${it.cut ? `<span class="cut">${esc(it.cut)}</span>` : ""}<span class="add">${name}</span>${it.note || tags ? `<span class="sub-note">${it.note ? esc(it.note) : ""}${tags}</span>` : ""}</div>
-      ${it.link === false ? `<span class="eur mono">${eur(it.eur)}</span>` : `<a class="eur mono" href="${cmURL(it.name)}" target="_blank" rel="noopener" aria-label="${it.eur.toFixed(2)} euros, search Cardmarket">${eur(it.eur)}</a>`}</div>`;
+      ${it.link === false ? `<span class="eur mono">${eur(it.eur)}</span>` : `<a class="eur mono" href="${cmURL(it.name)}" target="_blank" rel="noopener" aria-label="${it.eur != null ? it.eur.toFixed(2) + " euros" : "No price"}, search Cardmarket">${eur(it.eur)}</a>`}</div>`;
   }
   function checklist({ body, progress, items, tiers = {}, budget, budgetLabel, footer, done, extra }) {
     const render = () => {
@@ -1513,7 +1520,7 @@
 
   /* ---------------------------------------------------------------- Play: the game loads on demand */
   const GAME_BASE = D.gameBase || "game/";
-  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/decks-azusa.js", "game/decks-edgar.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/game-ui.js"];
+  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/decks-azusa.js", "game/decks-edgar.js", "game/decks-etrata4.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/game-ui.js"];
   let gameP = null, gameMounted = false;
   function loadGame() {
     if (gameP) return gameP;
@@ -1604,7 +1611,7 @@
     requestAnimationFrame(f);
   }
   const io = "IntersectionObserver" in window && !calm()
-    ? new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { io.unobserve(en.target); reveal(en.target); } }), { threshold: .2 })
+    ? new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { io.unobserve(en.target); reveal(en.target); } }), { threshold: 0, rootMargin: "0px 0px -12% 0px" }) // a ratio threshold never fires on a block taller than the screen (the long decklists)
     : null;
   function reveal(el) { if (el.matches("[data-count]")) countUp(el); else el.classList.add("in"); }
   function observe(scope) {
