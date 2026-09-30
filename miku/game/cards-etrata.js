@@ -63,6 +63,17 @@
     if (!opts.length) return req.optional ? null : req.options[0];
     return opts.sort((a, b) => spellDanger(g, p, b) - spellDanger(g, p, a))[0];
   };
+  /* Attack-target helpers. Opponents a creature can reach, and the ones with no untapped creature
+     that could block it. */
+  const oppTargets = (g, p, targets) => targets.filter(t => g.isPlayer(t) && isOpp(g, p, t));
+  const openFor = (g, o, qs) => qs.filter(q => !g.creatures(q).some(b => !b.tapped && g.canBlock(b, o)));
+  /* The creature to make unblockable (Access Tunnel, Rogue's Passage, Aqueous Form): Unstoppable
+     Slasher first (its hit halves a life total), then Assassins, then the biggest. */
+  const unblockRank = (g, c) => (c.def.name === "Unstoppable Slasher" ? 100 : 0) + (isAssassin(g, c) ? 10 : 0) + g.power(c);
+  const slasherReady = (g, p) => g.creatures(p).some(c => c.def.name === "Unstoppable Slasher" && !c.sick && !c.tapped && !(c.counters.stun > 0) && !g.ch(c).unblockable && !openFor(g, c, g.opponents(p)).length);
+  /* The opponent the Guildmage + Mindcrank loop kills: it drains life until the library is empty,
+     so life at most library + 2; the lowest life first. */
+  const guildVictim = (g, p, opts) => g.opponents(p).filter(q => (!opts || opts.includes(q)) && q.life <= q.library.length + 2).sort((a, b) => a.life - b.life)[0] || null;
   const specSpell = (prompt, f) => ({ kind: "spell", purpose: "counter", prompt, filter: (g, item, p) => item.p !== p && (!f || f(item, g)) });
   const counterAi = { counter: true, target: counterPick };
   function counterIt(g, ctx) {
@@ -122,7 +133,7 @@
     ai: {
       priority: 9,
       // she's the engine: attack only where no untapped blocker can kill her
-      attack: (g, p, o, blockers) => !blockers.some(b => (AI().fight ? AI().fight(g, o, b).aDies : true))
+      attack: (g, p, o, blockers) => (blockers.some(b => (AI().fight ? AI().fight(g, o, b).aDies : true)) ? false : undefined)
     }
   });
 
@@ -260,7 +271,13 @@
         }
       }
     ],
-    ai: { priority: 8, threat: 3 }
+    ai: {
+      priority: 8, threat: 3,
+      // halving the biggest life total does the most; an open player first so it connects
+      attackTarget: (g, p, o, targets) => { const qs = oppTargets(g, p, targets), open = openFor(g, o, qs); return (open.length ? open : qs).sort((a, b) => b.life - a.life)[0]; },
+      attack: (g, p, o, blockers) => (!blockers.length ? true : undefined),
+      unblock: (g, p, o) => !(o.counters.stun > 0) && !g.ch(o).unblockable && !openFor(g, o, g.opponents(p)).length
+    }
   });
   D({
     name: "Ramses, Assassin Lord", cost: "{2}{U}{B}", type: "Legendary Creature — Human Assassin", pt: "4/4",
@@ -303,7 +320,12 @@
         if (s.zone === "battlefield") { g.tuck(s, false); g.shuffle(s.owner); log(g, `${s.owner.name} shuffles Etrata, the Silencer into their library.`, s.owner, [s.def.name]); }
       }
     }],
-    ai: { priority: 8, threat: 4 }
+    ai: {
+      priority: 8, threat: 4,
+      // three hit counters on one player wins, so keep hitting whoever has the most (and has a creature to exile)
+      attackTarget: (g, p, o, targets) => oppTargets(g, p, targets).filter(q => g.creatures(q).length).sort((a, b) => (g.hitCount(b) - g.hitCount(a)) || (a.life - b.life))[0],
+      attack: () => true
+    }
   });
   D({
     name: "Kheru Spellsnatcher", cost: "{3}{U}", type: "Creature — Wizard Snake", pt: "3/3",
@@ -392,7 +414,24 @@
         ai: { use: (g, p, o, ctx) => endBeforeMe(g, p, ctx) && manaNow(g, p) >= 6 }
       }
     ],
-    ai: { priority: 6 }
+    ai: {
+      priority: 6,
+      // With Mindcrank out, the life-loss ability plus "mills two" loops until that player is dead or
+      // out of cards. Do it after combat, so Ramses sees an attacked player lose.
+      plan: (g, p, o, ctx) => {
+        if (ctx.window !== "main2" || !g.controlled(p, c => c.def.name === "Mindcrank").length) return null;
+        if (!guildVictim(g, p)) return null;
+        const live = o.state.dusk === g.turn;
+        const act = ctx.actions.find(a => a.type === "activate" && a.card === o && a.idx === (live ? 1 : 0));
+        if (!act || (!live && manaNow(g, p) < 7)) return null;
+        if (!live) o.state.dusk = g.turn;
+        return { type: "activate", card: o, idx: act.idx };
+      },
+      target: (g, p, req) => {
+        if (req.purpose !== "harm" || !req.options.some(t => g.isPlayer(t))) return undefined;
+        return guildVictim(g, p, req.options) || undefined;
+      }
+    }
   });
   D({
     name: "Gix, Yawgmoth Praetor", cost: "{1}{B}{B}", type: "Legendary Creature — Praetor Phyrexian", pt: "3/3",
@@ -749,7 +788,7 @@
     triggers: [{ on: "attacks", when: (g, s, ev) => ev.o === s.attachedTo, do: (g, s, ev, { p }) => g.scry(p, 1, s) }],
     ai: {
       priority: 6,
-      target: (g, p, req) => req.options.filter(c => c.controller === p && !g.ch(c).unblockable).sort((a, b) => (isAssassin(g, b) - isAssassin(g, a)) || (g.power(b) - g.power(a)))[0] || undefined
+      target: (g, p, req) => req.options.filter(c => c.controller === p && !g.ch(c).unblockable).sort((a, b) => unblockRank(g, b) - unblockRank(g, a))[0] || undefined
     }
   });
 
@@ -913,8 +952,9 @@
       label: "Power 3 or less can't be blocked", cost: "{3}", tap: true, noSelfMana: true,
       targets: [{ kind: "creature", you: true, purpose: "help", prompt: "Can't be blocked this turn", filter: (g, c) => g.power(c) <= 3 }],
       do: (g, src, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0] && t.zone === "battlefield") g.addEffect({ objs: [t], unblockable: true }); },
-      ai: { use: (g, p, o, ctx) => ctx.window === "main1" && g.creatures(p).some(c => !c.sick && !c.tapped && g.power(c) <= 3 && isAssassin(g, c) && !g.ch(c).unblockable) && manaNow(g, p) >= 6 }
-    }]
+      ai: { use: (g, p, o, ctx) => ctx.window === "main1" && (slasherReady(g, p) || (g.creatures(p).some(c => !c.sick && !c.tapped && g.power(c) <= 3 && isAssassin(g, c) && !g.ch(c).unblockable) && manaNow(g, p) >= 6)) }
+    }],
+    ai: { target: (g, p, req) => (req.purpose === "help" ? req.options.filter(c => c.controller === p && !c.sick && !c.tapped && !g.ch(c).unblockable).sort((a, b) => unblockRank(g, b) - unblockRank(g, a))[0] || undefined : undefined) }
   });
 
   /* ================================================================ the deck */

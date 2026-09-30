@@ -604,14 +604,16 @@
           else go = g.kw(a, "indestructible") || (a.isToken && g.power(a) <= 1 && chance(g, aggro * 0.3));
         }
         if (a.def.mana.length && g.power(a) <= 1 && !alpha) go = false;
-        // a card's own say (an engine commander that shouldn't trade itself away)
-        if (go && !alpha && a.def.ai && a.def.ai.attack && a.def.ai.attack(g, p, a, bl) === false) go = false;
+        // a card's own say: false keeps it home (an engine commander), true sends it (a creature whose hit wins)
+        if (!alpha && a.def.ai && a.def.ai.attack) { const say = a.def.ai.attack(g, p, a, bl); if (say === false) go = false; else if (say === true) go = true; }
         if (go) decl.push({ attacker: a, target });
       }
       for (const d of decl) { const tq = g.defenderOf(d.target); mem.lastTarget = tq.id; }
       return decl;
     }
     function pickAttackTarget(g, p, a, q, targets) {
+      // a card's own say (Etrata, the Silencer stacks hit counters on one player)
+      if (a.def.ai && a.def.ai.attackTarget) { const t = a.def.ai.attackTarget(g, p, a, targets); if (t && targets.includes(t)) return t; }
       // a finisher hits whoever it kills, else whoever can't block it
       if (g.power(a) >= 10) {
         const opps = g.opponents(p).filter(o => targets.includes(o));
