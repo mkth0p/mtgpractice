@@ -334,6 +334,15 @@ const named = (g, p, name) => g.battlefield.filter(o => o.controller === p && o.
     g.pay(a, MK.parseCost("{2}{G}"));
     check("With a white card in hand, {2}{G} leaves a Plains open", ls.filter(o => !o.tapped).map(o => o.def.name).join() === "Plains", ls.filter(o => !o.tapped).map(o => o.def.name)); }
 
+  // Grove of the Guardian: the two creatures it taps are never the mana creatures its cost needs
+  { const { g, a } = table(); ["Plains", "Plains", "Forest"].forEach(n => put(g, a, n));
+    const elf = put(g, a, "Llanowar Elves"), pil = put(g, a, "Avacyn's Pilgrim"); put(g, a, "Hero of Bladehold"); put(g, a, "Jazal Goldmane");
+    const grove = put(g, a, "Grove of the Guardian"); await g.settle();
+    for (const o of g.creatures(a)) o.sick = false;
+    const idx = g.abilitiesOf(grove).find(e => e.ab.tapCreatures).i;
+    const ok = await g.activate(a, grove, idx); await g.settle();
+    check("Grove of the Guardian taps Hero and Jazal and pays with the mana creatures", ok && g.creatures(a).some(o => o.def.name === "Elemental" && g.power(o) === 8), { ok, elf: elf.tapped, pil: pil.tapped, log: g.logs.slice(-3).map(e => e.text) }); }
+
   console.log(`${passed} checks passed, ${failed} failed.`);
   process.exitCode = failed ? 1 : 0;
 })().catch(e => { console.error(e); process.exitCode = 1; });

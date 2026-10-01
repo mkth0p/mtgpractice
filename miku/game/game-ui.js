@@ -116,7 +116,9 @@
       return pre + "You " + w;
     });
     if (/^You /.test(t)) t = t.replace(/ and is /, " and are ").replace(/ and finds /, " and find ").replace(/ and gets /, " and get ");
-    t = t.replace(/([^.!?:]\s)You\b/g, "$1you");
+    t = t.replace(/([^.!?:]\s)You\b/g, "$1you").replace(/([^.!?:]\s)Your\b/g, "$1your");
+    // "Creatures you controls get +5/+5", "each creature you owns"
+    t = t.replace(/\byou (controls|owns)\b/g, (m, v) => "you " + v.slice(0, -1));
     return t;
   }
 
@@ -461,7 +463,14 @@
         frag.push(el);
       }
       for (const [, el] of keep) { el.classList.add("gone"); setTimeout(() => el.remove(), 480); }
-      frag.forEach((el, i) => { const at = row.children[i]; if (at !== el) row.insertBefore(el, at || null); });
+      // after the lands pile when the row has one: moving it back and forth on every render made
+      // the row scroll by itself and hide the pile's left edge
+      let prev = row.querySelector(":scope > .mg-lands");
+      for (const el of frag) {
+        const at = prev ? prev.nextSibling : row.firstChild;
+        if (at !== el) row.insertBefore(el, at);
+        prev = el;
+      }
     }
     renderOpp() {
       const g = this.g;
@@ -1081,6 +1090,9 @@
       }, true);
     }
     async askBlock(ctx) {
+      // nothing of yours can block any of them: no question to answer
+      const g = this.g;
+      if (!g.creatures(this.me).some(b => ctx.attackers.some(a => g.canBlock(b, a)))) return [];
       this.blockCtx = ctx.attackers;
       this.sel = ctx.attackers[0] || null;
       this.blk.clear();
@@ -1189,17 +1201,21 @@
       const g = this.g;
       return new Promise(res => {
         const players = req.options.filter(o => g.isPlayer(o));
-        const objs = req.options.filter(o => !g.isPlayer(o));
+        // spells on the stack (counterspells) are shown by the card being cast
+        const spells = req.options.filter(o => o && o.kind === "spell" && o.o);
+        const objs = req.options.filter(o => !g.isPlayer(o) && !spells.includes(o));
         const byOwner = new Map();
         for (const o of objs) { const k = o.zone === "battlefield" ? o.controller : o.owner; if (!byOwner.has(k)) byOwner.set(k, []); byOwner.get(k).push(o); }
         let body = players.length ? `<div class="mg-players">${players.map(p => this.playerChip(p)).join("")}</div>` : "";
+        if (spells.length) body += `<div class="mg-sub">On the stack</div><div class="mg-grid">${spells.map(it => `<div class="opt" data-spell="${it.id}">${this.cardHTML([it.o], {})}<span class="who">${esc(it.p === this.me ? "Yours" : it.p.name)}: ${esc(it.name)}</span></div>`).join("")}</div>`;
         for (const [owner, list] of byOwner) {
-          body += `<div class="mg-sub">${owner === this.me ? (list[0].zone === "graveyard" ? "Your graveyard" : "Yours") : esc(owner.name) + (list[0].zone === "graveyard" ? "'s graveyard" : "")}</div><div class="mg-grid">${list.map(o => `<div class="opt">${this.cardHTML([o], {})}</div>`).join("")}</div>`;
+          body += `<div class="mg-sub">${owner === this.me ? (list[0].zone === "graveyard" ? "Your graveyard" : "Yours") : esc(owner ? owner.name : "") + (list[0].zone === "graveyard" ? "'s graveyard" : "")}</div><div class="mg-grid">${list.map(o => `<div class="opt">${this.cardHTML([o], {})}</div>`).join("")}</div>`;
         }
         const foot = req.optional ? `<button class="mg-btn wide" data-none>Skip</button>` : "";
         const sh = this.openSheet("prompt", `<div><h3>${esc(req.prompt || "Choose a target")}</h3>${this.srcLine(req)}</div>`, body, foot);
         sh.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => res(players.find(p => p.id === b.dataset.p)), { once: true }));
-        sh.querySelectorAll(".bd [data-oid]").forEach(b => b.addEventListener("click", () => res(objs.find(o => o.id === +b.dataset.oid)), { once: true }));
+        sh.querySelectorAll(".bd [data-spell]").forEach(b => b.addEventListener("click", () => res(spells.find(it => it.id === +b.dataset.spell)), { once: true }));
+        sh.querySelectorAll(".bd .opt:not([data-spell]) [data-oid]").forEach(b => b.addEventListener("click", () => res(objs.find(o => o.id === +b.dataset.oid)), { once: true }));
         const none = sh.querySelector("[data-none]");
         if (none) none.addEventListener("click", () => res(null), { once: true });
       });

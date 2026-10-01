@@ -1948,15 +1948,22 @@
         if (!pick) return false;
         sacrificed = pick;
       }
+      // creatures tapped for a cost can't also tap for mana: leave out the ones the mana needs,
+      // as long as enough others remain (Grove of the Guardian with Llanowar Elves in play)
+      const manaCost = this.abilityCost(p, o, ab, ctx.x);
+      const spare = (cands, n, enough) => {
+        const ok = cands.filter(c => this.canPay(p, manaCost, { exclude: excl.concat([c.id]), for: forWhat }));
+        return enough(ok) ? ok : cands;
+      };
       let crewers = null;
       if (ab.crew) {
-        const cands = this.creatures(p).filter(c => !c.tapped && c !== o);
+        const cands = spare(this.creatures(p).filter(c => !c.tapped && c !== o), 0, l => l.reduce((s, c) => s + Math.max(0, this.power(c)), 0) >= ab.crew);
         crewers = await this.ask(p, { type: "cards", prompt: `Crew ${ab.crew}: tap creatures with total power ${ab.crew} or more`, options: cands, min: 1, max: cands.length, purpose: "crew", need: ab.crew, src: o });
         if (!crewers || crewers.reduce((s, c) => s + Math.max(0, this.power(c)), 0) < ab.crew) return false;
       }
       let tappers = null;
       if (ab.tapCreatures) {
-        const cands = this.creatures(p).filter(c => !c.tapped && c !== o);
+        const cands = spare(this.creatures(p).filter(c => !c.tapped && c !== o), 0, l => l.length >= ab.tapCreatures);
         tappers = await this.ask(p, { type: "cards", prompt: `Tap ${ab.tapCreatures} untapped creatures`, options: cands, min: ab.tapCreatures, max: ab.tapCreatures, purpose: "tapCost", src: o });
         if (!tappers || tappers.length !== ab.tapCreatures) return false;
       }
@@ -1971,7 +1978,10 @@
         discarded = await this.ask(p, { type: "cards", prompt: `Discard ${ab.discard}`, options: p.hand.slice(), min: ab.discard, max: ab.discard, purpose: "discard", src: o });
       }
       const cost = this.abilityCost(p, o, ab, ctx.x);
-      if (!this.pay(p, cost, { exclude: excl.concat(tappers ? tappers.map(c => c.id) : []).concat(crewers ? crewers.map(c => c.id) : []), for: forWhat })) return false;
+      if (!this.pay(p, cost, { exclude: excl.concat(tappers ? tappers.map(c => c.id) : []).concat(crewers ? crewers.map(c => c.id) : []), for: forWhat })) {
+        this.log(`${p.name} can't pay for ${ab.label || o.def.name}${tappers || crewers ? " with those creatures tapped (they were needed for mana)" : ""}.`, { p, cards: [o.def.name] });
+        return false;
+      }
       if (ab.tap) this.tap(o);
       if (ab.untapSelf) this.untap(o);
       if (ab.loyalty != null) {
