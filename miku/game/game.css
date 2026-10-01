@@ -420,3 +420,20 @@ html.mg-open, html.mg-open body { overflow: hidden; overscroll-behavior: none; }
 .mg-coach .opt { display: flex; gap: 8px; align-items: center; font-size: .78rem; color: var(--dim); }
 .mg-pool { display: flex; gap: 4px; padding: 3px 8px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--miku, #39c5bb); }
 .mg-pool span { display: inline-flex; align-items: center; gap: 2px; font: 700 .78rem var(--f-mono, monospace); }
+
+/* the companion: a stage-by-stage guide over the opponents' side (Corrupted Miku, ticked in the setup) */
+.mg-companion { position: absolute; left: 50%; transform: translateX(-50%); width: min(calc(100% - 20px), 520px); z-index: 4; background: rgba(15, 20, 26, .94); border: 1px solid var(--line-2); border-left: 3px solid var(--miku, #39c5bb); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, .45); font-size: .78rem; line-height: 1.35; color: var(--soft); max-height: 46%; overflow-y: auto; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.mg-companion[hidden] { display: none; }
+.mg-companion.urgent { border-left-color: var(--pink, #ff3d8b); }
+.mg-companion .hd { display: flex; align-items: center; gap: 8px; padding: 7px 10px; cursor: pointer; }
+.mg-companion .hd b { flex: 1; min-width: 0; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mg-companion .stage { flex: none; font: 600 .6rem var(--f-mono, monospace); letter-spacing: .08em; text-transform: uppercase; color: var(--miku, #39c5bb); }
+.mg-companion.urgent .stage { color: var(--pink, #ff3d8b); }
+.mg-companion .tog { color: var(--dim); }
+.mg-companion ol { margin: 0; padding: 0 12px 4px 28px; display: flex; flex-direction: column; gap: 5px; }
+.mg-companion .cards { display: inline-flex; flex-wrap: wrap; gap: 3px; margin-left: 4px; vertical-align: middle; }
+.mg-companion .cards b { font-size: .66rem; font-weight: 600; padding: 0 6px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line-2); color: var(--text); cursor: help; }
+.mg-companion .ft { display: flex; justify-content: flex-end; gap: 6px; padding: 2px 8px 7px; }
+.mg-companion .ft button { font: inherit; font-size: .7rem; color: var(--soft); background: none; border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 9px; cursor: pointer; }
+.mg-compmull { text-align: left; margin: 6px auto 0; padding-left: 18px; max-width: 520px; font-size: .82rem; line-height: 1.4; color: var(--soft); display: flex; flex-direction: column; gap: 4px; }
+@media (max-width: 520px) { .mg-companion { font-size: .74rem; max-height: 38%; } }

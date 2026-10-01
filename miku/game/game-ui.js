@@ -15,7 +15,7 @@
   }, root.MK_SITE || {});
   const SETTINGS_KEY = SITE.key + ".game.settings.v1";
   const STATS_KEY = SITE.key + ".game.stats.v1";
-  const DEFAULTS = { opponents: 3, level: "sharp", speed: "normal", pool: "precon", askTriggers: false, stopOnSpells: false, picks: [], hero: SITE.defaultHero };
+  const DEFAULTS = { opponents: 3, level: "sharp", speed: "normal", pool: "precon", askTriggers: false, stopOnSpells: false, companion: true, picks: [], hero: SITE.defaultHero };
   // which bot decks can be dealt: precons and upgraded decks (Brackets 2 and 3), Bracket 4 decks, or both
   const POOLS = [["precon", "Casual", "Precons and upgraded decks (Brackets 2 and 3)"], ["mixed", "Mixed", "Every deck"], ["b4", "Bracket 4", "Bracket 4 decks"]];
   const bracketOf = d => d.bracket || 4;
@@ -172,13 +172,14 @@
         <div class="mg-mybar"></div>
         <div class="mg-hand"><div class="fan"></div></div>
         <div class="mg-actions"></div>
+        <aside class="mg-companion" aria-live="polite" hidden></aside>
         <div class="mg-scrim"></div>
         <div class="mg-sheet" role="dialog" aria-modal="true"><div class="grab"></div><div class="hd"></div><div class="bd"></div><div class="ft"></div></div>
         <aside class="mg-log" aria-label="Game log"><div class="hd"><h3>Game log</h3><button class="mg-icon" data-act="log" aria-label="Close log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><ol></ol></aside>
         <div class="mg-menu" role="menu"></div>
         <div class="mg-fx" aria-hidden="true"></div>`;
       const $ = s => el.querySelector(s);
-      this.$ = { phase: $(".mg-phase"), coachBtn: $(".mg-coachbtn"), seats: $(".mg-seats"), opp: $(".mg-board.opp"), mid: $(".mg-mid"), meCre: $(".mg-board.me .cre"), meOth: $(".mg-board.me .oth"), mybar: $(".mg-mybar"), hand: $(".mg-hand"), fan: $(".mg-hand .fan"), actions: $(".mg-actions"), scrim: $(".mg-scrim"), sheet: $(".mg-sheet"), log: $(".mg-log"), logList: $(".mg-log ol"), menu: $(".mg-menu"), fx: $(".mg-fx") };
+      this.$ = { phase: $(".mg-phase"), coachBtn: $(".mg-coachbtn"), comp: $(".mg-companion"), seats: $(".mg-seats"), opp: $(".mg-board.opp"), mid: $(".mg-mid"), meCre: $(".mg-board.me .cre"), meOth: $(".mg-board.me .oth"), mybar: $(".mg-mybar"), hand: $(".mg-hand"), fan: $(".mg-hand .fan"), actions: $(".mg-actions"), scrim: $(".mg-scrim"), sheet: $(".mg-sheet"), log: $(".mg-log"), logList: $(".mg-log ol"), menu: $(".mg-menu"), fx: $(".mg-fx") };
       el.addEventListener("click", e => this.onClick(e));
       // hover (mouse) or press and hold (touch) any card for its full text
       if (K.bindPreview) K.bindPreview(el, t => this.previewFor(t), { hoverSel: ".mc[data-oid], .hc[data-oid], .mg-cmd[data-oid], [data-card]" });
@@ -211,6 +212,8 @@
       const mine = seats.find(d => d.human);
       this.coach = mine && mine.deck.coach || null;
       this.$.coachBtn.hidden = !this.coach;
+      // Companion (ticked in the game setup): a panel that walks you through each stage of the game
+      this.companionOn = !!(this.coach && this.coach.companion && this.s.companion !== false);
       const seed = Math.floor(Math.random() * 2 ** 31);
       const g = this.g = new MK.Game({ seed, players, endOnHumanLoss: true, maxTurns: 160, ui: { log: e => this.onLog(e), anim: (k, d) => this.onAnim(k, d), pace: (k, d) => this.onPace(k, d) } });
       g.players.forEach((p, i) => { p.color = PLAYER_COLORS[i % PLAYER_COLORS.length]; p.deckId = players[i].deckId || "miku"; });
@@ -329,7 +332,7 @@
       this.canCache = null;
       if (this.el.dataset.mode !== this.mode) this.el.dataset.mode = this.mode;
       // one part that fails to draw must not freeze the rest of the table (or the buttons)
-      for (const part of ["renderPhase", "renderSeats", "renderOpp", "renderMid", "renderMine", "renderMyBar", "renderHand", "renderActions", "renderCoach"]) {
+      for (const part of ["renderPhase", "renderSeats", "renderOpp", "renderMid", "renderMine", "renderMyBar", "renderHand", "renderActions", "renderCoach", "renderCompanion"]) {
         try { this[part](); } catch (err) { this.drawError(part, err); }
       }
     }
@@ -753,7 +756,7 @@
       const act = t.closest("[data-act]");
       if (act) return this.action(act.dataset.act, act);
       if (t.closest(".mg-menu")) return;
-      const named = t.closest(".mg-log [data-card], .mg-spot [data-card]");
+      const named = t.closest(".mg-log [data-card], .mg-spot [data-card], .mg-companion [data-card]");
       if (named) { const info = this.infoByName(named.dataset.card); if (info) K.preview.show(info); return; }
       this.$.menu.classList.remove("on");
       const seat = t.closest(".mg-seat");
@@ -858,6 +861,8 @@
         case "blkgo": { const out = [...this.blk].map(([id, att]) => ({ blocker: g.find(+id), attacker: att })).filter(b => b.blocker); this.resolve(out); break; }
         case "respond": this.showResponses(); break;
         case "coach": this.showCoach(); break;
+        case "compmin": this.compMin = !this.compMin; this.compHTML = ""; this.render(); break;
+        case "compclose": this.compHidden = this.compKey; this.render(); break;
         case "rpass": this.resolve(null); break;
         case "ff": this.fastForward = true; this.spotOut(); this.render(); break;
         case "concede": this.$.menu.classList.remove("on"); if (confirm("Concede this game?")) { this.conceded = true; g.lose(this.me, "concede"); if (!g.over) g.end(null, { humanLost: true }); this.resolve(null); } break;
@@ -875,6 +880,7 @@
         <label>Speed <select data-set="speed"><option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option></select></label>
         <label><input type="checkbox" data-set="stopOnSpells"${s.stopOnSpells ? " checked" : ""}> Stop on every opponent spell</label>
         <label><input type="checkbox" data-set="askTriggers"${s.askTriggers ? " checked" : ""}> Choose targets for my triggers</label>
+        ${this.coach && this.coach.companion ? `<label><input type="checkbox" data-set="companion"${this.companionOn ? " checked" : ""}> Companion: guide me each stage</label>` : ""}
         <div class="sep"></div>
         <button data-act="rules">What's simplified</button>
         <button data-act="concede">Concede</button>
@@ -885,6 +891,7 @@
         s[k] = inp.type === "checkbox" ? inp.checked : inp.value;
         saveSettings(Object.assign(settings(), { [k]: s[k] }));
         this.sp = SPEED[s.speed] || SPEED.normal;
+        if (k === "companion") { this.companionOn = !!(this.coach && this.coach.companion && s.companion); this.compHidden = null; this.render(); }
       }));
       m.classList.add("on");
     }
@@ -1076,6 +1083,48 @@
       b.classList.toggle("hot", this.coachTips().some(x => x.level === "win"));
       if (this.sheetMode === "coach") this.fillCoach();
     }
+    /* The companion: one stage of the game plan at a time, with the steps for this moment. */
+    companionCtx() {
+      const m = this.mode, c = this.respondCtx;
+      if (m === "attack") return { mode: "attack", candidates: this.atkCands || [] };
+      if (m === "block") return { mode: "block", attackers: this.blockCtx || [] };
+      if (m === "respond" && c) return { mode: "respond", window: c.window, top: c.top, turnOf: c.turnOf, can: (c.actions || []).map(a => a.card && a.card.def.name).filter(Boolean) };
+      if (m === "main") return { mode: "main" };
+      return { mode: "wait" };
+    }
+    companionAdvice(ctx) {
+      ctx = ctx || this.companionCtx();
+      if (!this.companionOn || !this.g || (this.g.phase === "setup" && ctx.mode !== "mulligan")) return null;
+      const key = this.g.v + ":" + ctx.mode + ":" + (ctx.top ? ctx.top.id : "") + ":" + (ctx.window || "");
+      if (this.compCacheKey === key) return this.compCache;
+      let r = null;
+      try { r = this.coach.companion(this.g, this.me, ctx); } catch (err) { console.error("[miku game] companion", err); }
+      this.compCacheKey = key; this.compCache = r;
+      return r;
+    }
+    renderCompanion() {
+      const box = this.$.comp;
+      const g = this.g;
+      // while your own spells resolve, keep the advice you were reading
+      let a = (this.mode === "wait" || this.mode === "prompt") && g.active === this.me && this.compLast ? this.compLast : this.companionAdvice();
+      if (a && a.steps && a.steps.length) this.compLast = a;
+      const show = !!(a && a.steps && a.steps.length) && !g.over;
+      const key = show ? a.stage + "|" + a.title : "";
+      this.compKey = key;
+      const hide = !show || this.compHidden === key || this.sheetMode;
+      if (box.hidden !== hide) box.hidden = hide;
+      if (hide) return;
+      const chips = list => (list || []).length ? `<span class="cards">${list.map(n => `<b data-card="${esc(n)}">${esc(shortName(n))}</b>`).join("")}</span>` : "";
+      const html = `<div class="hd" data-act="compmin"><span class="stage">${esc(a.stage)}</span><b>${esc(a.title || "")}</b><span class="tog" aria-hidden="true">${this.compMin ? "▴" : "▾"}</span></div>
+        ${this.compMin ? "" : `<ol>${a.steps.slice(0, 4).map(st => `<li>${mana(st.text)}${chips(st.cards)}</li>`).join("")}</ol>`}
+        <div class="ft"><button data-act="coach">Coach and checklist</button><button data-act="compclose" aria-label="Hide until the next stage">Hide</button></div>`;
+      box.classList.toggle("urgent", !!a.urgent);
+      if (this.compHTML !== html) { box.innerHTML = html; this.compHTML = html; }
+      // sits just above the line between the boards, over the opponents' side
+      const mid = this.$.mid;
+      const bottom = this.el.clientHeight - mid.offsetTop + 4;
+      if (box._b !== bottom) { box.style.bottom = bottom + "px"; box._b = bottom; }
+    }
     showCoach() {
       if (!this.coach) return;
       this.coachTab = this.coachTab || "tips";
@@ -1118,12 +1167,14 @@
       const hand = ctx.hand;
       const lands = hand.filter(o => o.def.types.includes("Land")).length;
       const ramp = hand.filter(o => !o.def.types.includes("Land") && o.def.ai && o.def.ai.ramp).length;
-      const verdict = lands >= 3 && lands <= 5 ? `A keep: enough lands to cast ${shortName(this.me.commanders[0] ? this.me.commanders[0].def.name : "your commander")} on time.` : lands === 2 && ramp ? "Two lands and ramp: a fine keep." : lands < 2 ? "Too few lands. Mulligan unless you feel lucky." : lands > 5 ? "Very land-heavy. A mulligan is reasonable." : "Two lands and no ramp: risky.";
+      const comp = this.companionOn ? this.companionAdvice({ mode: "mulligan", hand, mulls: ctx.mulls }) : null;
+      const verdict = comp ? comp.title + "." : lands >= 3 && lands <= 5 ? `A keep: enough lands to cast ${shortName(this.me.commanders[0] ? this.me.commanders[0].def.name : "your commander")} on time.` : lands === 2 && ramp ? "Two lands and ramp: a fine keep." : lands < 2 ? "Too few lands. Mulligan unless you feel lucky." : lands > 5 ? "Very land-heavy. A mulligan is reasonable." : "Two lands and no ramp: risky.";
       const over = document.createElement("div");
       over.className = "mg-over";
       over.innerHTML = `<div class="mg-mull"><h2 style="font-size:1.6rem">Opening hand</h2>
         <div class="hand7">${hand.map(o => `<div class="hc" data-oid="${o.id}"><span class="art" style="${artStyle(o.def)}"></span><span class="cost">${costOf(o.def)}</span><span class="nm">${esc(o.def.name.split(" // ")[0])}</span></div>`).join("")}</div>
-        <p class="facts">${lands} land${lands === 1 ? "" : "s"}${ramp ? `, ${ramp} ramp` : ""}. ${esc(verdict)}</p></div>
+        <p class="facts">${lands} land${lands === 1 ? "" : "s"}${ramp ? `, ${ramp} ramp` : ""}. ${esc(verdict)}</p>
+        ${comp ? `<ul class="mg-compmull">${comp.steps.map(st => `<li>${mana(st.text)}</li>`).join("")}</ul>` : ""}</div>
         <div class="btns"><button class="mg-btn" data-m="0">Mulligan${ctx.mulls === 0 ? " (free)" : ""}</button><button class="mg-btn go" data-m="1">Keep ${7 - Math.max(0, ctx.mulls - 1)}</button></div>`;
       this.el.appendChild(over);
       over.querySelectorAll(".hc").forEach(c => c.addEventListener("click", () => { const o = hand.find(x => x.id === +c.dataset.oid); if (o) this.inspect(o); }));
@@ -1185,7 +1236,10 @@
       const g = this.g, me = this.me;
       const acts = ctx.actions || [];
       const spells = acts.filter(a => a.type === "cast");
-      if (ctx.window === "stack") {
+      // the companion stops the game when it has advice for this moment (a Giver save, a wipe, an end-step tutor)
+      const help = acts.length && ctx.window !== "trigger" && this.companionOn ? this.companionAdvice({ mode: "respond", window: ctx.window, top: ctx.top, turnOf: ctx.turnOf, can: acts.map(a => a.card && a.card.def.name).filter(Boolean) }) : null;
+      if (help && help.urgent) { /* stop */ }
+      else if (ctx.window === "stack") {
         if (!spells.length && !this.s.stopOnSpells) return null;
         if (!acts.length) return null;
       } else if (ctx.window === "combat") {
@@ -1475,6 +1529,7 @@
             <div class="set-row"><span class="set-label">Opponents</span><div class="seg small" role="radiogroup" aria-label="Number of opponents">${[1, 2, 3].map(n => `<button role="radio" aria-checked="${s.opponents === n}" data-opp="${n}">${n}</button>`).join("")}</div></div>
             <div class="set-row"><span class="set-label">Bots</span><div class="seg small" role="radiogroup" aria-label="Bot skill">${[["casual", "Casual"], ["sharp", "Sharp"]].map(([k, l]) => `<button role="radio" aria-checked="${s.level === k}" data-level="${k}">${l}</button>`).join("")}</div></div>
             <div class="set-row"><span class="set-label">Speed</span><div class="seg small" role="radiogroup" aria-label="Game speed">${[["slow", "Slow"], ["normal", "Normal"], ["fast", "Fast"]].map(([k, l]) => `<button role="radio" aria-checked="${s.speed === k}" data-speed="${k}">${l}</button>`).join("")}</div></div>
+            ${hero && hero.coach && hero.coach.companion ? `<div class="set-row col"><label class="set-check"><input type="checkbox" data-companion${s.companion !== false ? " checked" : ""}> <span><b>Companion</b> guides you through each stage of the game: the mulligan, ramp, Shalai, the combo, and what to answer on their turns. It stops the game when it has advice.</span></label></div>` : ""}
             <div class="set-row col"><span class="set-label">Who you face <small>${decks.some(d => (s.picks || []).includes(d.id)) ? "picked" : "random each game"}</small></span>
               <div class="bot-picks">${decks.map(d => `<button class="bot-pick${(s.picks || []).includes(d.id) ? " on" : ""}" data-pick="${esc(d.id)}" aria-pressed="${(s.picks || []).includes(d.id)}"><span class="bp-art" data-art-crop="${esc(d.commander)}"></span><span class="bp-name">${esc(d.name)}</span><span class="bp-dots">${colorDots(d.identity)}</span></button>`).join("")}</div></div>
             <button class="btn primary big start" data-start>Shuffle up and play</button>
@@ -1507,6 +1562,8 @@
       host.querySelectorAll("[data-opp]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { opponents: +b.dataset.opp })); this.render(); }));
       host.querySelectorAll("[data-level]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { level: b.dataset.level })); this.render(); }));
       host.querySelectorAll("[data-speed]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { speed: b.dataset.speed })); this.render(); }));
+      const cb = host.querySelector("[data-companion]");
+      if (cb) cb.addEventListener("change", () => saveSettings(Object.assign(settings(), { companion: cb.checked })));
       host.querySelectorAll("[data-pick]").forEach(b => b.addEventListener("click", () => {
         const cur = settings(); const picks = new Set(cur.picks || []);
         if (picks.has(b.dataset.pick)) picks.delete(b.dataset.pick); else picks.add(b.dataset.pick);
