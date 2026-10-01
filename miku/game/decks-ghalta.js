@@ -1055,8 +1055,12 @@
     if (g.canPay(p, c)) {
       const ok = await g.ask(p, { type: "confirm", prompt: "Summoner's Pact: pay {2}{G}{G}? If you don't, you lose the game.", src, purpose: "pactPay" });
       if (ok && g.pay(p, c)) { g.log(`${p.name} pays {2}{G}{G} for Summoner's Pact.`, { p, cards: ["Summoner's Pact"] }); return; }
+    } else if (p.human) {
+      // say why before the game ends, so the loss isn't a surprise
+      const m = g.manaAfterUntap(p);
+      await g.ask(p, { type: "option", prompt: `Summoner's Pact: you can't pay {2}{G}{G}. Your untapped mana makes ${m.total} (${m.G} green). You lose the game.`, options: [{ id: "ok", label: "OK" }], purpose: "pactLose", src });
     }
-    g.log(`${p.name} doesn't pay for Summoner's Pact.`, { p, cards: ["Summoner's Pact"], loud: true });
+    g.log(`Summoner's Pact isn't paid: ${p.name} loses the game.`, { p, cards: ["Summoner's Pact"], loud: true });
     g.lose(p, "pact");
   }
   function pactPlan(g, p, o, { window, actions }) {

@@ -698,6 +698,20 @@
   const ANSWERS = ["Force of Vigor", "Generous Gift", "Archdruid's Charm", "Boseiju, Who Endures", "Swords to Plowshares", "Path to Exile", "Solitude", "Kenrith's Transformation"];
   const QUIET = ["Grand Abolisher", "Kutzil, Malamet Exemplar", "Voice of Victory"];
 
+  /* Summoner's Pact: at your next upkeep pay {2}{G}{G} or lose. What your permanents make once they untap
+     decides whether that's safe; the tip says so while it's due, and before you cast one you can't pay for. */
+  function pactTip(g, p) {
+    const due = g.delayed.some(d => d.player === p && d.src && d.src.def && d.src.def.name === "Summoner's Pact");
+    const inHand = p.hand.some(c => c.def.name === "Summoner's Pact");
+    if (!due && !inHand) return null;
+    const m = g.manaAfterUntap(p, MK.parseCost("{2}{G}{G}"));
+    const have = `Your lands and mana permanents make ${m.total} mana (${m.G} green) after they untap.`;
+    if (due && m.can) return { level: "warn", title: "Summoner's Pact is due", text: `At your next upkeep you pay {2}{G}{G} or lose the game. ${have} That's enough, so don't sacrifice or give away a mana source before then.`, cards: ["Summoner's Pact"] };
+    if (due) return { level: "now", title: "You can't pay Summoner's Pact yet", text: `At your next upkeep you need {2}{G}{G} or you lose the game. ${have} Play a green land, cast a mana creature or a rock this turn, or win before your upkeep.`, cards: ["Summoner's Pact"] };
+    if (!m.can) return { level: "warn", title: "Summoner's Pact would kill you", text: `Casting it now means paying {2}{G}{G} at your next upkeep. ${have} That isn't enough: only cast it if you win this turn, or add mana first.`, cards: ["Summoner's Pact"] };
+    return null;
+  }
+
   function coachTips(g, p) {
     const out = [];
     const bf = name => g.battlefield.filter(o => o.controller === p && o.def.name === name && o.zone === "battlefield");
@@ -730,7 +744,8 @@
       }
     }
     // 3. pact upkeep, protection and Shalai
-    if (g.delayed.some(d => d.player === p && d.src && d.src.def && d.src.def.name === "Summoner's Pact")) out.push({ level: "warn", title: "Summoner's Pact is due", text: "At your next upkeep you must pay {2}{G}{G} or lose the game. Keep four mana, two of it green, untapped for it.", cards: ["Summoner's Pact"] });
+    const pt = pactTip(g, p);
+    if (pt) out.push(pt);
     if (shalai && !g.kw(shalai, "shroud") && !g.kw(shalai, "hexproof")) {
       if (on("Lightning Greaves") && main) out.push({ level: "now", title: "Shalai has no hexproof", text: "She protects everyone but herself. Equip Lightning Greaves to her ({0}) unless a combo piece needs the haste.", cards: ["Lightning Greaves", "Shalai, Voice of Plenty"] });
       else if (on("Giver of Runes")) out.push({ level: "info", title: "Giver of Runes protects Shalai", text: "Keep Giver untapped. When removal targets Shalai, give her protection from that color in response.", cards: ["Giver of Runes"] });
@@ -899,6 +914,8 @@
       return { stage: "Their turn", title: "Blocks", steps };
     }
 
+    const pact = pactTip(g, p);
+    if (pact && (pact.level === "now" || /due/.test(pact.title) || mode === "main")) step(`${pact.title}. ${pact.text}`, pact.cards);
     // ---- their turn, waiting
     if (!myTurn) {
       const hold = INSTANTS.filter(inHand);
@@ -941,7 +958,7 @@
       if (ramp.length) step(`Cast ${list([...new Set(ramp)].slice(0, 3))}: mana first, the combo needs about 5 to 6.`, ramp.slice(0, 2));
       if (on("Deafening Silence")) step("Deafening Silence is out: only one noncreature spell per turn, yours too.", ["Deafening Silence"]);
       plan();
-      return { stage: "Ramp", title: "Build mana", steps };
+      return { stage: "Ramp", title: "Build mana", steps, urgent: !!(pact && pact.level === "now") };
     }
     if (!shalai) {
       if (shalaiHome && g.castOptions(p, shalaiHome).length) step("Cast Shalai: your other creatures and you get hexproof, so spot removal can't touch the combo.", ["Shalai, Voice of Plenty"]);
@@ -965,7 +982,8 @@
       const other = c ? c.pieces.find(n => n !== need) : null;
       if (castable(need)) { step(`Cast ${short(need)}${other ? ` (with ${short(other)} it's ${c.title})` : ""}.${shalai ? "" : " Without Shalai it can be removed."}`, [need]); return; }
       if (inHand(need)) { step(`${short(need)} is in hand: save mana for it${other ? ` (${c.title})` : ""}.`, [need]); return; }
-      const tutors = (TUTORS[need] || []).filter(n => castable(n) || (n === "Survival of the Fittest" && on(n)));
+      const pactBad = pact && pact.level !== "info" && !/due/.test(pact.title);
+      const tutors = (TUTORS[need] || []).filter(n => (castable(n) || (n === "Survival of the Fittest" && on(n))) && !(n === "Summoner's Pact" && pactBad));
       if (tutors.length) step(`Tutor for ${short(need)} with ${tutors[0]}.${other ? ` It pairs with ${short(other)}.` : ""}`, [tutors[0], need]);
       else if (GREEN_ONLY.some(inHand) && !TUTORS[need].some(n => GREEN_ONLY.includes(n))) { const t = GREEN_ONLY.find(inHand); step(`${t} finds green creatures only, so not ${short(need)}. Use it on Devoted Druid or Spike Feeder.`, [t]); }
     }

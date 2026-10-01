@@ -182,6 +182,26 @@ const repeat = (g, p, o, idx, n) => g.perform(p, { type: "activate", card: o, id
   { const { g, a, b } = table(); put(g, a, "Devoted Druid"); put(g, a, "Llanowar Elves"); await g.settle();
     const c = comp(g, a, { mode: "attack", candidates: g.creatures(a) });
     check("companion: keep Druid home", c.steps.some(s => /Druid/.test(s.text) && /home/.test(s.text)), c.steps.map(s => s.text)); }
+
+  // Summoner's Pact: paid at the next upkeep from mana that untaps, and the coach says when it can't be
+  { const { g, a } = table(); a.identity = ["G", "W"]; lands(g, a, 3, ["Forest", "Plains", "Plains"]); put(g, a, "Birds of Paradise");
+    for (let i = 0; i < 5; i++) a.library.push(g.newObj(MK.get("Spike Feeder"), a, "library"));
+    const pc = hand(g, a, "Summoner's Pact"); await g.settle();
+    await g.cast(a, pc); await g.settle();
+    for (const o of g.battlefield) if (o.controller === a) o.tapped = true;
+    const m = g.manaAfterUntap(a, MK.parseCost("{2}{G}{G}"));
+    check("Pact: Forest + 2 Plains + Birds can pay after untap", m.can && m.total === 4 && m.G === 2, m);
+    check("Pact: coach says it is due and payable", MK.CORRUPTED_DECK.coach.tips(g, a).some(t => t.title === "Summoner's Pact is due"));
+    for (const o of g.battlefield) if (o.controller === a) o.tapped = false;
+    g.turn += 4; g.runDelayed("upkeep", a); await g.settle();
+    check("Pact: paid at upkeep, game goes on", !a.lost, a.lostReason); }
+  { const { g, a } = table(); a.identity = ["G", "W"]; lands(g, a, 3, ["Forest", "Plains", "Plains"]);
+    for (let i = 0; i < 5; i++) a.library.push(g.newObj(MK.get("Spike Feeder"), a, "library"));
+    hand(g, a, "Summoner's Pact"); await g.settle();
+    check("Pact: coach warns before casting one you can't pay", MK.CORRUPTED_DECK.coach.tips(g, a).some(t => /would kill you/.test(t.title)));
+    const pc = a.hand.find(c => c.def.name === "Summoner's Pact"); await g.cast(a, pc); await g.settle();
+    const c = MK.CORRUPTED_DECK.coach.companion(g, a, { mode: "main" });
+    check("Pact: companion says you can't pay it yet", c.steps.some(st => /can't pay Summoner's Pact/.test(st.text)), c.steps.map(st => st.text)); }
   { check("checklist is defined", !!(globalThis.MK_CHECKLISTS && globalThis.MK_CHECKLISTS.corrupted && globalThis.MK_CHECKLISTS.corrupted.length)); }
 
   console.log(`${passed} passed, ${failed} failed`);
