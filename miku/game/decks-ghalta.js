@@ -42,7 +42,7 @@
   /* Search the library for one card. Asked as a "target" question so each tutor's ai.target picks
      for the bots; the table shows the cards to a human. to: "hand" | "top" | "battlefield". */
   async function tutor(g, p, src, o) {
-    const pool = p.library.filter(c => o.filter(c));
+    const pool = (g.librarySearch ? g.librarySearch(p) : p.library).filter(c => o.filter(c));
     let pick = null;
     if (pool.length) pick = await g.ask(p, { type: "target", prompt: o.prompt, options: pool, optional: true, purpose: "tutor", src, dest: o.to });
     if (pick && !pool.includes(pick)) pick = null;

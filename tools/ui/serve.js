@@ -40,7 +40,7 @@ async function openPlay(browser, srv, { site = "miku", hero, pool = "precon", as
   page.on("console", m => { if (m.type() === "error" && !/Failed to load resource|scryfall/i.test(m.text())) onError("console error", m.text()); });
   page.on("dialog", d => d.accept());
   await page.addInitScript(([key, s]) => localStorage.setItem(key + ".game.settings.v1", JSON.stringify(s)),
-    [site === "miku" ? "mikuWiki" : "etrataWiki", { opponents: 3, level: "sharp", speed: "fast", pool, askTriggers, stopOnSpells: false, picks: [], hero }]);
+    [{ miku: "mikuWiki", etrata: "etrataWiki", corrupted: "corruptedWiki" }[site] || site + "Wiki", { opponents: 3, level: "sharp", speed: "fast", pool, askTriggers, stopOnSpells: false, picks: [], hero }]);
   await page.goto(`http://127.0.0.1:${srv.address().port}/${site}/#play`);
   await page.waitForSelector("[data-start]", { timeout: 20000 });
   await page.click("[data-start]");

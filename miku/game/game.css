@@ -386,3 +386,37 @@ html.mg-open, html.mg-open body { overflow: hidden; overscroll-behavior: none; }
 /* no "save image" menu or drag on cards; press and hold opens the preview instead */
 .mg, .mg * { -webkit-touch-callout: none; }
 .mg .mg-log [data-card] { cursor: pointer; text-decoration: underline dotted rgba(255, 255, 255, .35); text-underline-offset: 2px; }
+
+/* the coach (decks with live tips: Corrupted Miku) */
+.mg-coachbtn { position: relative; }
+.mg-coachbtn[hidden] { display: none; }
+.mg-coachbtn .badge { position: absolute; top: 3px; right: 3px; min-width: 15px; height: 15px; padding: 0 3px; border-radius: 8px; background: var(--pink, #ff3d8b); color: #fff; font: 700 .6rem/15px var(--f-mono, monospace); font-style: normal; text-align: center; }
+.mg-coachbtn .badge:empty { display: none; }
+.mg-coachbtn.hot { color: var(--miku, #39c5bb); animation: mg-coachpulse 1.6s ease-in-out infinite; }
+@keyframes mg-coachpulse { 50% { box-shadow: 0 0 0 4px rgba(57, 197, 187, .25); } }
+@media (prefers-reduced-motion: reduce) { .mg-coachbtn.hot { animation: none; } }
+.mg-tiphint { cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
+.mg-tiphint.lv-win { color: var(--miku, #39c5bb); font-weight: 700; }
+.mg-tiphint.lv-warn { color: #ffd166; }
+.mg-sheet .hd .mg-tabs { display: flex; gap: 4px; margin-left: auto; margin-right: 6px; }
+.mg-tabs button { padding: 6px 12px; border-radius: 999px; font-size: .78rem; color: var(--soft); background: var(--panel-2); }
+.mg-tabs button.on { background: var(--miku, #39c5bb); color: #04201e; font-weight: 700; }
+.mg-coach { display: flex; flex-direction: column; gap: 10px; font-size: .86rem; line-height: 1.45; }
+.mg-coach .tip { border-left: 3px solid var(--line-2); padding: 6px 10px; border-radius: 4px 10px 10px 4px; background: var(--panel-2); }
+.mg-coach .tip .lv { display: block; font: 600 .62rem var(--f-mono, monospace); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+.mg-coach .tip p { margin: 4px 0 0; color: var(--soft); }
+.mg-coach .tip.lv-win { border-color: var(--miku, #39c5bb); }
+.mg-coach .tip.lv-win .lv { color: var(--miku, #39c5bb); }
+.mg-coach .tip.lv-now { border-color: #8fb8ff; }
+.mg-coach .tip.lv-warn { border-color: #ffd166; }
+.mg-coach .tip.lv-warn .lv { color: #ffd166; }
+.mg-coach .cards { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.mg-coach .cards b { font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line-2); cursor: help; }
+.mg-coach section { padding: 6px 0; border-bottom: 1px solid var(--line-2); }
+.mg-coach section.now h4 { color: var(--miku, #39c5bb); }
+.mg-coach h4 { margin: 0 0 6px; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+.mg-coach h4 small { font: 700 .6rem var(--f-mono, monospace); padding: 1px 6px; border-radius: 6px; background: var(--miku, #39c5bb); color: #04201e; vertical-align: 2px; }
+.mg-coach ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.mg-coach .opt { display: flex; gap: 8px; align-items: center; font-size: .78rem; color: var(--dim); }
+.mg-pool { display: flex; gap: 4px; padding: 3px 8px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--miku, #39c5bb); }
+.mg-pool span { display: inline-flex; align-items: center; gap: 2px; font: 700 .78rem var(--f-mono, monospace); }

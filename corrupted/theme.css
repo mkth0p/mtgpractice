@@ -1,0 +1,39 @@
+/* Corrupted Miku's colors on top of the shared Miku stylesheet: toxic green in place of teal,
+   magenta in place of pink, and green-white mana bars. */
+:root {
+  --teal: #1f8a4c; --teal-fill: #3fbf72; --teal-soft: #dcf5e5; --on-fill: #06210f;
+  --pink: #b0175a; --pink-fill: #e0407a; --pink-soft: #fbdfea;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --teal: #6fe39a; --teal-soft: #0f2a1a; --on-fill: #06210f; --pink: #ff6fa3; --pink-soft: #3a1123; }
+}
+:root[data-theme="dark"] { --teal: #6fe39a; --teal-soft: #0f2a1a; --on-fill: #06210f; --pink: #ff6fa3; --pink-soft: #3a1123; }
+
+/* tools */
+.cf-out { display: grid; gap: 10px; margin-top: 12px; }
+.cl-sec { margin-bottom: 18px; }
+.cl-sec h3 { margin: 18px 0 4px; font: 700 13px/1.2 var(--f-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--pink); }
+.cl-list { list-style: none; margin: 0; padding: 0; }
+.cl-text { font-size: 15px; line-height: 1.4; }
+.swap.done .cl-text { color: var(--muted); }
+
+/* quiz */
+.qz-mode { margin-bottom: 12px; }
+.qz-topics { margin-bottom: 12px; }
+.qz-stats { margin-bottom: 14px; }
+.qz-card { padding: 18px; }
+.qz-k { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.qz-q { margin: 0 0 14px; font: 700 clamp(17px, 2.4vw, 21px)/1.35 var(--f-body); }
+.qz-opts { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 8px; }
+.qz-opt { width: 100%; text-align: left; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--line-strong); background: var(--surface); color: var(--ink); font: 500 15px/1.35 var(--f-body); cursor: pointer; transition: border-color .15s, background .15s; }
+.qz-opt:hover:not(:disabled) { border-color: var(--teal-fill); }
+.qz-opt.picked { border-color: var(--teal-fill); background: var(--teal-soft); }
+.qz-opt.right { border-color: var(--teal-fill); background: var(--teal-soft); }
+.qz-opt.wrong { border-color: var(--pink-fill); background: var(--pink-soft); }
+.qz-opt:disabled { cursor: default; }
+.qz-explain, .qz-back { padding: 12px 14px; border-radius: 12px; background: var(--surface-2); margin-bottom: 12px; }
+.qz-explain p, .qz-back p { margin: 0 0 6px; }
+.qz-act { align-items: center; }
+
+/* six tabs here: Quiz is one of them */
+.tabs { grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 600px; }

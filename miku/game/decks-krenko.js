@@ -168,7 +168,7 @@
   }
   /* Search the library for one card (a "target" question, so ai.target can choose). */
   async function tutor(g, p, src, filter, prompt, to, hidden) {
-    const pool = p.library.filter(o => filter(g, o));
+    const pool = (g.librarySearch ? g.librarySearch(p) : p.library).filter(o => filter(g, o));
     let pick = null;
     if (pool.length) pick = await g.ask(p, { type: "target", prompt, options: pool, optional: true, purpose: "tutor", src });
     if (pick && pick.zone === "library") {
