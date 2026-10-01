@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Corrupted Miku</title>
+<meta name="description" content="Corrupted Miku, a Bracket 4 Shalai, Voice of Plenty Commander deck: a step-by-step guide, every card with rulings, the combos, a play checklist, a quiz, and a playable Commander game against bots with live tips.">
+<meta name="theme-color" content="#f3f0e8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#07090c" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Corrupted Miku">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cards.scryfall.io" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Martian+Mono:wght@400;500;600&family=Unbounded:wght@500;700;800;900&display=swap">
+<link rel="stylesheet" href="../miku/styles.css?v=17">
+<link rel="stylesheet" href="theme.css?v=17">
+<script>try { var t = localStorage.getItem("corruptedWiki.theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar" id="topbar">
+  <div class="wrap bar">
+    <a class="brand" href="#guide" aria-label="Corrupted Miku, home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="9" class="bm-bg"/><path d="M21.5 10.5a7.5 7.5 0 1 0 0 11" fill="none" class="bm-m" stroke-width="3.2" stroke-linecap="round"/><circle cx="25.5" cy="6.5" r="3.4" class="bm-dot"/></svg>
+      <span class="brand-txt"><b>Corrupted Miku</b><small>Shalai · Selesnya · B4</small></span>
+    </a>
+    <nav class="topnav" aria-label="Sections" data-nav></nav>
+    <div class="bar-actions">
+      <button class="icon-btn" id="searchBtn" type="button" aria-label="Search cards">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch light or dark theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="segbar" id="segbar"><div class="wrap"><div class="seg-track" id="segTrack" role="tablist"></div></div></div>
+</header>
+
+
+<main id="main">
+<!-- ================================================================== GUIDE -->
+<div class="view" id="view-guide" data-view="guide" data-segs="start:Overview,chapters:Chapters,combos:Combos,checklist:Checklist">
+
+  <div class="segment" data-segment="start">
+    <section class="hero" id="overview">
+      <div class="marquee" aria-hidden="true"><div class="marquee-track"><span>Now playing</span><b>Shalai, Voice of Plenty</b><span>Bracket 4 · Selesnya</span><b>Hexproof for everything else</b><span>4 two-card combos</span><b>Opponents can't cast on your turn</b><span>Now playing</span><b>Shalai, Voice of Plenty</b><span>Bracket 4 · Selesnya</span><b>Hexproof for everything else</b><span>4 two-card combos</span><b>Opponents can't cast on your turn</b></div></div>
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="kicker"><span class="live-dot" aria-hidden="true"></span>Selesnya creature combo · Bracket 4</p>
+          <h1 class="hero-title" aria-label="Corrupted Miku"><span class="ht-1">Corrupted</span><span class="ht-2" data-t="Miku">Miku</span></h1>
+          <p class="hero-lede">The other side of the Miku Secret Lair: <i-c>Shalai, Voice of Plenty</i-c>, printed as Miku, Voice Over All, at the head of a fast green-white combo deck. Shalai gives you and your other creatures hexproof, cheap creatures stop opponents from casting spells on your turn, and two cards win the game. Here's the full manual: a guide in steps, every card with rulings, the combos, a checklist to play with, a quiz to learn it fast, and a real game to practise against.</p>
+          <ul class="ticket-strip" aria-label="Deck facts">
+            <li class="teal">Bracket 4</li>
+            <li>29 lands</li>
+            <li class="pink">4 two-card combos</li>
+            <li>16 tutors</li>
+          </ul>
+          <div class="hero-cta">
+            <a class="btn primary" href="#ch-deck-in-60-seconds">Start the guide</a>
+            <a class="btn" href="#quiz">Take the quiz</a>
+            <a class="btn ghost" href="#play"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>Play a game</a>
+          </div>
+        </div>
+        <button class="cmdr" type="button" data-card="Shalai, Voice of Plenty">
+          <span class="foil" data-tilt><span class="mini-card" data-art="Shalai, Voice of Plenty"></span><span class="shine" aria-hidden="true"></span></span>
+          <span class="cmdr-copy">
+            <span class="label">Commander</span>
+            <span class="cmdr-name">Shalai, Voice of Plenty</span>
+            <span class="muted cmdr-desc">{3}{W}, 3/4 flying. You, your planeswalkers and your other creatures have hexproof. {4}{G}{G}: a +1/+1 counter on each creature you control.</span>
+          </span>
+        </button>
+      </div>
+      <div class="wave" aria-hidden="true" id="wave"></div>
+    </section>
+
+    <div class="wrap">
+      <dl class="hero-stats">
+        <div class="stat"><dt><b data-count="100">100</b></dt><dd>cards, 29 lands, only 4 of them basics</dd></div>
+        <div class="stat"><dt><b data-count="2.2" data-dec="1">2.2</b></dt><dd>average mana value of the nonland cards</dd></div>
+        <div class="stat"><dt><b data-count="21">21</b></dt><dd>nonland cards that cost 1 mana</dd></div>
+        <div class="stat"><dt><b data-count="15">15</b></dt><dd>lock pieces that stop opponents acting</dd></div>
+      </dl>
+
+      <section class="block" id="engine">
+        <div class="section-head">
+          <p class="eyebrow">How the deck wins</p>
+          <h2>Ramp, shield, silence, combo</h2>
+        </div>
+        <ol class="flow">
+          <li><span class="beat">1</span><div><b>Ramp fast</b><p>One-mana dorks, <i-c>Sol Ring</i-c>, the moxen and <i-c>Gaea's Cradle</i-c> get you to four mana on turn 2.</p></div></li>
+          <li><span class="beat">2</span><div><b>Put up the shield</b><p><i-c>Shalai, Voice of Plenty</i-c> gives you and your other creatures hexproof. Swords, Path and targeted discard stop working on you.</p></div></li>
+          <li><span class="beat">3</span><div><b>Silence the table</b><p><i-c>Grand Abolisher</i-c>, <i-c>Kutzil, Malamet Exemplar</i-c>, <i-c>Voice of Victory</i-c> and <i-c>Silence</i-c> stop opponents casting spells on your turn.</p></div></li>
+          <li><span class="beat">4</span><div><b>Two cards win</b><p><i-c>Archangel of Thune</i-c> + <i-c>Spike Feeder</i-c>, <i-c>Heliod, Sun-Crowned</i-c> + <i-c>Walking Ballista</i-c>, or <i-c>Devoted Druid</i-c> + <i-c>Vizier of Remedies</i-c>. See <a href="#guide/combos">the combos</a>.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="block" id="continue">
+        <div class="section-head">
+          <p class="eyebrow">The guide</p>
+          <h2>Learn it track by track</h2>
+          <p class="muted">Fourteen short chapters, from the deck in 60 seconds to the rules corner and the pregame talk. Your place is saved on this device.</p>
+        </div>
+        <div class="resume" id="resume"></div>
+      </section>
+
+      <section class="block" id="quiz-promo">
+        <div class="section-head">
+          <p class="eyebrow">Memorize it</p>
+          <h2>Quiz yourself</h2>
+          <p class="muted">139 questions on the combos, tutors, cards, rules and game plan, plus flashcards for every card. Questions you miss come back more often.</p>
+        </div>
+        <div class="btn-row"><a class="btn primary" href="#quiz">Start the quiz</a><a class="btn" href="#guide/checklist">Open the play checklist</a></div>
+      </section>
+
+      <section class="block" id="play-promo">
+        <a class="play-promo" href="#play">
+          <span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="pp-copy"><span class="eyebrow">Live</span><b>Take Corrupted Miku to a four-player pod</b><span class="muted">A real Commander game against bots dealt at random. The light bulb shows live tips (the combo you can finish, what to tutor, what to watch out for) and the turn checklist.</span></span>
+          <span class="pp-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span>
+        </a>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="chapters">
+    <div class="wrap">
+      <section class="block" id="chapters">
+        <div class="section-head">
+          <p class="eyebrow">The guide · 14 tracks</p>
+          <h2>Step by step</h2>
+          <p class="muted" id="guideMeta">Tap a track to read it. Each one ends with the next.</p>
+        </div>
+        <ol class="tracklist" id="tracklist"></ol>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="combos">
+    <div class="wrap">
+      <section class="block" id="kills">
+        <div class="section-head">
+          <p class="eyebrow">Combos &amp; kills</p>
+          <h2>How to actually win</h2>
+          <p class="prose">Every win is a two-card combo or a Craterhoof turn. Assemble the pieces behind <i-c>Shalai, Voice of Plenty</i-c>, go off on a turn when opponents can't cast spells, and keep a tutor for the missing piece. Tell your table about the combos before you play.</p>
+        </div>
+        <div data-widget="comboFinder"></div>
+      </section>
+
+      <section class="block" id="combo-thune">
+        <details class="ticket" open>
+          <summary class="stub"><span class="admit">Combo 1</span><span class="kind">Infinite life and counters</span><span class="serial mono" aria-hidden="true">No. 01 · Instant, no mana</span><span class="t-title">Archangel of Thune + Spike Feeder</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <div class="pieces"><button class="chip" type="button" data-card="Archangel of Thune">Archangel of Thune</button><span class="plus">+</span><button class="chip" type="button" data-card="Spike Feeder">Spike Feeder</button></div>
+            <dl class="kv">
+              <dt>You need</dt><dd>Both on the battlefield and a +1/+1 counter on Spike Feeder. No mana.</dd>
+              <dt>Speed</dt><dd>Instant. Feeder's ability doesn't tap, so a summoning-sick Feeder works too.</dd>
+            </dl>
+            <ol class="steps">
+              <li><span>Remove a +1/+1 counter from <i-c>Spike Feeder</i-c>: gain 2 life.</span></li>
+              <li><span><i-c>Archangel of Thune</i-c> triggers: a +1/+1 counter on each creature you control, Feeder included.</span></li>
+              <li><span>Repeat as often as you like. Infinite life, and every creature you control as big as you want.</span></li>
+              <li><span>Win by attacking, or add <i-c>Walking Ballista</i-c>: its counters grow too, then ping.</span></li>
+            </ol>
+          </div>
+        </details>
+      </section>
+
+      <section class="block" id="combo-heliod">
+        <details class="ticket pinkish">
+          <summary class="stub"><span class="admit">Combo 2</span><span class="kind">Infinite damage</span><span class="serial mono" aria-hidden="true">No. 02 · Instant</span><span class="t-title">Heliod + Walking Ballista</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <div class="pieces"><button class="chip" type="button" data-card="Heliod, Sun-Crowned">Heliod, Sun-Crowned</button><span class="plus">+</span><button class="chip" type="button" data-card="Walking Ballista">Walking Ballista</button></div>
+            <dl class="kv">
+              <dt>You need</dt><dd>Ballista with 2 or more counters, and {1}{W} to give it lifelink with Heliod.</dd>
+              <dt>Speed</dt><dd>Instant.</dd>
+            </dl>
+            <ol class="steps">
+              <li><span>Pay {1}{W}: <i-c>Walking Ballista</i-c> gains lifelink until end of turn.</span></li>
+              <li><span>Remove a counter: Ballista deals 1 damage. You gain 1 life.</span></li>
+              <li><span><i-c>Heliod, Sun-Crowned</i-c> triggers: put a +1/+1 counter back on Ballista. Repeat until the table is dead.</span></li>
+            </ol>
+            <div class="note warn"><h4>Two counters, not one</h4><p>With one counter, Ballista dies as you pay the cost, and Heliod's counter has nowhere to go. <i-c>Spike Feeder</i-c> with Heliod is infinite life too.</p></div>
+          </div>
+        </details>
+      </section>
+
+      <section class="block" id="combo-druid">
+        <details class="ticket plain">
+          <summary class="stub"><span class="admit">Combo 3</span><span class="kind">Infinite green mana</span><span class="serial mono" aria-hidden="true">No. 03 · Your turn</span><span class="t-title">Devoted Druid + Vizier of Remedies</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <div class="pieces"><button class="chip" type="button" data-card="Devoted Druid">Devoted Druid</button><span class="plus">+</span><button class="chip" type="button" data-card="Vizier of Remedies">Vizier of Remedies</button></div>
+            <ol class="steps">
+              <li><span>Tap <i-c>Devoted Druid</i-c> for {G}. It needs to have been yours since your turn began, or haste from <i-c>Lightning Greaves</i-c>.</span></li>
+              <li><span>Put a -1/-1 counter on it to untap it. <i-c>Vizier of Remedies</i-c> puts one fewer: zero.</span></li>
+              <li><span>Repeat: unlimited {G}. Spend it on <i-c>Walking Ballista</i-c> ({4} per counter), Shalai's {4}{G}{G} or <i-c>Finale of Devastation</i-c> for X 10 or more.</span></li>
+            </ol>
+          </div>
+        </details>
+      </section>
+
+      <section class="block" id="hoof">
+        <div class="section-head">
+          <p class="eyebrow">Plan B</p>
+          <h2>Natural Order into Craterhoof</h2>
+          <p class="muted">At 40 life a player, Craterhoof needs a wide board. Six or seven attackers kill one opponent; the whole table needs about ten or eleven.</p>
+        </div>
+        <div data-widget="hoofCalc"></div>
+      </section>
+
+      <section class="block" id="tutors">
+        <div class="section-head">
+          <p class="eyebrow">Find the missing piece</p>
+          <h2>The tutor map</h2>
+          <p class="muted">Green-only tutors (Summoner's Pact, Green Sun's Zenith, Natural Order) can't find Vizier, Ballista, Heliod or Thune.</p>
+        </div>
+        <div data-widget="tutorMap"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="checklist">
+    <div class="wrap">
+      <section class="block" id="checklist">
+        <div class="section-head">
+          <p class="eyebrow">Play with it open</p>
+          <h2>The turn checklist</h2>
+          <p class="muted">What to check at each moment of a game, in order. Tick items as you go; the ticks stay on this device until you clear them. The same list is in the game's Coach panel.</p>
+        </div>
+        <div data-widget="playChecklist"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== QUIZ -->
+<div class="view" id="view-quiz" data-view="quiz">
+  <div class="wrap">
+    <section class="block" id="quiz-sec">
+      <div class="section-head">
+        <p class="eyebrow">Memorize it</p>
+        <h2>Quiz</h2>
+        <p class="muted">Questions you get wrong come back often; ones you know move up a box and show up less. Learned means box 3 or higher. Progress stays on this device.</p>
+      </div>
+      <div data-widget="quiz"></div>
+    </section>
+  </div>
+</div>
+
+<!-- ================================================================== CARDS -->
+<div class="view" id="view-cards" data-view="cards" data-segs="browse:Cards,setlist:Setlist,glossary:Glossary,faq:FAQ">
+  <div class="segment" data-segment="browse">
+    <div class="toolbar" id="toolbar">
+      <div class="wrap">
+        <div class="tool-row">
+          <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="sr">Search cards</span><input id="q" type="search" placeholder="Search names, rules and rulings" autocomplete="off" enterkeyhint="search"><button class="clear" type="button" id="qClear" aria-label="Clear search" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 7l10 10M17 7 7 17"/></svg></button></label>
+          <label class="sort-wrap"><span class="sr">Sort cards</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></svg>
+            <select class="sort" id="sort">
+              <option value="role">Shelves by role</option>
+              <option value="type">Shelves by type</option>
+              <option value="rating">Best first</option>
+              <option value="mv">By mana value</option>
+              <option value="az">A to Z</option>
+            </select>
+          </label>
+          <button class="icon-btn view-toggle" type="button" id="viewToggle" aria-pressed="false" aria-label="Show as a list">
+            <svg class="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="9" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="9" rx="1.5"/><rect x="3.5" y="15.5" width="7" height="5" rx="1.5"/><rect x="13.5" y="15.5" width="7" height="5" rx="1.5"/></svg>
+            <svg class="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+          </button>
+        </div>
+        <div class="chips" id="roleChips" role="group" aria-label="Filter by role"></div>
+      </div>
+    </div>
+    <div class="wrap">
+      <p class="count" id="count" aria-live="polite"></p>
+      <div class="card-list" id="cardList"></div>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="setlist">
+    <div class="wrap">
+      <section class="block" id="setlist-sec">
+        <div class="section-head">
+          <p class="eyebrow">The setlist</p>
+          <h2>All 100 cards</h2>
+          <p class="muted">Tap any card for its full entry.</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" type="button" data-copy="names">Copy decklist</button>
+          <button class="btn" type="button" data-copy="qty">Copy with quantities</button>
+        </div>
+        <div class="setlist" id="setlist"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="glossary">
+    <div class="wrap">
+      <section class="block" id="glossary">
+        <div class="section-head">
+          <p class="eyebrow">Glossary</p>
+          <h2>Every keyword in this deck</h2>
+          <p class="muted">What each term means, and which of your cards use it.</p>
+        </div>
+        <label class="search small-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="sr">Filter the glossary</span><input id="glossQ" type="search" placeholder="Filter terms" autocomplete="off"></label>
+        <div class="gloss" id="gloss"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="faq">
+    <div class="wrap">
+      <section class="block" id="faq">
+        <div class="section-head">
+          <p class="eyebrow">FAQ</p>
+          <h2>Questions people ask about this deck</h2>
+        </div>
+        <div class="faq-list" id="faqList"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== PLAY -->
+<div class="view view-play" id="view-play" data-view="play">
+  <div class="wrap">
+    <div class="play-host" id="playHost">
+      <div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Setting up the table…</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== STATS -->
+<div class="view" id="view-stats" data-view="stats" data-segs="deck:Deck,odds:Odds,power:Power,you:You">
+  <div class="segment" data-segment="deck">
+    <div class="wrap">
+      <section class="block" id="roll">
+        <div class="section-head">
+          <p class="eyebrow">Piano roll</p>
+          <h2>The whole deck as a score</h2>
+          <p class="muted">Every nonland card is a note: its lane is its role, its position is its mana value. Tap a note to open the card.</p>
+        </div>
+        <div class="roll" id="roll-chart"></div>
+      </section>
+      <section class="block" id="curve">
+        <div class="section-head">
+          <p class="eyebrow">Mana curve</p>
+          <h2>The levels</h2>
+          <p class="muted">Nonland cards by mana value. X costs count as 0 plus their fixed symbols. Tap a bar to list its cards.</p>
+        </div>
+        <div class="split">
+          <div class="eq-card">
+            <div class="eq-head"><b>70 nonland cards</b><span class="muted mono small">peak at 1 mana</span></div>
+            <div class="eq" id="eq" role="group" aria-label="Mana curve"></div>
+            <div class="eq-readout" id="eqReadout" aria-live="polite"></div>
+          </div>
+          <div class="eq-card">
+            <div class="eq-head"><b>Card types</b><span class="muted mono small">100 cards</span></div>
+            <div class="typebars" id="typebars"></div>
+          </div>
+        </div>
+      </section>
+      <section class="block" id="colors">
+        <div class="section-head">
+          <p class="eyebrow">Colors</p>
+          <h2>Pips against sources</h2>
+          <p class="muted">How much each color is asked for in mana costs, and how many of your lands make it.</p>
+        </div>
+        <div class="split" id="colorStats"></div>
+      </section>
+      <section class="block" id="roles">
+        <div class="section-head">
+          <p class="eyebrow">Roles</p>
+          <h2>What the 99 do</h2>
+          <p class="muted">A card can fill more than one role, so the bars add up to more than 99.</p>
+        </div>
+        <div class="typebars roles-bars" id="roleBars"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="odds">
+    <div class="wrap">
+      <section class="block" id="odds">
+        <div class="section-head">
+          <p class="eyebrow">Draw odds</p>
+          <h2>What are the chances?</h2>
+          <p class="muted">Exact odds from the real 99: how likely you are to see a card, or a group of cards, by a given turn.</p>
+        </div>
+        <div data-widget="drawOdds"></div>
+      </section>
+      <section class="block" id="opener">
+        <div class="section-head">
+          <p class="eyebrow">Opening hands</p>
+          <h2>Lands in your first seven</h2>
+          <p class="muted">29 lands in 99 cards, plus 25 fast mana and ramp cards. How often each count shows up in a fresh seven.</p>
+        </div>
+        <div class="land-odds" id="landOdds"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="power">
+    <div class="wrap">
+      <section class="block" id="strength">
+        <div class="section-head">
+          <p class="eyebrow">Strength</p>
+          <h2>A Bracket 4 combo deck</h2>
+          <p class="prose">Bracket 4 is "Optimized": no limit on Game Changers, two-card combos or fast mana, but not built for the cEDH tournament meta. This deck plays 15 of the 53 Game Changers on the official list (checked against the 21 Oct 2025 list and the 9 Feb 2026 additions), and none of its cards is banned. It is fast and consistent, and it wins with two cards. Against Bracket 3 decks it is unfair; against real cEDH decks it is a step slower.</p>
+        </div>
+        <div class="power" aria-hidden="true"><div class="power-track"><i style="--from:78%;--to:88%"></i></div><div class="power-scale"><span>1</span><span>casual</span><span>upgraded</span><span>optimized</span><span>cEDH 10</span></div></div>
+        <div class="grid-2">
+          <div class="panel rule keep"><h3>Why it's strong</h3><ul class="prose">
+            <li>Four two-card combos and 16 tutors to find them.</li>
+            <li>Shalai's hexproof stops targeted removal on the combo pieces.</li>
+            <li>Grand Abolisher, Kutzil, Voice of Victory, Silence and Orim's Chant keep opponents from answering on your turn.</li>
+            <li>21 one-mana cards and a lot of fast mana: turn-2 and turn-3 wins happen.</li></ul></div>
+          <div class="panel rule mull"><h3>What holds it back</h3><ul class="prose">
+            <li>Board wipes ignore hexproof. Keep Teferi's Protection or Flawless Maneuver for them.</li>
+            <li>Shalai doesn't protect herself, and Lightning Greaves' shroud also stops your own Heliod and Giver from targeting.</li>
+            <li>Deafening Silence limits you too: one noncreature spell a turn, and the deck has 36.</li>
+            <li>Grafdigger's Cage, Torpor Orb, Null Rod and Cursed Totem each stop a combo or the tutors.</li></ul></div>
+        </div>
+        <div class="panel callout"><h3>Game Changers in the deck (15)</h3><p class="prose"><i-c>Gaea's Cradle</i-c>, <i-c>Ancient Tomb</i-c>, <i-c>Mana Vault</i-c>, <i-c>Grim Monolith</i-c>, <i-c>Chrome Mox</i-c>, <i-c>Mox Diamond</i-c>, <i-c>The One Ring</i-c>, <i-c>Smothering Tithe</i-c>, <i-c>Worldly Tutor</i-c>, <i-c>Enlightened Tutor</i-c>, <i-c>Crop Rotation</i-c>, <i-c>Natural Order</i-c>, <i-c>Survival of the Fittest</i-c>, <i-c>Drannith Magistrate</i-c>, <i-c>Teferi's Protection</i-c>. <i-c>Vorinclex, Voice of Hunger</i-c> was removed from the list in October 2025. The brackets are still in beta, so check the official list before a game.</p></div>
+      </section>
+
+      <section class="block" id="versus">
+        <div class="section-head">
+          <p class="eyebrow">Your other decks</p>
+          <h2>Corrupted Miku vs Miku</h2>
+          <p class="prose">Same Secret Lair, two very different decks. The <a href="../miku/">Trostani Miku deck</a> is a Bracket 3 lifegain and tokens deck that wins with big attacks. Corrupted Miku is a Bracket 4 combo deck that wins with two cards, often before the other decks are set up. Don't bring it to a Bracket 3 table. This comes from reading both lists, not from playtesting.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div class="segment" data-segment="you">
+    <div class="wrap">
+      <section class="block" id="record">
+        <div class="section-head">
+          <p class="eyebrow">Your record</p>
+          <h2>Your games against the bots</h2>
+          <p class="muted">Saved on this device when you finish a game in the Play tab.</p>
+        </div>
+        <div id="myStats"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== SHOP -->
+<div class="view" id="view-shop" data-view="shop" data-segs="buy:Buy it,swaps:Swaps,list:Decklist">
+  <div class="segment" data-segment="buy">
+    <div class="wrap">
+      <section class="block" id="buy">
+        <div class="section-head">
+          <p class="eyebrow">What it costs</p>
+          <h2>From the precon to Corrupted Miku</h2>
+          <p class="prose">The Hatsune Miku precon already has <i-c>Shalai, Voice of Plenty</i-c> and a handful of this deck's cards. The rest is a real Bracket 4 deck: a few cards (<i-c>Gaea's Cradle</i-c>, <i-c>Mox Diamond</i-c>, <i-c>Grim Monolith</i-c>, <i-c>Survival of the Fittest</i-c>, <i-c>Savannah</i-c>) cost more than most whole decks. Tick what you own to see what's left.</p>
+        </div>
+        <div data-widget="buyList"></div>
+      </section>
+    </div>
+  </div>
+  <div class="segment" data-segment="swaps">
+    <div class="wrap">
+      <section class="block" id="swaps">
+        <div class="section-head">
+          <p class="eyebrow">Tuning</p>
+          <h2>Four swaps worth trying</h2>
+          <p class="prose">Ideas from checking the list against its own rules and against EDHREC's 608 Selesnya cEDH decks. None adds a Game Changer. Prices are MTGGoldfish, US dollars, 1 Oct 2026. Not in the game's card pool yet.</p>
+        </div>
+        <div class="table-wrap"><table class="stack"><thead><tr><th>Out</th><th>In</th><th>Why</th><th class="num">Price</th></tr></thead><tbody>
+          <tr><td data-label="Out"><i-c>Deafening Silence</i-c></td><td data-label="In">Swift Reconfiguration</td><td data-label="Why">On <i-c>Devoted Druid</i-c> it makes Druid a Vehicle: -1/-1 counters can't kill it and summoning sickness doesn't matter, so it's a second Druid combo. Deafening Silence also taxes your own 36 noncreature spells. In 20% of Selesnya cEDH decks.</td><td class="num" data-label="Price">$4.01</td></tr>
+          <tr><td data-label="Out"><i-c>Marsh Flats</i-c></td><td data-label="In">Mana Confluence</td><td data-label="Why">Marsh Flats finds only 5 of your lands. Confluence makes either color. In 47% of Selesnya cEDH decks.</td><td class="num" data-label="Price">$36</td></tr>
+          <tr><td data-label="Out"><i-c>Grim Monolith</i-c></td><td data-label="In">Carpet of Flowers, or a Forest</td><td data-label="Why">Grim is $516 and isn't on EDHREC's Selesnya cEDH page; <i-c>Mana Vault</i-c> already fills the role. Carpet is strong against blue tables (50% of those decks). Removes a Game Changer.</td><td class="num" data-label="Price">$2.07</td></tr>
+          <tr><td data-label="Out"><i-c>Misty Rainforest</i-c> (optional)</td><td data-label="In">A Forest from the precon</td><td data-label="Why">It's the second fetch that only finds Forests. A basic gives the fetches more targets and helps <i-c>Canopy Vista</i-c> enter untapped.</td><td class="num" data-label="Price">$0</td></tr>
+        </tbody></table></div>
+        <p class="muted small">Together these save about $547. Keep Craterhoof: it's the trample for the Finale X 10+ line.</p>
+      </section>
+    </div>
+  </div>
+  <div class="segment" data-segment="list">
+    <div class="wrap">
+      <section class="block" id="setlist-buy">
+        <div class="section-head">
+          <p class="eyebrow">The 100</p>
+          <h2>Corrupted Miku, all 100</h2>
+          <p class="muted">The full list is in Cards, under Setlist, with a copy button.</p>
+        </div>
+        <div class="btn-row"><a class="btn primary" href="#cards/setlist">Open the setlist</a></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer class="foot"><div class="wrap">
+  <p>Built for the Corrupted Miku deck (Shalai, Voice of Plenty). Rules text from the Forge card database, 1 Oct 2026. Also see the <a href="../miku/">Miku deck</a> and the <a href="../etrata/">Etrata deck</a>.</p>
+  <p>Card images and links via Scryfall. Magic: The Gathering is © Wizards of the Coast. This is an unofficial fan page.</p>
+</div></footer>
+
+<nav class="tabbar" id="tabbar" aria-label="Sections"><div class="tabs" data-nav></div></nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" aria-hidden="true">
+  <div class="sheet-bar"><span class="grab" aria-hidden="true"></span><span class="sheet-eyebrow" id="sheetEyebrow"></span><span class="sheet-pos mono" id="sheetPos"></span>
+    <button class="icon-btn close" type="button" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+
+<div class="reader" id="reader" role="dialog" aria-modal="true" aria-labelledby="readerTitle" aria-hidden="true">
+  <div class="reader-bar">
+    <button class="icon-btn" type="button" id="readerClose" aria-label="Back to the chapters"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="reader-now"><span class="mono" id="readerNo"></span><b id="readerBarTitle"></b></div>
+    <span class="mono reader-time" id="readerTime"></span>
+    <div class="scrubber" aria-hidden="true"><i id="readerProgress"></i></div>
+  </div>
+  <div class="reader-body" id="readerBody"></div>
+</div>
+
+<div class="peek" id="peek" aria-hidden="true"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../miku/kit.js?v=17"></script>
+<script src="cards.js?v=17"></script>
+<script src="wiki.js?v=17"></script>
+<script src="guide.js?v=17"></script>
+<script src="quiz.js?v=17"></script>
+<script src="prices.js?v=17"></script>
+<script src="../miku/game/checklist-corrupted.js?v=17"></script>
+<script src="site.js?v=17"></script>
+<script src="../miku/app.js?v=17"></script>
+</body>
+</html>

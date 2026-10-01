@@ -9,7 +9,7 @@
   /* The site that hosts the table sets MK_SITE before loading this file (the Etrata pages do):
      its storage prefix, which hero decks the player picks from, and the lobby's words. */
   const SITE = Object.assign({
-    key: "mikuWiki", hero: "miku", defaultHero: "miku", heroOrder: ["miku-precon", "miku-budget", "miku", "azusa"],
+    key: "mikuWiki", hero: "miku", defaultHero: "miku", heroOrder: ["miku-precon", "miku-budget", "miku", "azusa", "corrupted"],
     title: "Take Miku to a<br><span>four-player pod</span>",
     lede: "Your Miku deck against bots dealt at random: precons for a fair fight, or Bracket 4 decks when you want to be punished. Pick the precon, the budget upgrade, the full upgrade or the Bracket 4 Azusa build. Mana is paid for you, everything else is real Commander: the stack, combat, commander tax and damage, and every card in your deck."
   }, root.MK_SITE || {});
@@ -33,12 +33,17 @@
   const saveSettings = s => K.store.put(SETTINGS_KEY, s);
   const PLAYER_COLORS = ["#39c5bb", "#ff3d8b", "#ffd166", "#8fb8ff", "#b58cff", "#7ee0a1"];
   const COLOR_BG = { W: "#7d6f45", U: "#2d5a80", B: "#3e3542", R: "#86382a", G: "#2c6a3d", C: "#50575e" };
+  // mana floating in your pool (Devoted Druid's loop)
+  const poolHTML = p => {
+    const ks = ["W", "U", "B", "R", "G", "C"].filter(k => (p.pool[k] || 0) > 0);
+    return ks.length ? `<div class="mg-pool" title="Mana in your pool">${ks.map(k => `<span>${mana("{" + k + "}")}<b>${p.pool[k]}</b></span>`).join("")}</div>` : "";
+  };
   const KW_ICON = { flying: "✈", trample: "⇶", lifelink: "♥", deathtouch: "☠", "first strike": "⚔", "double strike": "⚔", vigilance: "◎", hexproof: "◇", indestructible: "⛨", haste: "»", menace: "⩚", infect: "☣", reach: "↟", defender: "▣" };
 
   /* ------------------------------------------------------------ card data for the screen */
   // the wiki's card data (Oracle text as printed), by full name and by front face
   const MIKU = new Map();
-  for (const c of (root.MIKU_CARDS || []).concat(root.ETRATA_CARDS || [])) { MIKU.set(c.name, c); if (c.name.includes(" // ")) MIKU.set(c.name.split(" // ")[0], c); }
+  for (const c of (root.MIKU_CARDS || []).concat(root.ETRATA_CARDS || [], root.CORRUPTED_CARDS || [])) { MIKU.set(c.name, c); if (c.name.includes(" // ")) MIKU.set(c.name.split(" // ")[0], c); }
   function textOf(def) {
     const m = MIKU.get(def.name);
     if (m && !def.token && !def.faceDownOf) {
@@ -116,7 +121,9 @@
       return pre + "You " + w;
     });
     if (/^You /.test(t)) t = t.replace(/ and is /, " and are ").replace(/ and finds /, " and find ").replace(/ and gets /, " and get ");
-    t = t.replace(/([^.!?:]\s)You\b/g, "$1you");
+    t = t.replace(/([^.!?:]\s)You\b/g, "$1you").replace(/([^.!?:]\s)Your\b/g, "$1your");
+    // "Creatures you controls get +5/+5", "each creature you owns"
+    t = t.replace(/\byou (controls|owns)\b/g, (m, v) => "you " + v.slice(0, -1));
     return t;
   }
 
@@ -152,6 +159,7 @@
         <header class="mg-top">
           <button class="mg-icon" data-act="menu" aria-label="Game menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
           <div class="mg-phase" aria-live="polite"></div>
+          <button class="mg-icon mg-coachbtn" data-act="coach" aria-label="Coach: what to look for" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg><i class="badge"></i></button>
           <button class="mg-icon" data-act="log" aria-label="Game log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></button>
         </header>
         <div class="mg-seats"></div>
@@ -170,7 +178,7 @@
         <div class="mg-menu" role="menu"></div>
         <div class="mg-fx" aria-hidden="true"></div>`;
       const $ = s => el.querySelector(s);
-      this.$ = { phase: $(".mg-phase"), seats: $(".mg-seats"), opp: $(".mg-board.opp"), mid: $(".mg-mid"), meCre: $(".mg-board.me .cre"), meOth: $(".mg-board.me .oth"), mybar: $(".mg-mybar"), hand: $(".mg-hand"), fan: $(".mg-hand .fan"), actions: $(".mg-actions"), scrim: $(".mg-scrim"), sheet: $(".mg-sheet"), log: $(".mg-log"), logList: $(".mg-log ol"), menu: $(".mg-menu"), fx: $(".mg-fx") };
+      this.$ = { phase: $(".mg-phase"), coachBtn: $(".mg-coachbtn"), seats: $(".mg-seats"), opp: $(".mg-board.opp"), mid: $(".mg-mid"), meCre: $(".mg-board.me .cre"), meOth: $(".mg-board.me .oth"), mybar: $(".mg-mybar"), hand: $(".mg-hand"), fan: $(".mg-hand .fan"), actions: $(".mg-actions"), scrim: $(".mg-scrim"), sheet: $(".mg-sheet"), log: $(".mg-log"), logList: $(".mg-log ol"), menu: $(".mg-menu"), fx: $(".mg-fx") };
       el.addEventListener("click", e => this.onClick(e));
       // hover (mouse) or press and hold (touch) any card for its full text
       if (K.bindPreview) K.bindPreview(el, t => this.previewFor(t), { hoverSel: ".mc[data-oid], .hc[data-oid], .mg-cmd[data-oid], [data-card]" });
@@ -199,6 +207,10 @@
         return { name: d.deck.name, commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, agent: this.paced(bot), deckId: d.deck.id };
       });
       this.helper = MK.AI.create({ skill: 1 });
+      // a deck with a coach (Corrupted Miku) shows live tips and a turn checklist
+      const mine = seats.find(d => d.human);
+      this.coach = mine && mine.deck.coach || null;
+      this.$.coachBtn.hidden = !this.coach;
       const seed = Math.floor(Math.random() * 2 ** 31);
       const g = this.g = new MK.Game({ seed, players, endOnHumanLoss: true, maxTurns: 160, ui: { log: e => this.onLog(e), anim: (k, d) => this.onAnim(k, d), pace: (k, d) => this.onPace(k, d) } });
       g.players.forEach((p, i) => { p.color = PLAYER_COLORS[i % PLAYER_COLORS.length]; p.deckId = players[i].deckId || "miku"; });
@@ -317,7 +329,7 @@
       this.canCache = null;
       if (this.el.dataset.mode !== this.mode) this.el.dataset.mode = this.mode;
       // one part that fails to draw must not freeze the rest of the table (or the buttons)
-      for (const part of ["renderPhase", "renderSeats", "renderOpp", "renderMid", "renderMine", "renderMyBar", "renderHand", "renderActions"]) {
+      for (const part of ["renderPhase", "renderSeats", "renderOpp", "renderMid", "renderMine", "renderMyBar", "renderHand", "renderActions", "renderCoach"]) {
         try { this[part](); } catch (err) { this.drawError(part, err); }
       }
     }
@@ -461,7 +473,14 @@
         frag.push(el);
       }
       for (const [, el] of keep) { el.classList.add("gone"); setTimeout(() => el.remove(), 480); }
-      frag.forEach((el, i) => { const at = row.children[i]; if (at !== el) row.insertBefore(el, at || null); });
+      // after the lands pile when the row has one: moving it back and forth on every render made
+      // the row scroll by itself and hide the pile's left edge
+      let prev = row.querySelector(":scope > .mg-lands");
+      for (const el of frag) {
+        const at = prev ? prev.nextSibling : row.firstChild;
+        if (at !== el) row.insertBefore(el, at);
+        prev = el;
+      }
     }
     renderOpp() {
       const g = this.g;
@@ -534,7 +553,7 @@
       const g = this.g, me = this.me, set = new Set();
       if (this.acting()) {
         const instant = this.mode !== "main";
-        for (const a of g.legalActions(me, { instant })) if (a.type === "cast" || a.type === "land" || a.type === "cycle") set.add(a.card.id);
+        for (const a of g.legalActions(me, { instant })) if (a.type === "cast" || a.type === "land" || a.type === "cycle" || a.type === "channel") set.add(a.card.id);
       }
       return (this.canCache = set);
     }
@@ -569,6 +588,7 @@
       const a = cmd && K.art(cmd.def.name);
       const html = `<div class="mg-life"><b>${me.life}</b><span>life${me.poison ? ` · ☣${me.poison}` : ""}${me.energy ? ` · ⚡${me.energy}` : ""}</span></div>
         ${inZone ? `<button class="mg-cmd${can ? " can" : ""}" data-oid="${cmd.id}" aria-label="${esc(cmd.def.name)} in the command zone${tax ? ", tax " + tax : ""}"><span class="av" style="${a ? `background-image:url('${a.crop}')` : `background:${bgFor(cmd.def)}`}"></span><span>Command<br><span class="tax">${tax ? "+" + tax + " tax" : "no tax"}</span></span></button>` : ""}
+        ${poolHTML(me)}
         <div class="mg-zones">
           <button class="mg-zone${this.zoneLive("graveyard") ? " can" : ""}" data-zone="graveyard" aria-label="Your graveyard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 21V9a6 6 0 0 1 12 0v12zM4 21h16"/></svg>${me.graveyard.length}</button>
           <button class="mg-zone${this.zoneLive("exile") ? " can" : ""}" data-zone="exile" aria-label="Your exile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M8 8l8 8"/></svg>${me.exile.length}</button>
@@ -614,7 +634,8 @@
       const m = this.mode;
       if (m === "main") {
         const p1 = g.phase === "main1";
-        html = `<div class="hint">${p1 ? "Play a land, cast spells, then attack." : "Anything else before you pass the turn?"}</div>
+        const tip = this.topTip();
+        html = `<div class="hint">${tip || (p1 ? "Play a land, cast spells, then attack." : "Anything else before you pass the turn?")}</div>
           ${p1 ? `<button class="mg-btn" data-act="endturn">End turn</button><button class="mg-btn go" data-act="pass">Attack ▸</button>` : `<button class="mg-btn go wide" data-act="pass">End turn ▸</button>`}`;
       } else if (m === "attack") {
         const n = this.atk.size;
@@ -631,7 +652,8 @@
           <button class="mg-btn go" data-act="blkgo">${this.blk.size ? "Block" : "No blocks"}</button>`;
       } else if (m === "respond") {
         const n = this.respondCtx ? this.respondCtx.actions.length : 0;
-        html = `<div class="hint">Tap a glowing card, or see all ${n} option${n === 1 ? "" : "s"}.</div><button class="mg-btn" data-act="respond">Options</button><button class="mg-btn go" data-act="rpass">Pass</button>`;
+        const tip = this.topTip(true);
+        html = `<div class="hint">${tip || `Tap a glowing card, or see all ${n} option${n === 1 ? "" : "s"}.`}</div><button class="mg-btn" data-act="respond">Options</button><button class="mg-btn go" data-act="rpass">Pass</button>`;
       } else if (m === "wait") {
         const who = g.active === this.me ? "Resolving..." : `${esc(g.active.name)} is playing.`;
         html = `<div class="hint">${who}</div><button class="mg-btn" data-act="ff" aria-label="Skip the animations for this turn">Skip ▸▸</button>`;
@@ -835,6 +857,7 @@
         case "blkauto": { const sug = this.helper.block(g, this.me, { attackers: this.blockCtx }); this.blk.clear(); for (const b of sug) this.blk.set(b.blocker.id, b.attacker); this.render(); break; }
         case "blkgo": { const out = [...this.blk].map(([id, att]) => ({ blocker: g.find(+id), attacker: att })).filter(b => b.blocker); this.resolve(out); break; }
         case "respond": this.showResponses(); break;
+        case "coach": this.showCoach(); break;
         case "rpass": this.resolve(null); break;
         case "ff": this.fastForward = true; this.spotOut(); this.render(); break;
         case "concede": this.$.menu.classList.remove("on"); if (confirm("Concede this game?")) { this.conceded = true; g.lose(this.me, "concede"); if (!g.over) g.end(null, { humanLost: true }); this.resolve(null); } break;
@@ -955,6 +978,8 @@
         if (o.def.types.includes("Land")) {
           const ok = !instant && g.canPlayLand(me, o);
           out.push({ label: "Play this land", ok, primary: true, run: () => this.resolve({ type: "land", card: o }) });
+          // channel (Boseiju, Eiganjo): discard it from your hand for its effect, at instant speed
+          if (o.def.channel && o.zone === "hand") out.push({ label: esc(o.def.channel.label), cost: MK.costString(g.channelCost(me, o), null), ok: g.canChannel(me, o), run: () => this.resolve({ type: "channel", card: o }) });
         } else {
           // a modal double-faced card's land face (Boggart Trawler // Boggart Bog)
           if (o.def.mdfcLand && o.zone === "hand") {
@@ -1013,8 +1038,8 @@
       const acts = (this.respondCtx && this.respondCtx.actions) || [];
       const rows = acts.map((a, i) => {
         const o = a.card;
-        const label = a.type === "cast" ? `Cast ${o.def.name}${a.label ? " (" + a.label + ")" : ""}` : a.type === "cycle" ? `Cycle ${o.def.name}` : `${a.ab.label || "Ability"}: ${shortName(o.def.name)}`;
-        const cost = a.type === "cast" ? wayCost(a) : a.type === "cycle" ? MK.costString(a.cost, null) : (a.ab.cost || "") + (a.ab.tap ? "{T}" : "");
+        const label = a.type === "cast" ? `Cast ${o.def.name}${a.label ? " (" + a.label + ")" : ""}` : a.type === "cycle" ? `Cycle ${o.def.name}` : a.type === "channel" ? `${o.def.channel.label}: ${shortName(o.def.name)}` : `${a.ab.label || "Ability"}: ${shortName(o.def.name)}`;
+        const cost = a.type === "cast" ? wayCost(a) : a.type === "cycle" || a.type === "channel" ? MK.costString(a.cost, null) : (a.ab.cost || "") + (a.ab.tap ? "{T}" : "");
         return `<div class="row"><button class="use${a.type === "cast" ? " go" : ""}" data-i="${i}"><span>${esc(label)}</span>${cost ? `<span>${mana(cost)}</span>` : ""}</button></div>`;
       }).join("");
       const sh = this.openSheet("inspect", `<h3>Your options</h3><button class="mg-icon" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`, `<div class="mg-abil">${rows}</div>`, "");
@@ -1024,6 +1049,62 @@
         this.closeSheet();
         this.resolve({ type: a.type, card: a.card, idx: a.idx, door: a.door, alt: a.alt, faceDown: a.faceDown });
       }));
+    }
+    /* -------------------------------------------------------- the coach (decks with coach tips) */
+    coachTips() {
+      if (!this.coach || !this.g || this.g.phase === "setup") return [];
+      const key = this.g.v + ":" + this.mode;
+      if (this.tipKey === key) return this.tipCache;
+      let tips = [];
+      try { tips = this.coach.tips(this.g, this.me) || []; } catch (err) { console.error("[miku game] coach", err); }
+      this.tipKey = key; this.tipCache = tips;
+      return tips;
+    }
+    // the most urgent tip, for the hint line: a win, or something to do now
+    topTip(respond) {
+      if (!this.coach || this.s.coachHints === false) return "";
+      const t = this.coachTips().find(x => x.level === "win" || x.level === "now" || (x.level === "warn" && !respond));
+      return t ? `<span class="mg-tiphint lv-${t.level}" data-act="coach">💡 ${esc(t.title)}</span>` : "";
+    }
+    renderCoach() {
+      const b = this.$.coachBtn;
+      if (!this.coach) return;
+      const urgent = this.coachTips().filter(x => x.level === "win" || x.level === "now").length;
+      const badge = b.querySelector(".badge");
+      const txt = urgent ? String(urgent) : "";
+      if (badge.textContent !== txt) badge.textContent = txt;
+      b.classList.toggle("hot", this.coachTips().some(x => x.level === "win"));
+      if (this.sheetMode === "coach") this.fillCoach();
+    }
+    showCoach() {
+      if (!this.coach) return;
+      this.coachTab = this.coachTab || "tips";
+      const sh = this.openSheet("coach", `<h3>Coach</h3><div class="mg-tabs"><button data-ct="tips">Look for</button><button data-ct="list">Checklist</button></div><button class="mg-icon" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`, `<div class="mg-coach"></div>`, "");
+      sh.querySelectorAll("[data-ct]").forEach(b => b.addEventListener("click", () => { this.coachTab = b.dataset.ct; this.coachHTML = ""; this.fillCoach(); }));
+      this.coachHTML = "";
+      this.fillCoach();
+    }
+    fillCoach() {
+      const sh = this.$.sheet, box = sh.querySelector(".mg-coach");
+      if (!box) return;
+      sh.querySelectorAll("[data-ct]").forEach(b => b.classList.toggle("on", b.dataset.ct === this.coachTab));
+      const cardLinks = list => (list || []).length ? `<div class="cards">${list.map(n => `<b data-card="${esc(n)}">${esc(shortName(n))}</b>`).join("")}</div>` : "";
+      let html;
+      if (this.coachTab === "list") {
+        const g = this.g, mine = g.active === this.me;
+        const now = g.phase === "setup" ? "mulligan" : !mine ? "theirs" : g.phase === "upkeep" || g.phase === "untap" ? "upkeep" : g.phase === "draw" ? "draw" : g.phase === "main1" ? "main1" : g.phase === "main2" ? "main2" : /attack|block|damage|combat/i.test(g.phase) ? "combat" : "";
+        const list = (root.MK_CHECKLISTS || {})[this.coach.checklist] || [];
+        html = list.map(sec => `<section class="${sec.phase === now ? "now" : ""}"><h4>${esc(sec.when)}${sec.phase === now ? " <small>now</small>" : ""}</h4><ul>${sec.items.map(it => `<li>${mana(it.text)}${cardLinks(it.cards)}</li>`).join("")}</ul></section>`).join("") || `<p>No checklist for this deck.</p>`;
+      } else {
+        const tips = this.coachTips();
+        const LV = { win: "You can win", now: "Do it now", plan: "Plan", warn: "Watch out", info: "Good to know" };
+        html = tips.map(t => `<div class="tip lv-${t.level}"><span class="lv">${LV[t.level] || ""}</span><b>${esc(t.title)}</b><p>${mana(t.text)}</p>${cardLinks(t.cards)}</div>`).join("") + `<label class="opt"><input type="checkbox" data-coachhints${this.s.coachHints === false ? "" : " checked"}> Show the top tip in the hint line</label>`;
+      }
+      if (this.coachHTML === html) return;
+      this.coachHTML = html;
+      box.innerHTML = html;
+      const cb = box.querySelector("[data-coachhints]");
+      if (cb) cb.addEventListener("change", () => { this.s.coachHints = cb.checked; saveSettings(this.s); this.render(); });
     }
     showRules() {
       const body = `<ol style="padding-left:18px;margin:0;display:flex;flex-direction:column;gap:8px;font-size:.84rem;line-height:1.4">${MK.SIMPLIFICATIONS.map(s => `<li>${esc(s)}</li>`).join("")}</ol>`;
@@ -1081,6 +1162,9 @@
       }, true);
     }
     async askBlock(ctx) {
+      // nothing of yours can block any of them: no question to answer
+      const g = this.g;
+      if (!g.creatures(this.me).some(b => ctx.attackers.some(a => g.canBlock(b, a)))) return [];
       this.blockCtx = ctx.attackers;
       this.sel = ctx.attackers[0] || null;
       this.blk.clear();
@@ -1189,17 +1273,21 @@
       const g = this.g;
       return new Promise(res => {
         const players = req.options.filter(o => g.isPlayer(o));
-        const objs = req.options.filter(o => !g.isPlayer(o));
+        // spells on the stack (counterspells) are shown by the card being cast
+        const spells = req.options.filter(o => o && o.kind === "spell" && o.o);
+        const objs = req.options.filter(o => !g.isPlayer(o) && !spells.includes(o));
         const byOwner = new Map();
         for (const o of objs) { const k = o.zone === "battlefield" ? o.controller : o.owner; if (!byOwner.has(k)) byOwner.set(k, []); byOwner.get(k).push(o); }
         let body = players.length ? `<div class="mg-players">${players.map(p => this.playerChip(p)).join("")}</div>` : "";
+        if (spells.length) body += `<div class="mg-sub">On the stack</div><div class="mg-grid">${spells.map(it => `<div class="opt" data-spell="${it.id}">${this.cardHTML([it.o], {})}<span class="who">${esc(it.p === this.me ? "Yours" : it.p.name)}: ${esc(it.name)}</span></div>`).join("")}</div>`;
         for (const [owner, list] of byOwner) {
-          body += `<div class="mg-sub">${owner === this.me ? (list[0].zone === "graveyard" ? "Your graveyard" : "Yours") : esc(owner.name) + (list[0].zone === "graveyard" ? "'s graveyard" : "")}</div><div class="mg-grid">${list.map(o => `<div class="opt">${this.cardHTML([o], {})}</div>`).join("")}</div>`;
+          body += `<div class="mg-sub">${owner === this.me ? (list[0].zone === "graveyard" ? "Your graveyard" : "Yours") : esc(owner ? owner.name : "") + (list[0].zone === "graveyard" ? "'s graveyard" : "")}</div><div class="mg-grid">${list.map(o => `<div class="opt">${this.cardHTML([o], {})}</div>`).join("")}</div>`;
         }
         const foot = req.optional ? `<button class="mg-btn wide" data-none>Skip</button>` : "";
         const sh = this.openSheet("prompt", `<div><h3>${esc(req.prompt || "Choose a target")}</h3>${this.srcLine(req)}</div>`, body, foot);
         sh.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => res(players.find(p => p.id === b.dataset.p)), { once: true }));
-        sh.querySelectorAll(".bd [data-oid]").forEach(b => b.addEventListener("click", () => res(objs.find(o => o.id === +b.dataset.oid)), { once: true }));
+        sh.querySelectorAll(".bd [data-spell]").forEach(b => b.addEventListener("click", () => res(spells.find(it => it.id === +b.dataset.spell)), { once: true }));
+        sh.querySelectorAll(".bd .opt:not([data-spell]) [data-oid]").forEach(b => b.addEventListener("click", () => res(objs.find(o => o.id === +b.dataset.oid)), { once: true }));
         const none = sh.querySelector("[data-none]");
         if (none) none.addEventListener("click", () => res(null), { once: true });
       });
@@ -1340,9 +1428,9 @@
       this.host = host;
       this.render();
     },
-    /* The decks you can pilot on this site (Miku: precon, budget, full upgrades, Azusa). */
+    /* The decks you can pilot on this site (Miku: precon, budget, full upgrades, Azusa, Corrupted Miku). */
     heroes() {
-      const list = (MK.HERO_DECKS || []).filter(d => (d.hero || "miku") === SITE.hero);
+      const list = (MK.HERO_DECKS || []).filter(d => (d.hero || "miku") === SITE.hero || (d.alsoOn || []).includes(SITE.hero));
       if (!list.length && MK.MIKU_DECK) list.push(MK.MIKU_DECK);
       const at = d => { const i = SITE.heroOrder ? SITE.heroOrder.indexOf(d.id) : -1; return i < 0 ? 99 : i; };
       return list.slice().sort((a, b) => at(a) - at(b));

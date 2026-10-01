@@ -26,7 +26,9 @@
     "A commander that would go to the graveyard or exile always goes back to the command zone.",
     "Bots never look at your hand or library. They follow simple rules of thumb, not a search of every line.",
     "Face-down creatures (cloak, manifest, morph) are hidden from your opponents. Turning one face up is instant, like in paper, and doesn't use the stack.",
-    "A few rules none of these decks need aren't in the game: extra turns and extra combats, protection from colors, split second and the initiative's dungeon. Where a card is simplified, its details say how, under \"In this game\".",
+    "A few rules none of these decks need aren't in the game: extra turns and extra combats, split second and the initiative's dungeon. Where a card is simplified, its details say how, under \"In this game\".",
+    "Protection from a color (Giver of Runes) means the creature can't be targeted, dealt damage or blocked by anything of that color. \"Protection from everything\" on a player (Teferi's Protection, The One Ring) stops targeting and damage.",
+    "Mana you make with an ability that untaps its source (Devoted Druid) stays in your pool until the step ends. Other mana is spent as you pay, so it never floats.",
     "There is no undo, and there are no timers."
   ];
 
@@ -235,6 +237,7 @@
       this.stats = { spells: 0, triggers: 0 };
       this.tempTriggers = [];         // triggers that last until end of turn (Duskmantle Guildmage)
       this.phased = [];               // phased-out permanents (March of Swirling Mist)
+      this.castBans = [];             // "can't cast spells this turn" (Silence, Orim's Chant, Ranger-Captain of Eos)
       this.players = (this.opts.players || []).map((cfg, i) => this.makePlayer(cfg, i));
     }
 
@@ -327,6 +330,7 @@
       if (o.zone === "battlefield") {
         if (o.state.crewed === this.turn) { types.add("Creature"); types.add("Artifact"); }
         if (o.state.animated && o.state.animated.turn === this.turn) types.add("Creature");
+        if (o.state.earth) types.add("Creature"); // earthbend: a land that stays a creature
         if (d.notCreatureUnless && !d.notCreatureUnless(this, o)) types.delete("Creature");
       }
       o._types = types; o._tv = this.v;
@@ -374,7 +378,9 @@
           (a.subtypes || []).forEach(s => subtypes.add(s)); (a.colors || []).forEach(c => colors.add(c));
           (a.keywords || []).forEach(k => kws.add(k));
         }
+        if (o.zone === "battlefield" && o.state.earth) { p = 0; t = 0; kws.add("haste"); }
         if (d.cda && o.zone === "battlefield") { const r = d.cda(this, o); if (r[0] != null) p = r[0]; if (r[1] != null) t = r[1]; }
+        let prot = null; // protection from colors ("W"... or "C" for colorless), from Giver of Runes and friends
         let modP = 0, modT = 0;
         if (o.zone === "battlefield") {
           const effs = [];
@@ -407,12 +413,13 @@
             if (e.kw) e.kw.forEach(k => kws.add(k));
             if (e.unblockable) unblockable = true;
             if (e.cantBlock) cantBlock = true;
+            if (e.prot) { prot = prot || new Set(); e.prot.forEach(k => prot.add(k)); }
           }
           if (o.state.selfKw) o.state.selfKw.forEach(k => kws.add(k));
         }
         p += modP; t += modT;
         if (!creature && !d.pt && !(o.state.animated)) { p = 0; t = 0; }
-        const res = { p, t, kws, subtypes, colors, allTypes, cantBlock, unblockable, cantAttack };
+        const res = { p, t, kws, subtypes, colors, allTypes, cantBlock, unblockable, cantAttack, prot };
         o._ch = res; o._cv = this.v;
         return res;
       } finally { o._computing = false; }
@@ -426,6 +433,8 @@
       return false;
     }
     playerHexproof(pl) {
+      // protection from everything (Teferi's Protection, The One Ring) and Veil of Summer
+      if (pl.shield || pl.hexTurn === this.turn) return true;
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.playerHexproof && st.playerHexproof(this, s, pl)) return true;
       return false;
     }
@@ -441,6 +450,45 @@
       return n;
     }
     lethalDamageLeft(o) { return Math.max(0, this.toughness(o) - o.damage); }
+    /* Protection from a color: o can't be targeted, damaged or blocked by src of that color. */
+    protectedFrom(o, src) {
+      if (!o || !src || !src.def || o.zone !== "battlefield") return false;
+      const pr = this.ch(o).prot;
+      if (!pr || !pr.size) return false;
+      const cols = [...this.colorsOf(src)];
+      return cols.length ? cols.some(k => pr.has(k)) : pr.has("C");
+    }
+    /* "Can't cast spells": statics with cantCast (Grand Abolisher, Drannith Magistrate, Deafening
+       Silence) and this turn's bans (Silence, Orim's Chant). Returns why, or false. */
+    castBlocked(p, o) {
+      for (const b of this.castBans) if (b.turn === this.turn && b.test(this, p, o)) return b.label || "can't cast spells this turn";
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantCast && st.cantCast(this, s, p, o)) return s.def.name;
+      return false;
+    }
+    banCasting(test, label) { this.castBans.push({ turn: this.turn, test, label }); this.bump(); }
+    /* "Can't activate abilities" (Grand Abolisher, Linvala, Keeper of Silence): statics with cantActivate. */
+    activateBlocked(p, o, ab) {
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantActivate && st.cantActivate(this, s, p, o, ab)) return true;
+      return false;
+    }
+    uncounterable(item) {
+      if (item.p && item.p.noCounterTurn === this.turn) return true; // Veil of Summer
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.uncounterable && st.uncounterable(this, s, item)) return true;
+      return false;
+    }
+    /* The cards a search of p's library can find: all of it, or the top four under Aven Mindcensor.
+       Card files with their own search code call this, so "whenever a player searches" triggers too. */
+    librarySearch(p) {
+      const lim = this.searchLimit(p);
+      this.emit("searchLibrary", { p });
+      if (lim < Infinity) this.log(`${p.name} searches only the top ${lim} cards.`, { p });
+      return lim < Infinity ? p.library.slice(0, lim) : p.library;
+    }
+    searchLimit(p) {
+      let n = Infinity;
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.searchLimit) { const k = st.searchLimit(this, s, p); if (k != null) n = Math.min(n, k); }
+      return n;
+    }
 
     /* ------------------------------------------------ log and events */
     log(text, extra) {
@@ -588,10 +636,11 @@
     }
 
     /* ------------------------------------------------ targeting */
-    canTarget(p, o) {
+    canTarget(p, o, src) {
       if (o.zone !== "battlefield") return true;
       if (this.kw(o, "shroud")) return false;
       if (o.controller !== p && this.kw(o, "hexproof")) return false;
+      if (src && this.protectedFrom(o, src)) return false;
       return true;
     }
     kindMatch(o, kind) {
@@ -628,7 +677,7 @@
           if (spec.opp && o.controller === p) continue;
           if (!this.kindMatch(o, kind)) continue;
           if (spec.filter && !spec.filter(this, o, p, src)) continue;
-          if (!this.canTarget(p, o)) continue;
+          if (!this.canTarget(p, o, src)) continue;
           out.push(o);
         }
       }
@@ -673,6 +722,9 @@
       let to = zone;
       let info = null;
       if (from === "battlefield") info = this.lki(o);
+      // an earthbent land comes back when it dies or is exiled (Badgermole Cub)
+      const earthBack = from === "battlefield" && o.earthReturn && (zone === "graveyard" || zone === "exile") && !o.isToken;
+      o.earthReturn = false;
       // commanders go back to the command zone instead (simplified: always)
       if (o.isCommander && ["graveyard", "exile", "hand", "library"].includes(to) && !opts.noCommandZone) to = to === "graveyard" && opts.dies ? "graveyard" : "command";
       this.removeFromZone(o);
@@ -699,6 +751,14 @@
       o.ts = ++this.ts;
       this.bump();
       this.anim("move", { o, from, to, info });
+      if (earthBack) {
+        const zc = o.zc, there = to;
+        this.pending.push({ src: o, controller: o.owner, ev: {}, tr: { do: async g => {
+          if (o.zone !== there || o.zc !== zc) return;
+          g.putOntoBattlefield([o], o.owner, { tapped: true });
+          g.log(`${o.def.name} returns to the battlefield tapped.`, { p: o.owner, cards: [o.def.name] });
+        } } });
+      }
       if (to === "graveyard" && !o.isToken) this.emit("putInGraveyard", { o, p: o.owner, from });
       return { to, info, from };
     }
@@ -718,6 +778,8 @@
       let tapped = !!opts.tapped;
       if (d.etbTapped === true) tapped = true;
       else if (typeof d.etbTapped === "function" && d.etbTapped(this, o)) tapped = true;
+      // "creatures your opponents control enter tapped" (Thalia, Heretic Cathar; Blind Obedience)
+      if (!tapped) for (const s of this.staticSources()) { if (s === o || tapped) continue; for (const st of this.staticsOf(s)) if (st.entersTapped && st.entersTapped(this, s, o)) { tapped = true; break; } }
       o.tapped = tapped;
       if (d.types.includes("Planeswalker")) o.counters.loyalty = d.loyalty;
       if (d.doors) o.state.doors = d.doors.map((_, i) => i === (opts.door || 0));
@@ -980,7 +1042,7 @@
 
     /* ------------------------------------------------ life, damage, counters */
     gainLife(p, n, src) {
-      if (p.lost || n <= 0) return 0;
+      if (p.lost || n <= 0 || p.lifeLock) return 0;
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.lifeGainPlus) n += st.lifeGainPlus(this, s, p) || 0;
       // "you gain twice that much life instead" (Boon Reflection)
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.lifeGainTimes && s.controller === p) n *= st.lifeGainTimes;
@@ -992,7 +1054,7 @@
       return n;
     }
     loseLife(p, n, src) {
-      if (p.lost || n <= 0) return 0;
+      if (p.lost || n <= 0 || p.lifeLock) return 0;
       p.life -= n; p.lifeLostThisTurn += n;
       this.log(`${p.name} loses ${n} life${src && src.def ? " (" + src.def.name + ")" : ""}.`, { p, kind: "life", n: -n });
       this.anim("life", { p, delta: -n, src });
@@ -1014,6 +1076,8 @@
       const infect = srcObj && srcObj.zone === "battlefield" && this.kw(srcObj, "infect");
       const lifelink = srcObj && (srcObj.zone === "battlefield" ? this.kw(srcObj, "lifelink") : !!(opts.kws && opts.kws.has("lifelink")));
       const ctrl = srcObj ? srcObj.controller : (src && src.controller) || null;
+      if (this.isPlayer(target) && (target.shield || target.lifeLock)) { this.log(`Damage to ${target.name} is prevented.`, { p: target }); return 0; }
+      if (!this.isPlayer(target) && srcObj && this.protectedFrom(target, srcObj)) { this.log(`${target.def.name} has protection: the damage is prevented.`, { cards: [target.def.name] }); return 0; }
       if (this.isPlayer(target)) {
         if (target.lost) return 0;
         if (infect) { target.poison += n; this.anim("poison", { p: target, n }); }
@@ -1046,6 +1110,7 @@
     addCounters(o, kind, n, src) {
       if (!o || n <= 0 || o.zone !== "battlefield") return 0;
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.counterPlus) n += st.counterPlus(this, s, o, kind) || 0;
+      if (n <= 0) return 0; // Vizier of Remedies: "that many minus one"
       o.counters[kind] = (o.counters[kind] || 0) + n;
       this.bump();
       this.anim("counter", { o, kind, n });
@@ -1146,7 +1211,11 @@
     async search(p, opts) {
       const from = opts.from || ["library"];
       let pool = [];
-      for (const z of from) pool = pool.concat(p[z].filter(o => !opts.filter || opts.filter(this, o)));
+      // Aven Mindcensor: an opponent searches only the top four
+      const lim = from.includes("library") ? this.searchLimit(p) : Infinity;
+      for (const z of from) pool = pool.concat((z === "library" && lim < Infinity ? p.library.slice(0, lim) : p[z]).filter(o => !opts.filter || opts.filter(this, o)));
+      if (from.includes("library")) this.emit("searchLibrary", { p }); // Archivist of Oghma
+      if (lim < Infinity) this.log(`${p.name} searches only the top ${lim} cards.`, { p });
       const max = opts.count == null ? 1 : opts.count;
       let chosen = [];
       if (pool.length) {
@@ -1182,12 +1251,16 @@
       const out = [];
       const ex = exclude instanceof Set ? exclude : new Set(exclude || []);
       const vorinclex = this.battlefield.some(o => o.controller === p && o.def.doublesLandMana);
+      // statics that stop mana abilities (Linvala, Grand Abolisher) or add to them (Badgermole Cub)
+      const stops = [], bonus = [];
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) { if (st.cantActivate) stops.push([s, st]); if (st.creatureManaBonus) bonus.push([s, st]); }
       for (const o of this.battlefield) {
         if (o.controller !== p || ex.has(o.id)) continue;
         const abs = this.manaAbilities(o);
         if (!abs.length) continue;
         const options = [];
         for (const ab of abs) {
+          if (stops.length && stops.some(([s, st]) => st.cantActivate(this, s, p, o, ab))) continue;
           if (ab.tap && o.tapped) continue;
           if (ab.tap && this.isCreature(o) && o.sick && !this.kw(o, "haste")) continue;
           if (ab.condition && !ab.condition(this, o)) continue;
@@ -1200,11 +1273,22 @@
           for (const units of this.expandProduce(prod, p)) options.push({ units, ab, cost: ab.cost ? parseCost(ab.cost) : null, tapCreature: ab.tapCreature || 0 });
         }
         if (!options.length) continue;
+        if (bonus.length && this.isCreature(o)) {
+          let extra = "";
+          for (const [s, st] of bonus) extra += st.creatureManaBonus(this, s, o) || "";
+          if (extra) for (const opt of options) if (opt.ab.tap) opt.units = opt.units.concat(extra.split(""));
+        }
         // bigger outputs first (Fanatic of Rhonas: GGGG before G)
         options.sort((a, b) => b.units.length - a.units.length);
         const mult = vorinclex && this.isLand(o) ? 2 : 1;
         const any = options[0].ab;
         out.push({ o, options, mult, last: !!any.last, hasCost: options.some(x => x.cost), tapCreature: Math.min(...options.map(x => x.tapCreature)) });
+      }
+      // "exile this card from your hand: add {G}" (Elvish Spirit Guide), used last
+      for (const o of p.hand) {
+        if (!o.def.handMana || ex.has(o.id) || o === spell) continue;
+        const ab = { hand: true, produce: o.def.handMana };
+        out.push({ o, options: this.expandProduce(o.def.handMana, p).map(units => ({ units, ab, cost: null, tapCreature: 0 })), mult: 1, last: true, hasCost: false, tapCreature: 0 });
       }
       return out;
     }
@@ -1420,6 +1504,11 @@
       const o = s.o;
       const opt = s.options[oi];
       const ab = opt.ab;
+      if (ab.hand) {
+        if (o.zone !== "hand") return;
+        this.moveTo(o, "exile");
+        this.log(`${p.name} exiles ${o.def.name} from their hand for mana.`, { p, cards: [o.def.name] });
+      }
       if (ab.tap) this.tap(o);
       if (opt.cost) this.spendPool(p, opt.cost, reserveFor);
       if (opt.tapCreature) {
@@ -1552,10 +1641,12 @@
       const sorc = this.canSorcery(p);
       if (!sorc && !this.isInstantSpeed(p, o)) return [];
       if (o.def.canCast && !o.def.canCast(this, p, o)) return [];
+      if (this.castBlocked(p, o)) return [];
       // no legal target for the normal spell: only an alternative cost with its own targets (cleave) can be cast
       let noTargets = false;
-      if (o.def.spell && o.def.spell.targets) {
-        for (const spec of o.def.spell.targets) if (!spec.optional && !this.targetOptions(p, spec, o).length) noTargets = true;
+      const needs = (o.def.spell && o.def.spell.targets) || (o.def.aura && o.def.targets);
+      if (needs) {
+        for (const spec of needs) if (!spec.optional && !this.targetOptions(p, spec, o).length) noTargets = true;
         if (noTargets && !(o.def.altCosts || []).some(a => a.targets)) return [];
       }
       const altOk = alt => !alt.targets || alt.targets.every(spec => spec.optional || this.targetOptions(p, spec, o).length > 0);
@@ -1673,6 +1764,10 @@
       o.zone = "stack"; o.zc++;
       this.stack.push(item);
       p.spellsCast++;
+      if (!d.types.includes("Creature")) p.ncCast = (p.ncCast || 0) + 1; // Deafening Silence, Esper Sentinel
+      // spells cast this turn and their colors (Veil of Summer)
+      if (!this.castLog || this.castLog.turn !== this.turn) this.castLog = Object.assign([], { turn: this.turn });
+      this.castLog.push({ turn: this.turn, p, colors: [...this.colorsOf(o)] });
       this.spellsThisTurn = (this.spellsThisTurn || 0) + 1;
       item.storm = this.spellsThisTurn - 1;
       p.stats.cast[d.name] = (p.stats.cast[d.name] || 0) + 1;
@@ -1693,6 +1788,8 @@
       opts = opts || {};
       const d = o.def;
       if (d.types.includes("Land") || this.over) return false;
+      const ban = this.castBlocked(p, o);
+      if (ban) { this.log(`${p.name} can't cast ${d.name} (${ban}).`, { p, cards: [d.name] }); return false; }
       const item = { kind: "spell", o, p, x: 0, door: 0, alt: 0, targets: [], mode: null, id: ++this.ts, name: d.doors ? d.doors[0].name : d.name, free: true };
       if (d.modes) {
         const avail = d.modes.map((m, i) => ({ id: i, label: m.label, ok: !m.canChoose || m.canChoose(this, p, o) })).filter(m => m.ok);
@@ -1800,7 +1897,7 @@
     counterSpell(item, by) {
       const i = this.stack.indexOf(item);
       if (i < 0) return false;
-      if (item.o.def.cantBeCountered || item.cantBeCountered) { this.log(`${item.name} can't be countered.`, {}); return false; }
+      if (item.o.def.cantBeCountered || item.cantBeCountered || this.uncounterable(item)) { this.log(`${item.name} can't be countered.`, {}); return false; }
       this.stack.splice(i, 1);
       item.countered = true;
       this.log(`${item.name} is countered.`, { cards: [item.o.def.name], kind: "counter" });
@@ -1893,6 +1990,7 @@
       }
       if (ab.untapSelf && !o.tapped) return false;
       if (ab.condition && !ab.condition(this, o, p)) return false;
+      if (!ab.special && this.activateBlocked(p, o, ab)) return false;
       if (ab.removeCounters && (o.counters[ab.removeCounters.kind] || 0) < ab.removeCounters.n) return false;
       if (ab.payLife && p.life < ab.payLife) return false;
       if (ab.untapCreatures && this.creatures(p).filter(c => c.tapped).length < ab.untapCreatures) return false;
@@ -1948,15 +2046,22 @@
         if (!pick) return false;
         sacrificed = pick;
       }
+      // creatures tapped for a cost can't also tap for mana: leave out the ones the mana needs,
+      // as long as enough others remain (Grove of the Guardian with Llanowar Elves in play)
+      const manaCost = this.abilityCost(p, o, ab, ctx.x);
+      const spare = (cands, n, enough) => {
+        const ok = cands.filter(c => this.canPay(p, manaCost, { exclude: excl.concat([c.id]), for: forWhat }));
+        return enough(ok) ? ok : cands;
+      };
       let crewers = null;
       if (ab.crew) {
-        const cands = this.creatures(p).filter(c => !c.tapped && c !== o);
+        const cands = spare(this.creatures(p).filter(c => !c.tapped && c !== o), 0, l => l.reduce((s, c) => s + Math.max(0, this.power(c)), 0) >= ab.crew);
         crewers = await this.ask(p, { type: "cards", prompt: `Crew ${ab.crew}: tap creatures with total power ${ab.crew} or more`, options: cands, min: 1, max: cands.length, purpose: "crew", need: ab.crew, src: o });
         if (!crewers || crewers.reduce((s, c) => s + Math.max(0, this.power(c)), 0) < ab.crew) return false;
       }
       let tappers = null;
       if (ab.tapCreatures) {
-        const cands = this.creatures(p).filter(c => !c.tapped && c !== o);
+        const cands = spare(this.creatures(p).filter(c => !c.tapped && c !== o), 0, l => l.length >= ab.tapCreatures);
         tappers = await this.ask(p, { type: "cards", prompt: `Tap ${ab.tapCreatures} untapped creatures`, options: cands, min: ab.tapCreatures, max: ab.tapCreatures, purpose: "tapCost", src: o });
         if (!tappers || tappers.length !== ab.tapCreatures) return false;
       }
@@ -1971,7 +2076,10 @@
         discarded = await this.ask(p, { type: "cards", prompt: `Discard ${ab.discard}`, options: p.hand.slice(), min: ab.discard, max: ab.discard, purpose: "discard", src: o });
       }
       const cost = this.abilityCost(p, o, ab, ctx.x);
-      if (!this.pay(p, cost, { exclude: excl.concat(tappers ? tappers.map(c => c.id) : []).concat(crewers ? crewers.map(c => c.id) : []), for: forWhat })) return false;
+      if (!this.pay(p, cost, { exclude: excl.concat(tappers ? tappers.map(c => c.id) : []).concat(crewers ? crewers.map(c => c.id) : []), for: forWhat })) {
+        this.log(`${p.name} can't pay for ${ab.label || o.def.name}${tappers || crewers ? " with those creatures tapped (they were needed for mana)" : ""}.`, { p, cards: [o.def.name] });
+        return false;
+      }
       if (ab.tap) this.tap(o);
       if (ab.untapSelf) this.untap(o);
       if (ab.loyalty != null) {
@@ -2025,8 +2133,9 @@
           acts.push({ type: "cast", card: o, door: w.door, alt: w.alt, faceDown: !!w.faceDown, free: !!w.free, xMax: w.xMax, xCount: w.xCount, cost: w.cost, label: w.label });
         }
       }
-      // cycling from hand
+      // cycling and channel from hand
       for (const o of p.hand) if (o.def.cycling && this.canPay(p, parseCost(o.def.cycling))) acts.push({ type: "cycle", card: o, cost: parseCost(o.def.cycling) });
+      for (const o of p.hand) if (o.def.channel && this.canChannel(p, o)) acts.push({ type: "channel", card: o, cost: this.channelCost(p, o) });
       for (const o of this.battlefield) {
         if (o.controller !== p) continue;
         for (const entry of this.abilitiesOf(o)) {
@@ -2048,9 +2157,41 @@
       await this.settle();
       return true;
     }
+    /* Channel: pay, discard the card from your hand, then the ability happens (Boseiju, Eiganjo). */
+    channelCost(p, o) {
+      const c = parseCost(o.def.channel.cost);
+      if (o.def.channel.costReduce) c.g = Math.max(0, c.g - o.def.channel.costReduce(this, p, o));
+      return c;
+    }
+    canChannel(p, o) {
+      const ch = o.def.channel;
+      if (!ch || this.over || p.lost || o.zone !== "hand") return false;
+      for (const spec of ch.targets || []) if (!spec.optional && !this.targetOptions(p, spec, o).length) return false;
+      return this.canPay(p, this.channelCost(p, o), { for: "ability" });
+    }
+    async channel(p, o, choice) {
+      if (!this.canChannel(p, o)) return false;
+      const ch = o.def.channel, ctx = { p, src: o, targets: [], legal: [], x: 0 };
+      for (const spec of ch.targets || []) {
+        const t = await this.chooseTarget(p, spec, o);
+        if (!t && !spec.optional) return false;
+        ctx.targets.push(t);
+      }
+      if (!this.pay(p, this.channelCost(p, o), { for: "ability" })) return false;
+      this.log(`${p.name} channels ${o.def.name}${ctx.targets.filter(Boolean).length ? " targeting " + ctx.targets.filter(Boolean).map(t => this.nameOf(t)).join(" and ") : ""}.`, { p, cards: [o.def.name], kind: "ability" });
+      this.discard(p, o);
+      await this.settle();
+      try {
+        (ch.targets || []).forEach((spec, i) => { const t = ctx.targets[i]; ctx.legal[i] = !!t && this.legalTarget(p, spec, t, o); });
+        await ch.do(this, o, ctx);
+      } catch (e) { this.warn(e, o); }
+      await this.settle();
+      return true;
+    }
     async perform(p, act) {
       if (!act || this.over) return false;
       if (act.type === "land") return this.playLand(p, act.card, act.back);
+      if (act.type === "channel") return this.channel(p, act.card, act);
       if (act.type === "cast") return this.cast(p, act.card, act);
       if (act.type === "cycle") return this.cycle(p, act.card);
       if (act.type === "activate") {
@@ -2095,12 +2236,14 @@
       return out;
     }
     canAttack(o, p) {
+      if (this.noAttackTurn === this.turn) return false; // a kicked Orim's Chant
       return o.controller === p && o.zone === "battlefield" && this.isCreature(o) && !o.tapped && (!o.sick || this.kw(o, "haste")) && !this.kw(o, "defender") && !this.ch(o).cantAttack;
     }
     canBlock(b, a) {
       if (!this.isCreature(b) || b.tapped || b.zone !== "battlefield") return false;
       if (this.ch(b).cantBlock) return false;
       if (this.ch(a).unblockable) return false;
+      if (this.protectedFrom(a, b)) return false;
       if (this.kw(a, "flying") && !this.kw(b, "flying") && !this.kw(b, "reach")) return false;
       if (this.kw(a, "shadow") && !this.kw(b, "shadow")) return false;
       if (this.kw(a, "fear") && !this.isArtifact(b) && !this.colorsOf(b).has("B")) return false;
@@ -2424,10 +2567,12 @@
       // "if this card is in your opening hand, you may begin the game with it on the battlefield"
       for (const p of this.players) for (const o of p.hand.slice()) {
         if (!o.def.openingHand) continue;
+        if (o.def.openingHandIf && !o.def.openingHandIf(this, p)) continue;
         const ok = await this.ask(p, { type: "confirm", prompt: `Begin the game with ${o.def.name} on the battlefield?`, src: o, purpose: "leyline" });
         if (!ok) continue;
         this.putOntoBattlefield([o], p);
         this.log(`${p.name} begins the game with ${o.def.name} on the battlefield.`, { p, cards: [o.def.name] });
+        if (o.def.onOpeningHand) { try { await o.def.onOpeningHand(this, p, o); } catch (e) { this.warn(e, o); } }
       }
       await this.settle();
       this.bump();
@@ -2435,7 +2580,9 @@
     async takeTurn(p) {
       this.turn++;
       p.turnsTaken++;
-      for (const q of this.players) { q.gained = 0; q.lifeLostThisTurn = 0; q.spellsCast = 0; q.attackedBy = []; }
+      for (const q of this.players) { q.gained = 0; q.lifeLostThisTurn = 0; q.spellsCast = 0; q.ncCast = 0; q.attackedBy = []; }
+      // "until your next turn" protection ends (Teferi's Protection, The One Ring)
+      if (p.shield || p.lifeLock) { p.shield = null; p.lifeLock = null; this.log(`${p.name}'s protection ends.`, { p }); }
       this.diedThisTurn = 0;
       this.spellsThisTurn = 0;
       p.landsPlayed = 0;
@@ -2529,6 +2676,7 @@
     }
     cleanupEffects() {
       for (const o of this.battlefield) { o.damage = 0; o.dtDamage = false; }
+      if (this.castBans.length) this.castBans = [];
       if (this.tempTriggers.length) { this.tempTriggers = []; this.ts++; }
       this.effects = this.effects.filter(e => e.until !== "eot" && e.until !== "eoc");
       this.combat = null;

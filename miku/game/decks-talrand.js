@@ -152,7 +152,7 @@
   }
   /* Search the library for one card matching filter; to "hand" or "top". */
   async function tutor(g, p, src, filter, to, what) {
-    const pool = p.library.filter(c => filter(c));
+    const pool = (g.librarySearch ? g.librarySearch(p) : p.library).filter(c => filter(c));
     let pick = null;
     if (pool.length) {
       if (isBot(p)) pick = bestTutor(g, p, pool);
@@ -1617,7 +1617,7 @@
         if (!sac || sac.zone !== "battlefield") return;
         const mv = sac.isToken ? 0 : (sac.def.mv || 0);
         g.sacrifice(sac);
-        const pool = p.library.filter(c => typeOf(c, "Artifact"));
+        const pool = g.librarySearch(p).filter(c => typeOf(c, "Artifact"));
         let pick = null;
         if (pool.length) {
           if (isBot(p)) pick = plan && pool.includes(plan.find) ? plan.find : bestTutor(g, p, pool);
@@ -1654,7 +1654,7 @@
     spell: {
       do: async (g, ctx) => {
         const p = ctx.p, x = ctx.item.x || 0;
-        const pool = p.library.filter(c => typeOf(c, "Artifact") && (c.def.mv || 0) <= x);
+        const pool = g.librarySearch(p).filter(c => typeOf(c, "Artifact") && (c.def.mv || 0) <= x);
         let pick = null;
         if (pool.length) {
           if (isBot(p)) pick = whirTarget(g, p, x) || bestTutor(g, p, pool);

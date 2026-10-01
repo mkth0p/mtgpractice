@@ -8,12 +8,15 @@ before anyone plays it.
 | --- | --- |
 | `engine.js` | Rules: zones, the stack, mana payment, combat, triggers, state-based actions. |
 | `cards-miku.js` | All 88 cards of the Miku deck (Trostani) and `MK.MIKU_DECK`. The best examples to copy. |
+| `cards-corrupted.js` | The Corrupted Miku deck (Shalai, Bracket 4): its new cards, the generic Cavern of Souls, `MK.CORRUPTED_DECK` and its coach. |
+| `checklist-corrupted.js` | Corrupted Miku's turn checklist (`MK_CHECKLISTS.corrupted`), shared by the game's Coach panel and the site. |
 | `decks-*.js` | One file per bot deck: its card definitions and one entry in `MK.BOT_DECKS`. |
 | `ai.js` | The bots. Generic rules of thumb plus the per-card hints described below. |
 | `game-ui.js`, `game.css` | The table on the page. |
 | `../../tools/sim/run.js` | Headless bot games with invariant checks. |
+| `../../tools/ui/*.js` | Playwright tests that play the Play tab through its screen. |
 
-Load order in the page and in the sim: `engine.js`, `cards-miku.js`, `decks-*.js` (alphabetical), `ai.js`.
+Load order in the page and in the sim: `engine.js`, `cards-miku.js`, `cards-corrupted.js`, the other `cards-*.js`, `decks-*.js` (alphabetical), `ai.js`.
 
 ## What the engine simplifies
 
@@ -28,8 +31,8 @@ a card:
 - A commander that would go to the graveyard or exile goes back to the command zone.
 - No layers beyond: base P/T (card, `cda`, animation), set-base effects (Mirror Entity), counters,
   then static and until-end-of-turn modifications.
-- Not supported: extra turns, extra combat phases, phasing, protection from colors, control-changing
-  effects that last longer than a turn, sagas, split second, cycling from hand, replacement effects
+- Not supported: extra turns, extra combat phases, control-changing
+  effects that last longer than a turn, split second, replacement effects
   other than the ones listed under statics. Pick another card, or write a simplified version and say
   how in the card's `note`.
 
@@ -184,7 +187,14 @@ statics: [{
   extraLands: 1, untapOnOthersTurn: true, noMaxHand: true,
   playLandsFrom: ["top", "graveyard"],            // Courser of Kruphix, Ramunap Excavator
   lifeGainTimes: 2,                               // Boon Reflection: your life gain is multiplied
-  grantMana: [{ tap: true, produce: "G" }]         // with applies: extra mana abilities (Song of Freyalise)
+  grantMana: [{ tap: true, produce: "G" }],        // with applies: extra mana abilities (Song of Freyalise)
+  // locks (Corrupted Miku)
+  cantCast: (g, s, p, card) => bool,              // Grand Abolisher, Drannith Magistrate, Deafening Silence
+  cantActivate: (g, s, p, o, ab) => bool,         // Grand Abolisher, Linvala (mana abilities count)
+  uncounterable: (g, s, item) => bool,            // Destiny Spinner
+  searchLimit: (g, s, p) => 4 or null,            // Aven Mindcensor: p searches only the top n
+  entersTapped: (g, s, o) => bool,                // Thalia, Heretic Cathar, Blind Obedience
+  creatureManaBonus: (g, s, o) => "G"             // Badgermole Cub: tapping creature o for mana adds this too
 }]
 commandStatics: [{ costMod }]    // eminence cost reductions that work from the command zone
 ```
@@ -196,6 +206,25 @@ Other card fields: `etbTapped` (true or `(g, o) => bool`), `etbCounters: (g, o, 
 `etbState: (g, o, opts) => ({})` (state set as it enters), `mdfcLand` (the land back face of a modal card),
 `morph` (face-down casting), `cycling: "{2}"`, `doublesLandMana` (Mirari's Wake), and `altCosts[].targets`
 for an alternative cost with its own targets (cleave).
+
+Corrupted Miku added a few more:
+- `g.banCasting((g, p, card) => bool, label)` stops casting until end of turn (Silence, Orim's Chant,
+  Ranger-Captain); `p.noCounterTurn = g.turn` makes p's spells uncounterable this turn (Veil of Summer).
+- `p.shield` (protection from everything: no targeting, damage prevented) and `p.lifeLock` (life total
+  can't change) last until p's next turn (Teferi's Protection, The One Ring).
+- `g.addEffect({ objs, prot: ["B"] })`: protection from colors ("C" for colorless) until end of turn. It
+  stops targeting, damage and blocking by sources of that color (Giver of Runes).
+- `handMana: "G"` pays from the hand by exiling the card (Elvish Spirit Guide).
+- `channel: { label, cost, costReduce(g, p, o), targets, do(g, o, ctx) }` discards a card from hand for
+  an effect (Boseiju, Eiganjo). It shows up as a `channel` action.
+- `openingHand: true` with `openingHandIf(g, p)` and `onOpeningHand(g, p, o)` (Gemstone Caverns).
+- `o.state.earth` with `o.earthReturn` is an earthbent land: a 0/0 creature with haste that comes back
+  tapped when it dies or is exiled.
+- `g.librarySearch(p)` is the part of p's library a tutor may look at; custom tutors should use it so
+  Aven Mindcensor and Archivist of Oghma see them. `g.castLog` lists this turn's spells and colors.
+- A hero deck's `coach: { tips(g, p), checklist }` drives the game's Coach panel: `tips` returns
+  `{ level: "win" | "now" | "plan" | "warn" | "info", title, text, cards }`, most urgent first, and
+  `checklist` names an entry of `MK_CHECKLISTS`. `alsoOn: ["miku"]` offers a hero deck on another site too.
 
 ## Game methods to use in `do`
 
@@ -269,7 +298,7 @@ defined in two files keeps the first definition, so a precon only defines cards 
 The lobby deals from the precons, the Bracket 4 decks or both, using each deck's `bracket`.
 
 Decks a player can pilot go in `MK.HERO_DECKS` with `hero` set to the site that offers them
-(`"miku"` or `"etrata"`, matching `MK_SITE.hero`) and a short `label` for the deck picker: the Miku
+(`"miku"`, `"etrata"` or `"corrupted"`, matching `MK_SITE.hero`) and a short `label` for the deck picker: the Miku
 site offers the precon, the 80€ upgrade, the full upgrade and the Bracket 4 Azusa deck. A hero deck
 can also sit at the table as a bot when it is pushed to `MK.BOT_DECKS` too. `cards-*.js` files hold
 other heroes' card pools (`cards-etrata.js`, `cards-miku-precon.js`) and load before the deck files.
@@ -298,8 +327,27 @@ node tools/sim/run.js --games 40 --decks miku,random2,random2,random2 --first ra
 node tools/sim/run.js --games 1 --seed 7 --decks krenko,miku --players 2 --log 1   # full game log
 node tools/sim/run.js --games 20 --decks krenko --strict                           # throw on the first error
 node tools/sim/run.js --games 60 --decks miku-precon,random2 --cut "miku-precon:Boon Reflection"   # swap one card for a basic
+node tools/sim/run.js --games 200 --decks miku-precon,random,random,random --strict --chaos --first random  # seat 1 plays like a careless human
 ```
 
 The run prints win rates, game length, engine errors and broken invariants (cards in two zones,
 negative counters, cards that vanished). A deck is ready when 100+ games show no errors or problems
 and the deck wins some games against the others.
+
+Bots only take the lines their hints give them. `--chaos` plays the first seat at random among
+everything the screen would offer a person (your own Swords on your own creature, X=0, skipped
+targets, odd blocks) and reports any play that did nothing.
+
+The screen itself has two Playwright tests (Scryfall is mocked, so they run offline; the cloud
+sandbox has Playwright and Chromium, elsewhere `npm i -g playwright`):
+
+```
+node tools/ui/cast-every-card.js --hero miku-precon     # cast every card of a deck through the screen, use each ability
+node tools/ui/cast-every-card.js --hero etrata --site etrata --only "Etrata, Deadly Fugitive" --verbose
+node tools/ui/random-play.js --hero azusa --games 3     # tap at random through whole games against the bots
+node tools/sim/test-corrupted.js                        # Corrupted Miku's combos, locks and coach
+```
+
+They report page errors, "Display error" lines, cards that glow but can't be played, plays that
+do nothing, questions with no way out and stalls. Run both for every deck you can pilot after
+changing `game-ui.js` or anything a person's choices go through.
