@@ -141,6 +141,47 @@ const repeat = (g, p, o, idx, n) => g.perform(p, { type: "activate", card: o, id
   { const { g, a } = table(); put(g, a, "Devoted Druid"); hand(g, a, "Eladamri's Call"); await g.settle();
     const tips = MK.CORRUPTED_DECK.coach.tips(g, a);
     check("coach: tells you to find Vizier", tips.some(t => /Vizier/.test(t.title)), tips.map(t => t.title)); }
+
+  // Vizier of Remedies + Spike Feeder is not a combo: Feeder's counters are +1/+1, Vizier only touches -1/-1
+  { const { g, a } = table(); put(g, a, "Vizier of Remedies"); const sf = put(g, a, "Spike Feeder"); await g.settle(); sf.counters.p1 = 2; const life = a.life;
+    const c = MK.CORRUPTED_DECK.coach.companion(g, a, { mode: "main" });
+    check("companion: says Vizier + Feeder don't combo", c.steps.some(s => /don't combo/.test(s.text)), c.steps.map(s => s.text));
+    check("coach: no win tip for Vizier + Feeder", !MK.CORRUPTED_DECK.coach.tips(g, a).some(t => t.level === "win"));
+    await repeat(g, a, sf, 1, 5); await g.settle();
+    check("Vizier + Feeder: only two loops (4 life), then Feeder dies with no counters", a.life === life + 4 && sf.zone !== "battlefield", [a.life - life, sf.zone]); }
+
+  // The companion: one stage at a time
+  const comp = (g, a, ctx) => MK.CORRUPTED_DECK.coach.companion(g, a, ctx);
+  { const { g, a } = table(); const h = ["Forest", "Plains", "Sol Ring", "Devoted Druid", "Worldly Tutor", "Swords to Plowshares", "Llanowar Elves"].map(n => hand(g, a, n));
+    const c = comp(g, a, { mode: "mulligan", hand: h });
+    check("companion: a keep with mana, Druid and a tutor", c.keep === true && c.stage === "Opening hand", c.title); }
+  { const { g, a } = table(); const h = ["Plains", "Plains", "Swords to Plowshares", "Silence", "Reprieve", "Path to Exile", "Giver of Runes"].map(n => hand(g, a, n));
+    const c = comp(g, a, { mode: "mulligan", hand: h });
+    check("companion: no green source is a mulligan", c.keep === false && /green/.test(c.title), c.title); }
+  { const { g, a } = table(); lands(g, a, 1, ["Forest"]); hand(g, a, "Llanowar Elves"); hand(g, a, "Forest"); await g.settle();
+    const c = comp(g, a, { mode: "main" });
+    check("companion: early turns are the Ramp stage", c.stage === "Ramp" && c.steps.some(s => /land/i.test(s.text)), [c.stage, c.steps.map(s => s.text)]); }
+  { const { g, a } = table(); lands(g, a, 6, ["Forest", "Plains"]); await g.settle();
+    const c = comp(g, a, { mode: "main" });
+    check("companion: with mana and no Shalai, get her out", c.stage === "Shield up" && c.steps.some(s => /Cast Shalai/.test(s.text)), [c.stage, c.steps.map(s => s.text)]); }
+  { const { g, a } = table(); lands(g, a, 6, ["Forest", "Plains"]); put(g, a, "Shalai, Voice of Plenty"); put(g, a, "Devoted Druid"); hand(g, a, "Eladamri's Call"); await g.settle();
+    const c = comp(g, a, { mode: "main" });
+    check("companion: with Shalai out, tutor for Vizier", c.stage === "Assemble" && c.steps.some(s => /Vizier/.test(s.text) && /Eladamri/.test(s.text)), [c.stage, c.steps.map(s => s.text)]); }
+  { const { g, a } = table(); put(g, a, "Archangel of Thune"); const sf = put(g, a, "Spike Feeder"); sf.counters.p1 = 2; await g.settle();
+    const c = comp(g, a, { mode: "main" });
+    check("companion: assembled combo is Go off and urgent", c.stage === "Go off" && c.urgent, [c.stage, c.urgent]); }
+  { const { g, a, b } = table(); g.activeIdx = 1; const sh = put(g, a, "Shalai, Voice of Plenty"); put(g, a, "Giver of Runes");
+    const top = { kind: "spell", p: b, o: g.newObj(MK.get("Swords to Plowshares"), b, "stack"), name: "Swords to Plowshares", targets: [sh] };
+    const c = comp(g, a, { mode: "respond", window: "stack", top, can: ["Giver of Runes"] });
+    check("companion: removal on Shalai says use Giver, and stops", c.urgent && c.steps.some(s => /Giver/.test(s.text)), c.steps.map(s => s.text)); }
+  { const { g, a, b } = table(); g.activeIdx = 1;
+    const wipe = [...MK.defs.values()].find(d => d.ai && d.ai.wipe);
+    const top = { kind: "spell", p: b, o: g.newObj(wipe, b, "stack"), name: wipe.name, targets: [] };
+    const c = comp(g, a, { mode: "respond", window: "stack", top, can: ["Teferi's Protection"] });
+    check("companion: a wipe says Teferi's Protection", c.urgent && c.steps.some(s => /Teferi/.test(s.text)), c.steps.map(s => s.text)); }
+  { const { g, a, b } = table(); put(g, a, "Devoted Druid"); put(g, a, "Llanowar Elves"); await g.settle();
+    const c = comp(g, a, { mode: "attack", candidates: g.creatures(a) });
+    check("companion: keep Druid home", c.steps.some(s => /Druid/.test(s.text) && /home/.test(s.text)), c.steps.map(s => s.text)); }
   { check("checklist is defined", !!(globalThis.MK_CHECKLISTS && globalThis.MK_CHECKLISTS.corrupted && globalThis.MK_CHECKLISTS.corrupted.length)); }
 
   console.log(`${passed} passed, ${failed} failed`);
