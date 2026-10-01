@@ -120,7 +120,7 @@
       else if (/[^s]s$/.test(v)) w = v.slice(0, -1);
       return pre + "You " + w;
     });
-    if (/^You /.test(t)) t = t.replace(/ and is /, " and are ").replace(/ and finds /, " and find ").replace(/ and gets /, " and get ");
+    if (/^You /.test(t)) t = t.replace(/ and is /, " and are ").replace(/ and finds /, " and find ").replace(/ and gets /, " and get ").replace(/(,? but) (has|is|was)\b/, (m, b, v) => b + " " + { has: "have", is: "are", was: "were" }[v]);
     t = t.replace(/([^.!?:]\s)You\b/g, "$1you").replace(/([^.!?:]\s)Your\b/g, "$1your");
     // "Creatures you controls get +5/+5", "each creature you owns"
     t = t.replace(/\byou (controls|owns)\b/g, (m, v) => "you " + v.slice(0, -1));
@@ -348,8 +348,12 @@
       const steps = ["untap", "upkeep", "draw", "main1", "combat", "main2", "end"];
       const ph = { untap: 0, upkeep: 1, draw: 2, main1: 3, combat: 4, attackers: 4, blockers: 4, damage: 4, endCombat: 4, main2: 5, end: 6, cleanup: 6, setup: -1 }[g.phase];
       const label = { setup: "Getting ready", untap: "Untap", upkeep: "Upkeep", draw: "Draw", main1: "Main phase", combat: "Combat", attackers: "Attackers", blockers: "Blockers", damage: "Combat damage", endCombat: "End of combat", main2: "Second main", end: "End step", cleanup: "Cleanup" }[g.phase] || g.phase;
-      const who = g.phase === "setup" ? "Mulligans" : g.active === this.me ? "Your turn" : g.active.name;
-      this.$.phase.innerHTML = `<b>Turn ${Math.max(1, g.round)}</b><span class="steps">${steps.map((s, i) => `<i class="${i === ph ? "on" : ""}"></i>`).join("")}</span><span class="who">${esc(who)} · ${esc(label)}</span>`;
+      const mine = g.phase !== "setup" && g.active === this.me;
+      const who = g.phase === "setup" ? "Mulligans" : mine ? "Your turn" : esc(g.active.name) + "'s turn";
+      // two short lines: whose turn it is, then where in the turn we are (nothing gets cut off on a phone)
+      const html = `<span class="l1"><b>Turn ${Math.max(1, g.round)}</b><span class="who${mine ? " me" : ""}" style="--pc:${mine || !g.active ? "var(--miku)" : g.active.color}">${who}</span></span><span class="l2"><span class="steps">${steps.map((s, i) => `<i class="${i === ph ? "on" : i < ph ? "done" : ""}"></i>`).join("")}</span><span class="step">${esc(label)}</span></span>`;
+      if (this.$.phase._html !== html) { this.$.phase.innerHTML = html; this.$.phase._html = html; }
+      this.el.classList.toggle("my-turn", mine);
     }
     seatEl(p) { return p === this.me ? this.$.mybar.querySelector(".mg-life") : this.$.seats.querySelector(`[data-pid="${p.id}"]`); }
     renderSeats() {
@@ -494,11 +498,13 @@
       const cols = wide ? opps : opps.filter(p => p.id === this.focusId);
       box.classList.toggle("desk", wide);
       box.style.setProperty("--n", cols.length);
+      const fp = opps.find(p => p.id === this.focusId);
+      if (fp) box.style.setProperty("--pc", fp.color);
       // one column per shown opponent, rebuilt only when the set of columns changes
       const sig = cols.map(p => p.id).join(",") + (wide ? "w" : "n");
       if (box._sig !== sig) {
         box._sig = sig;
-        box.innerHTML = cols.map(p => `<div class="col" data-col="${p.id}"><span class="label">${esc(p.name)}</span><div class="mg-row cre" data-empty="No creatures"></div><div class="mg-row small oth"></div></div>`).join("");
+        box.innerHTML = cols.map(p => `<div class="col" data-col="${p.id}" style="--pc:${p.color}"><span class="label"><i></i>${esc(p.name)}</span><div class="mg-row cre" data-empty="No creatures"></div><div class="mg-row small oth"></div></div>`).join("");
       }
       for (const p of cols) {
         const col = box.querySelector(`[data-col="${p.id}"]`);
@@ -612,7 +618,7 @@
       const fan = this.$.fan;
       const hand = me.hand.slice();
       const w = this.$.hand.clientWidth - 20;
-      const hw = root.innerWidth >= 900 ? 96 : 76;
+      const hw = parseFloat(getComputedStyle(this.el).getPropertyValue("--hw")) || 76;
       const ov = hand.length > 1 && hand.length * (hw + 4) > w ? Math.min(Math.ceil((hand.length * hw - w) / (hand.length - 1)), Math.round(hw * .72)) : -4;
       fan.style.setProperty("--ov", ov + "px");
       const keep = new Map([...fan.children].map(el => [el.dataset.oid, el]));
@@ -670,18 +676,22 @@
     appendLog(e) {
       const li = document.createElement("li");
       const p = e.p;
-      if (e.kind === "turn") { li.className = "turn"; li.textContent = e.text.replace(/\.$/, ""); }
+      // the header counts rounds (everyone's turn once), so the log does too: "Turn 3 · Kaalia"
+      if (e.kind === "turn") { li.className = "turn"; li.textContent = p && this.g ? `Turn ${Math.max(1, this.g.round)} · ${p === this.me ? "You" : p.name}` : e.text.replace(/\.$/, ""); if (p && p.color) li.style.setProperty("--pc", p === this.me ? "var(--miku)" : p.color); }
       else {
-        li.className = e.kind || "";
+        // prefixed: a bare "search" line used to pick up the site's search box style
+        li.className = e.kind ? "k-" + e.kind : "";
         if (p && p.color) li.style.setProperty("--pc", p.color);
         let t = esc(youText(e.text));
         for (const n of e.cards || []) t = t.split(esc(n)).join(`<b data-card="${esc(n)}">${esc(n)}</b>`);
         li.innerHTML = t;
       }
       const ol = this.$.logList;
+      // follow the newest line, unless you scrolled back to read (the log is docked open on wide screens)
+      const atEnd = ol.scrollHeight - ol.scrollTop - ol.clientHeight < 60;
       ol.appendChild(li);
       while (ol.children.length > 400) ol.removeChild(ol.firstChild);
-      if (this.$.log.classList.contains("on")) ol.scrollTop = ol.scrollHeight;
+      if (this.$.log.classList.contains("on") || (root.innerWidth >= 1240 && atEnd)) ol.scrollTop = ol.scrollHeight;
     }
 
     /* -------------------------------------------------------- effects */

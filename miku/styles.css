@@ -1341,3 +1341,24 @@ body[data-view="play"] .foot { display: none; }
 /* cards never offer the browser's "save image" menu: press and hold shows the card instead */
 .mini-card, .mini-card img, .inline-card, [data-art], [data-thumb] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 .mini-card img { -webkit-user-drag: none; }
+
+/* ---------------------------------------------------------------- deck switcher (header) */
+.deck-menu {
+  position: fixed; z-index: 120; width: min(300px, calc(100vw - 16px)); padding: 8px;
+  border-radius: 18px; border: 1px solid var(--line); background: var(--surface);
+  box-shadow: 0 24px 48px -16px rgba(0, 0, 0, .35), 0 2px 6px rgba(0, 0, 0, .08);
+  display: flex; flex-direction: column; gap: 2px; animation: dm-in .22s var(--ease) both;
+}
+.deck-menu[hidden] { display: none; }
+@keyframes dm-in { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
+.deck-menu .dm-h { margin: 4px 10px 6px; font: 600 10px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.deck-menu a { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 12px; color: var(--ink); text-decoration: none; transition: background .15s; }
+.deck-menu a:hover, .deck-menu a:focus-visible { background: var(--surface-2); }
+.deck-menu img { width: 32px; height: 32px; border-radius: 9px; flex: none; }
+.deck-menu span { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.deck-menu b { font: 700 14px/1.15 var(--f-display); letter-spacing: -.01em; }
+.deck-menu small { font: 500 9.5px/1.2 var(--f-mono); color: var(--muted); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.deck-menu .on { background: var(--teal-soft); }
+.deck-menu i { font: 600 9.5px/1 var(--f-mono); font-style: normal; text-transform: uppercase; letter-spacing: .08em; color: var(--teal); }
+.deck-menu .dm-all { margin-top: 4px; border-top: 1px solid var(--line); border-radius: 0 0 12px 12px; padding-top: 12px; font: 600 13px/1 var(--f-body); color: var(--muted); gap: 8px; }
+@media (hover: hover) { .icon-btn:hover { border-color: var(--line-strong); background: var(--surface-2); } }
