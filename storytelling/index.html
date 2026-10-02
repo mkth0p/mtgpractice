@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Révisions storytelling</title>
+<meta name="description" content="Fiche de révision : pyramide de Freytag, schéma narratif, logos ethos pathos, fonctions de Jakobson, figures de style et exercices corrigés.">
+<meta name="theme-color" content="#07090c">
+<link rel="icon" href="../miku/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Martian+Mono:wght@500;600&family=Unbounded:wght@700;800;900&display=swap">
+<style>
+  :root {
+    --bg: #f2efe7; --surface: #fffdf8; --surface-2: #f6f2e8; --ink: #0f1a1a; --muted: #5a6664; --line: #ddd5c6;
+    --teal: #1a9e95; --pink: #d6266e; --violet: #6a5ae0; --amber: #b7791f;
+    --logos: #2f6fd6; --ethos: #1a9e95; --pathos: #d6266e;
+    --f-display: "Unbounded", "Arial Black", system-ui, sans-serif; --f-body: "Instrument Sans", system-ui, sans-serif; --f-mono: "Martian Mono", ui-monospace, Menlo, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #07090c; --surface: #0f141a; --surface-2: #141a21; --ink: #eef3f4; --muted: #93a1ab; --line: #222c36; --teal: #39c5bb; --pink: #ff3d8b; --violet: #8e82ff; --amber: #f0b44c; --logos: #6aa2ff; --ethos: #39c5bb; --pathos: #ff5c9d; color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg: #07090c; --surface: #0f141a; --surface-2: #141a21; --ink: #eef3f4; --muted: #93a1ab; --line: #222c36; --teal: #39c5bb; --pink: #ff3d8b; --violet: #8e82ff; --amber: #f0b44c; --logos: #6aa2ff; --ethos: #39c5bb; --pathos: #ff5c9d; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--f-body); -webkit-font-smoothing: antialiased; }
+  a { color: var(--teal); }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+
+  .stage { color: #eef3f4; padding: 40px 0 36px;
+    background: radial-gradient(60% 90% at 12% 0%, rgba(57,197,187,.30), transparent 60%), radial-gradient(50% 80% at 92% 10%, rgba(255,61,139,.26), transparent 60%), #07090c; }
+  .stage .back { font: 600 11px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: #64e3d8; text-decoration: none; }
+  h1 { font: 900 clamp(1.9rem, 7vw, 3.2rem)/1 var(--f-display); margin: 14px 0 10px; letter-spacing: -.03em; }
+  h1 span { color: #39c5bb; }
+  .lede { color: #b7c2cc; margin: 0; max-width: 60ch; }
+
+  nav.toc { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  nav.toc .wrap { display: flex; gap: 6px; overflow-x: auto; padding-top: 10px; padding-bottom: 10px; scrollbar-width: none; }
+  nav.toc a { flex: none; font: 600 12px/1 var(--f-mono); padding: 9px 11px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); text-decoration: none; }
+  nav.toc a.on { background: var(--ink); color: var(--bg); }
+
+  section { padding: 30px 0 6px; }
+  h2 { font: 800 1.45rem/1.15 var(--f-display); letter-spacing: -.02em; margin: 0 0 6px; }
+  h2 small { display: block; font: 600 11px/1.4 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--pink); margin-bottom: 6px; }
+  h3 { font: 700 1.08rem/1.25 var(--f-body); margin: 22px 0 8px; }
+  p { margin: 8px 0; }
+  .muted { color: var(--muted); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin: 12px 0; }
+  .prio { border: 2px solid var(--pink); }
+  .tag { display: inline-block; font: 600 10px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; padding: 5px 7px; border-radius: 6px; background: var(--pink); color: #fff; vertical-align: middle; }
+  ul, ol { padding-left: 20px; margin: 8px 0; }
+  li { margin: 4px 0; }
+  q, .quote { font-style: italic; }
+  blockquote { margin: 10px 0; padding: 8px 12px; border-left: 3px solid var(--teal); background: var(--surface-2); border-radius: 0 10px 10px 0; font-style: italic; }
+  .tbl { width: 100%; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .93rem; }
+  th, td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px solid var(--line); }
+  th { font: 600 11px/1.3 var(--f-mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  details { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; margin: 10px 0; }
+  details > summary { cursor: pointer; padding: 13px 16px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 10px; }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::after { content: "+"; font: 700 1.1rem/1 var(--f-mono); color: var(--teal); }
+  details[open] > summary::after { content: "−"; }
+  details > div { padding: 0 16px 14px; }
+  details.ans { background: var(--surface-2); border-style: dashed; }
+  details.ans > summary { font-weight: 600; color: var(--teal); padding: 10px 14px; }
+
+  /* pyramid */
+  .pyr svg { width: 100%; height: auto; display: block; }
+  .pyr text { font-family: var(--f-body); fill: var(--ink); }
+  .steps { counter-reset: s; list-style: none; padding: 0; }
+  .steps li { counter-increment: s; position: relative; padding: 12px 14px 12px 52px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; margin: 8px 0; }
+  .steps li::before { content: counter(s); position: absolute; left: 12px; top: 12px; width: 28px; height: 28px; border-radius: 50%; background: var(--teal); color: #04201e; font: 700 13px/28px var(--f-mono); text-align: center; }
+  .steps li b { display: block; }
+  .steps li .eg { display: block; margin-top: 4px; font-size: .92rem; color: var(--muted); }
+
+  .trio { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .trio .card { margin: 0; border-top: 4px solid var(--c); }
+  .trio h3 { margin-top: 0; color: var(--c); }
+  .bar { display: flex; height: 30px; border-radius: 10px; overflow: hidden; font: 600 11px/30px var(--f-mono); color: #fff; text-align: center; margin: 8px 0; }
+  .bar span { white-space: nowrap; overflow: hidden; }
+
+  .jak { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .jak .card { margin: 0; }
+  .jak b { color: var(--violet); }
+  .pill { display: inline-block; font: 600 11px/1 var(--f-mono); padding: 4px 7px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); margin: 2px 2px 0 0; }
+
+  input[type=search], textarea { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; }
+  textarea { min-height: 70px; resize: vertical; }
+  .fig { padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .fig b { color: var(--teal); }
+  .fig .ex { display: block; font-size: .92rem; color: var(--muted); font-style: italic; }
+  .btn { font: 700 .95rem var(--f-body); border: 0; border-radius: 999px; padding: 11px 18px; background: var(--teal); color: #04201e; cursor: pointer; }
+  .btn.ghost { background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  .flash { min-height: 150px; display: flex; flex-direction: column; justify-content: center; text-align: center; cursor: pointer; user-select: none; }
+  .flash .q { font: 700 1.15rem/1.3 var(--f-body); }
+  .flash .a { margin-top: 10px; color: var(--muted); display: none; }
+  .flash.show .a { display: block; }
+  .opt { display: block; width: 100%; text-align: left; margin: 6px 0; padding: 11px 13px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit; cursor: pointer; }
+  .opt.ok { border-color: var(--teal); background: color-mix(in srgb, var(--teal) 18%, var(--surface)); }
+  .opt.ko { border-color: var(--pink); background: color-mix(in srgb, var(--pink) 15%, var(--surface)); }
+  .chrono { font: 700 2.4rem/1 var(--f-mono); }
+  label.b { display: block; font-weight: 700; margin: 12px 0 4px; }
+  label.b small { font-weight: 400; color: var(--muted); }
+  footer { color: var(--muted); font-size: .8rem; padding: 30px 0 50px; }
+  :focus-visible { outline: 2.5px solid var(--teal); outline-offset: 2px; }
+  @media print { nav.toc, .noprint { display: none; } details { break-inside: avoid; } details:not([open]) > div { display: block; } }
+</style>
+</head>
+<body>
+<header class="stage">
+  <div class="wrap">
+    <a class="back" href="../">← Accueil</a>
+    <h1>Révisions <span>storytelling</span></h1>
+    <p class="lede">Tout pour l'oral et l'écrit : la pyramide de Freytag, la structure d'un récit, le dosage logos / ethos / pathos, les fonctions de Jakobson, puis le reste du cours avec les exercices corrigés.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sommaire">
+  <div class="wrap">
+    <a href="#essentiel">L'essentiel</a>
+    <a href="#freytag">Freytag</a>
+    <a href="#conte">Le conte</a>
+    <a href="#lep">Logos ethos pathos</a>
+    <a href="#jakobson">Jakobson</a>
+    <a href="#pitch">Pitch analysé</a>
+    <a href="#procedes">Procédés</a>
+    <a href="#figures">Figures</a>
+    <a href="#barthes">Barthes</a>
+    <a href="#entrainement">S'entraîner</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============ ESSENTIEL ============ -->
+<section id="essentiel">
+  <h2><small>À savoir par cœur</small>L'essentiel pour demain</h2>
+  <p class="muted">Ce que le professeur a demandé en priorité : la structure type d'un récit (pyramide de Freytag), le dosage logos / ethos / pathos, et les six fonctions de Jakobson.</p>
+
+  <div class="card prio">
+    <span class="tag">Priorité 1</span>
+    <h3>Structure d'un récit (schéma narratif)</h3>
+    <ol>
+      <li><b>Situation initiale</b> : le décor, le lieu, les personnages. Un équilibre.</li>
+      <li><b>Élément déclencheur</b> (complication) : un événement rompt l'équilibre et lance l'action.</li>
+      <li><b>Péripéties</b> : les actions et obstacles qui compliquent la situation.</li>
+      <li><b>Climax</b> (point culminant) : la tension maximale, le sort du héros se décide.</li>
+      <li><b>Dénouement</b> (résolution) : la conséquence de l'action, le nœud se défait.</li>
+      <li><b>Situation finale</b> : le nouvel équilibre, différent du début.</li>
+    </ol>
+    <p>La <b>pyramide de Freytag</b> (1863) découpe la même courbe en <b>7 étapes</b> : exposition, incident déclencheur, péripéties, point culminant, descente de l'action, résolution, dénouement.</p>
+  </div>
+
+  <div class="card prio">
+    <span class="tag">Priorité 2</span>
+    <h3>Logos, ethos, pathos (Aristote)</h3>
+    <ul>
+      <li><b style="color:var(--logos)">Logos</b> : convaincre par la raison (faits, chiffres, logique, exemples).</li>
+      <li><b style="color:var(--ethos)">Ethos</b> : convaincre par l'image de l'orateur (crédibilité, expertise, sincérité).</li>
+      <li><b style="color:var(--pathos)">Pathos</b> : persuader par l'émotion du public (peur, espoir, indignation, rire).</li>
+    </ul>
+    <p>Le bon <b>dosage</b> : du pathos pour accrocher et pour finir, du logos au cœur pour prouver, de l'ethos tout du long pour être cru.</p>
+  </div>
+
+  <div class="card prio">
+    <span class="tag">Priorité 3</span>
+    <h3>Les 6 fonctions de Jakobson</h3>
+    <div class="tbl"><table>
+      <tr><th>Facteur</th><th>Fonction</th><th>Centrée sur</th></tr>
+      <tr><td>Émetteur</td><td><b>Expressive</b> (émotive)</td><td>celui qui parle : « je », exclamations, jugements</td></tr>
+      <tr><td>Récepteur</td><td><b>Conative</b> (impressive)</td><td>celui qui écoute : « tu / vous », impératif, questions</td></tr>
+      <tr><td>Référent</td><td><b>Référentielle</b> (dénotative)</td><td>le sujet, l'information, les faits</td></tr>
+      <tr><td>Message</td><td><b>Poétique</b></td><td>la forme du message : rythme, sons, figures</td></tr>
+      <tr><td>Canal</td><td><b>Phatique</b></td><td>le contact : « allô », « vous m'entendez ? »</td></tr>
+      <tr><td>Code</td><td><b>Métalinguistique</b></td><td>la langue elle-même : définitions, « c'est-à-dire »</td></tr>
+    </table></div>
+    <p class="muted">Moyen mnémotechnique : <b>E</b>xpressive ↔ <b>É</b>metteur, <b>C</b>onative ↔ <b>C</b>elui qui reçoit, <b>R</b>éférentielle ↔ <b>R</b>éférent, <b>P</b>oétique ↔ <b>P</b>hrase (message), <b>Ph</b>atique ↔ <b>Ph</b>one (canal), <b>M</b>étalinguistique ↔ <b>M</b>ots (code).</p>
+  </div>
+</section>
+
+<!-- ============ FREYTAG ============ -->
+<section id="freytag">
+  <h2><small>Priorité 1 · Cours « Pyramide de Freytag »</small>La pyramide de Freytag</h2>
+  <p>Le <b>storytelling</b> se dit en français <b>communication narrative</b>. La narration expose une <b>situation qui évolue</b> et fait évoluer un paysage, un projet, des acteurs, des rôles, des enjeux.</p>
+  <p>En <b>1863</b>, le dramaturge allemand <b>Gustav Freytag</b> identifie les <b>sept étapes</b> d'une histoire parfaite. Ce schéma de référence vient de l'analyse des <b>tragédies classiques</b> (Sophocle, Euripide, Shakespeare), mais il doit déjà tout au <b>conte</b> (Ésope) et à la <b>morphologie du conte</b> (le structuraliste <b>Vladimir Propp</b>, <i>Morphologie du conte</i>). C'est pourquoi le conte de L1 est « la première brique » du storytelling.</p>
+
+  <div class="card pyr" aria-label="Schéma de la pyramide de Freytag">
+    <svg viewBox="0 0 420 258" role="img" aria-labelledby="pyrT">
+      <title id="pyrT">Courbe de tension : elle monte de l'exposition au point culminant puis redescend jusqu'au dénouement</title>
+      <polyline points="10,210 80,210 210,50 340,210 410,210" fill="none" stroke="var(--teal)" stroke-width="4" stroke-linejoin="round"/>
+      <circle cx="80" cy="210" r="6" fill="var(--pink)"/>
+      <circle cx="210" cy="50" r="8" fill="var(--pink)"/>
+      <circle cx="340" cy="210" r="6" fill="var(--teal)"/>
+      <g font-size="13" font-weight="700">
+        <text x="10" y="198">1 Exposition</text>
+        <text x="80" y="232" text-anchor="middle">2 Incident</text><text x="80" y="248" text-anchor="middle">déclencheur</text>
+        <text x="138" y="125" text-anchor="end">3 Péripéties</text>
+        <text x="210" y="30" text-anchor="middle">4 Point culminant</text>
+        <text x="282" y="125">5 Descente</text><text x="282" y="141">de l'action</text>
+        <text x="340" y="232" text-anchor="middle">6 Résolution</text>
+        <text x="410" y="198" text-anchor="end">7 Dénouement</text>
+      </g>
+      <text x="210" y="175" font-size="12" text-anchor="middle" style="fill:var(--muted)">tension ↑ puis ↓</text>
+    </svg>
+  </div>
+
+  <ol class="steps">
+    <li><b>L'exposition</b>L'orateur plante le décor, dresse le cadre, la situation et présente les personnages. En storytelling, les « personnages » peuvent être des personnes, l'orateur lui-même et son entourage, des situations, voire des objets.<span class="eg">Schéma narratif : situation initiale.</span></li>
+    <li><b>L'incident déclencheur</b>Un événement déclenche l'action. Ce peut être une idée, une réflexion, un projet, une prise de conscience…<span class="eg">Schéma narratif : élément déclencheur / complication.</span></li>
+    <li><b>Les péripéties</b>L'incident perturbe et complique la situation ; une série d'événements la rend de plus en plus difficile. L'orateur les traduit comme il veut, en cohérence avec la situation de communication : introspection, lutte contre les stéréotypes, apprentissage, manque de repères ou d'informations… Cela aiguise la <b>curiosité</b> : l'auditoire est suspendu à une histoire dont il ne connaît pas la fin.<span class="eg">Schéma narratif : péripéties.</span></li>
+    <li><b>Le point culminant</b>Le moment de la <b>tension maximale</b>, où se décide le sort des personnages, ici le destin de l'orateur ou de l'oratrice.<span class="eg">Schéma narratif : climax.</span></li>
+    <li><b>La descente de l'action</b>La situation se démêle progressivement pour le héros (l'orateur). Les péripéties cumulées se dénouent et s'orientent vers une issue possible.</li>
+    <li><b>La résolution</b>L'histoire débouche sur une <b>solution</b> ou sur un <b>échec constructif</b>.<span class="eg">Schéma narratif : dénouement / résolution.</span></li>
+    <li><b>Le dénouement</b>La fin du récit. Elle peut laisser des intrigues en suspens mais, en storytelling, elle doit prendre la forme d'une <b>étape décisive</b> dans le développement d'un projet (académique ou professionnel) ou de l'orateur lui-même.<span class="eg">Schéma narratif : situation finale.</span></li>
+  </ol>
+
+  <h3>Correspondance des deux schémas</h3>
+  <div class="tbl"><table>
+    <tr><th>Schéma narratif (5 ou 6 étapes)</th><th>Pyramide de Freytag (7 étapes)</th></tr>
+    <tr><td>Situation initiale</td><td>1. Exposition</td></tr>
+    <tr><td>Élément déclencheur (complication)</td><td>2. Incident déclencheur</td></tr>
+    <tr><td>Péripéties (actions)</td><td>3. Péripéties (action montante)</td></tr>
+    <tr><td>Climax</td><td>4. Point culminant</td></tr>
+    <tr><td>Dénouement (résolution)</td><td>5. Descente de l'action + 6. Résolution</td></tr>
+    <tr><td>Situation finale</td><td>7. Dénouement</td></tr>
+  </table></div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Ce qui rend une histoire « efficace et percutante »</h3>
+    <p class="muted" style="margin-top:0">Conseils tirés de la logique du cours (pas une citation du professeur).</p>
+    <ul>
+      <li><b>Un héros</b> auquel on s'identifie : en storytelling, c'est souvent <b>vous</b>, l'orateur.</li>
+      <li><b>Un enjeu clair</b> : ce que le héros risque de perdre ou veut gagner.</li>
+      <li><b>Un vrai obstacle</b> : sans péripéties, pas de tension, donc pas d'attention.</li>
+      <li><b>Un contraste</b> entre situation initiale et situation finale : c'est la transformation qui donne le sens.</li>
+      <li><b>Du concret</b> : un lieu, un moment, un détail sensoriel (hypotypose) plutôt que des généralités.</li>
+      <li><b>Une chute</b> qui fait écho au début (boucle) et ouvre sur un projet ou un message.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ CONTE ============ -->
+<section id="conte">
+  <h2><small>Cours « Le conte : éléments de structure »</small>Le conte, première brique du storytelling</h2>
+  <p>« Il était une fois »… Le conte est un récit imaginaire où domine le <b>merveilleux</b>, et un genre littéraire (oral, écrit) transmis de génération en génération. Ses finalités : <b>divertir, éduquer, moraliser</b>. Projet du semestre : un conte merveilleux ancré dans le monde d'aujourd'hui, sur le thème de la <b>tolérance</b>.</p>
+
+  <details open>
+    <summary>Les règles structurantes du conte</summary>
+    <div><ul>
+      <li><b>Un univers merveilleux</b> : enchantement et rêve, contrées imaginaires, époque lointaine ; décrire le décor, les habitants, les animaux.</li>
+      <li><b>Des personnages fantastiques</b> : rois, fées, sorcières, elfes, créatures, humains. Faire des fiches : nom, âge, physique, accoutrement, fonction, rôle social, quête.</li>
+      <li><b>Une formule d'ouverture</b> : « Il était une fois », « Il y a bien longtemps »… (pas obligatoire : soyez créatifs).</li>
+      <li><b>Un élément déclencheur</b> : un événement perturbe le monde et oblige le héros à partir à l'aventure, avec des rencontres (amis, guides, adjuvants).</li>
+      <li><b>Des épreuves et un dénouement</b> : situations difficiles, forces maléfiques, monstres ; le héros compte sur ses amis ; le bien triomphe du mal.</li>
+      <li><b>Une fin heureuse</b> : le héros revient transformé, la situation est sauvée (« ils eurent beaucoup d'enfants »).</li>
+    </ul></div>
+  </details>
+
+  <details>
+    <summary>Les 5 étapes illustrées par <i>La Belle et la Bête</i></summary>
+    <div>
+      <ol>
+        <li><b>Situation initiale</b> : le père et ses six enfants. Belle est modeste et reste avec son père ; ses sœurs sont riches et orgueilleuses.</li>
+        <li><b>Complication</b> : ruine du père ; il part en ville, Belle demande une rose ; il se perd, trouve refuge chez la Bête, <b>cueille la rose interdite</b> (le déséquilibre à réparer) ; un contrat engage le père ou la fille.</li>
+        <li><b>Péripéties</b> : Belle se rend au palais ; elle s'habitue à la Bête, qui doit susciter un amour vrai ; l'épreuve de la question sincère ; Belle rentre voir son père malade ; ses sœurs jalouses lui tendent un piège.</li>
+        <li><b>Résolution</b> (choix définitif entre le père et la Bête) : les sœurs la retardent ; Belle rêve que la Bête meurt ; elle décide de l'épouser et revient.</li>
+        <li><b>Situation finale</b> : Belle avoue son amour ; la Bête redevient prince ; les sœurs sont changées en statues ; une longue vie heureuse.</li>
+      </ol>
+    </div>
+  </details>
+</section>
+
+<!-- ============ LOGOS ETHOS PATHOS ============ -->
+<section id="lep">
+  <h2><small>Priorité 2</small>Le dosage logos, ethos, pathos</h2>
+  <p>Les trois <b>preuves</b> (ou moyens de persuasion) d'<b>Aristote</b>, dans la <i>Rhétorique</i>. <b>Convaincre</b> s'adresse à la raison (logos) ; <b>persuader</b> s'adresse aux émotions (pathos) ; l'ethos rend l'orateur digne de confiance.</p>
+
+  <div class="trio">
+    <div class="card" style="--c:var(--logos)">
+      <h3>Logos · la raison</h3>
+      <p><b>Le discours lui-même</b> : arguments, faits, chiffres, statistiques, exemples, raisonnement (syllogisme, cause / conséquence), citations d'experts.</p>
+      <p class="muted">Indices : connecteurs logiques (or, donc, car), données chiffrées, vocabulaire précis, fonction référentielle.</p>
+    </div>
+    <div class="card" style="--c:var(--ethos)">
+      <h3>Ethos · l'orateur</h3>
+      <p><b>L'image que l'orateur donne de lui</b> : compétence, expérience, honnêteté, bienveillance. On croit quelqu'un de crédible.</p>
+      <p class="muted">Indices : « je », parcours, titre, posture, voix, regard, maîtrise du sujet, humilité, argument d'autorité, modalisateurs de certitude.</p>
+    </div>
+    <div class="card" style="--c:var(--pathos)">
+      <h3>Pathos · l'émotion</h3>
+      <p><b>Les émotions suscitées chez l'auditoire</b> : peur, colère, pitié, espoir, fierté, humour. L'histoire elle-même est un puissant pathos.</p>
+      <p class="muted">Indices : vocabulaire affectif, exclamations, questions rhétoriques, hyperboles, gradations, apostrophes, anecdotes, images fortes.</p>
+    </div>
+  </div>
+
+  <h3>Le dosage dans un storytelling</h3>
+  <p>Un dosage indicatif, à adapter au public et au sujet :</p>
+  <div class="bar" role="img" aria-label="Début : surtout pathos ; milieu : surtout logos ; fin : surtout pathos ; ethos partout">
+    <span style="flex:2;background:var(--pathos)">Accroche · pathos</span>
+    <span style="flex:4;background:var(--logos)">Cœur · logos</span>
+    <span style="flex:2;background:var(--pathos)">Chute · pathos</span>
+  </div>
+  <div class="bar"><span style="flex:1;background:var(--ethos)">Ethos tout du long : qui je suis, pourquoi me croire</span></div>
+  <ul>
+    <li><b>Exposition</b> : ethos (qui je suis) + pathos (une image, une question qui accroche).</li>
+    <li><b>Incident et péripéties</b> : pathos (l'enjeu, la difficulté) + logos (les faits qui prouvent le problème).</li>
+    <li><b>Point culminant et résolution</b> : logos (la solution, les résultats) + ethos (ce que j'ai fait).</li>
+    <li><b>Dénouement</b> : pathos (l'avenir, l'appel à agir, la chute marquante).</li>
+  </ul>
+  <div class="card">
+    <h3 style="margin-top:0">Les excès à éviter</h3>
+    <ul>
+      <li>Trop de <b style="color:var(--logos)">logos</b> : un exposé froid, une liste de chiffres, on décroche.</li>
+      <li>Trop d'<b style="color:var(--ethos)">ethos</b> : de l'arrogance, un CV récité.</li>
+      <li>Trop de <b style="color:var(--pathos)">pathos</b> : de la manipulation, du mélo, on perd sa crédibilité.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ JAKOBSON ============ -->
+<section id="jakobson">
+  <h2><small>Priorité 3</small>Les fonctions du langage de Jakobson</h2>
+  <p><b>Roman Jakobson</b> (linguiste, 1960, <i>Essais de linguistique générale</i>) décrit la communication par <b>six facteurs</b>, chacun associé à une <b>fonction</b>. Un message mêle souvent plusieurs fonctions, mais une <b>domine</b>.</p>
+
+  <div class="card pyr">
+    <svg viewBox="0 0 420 232" role="img" aria-labelledby="jkT">
+      <title id="jkT">Schéma de Jakobson : émetteur, message, récepteur sur une ligne ; référent au-dessus du message, canal et code en dessous</title>
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--teal)"/></marker></defs>
+      <path d="M115 113 H150 M265 113 H300" stroke="var(--teal)" stroke-width="3" marker-end="url(#ar)"/>
+      <g font-size="13" font-weight="700" text-anchor="middle">
+        <rect x="5" y="88" width="110" height="50" rx="12" fill="none" stroke="var(--violet)" stroke-width="2"/>
+        <text x="60" y="110">Émetteur</text><text x="60" y="128" font-weight="400" font-size="12">expressive</text>
+        <rect x="155" y="88" width="110" height="50" rx="12" fill="none" stroke="var(--violet)" stroke-width="2"/>
+        <text x="210" y="110">Message</text><text x="210" y="128" font-weight="400" font-size="12">poétique</text>
+        <rect x="305" y="88" width="110" height="50" rx="12" fill="none" stroke="var(--violet)" stroke-width="2"/>
+        <text x="360" y="110">Récepteur</text><text x="360" y="128" font-weight="400" font-size="12">conative</text>
+        <text x="210" y="30">Référent (contexte)</text><text x="210" y="48" font-weight="400" font-size="12">référentielle</text>
+        <line x1="210" y1="56" x2="210" y2="84" stroke="var(--line)" stroke-width="2"/>
+        <line x1="210" y1="142" x2="210" y2="160" stroke="var(--line)" stroke-width="2"/>
+        <text x="210" y="178">Canal (contact)</text><text x="210" y="194" font-weight="400" font-size="12">phatique</text>
+        <text x="210" y="216">Code (langue)</text><text x="210" y="230" font-weight="400" font-size="12">métalinguistique</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="jak">
+    <div class="card"><b>Expressive (émotive)</b> · émetteur<p>Exprime les sentiments, l'opinion de celui qui parle.</p><span class="pill">je, moi</span><span class="pill">interjections</span><span class="pill">exclamations</span><span class="pill">modalisateurs</span><span class="pill">termes évaluatifs</span><p class="muted">« Quelle joie de vous voir ! »</p></div>
+    <div class="card"><b>Conative (impressive)</b> · récepteur<p>Cherche à agir sur le destinataire : le faire réagir, agir, penser.</p><span class="pill">tu, vous</span><span class="pill">impératif</span><span class="pill">apostrophe</span><span class="pill">questions</span><p class="muted">« Imaginez un instant… » ; la publicité.</p></div>
+    <div class="card"><b>Référentielle (dénotative)</b> · référent<p>Informe objectivement sur le monde, le sujet dont on parle.</p><span class="pill">3e personne</span><span class="pill">faits, dates, chiffres</span><span class="pill">présent de vérité</span><p class="muted">« 18 % des abeilles sont mortes l'hiver dernier. »</p></div>
+    <div class="card"><b>Poétique</b> · message<p>Met en valeur la forme du message pour elle-même.</p><span class="pill">rythme</span><span class="pill">rimes, sons</span><span class="pill">figures de style</span><span class="pill">jeux de mots</span><p class="muted">Slogans, poèmes : « I like Ike ».</p></div>
+    <div class="card"><b>Phatique</b> · canal<p>Établit, maintient ou coupe le contact.</p><span class="pill">allô</span><span class="pill">bonjour</span><span class="pill">vous me suivez ?</span><span class="pill">hein, bon</span><p class="muted">« Chers amis… » au début d'un discours.</p></div>
+    <div class="card"><b>Métalinguistique</b> · code<p>Le langage parle du langage : expliquer un mot, vérifier le code commun.</p><span class="pill">c'est-à-dire</span><span class="pill">définitions</span><span class="pill">guillemets</span><p class="muted">« Storytelling, en français : communication narrative. »</p></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">À l'oral : Jakobson au service du storytelling</h3>
+    <ul>
+      <li><b>Phatique</b> pour ouvrir et garder le contact (« Chers amis », un regard, une pause).</li>
+      <li><b>Conative</b> pour impliquer (« Imaginez… », « Et vous, qu'auriez-vous fait ? »).</li>
+      <li><b>Expressive</b> pour l'ethos et le pathos (votre vécu, vos émotions).</li>
+      <li><b>Référentielle</b> pour le logos (faits, chiffres).</li>
+      <li><b>Métalinguistique</b> pour expliquer un terme technique au public.</li>
+      <li><b>Poétique</b> pour une chute qui reste en tête (rythme, jeu de mots, anaphore).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ PITCH ============ -->
+<section id="pitch">
+  <h2><small>Cours « Pitch Thèse 180 s »</small>Un modèle analysé : le pitch ECO-IA</h2>
+  <p>Le pitch « Ma thèse en 180 secondes » d'un chercheur de l'Efrei (2e prix Assas) : un système d'IA, <b>ECO-IA</b>, qui compte les varroas (acariens parasites) sur les abeilles. C'est un modèle de storytelling : à analyser pour l'écrit, à imiter pour l'oral.</p>
+
+  <details open>
+    <summary>Sa structure selon Freytag</summary>
+    <div><ol>
+      <li><b>Exposition</b> : « Ramdam, brouhaha… La course aux buzz rythme notre époque » ; le lien buzz / abeilles, l'histoire de l'apidé depuis le néolithique.</li>
+      <li><b>Incident déclencheur</b> : « les abeilles se meurent et […] nous regardons ailleurs ».</li>
+      <li><b>Péripéties</b> : leur rôle vital (chiffres), puis la menace (climat, pollution, virus : 18 % de mortalité), l'ennemi Varroa Destructor, le comptage manuel « fastidieux et imprécis ».</li>
+      <li><b>Point culminant</b> : « Faut-il désespérer ? Je préfère agir. Ma contribution ? ECO-IA ! »</li>
+      <li><b>Descente de l'action</b> : le Machine Learning, les détecteurs (Faster R-CNN) et leur faiblesse : ils ratent les objets cachés.</li>
+      <li><b>Résolution</b> : ECO-IA se focalise sur les objets cachés ; +10 % de précision sur les abeilles en scènes denses.</li>
+      <li><b>Dénouement</b> : « le chant des abeilles […] continuera de bercer nos campagnes » ; appel final, « God Save the Queen ! ».</li>
+    </ol></div>
+  </details>
+
+  <details>
+    <summary>Son dosage logos, ethos, pathos</summary>
+    <div><ul>
+      <li><b style="color:var(--logos)">Logos</b> : 5 à 8 % de la production agricole mondiale, 78 % des fleurs sauvages et 84 % des espèces cultivées de l'UE, 15 milliards d'euros, 18 % de mortalité, +10 % de précision ; explication technique (réseaux de neurones).</li>
+      <li><b style="color:var(--ethos)">Ethos</b> : le chercheur se pose en homme d'action (« Je préfère agir », « Ma contribution ») et en expert (vocabulaire technique maîtrisé, résultats chiffrés), tout en restant humble (« un petit pas de côté, certes »).</li>
+      <li><b style="color:var(--pathos)">Pathos</b> : « les abeilles se meurent », « l'ennemi », « course mortelle », la gradation finale « sauvera […] un écosystème, des économies et des hommes ! », l'humour (enfiler le grillage d'apiculteur, « God Save the Queen »).</li>
+    </ul></div>
+  </details>
+
+  <details>
+    <summary>Ses figures et procédés</summary>
+    <div><ul>
+      <li><b>Onomatopées / accroche sonore</b> : « Ramdam, brouhaha… », le jeu buzz / bourdonnement.</li>
+      <li><b>Apostrophe</b> : « Chers amis » (fonction phatique).</li>
+      <li><b>Questions rhétoriques</b> : « le buzz ne doit-il rien aux abeilles ? », « Faut-il désespérer ? », « Peut-on raisonnablement s'en priver ? ».</li>
+      <li><b>Répétition avec gradation</b> : « l'abeille arrive en tête / encore en tête / toujours en tête » (épiphore, reprise en fin de phrase).</li>
+      <li><b>Périphrase et personnification</b> : « la reine des insectes », « ce trésor de la nature ».</li>
+      <li><b>Allusions</b> : « Rendons à César ce qui lui appartient », « nous regardons ailleurs » (Jacques Chirac : « notre maison brûle et nous regardons ailleurs »).</li>
+      <li><b>Antithèse</b> : les buzz « volages » contre les sujets « essentiels » qui sont tus.</li>
+      <li><b>Gradation</b> finale : ruches, fleurs, récoltes… un écosystème, des économies et des hommes.</li>
+      <li><b>Jeu de mots / double sens</b> : « God Save the Queen » (la reine d'Angleterre et la reine des abeilles), « ne fera sans doute pas le buzz ».</li>
+      <li><b>Fonctions de Jakobson</b> : référentielle (chiffres), conative (« Prenons-en l'exacte mesure »), expressive (« Je préfère agir »), poétique (jeux sonores), métalinguistique (explication du Machine Learning).</li>
+    </ul></div>
+  </details>
+</section>
+
+<!-- ============ PROCEDES ============ -->
+<section id="procedes">
+  <h2><small>Leçons 3, 4, 9, 10, 12</small>Procédés d'argumentation, avec exercices corrigés</h2>
+
+  <details>
+    <summary>Leçon 3 · Les modalisateurs</summary>
+    <div>
+      <p>Mots (verbes ou adverbes) qui révèlent <b>l'opinion du locuteur</b> sur ce qu'il dit, son degré de certitude.</p>
+      <ul>
+        <li><b>Certitude</b> : je suis sûr que, j'affirme que, j'insiste sur le fait que, j'ai la certitude que ; certainement, sans aucun doute, absolument, indéniablement.</li>
+        <li><b>Incertitude / atténuation</b> : je pense que, il me semble que, je doute que, je suggère que ; peut-être, sans doute, probablement, éventuellement.</li>
+      </ul>
+      <p class="muted">Piège : « sans doute » = probablement (incertitude) ; « sans aucun doute » = certitude.</p>
+      <p><b>Exercice 1</b> : relever les modalisateurs. <b>Exercice 2</b> : classer a à d.</p>
+      <details class="ans"><summary>Voir la correction</summary><div>
+        <ol type="a">
+          <li>Rousseau : « <b>Je crois</b> » (avoir fait voir).</li>
+          <li>Robbe-Grillet : « <b>Sans doute</b> ».</li>
+          <li>Robbe-Grillet : « <b>Peut-être</b> », « <b>il est certain que</b> », « plutôt ».</li>
+          <li>Voltaire : « <b>assurément</b> ».</li>
+          <li>Baudelaire : « <b>je n'aurais jamais cru que</b> » (ironique).</li>
+          <li>Hugo : « <b>peut-être</b> », « pas inutile » (litote), « en aucune manière ».</li>
+        </ol>
+        <p><b>Certitude</b> : il est certain que (c), assurément (d).<br><b>Incertitude</b> : je crois (a), sans doute (b), peut-être (c).</p>
+      </div></details>
+    </div>
+  </details>
+
+  <details>
+    <summary>Leçon 4 · Les termes évaluatifs</summary>
+    <div>
+      <p>Mots qui portent un <b>jugement</b> ou traduisent l'opinion de celui qui parle (souvent adjectifs, adverbes, noms).</p>
+      <ul>
+        <li><b>Négatif</b> : « Cette remarque est <b>stupide</b>. Elle ne <b>vaut rien</b>. »</li>
+        <li><b>Positif</b> : « Cette femme est un <b>authentique génie</b>. » (« authentique » renforce « génie »)</li>
+      </ul>
+      <p class="muted">L'exercice de la fiche reprend celui de la leçon 3 (voir au-dessus). Voici un exercice d'entraînement ajouté, sur le texte de Barthes.</p>
+      <p><b>Exercice ajouté</b> : relevez les termes évaluatifs : « conçue <i>passionnément</i> par des artistes inconnus […] un objet <i>parfaitement magique</i> » ; « Il semble que le public ait <i>admirablement</i> deviné » ; « l'objet est ici totalement <i>prostitué</i> ».</p>
+      <details class="ans"><summary>Voir la correction</summary><div>
+        <p>Positifs : <b>passionnément</b>, <b>parfaitement magique</b>, <b>admirablement</b>. Négatif (ironique, péjoratif) : <b>totalement prostitué</b>. « Parfaitement » et « totalement » sont des intensifs qui renforcent le jugement.</p>
+      </div></details>
+    </div>
+  </details>
+
+  <details>
+    <summary>Leçon 9 · Le rôle de la citation</summary>
+    <div>
+      <p>Le locuteur rapporte les propos d'un autre. Trois façons :</p>
+      <ul>
+        <li><b>Discours direct</b> : les paroles exactes, entre guillemets. <span class="muted">(La fiche écrit « indirect » par erreur pour ce premier cas.)</span></li>
+        <li><b>Discours indirect</b> : une subordonnée introduite par un verbe de parole (« il a dit que… »).</li>
+        <li><b>Discours indirect libre</b> : ni subordonnée ni formule introductive ; les paroles se fondent dans le récit.</li>
+      </ul>
+      <p>Fonctions de la citation :</p>
+      <ul>
+        <li><b>Argument d'autorité</b> : citer un auteur reconnu donne du poids à son opinion (ethos emprunté).</li>
+        <li><b>Fonction satirique ou polémique</b> : citer un adversaire pour le ridiculiser.</li>
+      </ul>
+      <p><b>Exercice</b> (Michel Tournier, <i>Le Vent Paraclet</i>) : relever la citation, sa forme, sa fonction.</p>
+      <details class="ans"><summary>Voir la correction</summary><div>
+        <p>La citation : « <b>Paul Valéry a écrit que l'inspiration n'est pas l'état dans lequel se trouve le poète écrivant des vers, mais celui dans lequel il espère mettre le lecteur de ses vers.</b> »</p>
+        <p>Forme : <b>discours indirect</b> (verbe de parole « a écrit » + subordonnée « que… », pas de guillemets).</p>
+        <p>Fonction : <b>argument d'autorité</b> : Tournier s'appuie sur Valéry, grand poète, pour justifier que la poésie est « le plus éminent des arts ».</p>
+      </div></details>
+    </div>
+  </details>
+
+  <details>
+    <summary>Leçon 10 · Les procédés oratoires</summary>
+    <div>
+      <p>Moyens pour s'exprimer en public de façon <b>vivante et convaincante</b> (parfois à l'écrit, quand on imite l'oral).</p>
+      <ul>
+        <li><b>Apostrophe</b> : s'adresser directement à quelqu'un, souvent avec une exclamation. « Dites-moi, jeune homme, sur quoi se fondent vos critiques. »</li>
+        <li><b>Gradation</b> : des termes de plus en plus forts. « Quelle pauvreté ! Quelle médiocrité ! Quelle bêtise ! »</li>
+        <li><b>Hyperbole</b> : exagération. « Ce spectacle est un véritable désastre. »</li>
+      </ul>
+      <p><b>Exercice</b> : identifier les procédés dans les cinq textes.</p>
+      <details class="ans"><summary>Voir la correction</summary><div>
+        <ol>
+          <li><b>Bossuet</b> : <b>apostrophe</b> « Messieurs ».</li>
+          <li><b>Voltaire</b>, <i>La Princesse de Babylone</i> : <b>hyperbole</b> « souffrir mille morts », avec l'anaphore « C'est par… ».</li>
+          <li><b>La Bruyère</b> : <b>gradation</b> dans la misère (« ne se chauffent point […] n'ont point d'habits […] manquent de pain »), accumulation « si frais, si fleuri […] », antithèse riche / pauvres, exclamation « Quel partage ! » et question rhétorique finale.</li>
+          <li><b>Voltaire</b>, « Carême » : <b>apostrophes</b> « Prêtres idiots et cruels ! », « Fous que vous êtes », avec des questions rhétoriques.</li>
+          <li><b>Rousseau</b>, <i>Émile</i> : <b>hyperbole</b> « la mort de toute bonne éducation ».</li>
+        </ol>
+      </div></details>
+    </div>
+  </details>
+
+  <details>
+    <summary>Leçon 12 · Les figures de rhétorique</summary>
+    <div>
+      <p>Procédés pour <b>convaincre</b> ou émouvoir ; certains visent uniquement à convaincre.</p>
+      <ul>
+        <li><b>Concession</b> : donner raison à l'adversaire sur un détail pour lui donner tort sur l'essentiel. « <i>Certes</i>, il a des circonstances atténuantes, <i>mais</i> il n'en est pas moins coupable. »</li>
+        <li><b>Prétérition</b> : dire qu'on ne parle pas d'une chose tout en en parlant. « Je ne dirai rien de son dévouement, qui est absolument remarquable. »</li>
+        <li><b>Syllogisme</b> : règle générale, cas particulier, conclusion (souvent avec <i>or</i> et <i>donc</i>). « Tous les hommes sont mortels. Or je suis un homme. Donc je suis mortel. »</li>
+        <li><b>Paradoxe</b> : affirmation contraire à l'opinion courante, qui surprend. « Le sport est mauvais pour la santé. »</li>
+      </ul>
+      <p><b>Exercice</b> : identifier la figure.</p>
+      <details class="ans"><summary>Voir la correction</summary><div>
+        <ol>
+          <li><b>Zola</b> : <b>prétérition</b> : « Je ne me défends pas » alors qu'il se défend aussitôt (« C'est une œuvre de vérité… »).</li>
+          <li><b>Pascal</b> : <b>syllogisme</b> (règle, cas de l'arbre, conclusion « donc »), qui aboutit à un paradoxe : se savoir misérable, c'est être grand.</li>
+          <li><b>Rousseau</b>, <i>Lettre à d'Alembert</i> : <b>concession</b> : « On convient […] que Molière est le plus parfait auteur comique […] mais […] une école de vices ».</li>
+          <li><b>Montherlant</b> : <b>paradoxe</b> : tous les grands hommes mériteraient d'être tués.</li>
+          <li><b>Rousseau</b>, <i>Émile</i> : il s'oppose à l'idée courante que <b>la lecture est bonne pour l'enfant</b> (paradoxe : « La lecture est le fléau de l'enfance »).</li>
+        </ol>
+      </div></details>
+    </div>
+  </details>
+</section>
+
+<!-- ============ FIGURES ============ -->
+<section id="figures">
+  <h2><small>Cours « Les figures de style »</small>Glossaire des figures de style</h2>
+  <p>Une figure de style modifie le langage ordinaire pour le rendre <b>plus expressif</b>. Familles : analogie, animation, substitution, pensée, opposition, construction, sonorités, insistance, atténuation.</p>
+  <input type="search" id="figSearch" placeholder="Chercher une figure ou un mot (ex. oxymore, répétition)" aria-label="Chercher une figure">
+  <p class="muted" id="figCount"></p>
+  <div id="figList"></div>
+</section>
+
+<!-- ============ BARTHES ============ -->
+<section id="barthes">
+  <h2><small>Cours « Sémiologie »</small>Barthes, « La nouvelle Citroën » (<i>Mythologies</i>, 1957)</h2>
+  <p>La <b>sémiologie</b> étudie les <b>signes</b> et leur sens. Dans <i>Mythologies</i>, Roland Barthes décrypte les « mythes » de la culture de masse : des objets ordinaires chargés de sens. Ici, la Citroën DS 19 (« la Déesse », jeu de mots DS / Déesse).</p>
+  <details open>
+    <summary>Les idées clés</summary>
+    <div><ul>
+      <li><b>Thèse</b> : « l'automobile est aujourd'hui l'équivalent assez exact des grandes cathédrales gothiques » : une grande création d'époque, consommée « dans son image, sinon dans son usage », un objet <b>magique</b>.</li>
+      <li>La DS « tombe du ciel » : un <b>objet superlatif</b>, sans origine, venu d'un autre univers (« un nouveau Nautilus »).</li>
+      <li>Le <b>lisse</b> est un signe de perfection ; le public s'intéresse aux <b>joints</b>, aux emboîtements.</li>
+      <li>La <b>légèreté</b> et les <b>vitres</b> : « grands pans d'air et de vide » ; on passe d'un ordre du moteur à un ordre de l'organisme.</li>
+      <li>Un <b>art humanisé</b>, plus ménager : le tableau de bord ressemble à une cuisine moderne. « On passe d'une alchimie de la vitesse à une gourmandise de la conduite. »</li>
+      <li>Au salon, le <b>toucher</b> (sens démystificateur) succède à la <b>vue</b> (sens magique) : la Déesse est « médiatisée » en un quart d'heure, accomplissant « la promotion petite-bourgeoise ».</li>
+    </ul></div>
+  </details>
+  <details>
+    <summary>Procédés à repérer (utile pour l'écrit)</summary>
+    <div><ul>
+      <li><b>Comparaison</b> : l'automobile et les cathédrales gothiques ; le tableau de bord et l'établi d'une cuisine.</li>
+      <li><b>Métaphore filée du sacré</b> : Déesse, magique, ciel, surnature, merveilleux, tunique du Christ, exorcisme.</li>
+      <li><b>Antithèses</b> : héroïque / classique, moteur / organisme, vue / toucher, alchimie de la vitesse / gourmandise de la conduite.</li>
+      <li><b>Modalisateurs</b> : « Je crois que », « il est sûr que », « Il semble que », « il se peut que ».</li>
+      <li><b>Termes évaluatifs</b> : « passionnément », « parfaitement magique », « admirablement », « prostitué ».</li>
+      <li><b>Accumulation / gradation</b> : « les tôles, les joints sont touchés, les rembourrages palpés, les sièges essayés, les portes caressées ».</li>
+      <li><b>Jakobson</b> : fonction expressive (« Je crois ») et poétique (jeu DS / Déesse) au service d'une analyse référentielle.</li>
+    </ul></div>
+  </details>
+</section>
+
+<!-- ============ ENTRAINEMENT ============ -->
+<section id="entrainement">
+  <h2><small>Mise en pratique</small>S'entraîner</h2>
+  <p>Le professeur l'a dit : la théorie est simple, c'est l'entraînement qui fait une histoire « efficace et percutante ».</p>
+
+  <h3>1. Cartes mémo</h3>
+  <div class="card flash" id="flash" tabindex="0" role="button" aria-live="polite"><div class="q"></div><div class="a"></div></div>
+  <div class="row noprint"><button class="btn ghost" id="fPrev">← Précédente</button><button class="btn" id="fNext">Suivante →</button><span class="muted" id="fPos"></span></div>
+
+  <h3>2. Quiz</h3>
+  <div class="card" id="quiz"></div>
+
+  <h3>3. Construire mon histoire (pyramide de Freytag)</h3>
+  <p class="muted">Remplissez chaque étape avec votre propre histoire. C'est enregistré sur ce téléphone uniquement.</p>
+  <div class="card" id="builder"></div>
+  <div class="card">
+    <b>Vérifier le dosage</b>
+    <ul id="checks" style="list-style:none;padding:0"></ul>
+  </div>
+
+  <h3>4. Chrono pour l'oral</h3>
+  <div class="card">
+    <div class="row"><span class="chrono" id="clock">3:00</span></div>
+    <div class="row noprint" style="margin-top:10px">
+      <button class="btn" id="cGo">Démarrer</button>
+      <button class="btn ghost" id="cReset">Remettre à zéro</button>
+      <button class="btn ghost" data-t="60">1 min</button>
+      <button class="btn ghost" data-t="180">3 min</button>
+      <button class="btn ghost" data-t="300">5 min</button>
+    </div>
+    <p class="muted">Repère : sur 3 minutes, environ 20 s d'exposition, 20 s d'incident, 60 s de péripéties, 20 s de climax, 40 s de résolution, 20 s de dénouement.</p>
+  </div>
+
+  <h3>5. Méthode pour l'écrit</h3>
+  <div class="card">
+    <p class="muted" style="margin-top:0">Méthode générale d'analyse, déduite du cours.</p>
+    <ol>
+      <li>Identifier la <b>situation de communication</b> : qui parle, à qui, pour quoi (Jakobson : quelle fonction domine ?).</li>
+      <li>Repérer la <b>structure</b> : les étapes de Freytag ou du schéma narratif, avec une citation pour chacune.</li>
+      <li>Repérer les <b>preuves</b> : logos, ethos, pathos, et dire lequel domine.</li>
+      <li>Relever les <b>procédés</b> : figures, modalisateurs, termes évaluatifs, citations ; toujours <b>citer, nommer, interpréter</b> (effet produit).</li>
+      <li>Conclure sur l'<b>efficacité</b> du texte.</li>
+    </ol>
+  </div>
+</section>
+
+<footer>Fiche de révision faite à partir des documents du cours. Page autonome, sans lien avec les pages Magic.</footer>
+</main>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  };
+
+  /* ---------- figures glossary ---------- */
+  const FIG = [
+    ["Allégorie", "Représenter une idée abstraite (l'Amour, la Mort) par une image, souvent un être vivant.", "La Mort avec sa faux."],
+    ["Allitération", "Répétition de sons consonnes.", "« Pour qui sont ces serpents qui sifflent sur vos têtes ? » (Racine)"],
+    ["Amplification", "Gradation entre les termes d'une énumération ou d'un paragraphe.", ""],
+    ["Anacoluthe", "Rupture de construction dans la phrase.", "« Vous voulez que ce Dieu vous comble de bienfaits / Et ne l'aimer jamais ? » (Racine)"],
+    ["Analepse", "Retour en arrière sur des événements antérieurs (flashback).", ""],
+    ["Anaphore", "Répétition d'un même mot en début de phrases ou de vers.", "« Rome, l'unique objet de mon ressentiment ! / Rome, à qui vient ton bras… » (Corneille)"],
+    ["Antanaclase", "Reprise d'un même mot avec un sens différent.", "« Le cœur a ses raisons que la raison ne connaît point. » (Pascal)"],
+    ["Antiphrase", "Dire le contraire de ce qu'on pense ; base de l'ironie.", "« Tes résultats sont vraiment exceptionnels ! » (pour catastrophiques)"],
+    ["Antithèse", "Rapprocher deux idées opposées pour faire ressortir le contraste.", "« ver de terre amoureux d'une étoile » (Hugo)"],
+    ["Antonomase", "Nom propre pour un nom commun, ou l'inverse.", "« un Harpagon » pour un avare."],
+    ["Aposiopèse", "Interruption brutale de la phrase (réticence).", "« J'ai envie de vous… ! » (Virgile)"],
+    ["Apostrophe", "Interpeller directement un destinataire.", "« Dites-moi, jeune homme… »"],
+    ["Assonance", "Répétition d'un même son voyelle.", "« Je fais souvent ce rêve étrange et pénétrant » (Verlaine)"],
+    ["Asyndète", "Suppression des mots de liaison.", "« Ménalque […] traverse la cour, monte l'escalier, parcourt l'antichambre » (La Bruyère)"],
+    ["Catachrèse", "Métaphore passée dans la langue, faute de mot propre (métaphore morte).", "« les pieds d'une table », « les ailes d'un avion »"],
+    ["Chiasme", "Construction croisée A-B-B-A.", "« Il faut manger pour vivre et non vivre pour manger. »"],
+    ["Comparaison", "Rapprocher deux termes avec un outil (comme, tel, semblable à).", "« Ce vieillard avance telle une tortue. »"],
+    ["Concession", "Accorder un point à l'adversaire pour mieux le contredire.", "« Certes… mais… »"],
+    ["Ellipse", "Omettre des éléments ; en récit, passer des événements sous silence.", ""],
+    ["Emphase", "Tout ce qui renforce une image ou une idée.", ""],
+    ["Énallage", "Employer une forme grammaticale à la place d'une autre (pronom, temps, mode).", ""],
+    ["Euphémisme", "Atténuer une réalité désagréable.", "« Il a vécu » pour « il est mort »."],
+    ["Gradation", "Termes de plus en plus forts (ou faibles).", "« Quelle pauvreté ! Quelle médiocrité ! Quelle bêtise ! »"],
+    ["Hypallage", "Attribuer à un mot ce qui revient logiquement à un autre.", "« l'innocente lumière » de ses yeux (Racine)"],
+    ["Hyperbole", "Exagération.", "« Je meurs de faim. »"],
+    ["Hypotypose", "Description si vivante qu'on croit voir la scène.", ""],
+    ["Ironie", "Faire entendre le contraire de ce qu'on dit (antiphrase, hyperbole).", ""],
+    ["Litote", "Dire moins pour suggérer plus.", "« Il n'est pas laid » pour « il est beau » ; « Va, je ne te hais point »."],
+    ["Métaphore", "Comparaison sans outil. In praesentia (« Ce vieillard est une tortue ») ou in absentia (« Quelle tortue ! »). Filée si elle se prolonge.", "L'albatros de Baudelaire, « ces rois de l'azur »."],
+    ["Métonymie", "Désigner une chose par une autre qui lui est liée (contenant, cause, partie).", "« boire un verre », « une lame » pour une épée."],
+    ["Oxymore", "Deux mots de sens contraires dans la même expression.", "« Cette obscure clarté qui tombe des étoiles » (Corneille)"],
+    ["Paradoxe", "Affirmation contraire à l'opinion courante.", "« Le sport est mauvais pour la santé. »"],
+    ["Parataxe", "Juxtaposer des propositions sans subordination.", ""],
+    ["Paronomase", "Rapprocher des mots aux sons proches mais de sens différents.", "« Qui vivra verra », « Tu parles, Charles ! »"],
+    ["Personnification", "Donner à une chose ou une idée des traits humains ou animés.", "Les fables de La Fontaine."],
+    ["Polyptote", "Employer un même mot sous plusieurs formes grammaticales.", "« Madame se meurt ! Madame est morte ! » (Bossuet)"],
+    ["Prétérition", "Dire qu'on ne va pas parler d'une chose tout en en parlant.", "« Je ne dirai rien de son dévouement, qui est remarquable. »"],
+    ["Question rhétorique", "Question qui n'attend pas de réponse : elle affirme avec force et implique le public.", "« Si vous nous piquez, ne saignons-nous pas ? » (Shakespeare)"],
+    ["Stichomythie", "Au théâtre, répliques courtes qui se répondent vers pour vers.", ""],
+    ["Syllogisme", "Raisonnement en trois temps : règle, cas, conclusion (or, donc).", "« Tous les hommes sont mortels. Or je suis un homme. Donc je suis mortel. »"],
+    ["Synecdoque", "Un mot pris dans un sens plus large ou plus restreint (la partie pour le tout, la matière pour l'objet).", "« Acheter un vison » pour un manteau en vison."],
+    ["Zeugma (zeugme)", "Rattacher à un même mot deux termes de nature différente (concret / abstrait).", "« Sous le pont Mirabeau coule la Seine / Et nos amours » (Apollinaire) ; « Vêtu de probité candide et de lin blanc » (Hugo)"]
+  ];
+  const list = $("#figList"), count = $("#figCount");
+  const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  function drawFigs(q = "") {
+    const n = norm(q.trim());
+    const rows = FIG.filter(f => !n || norm(f.join(" ")).includes(n));
+    list.innerHTML = rows.map(([t, d, e]) => `<div class="fig"><b>${esc(t)}</b> : ${esc(d)}${e ? `<span class="ex">${esc(e)}</span>` : ""}</div>`).join("") || "<p class='muted'>Aucune figure trouvée.</p>";
+    count.textContent = `${rows.length} figure${rows.length > 1 ? "s" : ""}`;
+  }
+  $("#figSearch").addEventListener("input", e => drawFigs(e.target.value));
+  drawFigs();
+
+  /* ---------- flashcards ---------- */
+  const CARDS = [
+    ["Les 7 étapes de Freytag ?", "Exposition, incident déclencheur, péripéties, point culminant, descente de l'action, résolution, dénouement."],
+    ["Les étapes du schéma narratif ?", "Situation initiale, élément déclencheur, péripéties, (climax), dénouement, situation finale."],
+    ["Freytag : qui, quand, d'où ?", "Gustav Freytag, dramaturge allemand, 1863, à partir des tragédies classiques (Sophocle, Euripide, Shakespeare)."],
+    ["Quel structuraliste a étudié la morphologie du conte ?", "Vladimir Propp, Morphologie du conte."],
+    ["Storytelling en français ?", "La communication narrative."],
+    ["Le point culminant, c'est… ?", "Le moment de tension maximale où se décide le sort du héros (l'orateur)."],
+    ["La résolution peut être… ?", "Une solution ou un échec constructif."],
+    ["Le dénouement en storytelling doit être… ?", "Une étape décisive dans le développement d'un projet ou de l'orateur lui-même."],
+    ["Logos ?", "Convaincre par la raison : faits, chiffres, logique."],
+    ["Ethos ?", "La crédibilité, l'image de l'orateur."],
+    ["Pathos ?", "Persuader par les émotions du public."],
+    ["Qui a défini logos, ethos, pathos ?", "Aristote, dans la Rhétorique."],
+    ["Les 6 facteurs de Jakobson ?", "Émetteur, récepteur, message, référent (contexte), canal (contact), code."],
+    ["Fonction centrée sur l'émetteur ?", "Expressive (ou émotive)."],
+    ["Fonction centrée sur le récepteur ?", "Conative (impératif, « vous », questions)."],
+    ["Fonction centrée sur le canal ?", "Phatique (« allô », « vous m'entendez ? »)."],
+    ["Fonction centrée sur le code ?", "Métalinguistique (définitions, « c'est-à-dire »)."],
+    ["Fonction centrée sur le message ?", "Poétique (rythme, sons, figures)."],
+    ["Fonction centrée sur le référent ?", "Référentielle (informer, faits)."],
+    ["Les finalités du conte ?", "Divertir, éduquer, moraliser."],
+    ["Apostrophe, gradation, hyperbole : ce sont… ?", "Les trois procédés oratoires de la leçon 10."],
+    ["Concession, prétérition, syllogisme, paradoxe : ce sont… ?", "Les figures de rhétorique de la leçon 12."],
+    ["Argument d'autorité ?", "Citer un auteur reconnu pour donner du poids à son opinion."],
+    ["Différence litote / euphémisme ?", "Litote : dire moins pour suggérer plus. Euphémisme : adoucir une réalité pénible."]
+  ];
+  let fi = 0; const flash = $("#flash");
+  function drawCard() { flash.classList.remove("show"); $(".q", flash).textContent = CARDS[fi][0]; $(".a", flash).textContent = CARDS[fi][1]; $("#fPos").textContent = `${fi + 1} / ${CARDS.length} · touchez la carte pour la réponse`; }
+  const flip = () => flash.classList.toggle("show");
+  flash.addEventListener("click", flip);
+  flash.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); } });
+  $("#fNext").onclick = () => { fi = (fi + 1) % CARDS.length; drawCard(); };
+  $("#fPrev").onclick = () => { fi = (fi - 1 + CARDS.length) % CARDS.length; drawCard(); };
+  drawCard();
+
+  /* ---------- quiz ---------- */
+  const J = ["Expressive", "Conative", "Référentielle", "Poétique", "Phatique", "Métalinguistique"];
+  const QUIZ = [
+    ["« Allô ? Vous m'entendez ? » : quelle fonction domine ?", J, 4],
+    ["« Venez nombreux ! » : quelle fonction domine ?", J, 1],
+    ["« Un oxymore associe deux termes contraires. » : quelle fonction ?", J, 5],
+    ["« La Tour Eiffel mesure 330 mètres. » : quelle fonction ?", J, 2],
+    ["« Hélas ! Que je suis malheureux ! » : quelle fonction ?", J, 0],
+    ["« I like Ike » (slogan) : quelle fonction domine ?", J, 3],
+    ["Dans la pyramide de Freytag, qu'est-ce qui vient juste après les péripéties ?", ["L'exposition", "Le point culminant", "La résolution", "La descente de l'action"], 1],
+    ["« Faut-il désespérer ? Je préfère agir. » marque, dans le pitch ECO-IA…", ["L'exposition", "Le point culminant", "Le dénouement", "L'incident déclencheur"], 1],
+    ["« 84 % des espèces cultivées de l'UE en dépendent » relève surtout du…", ["Logos", "Ethos", "Pathos"], 0],
+    ["« Je suis chercheur depuis dix ans sur ce sujet » relève surtout de…", ["Logos", "Ethos", "Pathos"], 1],
+    ["« Les abeilles se meurent et nous regardons ailleurs » relève surtout du…", ["Logos", "Ethos", "Pathos"], 2],
+    ["« Cette obscure clarté qui tombe des étoiles » est…", ["Une antithèse", "Un oxymore", "Un chiasme", "Une litote"], 1],
+    ["« Va, je ne te hais point » est…", ["Un euphémisme", "Une hyperbole", "Une litote", "Une antiphrase"], 2],
+    ["« Je ne parlerai pas de ses mensonges répétés… » est…", ["Une concession", "Une prétérition", "Un paradoxe", "Un syllogisme"], 1],
+    ["« Certes il est jeune, mais il a du talent » est…", ["Une concession", "Une prétérition", "Une gradation", "Une apostrophe"], 0],
+    ["« Paul Valéry a écrit que l'inspiration… » est au…", ["Discours direct", "Discours indirect", "Discours indirect libre"], 1],
+    ["« Peut-être », « il me semble que » sont des modalisateurs de…", ["Certitude", "Incertitude"], 1],
+    ["« Boire un verre » est…", ["Une métaphore", "Une métonymie", "Une synecdoque", "Une catachrèse"], 1],
+    ["Pour Barthes, le sens le plus démystificateur est…", ["La vue", "Le toucher", "L'ouïe"], 1],
+    ["La résolution d'un storytelling peut être une solution ou…", ["Une fin heureuse", "Un échec constructif", "Une ellipse"], 1]
+  ];
+  let order = [], qi = 0, score = 0;
+  const quiz = $("#quiz");
+  function startQuiz() { order = QUIZ.map((_, i) => i).sort(() => Math.random() - .5); qi = 0; score = 0; drawQ(); }
+  function drawQ() {
+    if (qi >= order.length) {
+      quiz.innerHTML = `<p><b>Score : ${score} / ${order.length}</b></p><button class="btn" id="qAgain">Recommencer</button>`;
+      $("#qAgain").onclick = startQuiz; return;
+    }
+    const [q, opts, ok] = QUIZ[order[qi]];
+    quiz.innerHTML = `<p class="muted">Question ${qi + 1} / ${order.length} · score ${score}</p><p><b>${esc(q)}</b></p>` +
+      opts.map((o, i) => `<button class="opt" data-i="${i}">${esc(o)}</button>`).join("") + `<div class="row" style="margin-top:8px"></div>`;
+    quiz.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+      const i = +b.dataset.i;
+      quiz.querySelectorAll(".opt").forEach(x => { x.disabled = true; if (+x.dataset.i === ok) x.classList.add("ok"); });
+      if (i === ok) score++; else b.classList.add("ko");
+      const nx = document.createElement("button"); nx.className = "btn"; nx.textContent = "Suivante →";
+      nx.onclick = () => { qi++; drawQ(); }; quiz.querySelector(".row").appendChild(nx); nx.focus();
+    });
+  }
+  startQuiz();
+
+  /* ---------- story builder ---------- */
+  const STEPS = [
+    ["Exposition", "Qui ? Où ? Quand ? Le décor et le héros (vous ?)."],
+    ["Incident déclencheur", "L'événement, l'idée, la prise de conscience qui lance tout."],
+    ["Péripéties", "Les obstacles, de plus en plus difficiles. Qu'est-ce qui est en jeu ?"],
+    ["Point culminant", "Le moment de tension maximale, la décision."],
+    ["Descente de l'action", "Comment la situation se démêle."],
+    ["Résolution", "La solution, ou l'échec constructif."],
+    ["Dénouement", "L'étape décisive : ce que vous êtes devenu, votre projet, la chute."]
+  ];
+  const KEY = "storytelling.builder.v1";
+  const saved = store.get(KEY, {});
+  $("#builder").innerHTML = STEPS.map(([t, h], i) => `<label class="b" for="st${i}">${i + 1}. ${t} <small>${h}</small></label><textarea id="st${i}" data-k="s${i}">${esc(saved["s" + i] || "")}</textarea>`).join("") +
+    `<div class="row noprint" style="margin-top:10px"><button class="btn ghost" id="bClear">Tout effacer</button></div>`;
+  const CHECKS = [
+    ["c1", "Logos : au moins un fait, un chiffre ou un exemple précis"],
+    ["c2", "Ethos : je montre pourquoi on peut me croire (vécu, compétence, sincérité)"],
+    ["c3", "Pathos : une émotion forte (enjeu, image, humour)"],
+    ["c4", "Une accroche dès la première phrase (question, image, onomatopée)"],
+    ["c5", "Une apostrophe ou une question au public (fonction conative / phatique)"],
+    ["c6", "Au moins deux figures de style (anaphore, gradation, métaphore…)"],
+    ["c7", "Une chute qui fait écho au début"]
+  ];
+  $("#checks").innerHTML = CHECKS.map(([k, t]) => `<li><label><input type="checkbox" data-k="${k}" ${saved[k] ? "checked" : ""}> ${t}</label></li>`).join("");
+  const save = () => {
+    const d = {};
+    document.querySelectorAll("#builder textarea").forEach(t => d[t.dataset.k] = t.value);
+    document.querySelectorAll("#checks input").forEach(c => d[c.dataset.k] = c.checked);
+    store.set(KEY, d);
+  };
+  document.addEventListener("input", e => { if (e.target.closest("#builder, #checks")) save(); });
+  $("#bClear").onclick = () => { if (!confirm("Effacer toute l'histoire ?")) return; document.querySelectorAll("#builder textarea").forEach(t => t.value = ""); document.querySelectorAll("#checks input").forEach(c => c.checked = false); save(); };
+
+  /* ---------- chrono ---------- */
+  let total = 180, left = 180, timer = null;
+  const clock = $("#clock"), go = $("#cGo");
+  const fmt = s => `${s < 0 ? "-" : ""}${Math.floor(Math.abs(s) / 60)}:${String(Math.abs(s) % 60).padStart(2, "0")}`;
+  const paint = () => { clock.textContent = fmt(left); clock.style.color = left <= 0 ? "var(--pink)" : left <= 20 ? "var(--amber)" : ""; };
+  const stop = () => { clearInterval(timer); timer = null; go.textContent = "Démarrer"; };
+  go.onclick = () => { if (timer) return stop(); go.textContent = "Pause"; timer = setInterval(() => { left--; paint(); }, 1000); };
+  $("#cReset").onclick = () => { stop(); left = total; paint(); };
+  document.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { stop(); total = left = +b.dataset.t; paint(); });
+  paint();
+
+  /* ---------- active section in the sticky menu ---------- */
+  const links = [...document.querySelectorAll("nav.toc a")];
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id));
+    const on = links.find(a => a.classList.contains("on")); if (on) on.scrollIntoView({ block: "nearest", inline: "center" });
+  }), { rootMargin: "-45% 0px -50% 0px" });
+  document.querySelectorAll("main section").forEach(s => io.observe(s));
+})();
+</script>
+</body>
+</html>

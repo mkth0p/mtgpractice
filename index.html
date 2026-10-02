@@ -64,6 +64,11 @@
   .acts .ghost { border: 1px solid var(--line); background: var(--surface-2); }
   .acts .ghost:hover { border-color: var(--c); }
   :focus-visible { outline: 2.5px solid #39c5bb; outline-offset: 2px; }
+  .study { display: flex; align-items: center; gap: 14px; margin-top: 20px; padding: 16px 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; }
+  .study:hover { border-color: #39c5bb; }
+  .study i { font-style: normal; font-size: 1.6rem; }
+  .study b { display: block; font: 800 1.05rem/1.2 var(--f-display); }
+  .study span { color: var(--muted); font-size: .92rem; }
   footer { color: var(--muted); font-size: .8rem; padding: 28px 0 40px; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
@@ -109,6 +114,7 @@
       </div>
     </article>
   </div>
+  <a class="study" href="storytelling/"><i aria-hidden="true">📖</i><div><b>Révisions storytelling</b><span>Pyramide de Freytag, logos ethos pathos, fonctions de Jakobson, exercices corrigés</span></div></a>
   <footer>Unofficial fan pages. Magic: The Gathering is © Wizards of the Coast. Card images via Scryfall.</footer>
 </main>
 </body>
