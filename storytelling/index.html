@@ -103,6 +103,26 @@
   .chrono { font: 700 2.4rem/1 var(--f-mono); }
   label.b { display: block; font-weight: 700; margin: 12px 0 4px; }
   label.b small { font-weight: 400; color: var(--muted); }
+  .go-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .go-row .go { font: 700 .92rem var(--f-body); color: #04201e; background: #39c5bb; padding: 10px 14px; border-radius: 999px; text-decoration: none; }
+  .go-row .go:nth-child(2) { background: #ff3d8b; color: #fff; } .go-row .go:nth-child(3) { background: #8e82ff; color: #120d2b; } .go-row .go:nth-child(4) { background: #f0b44c; color: #2b1a00; }
+  .xp { margin-top: 14px; max-width: 360px; font: 600 12px/1 var(--f-mono); color: #b7c2cc; }
+  .xpbar { height: 8px; border-radius: 99px; background: rgba(255,255,255,.12); margin-top: 6px; overflow: hidden; }
+  .xpbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #39c5bb, #ff3d8b); transition: width .4s; }
+  .tldr { background: color-mix(in srgb, var(--amber) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--amber) 45%, var(--line)); border-radius: 12px; padding: 10px 12px; }
+  .tldr b { color: var(--amber); margin-right: 4px; }
+  details.game { border-width: 2px; }
+  details.game > summary { font-size: 1.05rem; }
+  .btn.sm { padding: 8px 12px; font-size: .85rem; }
+  .ordlist { padding-left: 24px; } .ordlist li { color: var(--teal); font-weight: 700; }
+  .chip { display: inline-block; margin: 4px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit; cursor: pointer; }
+  .chip.ko { animation: shake .3s; border-color: var(--pink); }
+  @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+  .why { margin-top: 8px; font-size: .92rem; color: var(--muted); }
+  .big { font: 700 1.15rem/1.35 var(--f-body); min-height: 3em; }
+  .pop { position: fixed; left: 50%; top: 18%; transform: translateX(-50%); font: 800 1.4rem var(--f-display); color: var(--teal); pointer-events: none; animation: pop .8s forwards; z-index: 9; }
+  @keyframes pop { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -40px); } }
+  .jopts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
   footer { color: var(--muted); font-size: .8rem; padding: 30px 0 50px; }
   :focus-visible { outline: 2.5px solid var(--teal); outline-offset: 2px; }
   @media print { nav.toc, .noprint { display: none; } details { break-inside: avoid; } details:not([open]) > div { display: block; } }
@@ -114,12 +134,20 @@
     <a class="back" href="../">← Accueil</a>
     <h1>Révisions <span>storytelling</span></h1>
     <p class="lede">Tout pour l'oral et l'écrit : la pyramide de Freytag, la structure d'un récit, le dosage logos / ethos / pathos, les fonctions de Jakobson, puis le reste du cours avec les exercices corrigés.</p>
+    <div class="go-row">
+      <a class="go" href="#jeux" data-open="quizG">⚡ Quiz éclair</a>
+      <a class="go" href="#jeux" data-open="orderG">🧩 Remettre dans l'ordre</a>
+      <a class="go" href="#jeux" data-open="jakG">⏱️ Jakobson 60 s</a>
+      <a class="go" href="#jeux" data-open="flashG">🃏 Cartes</a>
+    </div>
+    <div class="xp" aria-live="polite"><span id="xpTxt">0 point</span><div class="xpbar"><i id="xpBar"></i></div></div>
   </div>
 </header>
 
 <nav class="toc" aria-label="Sommaire">
   <div class="wrap">
     <a href="#essentiel">L'essentiel</a>
+    <a href="#jeux">⚡ Jeux</a>
     <a href="#freytag">Freytag</a>
     <a href="#conte">Le conte</a>
     <a href="#lep">Logos ethos pathos</a>
@@ -180,9 +208,49 @@
   </div>
 </section>
 
+
+<!-- ============ JEUX ============ -->
+<section id="jeux">
+  <h2><small>Apprendre vite</small>⚡ Jeux de révision</h2>
+  <p class="muted">Des sessions courtes : un jeu, deux minutes, on passe au suivant. Chaque bonne réponse rapporte des points.</p>
+
+  <details class="game" id="quizG" open>
+    <summary>⚡ Quiz éclair <span class="pill" id="streak">série 0</span></summary>
+    <div id="quiz"></div>
+  </details>
+
+  <details class="game" id="orderG">
+    <summary>🧩 Remettre dans l'ordre</summary>
+    <div>
+      <div class="row"><button class="btn ghost sm" data-ord="freytag">Freytag (7)</button><button class="btn ghost sm" data-ord="schema">Schéma narratif (6)</button><button class="btn ghost sm" data-ord="pitch">Pitch ECO-IA (7)</button></div>
+      <p id="ordHint" class="muted"></p>
+      <ol id="ordDone" class="ordlist"></ol>
+      <div id="ordPool"></div>
+    </div>
+  </details>
+
+  <details class="game" id="jakG">
+    <summary>⏱️ Jakobson en 60 secondes</summary>
+    <div id="jak">
+      <p>Une phrase s'affiche : touchez la fonction qui domine. Le plus de bonnes réponses possible en 60 secondes.</p>
+      <button class="btn" id="jakGo">Go !</button> <span class="muted" id="jakBest"></span>
+    </div>
+  </details>
+
+  <details class="game" id="flashG">
+    <summary>🃏 Cartes mémo <span class="pill" id="fLeft"></span></summary>
+    <div>
+      <div class="card flash" id="flash" tabindex="0" role="button" aria-live="polite"><div class="q"></div><div class="a"></div></div>
+      <div class="row noprint"><button class="btn ghost" id="fAgain">🔁 À revoir</button><button class="btn" id="fKnow">✅ Je sais</button><button class="btn ghost sm" id="fReset">Tout remettre</button></div>
+      <p class="muted" id="fPos"></p>
+    </div>
+  </details>
+</section>
+
 <!-- ============ FREYTAG ============ -->
 <section id="freytag">
   <h2><small>Priorité 1 · Cours « Pyramide de Freytag »</small>La pyramide de Freytag</h2>
+  <p class="tldr"><b>⚡ En 10 s</b> 7 étapes, une courbe de tension : exposition → incident déclencheur → péripéties → point culminant → descente → résolution → dénouement. Le héros, c'est l'orateur.</p>
   <p>Le <b>storytelling</b> se dit en français <b>communication narrative</b>. La narration expose une <b>situation qui évolue</b> et fait évoluer un paysage, un projet, des acteurs, des rôles, des enjeux.</p>
   <p>En <b>1863</b>, le dramaturge allemand <b>Gustav Freytag</b> identifie les <b>sept étapes</b> d'une histoire parfaite. Ce schéma de référence vient de l'analyse des <b>tragédies classiques</b> (Sophocle, Euripide, Shakespeare), mais il doit déjà tout au <b>conte</b> (Ésope) et à la <b>morphologie du conte</b> (le structuraliste <b>Vladimir Propp</b>, <i>Morphologie du conte</i>). C'est pourquoi le conte de L1 est « la première brique » du storytelling.</p>
 
@@ -244,6 +312,7 @@
 <!-- ============ CONTE ============ -->
 <section id="conte">
   <h2><small>Cours « Le conte : éléments de structure »</small>Le conte, première brique du storytelling</h2>
+  <p class="tldr"><b>⚡ En 10 s</b> Univers merveilleux, personnages, formule d'ouverture, élément déclencheur, épreuves, fin heureuse. 5 étapes : situation initiale, complication, péripéties, résolution, situation finale.</p>
   <p>« Il était une fois »… Le conte est un récit imaginaire où domine le <b>merveilleux</b>, et un genre littéraire (oral, écrit) transmis de génération en génération. Ses finalités : <b>divertir, éduquer, moraliser</b>. Projet du semestre : un conte merveilleux ancré dans le monde d'aujourd'hui, sur le thème de la <b>tolérance</b>.</p>
 
   <details open>
@@ -275,6 +344,7 @@
 <!-- ============ LOGOS ETHOS PATHOS ============ -->
 <section id="lep">
   <h2><small>Priorité 2</small>Le dosage logos, ethos, pathos</h2>
+  <p class="tldr"><b>⚡ En 10 s</b> Logos = la tête (faits). Ethos = la confiance (moi). Pathos = le cœur (émotions). Pathos pour accrocher et finir, logos au milieu, ethos partout.</p>
   <p>Les trois <b>preuves</b> (ou moyens de persuasion) d'<b>Aristote</b>, dans la <i>Rhétorique</i>. <b>Convaincre</b> s'adresse à la raison (logos) ; <b>persuader</b> s'adresse aux émotions (pathos) ; l'ethos rend l'orateur digne de confiance.</p>
 
   <div class="trio">
@@ -322,6 +392,7 @@
 <!-- ============ JAKOBSON ============ -->
 <section id="jakobson">
   <h2><small>Priorité 3</small>Les fonctions du langage de Jakobson</h2>
+  <p class="tldr"><b>⚡ En 10 s</b> 6 facteurs = 6 fonctions. Émetteur → expressive, récepteur → conative, référent → référentielle, message → poétique, canal → phatique, code → métalinguistique.</p>
   <p><b>Roman Jakobson</b> (linguiste, 1960, <i>Essais de linguistique générale</i>) décrit la communication par <b>six facteurs</b>, chacun associé à une <b>fonction</b>. Un message mêle souvent plusieurs fonctions, mais une <b>domine</b>.</p>
 
   <div class="card pyr">
@@ -370,6 +441,7 @@
 <!-- ============ PITCH ============ -->
 <section id="pitch">
   <h2><small>Cours « Pitch Thèse 180 s »</small>Un modèle analysé : le pitch ECO-IA</h2>
+  <p class="tldr"><b>⚡ En 10 s</b> Un pitch de 180 s qui suit Freytag à la lettre : buzz → les abeilles meurent → Varroa → « Je préfère agir » → ECO-IA → +10 % → « God Save the Queen ».</p>
   <p>Le pitch « Ma thèse en 180 secondes » d'un chercheur de l'Efrei (2e prix Assas) : un système d'IA, <b>ECO-IA</b>, qui compte les varroas (acariens parasites) sur les abeilles. C'est un modèle de storytelling : à analyser pour l'écrit, à imiter pour l'oral.</p>
 
   <details open>
@@ -414,6 +486,7 @@
 <!-- ============ PROCEDES ============ -->
 <section id="procedes">
   <h2><small>Leçons 3, 4, 9, 10, 12</small>Procédés d'argumentation, avec exercices corrigés</h2>
+  <p class="tldr"><b>⚡ En 10 s</b> Modalisateurs = degré de certitude. Évaluatifs = jugement. Citation = autorité ou satire. Oratoires = apostrophe, gradation, hyperbole. Rhétorique = concession, prétérition, syllogisme, paradoxe.</p>
 
   <details>
     <summary>Leçon 3 · Les modalisateurs</summary>
@@ -527,6 +600,7 @@
 <!-- ============ FIGURES ============ -->
 <section id="figures">
   <h2><small>Cours « Les figures de style »</small>Glossaire des figures de style</h2>
+  <p class="tldr"><b>⚡ En 10 s</b> Les incontournables : métaphore, comparaison, anaphore, antithèse, oxymore, hyperbole, litote, euphémisme, gradation, question rhétorique.</p>
   <p>Une figure de style modifie le langage ordinaire pour le rendre <b>plus expressif</b>. Familles : analogie, animation, substitution, pensée, opposition, construction, sonorités, insistance, atténuation.</p>
   <input type="search" id="figSearch" placeholder="Chercher une figure ou un mot (ex. oxymore, répétition)" aria-label="Chercher une figure">
   <p class="muted" id="figCount"></p>
@@ -536,6 +610,7 @@
 <!-- ============ BARTHES ============ -->
 <section id="barthes">
   <h2><small>Cours « Sémiologie »</small>Barthes, « La nouvelle Citroën » (<i>Mythologies</i>, 1957)</h2>
+  <p class="tldr"><b>⚡ En 10 s</b> La DS = une « Déesse » : l'auto est la cathédrale moderne, un objet magique. La vue mythifie, le toucher démystifie.</p>
   <p>La <b>sémiologie</b> étudie les <b>signes</b> et leur sens. Dans <i>Mythologies</i>, Roland Barthes décrypte les « mythes » de la culture de masse : des objets ordinaires chargés de sens. Ici, la Citroën DS 19 (« la Déesse », jeu de mots DS / Déesse).</p>
   <details open>
     <summary>Les idées clés</summary>
@@ -567,14 +642,7 @@
   <h2><small>Mise en pratique</small>S'entraîner</h2>
   <p>Le professeur l'a dit : la théorie est simple, c'est l'entraînement qui fait une histoire « efficace et percutante ».</p>
 
-  <h3>1. Cartes mémo</h3>
-  <div class="card flash" id="flash" tabindex="0" role="button" aria-live="polite"><div class="q"></div><div class="a"></div></div>
-  <div class="row noprint"><button class="btn ghost" id="fPrev">← Précédente</button><button class="btn" id="fNext">Suivante →</button><span class="muted" id="fPos"></span></div>
-
-  <h3>2. Quiz</h3>
-  <div class="card" id="quiz"></div>
-
-  <h3>3. Construire mon histoire (pyramide de Freytag)</h3>
+  <h3>1. Construire mon histoire (pyramide de Freytag)</h3>
   <p class="muted">Remplissez chaque étape avec votre propre histoire. C'est enregistré sur ce téléphone uniquement.</p>
   <div class="card" id="builder"></div>
   <div class="card">
@@ -582,7 +650,7 @@
     <ul id="checks" style="list-style:none;padding:0"></ul>
   </div>
 
-  <h3>4. Chrono pour l'oral</h3>
+  <h3>2. Chrono pour l'oral</h3>
   <div class="card">
     <div class="row"><span class="chrono" id="clock">3:00</span></div>
     <div class="row noprint" style="margin-top:10px">
@@ -595,7 +663,7 @@
     <p class="muted">Repère : sur 3 minutes, environ 20 s d'exposition, 20 s d'incident, 60 s de péripéties, 20 s de climax, 40 s de résolution, 20 s de dénouement.</p>
   </div>
 
-  <h3>5. Méthode pour l'écrit</h3>
+  <h3>3. Méthode pour l'écrit</h3>
   <div class="card">
     <p class="muted" style="margin-top:0">Méthode générale d'analyse, déduite du cours.</p>
     <ol>
@@ -703,59 +771,167 @@
     ["Argument d'autorité ?", "Citer un auteur reconnu pour donner du poids à son opinion."],
     ["Différence litote / euphémisme ?", "Litote : dire moins pour suggérer plus. Euphémisme : adoucir une réalité pénible."]
   ];
-  let fi = 0; const flash = $("#flash");
-  function drawCard() { flash.classList.remove("show"); $(".q", flash).textContent = CARDS[fi][0]; $(".a", flash).textContent = CARDS[fi][1]; $("#fPos").textContent = `${fi + 1} / ${CARDS.length} · touchez la carte pour la réponse`; }
+  /* ---------- points ---------- */
+  let xp = store.get("storytelling.xp", 0);
+  const drawXp = () => { $("#xpTxt").textContent = `${xp} point${xp > 1 ? "s" : ""} · niveau ${Math.floor(xp / 50) + 1}`; $("#xpBar").style.width = `${(xp % 50) * 2}%`; };
+  const gain = (n, msg) => {
+    xp += n; store.set("storytelling.xp", xp); drawXp();
+    const d = document.createElement("div"); d.className = "pop"; d.textContent = msg || `+${n}`; document.body.appendChild(d); setTimeout(() => d.remove(), 800);
+  };
+  drawXp();
+  document.querySelectorAll("[data-open]").forEach(a => a.addEventListener("click", () => { const d = document.getElementById(a.dataset.open); d.open = true; setTimeout(() => d.scrollIntoView({ block: "start" }), 30); }));
+
+  /* ---------- flashcards: "je sais" removes the card, "à revoir" sends it to the back ---------- */
+  const FKEY = "storytelling.known.v1";
+  let known = new Set(store.get(FKEY, []));
+  let deck = [];
+  const flash = $("#flash");
+  function buildDeck() { deck = CARDS.map((_, i) => i).filter(i => !known.has(i)).sort(() => Math.random() - .5); drawCard(); }
+  function drawCard() {
+    flash.classList.remove("show");
+    $("#fLeft").textContent = `${deck.length} à revoir`;
+    if (!deck.length) { $(".q", flash).textContent = "🎉 Toutes les cartes sont sues !"; $(".a", flash).textContent = ""; $("#fPos").textContent = "« Tout remettre » pour recommencer."; return; }
+    $(".q", flash).textContent = CARDS[deck[0]][0]; $(".a", flash).textContent = CARDS[deck[0]][1];
+    $("#fPos").textContent = `${known.size} / ${CARDS.length} sues · touchez la carte pour la réponse`;
+  }
   const flip = () => flash.classList.toggle("show");
   flash.addEventListener("click", flip);
   flash.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); } });
-  $("#fNext").onclick = () => { fi = (fi + 1) % CARDS.length; drawCard(); };
-  $("#fPrev").onclick = () => { fi = (fi - 1 + CARDS.length) % CARDS.length; drawCard(); };
-  drawCard();
+  $("#fKnow").onclick = () => { if (!deck.length) return; known.add(deck.shift()); store.set(FKEY, [...known]); gain(2); drawCard(); };
+  $("#fAgain").onclick = () => { if (!deck.length) return; deck.push(deck.shift()); drawCard(); };
+  $("#fReset").onclick = () => { known = new Set(); store.set(FKEY, []); buildDeck(); };
+  buildDeck();
 
-  /* ---------- quiz ---------- */
+  /* ---------- quiz: [question, options, answer, why] ---------- */
   const J = ["Expressive", "Conative", "Référentielle", "Poétique", "Phatique", "Métalinguistique"];
+  const LEP = ["Logos", "Ethos", "Pathos"];
   const QUIZ = [
-    ["« Allô ? Vous m'entendez ? » : quelle fonction domine ?", J, 4],
-    ["« Venez nombreux ! » : quelle fonction domine ?", J, 1],
-    ["« Un oxymore associe deux termes contraires. » : quelle fonction ?", J, 5],
-    ["« La Tour Eiffel mesure 330 mètres. » : quelle fonction ?", J, 2],
-    ["« Hélas ! Que je suis malheureux ! » : quelle fonction ?", J, 0],
-    ["« I like Ike » (slogan) : quelle fonction domine ?", J, 3],
-    ["Dans la pyramide de Freytag, qu'est-ce qui vient juste après les péripéties ?", ["L'exposition", "Le point culminant", "La résolution", "La descente de l'action"], 1],
-    ["« Faut-il désespérer ? Je préfère agir. » marque, dans le pitch ECO-IA…", ["L'exposition", "Le point culminant", "Le dénouement", "L'incident déclencheur"], 1],
-    ["« 84 % des espèces cultivées de l'UE en dépendent » relève surtout du…", ["Logos", "Ethos", "Pathos"], 0],
-    ["« Je suis chercheur depuis dix ans sur ce sujet » relève surtout de…", ["Logos", "Ethos", "Pathos"], 1],
-    ["« Les abeilles se meurent et nous regardons ailleurs » relève surtout du…", ["Logos", "Ethos", "Pathos"], 2],
-    ["« Cette obscure clarté qui tombe des étoiles » est…", ["Une antithèse", "Un oxymore", "Un chiasme", "Une litote"], 1],
-    ["« Va, je ne te hais point » est…", ["Un euphémisme", "Une hyperbole", "Une litote", "Une antiphrase"], 2],
-    ["« Je ne parlerai pas de ses mensonges répétés… » est…", ["Une concession", "Une prétérition", "Un paradoxe", "Un syllogisme"], 1],
-    ["« Certes il est jeune, mais il a du talent » est…", ["Une concession", "Une prétérition", "Une gradation", "Une apostrophe"], 0],
-    ["« Paul Valéry a écrit que l'inspiration… » est au…", ["Discours direct", "Discours indirect", "Discours indirect libre"], 1],
-    ["« Peut-être », « il me semble que » sont des modalisateurs de…", ["Certitude", "Incertitude"], 1],
-    ["« Boire un verre » est…", ["Une métaphore", "Une métonymie", "Une synecdoque", "Une catachrèse"], 1],
-    ["Pour Barthes, le sens le plus démystificateur est…", ["La vue", "Le toucher", "L'ouïe"], 1],
-    ["La résolution d'un storytelling peut être une solution ou…", ["Une fin heureuse", "Un échec constructif", "Une ellipse"], 1]
+    ["« Allô ? Vous m'entendez ? »", J, 4, "On vérifie le contact (le canal) : phatique."],
+    ["« Venez nombreux ! »", J, 1, "Impératif, on agit sur le récepteur : conative."],
+    ["« Un oxymore associe deux termes contraires. »", J, 5, "On explique un mot de la langue : métalinguistique."],
+    ["« La tour Eiffel mesure 330 mètres. »", J, 2, "Une information sur le monde : référentielle."],
+    ["« Hélas ! Que je suis malheureux ! »", J, 0, "Interjection, « je », émotion : expressive."],
+    ["« I like Ike » (slogan)", J, 3, "Le jeu de sons met la forme en avant : poétique."],
+    ["Juste après les péripéties, dans Freytag ?", ["L'exposition", "Le point culminant", "La résolution", "La descente de l'action"], 1, "Les péripéties font monter la tension jusqu'au point culminant."],
+    ["Juste avant la résolution, dans Freytag ?", ["Les péripéties", "La descente de l'action", "Le dénouement", "L'incident déclencheur"], 1, "… point culminant → descente de l'action → résolution → dénouement."],
+    ["Combien d'étapes dans la pyramide de Freytag ?", ["5", "6", "7", "8"], 2, "Sept : exposition, incident, péripéties, point culminant, descente, résolution, dénouement."],
+    ["Freytag a créé sa pyramide en…", ["1663", "1863", "1957", "1960"], 1, "1863, à partir des tragédies classiques."],
+    ["Le structuraliste de la Morphologie du conte ?", ["Barthes", "Jakobson", "Propp", "Aristote"], 2, "Vladimir Propp."],
+    ["« Faut-il désespérer ? Je préfère agir. » (pitch ECO-IA), c'est…", ["L'exposition", "Le point culminant", "Le dénouement", "L'incident déclencheur"], 1, "Le moment décisif où le héros (l'orateur) choisit d'agir."],
+    ["La résolution peut être une solution ou…", ["Une fin heureuse", "Un échec constructif", "Une ellipse"], 1, "Le cours : « une solution ou un échec constructif »."],
+    ["« 84 % des espèces cultivées de l'UE en dépendent »", LEP, 0, "Un chiffre, un fait : logos."],
+    ["« Je suis chercheur depuis dix ans sur ce sujet »", LEP, 1, "Crédibilité de l'orateur : ethos."],
+    ["« Les abeilles se meurent et nous regardons ailleurs »", LEP, 2, "Image forte, indignation : pathos."],
+    ["Un orateur qui récite son CV a trop de…", LEP, 1, "Trop d'ethos = arrogance."],
+    ["Pour accrocher le public dès la 1re phrase, on mise surtout sur…", LEP, 2, "Une émotion, une image, une question : pathos."],
+    ["Qui a théorisé logos, ethos, pathos ?", ["Aristote", "Cicéron", "Jakobson", "Freytag"], 0, "Aristote, Rhétorique."],
+    ["« Cette obscure clarté qui tombe des étoiles »", ["Antithèse", "Oxymore", "Chiasme", "Litote"], 1, "Deux contraires dans le même groupe de mots : oxymore."],
+    ["« Va, je ne te hais point »", ["Euphémisme", "Hyperbole", "Litote", "Antiphrase"], 2, "Dire moins pour suggérer plus (je t'aime) : litote."],
+    ["« Il nous a quittés » pour « il est mort »", ["Euphémisme", "Litote", "Métonymie", "Hyperbole"], 0, "On adoucit une réalité pénible : euphémisme."],
+    ["« Je ne parlerai pas de ses mensonges répétés… »", ["Concession", "Prétérition", "Paradoxe", "Syllogisme"], 1, "On dit qu'on n'en parle pas… en en parlant : prétérition."],
+    ["« Certes il est jeune, mais il a du talent »", ["Concession", "Prétérition", "Gradation", "Apostrophe"], 0, "Certes… mais : concession."],
+    ["« Tous les hommes sont mortels. Or je suis un homme. Donc… »", ["Paradoxe", "Syllogisme", "Gradation", "Chiasme"], 1, "Règle, cas, conclusion : syllogisme."],
+    ["« Le sport est mauvais pour la santé »", ["Paradoxe", "Antiphrase", "Hyperbole", "Oxymore"], 0, "Contre l'opinion courante : paradoxe."],
+    ["« Va, cours, vole, et nous venge ! »", ["Anaphore", "Gradation", "Litote", "Chiasme"], 1, "De plus en plus fort : gradation."],
+    ["« Rome, l'unique objet… / Rome, à qui… / Rome qui… »", ["Anaphore", "Épiphore", "Polyptote", "Zeugma"], 0, "Même mot en début de vers : anaphore."],
+    ["« Il faut manger pour vivre et non vivre pour manger »", ["Antithèse", "Chiasme", "Paronomase", "Zeugma"], 1, "Structure croisée A-B-B-A : chiasme."],
+    ["« Boire un verre »", ["Métaphore", "Métonymie", "Synecdoque", "Catachrèse"], 1, "Le contenant pour le contenu : métonymie."],
+    ["« Les pieds de la table »", ["Métaphore vive", "Catachrèse", "Personnification", "Hypallage"], 1, "Une métaphore passée dans la langue : catachrèse."],
+    ["« Sous le pont Mirabeau coule la Seine / Et nos amours »", ["Zeugma", "Oxymore", "Anaphore", "Ellipse"], 0, "Un verbe pour un terme concret et un abstrait : zeugma."],
+    ["« Messieurs, … » au début d'un discours", ["Apostrophe", "Hyperbole", "Gradation", "Prétérition"], 0, "On interpelle directement : apostrophe."],
+    ["« Je meurs de faim »", ["Litote", "Hyperbole", "Euphémisme", "Métonymie"], 1, "Exagération : hyperbole."],
+    ["« Peut-être », « il me semble que » expriment…", ["La certitude", "L'incertitude"], 1, "Modalisateurs d'incertitude."],
+    ["« Indéniablement », « j'affirme que » expriment…", ["La certitude", "L'incertitude"], 0, "Modalisateurs de certitude."],
+    ["« Paul Valéry a écrit que l'inspiration… »", ["Discours direct", "Discours indirect", "Discours indirect libre"], 1, "Verbe de parole + « que » : discours indirect."],
+    ["Citer un grand auteur pour appuyer son idée, c'est…", ["Un argument d'autorité", "Une fonction satirique", "Une prétérition"], 0, "Argument d'autorité (et un peu d'ethos emprunté)."],
+    ["« Un authentique génie » : « authentique » est…", ["Un modalisateur", "Un terme évaluatif", "Une litote"], 1, "Il porte un jugement positif : terme évaluatif."],
+    ["Pour Barthes, la voiture est l'équivalent…", ["Des pyramides", "Des cathédrales gothiques", "Des châteaux forts"], 1, "« l'équivalent assez exact des grandes cathédrales gothiques »."],
+    ["Pour Barthes, le sens le plus démystificateur est…", ["La vue", "Le toucher", "L'ouïe"], 1, "La vue est magique, le toucher démystifie."],
+    ["Les finalités du conte ?", ["Divertir, éduquer, moraliser", "Informer, vendre, convaincre", "Choquer, émouvoir, oublier"], 0, "Divertir, éduquer, moraliser."]
   ];
-  let order = [], qi = 0, score = 0;
-  const quiz = $("#quiz");
-  function startQuiz() { order = QUIZ.map((_, i) => i).sort(() => Math.random() - .5); qi = 0; score = 0; drawQ(); }
+  let order = [], qi = 0, score = 0, streak = 0;
+  const quiz = $("#quiz"), N = 10;
+  function startQuiz() { order = QUIZ.map((_, i) => i).sort(() => Math.random() - .5).slice(0, N); qi = 0; score = 0; drawQ(); }
   function drawQ() {
     if (qi >= order.length) {
-      quiz.innerHTML = `<p><b>Score : ${score} / ${order.length}</b></p><button class="btn" id="qAgain">Recommencer</button>`;
+      const msg = score === N ? "🏆 Parfait !" : score >= 7 ? "🔥 Très bien !" : score >= 5 ? "👍 Pas mal, encore une ?" : "💪 On recommence ?";
+      quiz.innerHTML = `<p class="big">${msg} ${score} / ${N}</p><button class="btn" id="qAgain">Nouvelle série de ${N}</button>`;
       $("#qAgain").onclick = startQuiz; return;
     }
-    const [q, opts, ok] = QUIZ[order[qi]];
-    quiz.innerHTML = `<p class="muted">Question ${qi + 1} / ${order.length} · score ${score}</p><p><b>${esc(q)}</b></p>` +
-      opts.map((o, i) => `<button class="opt" data-i="${i}">${esc(o)}</button>`).join("") + `<div class="row" style="margin-top:8px"></div>`;
+    const [q, opts, ok, why] = QUIZ[order[qi]];
+    quiz.innerHTML = `<p class="muted">${qi + 1} / ${N} · score ${score}</p><p class="big">${esc(q)}</p>` +
+      opts.map((o, i) => `<button class="opt" data-i="${i}">${esc(o)}</button>`).join("") + `<div class="why" hidden></div><div class="row" style="margin-top:8px"></div>`;
     quiz.querySelectorAll(".opt").forEach(b => b.onclick = () => {
       const i = +b.dataset.i;
       quiz.querySelectorAll(".opt").forEach(x => { x.disabled = true; if (+x.dataset.i === ok) x.classList.add("ok"); });
-      if (i === ok) score++; else b.classList.add("ko");
+      if (i === ok) { score++; streak++; gain(5, streak >= 3 ? `🔥 ${streak} d'affilée` : "+5"); } else { streak = 0; b.classList.add("ko"); }
+      $("#streak").textContent = `série ${streak}`;
+      const w = quiz.querySelector(".why"); w.hidden = false; w.textContent = (i === ok ? "✅ " : "❌ ") + why;
       const nx = document.createElement("button"); nx.className = "btn"; nx.textContent = "Suivante →";
-      nx.onclick = () => { qi++; drawQ(); }; quiz.querySelector(".row").appendChild(nx); nx.focus();
+      nx.onclick = () => { qi++; drawQ(); }; quiz.querySelector(".row").appendChild(nx); nx.focus({ preventScroll: true });
     });
   }
   startQuiz();
+
+  /* ---------- put the steps back in order ---------- */
+  const ORD = {
+    freytag: ["Exposition", "Incident déclencheur", "Péripéties", "Point culminant", "Descente de l'action", "Résolution", "Dénouement"],
+    schema: ["Situation initiale", "Élément déclencheur", "Péripéties", "Climax", "Dénouement", "Situation finale"],
+    pitch: ["Le buzz et les abeilles", "« Les abeilles se meurent »", "La menace Varroa", "« Je préfère agir » : ECO-IA", "Comment marchent les détecteurs", "+10 % de précision", "« God Save the Queen ! »"]
+  };
+  let ordKey = "freytag", ordStep = 0, ordMiss = 0;
+  function startOrd(k) {
+    ordKey = k; ordStep = 0; ordMiss = 0;
+    $("#ordDone").innerHTML = ""; $("#ordHint").textContent = "Touchez les étapes dans le bon ordre.";
+    $("#ordPool").innerHTML = ORD[k].map((t, i) => [t, i]).sort(() => Math.random() - .5).map(([t, i]) => `<button class="chip" data-i="${i}">${esc(t)}</button>`).join("");
+  }
+  $("#ordPool").addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    if (+b.dataset.i === ordStep) {
+      const li = document.createElement("li"); li.textContent = b.textContent; $("#ordDone").appendChild(li); b.remove(); ordStep++;
+      if (ordStep === ORD[ordKey].length) { $("#ordHint").textContent = ordMiss ? `✅ Terminé avec ${ordMiss} erreur${ordMiss > 1 ? "s" : ""}. On recommence ?` : "🏆 Sans faute !"; gain(ordMiss ? 5 : 15); $("#ordPool").innerHTML = `<button class="btn" data-again>Rejouer</button>`; }
+    } else { ordMiss++; b.classList.remove("ko"); void b.offsetWidth; b.classList.add("ko"); }
+  });
+  $("#ordPool").addEventListener("click", e => { if (e.target.matches("[data-again]")) startOrd(ordKey); });
+  document.querySelectorAll("[data-ord]").forEach(b => b.onclick = () => startOrd(b.dataset.ord));
+  startOrd("freytag");
+
+  /* ---------- Jakobson in 60 seconds ---------- */
+  const JS = [
+    ["Allô, tu m'entends ?", 4], ["Bonjour à tous !", 4], ["Vous me suivez ?", 4], ["Bon, alors, hein…", 4],
+    ["Fermez la porte, s'il vous plaît.", 1], ["Imaginez un instant…", 1], ["Achetez maintenant !", 1], ["Et vous, qu'auriez-vous fait ?", 1],
+    ["Quelle horreur !", 0], ["J'adore ce film, il m'a bouleversé.", 0], ["Hélas, je suis si triste…", 0], ["Ouf ! Enfin fini !", 0],
+    ["Paris est la capitale de la France.", 2], ["L'eau bout à 100 °C.", 2], ["Le train part à 8 h 12.", 2], ["18 % des abeilles sont mortes l'hiver dernier.", 2],
+    ["« Storytelling » signifie communication narrative.", 5], ["Que veut dire « varroa » ?", 5], ["« Apidé » est un nom masculin.", 5], ["Une litote, c'est dire moins pour suggérer plus.", 5],
+    ["Qui vivra verra.", 3], ["I like Ike.", 3], ["Ramdam, brouhaha…", 3], ["Le cœur a ses raisons que la raison ne connaît point.", 3]
+  ];
+  let jt = null;
+  const jbox = $("#jak");
+  const jBest = () => store.get("storytelling.jakbest", 0);
+  $("#jakBest").textContent = jBest() ? `record : ${jBest()}` : "";
+  function jakRound() {
+    let left = 60, ok = 0, ko = 0, cur, lock = false;
+    const pool = JS.slice().sort(() => Math.random() - .5); let k = 0;
+    jbox.innerHTML = `<div class="row"><span class="chrono" id="jClock">60</span><span class="muted" id="jScore">0 ✅ · 0 ❌</span></div><p class="big" id="jQ"></p><div class="jopts">${J.map((f, i) => `<button class="opt" data-f="${i}">${f}</button>`).join("")}</div>`;
+    const next = () => { if (k >= pool.length) { pool.sort(() => Math.random() - .5); k = 0; } cur = pool[k++]; lock = false; $("#jQ").textContent = cur[0]; };
+    jbox.querySelectorAll("[data-f]").forEach(b => b.onclick = () => {
+      if (lock || left <= 0) return; lock = true;
+      if (+b.dataset.f === cur[1]) { ok++; gain(3); } else { ko++; b.classList.add("ko"); setTimeout(() => b.classList.remove("ko"), 300); $("#jQ").textContent = `❌ C'était : ${J[cur[1]]}`; }
+      $("#jScore").textContent = `${ok} ✅ · ${ko} ❌`;
+      if (+b.dataset.f === cur[1]) next(); else setTimeout(next, 700);
+    });
+    next();
+    clearInterval(jt);
+    jt = setInterval(() => {
+      left--; $("#jClock").textContent = left;
+      if (left <= 0) {
+        clearInterval(jt); const rec = ok > jBest(); if (rec) store.set("storytelling.jakbest", ok);
+        jbox.innerHTML = `<p class="big">${rec ? "🏆 Nouveau record : " : "Score : "}${ok} bonnes réponses, ${ko} erreurs.</p><button class="btn" id="jakGo">Rejouer</button> <span class="muted">record : ${Math.max(ok, jBest())}</span>`;
+        $("#jakGo").onclick = jakRound;
+      }
+    }, 1000);
+  }
+  $("#jakGo").onclick = jakRound;
 
   /* ---------- story builder ---------- */
   const STEPS = [
