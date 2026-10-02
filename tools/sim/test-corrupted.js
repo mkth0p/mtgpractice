@@ -9,6 +9,7 @@ require(path.join(dir, "cards-miku.js"));
 for (const f of fs.readdirSync(dir).filter(f => /^(cards|decks|precon)-.*\.js$/.test(f) && f !== "cards-miku.js").sort()) require(path.join(dir, f));
 require(path.join(dir, "ai.js"));
 require(path.join(dir, "checklist-corrupted.js"));
+require(path.join(dir, "brain-corrupted.js"));
 const MK = globalThis.MK;
 
 let passed = 0, failed = 0;
@@ -202,6 +203,42 @@ const repeat = (g, p, o, idx, n) => g.perform(p, { type: "activate", card: o, id
     const pc = a.hand.find(c => c.def.name === "Summoner's Pact"); await g.cast(a, pc); await g.settle();
     const c = MK.CORRUPTED_DECK.coach.companion(g, a, { mode: "main" });
     check("Pact: companion says you can't pay it yet", c.steps.some(st => /can't pay Summoner's Pact/.test(st.text)), c.steps.map(st => st.text)); }
+  // The turn planner (brain-corrupted.js): lines, costs, timing and threats
+  const planOf = (g, a) => MK.CORRUPTED_DECK.coach.plan(g, a);
+  { const { g, a } = table(); lands(g, a, 5, ["Forest", "Plains", "Forest", "Savannah", "Forest"]); put(g, a, "Archangel of Thune"); hand(g, a, "Eladamri's Call"); await g.settle();
+    const r = planOf(g, a), l = r.lines[0];
+    check("plan: Thune out + Eladamri's Call + 5 mana is a win this turn", l && l.key === "thune" && l.when === "now" && l.tutors.includes("Eladamri's Call") && l.mana === 5, l && [l.key, l.when, l.tutors, l.cost]);
+    const c = comp(g, a, { mode: "main" });
+    check("companion: Go off names Eladamri's Call for Spike Feeder", c.stage === "Go off" && c.steps.some(s => /Eladamri's Call/.test(s.text) && /Spike Feeder/.test(s.text)), c.steps.map(s => s.text));
+    g.activeIdx = 1; g.v = (g.v || 0) + 1;
+    const r2 = planOf(g, a), l2 = r2.lines[0];
+    check("plan: on their turn the same line is next turn, tutor at their end step", l2 && l2.when === "next" && l2.early === "{G}{W}", l2 && [l2.when, l2.early, l2.onTurn]);
+    const e = comp(g, a, { mode: "respond", window: "end", turnOf: g.players[3], can: ["Eladamri's Call"] });
+    check("companion: end step says Eladamri's Call for Spike Feeder", e.urgent && e.steps.some(s => /Eladamri's Call for Spike Feeder/.test(s.text)), e.steps.map(s => s.text)); }
+  { const { g, a } = table(); lands(g, a, 3, ["Forest", "Plains", "Forest"]); put(g, a, "Archangel of Thune"); hand(g, a, "Eladamri's Call"); await g.settle();
+    const l = planOf(g, a).lines[0];
+    check("plan: 3 mana for a 5-mana line is next turn, not now", l && l.key === "thune" && l.when !== "now", l && [l.when, l.cost]); }
+  { const { g, a, b } = table(); lands(g, a, 5); put(g, a, "Archangel of Thune"); hand(g, a, "Eladamri's Call"); hand(g, a, "Swords to Plowshares"); put(g, b, "Linvala, Keeper of Silence"); await g.settle();
+    const r = planOf(g, a);
+    check("plan: Linvala switches the Thune line off", r.lines.find(l => l.key === "thune").when === "blocked", r.lines.map(l => [l.key, l.when]));
+    const t = r.threats.find(x => x.name === "Linvala, Keeper of Silence");
+    check("plan: Linvala is a high threat answered by Swords", t && t.level === "high" && t.answers.includes("Swords to Plowshares"), t);
+    const c = comp(g, a, { mode: "main" });
+    check("companion: answer Linvala before going off", c.stage !== "Go off" && c.steps.some(s => /Linvala/.test(s.text) && /Swords/.test(s.text)), c.steps.map(s => s.text)); }
+  { const { g, a } = table(); lands(g, a, 4); put(g, a, "Vizier of Remedies"); const dr = put(g, a, "Devoted Druid"); dr.sick = true; hand(g, a, "Walking Ballista"); await g.settle();
+    const l = planOf(g, a).lines.find(x => x.key === "druid");
+    check("plan: a summoning-sick Druid makes Druid + Vizier a next-turn line", l && l.when === "next" && l.kill, l && [l.when, l.kill]); }
+  { const { g, a } = table(); lands(g, a, 6); put(g, a, "Heliod, Sun-Crowned"); const wb = put(g, a, "Walking Ballista"); wb.counters.p1 = 1; await g.settle();
+    const l = planOf(g, a).lines.find(x => x.key === "heliodBallista");
+    check("plan: Heliod + Ballista with 1 counter costs {4} plus {1}{W}", l && l.when === "now" && l.mana === 6, l && [l.when, l.cost]); }
+  { const { g, a } = table(); lands(g, a, 2, ["Plains"]); put(g, a, "Devoted Druid"); hand(g, a, "Summoner's Pact"); await g.settle();
+    const l = planOf(g, a).lines.find(x => x.key === "druid");
+    check("plan: no Summoner's Pact route when you can't pay it next upkeep", !l || !l.tutors.includes("Summoner's Pact"), l && l.tutors); }
+  { const B = globalThis.CorruptedBrain, fake = m => c => { const o = B.parse(c); return o.n + o.G + o.W <= m && o.G <= m && o.W <= m; };
+    const r = B.solve({ bf: [{ name: "Heliod, Sun-Crowned" }], hand: ["Ranger-Captain of Eos", "Chord of Calling"], canPay: fake(9), canPayNext: fake(9), opps: [{ name: "X", life: 40, hand: 3, open: 2, power: 4, hate: [{ name: "Torpor Orb" }] }], life: 40, main: true });
+    const l = r.lines.find(x => x.key === "heliodBallista");
+    check("brain: Torpor Orb stops Ranger-Captain, so no Heliod + Ballista route", !l, l && l.tutors);
+    check("brain: Torpor Orb is a high threat when you hold Ranger-Captain", r.threats.some(t => t.name === "Torpor Orb" && t.level === "high"), r.threats); }
   { check("checklist is defined", !!(globalThis.MK_CHECKLISTS && globalThis.MK_CHECKLISTS.corrupted && globalThis.MK_CHECKLISTS.corrupted.length)); }
 
   console.log(`${passed} passed, ${failed} failed`);

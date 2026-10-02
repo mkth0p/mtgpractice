@@ -31,6 +31,7 @@
   const reduced = () => root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const settings = () => Object.assign({}, DEFAULTS, K.store.json(SETTINGS_KEY, {}));
   const saveSettings = s => K.store.put(SETTINGS_KEY, s);
+  const WHEN = { now: "This turn", next: "Next turn", later: "Later", blocked: "Blocked" };
   const PLAYER_COLORS = ["#39c5bb", "#ff3d8b", "#ffd166", "#8fb8ff", "#b58cff", "#7ee0a1"];
   const COLOR_BG = { W: "#7d6f45", U: "#2d5a80", B: "#3e3542", R: "#86382a", G: "#2c6a3d", C: "#50575e" };
   // mana floating in your pool (Devoted Druid's loop)
@@ -172,10 +173,12 @@
         <div class="mg-mybar"></div>
         <div class="mg-hand"><div class="fan"></div></div>
         <div class="mg-actions"></div>
-        <aside class="mg-companion" aria-live="polite" hidden></aside>
         <div class="mg-scrim"></div>
         <div class="mg-sheet" role="dialog" aria-modal="true"><div class="grab"></div><div class="hd"></div><div class="bd"></div><div class="ft"></div></div>
-        <aside class="mg-log" aria-label="Game log"><div class="hd"><h3>Game log</h3><button class="mg-icon" data-act="log" aria-label="Close log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><ol></ol></aside>
+        <div class="mg-rail">
+          <aside class="mg-companion" aria-live="polite" hidden></aside>
+          <aside class="mg-log" aria-label="Game log"><div class="hd"><h3>Game log</h3><button class="mg-icon" data-act="log" aria-label="Close log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><ol></ol></aside>
+        </div>
         <div class="mg-menu" role="menu"></div>
         <div class="mg-fx" aria-hidden="true"></div>`;
       const $ = s => el.querySelector(s);
@@ -873,6 +876,7 @@
         case "coach": this.showCoach(); break;
         case "compmin": this.compMin = !this.compMin; this.compHTML = ""; this.render(); break;
         case "compclose": this.compHidden = this.compKey; this.render(); break;
+        case "coachplan": this.coachTab = "plan"; this.showCoach(); break;
         case "rpass": this.resolve(null); break;
         case "ff": this.fastForward = true; this.spotOut(); this.render(); break;
         case "concede": this.$.menu.classList.remove("on"); if (confirm("Concede this game?")) { this.conceded = true; g.lose(this.me, "concede"); if (!g.over) g.end(null, { humanLost: true }); this.resolve(null); } break;
@@ -1093,6 +1097,12 @@
       b.classList.toggle("hot", this.coachTips().some(x => x.level === "win"));
       if (this.sheetMode === "coach") this.fillCoach();
     }
+    docked() { return root.innerWidth >= 1240; }
+    /* The deck's turn planner (Corrupted Miku): ranked lines, threats and who can respond. */
+    coachPlan() {
+      if (!this.coach || !this.coach.plan || !this.g || this.g.phase === "setup") return null;
+      try { return this.coach.plan(this.g, this.me); } catch (err) { console.error("[miku game] plan", err); return null; }
+    }
     /* The companion: one stage of the game plan at a time, with the steps for this moment. */
     companionCtx() {
       const m = this.mode, c = this.respondCtx;
@@ -1121,15 +1131,22 @@
       const show = !!(a && a.steps && a.steps.length) && !g.over;
       const key = show ? a.stage + "|" + a.title : "";
       this.compKey = key;
-      const hide = !show || this.compHidden === key || this.sheetMode;
+      const hide = !show || this.compHidden === key || (this.sheetMode && !this.docked());
       if (box.hidden !== hide) box.hidden = hide;
       if (hide) return;
       const chips = list => (list || []).length ? `<span class="cards">${list.map(n => `<b data-card="${esc(n)}">${esc(shortName(n))}</b>`).join("")}</span>` : "";
+      // wide screens: the companion is docked in the rail above the log, so it has room for every step and the lines
+      const docked = this.docked();
+      const plan = docked && !this.compMin ? this.coachPlan() : null;
+      const lines = plan ? plan.lines.slice(0, 3) : [];
       const html = `<div class="hd" data-act="compmin"><span class="stage">${esc(a.stage)}</span><b>${esc(a.title || "")}</b><span class="tog" aria-hidden="true">${this.compMin ? "▴" : "▾"}</span></div>
-        ${this.compMin ? "" : `<ol>${a.steps.slice(0, 4).map(st => `<li>${mana(st.text)}${chips(st.cards)}</li>`).join("")}</ol>`}
+        ${this.compMin ? "" : `<ol>${a.steps.slice(0, docked ? 8 : 4).map(st => `<li>${mana(st.text)}${chips(st.cards)}</li>`).join("")}</ol>`}
+        ${lines.length ? `<div class="lines"><h4>Your lines</h4>${lines.map(l => `<button class="ln w-${l.when}" data-act="coachplan"><span class="when">${esc(WHEN[l.when] || l.when)}</span><b>${esc(l.short || l.title)}</b><span class="cost">${l.when === "blocked" ? esc("by " + l.blockedBy.map(h => shortName(h.name)).join(", ")) : mana(l.cost)}</span></button>`).join("")}</div>` : ""}
         <div class="ft"><button data-act="coach">Coach and checklist</button><button data-act="compclose" aria-label="Hide until the next stage">Hide</button></div>`;
       box.classList.toggle("urgent", !!a.urgent);
+      box.classList.toggle("docked", docked);
       if (this.compHTML !== html) { box.innerHTML = html; this.compHTML = html; }
+      if (docked) { if (box._b != null) { box.style.bottom = ""; box._b = null; } return; }
       // sits just above the line between the boards, over the opponents' side
       const mid = this.$.mid;
       const bottom = this.el.clientHeight - mid.offsetTop + 4;
@@ -1137,8 +1154,8 @@
     }
     showCoach() {
       if (!this.coach) return;
-      this.coachTab = this.coachTab || "tips";
-      const sh = this.openSheet("coach", `<h3>Coach</h3><div class="mg-tabs"><button data-ct="tips">Look for</button><button data-ct="list">Checklist</button></div><button class="mg-icon" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`, `<div class="mg-coach"></div>`, "");
+      this.coachTab = this.coachTab || (this.coach.plan ? "plan" : "tips");
+      const sh = this.openSheet("coach", `<h3>Coach</h3><div class="mg-tabs">${this.coach.plan ? `<button data-ct="plan">Plan</button>` : ""}<button data-ct="tips">Look for</button><button data-ct="list">Checklist</button></div><button class="mg-icon" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`, `<div class="mg-coach"></div>`, "");
       sh.querySelectorAll("[data-ct]").forEach(b => b.addEventListener("click", () => { this.coachTab = b.dataset.ct; this.coachHTML = ""; this.fillCoach(); }));
       this.coachHTML = "";
       this.fillCoach();
@@ -1149,7 +1166,21 @@
       sh.querySelectorAll("[data-ct]").forEach(b => b.classList.toggle("on", b.dataset.ct === this.coachTab));
       const cardLinks = list => (list || []).length ? `<div class="cards">${list.map(n => `<b data-card="${esc(n)}">${esc(shortName(n))}</b>`).join("")}</div>` : "";
       let html;
-      if (this.coachTab === "list") {
+      if (this.coachTab === "plan") {
+        const r = this.coachPlan();
+        if (!r) html = `<p>The plan shows once the game starts.</p>`;
+        else {
+          const st = r.state || {};
+          const lines = r.lines.map(l => `<div class="pl w-${l.when}"><div class="pl-hd"><span class="when">${esc(WHEN[l.when] || l.when)}</span><b>${esc(l.title)}</b>${l.kill ? "" : `<small>not a kill alone</small>`}<span class="cost">${l.when === "blocked" ? "" : l.early ? `${mana(l.early)} at their end step, ${mana(l.onTurn)} on your turn` : `${mana(l.cost)} · ${l.mana} mana`}</span></div>
+            ${l.blockedBy.length ? `<p class="why">Switched off by ${l.blockedBy.map(h => `${esc(h.owner)}'s <b data-card="${esc(h.name)}">${esc(shortName(h.name))}</b>`).join(", ")}.</p>` : ""}
+            <ol>${l.steps.map(x => `<li>${mana(x.text)}${cardLinks(x.cards)}</li>`).join("")}</ol></div>`).join("");
+          const threats = r.threats.map(t => `<div class="tip lv-${t.level === "high" ? "warn" : "info"}"><span class="lv">${esc({ hate: "Hate piece", lethal: "Can kill you", pressure: "Pressure", threat: "Biggest threat" }[t.kind] || "Threat")}</span><b>${esc(t.title)}</b><p>${mana(t.text)}${t.answerText ? " " + mana(t.answerText) : ""}</p>${cardLinks([t.kind === "hate" || t.kind === "threat" ? t.name : null].concat(t.answers.slice(0, 2)).filter(Boolean))}</div>`).join("");
+          const who = r.risk.who;
+          html = `<p class="pl-mana">Mana: <b>${st.manaNow}</b> now, <b>${st.manaNext}</b> once you untap.${r.risk.quiet ? ` ${esc(r.risk.quiet)} keeps opponents quiet on your turn.` : who.length ? ` ${esc(who.join(", "))} ${who.length > 1 ? "have" : "has"} cards and open mana.` : ""}</p>
+            <h4 class="pl-h">Lines, best first</h4>${lines || `<p class="pl-none">No combo piece or tutor in reach yet: draw, ramp and dig.</p>`}
+            ${threats ? `<h4 class="pl-h">Threats</h4>${threats}` : ""}`;
+        }
+      } else if (this.coachTab === "list") {
         const g = this.g, mine = g.active === this.me;
         const now = g.phase === "setup" ? "mulligan" : !mine ? "theirs" : g.phase === "upkeep" || g.phase === "untap" ? "upkeep" : g.phase === "draw" ? "draw" : g.phase === "main1" ? "main1" : g.phase === "main2" ? "main2" : /attack|block|damage|combat/i.test(g.phase) ? "combat" : "";
         const list = (root.MK_CHECKLISTS || {})[this.coach.checklist] || [];

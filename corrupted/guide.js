@@ -533,6 +533,39 @@ window.CORRUPTED_GUIDE = [
     ]
   },
   {
+    id: "reading-the-board",
+    title: "Reading the board",
+    kicker: "Decisions",
+    minutes: 7,
+    summary: "The five questions to ask every turn, in order: can I win, what stops me, what kills me, which tutor, and when to cast it.",
+    blocks: [
+      { t: "p", html: "Most lost games with this deck aren't lost to the opponents. They're lost to a tutor fired too early, a piece cast into open mana, or a turn spent on the wrong line. Ask these five questions every turn, in this order. The game's companion and the turn solver below ask them the same way." },
+      { t: "steps", items: [
+        { title: "Can I win this turn?", html: "For each combo, count what's missing and the cheapest way to get it: cast it from your hand, a tutor to the battlefield (Chord, Green Sun's Zenith, Finale), or a tutor to the hand plus the card's own cost. Add the extras: {1}{W} for Heliod's lifelink, {4} per missing Ballista counter. If the total fits your mana, that's the line." },
+        { title: "What stops it?", html: "Look at their side before you count. <i-c>Grafdigger's Cage</i-c> turns off every tutor that puts a creature onto the battlefield. Torpor Orb and Hushbringer turn off Recruiter, Ranger-Captain, Gearhulk and Speaker. Null Rod and Collector Ouphe turn off Ballista. <i-c>Linvala, Keeper of Silence</i-c>, Cursed Totem and Humility turn off every combo. A line through a hate piece isn't a line: answer the piece first." },
+        { title: "Who can answer me?", html: "Count opponents with cards in hand and untapped mana. If anyone has both, cast <i-c>Silence</i-c> or <i-c>Orim's Chant</i-c> first, or go off with <i-c>Grand Abolisher</i-c>, <i-c>Kutzil, Malamet Exemplar</i-c> or <i-c>Voice of Victory</i-c> already out. With Shalai out, spot removal on your other creatures is already off." },
+        { title: "What kills me?", html: "If one opponent's creatures add up to your life total, you have one turn. Win now, keep blockers home or hold <i-c>Teferi's Protection</i-c>. Removal goes first on what stops your combo or what kills you, never on the biggest creature just because it's big." },
+        { title: "Not this turn? Pick the tutor", html: "Pick the tutor that makes the line cheapest next turn. An instant tutor cast at the end of the turn before yours uses mana you'd untap anyway, so <i-c>Eladamri's Call</i-c> then the piece next turn often beats a sorcery that costs the same. A top-of-library tutor costs you the draw: use it when the piece is the draw you need anyway." }
+      ] },
+      { t: "widget", id: "comboFinder" },
+      { t: "h", text: "Three boards, three answers" },
+      { t: "table", head: ["Board", "Best line", "Why"], rows: [
+        ["<i-c>Archangel of Thune</i-c> out, <i-c>Eladamri's Call</i-c> in hand, 5 mana, your main phase", "Eladamri's for <i-c>Spike Feeder</i-c>, cast it, loop", "{G}{W} plus {1}{G}{G} is exactly 5. Silence first if anyone has open mana."],
+        ["Same board, but it's the end of the turn before yours", "Eladamri's for Feeder now, cast Feeder on your turn", "The tutor uses mana that untaps anyway. Your turn only needs {1}{G}{G}."],
+        ["Same board, opponent has <i-c>Linvala, Keeper of Silence</i-c>", "<i-c>Swords to Plowshares</i-c> on Linvala first", "Feeder can't activate while she's out. The combo waits one spell."]
+      ] },
+      { t: "h", text: "Sequencing traps" },
+      { t: "list", items: [
+        "<b>Devoted Druid cast this turn</b> can't tap until next turn. Druid + Vizier is a next-turn line unless <i-c>Lightning Greaves</i-c> is out.",
+        "<b>Chord of Calling for Walking Ballista</b> doesn't work: it enters with X=0 and dies. Use a tutor to hand.",
+        "<b>Summoner's Pact</b> is only free if you can pay {2}{G}{G} next upkeep, or if you win this turn.",
+        "<b>Heliod + Spike Feeder</b> is infinite life, not a win. It keeps you alive while you find Ballista or Archangel.",
+        "<b>Craterhoof</b> kills one opponent long before it kills the table. Count it before you cast Natural Order."
+      ] },
+      { t: "callout", tone: "tip", title: "Let the game check you", html: "In the Play tab, the light bulb opens the Coach. Its Plan tab lists every line from your board, best first, with its cost, what blocks it and the tutor to use. On a wide screen the same lines sit in the rail beside the table." }
+    ]
+  },
+  {
     id: "matchups",
     title: "Weak spots and matchups",
     kicker: "What beats you",

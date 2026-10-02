@@ -69,37 +69,65 @@
   const short = n => n.split(",")[0];
   const TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
-  /* ================================================================ combo finder */
+  /* ================================================================ turn solver (was the combo finder)
+     Tap what's on your battlefield, in your hand and on their side, set your mana: the same planner
+     the game's companion uses (../miku/game/brain-corrupted.js) ranks the lines that win from here,
+     says which tutor fetches which piece, when, for how much, and what on their side stops it. */
+  const SOLVE_HAND = ["Worldly Tutor", "Enlightened Tutor", "Eladamri's Call", "Chord of Calling", "Summoner's Pact", "Green Sun's Zenith", "Archdruid's Charm", "Finale of Devastation", "Recruiter of the Guard", "Ranger-Captain of Eos", "Brightglass Gearhulk", "Formidable Speaker", "Silence"];
+  const SOLVE_HATE = ["Grafdigger's Cage", "Torpor Orb", "Null Rod", "Cursed Totem", "Linvala, Keeper of Silence", "Humility", "Aven Mindcensor"];
+  const WHEN = { now: "This turn", next: "Next turn", later: "Later", blocked: "Blocked" };
   function comboFinder(el, A) {
-    const { $, esc, cardChip, linkMentions, store, KEY } = A;
-    let have = new Set(store.json(KEY + ".combo.v1", []));
-    el.innerHTML = `<div class="w-head"><span class="w-tag mono">Try it</span><b>What does my board do?</b></div>
-      <p class="muted small">Tap the pieces you have on the battlefield. The finder shows which combos are live, which one card would complete the next one, and what finds it.</p>
-      <div class="chips wrap" role="group" aria-label="Pieces on the battlefield">${COMBO_PIECES.map(n => `<button class="chip" type="button" data-p="${esc(n)}" aria-pressed="false">${esc(short(n))}</button>`).join("")}</div>
-      <div class="cf-out" data-o="out" aria-live="polite"></div>`;
+    const { $, esc, mana, store, KEY, linkMentions, stepperHTML, numIn } = A;
+    const B = window.CorruptedBrain;
+    const saved = store.json(KEY + ".solver.v1", null) || { bf: store.json(KEY + ".combo.v1", []), hand: [], hate: [], now: 5, next: 6, main: true, greaves: false, quiet: false };
+    const st = { bf: new Set(saved.bf), hand: new Set(saved.hand), hate: new Set(saved.hate), main: saved.main !== false, quiet: !!saved.quiet };
+    const group = (k, label, names) => `<div class="ts-group"><p class="ts-l mono">${label}</p><div class="chips wrap" role="group" aria-label="${esc(label)}">${names.map(n => `<button class="chip" type="button" data-${k}="${esc(n)}" aria-pressed="false">${esc(short(n))}</button>`).join("")}</div></div>`;
+    el.innerHTML = `<div class="w-head"><span class="w-tag mono">Try it</span><b>Turn solver: what wins from here?</b></div>
+      <p class="muted small">Tap what you have. The solver is the same brain the game's companion uses: it ranks the lines that win, picks the tutor for each missing piece, counts the mana and checks what on their side stops it.</p>
+      <div class="ts-in">
+        ${group("bf", "On your battlefield", COMBO_PIECES.concat(["Lightning Greaves", "Grand Abolisher"]))}
+        ${group("hand", "In your hand", COMBO_PIECES.concat(SOLVE_HAND))}
+        ${group("hate", "On their side", SOLVE_HATE)}
+        <div class="w-fields">${stepperHTML("now", "Mana you can make now", saved.now, 0, 20)}${stepperHTML("next", "Mana once you untap", saved.next, 0, 20)}</div>
+        <div class="seg ts-when" role="tablist" aria-label="When"><button type="button" role="tab" data-main="1">Your main phase</button><button type="button" role="tab" data-main="0">Their end step</button></div>
+      </div>
+      <div class="ts-out" data-o="out" aria-live="polite"></div>`;
     function run() {
-      el.querySelectorAll("[data-p]").forEach(b => b.setAttribute("aria-pressed", String(have.has(b.dataset.p))));
-      const live = COMBOS.filter(c => c.pieces.every(p => have.has(p)));
-      const near = COMBOS.filter(c => !live.includes(c) && c.pieces.filter(p => have.has(p)).length === c.pieces.length - 1);
-      let html = "";
-      if (live.length) html += live.map(c => `<div class="note"><h4>Live: ${esc(c.name)}</h4><p>${esc(c.result)} ${esc(c.finish)}</p></div>`).join("");
-      html += near.map(c => {
-        const miss = c.pieces.find(p => !have.has(p));
-        const ts = TUTORS.filter(t => t.finds.includes(miss));
-        return `<div class="note warn"><h4>One away: ${esc(c.name)}</h4><p>Missing <i-c>${esc(miss)}</i-c>. Found by ${ts.map(t => `<i-c>${esc(t.name)}</i-c>`).join(", ")}.</p></div>`;
-      }).join("");
-      if (!html) html = `<p class="muted">${have.size ? "No combo is one card away yet." : "Nothing picked yet."} Each combo needs two pieces: Thune + Feeder, Heliod + Ballista, Heliod + Feeder, Druid + Vizier.</p>`;
+      for (const k of ["bf", "hand", "hate"]) el.querySelectorAll(`[data-${k}]`).forEach(b => b.setAttribute("aria-pressed", String(st[k].has(b.dataset[k]))));
+      el.querySelectorAll("[data-main]").forEach(b => b.setAttribute("aria-selected", String((b.dataset.main === "1") === st.main)));
+      const now = numIn(el, "now"), next = numIn(el, "next");
+      store.put(KEY + ".solver.v1", { bf: [...st.bf], hand: [...st.hand], hate: [...st.hate], now, next, main: st.main });
       const out = $('[data-o="out"]', el);
+      if (!B) { out.innerHTML = `<p class="muted">The solver didn't load. Reload the page.</p>`; return; }
+      // any color: a Selesnya mana base makes both, so only the amount counts here
+      const pay = m => c => { const o = B.parse(c); return o.n + o.G + o.W <= m; };
+      const r = B.solve({
+        bf: [...st.bf].map(n => ({ name: n, counters: n === "Spike Feeder" || n === "Walking Ballista" ? 2 : 0 })),
+        hand: [...st.hand], creaturesInHand: [...st.hand].filter(n => B.PIECES[n] || /Recruiter|Ranger|Gearhulk|Speaker/.test(n)),
+        canPay: pay(now), canPayNext: pay(next), manaNow: now, manaNext: next, main: st.main, myTurn: st.main,
+        quiet: st.bf.has("Grand Abolisher") ? "Grand Abolisher" : null,
+        opps: [{ name: "They", life: 40, hand: 4, open: 2, power: 0, hate: [...st.hate].map(n => ({ name: n })) }], life: 40
+      });
+      const lines = r.lines.slice(0, 4);
+      let html = lines.map((l, i) => `<div class="ts-line w-${l.when}${i === 0 && l.when !== "blocked" ? " best" : ""}">
+          <div class="ts-hd"><span class="ts-when-b mono">${WHEN[l.when]}</span><b>${esc(l.title)}</b>${l.kill ? "" : `<small class="muted">not a kill alone</small>`}<span class="ts-cost">${l.when === "blocked" ? "" : l.early ? `${mana(l.early)} at their end step, then ${mana(l.onTurn)}` : `${mana(l.cost)} · ${l.mana} mana`}</span></div>
+          ${l.blockedBy.length ? `<p class="ts-why">Switched off by ${l.blockedBy.map(h => `<i-c>${esc(h.name)}</i-c>`).join(", ")}.</p>` : ""}
+          <ol>${l.steps.map(x => `<li>${mana(x.text)}</li>`).join("")}</ol></div>`).join("");
+      if (!html) html = `<p class="muted">${st.bf.size || st.hand.size ? "Nothing here reaches a combo yet. Add a piece or a tutor." : "Nothing picked yet."} Each combo needs two pieces: Thune + Feeder, Heliod + Ballista, Heliod + Feeder, Druid + Vizier.</p>`;
+      const hate = r.threats.filter(t => t.kind === "hate");
+      if (hate.length) html += `<div class="ts-threats">${hate.map(t => `<div class="note ${t.level === "high" ? "warn" : ""}"><h4>${esc(short(t.name))}</h4><p>${mana(t.text)} ${mana(t.answerText.replace(/^No answer in hand: t/, "T"))}</p></div>`).join("")}</div>`;
+      if (lines[0] && lines[0].when === "now" && !st.bf.has("Grand Abolisher") && st.main) html += `<p class="muted small">Going off with open mana around the table? <i-c>Silence</i-c> or <i-c>Grand Abolisher</i-c> first, so nobody can answer.</p>`;
       out.innerHTML = html;
       if (linkMentions) linkMentions(out);
-      store.put(KEY + ".combo.v1", [...have]);
     }
     el.addEventListener("click", e => {
-      const b = e.target.closest("[data-p]"); if (!b) return;
-      const n = b.dataset.p;
-      if (have.has(n)) have.delete(n); else have.add(n);
-      run();
+      for (const k of ["bf", "hand", "hate"]) {
+        const b = e.target.closest(`[data-${k}]`);
+        if (b) { const n = b.dataset[k]; if (st[k].has(n)) st[k].delete(n); else st[k].add(n); run(); return; }
+      }
+      const m = e.target.closest("[data-main]"); if (m) { st.main = m.dataset.main === "1"; run(); }
     });
+    el.addEventListener("input", run);
     run();
   }
 

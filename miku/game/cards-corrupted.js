@@ -673,14 +673,6 @@
     { key: "heliodFeeder", pieces: ["Heliod, Sun-Crowned", "Spike Feeder"], title: "Heliod + Spike Feeder", how: "Remove a counter from Feeder (gain 2), Heliod puts it back: infinite life. Add Ballista or Thune to turn it into a kill." },
     { key: "druid", pieces: ["Devoted Druid", "Vizier of Remedies"], title: "Devoted Druid + Vizier of Remedies", how: "Use Devoted Druid's \"Tap for {G}, then untap it\" with ×N: Vizier makes the -1/-1 counter zero, so it's unlimited green mana. Spend it on Walking Ballista ({4}: +1 counter), Shalai ({4}{G}{G}) or Finale of Devastation with X 10+." }
   ];
-  const TUTORS = {
-    "Archangel of Thune": ["Worldly Tutor", "Eladamri's Call", "Chord of Calling", "Archdruid's Charm", "Formidable Speaker", "Survival of the Fittest", "Finale of Devastation"],
-    "Spike Feeder": ["Worldly Tutor", "Eladamri's Call", "Chord of Calling", "Summoner's Pact", "Green Sun's Zenith", "Archdruid's Charm", "Recruiter of the Guard", "Formidable Speaker", "Survival of the Fittest", "Finale of Devastation"],
-    "Heliod, Sun-Crowned": ["Enlightened Tutor", "Worldly Tutor", "Eladamri's Call", "Chord of Calling", "Formidable Speaker", "Survival of the Fittest", "Finale of Devastation"],
-    "Walking Ballista": ["Enlightened Tutor", "Worldly Tutor", "Eladamri's Call", "Recruiter of the Guard", "Ranger-Captain of Eos", "Brightglass Gearhulk", "Formidable Speaker", "Survival of the Fittest", "Archdruid's Charm"],
-    "Devoted Druid": ["Worldly Tutor", "Eladamri's Call", "Chord of Calling", "Summoner's Pact", "Green Sun's Zenith", "Archdruid's Charm", "Recruiter of the Guard", "Formidable Speaker", "Survival of the Fittest", "Finale of Devastation"],
-    "Vizier of Remedies": ["Worldly Tutor", "Eladamri's Call", "Chord of Calling", "Archdruid's Charm", "Recruiter of the Guard", "Formidable Speaker", "Survival of the Fittest", "Finale of Devastation"]
-  };
   const HATE = {
     "Grafdigger's Cage": "stops Natural Order, Chord, Green Sun's Zenith and Finale (creatures can't enter from your library)",
     "Torpor Orb": "stops your creatures' enters abilities (Recruiter, Ranger-Captain, Gearhulk, Speaker, Witness)",
@@ -695,7 +687,6 @@
     "Drannith Magistrate": "stops you casting Shalai from the command zone",
     "Aven Mindcensor": "limits your searches to the top four cards"
   };
-  const ANSWERS = ["Force of Vigor", "Generous Gift", "Archdruid's Charm", "Boseiju, Who Endures", "Swords to Plowshares", "Path to Exile", "Solitude", "Kenrith's Transformation"];
   const QUIET = ["Grand Abolisher", "Kutzil, Malamet Exemplar", "Voice of Victory"];
 
   /* Summoner's Pact: at your next upkeep pay {2}{G}{G} or lose. What your permanents make once they untap
@@ -712,6 +703,64 @@
     return null;
   }
 
+  /* ---------------------------------------------------------------- the turn planner (brain-corrupted.js)
+     reads the board into plain data and asks the planner for the ranked lines and the threats. */
+  const BRAIN_HATE = ["Grafdigger's Cage", "Torpor Orb", "Hushbringer", "Null Rod", "Collector Ouphe", "Stony Silence", "Cursed Totem", "Linvala, Keeper of Silence", "Humility", "Rest in Peace", "Drannith Magistrate", "Aven Mindcensor"];
+  function manaNow(g, p) {
+    let n = Object.values(p.pool || {}).reduce((t, v) => t + (+v || 0), 0);
+    for (const src of g.manaSources(p)) n += src.options[0].units.length * (src.mult || 1);
+    return n;
+  }
+  let planKey = null, planVal = null;
+  function plan(g, p) {
+    const B = root.CorruptedBrain || (root.MK && root.MK.CorruptedBrain);
+    if (!B) return null;
+    const key = g.v != null ? g.v + ":" + p.id + ":" + g.phase + ":" + (g.active && g.active.id) : null;
+    if (key && key === planKey) return planVal;
+    const mine = g.battlefield.filter(o => o.controller === p && o.zone === "battlefield");
+    const cre = g.creatures(p);
+    const canAttack = cre.filter(o => !o.sick || g.kw(o, "haste"));
+    const isGreenCre = o => g.isCreature(o) && [...g.colorsOf(o)].includes("G");
+    const dork = cre.filter(o => isGreenCre(o) && !B.PIECES[o.def.name]).sort((a, b) => g.power(a) - g.power(b))[0];
+    const myTurn = g.active === p, main = myTurn && (g.phase === "main1" || g.phase === "main2") && !(g.stack && g.stack.length);
+    const state = {
+      bf: mine.map(o => ({ name: o.def.name, sick: g.isCreature(o) && o.sick && !g.kw(o, "haste"), counters: (o.counters && o.counters.p1) || 0, green: isGreenCre(o) })),
+      hand: p.hand.map(c => c.def.name),
+      creaturesInHand: p.hand.filter(c => c.def.types.includes("Creature")).map(c => c.def.name),
+      gy: p.graveyard.map(c => c.def.name),
+      convoke: cre.filter(o => !o.tapped).length,
+      canPay: c => g.canPay(p, MK.parseCost(c)),
+      canPayNext: c => g.manaAfterUntap(p, MK.parseCost(c)).can,
+      manaNow: manaNow(g, p), manaNext: g.manaAfterUntap(p).total,
+      quiet: QUIET.find(n => mine.some(o => o.def.name === n)) || null,
+      opps: g.opponents(p).filter(q => !q.lost).map(q => ({
+        name: q.name, life: q.life, hand: q.hand.length,
+        open: g.battlefield.filter(o => o.controller === q && !o.tapped && g.manaAbilities(o).length).length,
+        power: g.creatures(q).reduce((t, o) => t + Math.max(0, g.power(o)), 0),
+        hate: g.battlefield.filter(o => o.controller === q && BRAIN_HATE.includes(o.def.name)).map(o => ({ name: o.def.name, types: o.def.types })),
+        top: MK.AI && MK.AI.threat ? g.battlefield.filter(o => o.controller === q && !g.isLand(o) && !o.isToken).map(o => ({ name: o.def.name, types: [...g.typesOf(o)], power: g.isCreature(o) ? g.power(o) : 0, score: MK.AI.threat(g, o, p), commander: !!o.isCommander })).filter(o => o.score >= 7).sort((x, y) => y.score - x.score).slice(0, 2) : []
+      })),
+      life: p.life, myTurn, main,
+      hoof: { creatures: cre.length, attackers: canAttack.length, power: canAttack.reduce((t, o) => t + Math.max(0, g.power(o)), 0), sacAttacker: !!(dork && canAttack.includes(dork)), sacPower: dork ? Math.max(0, g.power(dork)) : 0 }
+    };
+    const r = B.solve(state);
+    r.state = state;
+    planKey = key; planVal = r;
+    return r;
+  }
+  const stepText = l => l.steps.map(st => st.text).join(" ");
+  const lineCards = l => [...new Set([].concat(...l.steps.map(st => st.cards)))].slice(0, 5);
+  /* a line as a coach tip: win now, go now, or the plan for next turn */
+  function lineTip(l, r) {
+    const short2 = n => n.split(",")[0];
+    const find = l.missing.length ? `Find ${l.missing.map(short2).join(" + ")}${l.tutors.length ? ` with ${l.tutors.map(short2).join(" and ")}` : ""}` : l.title;
+    const money = l.early ? `${l.early} at the end of the turn before yours, then ${l.onTurn} on your turn (you'll have ${r.state.manaNext}).` : `Costs ${l.cost} (${l.mana} mana). You have ${r.state.manaNow} now, ${r.state.manaNext} next turn.`;
+    const who = r.risk.who, guard = r.state.quiet ? ` ${r.state.quiet} keeps them from responding.` : who.length && r.state.myTurn ? ` ${who.join(" and ")} ${who.length > 1 ? "have" : "has"} cards and open mana: ${r.risk.silence.length ? `cast ${r.risk.silence[0]} first` : "they can still respond"}.` : "";
+    if (l.when === "now") return { level: l.kill ? "win" : "now", title: l.kill ? `Win now: ${l.title}` : `Now: ${l.title}`, text: `${stepText(l)}${l.mana ? " " + money : ""}${guard}`, cards: lineCards(l) };
+    if (l.when === "next") return { level: "plan", title: `Next turn: ${find}`, text: `${l.title}${l.kill ? " wins" : ""} next turn. ${stepText(l)} ${money}`, cards: lineCards(l) };
+    return { level: "plan", title: find, text: `${l.title}: ${stepText(l)} ${money} Build mana first.`, cards: lineCards(l) };
+  }
+
   function coachTips(g, p) {
     const out = [];
     const bf = name => g.battlefield.filter(o => o.controller === p && o.def.name === name && o.zone === "battlefield");
@@ -722,26 +771,13 @@
     const main = myTurn && (g.phase === "main1" || g.phase === "main2");
     const shalai = g.battlefield.find(o => o.controller === p && o.def.name === "Shalai, Voice of Plenty");
     const quietOn = QUIET.find(on);
-    // 1. combos already assembled
-    for (const c of COMBOS) {
-      if (!c.pieces.every(on)) continue;
-      if (c.key === "druid") { const dr = bf("Devoted Druid")[0]; if (dr.sick && !g.kw(dr, "haste")) { out.push({ level: "plan", title: "Druid + Vizier next turn", text: "Devoted Druid is summoning sick, so it can't tap for mana yet. Lightning Greaves (equip {0}) gives it haste now.", cards: c.pieces.concat(on("Lightning Greaves") ? ["Lightning Greaves"] : []) }); continue; } }
-      if (c.key === "heliodBallista" && (bf("Walking Ballista")[0].counters.p1 || 0) < 2) { out.push({ level: "plan", title: "Heliod + Ballista: one more counter", text: "Ballista needs 2 counters. Pay {4} for one, or use Shalai's {4}{G}{G}, then give it lifelink.", cards: c.pieces }); continue; }
-      if (c.key === "thune" && !(bf("Spike Feeder")[0].counters.p1 > 0)) continue;
-      const finisher = c.key === "druid" ? "" : on("Walking Ballista") ? " Walking Ballista is out: ping each opponent with the counters." : " Then attack with your huge flyers, or find Walking Ballista.";
-      out.push({ level: "win", title: c.title, text: c.how + finisher + (quietOn || !myTurn ? "" : " Opponents can still respond: Silence or a Grand Abolisher first is safer."), cards: c.pieces });
-    }
-    // 2. one piece missing
-    if (!out.some(t => t.level === "win")) {
-      for (const c of COMBOS) {
-        const have = c.pieces.filter(on), miss = c.pieces.filter(n => !on(n));
-        if (have.length !== 1 || miss.length !== 1) continue;
-        const need = miss[0];
-        if (castable(need)) { out.push({ level: "now", title: `Cast ${need.split(",")[0]} to go off`, text: `${have[0]} is out. ${need} completes ${c.title}. ${quietOn ? `${quietOn} keeps opponents from casting spells on your turn.` : "Check what opponents can answer with first."}`, cards: [need].concat(have) }); continue; }
-        const tutors = (TUTORS[need] || []).filter(n => inHand(n) || (n === "Survival of the Fittest" && on(n)));
-        if (inHand(need)) out.push({ level: "plan", title: `${need.split(",")[0]} is in your hand`, text: `With ${have[0]} out, casting it completes ${c.title}. Keep the mana for it.`, cards: [need, have[0]] });
-        else if (tutors.length) out.push({ level: "plan", title: `Find ${need.split(",")[0]}`, text: `${have[0]} is out. ${tutors.slice(0, 3).join(", ")} can find ${need}.`, cards: [need].concat(tutors.slice(0, 2)) });
-      }
+    // 1. the planner's lines: a win this turn first, then the best line for next turn
+    const r = plan(g, p);
+    if (r) {
+      const live = r.lines.filter(l => l.when !== "blocked");
+      for (const l of live.filter(x => x.when === "now")) out.push(lineTip(l, r));
+      const nxt = live.find(x => x.when !== "now" && x.kill) || live.find(x => x.when !== "now");
+      if (nxt && !out.some(t => t.level === "win")) out.push(lineTip(nxt, r));
     }
     // 3. pact upkeep, protection and Shalai
     const pt = pactTip(g, p);
@@ -751,12 +787,8 @@
       else if (on("Giver of Runes")) out.push({ level: "info", title: "Giver of Runes protects Shalai", text: "Keep Giver untapped. When removal targets Shalai, give her protection from that color in response.", cards: ["Giver of Runes"] });
     }
     if (!shalai && myTurn && main && p.commanders[0] && p.commanders[0].zone === "command" && g.castOptions(p, p.commanders[0]).length) out.push({ level: "now", title: "Cast Shalai before the combo pieces", text: "With Shalai out, your other creatures and you have hexproof: Swords, Path and Chaos Warp can't touch the combo. Against a fast-combo table, a lock piece can come first.", cards: ["Shalai, Voice of Plenty"] });
-    // 4. hate on the table
-    for (const q of g.opponents(p)) for (const o of g.battlefield) {
-      if (o.controller !== q || !HATE[o.def.name]) continue;
-      const ans = ANSWERS.filter(inHand);
-      out.push({ level: "warn", title: `${q.name}'s ${o.def.name}`, text: `It ${HATE[o.def.name]}.${ans.length ? ` Answer it with ${ans.slice(0, 2).join(" or ")}.` : ""}`, cards: [o.def.name].concat(ans.slice(0, 1)) });
-    }
+    // 4. threats: hate pieces (what each switches off), boards that can kill you
+    if (r) for (const t of r.threats) out.push({ level: t.level === "high" ? "warn" : "info", title: t.title, text: `${t.text}${t.answerText ? " " + t.answerText : ""}`, cards: [t.kind === "hate" ? t.name : null].concat(t.answers.slice(0, 2)).filter(Boolean) });
     // 5. silence and protection on hand
     const silence = ["Silence", "Orim's Chant"].filter(inHand);
     if (silence.length && myTurn && main && !quietOn && out.some(t => t.level === "win" || t.level === "now")) out.push({ level: "now", title: `Cast ${silence[0]} first`, text: "Opponents can't cast spells this turn, so nothing answers your combo. (Grand Abolisher, Kutzil or Voice of Victory on the battlefield do the same on every turn of yours.)", cards: [silence[0]] });
@@ -764,12 +796,6 @@
     const prot = ["Teferi's Protection", "Flawless Maneuver", "Veil of Summer"].filter(inHand);
     if (prot.length && g.creatures(p).length >= 4) out.push({ level: "info", title: `Hold ${prot[0]}`, text: prot[0] === "Veil of Summer" ? "Veil stops counterspells and blue or black removal for a turn: cast it in response." : "Hexproof doesn't stop wipes. Keep it for the turn someone casts a board wipe.", cards: [prot[0]] });
     // 6. big lines
-    if (castable("Natural Order") && main) {
-      const atk = g.creatures(p).filter(o => !o.sick || g.kw(o, "haste")).length + 1, n = g.creatures(p).length; // Natural Order sacrifices one, Hoof adds one
-      const dmg = g.creatures(p).filter(o => !o.sick || g.kw(o, "haste")).reduce((t, o) => t + Math.max(0, g.power(o)) + n, 0) - n + 5 + n;
-      const lows = g.opponents(p).map(q => q.life).sort((a, b) => a - b);
-      out.push({ level: "plan", title: "Natural Order", text: `Craterhoof now: about ${Math.max(0, dmg)} trample damage from ${atk} attacker${atk > 1 ? "s" : ""} (opponents at ${lows.join(", ")}). It kills one player long before it kills the table; Vorinclex instead locks their lands.`, cards: ["Natural Order", "Craterhoof Behemoth", "Vorinclex, Voice of Hunger"] });
-    }
     if (on("Kutzil, Malamet Exemplar") && myTurn && g.phase === "main1" && g.creatures(p).some(o => g.power(o) > basePower(g, o))) out.push({ level: "info", title: "Kutzil draws", text: "Creatures bigger than their printed power that deal combat damage to a player draw you a card once per combat. Shalai's and Gavony's counters count.", cards: ["Kutzil, Malamet Exemplar"] });
     if (on("Badgermole Cub") && on("Gaea's Cradle")) out.push({ level: "info", title: "Cub doubles your dorks", text: "Each creature you tap for mana adds an extra {G}, Gaea's Cradle included once it's earthbent into a creature.", cards: ["Badgermole Cub"] });
     if (on("Vizier of Remedies") && on("Spike Feeder") && !on("Archangel of Thune") && !on("Heliod, Sun-Crowned") && !on("Devoted Druid")) out.push({ level: "warn", title: "Vizier + Feeder is not a combo", text: "Spike Feeder removes +1/+1 counters; Vizier of Remedies only stops -1/-1 counters. Feeder loops with Archangel of Thune or Heliod, and Vizier with Devoted Druid.", cards: ["Spike Feeder", "Vizier of Remedies"] });
@@ -789,7 +815,6 @@
   const LOCKS = ["Grand Abolisher", "Drannith Magistrate", "Deafening Silence", "Thalia, Heretic Cathar", "Linvala, Keeper of Silence", "Aven Mindcensor", "Kutzil, Malamet Exemplar", "Voice of Victory"];
   const PIECES = ["Archangel of Thune", "Spike Feeder", "Heliod, Sun-Crowned", "Walking Ballista", "Devoted Druid", "Vizier of Remedies"];
   const ALL_TUTORS = ["Worldly Tutor", "Enlightened Tutor", "Crop Rotation", "Eladamri's Call", "Chord of Calling", "Summoner's Pact", "Archdruid's Charm", "Green Sun's Zenith", "Natural Order", "Finale of Devastation", "Survival of the Fittest", "Recruiter of the Guard", "Formidable Speaker", "Ranger-Captain of Eos"];
-  const GREEN_ONLY = ["Summoner's Pact", "Green Sun's Zenith"];
   const INSTANTS = ["Swords to Plowshares", "Path to Exile", "Veil of Summer", "Silence", "Orim's Chant", "Reprieve", "Teferi's Protection", "Flawless Maneuver", "Worldly Tutor", "Eladamri's Call", "Chord of Calling", "Archdruid's Charm"];
   const FLASH = ["Aven Mindcensor", "Archivist of Oghma", "Endurance"];
   const NOT_GREEN = ["Plains", "Eiganjo, Seat of the Empire", "Ancient Tomb", "Urza's Saga", "Gemstone Caverns", "Gaea's Cradle"];
@@ -809,6 +834,7 @@
     const quietOn = QUIET.find(on);
     const steps = [];
     const step = (text, cards) => steps.push({ text, cards: cards || [] });
+    const brain = mode === "mulligan" ? null : plan(g, p);
 
     // ---- the opening hand
     if (mode === "mulligan") {
@@ -876,8 +902,17 @@
         if (ctx.turnOf && g.nextPlayer(ctx.turnOf) !== p) return { stage: myTurn ? "Your turn" : "Their turn", title: "", steps };
         const flash = FLASH.filter(n => can.has(n));
         if (flash.length) step(`Flash in ${list(flash)} now: it is ready on your turn and they had no turn to answer it.`, flash);
-        const tut = ["Worldly Tutor", "Eladamri's Call", "Chord of Calling"].filter(n => can.has(n));
-        if (tut.length) { const need = missingPiece(); step(`End of their turn: tutor now with ${tut[0]}${need ? ` for ${need}` : ""}. You untap with the mana back.`, tut.slice(0, 1).concat(need ? [need] : [])); }
+        // the best line that an instant tutor you can cast now moves forward
+        const ls = brain ? brain.lines.filter(l => l.when !== "blocked") : [];
+        let done = false;
+        for (const l of ls) {
+          const t = l.tutors.find(x => can.has(x));
+          const st = t && l.steps.find(x => x.cards[0] === t);
+          if (!st) continue;
+          step(`End of their turn: cast ${t} for ${short(st.cards[1])} (${l.title}). You untap with your mana back${l.missing.length > 1 ? `; then ${list(l.missing.filter(n => n !== st.cards[1]).map(short))}` : ""}.`, [t, st.cards[1]]);
+          done = true; break;
+        }
+        if (!done) { const tut = ["Worldly Tutor", "Eladamri's Call", "Chord of Calling"].filter(n => can.has(n)); if (tut.length) step(`End of their turn: ${tut[0]} now for the piece you're missing. You untap with the mana back.`, tut.slice(0, 1)); }
         return { stage: "Their turn", title: "End of turn: your instants", steps, urgent: steps.length > 0 };
       }
       if (ctx.window === "combat") {
@@ -923,28 +958,37 @@
       if (on("Giver of Runes")) step("Giver of Runes stays untapped for removal aimed at Shalai.", ["Giver of Runes"]);
       const flash = FLASH.filter(inHand);
       if (flash.length) step(`${list(flash)}: cast it at the end of the turn before yours.`, flash);
+      for (const t of (brain ? brain.threats : []).filter(x => x.kind === "lethal")) step(`${t.title}: ${t.text}`, t.answers.slice(0, 2));
       if (!steps.length) step("Nothing to do yet. Watch what they set up: the coach lists their hate pieces.");
       return { stage: "Their turn", title: `${g.active.name}'s turn`, steps };
     }
 
     // ---- your turn: where you are in the game plan
     const sources = g.battlefield.filter(o => o.controller === p && g.manaAbilities(o).length).length;
-    const tips = coachTips(g, p);
-    const win = tips.find(t => t.level === "win");
     const fake = on("Vizier of Remedies") && on("Spike Feeder") && !on("Archangel of Thune") && !on("Heliod, Sun-Crowned") && !on("Devoted Druid");
     if (fake) step("Vizier of Remedies and Spike Feeder don't combo: Feeder removes +1/+1 counters, and Vizier only stops -1/-1 counters. Feeder needs Archangel of Thune or Heliod; Vizier needs Devoted Druid.", ["Vizier of Remedies", "Spike Feeder", "Devoted Druid", "Archangel of Thune"]);
     const silence = ["Silence", "Orim's Chant"].find(castable);
-    if (win) {
-      if (!quietOn && silence) step(`First cast ${silence}: nobody can respond with a spell this turn.`, [silence]);
-      step(win.text, win.cards);
-      return { stage: "Go off", title: win.title, steps, urgent: true };
+    const r = brain || { lines: [], threats: [], risk: { who: [] }, state: {} };
+    const lines = r.lines.filter(l => l.when !== "blocked");
+    const winNow = lines.find(l => l.when === "now" && l.kill);
+    if (winNow) {
+      const who = r.risk.who;
+      if (!quietOn && silence) step(`First cast ${silence}: ${who.length ? `${list(who)} can't` : "nobody can"} respond with a spell this turn.`, [silence]);
+      else if (!quietOn && who.length) step(`${list(who)} ${who.length > 1 ? "have" : "has"} cards and open mana and can respond. Go anyway if waiting gives them a turn.`);
+      for (const st of winNow.steps) step(st.text, st.cards);
+      return { stage: "Go off", title: `Win now: ${winNow.title}`, steps, urgent: true };
     }
+    // a hate piece that stops your plan, and you hold the answer: answer it first
+    const hit = r.threats.find(t => t.kind === "hate" && t.level === "high" && t.answers.some(castable));
+    if (hit && mode === "main") step(`${hit.title}: ${hit.text} ${hit.answerText}`, [hit.name].concat(hit.answers.filter(castable).slice(0, 1)));
     if (mode === "main" && g.phase === "main2") {
       const hold = INSTANTS.filter(inHand);
       if (hold.length) step(`Before you pass: keep mana up for ${list(hold.slice(0, 3))}.`, hold.slice(0, 3));
       if (on("Giver of Runes")) step("Leave Giver of Runes untapped.", ["Giver of Runes"]);
       const flash = FLASH.filter(inHand);
       if (flash.length) step(`Don't cast ${list(flash)} now: it is better at the end of the turn before yours.`, flash);
+      const nxt = lines[0];
+      if (nxt && nxt.when === "next") step(`Next turn: ${nxt.title} (${nxt.cost}, you'll have ${r.state.manaNext} mana).`, lineCards(nxt).slice(0, 3));
       if (!steps.length) step("Nothing to hold back. Pass when ready.");
       return { stage: "End of your turn", title: "Before you pass", steps };
     }
@@ -952,55 +996,46 @@
     if (landDrop) step("Play a land first. Crack a fetch land now, not later.");
     const ramp = p.hand.filter(c => (FAST.includes(c.def.name) || DORKS.includes(c.def.name)) && g.castOptions(p, c).length).map(c => c.def.name);
     const locks = LOCKS.filter(castable);
-    const near = tips.find(t => t.level === "now");
-    if (near) { step(near.text, near.cards); }
+    const pactNow = pactTip(g, p);
     if (sources < 4 && !shalai) {
       if (ramp.length) step(`Cast ${list([...new Set(ramp)].slice(0, 3))}: mana first, the combo needs about 5 to 6.`, ramp.slice(0, 2));
       if (on("Deafening Silence")) step("Deafening Silence is out: only one noncreature spell per turn, yours too.", ["Deafening Silence"]);
-      plan();
-      return { stage: "Ramp", title: "Build mana", steps, urgent: !!(pact && pact.level === "now") };
+      planStep();
+      return { stage: "Ramp", title: "Build mana", steps, urgent: !!(pactNow && pactNow.level === "now") };
     }
     if (!shalai) {
       if (shalaiHome && g.castOptions(p, shalaiHome).length) step("Cast Shalai: your other creatures and you get hexproof, so spot removal can't touch the combo.", ["Shalai, Voice of Plenty"]);
       else if (shalaiHome) step(`Shalai costs ${shalaiHome.def.cost}${g.commanderTax(p, shalaiHome) ? ` plus {${g.commanderTax(p, shalaiHome)}} tax` : ""}. Build to it before risking combo pieces.`, ["Shalai, Voice of Plenty"]);
       if (locks.length) step(`${list(locks.slice(0, 2))}: against a fast table, a lock piece comes before Shalai.`, locks.slice(0, 2));
       if (ramp.length) step(`More mana: ${list([...new Set(ramp)].slice(0, 2))}.`, ramp.slice(0, 2));
-      plan();
+      planStep();
       return { stage: "Shield up", title: "Get Shalai out", steps };
     }
     if (shalai && !g.kw(shalai, "hexproof") && !g.kw(shalai, "shroud") && on("Lightning Greaves")) step("Equip Lightning Greaves to Shalai ({0}) unless a combo piece needs the haste.", ["Lightning Greaves"]);
     if (locks.length && !quietOn) step(`${list(locks.slice(0, 2))} keeps opponents from answering. Cast it before the combo piece.`, locks.slice(0, 2));
-    plan();
+    planStep();
     if (!steps.length) step("Develop: more mana, a lock piece, and keep a tutor for the missing combo piece.");
-    return { stage: "Assemble", title: "Find the combo", steps };
+    return { stage: "Assemble", title: lines[0] && lines[0].when === "now" ? lines[0].title : "Find the combo", steps };
 
-    // the closest combo and the way to its missing piece
-    function plan() {
-      const need = missingPiece();
-      if (!need) return;
-      const c = COMBOS.find(x => x.pieces.includes(need) && x.pieces.some(n => n !== need && (on(n) || inHand(n))));
-      const other = c ? c.pieces.find(n => n !== need) : null;
-      if (castable(need)) { step(`Cast ${short(need)}${other ? ` (with ${short(other)} it's ${c.title})` : ""}.${shalai ? "" : " Without Shalai it can be removed."}`, [need]); return; }
-      if (inHand(need)) { step(`${short(need)} is in hand: save mana for it${other ? ` (${c.title})` : ""}.`, [need]); return; }
-      const pactBad = pact && pact.level !== "info" && !/due/.test(pact.title);
-      const tutors = (TUTORS[need] || []).filter(n => (castable(n) || (n === "Survival of the Fittest" && on(n))) && !(n === "Summoner's Pact" && pactBad));
-      if (tutors.length) step(`Tutor for ${short(need)} with ${tutors[0]}.${other ? ` It pairs with ${short(other)}.` : ""}`, [tutors[0], need]);
-      else if (GREEN_ONLY.some(inHand) && !TUTORS[need].some(n => GREEN_ONLY.includes(n))) { const t = GREEN_ONLY.find(inHand); step(`${t} finds green creatures only, so not ${short(need)}. Use it on Devoted Druid or Spike Feeder.`, [t]); }
-    }
-    function missingPiece() {
-      // a piece that completes a combo with what's on the battlefield, else with what's in hand
-      for (const pass of [on, n => on(n) || inHand(n)]) {
-        let best = null;
-        for (const c of COMBOS) {
-          const have = c.pieces.filter(pass), miss = c.pieces.filter(n => !on(n));
-          if (have.length && miss.length === 1) { best = miss[0]; break; }
-          if (have.length && !best) best = c.pieces.find(n => !on(n));
-        }
-        if (best) return best;
+    // the planner's best line: what to do about it this turn
+    function planStep() {
+      const l = lines[0];
+      if (!l) {
+        const off = r.lines.find(x => x.when === "blocked");
+        if (off) step(`Once ${list(off.blockedBy.map(h => `${h.owner}'s ${short(h.name)}`))} ${off.blockedBy.length > 1 ? "are" : "is"} gone: ${off.title} (${off.cost}). ${off.steps[0].text}`, lineCards(off).slice(0, 3));
+        return;
       }
-      return COMBOS[0].pieces[1];
+      if (l.when === "now") { for (const st of l.steps.slice(0, 3)) step(st.text, st.cards); return; }
+      const tut = l.tutors.find(t => B().TUTORS[t] && B().TUTORS[t].instant && inHand(t));
+      const fetch = tut && (l.steps.find(st => st.cards[0] === tut) || {}).cards;
+      const what = l.missing.length ? `${list(l.missing.map(short))} for ${l.title}` : l.title;
+      if (l.when === "next") {
+        if (tut && fetch && fetch[1]) step(`Next turn: ${l.title}. Hold ${tut} and cast it at the end of the turn before yours for ${short(fetch[1])}${l.early ? ` (${l.early})` : ""}; you untap with all your mana for the rest (${l.onTurn}, you'll have ${r.state.manaNext}).`, [tut, fetch[1]]);
+        else step(`Next turn: ${what}. It costs ${l.onTurn} and you'll have ${r.state.manaNext} mana. ${l.steps[0].text}`, lineCards(l).slice(0, 3));
+      } else step(`Closest line: ${what}. It costs ${l.cost} (${l.mana} mana) and you have ${r.state.manaNow}. ${l.steps[0].text}`, lineCards(l).slice(0, 3));
     }
   }
+  const B = () => root.CorruptedBrain || (root.MK && root.MK.CorruptedBrain);
 
   MK.CORRUPTED_DECK = {
     id: "corrupted", hero: "corrupted", variant: "corrupted", alsoOn: ["miku"], name: "Corrupted Miku", label: "Corrupted Miku", title: "Shalai, Voice of Plenty (Miku, Voice Over All)",
@@ -1009,7 +1044,7 @@
     blurb: "Bracket 4 Selesnya combo: Shalai gives everything else hexproof, lock pieces stop opponents on your turn, and two-card combos win (Thune + Feeder, Heliod + Ballista, Druid + Vizier). Coach tips show what to look for.",
     watch: ["Archangel of Thune", "Heliod, Sun-Crowned", "Devoted Druid"],
     list: LIST,
-    coach: { tips: coachTips, companion, checklist: "corrupted" }
+    coach: { tips: coachTips, companion, plan, checklist: "corrupted" }
   };
   MK.CORRUPTED_COMBOS = COMBOS;
   (MK.HERO_DECKS = MK.HERO_DECKS || []).push(MK.CORRUPTED_DECK);

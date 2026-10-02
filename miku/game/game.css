@@ -483,17 +483,48 @@ html.mg-open, html.mg-open body { overflow: hidden; overscroll-behavior: none; }
   .mg-actions .hint { font-size: .82rem; }
   .mg-mybar { padding-inline: 16px; }
 }
+/* phones: the rail is only a wrapper, the companion floats over the table and the log slides in */
+.mg-rail { display: contents; }
+/* wide screens: a rail beside the table holds the companion (docked, every step and your lines) above the log */
 @media (min-width: 1240px) {
-  .mg { grid-template-columns: minmax(0, 1fr) 300px; max-width: none; }
-  .mg > :not(.mg-log):not(.mg-scrim):not(.mg-sheet):not(.mg-fx):not(.mg-menu):not(.mg-companion):not(.mg-over) { grid-column: 1; }
-  .mg-log { position: relative; grid-column: 2; grid-row: 1 / -1; width: auto; transform: none; transition: none; z-index: 1; background: rgba(15, 20, 26, .72); }
+  .mg { --rail: 340px; grid-template-columns: minmax(0, 1fr) var(--rail); max-width: none; }
+  .mg > :not(.mg-rail):not(.mg-scrim):not(.mg-sheet):not(.mg-fx):not(.mg-menu):not(.mg-over) { grid-column: 1; }
+  .mg-rail { grid-column: 2; grid-row: 1 / -1; display: flex; flex-direction: column; min-height: 0; z-index: 1; background: rgba(15, 20, 26, .72); border-left: 1px solid var(--line-2); }
+  .mg-log { position: relative; flex: 1; min-height: 0; width: auto; transform: none; transition: none; z-index: 1; background: none; border-left: 0; }
   .mg-log .hd .mg-icon, .mg-top [data-act="log"] { display: none; }
-  .mg-sheet { left: calc(50% - 150px); }
-  .mg-companion { left: calc(50% - 150px); }
-  .mg-spot { left: calc(50% - 150px); }
-  .mg-over { right: 300px; }
+  .mg-companion.docked { position: relative; left: auto; bottom: auto; transform: none; width: auto; flex: none; max-height: 62%; margin: 10px 10px 0; font-size: .8rem; box-shadow: none; animation: none; }
+  .mg-companion.docked ol { padding-bottom: 8px; }
+  .mg-companion.docked + .mg-log .hd { border-top: 0; }
+  .mg-sheet { left: calc(50% - var(--rail) / 2); }
+  .mg-spot { left: calc(50% - var(--rail) / 2); }
+  .mg-over { right: var(--rail); }
   .mg-over [data-e="log"] { display: none; }
 }
+@media (min-width: 1600px) { .mg { --rail: 380px; --cw: 78px; --hw: 112px; } }
+/* the companion's lines (docked) and the coach's Plan tab */
+.mg-companion .lines { margin: 2px 10px 8px; padding-top: 8px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
+.mg-companion .lines h4 { margin: 0 0 2px; font: 600 .6rem var(--f-mono, monospace); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+.mg-companion .ln { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); text-align: left; font-size: .74rem; }
+.mg-companion .ln b { color: var(--text); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mg-companion .ln .cost { color: var(--soft); white-space: nowrap; font-size: .7rem; }
+.mg .when { font: 700 .56rem var(--f-mono, monospace); letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px; border-radius: 999px; background: var(--panel-2); color: var(--soft); white-space: nowrap; }
+.mg .w-now .when { background: var(--miku); color: var(--on-miku); }
+.mg .w-next .when { background: color-mix(in srgb, var(--miku) 22%, var(--panel-2)); color: var(--miku-ink); }
+.mg .w-blocked .when { background: color-mix(in srgb, var(--hurt) 25%, var(--panel-2)); color: #ffb3bd; }
+.mg-coach .pl-mana { margin: 0; color: var(--soft); font-size: .8rem; }
+.mg-coach .pl-mana b { color: var(--text); }
+.mg-coach .pl-h { margin: 6px 0 0; font: 600 .64rem var(--f-mono, monospace); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+.mg-coach .pl-none { margin: 0; color: var(--dim); }
+.mg-coach .pl { border: 1px solid var(--line-2); border-radius: 12px; padding: 8px 10px; background: var(--panel-2); }
+.mg-coach .pl.w-now { border-color: color-mix(in srgb, var(--miku) 70%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--miku) 30%, transparent) inset; }
+.mg-coach .pl.w-blocked { opacity: .78; }
+.mg-coach .pl-hd { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.mg-coach .pl-hd b { color: var(--text); }
+.mg-coach .pl-hd small { color: var(--dim); font-size: .7rem; }
+.mg-coach .pl-hd .cost { margin-left: auto; color: var(--soft); font-size: .76rem; white-space: nowrap; }
+.mg-coach .pl .why { margin: 6px 0 0; color: #ffb3bd; font-size: .8rem; }
+.mg-coach .pl ol { margin: 6px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; color: var(--soft); font-size: .8rem; }
+.mg-coach .pl .cards { margin-top: 3px; }
 
 /* narrow phones: floating mana must not push the library count off the screen */
 @media (max-width: 440px) {
