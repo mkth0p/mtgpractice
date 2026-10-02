@@ -20,7 +20,7 @@
   const ALL = CARDS.concat(EXTRA);
   const KEY = D.key || "mikuWiki"; // localStorage prefix
   const SHORT = D.short || "Miku";
-  const V = "20"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  const V = "21"; // asset version: keep in step with the ?v= links in index.html and sw.js
   const byName = new Map(ALL.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -751,7 +751,7 @@
   function blockHTML(b) {
     switch (b.t) {
       case "p": return `<p>${rich(b.html)}</p>`;
-      case "h": return `<h2 class="r-h">${rich(esc(b.text))}</h2>`;
+      case "h": return `<h2 class="r-h" id="rh-${slug(b.text)}">${rich(esc(b.text))}</h2>`;
       case "steps": return `<ol class="r-steps">${b.items.map((it, i) => `<li><span class="r-n mono">${pad(i + 1)}</span><div><b>${rich(it.title)}</b>${it.html ? `<p>${rich(it.html)}</p>` : ""}</div></li>`).join("")}</ol>`;
       case "list": return `<ul class="r-list">${b.items.map(it => `<li>${rich(it)}</li>`).join("")}</ul>`;
       case "callout": return `<aside class="r-call ${esc(b.tone || "tip")}"><p class="r-call-k mono">${{ key: "Key idea", tip: "Tip", warn: "Watch out" }[b.tone] || "Note"}</p>${b.title ? `<h4>${rich(b.title)}</h4>` : ""}<p>${rich(b.html)}</p></aside>`;
@@ -766,9 +766,18 @@
   }
   const reader = $("#reader"), readerBody = $("#readerBody");
   let readerCh = null, readerFromApp = false, readerFocus = null;
+  /* Wide screens read a chapter between the whole tracklist (left) and this chapter's outline and cards (right). */
+  function readerSideHTML(ch, i) {
+    const heads = ch.blocks.filter(b => b.t === "h");
+    const names = [...new Set([].concat(...ch.blocks.filter(b => b.t === "cards").map(b => b.names)))].slice(0, 8);
+    const toc = `<nav class="rd-toc" aria-label="All tracks"><p class="rd-k mono">The guide</p><ol>${GUIDE.map((c, j) => `<li><a href="#ch-${c.id}" data-goto="${c.id}" class="${c === ch ? "on" : ""}${readSet.has(c.id) ? " read" : ""}"${c === ch ? ' aria-current="page"' : ""}><span class="mono">${pad(j + 1)}</span>${esc(c.title)}</a></li>`).join("")}</ol></nav>`;
+    const side = `<aside class="rd-side" aria-label="In this track">${heads.length ? `<p class="rd-k mono">On this page</p><ol class="rd-out">${heads.map(b => `<li><a href="#rh-${slug(b.text)}" data-jump="rh-${slug(b.text)}">${rich(esc(b.text))}</a></li>`).join("")}</ol>` : ""}${names.length ? `<p class="rd-k mono">Cards</p><p class="rd-cards">${names.map(n => `<i-c>${esc(n)}</i-c>`).join("")}</p>` : ""}<p class="rd-k mono">Track ${pad(i + 1)} of ${GUIDE.length}</p><p class="rd-time">${ch.minutes} min read</p></aside>`;
+    return [toc, side];
+  }
   function chapterHTML(ch, i) {
     const next = GUIDE[i + 1], prev = GUIDE[i - 1];
-    return `<article class="chapter">
+    const [toc, side] = readerSideHTML(ch, i);
+    return `<div class="rd-grid">${toc}<article class="chapter">
       <header class="ch-head">
         <p class="ch-kicker"><span class="mono">Track ${pad(i + 1)} / ${GUIDE.length}</span><span>${esc(ch.kicker)}</span></p>
         <h1 id="readerTitle">${esc(ch.title)}</h1>
@@ -781,7 +790,7 @@
         ${next ? `<a class="next-track" href="#ch-${next.id}" data-goto="${next.id}"><span class="nt-k mono">Next · Track ${pad(i + 2)}</span><b>${esc(next.title)}</b><span class="nt-s">${esc(next.summary)}</span><span class="nt-go" aria-hidden="true">▸</span></a>`
         : `<div class="fin"><b>That's the whole guide.</b><p>Now try it for real against the bots.</p><a class="btn primary" href="#play">Play a game</a></div>`}
         <div class="btn-row ch-nav">${prev ? `<a class="btn ghost" href="#ch-${prev.id}" data-goto="${prev.id}" aria-label="Previous track: ${esc(prev.title)}">← Track ${pad(GUIDE.indexOf(prev) + 1)}</a>` : ""}<button class="btn" type="button" data-close-reader>All tracks</button></div>
-      </footer></article>`;
+      </footer></article>${side}</div>`;
   }
   function openReader(ch) {
     if (readerCh === ch && reader.classList.contains("open")) return;
@@ -832,6 +841,14 @@
     const p = max > 8 ? Math.min(1, readerBody.scrollTop / max) : 1;
     $("#readerProgress").style.transform = `scaleX(${p.toFixed(4)})`;
     if (p > .92 && readerCh) markRead(readerCh);
+    // the outline follows the heading you're reading
+    const links = readerBody.querySelectorAll(".rd-out a");
+    if (links.length && links[0].offsetParent) {
+      const top = readerBody.getBoundingClientRect().top + 120;
+      let cur = null;
+      links.forEach(a => { const h = document.getElementById(a.dataset.jump); if (h && h.getBoundingClientRect().top < top) cur = a; });
+      links.forEach(a => a.classList.toggle("on", a === cur));
+    }
   }
   readerBody.addEventListener("scroll", () => { if (!progRaf) progRaf = requestAnimationFrame(updateProgress); }, { passive: true });
   $("#readerClose").addEventListener("click", () => closeReader(false));
@@ -844,6 +861,13 @@
       if (GUIDE.indexOf(ch) > GUIDE.indexOf(readerCh)) markRead(readerCh);
       history.replaceState(null, "", "#ch-" + ch.id);
       openReader(ch);
+      return;
+    }
+    const j = e.target.closest("[data-jump]");
+    if (j) {
+      e.preventDefault();
+      const h = document.getElementById(j.dataset.jump);
+      if (h) readerBody.scrollTo({ top: h.getBoundingClientRect().top - readerBody.getBoundingClientRect().top + readerBody.scrollTop - 16, behavior: calm() ? "auto" : "smooth" });
       return;
     }
     if (e.target.closest("[data-close-reader]")) closeReader(false);
@@ -1521,7 +1545,7 @@
 
   /* ---------------------------------------------------------------- Play: the game loads on demand */
   const GAME_BASE = D.gameBase || "game/";
-  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-corrupted.js", "game/checklist-corrupted.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/decks-azusa.js", "game/decks-edgar.js", "game/decks-etrata4.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/game-ui.js"];
+  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-corrupted.js", "game/checklist-corrupted.js", "game/brain-corrupted.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/decks-azusa.js", "game/decks-edgar.js", "game/decks-etrata4.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/game-ui.js"];
   let gameP = null, gameMounted = false;
   function loadGame() {
     if (gameP) return gameP;

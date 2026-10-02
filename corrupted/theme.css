@@ -11,6 +11,31 @@
 
 /* tools */
 .cf-out { display: grid; gap: 10px; margin-top: 12px; }
+/* turn solver */
+.ts-in { display: grid; gap: 12px; margin-top: 10px; }
+.ts-group { display: grid; gap: 6px; }
+.ts-l { margin: 0; font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.ts-in .w-fields { margin: 0; }
+.ts-when { justify-self: start; }
+.ts-out { display: grid; gap: 10px; margin-top: 16px; }
+.ts-line { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: var(--surface); }
+.ts-line.best { border-color: var(--teal-fill); box-shadow: 0 0 0 1px var(--teal-fill) inset, 0 12px 28px -18px var(--teal-fill); }
+.ts-line.w-blocked { background: var(--surface-2); opacity: .8; }
+.ts-hd { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.ts-hd b { font: 700 15px/1.25 var(--f-display); letter-spacing: -.01em; }
+.ts-hd small { font-size: 12px; }
+.ts-cost { margin-left: auto; font-size: 13px; color: var(--ink-soft); white-space: nowrap; }
+.ts-when-b { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
+.w-now .ts-when-b { background: var(--teal-fill); color: var(--on-fill); }
+.w-next .ts-when-b { background: var(--teal-soft); color: var(--teal); }
+.w-blocked .ts-when-b { background: var(--pink-soft); color: var(--pink); }
+.ts-why { margin: 8px 0 0; color: var(--pink); font-size: 14px; }
+.ts-line ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14.5px; line-height: 1.5; }
+.ts-threats { display: grid; gap: 8px; }
+@media (min-width: 900px) {
+  .ts-in { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 28px; align-items: start; }
+  .ts-in .ts-group:nth-child(2) { grid-row: span 2; }
+}
 .cl-sec { margin-bottom: 18px; }
 .cl-sec h3 { margin: 18px 0 4px; font: 700 13px/1.2 var(--f-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--pink); }
 .cl-list { list-style: none; margin: 0; padding: 0; }
