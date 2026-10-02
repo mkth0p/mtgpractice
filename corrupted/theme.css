@@ -37,3 +37,6 @@
 
 /* six tabs here: Quiz is one of them */
 .tabs { grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 600px; }
+
+/* the game table takes Corrupted Miku's green in place of teal */
+:root .mg { --miku: #3fbf72; --miku-ink: #6fe39a; --on-miku: #06210f; }

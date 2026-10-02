@@ -9,48 +9,105 @@
 <link rel="icon" href="miku/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Unbounded:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Martian+Mono:wght@500;600&family=Unbounded:wght@700;800;900&display=swap">
 <style>
-  :root { --bg: #f2efe7; --surface: #fffdf8; --ink: #0f1a1a; --muted: #5f6b69; --line: #ddd5c6; color-scheme: light; }
-  @media (prefers-color-scheme: dark) { :root { --bg: #07090c; --surface: #0f141a; --ink: #eef3f4; --muted: #8b99a4; --line: #1e2730; color-scheme: dark; } }
+  /* The hub uses the deck sites' "stage light" look: a dark stage on top, the page below follows
+     the system theme like the deck sites do. */
+  :root {
+    --bg: #f2efe7; --surface: #fffdf8; --surface-2: #f6f2e8; --ink: #0f1a1a; --muted: #5f6b69; --line: #ddd5c6;
+    --f-display: "Unbounded", "Arial Black", system-ui, sans-serif; --f-body: "Instrument Sans", system-ui, sans-serif; --f-mono: "Martian Mono", ui-monospace, Menlo, monospace;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root { --bg: #07090c; --surface: #0f141a; --surface-2: #141a21; --ink: #eef3f4; --muted: #8b99a4; --line: #1e2730; color-scheme: dark; } }
   * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 16px/1.5 "Instrument Sans", system-ui, sans-serif; display: flex; align-items: center; justify-content: center; padding: 32px 16px; }
-  main { width: 100%; max-width: 760px; }
-  h1 { font: 800 clamp(1.8rem, 6vw, 2.8rem)/1.05 "Unbounded", system-ui, sans-serif; margin: 0 0 8px; letter-spacing: -.02em; }
-  p.lede { color: var(--muted); margin: 0 0 28px; }
-  .decks { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-  a.deck { display: flex; flex-direction: column; gap: 10px; padding: 22px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; border-top: 6px solid var(--c); transition: transform .2s; }
-  a.deck:hover, a.deck:focus-visible { transform: translateY(-3px); }
-  a.deck img { width: 56px; height: 56px; border-radius: 14px; }
-  a.deck b { font: 800 1.4rem/1.1 "Unbounded", system-ui, sans-serif; }
-  a.deck span { color: var(--muted); }
-  a.deck em { font-style: normal; font-weight: 600; color: var(--c); margin-top: auto; }
-  footer { color: var(--muted); font-size: .8rem; margin-top: 28px; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--f-body); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  .wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+
+  /* the stage */
+  .stage { position: relative; overflow: hidden; color: #eef3f4; padding: 56px 0 112px;
+    background:
+      radial-gradient(60% 90% at 12% 0%, rgba(57, 197, 187, .30), transparent 60%),
+      radial-gradient(50% 80% at 92% 10%, rgba(255, 61, 139, .26), transparent 60%),
+      radial-gradient(40% 70% at 60% 110%, rgba(123, 108, 240, .22), transparent 60%),
+      repeating-linear-gradient(0deg, transparent 0 27px, rgba(255, 255, 255, .03) 27px 28px),
+      #07090c; }
+  .kicker { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; font: 600 11px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: #64e3d8; }
+  .kicker i { width: 8px; height: 8px; border-radius: 50%; background: #ff3d8b; box-shadow: 0 0 0 4px rgba(255, 61, 139, .2); animation: live 1.8s ease-in-out infinite; }
+  @keyframes live { 50% { box-shadow: 0 0 0 8px rgba(255, 61, 139, 0); } }
+  h1 { font: 900 clamp(2.2rem, 8vw, 4.4rem)/.98 var(--f-display); margin: 0 0 16px; letter-spacing: -.035em; }
+  h1 span { color: #39c5bb; }
+  .lede { color: #b7c2cc; margin: 0; max-width: 52ch; font-size: 1.05rem; }
+
+  /* the decks, pulled up over the stage */
+  .decks { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); margin-top: -76px; position: relative; }
+  .deck { display: flex; flex-direction: column; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; box-shadow: 0 2px 6px rgba(0, 0, 0, .06), 0 22px 44px -22px rgba(0, 0, 0, .45); transition: transform .3s var(--ease), box-shadow .3s; }
+  .deck:hover { transform: translateY(-4px); box-shadow: 0 2px 6px rgba(0, 0, 0, .06), 0 30px 56px -22px rgba(0, 0, 0, .55); }
+  .art { position: relative; aspect-ratio: 16 / 9; background: linear-gradient(135deg, var(--c), #10151b); display: block; }
+  .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; transition: transform .6s var(--ease); }
+  .deck:hover .art img { transform: scale(1.04); }
+  .art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7, 9, 12, .35), transparent 30%, transparent 55%, rgba(7, 9, 12, .6)); }
+  .art .tags { position: absolute; right: 12px; top: 12px; justify-content: flex-end; z-index: 1; display: flex; gap: 6px; flex-wrap: wrap; }
+  .tags span { font: 600 10px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; padding: 6px 8px; border-radius: 7px; background: rgba(7, 9, 12, .72); color: #eef3f4; border: 1px solid rgba(255, 255, 255, .14); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .tags span.b { border-color: var(--c); color: #fff; }
+  .body { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 34px 20px 20px; flex: 1; }
+  .body img.icon { position: absolute; top: -26px; left: 18px; width: 52px; height: 52px; border-radius: 15px; box-shadow: 0 0 0 4px var(--surface), 0 8px 18px rgba(0, 0, 0, .3); }
+  .body b { font: 800 1.35rem/1.1 var(--f-display); letter-spacing: -.02em; }
+  .body .cmd { font: 500 11px/1.3 var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .body p { color: var(--muted); margin: 2px 0 10px; }
+  .acts { display: flex; gap: 8px; margin-top: auto; }
+  .acts a { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; border-radius: 999px; font-weight: 700; text-decoration: none; font-size: .95rem; transition: transform .15s, filter .2s, background .2s; }
+  .acts a:active { transform: scale(.97); }
+  .acts .go { background: var(--c); color: var(--on, #04201e); }
+  .acts .go:hover { filter: brightness(1.08); }
+  .acts .ghost { border: 1px solid var(--line); background: var(--surface-2); }
+  .acts .ghost:hover { border-color: var(--c); }
+  :focus-visible { outline: 2.5px solid #39c5bb; outline-offset: 2px; }
+  footer { color: var(--muted); font-size: .8rem; padding: 28px 0 40px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
-<main>
-  <h1>Commander decks</h1>
-  <p class="lede">Pick a deck: a step-by-step guide, every card with rulings, the combos, the stats, and a real four-player game against bots.</p>
+<header class="stage">
+  <div class="wrap">
+    <p class="kicker"><i aria-hidden="true"></i>Three decks · one table</p>
+    <h1>Commander <span>decks</span></h1>
+    <p class="lede">Pick a deck: a step-by-step guide, every card with rulings, the combos, the stats, and a real four-player game against bots.</p>
+  </div>
+</header>
+<main class="wrap">
   <div class="decks">
-    <a class="deck" href="miku/" style="--c:#2aa79c">
-      <img src="miku/icon.svg" alt="">
-      <b>Hatsune Miku</b>
-      <span>Trostani, Selesnya's Voice. Play the precon, the 80€ upgrade, the full upgrade or the Bracket 4 Azusa deck.</span>
-      <em>Open the Miku deck</em>
-    </a>
-    <a class="deck" href="etrata/" style="--c:#7b6cf0">
-      <img src="etrata/icon.svg" alt="">
-      <b>Etrata</b>
-      <span>Etrata, Deadly Fugitive. Dimir Assassins that cloak and steal the table's best cards.</span>
-      <em>Open the Etrata deck</em>
-    </a>
-    <a class="deck" href="corrupted/" style="--c:#3fbf72">
-      <img src="corrupted/icon.svg" alt="">
-      <b>Corrupted Miku</b>
-      <span>Shalai, Voice of Plenty (Miku, Voice Over All). A Bracket 4 Selesnya combo deck, with a play checklist and a quiz.</span>
-      <em>Open Corrupted Miku</em>
-    </a>
+    <article class="deck" style="--c:#39c5bb;--on:#04201e">
+      <a class="art" href="miku/" tabindex="-1" aria-hidden="true"><img src="https://api.scryfall.com/cards/sld/2429?format=image&amp;version=art_crop" alt="" loading="lazy" onerror="this.remove()"><span class="tags"><span class="b">Bracket 3</span><span>Selesnya</span><span>Tokens</span></span></a>
+      <div class="body">
+        <img class="icon" src="miku/icon.svg" alt="">
+        <b>Hatsune Miku</b>
+        <span class="cmd">Trostani, Selesnya's Voice</span>
+        <p>Play the precon, the 80€ upgrade, the full upgrade or the Bracket 4 Azusa deck.</p>
+        <div class="acts"><a class="go" href="miku/">Open the deck</a><a class="ghost" href="miku/#play">▶ Play</a></div>
+      </div>
+    </article>
+    <article class="deck" style="--c:#3fbf72;--on:#06210f">
+      <a class="art" href="corrupted/" tabindex="-1" aria-hidden="true"><img src="https://api.scryfall.com/cards/sld/2433?format=image&amp;version=art_crop" alt="" loading="lazy" onerror="this.remove()"><span class="tags"><span class="b">Bracket 4</span><span>Selesnya</span><span>Combo</span></span></a>
+      <div class="body">
+        <img class="icon" src="corrupted/icon.svg" alt="">
+        <b>Corrupted Miku</b>
+        <span class="cmd">Shalai, Voice of Plenty</span>
+        <p>A Bracket 4 Selesnya combo deck, with a live coach in the game, a play checklist and a quiz.</p>
+        <div class="acts"><a class="go" href="corrupted/">Open the deck</a><a class="ghost" href="corrupted/#play">▶ Play</a></div>
+      </div>
+    </article>
+    <article class="deck" style="--c:#7b6cf0;--on:#120d2b">
+      <a class="art" href="etrata/" tabindex="-1" aria-hidden="true"><img src="https://api.scryfall.com/cards/named?exact=Etrata%2C%20Deadly%20Fugitive&amp;format=image&amp;version=art_crop" alt="" loading="lazy" onerror="this.remove()"><span class="tags"><span class="b">Bracket 3</span><span>Dimir</span><span>Assassins</span></span></a>
+      <div class="body">
+        <img class="icon" src="etrata/icon.svg" alt="">
+        <b>Etrata</b>
+        <span class="cmd">Etrata, Deadly Fugitive</span>
+        <p>Dimir Assassins that cloak and steal the table's best cards, with a three-stage Bracket 4 upgrade.</p>
+        <div class="acts"><a class="go" href="etrata/">Open the deck</a><a class="ghost" href="etrata/#play">▶ Play</a></div>
+      </div>
+    </article>
   </div>
   <footer>Unofficial fan pages. Magic: The Gathering is © Wizards of the Coast. Card images via Scryfall.</footer>
 </main>

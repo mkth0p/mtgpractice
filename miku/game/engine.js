@@ -1475,6 +1475,33 @@
       return null;
     }
     canPay(p, cost, opts) { return !!this.planPayment(p, cost, opts); }
+    /* What p's permanents make once they untap (next upkeep): { total, by color, can: payable cost }.
+       Permanents that don't untap stay tapped; creatures are no longer summoning sick. */
+    manaAfterUntap(p, cost) {
+      const saved = [];
+      for (const o of this.battlefield) {
+        if (o.controller !== p) continue;
+        saved.push([o, o.tapped, o.sick]);
+        if (!(o.tapped && o.def.doesntUntap && o.def.doesntUntap(this, o))) o.tapped = false;
+        o.sick = false;
+      }
+      const pool = Object.assign({}, p.pool);
+      for (const k in p.pool) p.pool[k] = 0;
+      try {
+        const out = { total: 0, G: 0, W: 0, sources: [] };
+        for (const s of this.manaSources(p)) {
+          const units = s.options[0].units;
+          out.total += units.length * (s.mult || 1);
+          if (s.options.some(x => x.units.includes("G"))) out.G += Math.max(...s.options.map(x => x.units.filter(u => u === "G").length)) * (s.mult || 1);
+          out.sources.push(s.o.def.name);
+        }
+        out.can = cost ? this.canPay(p, cost) : null;
+        return out;
+      } finally {
+        for (const [o, t, sk] of saved) { o.tapped = t; o.sick = sk; }
+        Object.assign(p.pool, pool);
+      }
+    }
     /* Actually pay: run the planned mana abilities (with their side effects), then spend from pool. */
     pay(p, cost, opts) {
       opts = opts || {};

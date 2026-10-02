@@ -18,3 +18,6 @@
 .ticket-strip.b4-strip li.teal { border-color: var(--teal-fill); color: var(--teal); }
 .ticket-strip.b4-strip li.pink { border-color: var(--pink-fill); color: var(--pink); }
 #view-shop .grid-2 + .table-wrap, #view-shop .table-wrap + p { margin-top: 16px; }
+
+/* the game table takes Etrata's violet in place of Miku's teal */
+:root .mg { --miku: #7b6cf0; --miku-ink: #a99cff; --on-miku: #120d2b; }

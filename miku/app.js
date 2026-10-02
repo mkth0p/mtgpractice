@@ -20,7 +20,7 @@
   const ALL = CARDS.concat(EXTRA);
   const KEY = D.key || "mikuWiki"; // localStorage prefix
   const SHORT = D.short || "Miku";
-  const V = "18"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  const V = "20"; // asset version: keep in step with the ?v= links in index.html and sw.js
   const byName = new Map(ALL.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -1642,6 +1642,41 @@
     syncThemeMeta();
     setTimeout(() => root.classList.remove("theme-anim"), 450);
   });
+
+  /* ---------------------------------------------------------------- deck switcher */
+  // every deck site shares this header, so one button in it reaches the other decks and the hub
+  const DECKS = [
+    { id: "miku", name: "Hatsune Miku", sub: "Trostani · Selesnya · B3" },
+    { id: "corrupted", name: "Corrupted Miku", sub: "Shalai · Selesnya · B4" },
+    { id: "etrata", name: "Etrata", sub: "Etrata · Dimir · B3" }
+  ];
+  (function deckSwitcher() {
+    const bar = $(".bar-actions");
+    if (!bar) return;
+    const here = (/\/(miku|etrata|corrupted)\//.exec(location.pathname) || [, "miku"])[1];
+    const btn = document.createElement("button");
+    btn.className = "icon-btn"; btn.id = "deckBtn"; btn.type = "button";
+    btn.setAttribute("aria-label", "Switch deck"); btn.setAttribute("aria-haspopup", "menu"); btn.setAttribute("aria-expanded", "false");
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>`;
+    const menu = document.createElement("div");
+    menu.className = "deck-menu"; menu.setAttribute("role", "menu"); menu.hidden = true;
+    menu.innerHTML = `<p class="dm-h">Decks</p>` + DECKS.map(d => `<a role="menuitem" href="../${d.id}/" class="dm-deck${d.id === here ? " on" : ""}"${d.id === here ? ' aria-current="page"' : ""}><img src="../${d.id}/icon.svg" alt="" width="32" height="32"><span><b>${esc(d.name)}</b><small>${esc(d.sub)}</small></span>${d.id === here ? '<i>Here</i>' : ""}</a>`).join("") +
+      `<a role="menuitem" href="../" class="dm-all"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>All decks</a>`;
+    bar.insertBefore(btn, bar.firstChild);
+    document.body.appendChild(menu);
+    const place = () => { const r = btn.getBoundingClientRect(); menu.style.top = Math.round(r.bottom + 8) + "px"; const w = Math.min(300, innerWidth - 16); menu.style.right = Math.round(Math.max(8, Math.min(innerWidth - r.right, innerWidth - w - 8))) + "px"; };
+    const close = () => { if (menu.hidden) return; menu.hidden = true; btn.setAttribute("aria-expanded", "false"); };
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      if (!menu.hidden) return close();
+      place(); menu.hidden = false; btn.setAttribute("aria-expanded", "true");
+      (menu.querySelector(".dm-deck:not(.on)") || menu.querySelector("a")).focus({ preventScroll: true });
+    });
+    document.addEventListener("click", e => { if (!menu.contains(e.target)) close(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !menu.hidden) { close(); btn.focus(); } });
+    addEventListener("resize", close);
+    addEventListener("scroll", close, { passive: true });
+  })();
 
   /* ---------------------------------------------------------------- boot */
   const main = $("#main");
