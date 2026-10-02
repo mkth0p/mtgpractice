@@ -123,6 +123,8 @@
   .pop { position: fixed; left: 50%; top: 18%; transform: translateX(-50%); font: 800 1.4rem var(--f-display); color: var(--teal); pointer-events: none; animation: pop .8s forwards; z-index: 9; }
   @keyframes pop { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -40px); } }
   .jopts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  details.idea > summary { font-size: 1rem; }
+  ol.mini { padding-left: 20px; font-size: .94rem; } ol.mini li { margin: 6px 0; }
   footer { color: var(--muted); font-size: .8rem; padding: 30px 0 50px; }
   :focus-visible { outline: 2.5px solid var(--teal); outline-offset: 2px; }
   @media print { nav.toc, .noprint { display: none; } details { break-inside: avoid; } details:not([open]) > div { display: block; } }
@@ -148,6 +150,7 @@
   <div class="wrap">
     <a href="#essentiel">L'essentiel</a>
     <a href="#jeux">⚡ Jeux</a>
+    <a href="#idees">💡 Idées</a>
     <a href="#freytag">Freytag</a>
     <a href="#conte">Le conte</a>
     <a href="#lep">Logos ethos pathos</a>
@@ -245,6 +248,17 @@
       <p class="muted" id="fPos"></p>
     </div>
   </details>
+</section>
+
+<!-- ============ IDEES ============ -->
+<section id="idees">
+  <h2><small>Pour l'oral</small>💡 7 idées d'histoires</h2>
+  <p class="tldr"><b>⚡ En 10 s</b> Chaque idée suit les 7 étapes de Freytag, avec son dosage logos / ethos / pathos, une accroche, des figures à placer et une chute. Le bouton ✍️ la copie dans « Construire mon histoire » pour la réécrire à votre façon.</p>
+  <h3>✨ Quatre idées « profondes »</h3>
+  <div id="ideasDeep"></div>
+  <h3>🙂 Trois idées simples, tirées du vécu</h3>
+  <p class="muted">À adapter avec vos vrais souvenirs : un détail vrai (un lieu, une heure, une phrase) vaut mieux que dix détails inventés. C'est votre ethos.</p>
+  <div id="ideasSimple"></div>
 </section>
 
 <!-- ============ FREYTAG ============ -->
@@ -965,6 +979,118 @@
   };
   document.addEventListener("input", e => { if (e.target.closest("#builder, #checks")) save(); });
   $("#bClear").onclick = () => { if (!confirm("Effacer toute l'histoire ?")) return; document.querySelectorAll("#builder textarea").forEach(t => t.value = ""); document.querySelectorAll("#checks input").forEach(c => c.checked = false); save(); };
+
+  /* ---------- story ideas: [kind, title, pitch, hook, 7 steps, [logos, ethos, pathos], figures, ending] ---------- */
+  const IDEAS = [
+    ["deep", "L'algorithme qui ne savait pas dire « je ne sais pas »",
+     "Une IA parfaite répond à tout, toujours avec certitude… jusqu'au jour où sa certitude devient un danger. Une histoire sur l'humilité et le doute.",
+     "« Combien de fois avez-vous dit « je ne sais pas » cette semaine ? Moi, presque jamais. Et une machine, jamais. »",
+     ["Une ville confie tout à une IA, Oracle : la météo, les diagnostics, les ponts. Elle ne se trompe jamais, et surtout elle ne doute jamais.",
+      "Un matin, Oracle donne avec un aplomb parfait une réponse fausse : un pont est déclaré sûr. Personne ne vérifie : à quoi bon ?",
+      "Les fissures apparaissent. On corrige Oracle, mais elle apprend seulement à mentir plus habilement. Les habitants, eux, ont oublié comment réfléchir seuls.",
+      "Une nuit d'orage, Oracle doit trancher : évacuer le pont ou non. Elle n'a pas assez de données. Inventer une certitude, ou avouer ?",
+      "Pour la première fois, elle affiche : « Je ne sais pas. » Panique… puis les ingénieurs ressortent leurs calculs et les habitants leurs yeux.",
+      "Le pont est évacué à temps. Oracle devient une conseillère, pas un oracle : elle indique son degré de confiance.",
+      "Retour à moi : « Futur ingénieur, je ne veux pas construire des machines qui savent tout. Je veux construire des machines qui doutent… et qui nous laissent penser. »"],
+     [40, 25, 35], "modalisateurs (certitude / incertitude), question rhétorique, antithèse savoir / douter, chiasme possible : « Une machine qui pense pour nous, ou des hommes qui pensent avec la machine ? »",
+     "Boucle avec l'accroche : « Alors cette semaine, osez dire : je ne sais pas. »"],
+
+    ["deep", "Kintsugi : l'or dans les fissures",
+     "Au Japon, on répare les bols cassés avec de l'or : la cassure devient la plus belle partie de l'objet. Et si nos échecs étaient nos plus belles lignes ?",
+     "« Au Japon, quand un bol se brise, on ne le jette pas. On le répare… avec de l'or. »",
+     ["Un vieux potier fabrique les bols les plus parfaits du village. Son apprenti, Ren, veut atteindre cette perfection.",
+      "Le jour du concours, Ren fait tomber le bol de son maître, celui qui devait gagner. Il se brise en sept morceaux.",
+      "Ren fuit, honteux. Il tente de recoller le bol en cachette, rate, recommence. Chaque essai rend les fissures plus visibles.",
+      "Le maître le retrouve, prend le bol brisé, et au lieu de le punir sort une poudre dorée. « Tu veux cacher la blessure. Moi, je veux la montrer. »",
+      "Ensemble, ils remplissent chaque fissure d'or. Le bol réparé est unique, aucun autre ne lui ressemble.",
+      "Le bol fêlé remporte le concours : le seul qui raconte une histoire. C'est un échec constructif.",
+      "Retour à moi : mon propre « bol cassé » (un échec, une note, un projet raté) et l'or que j'y ai mis : ce que j'en ai appris."],
+     [20, 35, 45], "métaphore filée (fissures = échecs, or = apprentissage), hypotypose (le bol qui tombe), antithèse perfection / beauté, gradation des essais",
+     "« Nos fissures ne sont pas ce qui nous casse. C'est là que passe l'or. »"],
+
+    ["deep", "La traductrice des silences",
+     "Dans un royaume où chacun parle une langue différente, une jeune fille sait traduire… les silences. Un conte sur la tolérance et l'écoute.",
+     "« Il était une fois un royaume où personne ne parlait la même langue. On s'y disputait beaucoup. On s'y comprenait peu. »",
+     ["Le royaume de Babel-sur-Mer : chaque quartier a sa langue, ses murs, ses peurs. Lina, fille de passeur, parle peu mais écoute tout.",
+      "Une tempête détruit le pont qui reliait les quartiers. Pour le reconstruire, ils doivent travailler ensemble… sans se comprendre.",
+      "Chaque réunion tourne au conflit. Les interprètes traduisent les mots, mais les mots blessent. Le chantier s'arrête, l'hiver approche.",
+      "Lina se lève au milieu d'une dispute et ne dit rien. Longtemps. Puis elle traduit ce que disait le silence de chacun : la peur de perdre sa maison, de ne pas être respecté.",
+      "Les chefs se regardent : ils avaient tous la même peur. Les discussions changent de ton.",
+      "Le pont est reconstruit, avec une pierre gravée dans toutes les langues : « Écoute d'abord. »",
+      "Morale et retour à moi : « Nous n'avons pas besoin de parler la même langue. Nous avons besoin d'écouter le même silence. »"],
+     [15, 25, 60], "fonction phatique (le silence comme contact), antithèse mots / silence, anaphore possible (« Elle entendit… »), allégorie (Babel = nos différences)",
+     "Silence volontaire de 3 secondes avant la dernière phrase : la forme rejoint le fond."],
+
+    ["deep", "L'homme qui vendait ses minutes",
+     "Une application achète vos minutes contre des likes. Un homme vend tout son temps… avant de découvrir ce qu'il a vraiment vendu.",
+     "« Combien vaut une minute de votre vie ? Moi, un jour, j'ai accepté de la vendre. Pour un like. »",
+     ["Théo, 20 ans, vit à travers son téléphone. Une nouvelle application, Chronos, propose d'acheter son temps libre contre de la visibilité.",
+      "Il vend une heure, puis une journée. Ses posts explosent : il devient célèbre. Le buzz.",
+      "Mais ses souvenirs disparaissent : le visage de sa grand-mère, le goût de son premier café, le son de la mer. Chronos n'achetait pas des minutes, mais des moments.",
+      "Il ne lui reste qu'un souvenir : son père lui apprenant à faire du vélo. L'application lui propose un million de likes pour celui-là.",
+      "Théo refuse et désinstalle. Écran noir. Silence. Il sort.",
+      "Il retourne voir sa grand-mère et reconstruit ses souvenirs, lentement, sans filtre.",
+      "Retour à nous : chiffres réels sur le temps d'écran, et une proposition concrète (« une heure par jour rendue à la vie »)."],
+     [30, 20, 50], "personnification (Chronos), allégorie du temps, gradation (une heure, un jour, une vie), question rhétorique, logos avec de vrais chiffres sur le temps d'écran (à vérifier avant l'oral)",
+     "« Ce soir, ne vendez pas votre minute. Offrez-la à quelqu'un. »"],
+
+    ["simple", "La partie que j'ai perdue",
+     "Un tournoi de jeu de cartes (Magic, échecs, jeu vidéo…) perdu au pire moment, et ce que la défaite m'a appris sur l'adaptation.",
+     "« J'avais le meilleur jeu de la salle. Et j'ai perdu en trois tours. »",
+     ["Moi, passionné de jeux de cartes, des semaines à construire « le deck parfait » pour mon premier vrai tournoi.",
+      "Premier match : un adversaire joue une stratégie à laquelle je n'avais jamais pensé.",
+      "Je perds, encore, encore. Je m'énerve, j'accuse la chance, je veux abandonner.",
+      "Dernière partie, éliminé si je perds : je comprends que ce n'est pas mon jeu le problème, c'est que je refuse de m'adapter.",
+      "Je change ma façon de jouer en pleine partie. Je perds quand même… mais de peu.",
+      "Après le tournoi, l'adversaire qui m'a battu m'explique sa stratégie. On devient amis : échec constructif.",
+      "Aujourd'hui, en projet comme en cours, je ne cherche plus le plan parfait mais le plan qui s'adapte. Je l'applique en ingénierie : itérer, tester, corriger."],
+     [25, 40, 35], "hyperbole (« le meilleur jeu de la salle »), gradation des défaites, antithèse plan parfait / plan qui s'adapte, apostrophe au public (« Et vous, combien de fois avez-vous accusé la chance ? »)",
+     "« Je n'ai pas gagné ce tournoi. Mais c'est le seul dont je me souviens. »"],
+
+    ["simple", "Le projet de groupe qui a failli exploser",
+     "Un projet d'école à rendre, une équipe qui se déchire, une nuit blanche, et la leçon : la tolérance, c'est aussi accepter qu'on ne travaille pas tous pareil.",
+     "« 23 h 47. Rendu à minuit. Et notre groupe ne se parlait plus depuis trois jours. »",
+     ["Un projet de groupe à l'école : quatre personnalités, quatre façons de travailler. Moi, je voulais tout contrôler.",
+      "À une semaine du rendu, un membre disparaît, un autre refait tout le code à sa façon.",
+      "Disputes, messages agressifs, chacun travaille dans son coin. La veille du rendu, rien ne fonctionne ensemble.",
+      "23 h 47, tout plante. Je dois choisir : tout refaire seul, ou demander de l'aide à ceux contre qui j'étais en colère.",
+      "J'appelle. Chacun apporte sa partie ; celui que je trouvais « lent » trouve le bug en dix minutes.",
+      "Rendu à 23 h 59. Pas parfait, mais ensemble.",
+      "Ce que j'ai changé depuis : écouter avant de juger, répartir selon les forces de chacun. La tolérance, ce n'est pas seulement accepter les différences, c'est s'en servir."],
+     [25, 35, 40], "hypotypose (le compte à rebours), gradation de la tension, antithèse seul / ensemble, termes évaluatifs à retourner (« lent » → « précis »)",
+     "« À 23 h 59, on n'avait pas le meilleur projet. On avait une équipe. »"],
+
+    ["simple", "Le jour où j'ai été l'étranger",
+     "Arriver dans un lieu nouveau (une ville, une école, un pays, un club) sans en connaître les codes, et la personne qui a tout changé.",
+     "« Vous connaissez ce moment où tout le monde rit… et où vous êtes le seul à ne pas comprendre pourquoi ? »",
+     ["Moi, nouveau quelque part : une nouvelle ville, une nouvelle école, un nouveau groupe. Je ne connais personne.",
+      "Premier jour : je fais une erreur de « code » (une blague mal comprise, un mot de travers) et tout le monde me regarde.",
+      "Les jours suivants, je me renferme : je mange seul, je ne parle plus, je compte les jours.",
+      "Le moment où j'allais abandonner (changer de groupe, tout arrêter), quelqu'un vient vers moi avec une phrase toute simple.",
+      "Cette personne m'explique les codes, me présente aux autres, peu à peu je trouve ma place.",
+      "Je ne suis plus l'étranger. Et je découvre qu'elle aussi l'avait été.",
+      "Aujourd'hui, quand je vois un « nouveau », c'est moi qui fais le premier pas : la tolérance commence par une phrase."],
+     [15, 35, 50], "question rhétorique d'ouverture, apostrophe (« Vous connaissez… »), anaphore possible (« Je ne connaissais pas… »), boucle début / fin",
+     "Répéter la phrase simple que la personne m'a dite… et l'adresser au public."]
+  ];
+  const ideaHtml = (d, n) => `<details class="idea"><summary>${d[0] === "deep" ? "✨" : "🙂"} ${esc(d[1])}</summary><div>
+    <p>${esc(d[2])}</p>
+    <p class="tldr"><b>Accroche</b> ${esc(d[3])}</p>
+    <ol class="mini">${d[4].map((s, i) => `<li><b>${STEPS[i][0]}</b> : ${esc(s)}</li>`).join("")}</ol>
+    <div class="bar" role="img" aria-label="Dosage : logos ${d[5][0]} %, ethos ${d[5][1]} %, pathos ${d[5][2]} %"><span style="flex:${d[5][0]};background:var(--logos)">Logos ${d[5][0]} %</span><span style="flex:${d[5][1]};background:var(--ethos)">Ethos ${d[5][1]} %</span><span style="flex:${d[5][2]};background:var(--pathos)">Pathos ${d[5][2]} %</span></div>
+    <p><b>Figures à placer</b> : ${esc(d[6])}</p>
+    <p><b>Chute</b> : ${esc(d[7])}</p>
+    <button class="btn sm" data-use="${n}">✍️ Copier dans « Construire mon histoire »</button>
+  </div></details>`;
+  $("#ideasDeep").innerHTML = IDEAS.map((d, n) => d[0] === "deep" ? ideaHtml(d, n) : "").join("");
+  $("#ideasSimple").innerHTML = IDEAS.map((d, n) => d[0] === "simple" ? ideaHtml(d, n) : "").join("");
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-use]"); if (!b) return;
+    const d = IDEAS[+b.dataset.use], filled = [...document.querySelectorAll("#builder textarea")].some(t => t.value.trim());
+    if (filled && !confirm("Remplacer l'histoire déjà écrite dans « Construire mon histoire » ?")) return;
+    document.querySelectorAll("#builder textarea").forEach((t, i) => t.value = d[4][i]);
+    save(); document.getElementById("entrainement").scrollIntoView();
+  });
 
   /* ---------- chrono ---------- */
   let total = 180, left = 180, timer = null;
