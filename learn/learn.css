@@ -180,7 +180,8 @@ button.mcard:hover { box-shadow: 0 0 0 3px var(--teal), 0 10px 24px -14px rgba(0
 .quiz .why b { display: block; }
 
 /* turn wheel */
-.wheel { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.wheel { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+@media (max-width: 560px) { .wheel { grid-template-columns: repeat(3, 1fr); } }
 .wheel button { border: 1.5px solid var(--line); background: var(--surface); border-radius: 14px; padding: 10px 2px; cursor: pointer; display: grid; gap: 4px; justify-items: center; font-size: .78rem; font-weight: 700; }
 .wheel button i { font-style: normal; font-size: 1.5rem; }
 .wheel button.on { border-color: var(--pink); background: var(--pink-soft); }
@@ -466,3 +467,13 @@ html.big .mcard.sm { width: 156px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .screen h2:focus { outline: none; }
 .screen h2:focus-visible { outline: 2.5px solid var(--teal); outline-offset: 4px; border-radius: 6px; }
+.seats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.seats .p { font: inherit; color: inherit; cursor: pointer; display: grid; gap: 4px; justify-items: center; }
+.seats .p:hover { border-color: var(--teal); }
+.seats .p.on { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-soft); }
+.tok { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 10px; background: var(--surface); border: 1px dashed var(--line); font-size: .85rem; font-weight: 600; animation: deal .4s var(--ease); }
+
+/* checkpoint after the attack lesson, and the weak-spots card */
+.checkpoint { margin: 16px 0 4px; padding: 14px 16px; border-radius: 16px; border: 2px dashed var(--teal); background: var(--surface); text-align: left; }
+.checkpoint p { margin: 6px 0 10px; }
+.extras a.weak { border: 2px solid var(--pink); }

@@ -39,7 +39,20 @@ const SOLVE = {
   async flip(p) { for (let n = 0; n < 15; n++) { await p.click("#wbox .fc"); if (await p.$eval("#nx", b => b.disabled)) break; await p.click("#nx"); } },
   async combat(p) {
     const picks = (await p.$$("#pb button")).length;
-    for (let n = 0; n < 4; n++) { if (picks) await p.click(`#pb button:nth-child(${1 + n % picks})`); await p.click("#go"); }
+    for (let n = 0; n < 4; n++) {
+      await p.waitForSelector("#wbox #go:not([disabled])", { timeout: 4000 });
+      if (picks) await p.click(`#pb button:nth-child(${1 + n % picks})`);
+      await p.click("#go");
+      // a real block asks for a guess before the fight
+      if (await p.$("#wbox [data-g]")) await p.click(`#wbox [data-g='${n % 4}']`);
+    }
+  },
+  async table(p) { for (const b of await p.$$("#wbox .seats .p")) { await b.click(); if (await p.$("#wbox .msg.good")) break; } },
+  async engine(p) { for (const a of ["citizen", "angel", "pop"]) await p.click(`#wbox [data-a='${a}']`); },
+  async defend(p) {
+    // a weaker defense first, then try again and find the best one
+    await p.click("#wbox [data-b='goblin']"); await p.click("#wbox [data-t='0']"); await p.click("#wbox #again");
+    await p.click("#wbox [data-b='giant']"); await p.click("#wbox [data-t='1']");
   },
   async stack(p) {
     await p.click("#gg"); await p.click("#res"); await p.click("#res");
@@ -97,7 +110,7 @@ const SOLVE = {
           }
           if (gated) await p.waitForFunction(() => !document.querySelector("#next").hidden, null, { timeout: 3000 }).catch(() => {}); // fights and the stack animate first
           if (gated && await p.$eval("#next", b => b.hidden)) { issues.push(`[${vp.tag}] ${l.id} step ${s}: widget ${name} never unlocked Next`); await p.click("#hint .linkish"); }
-          if (shotDir && vp.tag === "phone" && shots < 40 && ["anatomy", "pay", "combat", "stack", "guided", "tax", "sort"].includes(name)) { await p.screenshot({ path: path.join(shotDir, `learn-${l.id}-${name}.png`) }); shots++; }
+          if (shotDir && vp.tag === "phone" && shots < 40 && ["anatomy", "pay", "combat", "stack", "guided", "tax", "sort", "engine", "defend", "table"].includes(name)) { await p.screenshot({ path: path.join(shotDir, `learn-${l.id}-${name}.png`) }); shots++; }
         }
         if (await p.$("#qbox")) {
           for (const o of await p.$$("#qbox .opt")) { if (await p.$("#qbox .opt.right")) break; await o.click(); }
@@ -109,6 +122,7 @@ const SOLVE = {
         await old.waitForElementState("hidden").catch(() => {}); // the next screen replaces this one on hashchange
       }
       await p.waitForSelector(".finish", { timeout: 3000 }).catch(() => issues.push(`[${vp.tag}] ${l.id}: no finish screen`));
+      if (l.id === "attack" && !(await p.$(".finish .checkpoint a[href='../miku/#play']"))) issues.push(`[${vp.tag}] no "try a game" checkpoint after the attack lesson`);
     }
     const done = await p.evaluate(() => Object.keys(JSON.parse(localStorage.getItem("learnMagic.v1")).done).length);
     if (done !== lessons.length) issues.push(`[${vp.tag}] progress saved ${done} of ${lessons.length}`);
@@ -122,6 +136,25 @@ const SOLVE = {
     }
     if (!(await p.$(".score"))) issues.push(`[${vp.tag}] the final quiz didn't end with a score`);
     if (shotDir) await p.screenshot({ path: path.join(shotDir, `learn-exam-${vp.tag}.png`) });
+    // the walk misses questions on purpose (it tries options in order), so the weak-spots round has work
+    await p.goto(base);
+    const weak = await p.evaluate(() => JSON.parse(localStorage.getItem("learnMagic.v1")).weak.length);
+    if (!weak || !(await p.$("a.weak[href='#/practice']"))) issues.push(`[${vp.tag}] no weak spots collected (${weak})`);
+    for (let round = 0; round < 12 && await p.evaluate(() => JSON.parse(localStorage.getItem("learnMagic.v1")).weak.length); round++) {
+      await p.goto(base + "#/"); await p.waitForSelector(".path");
+      await p.goto(base + "#/practice"); await p.waitForSelector("#screen .q");
+      for (let q = 0; q < 10; q++) {
+        // answer right first time (each option button knows whether it is the right one)
+        await p.evaluate(() => [...document.querySelectorAll("#screen .opt")].find(b => b._ok).click());
+        if (await p.$eval("#next", b => b.hidden)) break;
+        const old = await p.$("#screen .q");
+        await p.click("#next");
+        await old.waitForElementState("hidden").catch(() => {});
+        if (await p.$(".score")) break;
+      }
+    }
+    const left = await p.evaluate(() => JSON.parse(localStorage.getItem("learnMagic.v1")).weak.length);
+    if (left) issues.push(`[${vp.tag}] weak spots never cleared (${left} left)`);
     await p.goto(base + "#/glossary"); await p.waitForSelector(".search"); await p.fill(".search", "tap");
     if (!(await p.$$(".gloss > div")).length) issues.push(`[${vp.tag}] glossary search found nothing for "tap"`);
     await p.goto(base + "#/cheat"); await p.waitForSelector(".cheat");

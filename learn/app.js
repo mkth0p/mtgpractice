@@ -207,8 +207,14 @@
     get() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } },
     set(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { /* private mode: progress just isn't kept */ } }
   };
-  let P = store.get(); P.done = P.done || {}; P.at = P.at || {}; P.stars = P.stars || {}; P.q = P.q || {};
+  let P = store.get(); P.done = P.done || {}; P.at = P.at || {}; P.stars = P.stars || {}; P.q = P.q || {}; P.weak = Array.isArray(P.weak) ? P.weak : [];
   const save = () => store.set(P);
+  // Questions missed on the first try come back in "Practise my weak spots" until answered right first time.
+  function markWeak(q, firstTry) {
+    const k = P.weak.indexOf(q.q);
+    if (firstTry && k >= 0) P.weak.splice(k, 1);
+    if (!firstTry && k < 0) P.weak.push(q.q);
+  }
   const lessons = L.lessons;
   const byId = id => lessons.find(l => l.id === id);
   const nextLesson = () => lessons.find(l => !P.done[l.id]);
@@ -262,6 +268,7 @@
       html += `</ol></section>`;
     });
     html += `<div class="extras">
+      ${P.weak.length ? `<a href="#/practice" class="weak"><span aria-hidden="true">💪</span><b>Practise my weak spots</b><span>${P.weak.length} question${P.weak.length > 1 ? "s" : ""} you missed before. Get them right to clear the list.</span></a>` : ""}
       <a href="#/exam"><span aria-hidden="true">🏆</span><b>Final quiz</b><span>15 random questions from the whole course.${P.best ? ` Your best: ${P.best}/15.` : ""}</span></a>
       <a href="#/cheat"><span aria-hidden="true">📋</span><b>Cheat sheet</b><span>A whole turn on one screen. Keep it open during your first games.</span></a>
       <a href="#/glossary"><span aria-hidden="true">📖</span><b>Word list</b><span>Every Magic word in plain English.</span></a>
@@ -272,7 +279,7 @@
     app.innerHTML = html;
     $("#aa2").onclick = settingsPanel;
     const r = $("#reset");
-    if (r) r.onclick = () => { if (confirm("Forget which lessons you finished?")) { P = { done: {}, at: {}, stars: {}, q: {} }; save(); viewHome(); } };
+    if (r) r.onclick = () => { if (confirm("Forget which lessons you finished?")) { P = { done: {}, at: {}, stars: {}, q: {}, weak: [] }; save(); viewHome(); } };
     const nxt = $(".node.next");
     if (nxt && n > 0) setTimeout(() => nxt.scrollIntoView({ block: "center", behavior: calm() ? "auto" : "smooth" }), 250);
   }
@@ -374,7 +381,7 @@
       // first answers are kept per lesson until it's finished, so going back or refreshing can't change the stars
       quiz($("#qbox"), s.quiz, (ok, tries) => {
         const q = P.q[id] = P.q[id] || {};
-        if (!(i in q)) { q[i] = ok && tries === 1; save(); }
+        if (!(i in q)) { q[i] = ok && tries === 1; markWeak(s.quiz, q[i]); save(); }
         if (ok) unlock();
       });
     }
@@ -402,6 +409,7 @@
       <div class="bigstars" aria-label="${stars} of 3 stars">${[0, 1, 2].map(k => `<span class="${k < stars ? "on" : ""}" style="--d:${300 + k * 220}ms">★</span>`).join("")}</div>
       <p class="muted">${stars === 3 ? "Every question right on the first try!" : "Every star counts. Replay any time to collect more."} ${n} of ${lessons.length} lessons done.</p>
       <div class="recap"><b>What you learned</b><ul>${l.recap.map(r => `<li>${fmt(r)}</li>`).join("")}</ul></div>
+      ${l.checkpoint ? `<div class="checkpoint"><b>🎮 Checkpoint: you know enough to try a game!</b><p>Lands, mana, creatures and attacking are the whole core. If you're curious, try a game against the friendly bots now; it shows what you can do. Or carry on, the next lessons make it easier.</p><a class="btn sm" href="../miku/#play">Try a game</a></div>` : ""}
       <div class="acts">${nx ? `<a class="btn go" href="#/l/${nx.id}">Next: ${esc(nx.title)} →</a>` : `<a class="btn go" href="#/exam">Final quiz 🏆</a>`}<a class="btn" href="#/">Course map</a></div>`;
     next.hidden = true;
     back.onclick = () => { location.hash = `#/l/${l.id}/${l.steps.length - 1}`; };
@@ -446,21 +454,45 @@
     b.classList.add("on"); b.setAttribute("aria-pressed", "true"); speechSynthesis.speak(u);
   }
 
-  function viewExam() {
+  function allQuizzes(withAll) {
+    const pool = [];
+    lessons.forEach(l => l.steps.forEach(s => { if (s.quiz && (withAll || !s.quiz.noExam)) pool.push(s.quiz); }));
+    L.exam.forEach(q => pool.push(q));
+    return pool;
+  }
+
+  function viewExam(practice) {
     stopSpeaking();
     setNav("exam");
-    const pool = [];
-    lessons.forEach(l => l.steps.forEach(s => { if (s.quiz && !s.quiz.noExam) pool.push(s.quiz); }));
-    L.exam.forEach(q => pool.push(q));
-    const qs = shuffle(pool).slice(0, 15);
+    const pool = allQuizzes(practice);
+    if (practice) { const known = new Set(pool.map(q => q.q)); P.weak = P.weak.filter(k => known.has(k)); save(); }
+    const qs = practice ? shuffle(pool.filter(q => P.weak.includes(q.q))).slice(0, 10) : shuffle(pool).slice(0, 15);
+    if (practice && !qs.length) {
+      P.weak = []; save();
+      app.innerHTML = `<main class="wrap lesson"><h1 class="page-title">Practise my weak spots</h1><div class="screen finish"><div class="trophy" aria-hidden="true">💚</div><h2>Nothing to practise!</h2><p class="muted">Questions you miss on the first try, in lessons or the final quiz, collect here so you can try them again.</p><div class="acts"><a class="btn go" href="#/">Course map</a><a class="btn" href="#/exam">Final quiz</a></div></div></main>`;
+      focusHeading(app);
+      return;
+    }
     let i = 0, score = 0;
-    app.innerHTML = `<main class="wrap lesson"><h1 class="page-title">Final quiz 🏆</h1><p class="muted">15 questions from the whole course. A first-try answer earns a star. You can retake it as often as you like, the questions change.</p>
+    app.innerHTML = `<main class="wrap lesson"><h1 class="page-title">${practice ? "Practise my weak spots 💪" : "Final quiz 🏆"}</h1><p class="muted">${practice ? "Questions you missed before. Get one right on the first try and it leaves the list." : "15 questions from the whole course. A first-try answer earns a star. You can retake it as often as you like, the questions change."}</p>
       <div class="dots" id="edots"></div><div class="screen" id="screen"></div></main>
       <div class="navbar"><div class="wrap"><a class="btn" href="#/" aria-label="Back to the course map">←</a><span class="hint" id="hint">Pick an answer</span><button class="btn go" type="button" id="next" hidden>Next →</button></div></div>`;
     const screen = $("#screen"), next = $("#next"), hint = $("#hint"), dots = $("#edots");
     function show() {
       stopSpeaking();
       dots.innerHTML = qs.map((_, k) => `<i class="${k < i ? "on" : k === i ? "cur" : ""}"></i>`).join("");
+      if (i === qs.length && practice) {
+        const left = P.weak.length;
+        screen.className = "screen finish";
+        screen.innerHTML = `<div class="score">${score} / ${qs.length}</div><h2>${left ? "Nice practice!" : "All cleared! 🎉"}</h2>
+          <p class="muted">${score} right on the first try. ${left ? `${left} still on your practice list.` : "Your practice list is empty."}</p>
+          <div class="acts">${left ? `<button class="btn go" type="button" id="again">Practise again</button>` : ""}<a class="btn" href="#/">Course map</a></div>`;
+        if ($("#again")) $("#again").onclick = () => viewExam(true);
+        next.hidden = true; hint.hidden = true;
+        sfx("done"); if (!left) confetti(60);
+        focusHeading(screen);
+        return;
+      }
       if (i === qs.length) {
         const stars = score >= 14 ? 3 : score >= 10 ? 2 : score >= 6 ? 1 : 0;
         const best = Math.max(P.best || 0, score); P.best = best; save();
@@ -469,14 +501,16 @@
           <h2>${stars === 3 ? "You're ready to play!" : stars === 2 ? "Really solid!" : stars === 1 ? "Good start!" : "Every expert started here."}</h2>
           <p class="muted">${score} questions right on the first try. Your best so far: ${best}. ${stars < 3 ? "The lessons are always there to peek at, and the quiz picks new questions each time." : "Time for a real game against the bots."}</p>
           <div class="acts"><button class="btn go" type="button" id="again">Another round</button><a class="btn" href="../miku/#play">Play a game 🎮</a><a class="btn" href="#/">Course map</a></div>`;
-        $("#again").onclick = viewExam;
+        $("#again").onclick = () => viewExam();
         next.hidden = true; hint.hidden = true;
         sfx("done"); if (stars) confetti(stars * 30);
         return;
       }
       screen.className = "screen fwd"; screen.innerHTML = `<div class="sbar"><span class="count">Question ${i + 1} of ${qs.length}</span>${readButton(screen)}</div><div id="qbox"></div>`;
       next.hidden = true; hint.hidden = false;
+      let marked = false;
       quiz($("#qbox"), qs[i], (ok, tries) => {
+        if (!marked) { marked = true; markWeak(qs[i], ok && tries === 1); save(); }
         if (!ok) return;
         if (tries === 1) score++;
         next.hidden = false; hint.hidden = true;
@@ -499,6 +533,7 @@
     if (h[0] === "glossary") return viewGlossary();
     if (h[0] === "cheat") return viewCheat();
     if (h[0] === "exam") return viewExam();
+    if (h[0] === "practice") return viewExam(true);
     viewHome();
     if (!$(".node.next")) window.scrollTo(0, 0);
   }
