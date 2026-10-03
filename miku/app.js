@@ -20,7 +20,7 @@
   const ALL = CARDS.concat(EXTRA);
   const KEY = D.key || "mikuWiki"; // localStorage prefix
   const SHORT = D.short || "Miku";
-  const V = "21"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  const V = "22"; // asset version: keep in step with the ?v= links in index.html and sw.js
   const byName = new Map(ALL.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -1545,7 +1545,7 @@
 
   /* ---------------------------------------------------------------- Play: the game loads on demand */
   const GAME_BASE = D.gameBase || "game/";
-  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-corrupted.js", "game/checklist-corrupted.js", "game/brain-corrupted.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/decks-azusa.js", "game/decks-edgar.js", "game/decks-etrata4.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/game-ui.js"];
+  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-corrupted.js", "game/checklist-corrupted.js", "game/checklist-cetrata.js", "game/brain-corrupted.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/decks-azusa.js", "game/decks-cetrata.js", "game/decks-edgar.js", "game/decks-etrata4.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/game-ui.js"];
   let gameP = null, gameMounted = false;
   function loadGame() {
     if (gameP) return gameP;
@@ -1672,12 +1672,13 @@
   const DECKS = [
     { id: "miku", name: "Hatsune Miku", sub: "Trostani · Selesnya · B3" },
     { id: "corrupted", name: "Corrupted Miku", sub: "Shalai · Selesnya · B4" },
-    { id: "etrata", name: "Etrata", sub: "Etrata · Dimir · B3" }
+    { id: "etrata", name: "Etrata", sub: "Etrata · Dimir · B3" },
+    { id: "corrupted-etrata", name: "Corrupted Etrata", sub: "Etrata · Dimir · B4" }
   ];
   (function deckSwitcher() {
     const bar = $(".bar-actions");
     if (!bar) return;
-    const here = (/\/(miku|etrata|corrupted)\//.exec(location.pathname) || [, "miku"])[1];
+    const here = (/\/(miku|etrata|corrupted|corrupted-etrata)\//.exec(location.pathname) || [, "miku"])[1];
     const btn = document.createElement("button");
     btn.className = "icon-btn"; btn.id = "deckBtn"; btn.type = "button";
     btn.setAttribute("aria-label", "Switch deck"); btn.setAttribute("aria-haspopup", "menu"); btn.setAttribute("aria-expanded", "false");
