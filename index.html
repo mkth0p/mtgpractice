@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Commander Decks</title>
-<meta name="description" content="Four Commander deck sites: Hatsune Miku (Trostani, with the precon, the upgrades and the Bracket 4 Azusa deck), Corrupted Miku (Shalai, Bracket 4), Etrata, Deadly Fugitive, and Corrupted Etrata (Etrata, Bracket 4). Each has a guide, every card with rulings, stats and a playable game against bots.">
+<meta name="description" content="Four Commander deck sites: Hatsune Miku (Trostani, with the precon, the upgrades and the Bracket 4 Azusa deck), Corrupted Miku (Shalai, Bracket 4), Etrata, Deadly Fugitive, and Corrupted Etrata (Etrata, Bracket 4). Each has a guide, every card with rulings, stats and a playable game against bots. New players can learn the game from zero first.">
 <meta name="theme-color" content="#07090c">
 <link rel="icon" href="miku/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,6 +66,8 @@
   :focus-visible { outline: 2.5px solid #39c5bb; outline-offset: 2px; }
   .study { display: flex; align-items: center; gap: 14px; margin-top: 20px; padding: 16px 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; }
   .study:hover { border-color: #39c5bb; }
+  .study.learn { margin-top: 24px; background: linear-gradient(120deg, rgba(57, 197, 187, .14), rgba(123, 108, 240, .14)), var(--surface); border-color: #39c5bb; }
+  .study.learn + .study { margin-top: 12px; }
   .study i { font-style: normal; font-size: 1.6rem; }
   .study b { display: block; font: 800 1.05rem/1.2 var(--f-display); }
   .study span { color: var(--muted); font-size: .92rem; }
@@ -124,6 +126,7 @@
       </div>
     </article>
   </div>
+  <a class="study learn" href="learn/"><i aria-hidden="true">✦</i><div><b>New to Magic? Learn it from zero</b><span>20 tiny interactive lessons with quizzes, mana puzzles and a guided first turn. No maths skills needed.</span></div></a>
   <a class="study" href="storytelling/"><i aria-hidden="true">📖</i><div><b>Révisions storytelling</b><span>Pyramide de Freytag, logos ethos pathos, fonctions de Jakobson, exercices corrigés</span></div></a>
   <footer>Unofficial fan pages. Magic: The Gathering is © Wizards of the Coast. Card images via Scryfall.</footer>
 </main>
