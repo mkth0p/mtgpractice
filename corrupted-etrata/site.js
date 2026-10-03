@@ -14,15 +14,15 @@
   // Each line needs one card from every group in `need`; `plus` cards make it better but aren't required.
   const COMBOS = [
     { id: "court", name: "Vampire court loop", need: [["Exquisite Blood", "Bloodthirsty Conqueror"], ["Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond"]],
-      result: "Any opponent losing life starts a loop that drains every opponent to 0.", start: "Any life loss starts it: an attack, a fetch land, a shock land, Mindcrank, Night's Whisper on yourself won't (it's your life)." },
+      result: "Any opponent losing life starts a loop that drains every opponent to 0.", start: "Any opponent losing life starts it: an attack, their fetch land or shock land, Mindcrank. Your own life loss (Night's Whisper, Necropotence) doesn't." },
     { id: "crank", name: "Mindcrank + Duskmantle Guildmage", need: [["Mindcrank"], ["Duskmantle Guildmage"]],
-      result: "Each card put into their graveyard costs them 1 life, and each life lost mills them again, until they're dead.", start: "Activate the Guildmage ({1}{U}{B}), then any life loss or mill starts it. Do it on an opponent's turn when they cast a spell." },
+      result: "Each card put into their graveyard costs them 1 life, and each life lost mills them again, until they're dead. Each opponent needs their own starter.", start: "Activate the Guildmage ({1}{U}{B}), then any life loss or mill starts it. Do it on an opponent's turn when they cast a spell." },
     { id: "brine", name: "Brine Elemental lock", need: [["Brine Elemental"], ["Vesuvan Shapeshifter"]], plus: ["Training Grounds"],
       result: "Opponents never untap again.", start: "Both face down for {3} each. Etrata flips Brine for {2}{U}{B} ({U}{B} with Training Grounds); Vesuvan flips as a copy for {1}{U}, then turns face down each upkeep and flips again." },
-    { id: "double", name: "Double tap", need: [["Bloodletter of Aclazotz"], ["Virtus the Veiled"]], plus: ["Tetsuko Umezawa, Fugitive", "Ramses, Assassin Lord"],
-      result: "Virtus's hit makes them lose half their life, rounded up. Bloodletter doubles that on your turn: all of it.", start: "Tetsuko makes Virtus unblockable. With Ramses out, that player dying after an Assassin attacked them wins you the game." },
-    { id: "manta", name: "Infinite turns", need: [["Scroll of Fate"], ["Wormfang Manta"], ["Crystal Shard"]], plus: ["Training Grounds", "Tetsuko Umezawa, Fugitive"],
-      result: "An extra turn every turn.", start: "Manifest the Manta with Scroll of Fate, flip it with Etrata ({2}{U}{B}), bounce it with Crystal Shard ({U}, {T}). Manifested again next turn: 5 mana a turn, 3 with Training Grounds." },
+    { id: "double", name: "Double tap", need: [["Bloodletter of Aclazotz"], ["Virtus the Veiled"]], plus: ["Tetsuko Umezawa, Fugitive", "Rogue's Passage", "Ramses, Assassin Lord"],
+      result: "Virtus's hit makes them lose half their life, rounded up. Bloodletter doubles that on your turn: all of it.", start: "Tetsuko makes Virtus unblockable, but not with Ramses out (Ramses makes it a 2/2): use Rogue's Passage then. With Ramses, that player dying after an Assassin attacked them wins you the game." },
+    { id: "manta", name: "Infinite turns", need: [["Scroll of Fate"], ["Wormfang Manta"], ["Crystal Shard"]], plus: ["Training Grounds"],
+      result: "An extra turn every turn. The Manta is summoning sick each time, so win the extra turns with your other creatures.", start: "Manifest the Manta with Scroll of Fate, flip it with Etrata ({2}{U}{B}), bounce it with Crystal Shard ({U}, {T}). Manifested again next turn: 5 mana a turn, 3 with Training Grounds." },
     { id: "hits", name: "Hit list", need: [["Mari, the Killing Quill"], ["Toxic Deluge"], ["Etrata, the Silencer"]], plus: ["Ramses, Assassin Lord"],
       result: "Hit counters pile up on the exiled creatures; the Silencer knocks out a player with three.", start: "Mari's hit counters go on opposing creatures that die. Wipe with Toxic Deluge, then connect with the Silencer. Ramses turns that loss into a win." }
   ];
@@ -77,7 +77,7 @@
     botSim: null,
     widgets: api => ({
       comboFinder: el => comboFinder(el, api), tutorMap: el => tutorMap(el, api), doubleTap: el => doubleTap(el, api),
-      playChecklist: el => playChecklist(el, api), quiz: el => quiz(el, api), buyList: el => buyList(el, api)
+      playChecklist: el => playChecklist(el, api), quiz: el => quiz(el, api), buyList: el => buyList(el, api), proxyList: el => proxyList(el, api)
     })
   };
 
@@ -165,7 +165,7 @@
         <div><b data-o="left">0</b><span>life left</span></div>
       </div>
       <p class="w-verdict" data-o="v"></p>
-      <p class="muted small">Bloodletter: "If an opponent would lose life during your turn, they lose twice that much life instead." Damage makes a player lose life, so combat damage doubles too. Virtus is a 1/1 Assassin, so <i-c>Tetsuko Umezawa, Fugitive</i-c> makes it unblockable. Mindcrank's mill doesn't loop on its own here: it needs <i-c>Duskmantle Guildmage</i-c>.</p>`;
+      <p class="muted small">Bloodletter: "If an opponent would lose life during your turn, they lose twice that much life instead." Damage makes a player lose life, so combat damage doubles too. Virtus is a 1/1 Assassin, so <i-c>Tetsuko Umezawa, Fugitive</i-c> makes it unblockable, unless <i-c>Ramses, Assassin Lord</i-c> makes it a 2/2: then use <i-c>Rogue's Passage</i-c>. Mindcrank's mill doesn't loop on its own here: it needs <i-c>Duskmantle Guildmage</i-c>.</p>`;
     const out = k => $(`[data-o="${k}"]`, el);
     const on = k => { const i = el.querySelector(`[data-k="${k}"]`); return !!i && i.getAttribute("aria-pressed") === "true"; };
     function run() {
@@ -319,6 +319,51 @@
       if (t.closest("[data-check]") && !answered) finishQuestion();
     });
     shell(); show();
+  }
+
+
+  /* ================================================================ proxy plan
+     ju builds this deck by taking what carries over from the Etrata deck (../etrata/) and proxying the
+     rest. Cards marked base in prices.js are the ones the Etrata deck already has. */
+  function proxyList(el, A) {
+    const { esc, store, KEY, linkMentions, toast } = A;
+    const P = window.CETRATA_PRICES || { cards: [] };
+    const SK = KEY + ".proxied.v1";
+    let done = new Set(store.json(SK, []));
+    const cat = n => { const c = (window.CETRATA_CARDS || []).find(x => x.name === n); return c ? c.cat : ""; };
+    const ORDER = ["Creature", "Instant", "Sorcery", "Artifact", "Enchantment", "Land"];
+    const sortCards = l => l.slice().sort((a, b) => ORDER.indexOf(cat(a.name)) - ORDER.indexOf(cat(b.name)) || a.name.localeCompare(b.name));
+    const keep = sortCards(P.cards.filter(c => c.base)), proxy = sortCards(P.cards.filter(c => !c.base));
+    const count = l => l.reduce((t, c) => t + c.qty, 0);
+    const text = l => l.map(c => `${c.qty} ${c.name}`).join("\n");
+    function render() {
+      const left = proxy.filter(c => !done.has(c.name));
+      el.innerHTML = `<div class="w-out">
+          <div><b>${count(keep)}</b><span>cards come from your Etrata deck</span></div>
+          <div><b>${count(proxy)}</b><span>cards to proxy</span></div>
+          <div><b>${count(left)}</b><span>proxies still to print</span></div>
+        </div>
+        <div class="btn-row"><button class="btn primary" type="button" data-copy-proxy>Copy the proxy list</button><a class="btn" href="proxies-A4.pdf" target="_blank" rel="noopener">Print the proxies (A4 PDF)</a><button class="btn ghost" type="button" data-reset>Clear ticks</button></div>
+        <section class="cl-sec"><h3>Proxy these (${count(proxy)})</h3><p class="muted small">Tick each one once it's printed and sleeved. The price is what the real card would cost.</p>
+        <div class="swaps">${proxy.map((c, i) => `<div class="swap plain${done.has(c.name) ? " done" : ""}"><button class="tick" type="button" data-px="${esc(c.name)}" aria-pressed="${done.has(c.name)}" aria-label="Printed ${esc(c.name)}"><span><em>${i + 1}</em>${TICK}</span></button><div class="who"><span class="add"><i-c>${esc(c.name)}</i-c>${c.qty > 1 ? ` ×${c.qty}` : ""}</span><span class="sub-note">${esc(cat(c.name))}${c.gc ? '<span class="tag new">Game Changer</span>' : ""}</span></div><span class="eur mono">${c.usd == null ? "" : "$" + (c.usd * c.qty).toFixed(2)}</span></div>`).join("")}</div></section>
+        <section class="cl-sec"><h3>Take from your Etrata deck (${count(keep)})</h3><p class="muted small">Pull these out of the Etrata deck. Your Etrata deck has 11 Islands and 10 Swamps; this one needs 8 of each.</p>
+        <div class="swaps">${keep.map((c, i) => `<div class="swap plain done"><span class="tick" aria-hidden="true"><span><em>${i + 1}</em>${TICK}</span></span><div class="who"><span class="add"><i-c>${esc(c.name)}</i-c>${c.qty > 1 ? ` ×${c.qty}` : ""}</span><span class="sub-note">${esc(cat(c.name))}</span></div></div>`).join("")}</div></section>`;
+      if (linkMentions) linkMentions(el);
+    }
+    el.addEventListener("click", e => {
+      if (e.target.closest("[data-copy-proxy]")) {
+        const t = text(proxy);
+        (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("Proxy list copied"), () => toast("Couldn't copy"));
+        return;
+      }
+      if (e.target.closest("[data-reset]")) { done.clear(); store.put(SK, []); render(); return; }
+      const b = e.target.closest("[data-px]"); if (!b) return;
+      const n = b.dataset.px;
+      if (done.has(n)) done.delete(n); else done.add(n);
+      store.put(SK, [...done]);
+      render();
+    });
+    render();
   }
 
   /* ================================================================ buy list (prices from prices.js) */
