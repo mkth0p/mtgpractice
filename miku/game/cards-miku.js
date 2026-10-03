@@ -824,7 +824,7 @@
   land("Overgrown Farmland", { etbTapped: (g, o) => otherLands(g, o) < 2, mana: [{ tap: true, produce: gw }] });
   land("Razorverge Thicket", { etbTapped: (g, o) => otherLands(g, o) > 2, mana: [{ tap: true, produce: gw }] });
   land("Sunpetal Grove", { etbTapped: (g, o) => !hasLand(g, o.controller, "Forest") && !hasLand(g, o.controller, "Plains"), mana: [{ tap: true, produce: gw }] });
-  land("Scattered Groves", { type: "Land — Forest Plains", etbTapped: true, note: "Cycling isn't in this game.", mana: [{ tap: true, produce: gw }] });
+  land("Scattered Groves", { type: "Land — Forest Plains", etbTapped: true, cycling: "{2}", mana: [{ tap: true, produce: gw }] });
   land("Brushland", {
     note: "Its colored mana isn't used while you're at 1 life.",
     mana: [{ tap: true, produce: "C" }, { tap: true, produce: gw, condition: (g, o) => o.controller.life > 1, after: (g, o) => g.damage(o, o.controller, 1) }]
@@ -930,7 +930,7 @@
     mana: [{ tap: true, produce: "C" }],
     abilities: [
       {
-        label: "Sacrifice a creature: one mana of any color", tap: true,
+        label: "Sacrifice a creature: one mana of any color", tap: true, manaAbility: true,
         sacCost: { filter: (g, c, src) => c.controller === src.controller && g.isCreature(c), prompt: "Sacrifice a creature" },
         do: async (g, s, ctx) => {
           const opts = g.identityOf(ctx.p).map(k => ({ id: k, label: MK.COLOR_NAME[k] }));

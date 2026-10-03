@@ -583,8 +583,9 @@
       if (g.stack.length > 1) text = `On the stack: ${g.stack.slice().reverse().map((it, i) => i ? esc(it.name) : `<b>${esc(it.name)}</b>`).join(" ← ")}`;
       if (this.mode === "respond" && this.respondCtx) {
         const c = this.respondCtx;
-        const tg = c.window === "stack" && c.top.targets && c.top.targets.filter(Boolean).length ? ` targeting ${esc(youText(c.top.targets.filter(Boolean).map(t => g.nameOf(t)).join(" and ")).replace(/^You$/, "you"))}` : "";
-        text = c.window === "trigger" ? `<b>${esc(c.src.def.name)}</b>'s ability is about to resolve. Respond?` : c.window === "stack" ? `<b>${esc(c.top.p.name)}</b> casts <b>${esc(c.top.name)}</b>${tg}. Respond?` : c.window === "combat" ? `Blockers are set. Anything before damage?` : `End of <b>${esc(c.turnOf.name)}</b>'s turn. Anything before yours?`;
+        const tg = (c.window === "stack" || c.window === "ability") && c.top.targets && c.top.targets.filter(Boolean).length ? ` targeting ${esc(youText(c.top.targets.filter(Boolean).map(t => g.nameOf(t)).join(" and ")).replace(/^You$/, "you"))}` : "";
+        const ab = c.window === "ability" ? (c.top.kind === "trigger" ? `<b>${esc(c.top.o.def.name)}</b>'s triggered ability${tg} is on the stack. Respond?` : `<b>${esc(c.top.p.name)}</b> activates <b>${esc(c.top.name)}</b>${tg}. Respond?`) : "";
+        text = c.window === "trigger" ? `<b>${esc(c.src.def.name)}</b>'s ability is about to resolve. Respond?` : c.window === "stack" ? `<b>${esc(c.top.p.name)}</b> casts <b>${esc(c.top.name)}</b>${tg}. Respond?` : ab || (c.window === "attackers" ? `Attackers are declared. Anything before blocks?` : c.window === "combat" ? `Blockers are set. Anything before damage?` : `End of <b>${esc(c.turnOf.name)}</b>'s turn. Anything before yours?`);
       }
       const html = `<div class="mg-ticker${this.tickNew ? " new" : ""}">${text || "&nbsp;"}</div>`;
       if (box._html !== html) { box.innerHTML = html; box._html = html; }
@@ -680,7 +681,7 @@
       const li = document.createElement("li");
       const p = e.p;
       // the header counts rounds (everyone's turn once), so the log does too: "Turn 3 · Kaalia"
-      if (e.kind === "turn") { li.className = "turn"; li.textContent = p && this.g ? `Turn ${Math.max(1, this.g.round)} · ${p === this.me ? "You" : p.name}` : e.text.replace(/\.$/, ""); if (p && p.color) li.style.setProperty("--pc", p === this.me ? "var(--miku)" : p.color); }
+      if (e.kind === "turn") { li.className = "turn"; li.textContent = p && this.g ? `Turn ${Math.max(1, this.g.round)} · ${p === this.me ? "You" : p.name}${e.extra ? " · extra turn" : ""}` : e.text.replace(/\.$/, ""); if (p && p.color) li.style.setProperty("--pc", p === this.me ? "var(--miku)" : p.color); }
       else {
         // prefixed: a bare "search" line used to pick up the site's search box style
         li.className = e.kind ? "k-" + e.kind : "";
@@ -892,7 +893,7 @@
       if (m.classList.contains("on")) { m.classList.remove("on"); return; }
       m.innerHTML = `
         <label>Speed <select data-set="speed"><option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option></select></label>
-        <label><input type="checkbox" data-set="stopOnSpells"${s.stopOnSpells ? " checked" : ""}> Stop on every opponent spell</label>
+        <label><input type="checkbox" data-set="stopOnSpells"${s.stopOnSpells ? " checked" : ""}> Stop on every opponent spell and ability</label>
         <label><input type="checkbox" data-set="askTriggers"${s.askTriggers ? " checked" : ""}> Choose targets for my triggers</label>
         ${this.coach && this.coach.companion ? `<label><input type="checkbox" data-set="companion"${this.companionOn ? " checked" : ""}> Companion: guide me each stage</label>` : ""}
         <div class="sep"></div>
@@ -1018,6 +1019,8 @@
             const ok = g.canPay(me, MK.parseCost(o.def.cycling));
             out.push({ label: "Cycle (discard it, draw a card)", cost: o.def.cycling, ok, run: () => this.resolve({ type: "cycle", card: o }) });
           }
+          // transmute and other discard-from-hand abilities on spells (Muddle the Mixture)
+          if (o.def.channel && o.zone === "hand") out.push({ label: esc(o.def.channel.label), cost: MK.costString(g.channelCost(me, o), null), ok: g.canChannel(me, o), run: () => this.resolve({ type: "channel", card: o }) });
         }
         if (o.zone === "graveyard") for (const e of g.graveyardAbilities(o)) {
           const ok = g.canActivate(me, o, e, { instant });
@@ -1283,6 +1286,15 @@
       else if (ctx.window === "stack") {
         if (!spells.length && !this.s.stopOnSpells) return null;
         if (!acts.length) return null;
+      } else if (ctx.window === "ability") {
+        // an ability on the stack: stop when it targets you or yours and an instant could answer it,
+        // or always with "Stop on every opponent spell"
+        const mine = (ctx.top.targets || []).some(t => t && (t === me || (!t.kind && !g.isPlayer(t) && t.controller === me)));
+        if (!acts.length || !(this.s.stopOnSpells || (mine && spells.length))) return null;
+      } else if (ctx.window === "attackers") {
+        const c = g.combat;
+        const atMe = c && c.attacker !== me && c.attackers.some(a => a.combat && g.defenderOf(a.combat.attacking) === me);
+        if (!atMe || !spells.length) return null;
       } else if (ctx.window === "combat") {
         const c = g.combat;
         const involved = c && (c.attacker === me || c.attackers.some(a => a.combat && g.defenderOf(a.combat.attacking) === me));

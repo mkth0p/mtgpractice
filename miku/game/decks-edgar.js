@@ -845,11 +845,10 @@
     name: "Vein Ripper", cost: "{3}{B}{B}{B}", type: "Creature — Vampire Assassin", pt: "6/5",
     keywords: ["flying", "ward"],
     text: "Flying\nWard—Sacrifice a creature.\nWhenever a creature dies, target opponent loses 2 life and you gain 2 life.",
-    note: "Ward works against spells: when an opponent's spell targets Vein Ripper, that player sacrifices a creature or the spell is countered. Abilities that target it aren't taxed.",
     triggers: [
       { on: "dies", do: (g, s, ev, { p }) => targetDrain(g, s, p, 2, "opponent") },
       {
-        on: "cast", when: (g, s, ev) => ev.p !== s.controller && ev.item && ev.item.targets.includes(s),
+        on: "becameTarget", self: true, when: (g, s, ev) => ev.p !== s.controller && !!ev.item,
         do: async (g, s, ev) => {
           const q = ev.p, item = ev.item;
           if (!g.stack.includes(item) || q.lost) return;
@@ -1149,7 +1148,7 @@
   D({
     name: "Terminate", cost: "{B}{R}", type: "Instant",
     text: "Destroy target creature. It can't be regenerated.",
-    spell: { targets: [{ kind: "creature", purpose: "harm", prompt: "Destroy" }], do: (g, ctx) => { if (ctx.legal[0]) g.destroy(ctx.targets[0], ctx.o); } },
+    spell: { targets: [{ kind: "creature", purpose: "harm", prompt: "Destroy" }], do: (g, ctx) => { if (ctx.legal[0]) g.destroy(ctx.targets[0], ctx.o, { noRegen: true }); } },
     ai: { removal: true, minThreat: 4, cast: destroyWorth("creature", 4), target: destroyPick }
   });
 

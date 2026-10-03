@@ -136,17 +136,6 @@
     return r.kills >= 2 && r.net >= 7 ? 20 + r.net : false;
   };
 
-  /* Costs like "Tap five untapped Elves you control" (Lathril, Voice of the Woods, Nullmage Shepherd):
-     the creatures are chosen and tapped as the ability resolves. The bot taps its least valuable ones. */
-  async function tapUntapped(g, p, src, opts, n, prompt) {
-    if (opts.length < n) return null;
-    let picks = await g.ask(p, { type: "cards", prompt, options: opts, min: n, max: n, purpose: "tapCost", src });
-    picks = (picks || []).filter(c => opts.includes(c)).slice(0, n);
-    for (const c of opts) { if (picks.length >= n) break; if (!picks.includes(c)) picks.push(c); }
-    picks.forEach(c => g.tap(c));
-    return picks;
-  }
-
   /* ================================================================ the commander */
   /* Untapped Elves p controls for "Tap ten untapped Elves" costs. Any Elf permanent can be tapped,
      so Prowess of the Fair (a Kindred Elf enchantment) counts too, and summoning sickness doesn't matter. */
@@ -170,18 +159,15 @@
     name: LATHRIL, cost: "{2}{B}{G}", type: "Legendary Creature — Elf Noble", pt: "2/3",
     keywords: ["menace"],
     text: "Menace\nWhenever Lathril, Blade of the Elves deals combat damage to a player, create that many 1/1 green Elf Warrior creature tokens.\n{T}, Tap ten untapped Elves you control: Each opponent loses 10 life and you gain 10 life.",
-    note: "The ten Elves are chosen and tapped as the ability resolves, right after Lathril taps (abilities resolve at once in this game).",
     triggers: [{
       on: "combatDamagePlayer", when: (g, s, ev) => ev.src === s && ev.amount > 0,
       do: (g, s, ev, { p }) => elfWarriors(g, p, ev.amount)
     }],
     abilities: [{
       label: "Tap ten Elves: drain 10", tap: true,
-      condition: (g, o, p) => untappedElves(g, p, o).length >= 10,
+      tapCreatures: 10, tapFilter: (g, c) => elfNow(g, c), tapPrompt: "Lathril: tap ten untapped Elves you control",
       do: async (g, s, ctx) => {
         const p = ctx.p;
-        const tapped = await tapUntapped(g, p, s, untappedElves(g, p, s), 10, "Lathril: tap ten untapped Elves you control");
-        if (!tapped) { g.log(`${p.name} no longer has ten untapped Elves to tap.`, { p, cards: [s.def.name] }); return; }
         g.log(`${p.name} taps ten Elves: each opponent loses 10 life.`, { p, cards: [s.def.name], kind: "big" });
         for (const q of g.opponents(p)) g.loseLife(q, 10, s);
         g.gainLife(p, 10, s);
@@ -536,18 +522,14 @@
     const list = pool.filter(o => !g.isPlayer(o) && o.controller !== p).sort((a, b) => threatOf(g, b, p) - threatOf(g, a, p));
     return list[0] && threatOf(g, list[0], p) >= min ? list[0] : null;
   }
-  const untappedCreatures = (g, p) => g.creatures(p).filter(c => !c.tapped);
   D({
     name: "Nullmage Shepherd", cost: "{3}{G}", type: "Creature — Elf Shaman", pt: "2/4",
     text: "Tap four untapped creatures you control: Destroy target artifact or enchantment.",
-    note: "The four creatures are chosen and tapped as the ability resolves.",
     abilities: [{
       label: "Tap four creatures: destroy an artifact or enchantment",
-      condition: (g, o, p) => untappedCreatures(g, p).length >= 4,
+      tapCreatures: 4, tapSelfOk: true, tapPrompt: "Nullmage Shepherd: tap four untapped creatures you control",
       targets: [{ kind: "artifactOrEnchantment", purpose: "harm", prompt: "Nullmage Shepherd: destroy target artifact or enchantment" }],
       do: async (g, s, ctx) => {
-        const tapped = await tapUntapped(g, ctx.p, s, untappedCreatures(g, ctx.p), 4, "Nullmage Shepherd: tap four untapped creatures you control");
-        if (!tapped) { g.log(`${ctx.p.name} no longer has four untapped creatures to tap.`, { p: ctx.p, cards: [s.def.name] }); return; }
         const t = ctx.targets[0];
         if (t && ctx.legal[0]) g.destroy(t, s);
       },
@@ -561,13 +543,10 @@
   D({
     name: "Voice of the Woods", cost: "{3}{G}{G}", type: "Creature — Elf", pt: "2/2",
     text: "Tap five untapped Elves you control: Create a 7/7 green Elemental creature token with trample.",
-    note: "The five Elves are chosen and tapped as the ability resolves.",
     abilities: [{
       label: "Tap five Elves: 7/7 Elemental",
-      condition: (g, o, p) => untappedElvesAll(g, p).length >= 5,
+      tapCreatures: 5, tapSelfOk: true, tapFilter: (g, c) => elfNow(g, c), tapPrompt: "Voice of the Woods: tap five untapped Elves you control",
       do: async (g, s, ctx) => {
-        const tapped = await tapUntapped(g, ctx.p, s, untappedElvesAll(g, ctx.p), 5, "Voice of the Woods: tap five untapped Elves you control");
-        if (!tapped) { g.log(`${ctx.p.name} no longer has five untapped Elves to tap.`, { p: ctx.p, cards: [s.def.name] }); return; }
         g.createToken(ctx.p, ELEMENTAL);
       },
       // at the end of the turn before ours the Elves untap right after; in main 2 only with plenty to spare
@@ -718,16 +697,11 @@
   D({
     name: "Rhys the Exiled", cost: "{2}{G}", type: "Legendary Creature — Elf Warrior", pt: "3/2",
     text: "Whenever Rhys the Exiled attacks, you gain 1 life for each Elf you control.\n{B}, Sacrifice an Elf: Regenerate Rhys the Exiled.",
-    note: "There's no regeneration in this game: the ability gives Rhys indestructible until end of turn instead.",
     triggers: [{ on: "attacks", self: true, do: (g, s, ev, { p }) => { const n = elfCount(g, p); if (n) g.gainLife(p, n, s); } }],
     abilities: [{
       label: "Sacrifice an Elf: regenerate", cost: "{B}",
       sacCost: { filter: (g, c, src) => c !== src && elfNow(g, c), prompt: "Rhys the Exiled: sacrifice an Elf" },
-      do: (g, s, ctx) => {
-        if (s.zone !== "battlefield") return;
-        g.grant(s, ["indestructible"]);
-        g.log(`Rhys the Exiled is shielded (indestructible until end of turn).`, { p: ctx.p, cards: [s.def.name] });
-      },
+      do: (g, s) => g.regenerate(s),
       ai: { first: true, use: (g, p, o, ctx) => rhysThreatened(g, p, o, ctx) }
     }],
     ai: { priority: 6 }
@@ -1246,10 +1220,9 @@
   D({
     name: "Putrefy", cost: "{1}{B}{G}", type: "Instant",
     text: "Destroy target artifact or creature. It can't be regenerated.",
-    note: "There's no regeneration in this game, so the second sentence changes nothing.",
     spell: {
       targets: [{ kind: "permanent", purpose: "harm", prompt: "Putrefy: destroy target artifact or creature", filter: (g, o) => g.isArtifact(o) || g.isCreature(o) }],
-      do: (g, ctx) => { if (ctx.legal[0]) g.destroy(ctx.targets[0], ctx.o); }
+      do: (g, ctx) => { if (ctx.legal[0]) g.destroy(ctx.targets[0], ctx.o, { noRegen: true }); }
     },
     ai: { removal: true, minThreat: 4 }
   });

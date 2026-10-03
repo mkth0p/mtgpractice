@@ -307,19 +307,49 @@
   D({
     name: "Sylvan Library", cost: "{1}{G}", type: "Enchantment",
     text: "At the beginning of your draw step, you may draw two additional cards. If you do, choose two cards in your hand drawn this turn. For each of those cards, pay 4 life or put the card on top of your library.",
-    note: "You always put two cards back (paying 4 life instead isn't offered).",
     triggers: [{
       on: "drawStep", when: (g, s, ev) => ev.p === s.controller,
+      optional: "Sylvan Library: draw two additional cards?", ai: "sylvanDraw",
       do: async (g, s, ev, { p }) => {
-        if (p.library.length < 3) return;
-        g.draw(p, 2);
-        const pick = await g.ask(p, { type: "cards", prompt: "Sylvan Library: put two cards back on top of your library", options: p.hand.slice(), min: Math.min(2, p.hand.length), max: Math.min(2, p.hand.length), purpose: "bottom", src: s });
-        for (const c of (pick || []).filter(x => p.hand.includes(x)).slice(0, 2).reverse()) { g.removeFromZone(c); c.zone = "library"; p.library.unshift(c); }
+        if (!g.draw(p, 2)) return;
+        const drawn = (p.drawnThisTurn || []).filter(c => c.zone === "hand" && p.hand.includes(c));
+        let two = drawn;
+        if (drawn.length > 2) {
+          const pick = await g.ask(p, { type: "cards", prompt: "Sylvan Library: choose two cards you drew this turn (for each, pay 4 life or put it back on top)", options: drawn, min: 2, max: 2, purpose: "sylvanChoose", src: s });
+          two = (pick || []).filter(c => drawn.includes(c)).slice(0, 2);
+          if (two.length < 2) two = drawn.slice(-2);
+        }
+        const back = [];
+        for (const c of two) {
+          const pay = p.life >= 4 && await g.ask(p, { type: "confirm", prompt: `Sylvan Library: pay 4 life to keep ${c.def.name}? (No puts it back on top of your library)`, purpose: "sylvanPay", src: s, card: c });
+          if (pay && g.payLife(p, 4)) g.log(`${p.name} pays 4 life to keep a card (Sylvan Library).`, { p, cards: ["Sylvan Library"], kind: "life" });
+          else back.push(c);
+        }
+        for (const c of back) { g.removeFromZone(c); c.zone = "library"; p.library.unshift(c); }
+        if (back.length) g.log(`${p.name} puts ${back.length} card${back.length > 1 ? "s" : ""} back on top (Sylvan Library).`, { p, cards: ["Sylvan Library"] });
         g.bump();
       }
     }],
-    ai: { priority: 7, draw: true }
+    ai: {
+      priority: 7, draw: true,
+      // deal with the two least useful cards drawn, and pay 4 life only for a strong card while life is high
+      cards: (g, p, req) => (req.purpose === "sylvanChoose" ? req.options.slice().sort((a, b) => sylvanWorth(g, p, a) - sylvanWorth(g, p, b)).slice(0, 2) : null),
+      confirm: (g, p, req) => {
+        if (req.purpose === "sylvanDraw") return p.library.length >= 4;
+        if (req.purpose !== "sylvanPay") return true;
+        if (p.life < 24 || sylvanWorth(g, p, req.card) < 8 || p.sylvanPaid === g.turn) return false;
+        p.sylvanPaid = g.turn;
+        return true;
+      }
+    }
   });
+  /* How much a card drawn off Sylvan Library is worth keeping: spells over spare lands, tutors and
+     big threats most. */
+  function sylvanWorth(g, p, c) {
+    const d = c.def, ai = d.ai || {};
+    if (d.types.includes("Land")) return g.controlled(p, o => g.isLand(o)).length >= 6 ? 0 : 5;
+    return 3 + Math.min(5, d.mv) + (ai.tutor ? 4 : 0) + (ai.finisher ? 4 : 0) + (ai.wipe ? 2 : 0);
+  }
   D({
     name: "Up the Beanstalk", cost: "{1}{G}", type: "Enchantment",
     text: "When Up the Beanstalk enters and whenever you cast a spell with mana value 5 or greater, draw a card.",

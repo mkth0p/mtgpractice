@@ -13,24 +13,24 @@
 (function (root) {
   "use strict";
   const MK = root.MK = root.MK || {};
-  MK.ENGINE_VERSION = 1;
+  MK.ENGINE_VERSION = 2;
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",
-    "Only spells can be answered on the stack. Activated and triggered abilities resolve right away.",
-    "You get a chance to respond when an opponent casts a spell, after blockers are declared, and at the end of each opponent's turn. The bots get the same windows.",
-    "Triggered abilities that happen at the same time resolve in a sensible fixed order instead of the order you pick.",
+    "Spells, activated abilities and triggered abilities all use the stack, and the other players can respond to each one. Mana abilities and special actions (turning a card face up, unlocking a door) don't use it.",
+    "You get a chance to respond when an opponent casts a spell or puts an ability on the stack, after attackers are declared, after blockers are declared, and at the end of each opponent's turn. The bots get the same windows. There are no windows in upkeep, draw or beginning of combat.",
+    "Triggered abilities that happen at the same time go on the stack in a sensible fixed order (the active player's first, so they resolve last) instead of the order you pick. Their targets are chosen as they resolve.",
     "Targets for your own triggered abilities (Heliod, Lathiel, Cleric Class) are picked for you unless you switch on \"Ask me for trigger targets\".",
     "Combat damage is split among blockers for you: lethal damage to each blocker in turn, then the rest to the last one or, with trample, to the player.",
-    "The legend rule keeps the newest copy.",
-    "A commander that would go to the graveyard or exile always goes back to the command zone.",
+    "A commander that would go to the graveyard, exile or a library goes to the command zone. One that would go to your hand stays there, so you can recast it without commander tax.",
     "Bots never look at your hand or library. They follow simple rules of thumb, not a search of every line.",
-    "Face-down creatures (cloak, manifest, morph) are hidden from your opponents. Turning one face up is instant, like in paper, and doesn't use the stack.",
-    "A few rules none of these decks need aren't in the game: extra turns and extra combats, split second and the initiative's dungeon. Where a card is simplified, its details say how, under \"In this game\".",
+    "Face-down creatures (cloak, manifest, morph) are hidden from your opponents. Turning one face up is a special action: no stack, any time you could cast an instant.",
+    "Extra turns, skipped turns, additional combat phases (right after the regular combat) and regeneration work. A few rules none of these decks need aren't in the game: split second and the initiative's dungeon. Where a card is simplified, its details say how, under \"In this game\".",
     "Protection from a color (Giver of Runes) means the creature can't be targeted, dealt damage or blocked by anything of that color. \"Protection from everything\" on a player (Teferi's Protection, The One Ring) stops targeting and damage.",
     "Mana you make with an ability that untaps its source (Devoted Druid) stays in your pool until the step ends. Other mana is spent as you pay, so it never floats.",
     "There is no undo, and there are no timers."
   ];
+
 
   /* ============================================================ helpers */
   const COLORS = ["W", "U", "B", "R", "G"];
@@ -157,10 +157,10 @@
   T.goblin = MK.tokenDef({ key: "goblin-r", name: "Goblin", pt: [1, 1], colors: "R", subtypes: ["Goblin"] });
   T.zombie = MK.tokenDef({ key: "zombie-b2", name: "Zombie", pt: [2, 2], colors: "B", subtypes: ["Zombie"] });
 
-  /* Ward {n} against spells: the caster pays {n} or the spell is countered. (Abilities resolve right
-     away in this engine, so ward only checks spells.) */
+  /* Ward {n}: whenever this becomes the target of a spell or ability an opponent controls, counter
+     it unless that player pays {n}. */
   MK.wardTrigger = n => ({
-    on: "cast", when: (g, s, ev) => ev.p !== s.controller && !!ev.item && ev.item.targets.includes(s),
+    on: "becameTarget", self: true, when: (g, s, ev) => ev.p !== s.controller && !!ev.item,
     do: async (g, s, ev) => {
       const q = ev.p, item = ev.item;
       if (!g.stack.includes(item) || q.lost) return;
@@ -238,6 +238,9 @@
       this.tempTriggers = [];         // triggers that last until end of turn (Duskmantle Guildmage)
       this.phased = [];               // phased-out permanents (March of Swirling Mist)
       this.castBans = [];             // "can't cast spells this turn" (Silence, Orim's Chant, Ranger-Captain of Eos)
+      this.itemSeq = 0;               // ids of abilities on the stack
+      this.extraTurns = [];           // extra turns to take after this one (the newest first)
+      this.extraCombats = [];         // additional combat phases this turn
       this.players = (this.opts.players || []).map((cfg, i) => this.makePlayer(cfg, i));
     }
 
@@ -281,7 +284,15 @@
     isOpp(p, q) { return p !== q; }
     controlled(p, f) { return this.battlefield.filter(o => o.controller === p && (!f || f(o))); }
     creatures(p) { return this.battlefield.filter(o => (!p || o.controller === p) && this.isCreature(o)); }
+    /* Who takes the turn after p's: an extra turn waiting comes first, then the next seat. */
     nextPlayer(p) {
+      if (p === this.active && this.extraTurns && this.extraTurns.length) {
+        for (let i = this.extraTurns.length - 1; i >= 0; i--) if (!this.extraTurns[i].p.lost) return this.extraTurns[i].p;
+      }
+      return this.seatAfter(p);
+    }
+    /* The next living player in seat order. */
+    seatAfter(p) {
       for (let k = 1; k <= this.players.length; k++) {
         const q = this.players[(p.idx + k) % this.players.length];
         if (!q.lost) return q;
@@ -571,40 +582,128 @@
       if (this.opts.strict) throw err;
     }
 
-    /* Resolve queued triggers until none are left, checking state-based actions in between. */
+    /* Triggered abilities use the stack. Waiting triggers are put on it (the active player's first,
+       so they resolve last; "late" ones under the others), every other player gets a chance to
+       respond to each one, and the stack resolves down to where it was. State-based actions are
+       checked before anyone gets priority. */
     async settle() {
-      this.checkSBA();
-      let n = 0;
-      while (this.pending.length && !this.over) {
+      await this.resolveDown(this.stack.length);
+    }
+    /* Triggered abilities that haven't resolved yet, the next one to resolve last: those on the
+       stack (bottom to top), then those about to go on it, then the one resolving now. */
+    waitingTriggers() {
+      const out = [];
+      for (const it of this.stack) if (it.kind === "trigger" && !it.countered) out.push(it.trig);
+      out.push(...this.pending);
+      if (this.resolving) out.push(this.resolving.trig);
+      return out;
+    }
+    /* Put the waiting triggers on the stack, in the order that makes them resolve newest first. */
+    pushPending() {
+      const batch = this.pending.splice(0);
+      const order = [];
+      while (batch.length) {
         // "late" triggers (battle cry, "creatures you control get +X/+X") wait for the others
-        let idx = this.pending.length - 1;
-        if (this.pending[idx].tr.late) { for (let j = idx - 1; j >= 0; j--) if (!this.pending[j].tr.late) { idx = j; break; } }
-        const t = this.pending.splice(idx, 1)[0];
-        if (++n > 4000) { this.log("The loop was stopped after 4,000 triggers."); this.pending = []; break; }
-        this.stats.triggers++;
-        const { src, tr, ev, controller } = t;
-        if (controller.lost) continue;
-        if (tr.intervening && !tr.intervening(this, src, ev)) continue;
-        // a trigger its controller may answer before it resolves (Etrata, the Silencer and March of Swirling Mist)
-        if (tr.respond) {
-          let k = 0;
-          while (k++ < 4 && !this.over) {
-            const act = await this.askRespond(controller, { window: "trigger", src, trigger: tr, ev });
-            if (!act) break;
-            await this.perform(controller, act);
-          }
-          if (this.over || controller.lost) continue;
-        }
-        try {
-          if (tr.optional) {
-            const ok = await this.ask(controller, { type: "confirm", prompt: tr.optional === true ? `Use ${src.def.name}?` : tr.optional, src, purpose: tr.ai || "may", ev, trigger: tr });
-            if (!ok) continue;
-          }
-          await tr.do(this, src, ev, { p: controller });
-        } catch (err) { this.warn(err, src); }
-        this.checkSBA();
+        let idx = batch.length - 1;
+        if (batch[idx].tr.late) { for (let j = idx - 1; j >= 0; j--) if (!batch[j].tr.late) { idx = j; break; } }
+        order.push(batch.splice(idx, 1)[0]);
       }
-      this.checkSBA();
+      for (let i = order.length - 1; i >= 0; i--) {
+        const t = order[i];
+        const name = t.src && t.src.def ? t.src.def.name : "Delayed trigger";
+        this.stack.push({ kind: "trigger", o: t.src, p: t.controller, trig: t, targets: [], id: "t" + (++this.itemSeq), name: `${name} (trigger)` });
+      }
+      if (order.length) this.bump();
+      return order.length;
+    }
+    /* Resolve the stack down to `base` items: SBAs, then waiting triggers go on the stack, then the
+       players after the top item's controller may respond, then it resolves. */
+    async resolveDown(base) {
+      let n = 0, asked = 0;
+      for (;;) {
+        if (this.over) return;
+        this.checkSBA();
+        if (this.over) return;
+        await this.legendRule();
+        if (this.over) return;
+        if (this.pending.length) {
+          n += this.pushPending();
+          if (n > 4000) {
+            this.log("The loop was stopped after 4,000 triggers.");
+            this.pending = [];
+            while (this.stack.length > base && this.stack[this.stack.length - 1].kind === "trigger") this.stack.pop();
+            this.bump();
+          }
+          continue;
+        }
+        if (this.stack.length <= base) return;
+        const top = this.stack[this.stack.length - 1];
+        // inside a repeated loop (Druid ×N) the table shortcuts: no windows for its abilities and triggers
+        if (!(this.quiet && top.kind !== "spell") && asked < 80) {
+          let acted = false;
+          for (const q of this.orderFrom(top.p).slice(1)) {
+            if (q.lost || this.over) continue;
+            const act = await this.askRespond(q, { window: top.kind === "spell" ? "stack" : "ability", top });
+            if (!act) continue;
+            asked++;
+            const ok = await this.perform(q, act);
+            if (ok || !q.agent.bot) { acted = true; break; }
+          }
+          if (this.over) return;
+          if (acted) continue; // look at the stack again
+        }
+        await this.resolveTop();
+      }
+    }
+    async resolveTrigger(item) {
+      const { src, tr, ev, controller } = item.trig;
+      if (controller.lost) return;
+      this.stats.triggers++;
+      if (tr.intervening && !tr.intervening(this, src, ev)) return;
+      // a trigger its controller may answer before it resolves (Etrata, the Silencer and March of Swirling Mist)
+      if (tr.respond) {
+        let k = 0;
+        while (k++ < 4 && !this.over) {
+          const act = await this.askRespond(controller, { window: "trigger", src, trigger: tr, ev, top: item });
+          if (!act) break;
+          await this.perform(controller, act);
+        }
+        if (this.over || controller.lost) return;
+      }
+      try {
+        if (tr.optional) {
+          const ok = await this.ask(controller, { type: "confirm", prompt: tr.optional === true ? `Use ${src.def.name}?` : tr.optional, src, purpose: tr.ai || "may", ev, trigger: tr });
+          if (!ok) return;
+        }
+        this.resolving = item;
+        await tr.do(this, src, ev, { p: controller, item });
+      } catch (err) { this.warn(err, src); }
+      finally { if (this.resolving === item) this.resolving = null; }
+    }
+    /* Legend rule: a player with two or more legendary permanents of the same name keeps one of
+       them (they choose; the bots keep the newest) and puts the rest into the graveyard. */
+    async legendRule() {
+      let groups = null;
+      for (const o of this.battlefield) {
+        if (!o.def.legendary) continue;
+        const key = o.controller.id + "|" + o.def.name;
+        groups = groups || new Map();
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(o);
+      }
+      if (!groups) return;
+      for (const list of groups.values()) {
+        if (list.length < 2) continue;
+        const p = list[0].controller;
+        const newest = list.slice().sort((a, b) => b.ts - a.ts)[0];
+        let keep = newest;
+        if (!p.agent || !p.agent.bot) {
+          const pick = await this.ask(p, { type: "target", prompt: `Legend rule: choose the ${list[0].def.name} to keep (the others go to the graveyard)`, options: list, purpose: "legendKeep", src: newest });
+          if (pick && list.includes(pick)) keep = pick;
+        }
+        const out = list.filter(o => o !== keep && o.zone === "battlefield");
+        if (out.length) { this.log(`Legend rule: ${p.name} keeps one ${list[0].def.name}.`, { p, cards: [list[0].def.name] }); this.toGraveyardFromBattlefield(out, "sba"); }
+      }
     }
 
     /* ------------------------------------------------ choices */
@@ -666,7 +765,8 @@
       const kind = spec.kind || "creature";
       const out = [];
       if (kind === "spell") {
-        for (const it of this.stack) if (it !== spec.self && (!spec.filter || spec.filter(this, it, p, src))) out.push(it);
+        // "target spell" means spells; `orAbility` lets a spec take abilities too (Willbender)
+        for (const it of this.stack) if (it !== spec.self && (it.kind === "spell" || (spec.orAbility && it.kind === "ability")) && (!spec.filter || spec.filter(this, it, p, src))) out.push(it);
         return out;
       }
       if (kind === "card") return (spec.from ? spec.from(this, p, src) : []).filter(o => !spec.filter || spec.filter(this, o, p, src));
@@ -725,8 +825,10 @@
       // an earthbent land comes back when it dies or is exiled (Badgermole Cub)
       const earthBack = from === "battlefield" && o.earthReturn && (zone === "graveyard" || zone === "exile") && !o.isToken;
       o.earthReturn = false;
-      // commanders go back to the command zone instead (simplified: always)
-      if (o.isCommander && ["graveyard", "exile", "hand", "library"].includes(to) && !opts.noCommandZone) to = to === "graveyard" && opts.dies ? "graveyard" : "command";
+      // a commander that would go to the graveyard, exile or a library goes to the command zone
+      // instead (always the better choice); one that would go to its owner's hand stays there,
+      // since casting it from the hand costs no commander tax
+      if (o.isCommander && ["graveyard", "exile", "library"].includes(to) && !opts.noCommandZone) to = to === "graveyard" && opts.dies ? "graveyard" : "command";
       this.removeFromZone(o);
       if (from === "battlefield") {
         for (const a of this.battlefield) if (a.attachedTo === o) a.attachedTo = null;
@@ -863,16 +965,38 @@
     }
 
     /* ------------------------------------------------ leaving the battlefield */
-    destroy(o, src) {
+    /* opts.noRegen: "it can't be regenerated" */
+    destroy(o, src, opts) {
       if (o.zone !== "battlefield") return false;
       if (this.kw(o, "indestructible")) { this.log(`${o.def.name} is indestructible.`, { cards: [o.def.name] }); return false; }
+      if (!(opts && opts.noRegen) && this.useRegen(o)) return false;
       this.toGraveyardFromBattlefield([o], "destroy");
       return true;
     }
-    destroyAll(list, src) {
-      const hit = list.filter(o => o.zone === "battlefield" && !this.kw(o, "indestructible"));
+    destroyAll(list, src, opts) {
+      const hit = list.filter(o => o.zone === "battlefield" && !this.kw(o, "indestructible") && ((opts && opts.noRegen) || !this.useRegen(o)));
       this.toGraveyardFromBattlefield(hit, "destroy");
       return hit.length;
+    }
+    /* Regenerate: the next time o would be destroyed this turn, instead it's tapped, all damage is
+       removed from it and it's removed from combat. */
+    regenerate(o, src) {
+      if (!o || o.zone !== "battlefield") return false;
+      const r = o.state.regen;
+      o.state.regen = { turn: this.turn, n: (r && r.turn === this.turn ? r.n : 0) + 1 };
+      this.log(`${o.def.name} gets a regeneration shield.`, { p: o.controller, cards: [o.def.name] });
+      this.bump();
+      return true;
+    }
+    useRegen(o) {
+      const r = o.state.regen;
+      if (!r || r.turn !== this.turn || r.n <= 0) return false;
+      r.n--;
+      o.tapped = true; o.damage = 0; o.dtDamage = false;
+      if (this.combat) this.removeFromCombat(o);
+      this.log(`${o.def.name} regenerates.`, { p: o.controller, cards: [o.def.name], kind: "regen" });
+      this.bump();
+      return true;
     }
     sacrifice(o) {
       if (o.zone !== "battlefield") return false;
@@ -947,7 +1071,7 @@
     phaseOut(list) {
       const all = [];
       for (const o of [].concat(list)) {
-        if (!o || o.zone !== "battlefield") continue;
+        if (!o || o.zone !== "battlefield" || all.includes(o)) continue; // already in as an attachment
         all.push(o);
         for (const a of this.battlefield) if (a.attachedTo === o && !all.includes(a)) all.push(a);
       }
@@ -1154,6 +1278,7 @@
         const o = p.library.shift();
         o.zone = "hand"; o.zc++;
         p.hand.push(o);
+        (p.drawnThisTurn = p.drawnThisTurn || []).push(o);
         got++;
         this.anim("draw", { p, o });
         this.emit("draw", { p, o });
@@ -1803,6 +1928,7 @@
       this.log(`${p.name} casts ${item.name}${item.free ? " without paying its mana cost" : ""}${item.x ? ` (X=${item.x})` : ""}${item.targets.filter(Boolean).length ? " targeting " + item.targets.filter(Boolean).map(t => this.nameOf(t)).join(" and ") : ""}.`, { p, cards: [d.name], kind: "cast", item });
       this.anim("cast", { p, o, item });
       this.emit("cast", { p, o, item, spell: item });
+      this.targeted(item);
       if (d.onCast) { try { await d.onCast(this, p, o, item); } catch (e) { this.warn(e, o); } }
       await this.settle();
       await this.pace("cast", { p, o, item });
@@ -1840,6 +1966,21 @@
       if (d.doors) return [];
       return (d.spell && d.spell.targets) || d.targets || [];
     }
+    /* "Whenever this becomes the target of a spell or ability" (ward): one event per permanent targeted. */
+    targeted(item) {
+      const seen = new Set();
+      for (const t of item.targets || []) {
+        if (!t || this.isPlayer(t) || t.kind || seen.has(t) || t.zone !== "battlefield") continue;
+        seen.add(t);
+        this.emit("becameTarget", { o: t, p: item.p, item });
+        // ward a static ability gives (Brotherhood Regalia's equipped creature)
+        if (item.p !== t.controller) {
+          let n = 0;
+          for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.ward && st.applies && st.applies(this, s, t)) n = Math.max(n, st.ward);
+          if (n > 0) { const tr = MK.wardTrigger(n); this.pending.push({ src: t, tr, ev: { o: t, p: item.p, item }, controller: t.controller }); }
+        }
+      }
+    }
     nameOf(t) { if (!t) return "nothing"; if (this.isPlayer(t)) return t.name; if (t.kind === "spell") return t.name; return t.def.name; }
 
     /* Everyone gets a chance to respond, in turn order after the caster. Resolves the stack. */
@@ -1848,22 +1989,7 @@
       // below it belong to the rounds already running for them
       const base = this.stack.indexOf(item);
       if (base < 0) return;
-      let guard = 0;
-      while (this.stack.length > base && !this.over) {
-        if (++guard > 60) { while (this.stack.length > base && !this.over) await this.resolveTop(); break; }
-        const top = this.stack[this.stack.length - 1];
-        let acted = false;
-        const order = this.orderFrom(top.p).slice(1);
-        for (const q of order) {
-          if (q.lost || this.over) continue;
-          const act = await this.askRespond(q, { window: "stack", top });
-          if (!act) continue;
-          const ok = await this.perform(q, act);
-          if (ok || !q.agent.bot) { acted = true; break; }
-        }
-        if (acted) continue; // anything they cast has resolved in its own round; look at the stack again
-        await this.resolveTop();
-      }
+      await this.resolveDown(base);
     }
     async askRespond(q, ctx) {
       if (!q.agent.respond) return null;
@@ -1878,6 +2004,8 @@
       if (!item) return;
       this.bump();
       if (item.countered) return;
+      if (item.kind === "trigger") return this.resolveTrigger(item);
+      if (item.kind === "ability") return this.resolveAbility(item);
       const o = item.o, p = item.p, d = o.def;
       // targets: if every target is gone or illegal, the spell does nothing
       const specs = this.spellTargets(o, item);
@@ -1907,7 +2035,26 @@
         } catch (e) { this.warn(e, o); }
         this.finishSpell(item);
       }
-      await this.settle();
+      // the triggers it caused go on the stack in resolveDown, which called this
+    }
+    /* An activated ability on the stack. Its targets are checked again; with every target gone it
+       does nothing. Abilities exist apart from their source, so it resolves even if that left. */
+    async resolveAbility(item) {
+      const { o, p, ab, ctx } = item;
+      if (p.lost) return;
+      const specs = ab.targets || [];
+      specs.forEach((spec, i) => { const t = ctx.targets[i]; ctx.legal[i] = !!t && this.legalTarget(p, spec, t, o); });
+      if (specs.length && ctx.targets.some(Boolean) && specs.every((s, i) => !ctx.legal[i] && !s.optional)) {
+        this.log(`${item.name} has no legal target left and does nothing.`, { p, cards: [o.def.name] });
+        return;
+      }
+      try { await ab.do(this, o, ctx); } catch (e) { this.warn(e, o); }
+    }
+    /* What an item on the stack targets: a spell's specs, or an ability's. */
+    stackTargets(item) {
+      if (item.kind === "ability") return item.ab.targets || [];
+      if (item.kind === "trigger") return [];
+      return this.spellTargets(item.o, item);
     }
     finishSpell(item) {
       const o = item.o;
@@ -1924,6 +2071,14 @@
     counterSpell(item, by) {
       const i = this.stack.indexOf(item);
       if (i < 0) return false;
+      if (item.kind === "ability" || item.kind === "trigger") {
+        // abilities (ward against an ability, Stifle effects): it's removed, nothing else happens
+        this.stack.splice(i, 1);
+        item.countered = true;
+        this.log(`${item.name} is countered.`, { cards: [item.o && item.o.def ? item.o.def.name : ""].filter(Boolean), kind: "counter" });
+        this.bump();
+        return true;
+      }
       if (item.o.def.cantBeCountered || item.cantBeCountered || this.uncounterable(item)) { this.log(`${item.name} can't be countered.`, {}); return false; }
       this.stack.splice(i, 1);
       item.countered = true;
@@ -1977,6 +2132,14 @@
       if (o.def.equip && o.zone === "battlefield") out.push({ ab: { label: `Equip`, cost: o.def.equip, timing: "sorcery", targets: [{ kind: "creature", you: true, prompt: `Attach ${o.def.name} to`, purpose: "equip", filter: (g, t, p, src) => t.id !== (src.attachedTo && src.attachedTo.id) }], do: (g, src, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0] !== false && t.zone === "battlefield") { src.attachedTo = t; g.bump(); g.log(`${src.def.name} is attached to ${t.def.name}.`, { cards: [src.def.name, t.def.name] }); } } }, i: 600, key: "equip" });
       return out;
     }
+    /* Creatures that can be tapped for an ability's "tap N untapped creatures you control" cost:
+       `tapFilter` narrows them (Elves), and the source itself counts only with `tapSelfOk`
+       (summoning sickness doesn't matter for this cost). */
+    tapCandidates(p, o, ab) {
+      // with a filter, any permanent it accepts counts ("untapped Elves": a Kindred Elf enchantment too)
+      const base = ab.tapFilter ? this.controlled(p) : this.creatures(p);
+      return base.filter(c => !c.tapped && (c !== o || (ab.tapSelfOk && !ab.tap)) && (!ab.tapFilter || ab.tapFilter(this, c, o)));
+    }
     graveyardAbilities(o) { return (o.def.gyAbilities || []).map((ab, i) => ({ ab, i: 700 + i, key: "g" + i, fromGraveyard: true })); }
     findAbility(o, i) {
       if (o.zone === "graveyard") return this.graveyardAbilities(o).find(a => a.i === i);
@@ -2022,10 +2185,7 @@
       if (ab.payLife && p.life < ab.payLife) return false;
       if (ab.untapCreatures && this.creatures(p).filter(c => c.tapped).length < ab.untapCreatures) return false;
       const excl = ab.tap || ab.noSelfMana ? [o.id] : [];
-      if (ab.tapCreatures) {
-        const free = this.creatures(p).filter(c => !c.tapped && c !== o);
-        if (free.length < ab.tapCreatures) return false;
-      }
+      if (ab.tapCreatures && this.tapCandidates(p, o, ab).length < ab.tapCreatures) return false;
       if (ab.sacCost) { if (!this.battlefield.some(c => c.controller === p && ab.sacCost.filter(this, c, o))) return false; }
       if (ab.crew) {
         const pow = this.creatures(p).filter(c => !c.tapped && c !== o).reduce((s, c) => s + Math.max(0, this.power(c)), 0);
@@ -2088,8 +2248,8 @@
       }
       let tappers = null;
       if (ab.tapCreatures) {
-        const cands = spare(this.creatures(p).filter(c => !c.tapped && c !== o), 0, l => l.length >= ab.tapCreatures);
-        tappers = await this.ask(p, { type: "cards", prompt: `Tap ${ab.tapCreatures} untapped creatures`, options: cands, min: ab.tapCreatures, max: ab.tapCreatures, purpose: "tapCost", src: o });
+        const cands = spare(this.tapCandidates(p, o, ab), 0, l => l.length >= ab.tapCreatures);
+        tappers = await this.ask(p, { type: "cards", prompt: ab.tapPrompt || `Tap ${ab.tapCreatures} untapped creatures`, options: cands, min: ab.tapCreatures, max: ab.tapCreatures, purpose: "tapCost", src: o });
         if (!tappers || tappers.length !== ab.tapCreatures) return false;
       }
       let untappers = null;
@@ -2127,6 +2287,17 @@
       ctx.targets.forEach((t, i) => { ctx.legal[i] = !!t; });
       this.log(`${p.name} uses ${ab.label ? ab.label + " (" + o.def.name + ")" : o.def.name}${ctx.x ? ` with X=${ctx.x}` : ""}${ctx.targets.filter(Boolean).length ? " on " + ctx.targets.filter(Boolean).map(t => this.nameOf(t)).join(" and ") : ""}.`, { p, cards: [o.def.name], kind: "ability" });
       this.anim("ability", { p, o, ab });
+      // everything but mana abilities and special actions (turning a card face up, unlocking a
+      // door) goes on the stack, where other players may respond before it resolves
+      if (!ab.special && !ab.manaAbility && ab.unlock == null && !ab.faceUp) {
+        const item = { kind: "ability", o, p, ab, ctx, targets: ctx.targets, id: "a" + (++this.itemSeq), name: `${o.def.name}: ${ab.label || "ability"}` };
+        this.stack.push(item);
+        this.bump();
+        this.emit("activated", { p, o, ab, item });
+        this.targeted(item);
+        await this.priorityRound(p, item);
+        return true;
+      }
       await this.settle();
       if (this.over) return true;
       try {
@@ -2332,6 +2503,10 @@
       await this.settle();
       await this.pace("attack", { p });
       if (this.over) return;
+      // declare attackers step: the players may act before blockers (kill an attacker, tap a blocker)
+      await this.trickWindow(p, "attackers");
+      if (this.over) return;
+      if (!this.combat.attackers.length) return this.endCombat(p);
       // declare blockers, each defending player in turn order
       this.phase = "blockers";
       this.bump();
@@ -2366,7 +2541,9 @@
       if (fs) { await this.damageStep(true); if (this.over) return; }
       await this.damageStep(false);
       if (this.over) return;
-      // end of combat
+      await this.endCombat(p);
+    }
+    async endCombat(p) {
       this.phase = "endCombat";
       this.emit("endCombat", { p });
       for (const o of this.battlefield.slice()) if (o.state.exileEoc) this.exile(o);
@@ -2395,12 +2572,13 @@
       }
       return fixed;
     }
-    async trickWindow(active) {
+    async trickWindow(active, win) {
       for (const q of this.orderFrom(active)) {
         if (this.over || q.lost) continue;
         let n = 0;
         while (n++ < 12) {
-          const act = await this.askRespond(q, { window: "combat" });
+          if (!this.combat) return;
+          const act = await this.askRespond(q, { window: win || "combat" });
           if (!act) break;
           const ok = await this.perform(q, act);
           if (this.over) return;
@@ -2489,7 +2667,10 @@
           if (this.isCreature(o)) {
             const t = this.toughness(o);
             if (t <= 0) { dead.push(o); continue; }
-            if ((o.damage >= t || (o.dtDamage && o.damage > 0)) && !this.kw(o, "indestructible")) { dead.push(o); continue; }
+            if ((o.damage >= t || (o.dtDamage && o.damage > 0)) && !this.kw(o, "indestructible")) {
+              if (this.useRegen(o)) { changed = true; continue; }
+              dead.push(o); continue;
+            }
           }
           if (this.isPlaneswalker(o) && !this.isCreature(o) && (o.counters.loyalty || 0) <= 0) { dead.push(o); continue; }
           if (o.counters.p1 && o.counters.m1) { const k = Math.min(o.counters.p1, o.counters.m1); o.counters.p1 -= k; o.counters.m1 -= k; changed = true; this.bump(); }
@@ -2498,13 +2679,7 @@
             if (!t || t.zone !== "battlefield" || (o.def.enchant && !this.kindMatch(t, o.def.enchant))) { dead.push(o); continue; }
           } else if (o.attachedTo && (o.attachedTo.zone !== "battlefield" || !this.isCreature(o.attachedTo))) { o.attachedTo = null; changed = true; this.bump(); }
         }
-        // legend rule: keep the newest
-        const seen = new Map();
-        for (const o of this.battlefield.slice().sort((a, b) => b.ts - a.ts)) {
-          if (!o.def.legendary || dead.includes(o)) continue;
-          const key = o.controller.id + "|" + o.def.name;
-          if (seen.has(key)) dead.push(o); else seen.set(key, o);
-        }
+        // the legend rule is a choice, so it's applied by legendRule() before each priority
         if (dead.length) {
           this.toGraveyardFromBattlefield(dead, "sba");
           changed = true;
@@ -2558,16 +2733,47 @@
       this.round = 1;
       // a round ends when play passes the seat that went first, which need not be seat 0
       const n = this.players.length, first = this.activeIdx, seat = i => (i - first + n) % n;
+      let normal = this.active;       // whose regular turn it is or was last (extra turns come after it)
+      let extra = false;
       while (!this.over) {
         const p = this.active;
-        if (!p.lost) await this.takeTurn(p);
+        if (!p.lost) {
+          // "skip your next turn" (Wormfang Manta) applies to the next turn, extra or not
+          if (p.skipTurns > 0) { p.skipTurns--; this.log(`${p.name} skips ${extra ? "that extra" : "their"} turn.`, { p, kind: "skip" }); }
+          else await this.takeTurn(p, { extra });
+        }
         if (this.over) break;
         if (this.turn >= this.maxTurns) { this.log("The turn limit was reached. The game is a draw."); this.end(null, { draw: true }); break; }
-        const next = this.nextPlayer(p);
-        if (seat(next.idx) <= seat(p.idx)) this.round++;
+        // extra turns are taken right after this one, the most recently created first
+        let e = null;
+        while (this.extraTurns.length && !e) { const c = this.extraTurns.pop(); if (!c.p.lost) e = c; }
+        if (e) { this.activeIdx = e.p.idx; extra = true; continue; }
+        extra = false;
+        const next = this.seatAfter(normal);
+        if (seat(next.idx) <= seat(normal.idx)) this.round++;
+        normal = next;
         this.activeIdx = next.idx;
       }
       return this.winner;
+    }
+    /* "Take an extra turn after this one" (Wormfang Manta, Time Warp). */
+    addExtraTurn(p, src) {
+      this.extraTurns.push({ p, src });
+      this.log(`${p.name} will take an extra turn after this one${src && src.def ? " (" + src.def.name + ")" : ""}.`, { p, cards: src && src.def ? [src.def.name] : [], kind: "extraTurn" });
+      this.bump();
+    }
+    /* "You skip your next turn." */
+    skipNextTurn(p, src) {
+      p.skipTurns = (p.skipTurns || 0) + 1;
+      this.log(`${p.name} will skip their next turn${src && src.def ? " (" + src.def.name + ")" : ""}.`, { p, cards: src && src.def ? [src.def.name] : [] });
+      this.bump();
+    }
+    /* "After this phase, there is an additional combat phase" (opts.main: "followed by an
+       additional main phase"). Simplified: it comes right after this turn's regular combat. */
+    addExtraCombat(p, opts) {
+      this.extraCombats.push(Object.assign({ p, turn: this.turn }, opts || {}));
+      this.log(`${p.name} gets an additional combat phase this turn.`, { p });
+      this.bump();
     }
     async mulligans() {
       for (const p of this.players) { this.shuffle(p); }
@@ -2604,10 +2810,12 @@
       await this.settle();
       this.bump();
     }
-    async takeTurn(p) {
+    async takeTurn(p, opts) {
+      opts = opts || {};
       this.turn++;
       p.turnsTaken++;
-      for (const q of this.players) { q.gained = 0; q.lifeLostThisTurn = 0; q.spellsCast = 0; q.ncCast = 0; q.attackedBy = []; }
+      this.extraCombats = [];
+      for (const q of this.players) { q.gained = 0; q.lifeLostThisTurn = 0; q.spellsCast = 0; q.ncCast = 0; q.attackedBy = []; q.drawnThisTurn = []; }
       // "until your next turn" protection ends (Teferi's Protection, The One Ring)
       if (p.shield || p.lifeLock) { p.shield = null; p.lifeLock = null; this.log(`${p.name}'s protection ends.`, { p }); }
       this.diedThisTurn = 0;
@@ -2615,7 +2823,7 @@
       p.landsPlayed = 0;
       this.loopHint = null;
       this.effects = this.effects.filter(e => !(e.until === "yourNextTurn" && e.player === p));
-      this.log(`Turn ${this.turn}: ${p.name}.`, { p, kind: "turn" });
+      this.log(`Turn ${this.turn}: ${p.name}${opts.extra ? " (extra turn)" : ""}.`, { p, kind: "turn", extra: !!opts.extra });
       this.anim("turn", { p });
       // untap (phased-out permanents phase in first)
       this.phase = "untap";
@@ -2663,6 +2871,19 @@
       this.emptyPools();
       if (!res || !res.skipCombat) await this.doCombat(p);
       if (this.over || p.lost) return this.endTurnEarly(p);
+      // additional combat phases (and main phases) added this turn
+      for (let k = 0; k < 10 && this.extraCombats.length; k++) {
+        const ec = this.extraCombats.shift();
+        if (ec.p !== p || ec.turn !== this.turn) continue;
+        this.emptyPools();
+        await this.doCombat(p);
+        if (this.over || p.lost) return this.endTurnEarly(p);
+        if (ec.main) {
+          this.phase = "main2"; this.emptyPools(); this.bump();
+          await this.mainPhase(p);
+          if (this.over || p.lost) return this.endTurnEarly(p);
+        }
+      }
       // main 2
       this.phase = "main2";
       this.emptyPools();

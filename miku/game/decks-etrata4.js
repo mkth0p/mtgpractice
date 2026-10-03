@@ -249,8 +249,7 @@
   D({
     name: "Brotherhood Regalia", cost: "{2}", type: "Artifact — Equipment",
     text: "Equipped creature has ward {2}, is an Assassin in addition to its other types, and can't be blocked.\nEquip legendary creature {1}\nEquip {3}",
-    note: "The equipped creature doesn't get ward.",
-    statics: [{ applies: (g, s, o) => s.attachedTo === o, subtypes: ["Assassin"], unblockable: true }],
+    statics: [{ applies: (g, s, o) => s.attachedTo === o, subtypes: ["Assassin"], unblockable: true, ward: 2 }],
     abilities: [
       {
         label: "Equip legendary creature", cost: "{1}", timing: "sorcery",

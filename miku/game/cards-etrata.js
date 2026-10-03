@@ -356,14 +356,12 @@
     name: "Willbender", cost: "{1}{U}", type: "Creature — Human Wizard", pt: "1/2",
     morph: "{1}{U}",
     text: "Morph {1}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, change the target of target spell or ability with a single target.",
-    note: "Only spells can be redirected (abilities resolve right away in this engine).",
     triggers: [{
       on: "turnedFaceUp", self: true,
       do: async (g, s, ev, { p }) => {
-        const it = await g.chooseTarget(p, trig({ kind: "spell", purpose: "redirect", prompt: "Willbender: change the target of target spell", filter: (g2, item) => item.targets.length === 1 && !!item.targets[0] }), s);
+        const it = await g.chooseTarget(p, trig({ kind: "spell", orAbility: true, purpose: "redirect", prompt: "Willbender: change the target of target spell or ability", filter: (g2, item) => item.targets.length === 1 && !!item.targets[0] }), s);
         if (!it || !g.stack.includes(it)) return;
-        const specs = g.spellTargets(it.o, it);
-        const spec = specs[0];
+        const spec = g.stackTargets(it)[0];
         if (!spec) return;
         const opts = g.targetOptions(it.p, spec, it.o).filter(t => t !== it.targets[0]);
         if (!opts.length) { log(g, `Willbender finds no other target for ${it.name}.`, p); return; }
@@ -371,7 +369,7 @@
         if (pick && opts.includes(pick)) { it.targets[0] = pick; g.bump(); log(g, `Willbender changes the target of ${it.name} to ${g.nameOf(pick)}.`, p, ["Willbender"]); }
       }
     }],
-    faceUpAi: { inStack: true, use: (g, p, o, ctx) => ctx.window === "stack" && willbenderWorth(g, p) },
+    faceUpAi: { inStack: true, use: (g, p, o, ctx) => (ctx.window === "stack" || ctx.window === "ability") && willbenderWorth(g, p) },
     ai: {
       priority: 5, morph: (g, p) => 11, cast: () => false,
       target: (g, p, req) => {
@@ -904,7 +902,7 @@
     },
     ai: {
       priority: 4, protection: true,
-      x: (g, p, o, xMax) => (g.pending.some(t => t.src && t.src.def && t.src.def.name === "Etrata, the Silencer" && t.controller === p) ? 1 : xMax),
+      x: (g, p, o, xMax) => (g.waitingTriggers().some(t => t.src && t.src.def && t.src.def.name === "Etrata, the Silencer" && t.controller === p) ? 1 : xMax),
       plan: (g, p, o, ctx) => {
         if (ctx.window !== "trigger" || o.zone !== "hand") return null;
         if (!g.battlefield.some(s => s.controller === p && s.def.name === "Etrata, the Silencer" && s.combat)) return null;

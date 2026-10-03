@@ -849,7 +849,7 @@
     text: "Sacrifice a Goblin: Add {R}.",
     note: "Automatic mana payment never sacrifices a Goblin: you use this ability yourself.",
     abilities: [{
-      label: "Sacrifice a Goblin: add {R}", sacCost: sacGoblin,
+      label: "Sacrifice a Goblin: add {R}", sacCost: sacGoblin, manaAbility: true,
       do: (g, s, ctx) => { ctx.p.pool.R++; g.bump(); },
       ai: { use: (g, p, o, ctx) => prospectorUse(g, p, o, ctx) }
     }],

@@ -667,11 +667,10 @@
     name: "Reiver Demon", cost: "{4}{B}{B}{B}{B}", type: "Creature — Demon", pt: "6/6",
     keywords: ["flying"],
     text: "Flying\nWhen Reiver Demon enters, if you cast it from your hand, destroy all nonartifact, nonblack creatures. They can't be regenerated.",
-    note: "There is no regeneration in this game, so the last sentence changes nothing.",
     triggers: [{
       on: "enters", self: true, intervening: (g, s) => !!s.state.castFromHand,
       do: (g, s, ev, { p }) => {
-        const n = g.destroyAll(g.creatures().filter(c => !g.isArtifact(c) && !g.colorsOf(c).has("B")), s);
+        const n = g.destroyAll(g.creatures().filter(c => !g.isArtifact(c) && !g.colorsOf(c).has("B")), s, { noRegen: true });
         g.log(`Reiver Demon destroys ${n} creature${n === 1 ? "" : "s"}.`, { p, cards: [s.def.name], kind: "big" });
       }
     }],
@@ -1099,10 +1098,9 @@
   D({
     name: "Wrath of God", cost: "{2}{W}{W}", type: "Sorcery",
     text: "Destroy all creatures. They can't be regenerated.",
-    note: "There is no regeneration in this game, so the second sentence changes nothing.",
     spell: {
       do: (g, ctx) => {
-        const n = g.destroyAll(g.creatures(), ctx.o);
+        const n = g.destroyAll(g.creatures(), ctx.o, { noRegen: true });
         g.log(`Wrath of God destroys ${n} creature${n === 1 ? "" : "s"}.`, { p: ctx.p, cards: ["Wrath of God"], kind: "big" });
       }
     },
