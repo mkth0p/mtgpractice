@@ -145,8 +145,9 @@
   function pickCounter(g, p, options, req) {
     if (g.loopHint && options.includes(g.loopHint)) return g.loopHint;
     // a counter on the creature Trostani checks next comes back as life too
-    for (let i = g.pending.length - 1; i >= 0; i--) {
-      const t = g.pending[i];
+    const waiting = g.waitingTriggers();
+    for (let i = waiting.length - 1; i >= 0; i--) {
+      const t = waiting[i];
       if (t.controller === p && t.tr.checksToughness && t.ev && options.includes(t.ev.o)) return t.ev.o;
     }
     const src = req && req.src;
@@ -191,6 +192,22 @@
     if (req && req.purpose === "tutor" && d.ai && d.ai.finisher) s += 4;
     return s;
   }
+  /* A tutor to hand: a card that costs more than we can pay next turn waits in the hand, so it
+     loses value with every missing mana; ramp is worth more while we're short; lands while we
+     have too few. A finisher or a combo piece the deck marks (`ai.tutorBonus`) comes first. */
+  function tutorScore(g, p, o, req) {
+    const d = o.def, ai = d.ai || {};
+    const sources = g.battlefield.filter(x => x.controller === p && (g.isLand(x) || (x.def.mana && x.def.mana.length))).length;
+    const lands = g.controlled(p, x => g.isLand(x)).length + p.hand.filter(x => x.def.types.includes("Land")).length;
+    const next = sources + (p.hand.some(x => x.def.types.includes("Land")) ? 1 : 0);
+    if (d.types.includes("Land")) return lands < 4 ? 9 : 1;
+    let s = cardScore(g, p, o, req);
+    if (d.mv > next) s -= (d.mv - next) * 1.6;
+    if (ai.ramp) s += sources < 5 ? 2.5 : -1.5;
+    if (ai.tutorBonus) s += typeof ai.tutorBonus === "function" ? ai.tutorBonus(g, p, o) || 0 : ai.tutorBonus;
+    if (ai.never) s -= 20;
+    return s;
+  }
   function pickCards(g, p, req) {
     const opts = req.options.slice();
     const min = req.min || 0, max = req.max == null ? opts.length : req.max;
@@ -229,7 +246,7 @@
     }
     if (pur === "phaseOut") {
       const mineOnly = opts.filter(o => o.controller === p);
-      const silencer = mineOnly.find(o => o.def.name === "Etrata, the Silencer" && g.pending.some(t => t.src === o));
+      const silencer = mineOnly.find(o => o.def.name === "Etrata, the Silencer" && g.waitingTriggers().some(t => t.src === o));
       if (silencer) return [silencer];
       return mineOnly.sort((a, b) => value(g, b) - value(g, a)).slice(0, max);
     }
@@ -244,7 +261,12 @@
       const second = sorted.find(o => o !== first && String(o.def.mana[0] && o.def.mana[0].produce) !== firstColor) || sorted.find(o => o !== first);
       return second ? [first, second] : [first];
     }
-    // tutors and generic picks: the best cards
+    // tutors: the best card we can cast soon
+    if (pur === "tutor" && req.to !== "battlefield") {
+      const sorted = opts.slice().sort((a, b) => tutorScore(g, p, b, req) - tutorScore(g, p, a, req));
+      return sorted.slice(0, Math.max(min, Math.min(max, sorted.length)));
+    }
+    // generic picks: the best cards
     const sorted = opts.slice().sort((a, b) => cardScore(g, p, b, req) - cardScore(g, p, a, req));
     return sorted.slice(0, Math.max(min, Math.min(max, sorted.length)));
   }
@@ -701,6 +723,24 @@
       if (!spec || spec.kind !== "spell") return true;
       return g.legalTarget(q, spec, top, act.card);
     }
+    /* Instant removal on the biggest unblocked attacker coming at q, when the attack hurts. */
+    function killAttacker(g, q, acts, win) {
+      const c = g.combat;
+      const atMe = c.attackers.filter(a => a.combat && g.defenderOf(a.combat.attacking) === q && !a.combat.wasBlocked);
+      const dmg = power(g, atMe);
+      if (!atMe.length || !(dmg >= q.life || dmg >= 8)) return null;
+      const rem = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.removal && isInstant(g, q, a.card));
+      for (const r of rem) {
+        const spec = (r.card.def.spell && r.card.def.spell.targets || [])[0];
+        if (!spec) continue;
+        const opts = g.targetOptions(q, spec, r.card).filter(t => atMe.includes(t));
+        if (!opts.length || attempts(r, "combat") >= 1) continue;
+        const t = opts.sort((x, y) => g.power(y) - g.power(x))[0];
+        noteTry(r, "combat");
+        return { type: "cast", card: r.card, targets: [t], alt: r.alt };
+      }
+      return null;
+    }
     function respond(g, q, ctx) {
       resetTurn(g);
       const acts = ctx.actions || [];
@@ -743,26 +783,35 @@
         }
         return null;
       }
+      // an opponent's activated or triggered ability on the stack
+      if (win === "ability") {
+        const top = ctx.top;
+        if (!top || top.p === q) return null;
+        // abilities that answer one (turning Willbender face up)
+        for (const a of acts) {
+          if (a.type !== "activate" || !a.ab.ai || !a.ab.ai.inStack || attempts(a, win) >= 1) continue;
+          const u = abilityUse(g, q, a, win, ctx.turnOf);
+          if (u) { noteTry(a, win); return Object.assign({ type: "activate", card: a.card, idx: a.idx }, u); }
+        }
+        // protection when the ability would destroy, exile or bounce our best creature
+        const harm = top.kind === "ability" && (top.ab.targets || []).some(sp => sp.purpose === "harm");
+        const hit = harm && top.targets.some(t => t && !g.isPlayer(t) && !t.kind && t.controller === q && (value(g, t) >= 6 || t.isCommander));
+        if (!hit) return null;
+        const prot = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.protection && (!a.card.def.ai.protects || a.card.def.ai.protects(g, q, top)));
+        const c = prot[0];
+        if (!c || attempts(c, win) >= 1) return null;
+        noteTry(c, win);
+        const out = { type: "cast", card: c.card, alt: c.alt };
+        if (c.xCount) out.x = chooseX(g, q, c.card, c.xMax);
+        return out;
+      }
+      // attackers are declared, blockers aren't yet: remove a big one coming at us
+      if (win === "attackers") return g.combat && g.combat.attacker !== q ? killAttacker(g, q, acts, win) : null;
       if (win === "combat") {
         const c = g.combat;
         if (!c) return null;
         // defending: remove a big attacker coming at us
-        if (c.attacker !== q) {
-          const atMe = c.attackers.filter(a => a.combat && g.defenderOf(a.combat.attacking) === q && !a.combat.wasBlocked);
-          const dmg = power(g, atMe);
-          if (atMe.length && (dmg >= q.life || dmg >= 8)) {
-            const rem = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.removal && isInstant(g, q, a.card));
-            for (const r of rem) {
-              const spec = (r.card.def.spell && r.card.def.spell.targets || [])[0];
-              if (!spec) continue;
-              const opts = g.targetOptions(q, spec, r.card).filter(t => atMe.includes(t));
-              if (!opts.length || attempts(r, win) >= 1) continue;
-              const t = opts.sort((x, y) => g.power(y) - g.power(x))[0];
-              noteTry(r, win);
-              return { type: "cast", card: r.card, targets: [t], alt: r.alt };
-            }
-          }
-        }
+        if (c.attacker !== q) { const k = killAttacker(g, q, acts, win); if (k) return k; }
         // tricks
         for (const a of acts) {
           if (a.type === "cast" && a.card.def.ai && a.card.def.ai.trick && attempts(a, win) < 1) {

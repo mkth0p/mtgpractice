@@ -68,7 +68,7 @@ function checkInvariants(g, where) {
   // card count conservation per player (non-token cards)
   for (const p of g.players) {
     if (p.lost) continue;
-    const n = ["library", "hand", "graveyard", "exile", "command"].reduce((s, z) => s + p[z].length, 0) + g.battlefield.concat(g.phased).filter(o => o.owner === p && !o.isToken).length + g.stack.filter(it => it.o.owner === p && !it.isCopy).length;
+    const n = ["library", "hand", "graveyard", "exile", "command"].reduce((s, z) => s + p[z].length, 0) + g.battlefield.concat(g.phased).filter(o => o.owner === p && !o.isToken).length + g.stack.filter(it => it.kind === "spell" && it.o.owner === p && !it.isCopy).length;
     if (n !== p.startCards) problems.push(`${p.name} has ${n} cards, started with ${p.startCards}`);
   }
   return problems.map(s => `[${where}] ${s}`);

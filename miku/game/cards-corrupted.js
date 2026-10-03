@@ -86,7 +86,7 @@
         ai: { use: () => false }
       },
       {
-        label: "Tap for {G}, then untap it (-1/-1 counter)",
+        label: "Tap for {G}, then untap it (-1/-1 counter)", manaAbility: true,
         condition: (g, o) => !o.tapped && (!o.sick || g.kw(o, "haste")),
         do: (g, s, ctx) => {
           g.tap(s); ctx.p.pool.G++;

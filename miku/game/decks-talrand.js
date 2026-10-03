@@ -743,7 +743,7 @@
   const specSpell = (prompt, f) => ({ kind: "spell", purpose: "counter", prompt, filter: (g, item, p) => item.p !== p && (!f || f(item)) });
   const nonCreature = it => !it.o.def.types.includes("Creature");
   const instOrSorc = it => it.o.def.types.includes("Instant") || it.o.def.types.includes("Sorcery");
-  const hasSpellToCounter = (g, p) => g.stack.some(it => it.p !== p);
+  const hasSpellToCounter = (g, p) => g.stack.some(it => it.kind === "spell" && it.p !== p);
   function counterTarget(g, ctx, after) {
     const it = ctx.targets[0];
     if (!ctx.legal[0] || !it || !g.stack.includes(it)) return false;

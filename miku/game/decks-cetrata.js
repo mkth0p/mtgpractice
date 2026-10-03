@@ -5,11 +5,11 @@
    Scroll of Fate, Training Grounds, Duskmantle Guildmage...), decks-etrata4.js (Mari, Virtus, Imperial
    Seal), decks-edgar.js (the vampire combo pieces, Demonic and Vampiric Tutor) and the other bots.
    Card text follows the printed Oracle text. Where the engine simplifies a card, its `note` says how.
-   The engine itself has no extra turns, no draw or search replacement and no "spend mana as though
-   it were any type", so the cards that need those work through triggers instead (see each note).
+   The engine has no draw or search replacement and no "spend mana as though it were any type", so
+   the cards that need those work through triggers instead (see each note).
    Win lines that work here: the vampire loop, Mindcrank + Duskmantle Guildmage, Bloodletter + Virtus,
-   the Brine Elemental untap lock (with Vesuvan Shapeshifter), Mari + Etrata, the Silencer, and Ramses.
-   Wormfang Manta's extra turns don't exist in this game. */
+   the Brine Elemental untap lock (with Vesuvan Shapeshifter), Mari + Etrata, the Silencer, Ramses,
+   and the Wormfang Manta turn loop (manifest it with Scroll of Fate, flip it, bounce it). */
 (function (root) {
   "use strict";
   const MK = root.MK, D = MK.defineOnce, T = MK.T;
@@ -435,14 +435,25 @@
     name: "Wormfang Manta", cost: "{5}{U}{U}", type: "Creature — Nightmare Fish Beast", pt: "6/1",
     keywords: ["flying"],
     text: "Flying\nWhen Wormfang Manta enters, you skip your next turn.\nWhen Wormfang Manta leaves the battlefield, you take an extra turn after this one.",
-    note: "This game has no extra or skipped turns, so neither ability does anything here: the Scroll of Fate + Crystal Shard turn loop can't be played. It's a 6/1 flier that Etrata turns face up for {2}{U}{B}.",
+    // a face-down Manta has no abilities: manifested, it never makes you skip a turn, and it only
+    // gives the extra turn if it leaves face up (the engine skips a face-down card's own triggers)
+    triggers: [
+      { on: "enters", self: true, do: (g, s, ev, { p }) => g.skipNextTurn(p, s) },
+      { on: "leaves", self: true, do: (g, s, ev, { p }) => g.addExtraTurn(p, s) }
+    ],
     ai: { priority: 5, cast: (g, p) => (manaNow(g, p) >= 9 ? undefined : false) }
   });
   D({
     name: "Dimir House Guard", cost: "{3}{B}", type: "Creature — Skeleton", pt: "2/3",
     keywords: ["fear"],
     text: "Fear (This creature can't be blocked except by artifact creatures and/or black creatures.)\nSacrifice a creature: Regenerate Dimir House Guard.\nTransmute {1}{B}{B} ({1}{B}{B}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)",
-    note: "There is no regeneration in this game, so the second ability isn't there. " + TRANSMUTE_NOTE,
+    note: TRANSMUTE_NOTE,
+    abilities: [{
+      label: "Sacrifice a creature: regenerate",
+      sacCost: { filter: (g, c, src) => c.controller === src.controller && g.isCreature(c), prompt: "Sacrifice a creature" },
+      do: (g, s) => g.regenerate(s),
+      ai: { use: () => false }
+    }],
     channel: transmute("{1}{B}{B}"),
     ai: { priority: 3, plan: transmutePlan, target: transmuteTarget }
   });
@@ -495,6 +506,9 @@
       const hit = (top.targets || []).find(t => t && !g.isPlayer(t) && t.controller === p && t.owner === p && !t.faceDown && !t.isToken && pool.includes(t) && g.isCreature(t));
       if (hit && (!ctx || ctx.window === "stack")) return hit;
     }
+    // the turn loop: a face-up Wormfang Manta that leaves gives an extra turn (after combat, on our turn)
+    const manta = pool.find(c => c.controller === p && c.def.name === "Wormfang Manta" && !c.faceDown);
+    if (manta && g.active === p && (!ctx || ctx.window === "main2")) return manta;
     if (ctx && !endBeforeMe(g, p, ctx)) return null;
     return pool.find(c => c.controller === p && c.def.name === "Tribute Mage") || null;
   }
@@ -983,7 +997,9 @@
     const claw = g.battlefield.find(o => o.def.name === "Wishclaw Talisman");
     if (claw && claw.controller === p) out.push({ level: "warn", title: "Wishclaw goes to an opponent", text: `Using it hands it to an opponent, who can tutor with it on their turn. Use it the turn you go off${onBf(g, p, "Opposition Agent") ? " (or now: Opposition Agent takes what they find)" : ", or with Opposition Agent out"}.`, cards: ["Wishclaw Talisman", "Opposition Agent"] });
     else if (claw && claw.controller !== p && (claw.counters.wish || 0) > 0) out.push({ level: "warn", title: `${claw.controller.name} has Wishclaw Talisman`, text: `${claw.controller.name} can tutor with it on their turn (${claw.counters.wish} wish counter${claw.counters.wish === 1 ? "" : "s"} left). Then it comes back to an opponent of theirs.`, cards: ["Wishclaw Talisman"] });
-    if (inHand(p, "Wormfang Manta")) out.push({ level: "info", title: "Wormfang Manta here", text: "This game has no extra turns, so the Manta turn loop doesn't work. Manifest it with Scroll of Fate and flip it with Etrata as a 6/1 flier.", cards: ["Wormfang Manta", "Scroll of Fate"] });
+    if (inHand(p, "Wormfang Manta")) out.push({ level: "info", title: "Wormfang Manta here", text: "Don't cast it: it makes you skip your next turn. Put it on Scroll of Fate (manifest), flip it with Etrata, then bounce it with Crystal Shard or Otawara for an extra turn.", cards: ["Wormfang Manta", "Scroll of Fate", "Crystal Shard"] });
+    const manta = g.battlefield.find(o => o.controller === p && o.def.name === "Wormfang Manta" && !o.faceDown);
+    if (manta && myTurn) out.push({ level: "now", title: "Bounce the Manta for an extra turn", text: "Your face-up Wormfang Manta leaving the battlefield gives you an extra turn after this one. Bounce it with Crystal Shard ({U}, {T}) or Otawara, then manifest it again with Scroll of Fate.", cards: ["Wormfang Manta", "Crystal Shard"] });
     const order = { win: 0, now: 1, warn: 2, plan: 3, info: 4 };
     return out.sort((a, b) => order[a.level] - order[b.level]);
   }

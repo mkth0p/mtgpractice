@@ -270,22 +270,7 @@
   });
 
   /* ================================================================ dragon helpers */
-  /* Ward {n} against spells: the caster pays {n} or the spell is countered. */
-  const wardTrigger = n => ({
-    on: "cast", when: (g, s, ev) => ev.p !== s.controller && !!ev.item && ev.item.targets.includes(s),
-    do: async (g, s, ev) => {
-      const q = ev.p, item = ev.item;
-      if (!g.stack.includes(item) || q.lost) return;
-      const cost = MK.parseCost(`{${n}}`);
-      let paid = false;
-      if (g.canPay(q, cost)) {
-        const ok = await g.ask(q, { type: "confirm", prompt: `Ward {${n}}: pay {${n}}, or ${item.name} is countered`, src: s, purpose: "wardPay" });
-        if (ok) paid = g.pay(q, cost);
-      }
-      if (paid) g.log(`${q.name} pays {${n}} for ward.`, { p: q, cards: [s.def.name] });
-      else { g.log(`${q.name} doesn't pay for ward.`, { p: q, cards: [s.def.name] }); g.counterSpell(item, s); }
-    }
-  });
+  const wardTrigger = MK.wardTrigger;
   /* Look at the top n cards, put one into your hand and the rest on the bottom. */
   async function lookPickOne(g, p, s, n) {
     const cards = p.library.slice(0, n);
@@ -431,7 +416,6 @@
     name: "Miirym, Sentinel Wyrm", cost: "{3}{G}{U}{R}", type: "Legendary Creature — Dragon Spirit", pt: "6/6",
     keywords: ["flying", "ward"],
     text: "Flying, ward {2}\nWhenever another nontoken Dragon you control enters, create a token that's a copy of it, except the token isn't legendary.",
-    note: "Ward works against spells only; activated abilities that target Miirym are not countered.",
     triggers: [
       wardTrigger(2),
       {
@@ -1247,7 +1231,7 @@
   const triome = (name, a, b, c, types) => land(name, {
     type: "Land — " + types, etbTapped: true,
     text: `({T}: Add {${a}}, {${b}}, or {${c}}.)\n${name} enters tapped.\nCycling {3} ({3}, Discard this card: Draw a card.)`,
-    note: "Cycling from hand isn't supported, so it can only be played as a land.",
+    cycling: "{3}",
     mana: [{ tap: true, produce: [a, b, c] }]
   });
   triome("Ketria Triome", "G", "U", "R", "Forest Island Mountain");

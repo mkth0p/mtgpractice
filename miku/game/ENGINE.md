@@ -24,17 +24,36 @@ Load order in the page and in the sim: `engine.js`, `cards-miku.js`, `cards-corr
 a card:
 
 - Mana is paid automatically from untapped sources. Players never tap lands by hand.
-- Only spells use the stack. Activated and triggered abilities resolve right away (triggers after the
-  action that caused them, newest first, active player's last).
-- Players get a response window when an opponent casts a spell, after blockers are declared, and at
-  the end of each other player's turn.
-- A commander that would go to the graveyard or exile goes back to the command zone.
-- No layers beyond: base P/T (card, `cda`, animation), set-base effects (Mirror Entity), counters,
-  then static and until-end-of-turn modifications.
-- Not supported: extra turns, extra combat phases, control-changing
-  effects that last longer than a turn, split second, replacement effects
-  other than the ones listed under statics. Pick another card, or write a simplified version and say
-  how in the card's `note`.
+- Spells, activated abilities and triggered abilities use the stack (since engine version 2). The
+  players after the top item's controller get a response window for each item (`window: "stack"` for
+  a spell, `"ability"` for an ability or trigger), then it resolves. Mana abilities (`manaAbility: true`
+  on an ability that adds to `ctx.p.pool`) and special actions (turning face up, unlocking a door)
+  skip the stack. Inside a repeated loop (`repeat`) the table shortcuts: no windows for its
+  abilities and triggers.
+- Triggers wait in `g.pending` until the next priority, then go on the stack: the active player's
+  first (so they resolve last), "late" ones under the others. `await g.settle()` resolves them and
+  everything they cause, so card code can keep calling it. `g.waitingTriggers()` lists those not yet
+  resolved (on the stack, pending, and the one resolving now), next one last.
+- Other response windows: `"attackers"` (attackers declared, before blocks), `"combat"` (after blocks)
+  and `"end"` (end of each turn, for the other players). None in upkeep, draw or beginning of combat.
+- A commander that would go to the graveyard, exile or a library goes to the command zone; one that
+  would go to its owner's hand stays there.
+- The legend rule is a choice for people (`purpose: "legendKeep"`); bots keep the newest.
+- Not supported: split second, control-changing effects that last longer than a turn, replacement
+  effects other than the ones listed under statics. Pick another card, or write a simplified version
+  and say how in the card's `note`.
+
+### Turns, combats and regeneration
+
+- `g.addExtraTurn(p, src)`: p takes an extra turn after this one (the newest extra turn first, then
+  normal order resumes). `g.skipNextTurn(p, src)`: p skips their next turn, extra or not.
+  `g.nextPlayer(g.active)` already accounts for a waiting extra turn.
+- `g.addExtraCombat(p, { main: true })`: an additional combat phase right after the regular one
+  (and an additional main phase after it with `main`).
+- `g.regenerate(o)`: a regeneration shield until end of turn. `g.destroy(o, src, { noRegen: true })`
+  and `g.destroyAll(list, src, { noRegen: true })` for "can't be regenerated". Lethal damage uses the
+  shield too.
+- `p.drawnThisTurn` lists the cards p drew this turn (Sylvan Library).
 
 ## Defining a card
 
@@ -91,6 +110,8 @@ triggers: [{
 | `attacks` | o, target, p (once per attacking creature) |
 | `blocks` | o (blocker), attacker, p; `blocked`: o (attacker), blockers |
 | `playerLost` | p |
+| `becameTarget` | o (the permanent), p (who controls the spell or ability), item (on the stack) |
+| `activated` | p, o, ab, item (an activated ability just went on the stack) |
 
 A leaves-the-battlefield trigger of the object itself still fires (it uses `ev.lki`).
 
@@ -109,10 +130,13 @@ abilities: [{
   payLife: 2,
   sacSelf: true, exileSelf: true,
   sacCost: { filter: (g, c, src) => c.controller === src.controller && g.isCreature(c), prompt: "Sacrifice a creature" },
-  tapCreatures: 2, untapCreatures: 1, discard: 1,
+  tapCreatures: 2, untapCreatures: 1, discard: 1,  // tapFilter(g, c, src), tapSelfOk, tapPrompt narrow the tapped ones
+  manaAbility: true,                    // adds mana: resolves at once, no stack
   targets: [spec],                      // see target specs
   minX: 1, xFrom: (g, ctx) => n,        // X chosen by the player, or computed from the targets
   do: async (g, src, ctx) => { /* ctx.p, ctx.targets, ctx.legal[i], ctx.x, ctx.kws (keywords before costs) */ },
+  // it resolves from the stack: src may have left (sacrificed as a cost), and with every target
+  // gone it does nothing
   ai: { use: (g, p, o, { window, turnOf }) => false }   // see bot hints
 }]
 ```
@@ -154,7 +178,9 @@ cantBeCountered: true, canCast: (g, p, o) => bool, costReduce: (g, p, o) => n, o
 
 A spell whose only targets are all illegal on resolution does nothing. Check `ctx.legal[i]` for each
 target anyway. Counterspells target `{ kind: "spell", filter: (g, item, p) => item.p !== p }` and call
-`g.counterSpell(ctx.targets[0], ctx.o)`. Copy a spell with `await g.copySpell(item, p)`. Cast a card
+`g.counterSpell(ctx.targets[0], ctx.o)`. `kind: "spell"` only offers spells; add `orAbility: true` for
+"target spell or ability" (Willbender), and use `g.stackTargets(item)` for the specs of any stack item.
+Ward: `MK.wardTrigger(n)` in `triggers`, or `ward: n` on a static that applies to the creature. Copy a spell with `await g.copySpell(item, p)`. Cast a card
 for free with `await g.castWithoutPaying(p, card)`.
 
 ### Target specs
@@ -282,7 +308,7 @@ subtypes: ["Goblin"], keywords: [], abilities, triggers, mana })`. Keep `key` un
 | `morph: (g, p, o) => number` | score for casting it face down (default: never) |
 
 `ability.ai.use(g, p, o, { window, turnOf })` says when to activate: window is `main1`, `main2`,
-`stack`, `combat` or `end` (end of another player's turn, `turnOf` is that player). Return false, true,
+`stack`, `ability`, `attackers`, `combat` or `end` (end of another player's turn, `turnOf` is that player). Return false, true,
 or `{ repeat: n }` for loops (the engine stops early when the ability can't be activated). `first: true`
 checks the ability before anything else (win-the-game abilities).
 
