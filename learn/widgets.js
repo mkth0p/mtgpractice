@@ -14,6 +14,14 @@
     m.innerHTML = H().fmt(html);
   }
   const shake = node => { node.classList.remove("shake"); void node.offsetWidth; node.classList.add("shake"); };
+  // count a number up or down on screen, so the change is easy to follow
+  function tick(node, from, to) {
+    if (!node) return;
+    if (H().calm() || from === to) { node.textContent = to; return; }
+    const steps = Math.min(Math.abs(to - from), 12), t0 = performance.now(), dur = 120 + steps * 45;
+    const f = now => { const k = Math.min(1, (now - t0) / dur); node.textContent = Math.round(from + (to - from) * k); if (k < 1) requestAnimationFrame(f); };
+    requestAnimationFrame(f);
+  }
   const hearts = (n, max, sym) => { let s = ""; for (let k = 0; k < max; k++) s += `<i class="${k < n ? "" : "gone"}">${sym || "❤️"}</i>`; return `<div class="hearts" aria-hidden="true">${s}</div>`; };
 
   /* Lesson 1: knock the opponent from 20 to 0. */
@@ -28,8 +36,11 @@
     $$("[data-k]", el).forEach(b => b.onclick = () => {
       if (opp <= 0) { opp = max; box.innerHTML = `<div class="who">Opponent</div><div class="n">${opp}</div>${hearts(opp, max)}`; say(el, "New game! Their life is back to " + max + "."); return; }
       const h = o.hits[+b.dataset.k];
+      const was = opp;
       opp = Math.max(0, opp - h[1]);
-      box.innerHTML = `<div class="who">Opponent</div><div class="n">${opp}</div>${hearts(opp, max)}`;
+      box.innerHTML = `<div class="who">Opponent</div><div class="n">${was}</div>${hearts(opp, max)}`;
+      tick($(".n", box), was, opp);
+      H().pop(box, "-" + h[1]);
       box.classList.remove("hit"); void box.offsetWidth; box.classList.add("hit");
       if (opp === 0) { say(el, "🏆 Their life reached <b>0</b>. <b>You win!</b> That is the whole goal of Magic. (Tap a button to play again.)", "good"); api.done(); }
       else say(el, `${h[2]} They lose <b>${h[1]}</b> life and have <b>${opp}</b> left.`);
@@ -130,7 +141,7 @@
         <div class="zone-label">Your lands · tap one to use its mana</div><div class="row-cards" id="lands">${pz.lands.map((id, k) => H().card(id, { sm: true, button: true, data: { k } })).join("")}</div>
         <div class="acts"><button class="btn sm go" type="button" id="cast" disabled>Cast it!</button><button class="btn sm" type="button" id="cant">I can't cast this</button><button class="btn sm" type="button" id="undo">Untap all</button></div>
         <div class="msg">Tap your lands one by one. Each colored circle needs its own color. A grey number circle takes any color.</div>`;
-      const drawNeed = () => { $("#need", el).innerHTML = need.map((s, k) => H().pip(s === "N" ? "1" : s, paid[k] ? "big paid" : "big empty")).join(""); };
+      const drawNeed = fresh => { $("#need", el).innerHTML = need.map((s, k) => H().pip(s === "N" ? "1" : s, paid[k] ? "big paid" + (k === fresh ? " fresh" : "") : "big empty")).join(""); };
       drawNeed();
       const finishPuzzle = (html) => {
         solvedCount++;
@@ -152,7 +163,8 @@
           return;
         }
         tapped[k] = true; paid[slot] = true; b.classList.add("tapped");
-        drawNeed();
+        H().pop(b, "+{" + col + "}", "good"); H().sfx("tap");
+        drawNeed(slot);
         if (paid.every(Boolean)) { $("#cast", el).disabled = false; say(el, "Every circle is filled. Tap <b>Cast it!</b>", "good"); }
         else say(el, `${H().pips("{" + col + "}")} paid ${need[slot] === "N" ? "a grey circle (any color is fine there)" : "a " + H().pips("{" + col + "}") + " circle"}.`);
       });
@@ -178,6 +190,7 @@
       $$(".mcard", el).forEach(b => b.onclick = () => {
         const k = +b.dataset.k;
         if (tapped[k]) { shake(b); say(el, "Already tapped. It's lying sideways, so it has been used this turn. It stands back up at the start of your next turn.", "bad"); return; }
+        H().pop(b, "+{G}", "good"); H().sfx("tap");
         tapped[k] = true; pool.push("G"); draw();
         say(el, ids[k] === "elves" ? `Llanowar Elves turned sideways to make ${H().pips("{G}")}. Creatures can have a ${H().pips("{T}")} ability too.` : `The Forest turned sideways (tapped) and made ${H().pips("{G}")}.`);
         if (tapped.every(Boolean) && turn === 1) say(el, `All three tapped: ${H().pips("{G}{G}{G}")} to spend. Now tap <b>Next turn</b> and watch what happens.`, "good");
@@ -272,7 +285,11 @@
         <div class="acts"><button class="btn sm pink" type="button" id="go">⚔ Fight!</button><button class="btn sm" type="button" id="rs">Reset lives</button></div><div class="msg"></div>`;
       $$("#pa button", el).forEach(x => x.onclick = () => { a = x.dataset.id; draw(); });
       $$("#pb button", el).forEach(x => x.onclick = () => { b = x.dataset.id || null; draw(); });
-      $("#go", el).onclick = fight;
+      $("#go", el).onclick = () => {
+        $("#go", el).disabled = true;
+        const atkCard = $(".fight > div:first-child .mcard", el);
+        if (atkCard && !H().calm()) { atkCard.classList.add("lunge"); setTimeout(fight, 380); } else fight();
+      };
       $("#rs", el).onclick = () => { oppLife = 20; myLife = 20; draw(); };
       say(el, res ? res.text : (o.prompt || "Pick an attacker and a blocker, then tap <b>Fight!</b>"), res ? "good" : "");
     }
@@ -310,7 +327,14 @@
       }
       res.text = lines.join("<br>");
       fights++;
+      const oppBefore = +($(".life .p:last-child .n", el) || {}).textContent || oppLife;
       draw(res);
+      const [ac, bc] = [$(".fight > div:first-child .mcard", el), $(".fight > div:last-child .mcard", el)];
+      if (res.toA && ac) { ac.classList.add("hurt"); H().pop(ac, "-" + res.toA); }
+      if (res.toB && bc) { bc.classList.add("hurt"); H().pop(bc, "-" + res.toB); }
+      const oppBox = $(".life .p:last-child", el);
+      if (oppLife !== oppBefore && oppBox) { tick($(".n", oppBox), oppBefore, oppLife); H().pop(oppBox, (oppLife < oppBefore ? "-" : "+") + Math.abs(oppBefore - oppLife), oppLife < oppBefore ? "" : "good"); }
+      H().sfx(res.aDies && !res.bDies ? "bad" : "ok");
       if (fights >= (o.need || 3)) api.done();
     }
     draw();
@@ -340,7 +364,12 @@
         $("#pass", el).onclick = () => { phase = "resolve"; draw(); say(el, "You let it go. Now the stack resolves."); };
       } else if (phase === "resolve") {
         acts.innerHTML = `<button class="btn sm pink" type="button" id="res">Resolve the top plate</button>`;
-        $("#res", el).onclick = () => {
+        $("#res", el).onclick = ev => {
+          ev.currentTarget.disabled = true;
+          const topPlate = $(".plate.top", el);
+          if (topPlate && !H().calm()) { topPlate.classList.add("lift"); setTimeout(resolveTop, 320); } else resolveTop();
+        };
+        const resolveTop = () => {
           const s = stack.pop();
           if (s.id === "growth") { bears.p += 3; bears.t += 3; outcome = "Giant Growth happens first: your Bears become <b>5/5</b> until the end of the turn."; }
           else if (s.id === "bolt") {
@@ -463,6 +492,7 @@
         if (step !== "attack") return nope(b, step === "untap" ? "Untap first." : "Attacking comes after your main phase.");
         if (c.id === "bears") return nope(b, "The Bears have summoning sickness 💤: creatures can't attack the turn they arrive.");
         c.t = true; S.opp -= 1; adv("The Goblin taps and attacks. Nobody blocks: the opponent drops to <b>39</b>.");
+        H().pop($(".area.opp", el), "-1");
       });
     }
     draw();

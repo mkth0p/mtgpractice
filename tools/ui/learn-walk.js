@@ -62,10 +62,24 @@ const SOLVE = {
     const ctx = await browser.newContext({ viewport: vp });
     const p = await ctx.newPage();
     await p.route("**/fonts.googleapis.com/**", r => r.fulfill({ status: 200, contentType: "text/css", body: "" }));
+    await p.route("**/api.scryfall.com/**", r => r.fulfill({ status: 404, body: "" }));
     p.on("pageerror", e => issues.push(`[${vp.tag}] page error: ${e.message}`));
-    p.on("console", m => { if (m.type() === "error") issues.push(`[${vp.tag}] console: ${m.text()}`); });
+    p.on("console", m => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) issues.push(`[${vp.tag}] console: ${m.text()}`); });
     p.on("dialog", d => d.accept());
+    await p.goto(base.replace("learn/", ""));
+    if (!(await p.$("a.learn[href='learn/']"))) issues.push(`[${vp.tag}] the hub has no Learn Magic card`);
+    if (await p.$("a[href^='storytelling']")) issues.push(`[${vp.tag}] the hub still links the storytelling page`);
+    if (shotDir) await p.screenshot({ path: path.join(shotDir, `hub-${vp.tag}.png`) });
     await p.goto(base);
+    await p.waitForSelector(".path");
+    // reading settings: every switch toggles its class on <html>
+    await p.click("#aa");
+    for (const [k, cls] of [["big", "big"], ["spaced", "spaced"]]) {
+      await p.check(`#prefs input[data-p='${k}']`);
+      if (!(await p.evaluate(c => document.documentElement.classList.contains(c), cls))) issues.push(`[${vp.tag}] setting ${k} did nothing`);
+      await p.uncheck(`#prefs input[data-p='${k}']`);
+    }
+    await p.click("#prefs-x");
     if (shotDir) await p.screenshot({ path: path.join(shotDir, `learn-home-${vp.tag}.png`), fullPage: vp.tag === "desktop" });
     const lessons = await p.evaluate(() => LEARN.lessons.map(l => ({ id: l.id, n: l.steps.length })));
     let shots = 0;
@@ -81,6 +95,7 @@ const SOLVE = {
           if (SOLVE[name]) {
             try { await SOLVE[name](p); } catch (e) { issues.push(`[${vp.tag}] ${l.id} step ${s} widget ${name}: ${e.message.split("\n")[0]}`); }
           }
+          if (gated) await p.waitForFunction(() => !document.querySelector("#next").hidden, null, { timeout: 3000 }).catch(() => {}); // fights and the stack animate first
           if (gated && await p.$eval("#next", b => b.hidden)) { issues.push(`[${vp.tag}] ${l.id} step ${s}: widget ${name} never unlocked Next`); await p.click("#hint .linkish"); }
           if (shotDir && vp.tag === "phone" && shots < 40 && ["anatomy", "pay", "combat", "stack", "guided", "tax", "sort"].includes(name)) { await p.screenshot({ path: path.join(shotDir, `learn-${l.id}-${name}.png`) }); shots++; }
         }
