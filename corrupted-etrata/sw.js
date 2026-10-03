@@ -1,17 +1,17 @@
-/* Offline support for the Etrata deck wiki. It shares the Miku site's kit, styles, shell and game
+/* Offline support for the Corrupted Etrata deck wiki. It shares the Miku site's kit, styles, shell and game
    engine (../miku/). Site files: network first, cache as fallback. Fonts and card images: cache first. */
-const VERSION = "etrata-v21";
+const VERSION = "cetrata-v21";
 const V = "?v=21";
 const GAME = ["engine.js", "cards-miku.js", "cards-corrupted.js", "checklist-corrupted.js", "checklist-cetrata.js", "brain-corrupted.js", "cards-etrata.js", "cards-miku-precon.js", "decks-azusa.js", "decks-cetrata.js", "decks-edgar.js", "decks-etrata4.js", "decks-ghalta.js", "decks-krenko.js", "decks-talrand.js", "decks-urdragon.js", "precon-ghired.js", "precon-isperia.js", "precon-kaalia.js", "precon-lathril.js", "precon-wilhelt.js", "ai.js", "game-ui.js", "game.css"].map(f => "../miku/game/" + f + V);
 const CORE = ["./", "./index.html", "./icon.svg", "./manifest.webmanifest"]
-  .concat(["theme.css", "cards.js", "b4.js", "wiki.js", "guide.js", "site.js"].map(f => "./" + f + V))
+  .concat(["theme.css", "cards.js", "wiki.js", "guide.js", "quiz.js", "prices.js", "site.js"].map(f => "./" + f + V))
   .concat(["styles.css", "kit.js", "app.js"].map(f => "../miku/" + f + V), GAME);
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith("etrata-") && k !== VERSION && k !== VERSION + "-assets").map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith("cetrata-") && k !== VERSION && k !== VERSION + "-assets").map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 self.addEventListener("fetch", e => {
   const req = e.request;
