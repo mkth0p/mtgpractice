@@ -1019,6 +1019,8 @@
             const ok = g.canPay(me, MK.parseCost(o.def.cycling));
             out.push({ label: "Cycle (discard it, draw a card)", cost: o.def.cycling, ok, run: () => this.resolve({ type: "cycle", card: o }) });
           }
+          // transmute and other discard-from-hand abilities on spells (Muddle the Mixture)
+          if (o.def.channel && o.zone === "hand") out.push({ label: esc(o.def.channel.label), cost: MK.costString(g.channelCost(me, o), null), ok: g.canChannel(me, o), run: () => this.resolve({ type: "channel", card: o }) });
         }
         if (o.zone === "graveyard") for (const e of g.graveyardAbilities(o)) {
           const ok = g.canActivate(me, o, e, { instant });
