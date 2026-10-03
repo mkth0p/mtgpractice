@@ -11,6 +11,7 @@
   function say(el, html, kind) {
     const m = $(".msg", el);
     m.className = "msg " + (kind || "");
+    m.setAttribute("role", "status");
     m.innerHTML = H().fmt(html);
   }
   const shake = node => { node.classList.remove("shake"); void node.offsetWidth; node.classList.add("shake"); };
@@ -81,6 +82,7 @@
     const seen = new Set();
     $$("button", el).forEach(b => b.onclick = () => {
       const k = +b.dataset.k;
+      if (k > seen.size) { shake(b); say(el, `One at a time, in order: tap step <b>${seen.size + 1}, ${steps[seen.size][1]}</b> next.`, "bad"); return; }
       $$("button", el).forEach(x => x.classList.remove("on"));
       b.classList.add("on", "seen"); seen.add(k);
       say(el, `<b>${k + 1}. ${steps[k][1]}</b> · ${steps[k][2]}` + (seen.size === 5 ? `<br><br>✅ That's a whole turn! Then the next player does the same five steps.` : ""), seen.size === 5 ? "good" : "");
@@ -183,23 +185,25 @@
     let pool = [], tapped = [false, false, false], turn = 1, untapped = false;
     const ids = ["forest", "forest", "elves"];
     function draw() {
-      el.innerHTML = title(`Turn ${turn}: tap your cards for mana`) +
+      el.innerHTML = title(turn === 1 ? "Your main phase: tap your cards for mana" : "The next turn") +
+        `<p class="small muted" style="margin:0 0 8px">These three have been on your side since earlier turns, so they're ready to use.</p>` +
         `<div class="row-cards" style="justify-content:center;gap:24px;min-height:150px">${ids.map((id, k) => H().card(id, { sm: true, button: true, cls: tapped[k] ? "tapped" : "", data: { k } })).join("")}</div>
         <div class="zone-label">Your mana right now</div><div class="pool">${pool.map(p => H().pip(p)).join("") || '<span class="muted small">empty</span>'}</div>
         <div class="acts"><button class="btn sm" type="button" id="nt">Next turn</button></div><div class="msg"></div>`;
       $$(".mcard", el).forEach(b => b.onclick = () => {
         const k = +b.dataset.k;
-        if (tapped[k]) { shake(b); say(el, "Already tapped. It's lying sideways, so it has been used this turn. It stands back up at the start of your next turn.", "bad"); return; }
+        if (tapped[k]) { shake(b); say(el, "Already tapped. It's lying sideways, so it has been used. It stands back up at the start of your next turn.", "bad"); return; }
         H().pop(b, "+{G}", "good"); H().sfx("tap");
         tapped[k] = true; pool.push("G"); draw();
         say(el, ids[k] === "elves" ? `Llanowar Elves turned sideways to make ${H().pips("{G}")}. Creatures can have a ${H().pips("{T}")} ability too.` : `The Forest turned sideways (tapped) and made ${H().pips("{G}")}.`);
         if (tapped.every(Boolean) && turn === 1) say(el, `All three tapped: ${H().pips("{G}{G}{G}")} to spend. Now tap <b>Next turn</b> and watch what happens.`, "good");
       });
       $("#nt", el).onclick = () => {
+        if (!tapped.some(Boolean)) { say(el, "First tap at least one card to make mana. Then see what the next turn does to it.", "bad"); return; }
         const had = pool.length;
         turn++; tapped = [false, false, false]; pool = []; untapped = true; draw();
-        say(el, `☀️ New turn: everything <b>untapped</b> (stood back up), ready to use again.${had ? ` The ${had} unused mana you had <b>vanished</b>: mana doesn't keep, so spend it when you make it.` : ""}`, "good");
-        if (untapped) api.done();
+        say(el, `☀️ New turn: everything <b>untapped</b> (stood back up), ready to use again. The ${had} mana you didn't spend <b>vanished</b>. Mana disappears at the end of each step of the turn, so tap lands only when you're about to spend the mana.`, "good");
+        api.done();
       };
       if (!$(".msg", el).innerHTML) say(el, "Tap each card. Watch it turn sideways and make mana.");
     }
@@ -225,7 +229,7 @@
           if (first) right++;
           say(el, "✅ " + (it.why || "Right!"), "good");
           $$(".buckets button", el).forEach(x => x.disabled = true);
-          setTimeout(() => { k++; draw(); }, it.why ? 1700 : 700);
+          setTimeout(() => { if (!el.isConnected) return; k++; draw(); }, it.why ? 1700 : 700);
         } else { first = false; shake(b); say(el, "Not that one. " + (it.hint || "Try another box."), "bad"); }
       });
     }
@@ -257,10 +261,13 @@
     function draw() {
       const c = o.cards[k];
       el.innerHTML = title(`Tap the card to flip it · ${k + 1} of ${o.cards.length}`) +
-        `<button class="fc" type="button" aria-label="Flip the card"><div class="face"><div><span class="em" aria-hidden="true">${c[0]}</span><b>${c[1]}</b><span class="muted small">tap to see what it means</span></div></div><div class="face back"><div>${H().fmt(c[2])}</div></div></button>
+        `<button class="fc" type="button" aria-pressed="false" aria-label="Flashcard: ${c[1]}. Flip it to see what it means."><div class="face" aria-hidden="true"><div><span class="em" aria-hidden="true">${c[0]}</span><b>${c[1]}</b><span class="muted small">tap to see what it means</span></div></div><div class="face back" aria-hidden="true"><div>${H().fmt(c[2])}</div></div></button><p class="sr-only" aria-live="polite" id="fcback"></p>
         <div class="nav"><button class="btn sm" type="button" id="pv" ${k === 0 ? "disabled" : ""}>← Prev</button><span class="small muted">${seen.size} of ${o.cards.length} flipped</span><button class="btn sm" type="button" id="nx" ${k === o.cards.length - 1 ? "disabled" : ""}>Next →</button></div>`;
       const fc = $(".fc", el);
-      fc.onclick = () => { fc.classList.toggle("on"); seen.add(k); $(".nav span", el).textContent = `${seen.size} of ${o.cards.length} flipped`; if (seen.size === o.cards.length) api.done(); };
+      fc.onclick = () => {
+        const on = fc.classList.toggle("on"); seen.add(k);
+        fc.setAttribute("aria-pressed", on ? "true" : "false");
+        $("#fcback", el).innerHTML = on ? `${c[1]}: ${H().fmt(c[2])}` : ""; $(".nav span", el).textContent = `${seen.size} of ${o.cards.length} flipped`; if (seen.size === o.cards.length) api.done(); };
       $("#pv", el).onclick = () => { k--; draw(); };
       $("#nx", el).onclick = () => { k++; draw(); };
     }
@@ -288,12 +295,13 @@
       $("#go", el).onclick = () => {
         $("#go", el).disabled = true;
         const atkCard = $(".fight > div:first-child .mcard", el);
-        if (atkCard && !H().calm()) { atkCard.classList.add("lunge"); setTimeout(fight, 380); } else fight();
+        if (atkCard && !H().calm()) { atkCard.classList.add("lunge"); setTimeout(() => el.isConnected && fight(), 380); } else fight();
       };
       $("#rs", el).onclick = () => { oppLife = 20; myLife = 20; draw(); };
       say(el, res ? res.text : (o.prompt || "Pick an attacker and a blocker, then tap <b>Fight!</b>"), res ? "good" : "");
     }
     function fight() {
+      const oppBefore = oppLife;
       const ca = C(a), cb = b ? C(b) : null, has = (c, k) => (c.kw || []).includes(k);
       const lines = [];
       let res = { toA: 0, toB: 0 };
@@ -327,7 +335,7 @@
       }
       res.text = lines.join("<br>");
       fights++;
-      const oppBefore = +($(".life .p:last-child .n", el) || {}).textContent || oppLife;
+      if (oppLife <= 0) { oppLife = 0; res.text += "<br>🏆 Their life hit <b>0</b>: they would lose! (Tap Reset lives to keep practising.)"; }
       draw(res);
       const [ac, bc] = [$(".fight > div:first-child .mcard", el), $(".fight > div:last-child .mcard", el)];
       if (res.toA && ac) { ac.classList.add("hurt"); H().pop(ac, "-" + res.toA); }
@@ -353,7 +361,7 @@
     function draw() {
       const top = stack.length - 1;
       el.innerHTML = title(mode === "bolt" ? "Your opponent casts Lightning Bolt on your Bears!" : "This time they cast Murder on your Bears!") +
-        `<div class="fight"><div style="display:grid;justify-items:center;gap:6px"><div class="zone-label">Your creature</div>${H().card("bears", { sm: true, cls: bears.alive ? "" : "dead" })}<b>${bears.alive ? `${bears.p}/${bears.t}` : "In the graveyard"}</b></div><span></span>
+        `<div class="fight stackfight"><div style="display:grid;justify-items:center;gap:6px"><div class="zone-label">Your creature</div>${H().card("bears", { sm: true, cls: bears.alive ? "" : "dead" })}<b>${bears.alive ? `${bears.p}/${bears.t}` : "In the graveyard"}</b></div><span></span>
         <div style="width:100%"><div class="zone-label">The stack · top plate goes first</div><div class="stackbox">${stack.map((s, k) => `<div class="plate ${k === top ? "top" : ""}">${H().pips(C(s.id).cost)} ${C(s.id).name}<small>${s.who} · ${s.note}</small></div>`).join("") || '<span class="muted small" style="margin:auto">Empty</span>'}</div></div></div>
         <div class="acts" id="acts"></div><div class="msg"></div>`;
       const acts = $("#acts", el);
@@ -367,7 +375,7 @@
         $("#res", el).onclick = ev => {
           ev.currentTarget.disabled = true;
           const topPlate = $(".plate.top", el);
-          if (topPlate && !H().calm()) { topPlate.classList.add("lift"); setTimeout(resolveTop, 320); } else resolveTop();
+          if (topPlate && !H().calm()) { topPlate.classList.add("lift"); setTimeout(() => el.isConnected && resolveTop(), 320); } else resolveTop();
         };
         const resolveTop = () => {
           const s = stack.pop();

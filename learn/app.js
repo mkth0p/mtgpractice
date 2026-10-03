@@ -27,9 +27,10 @@
     opts = opts || {};
     const tag = opts.button ? "button" : "div";
     const cls = ["mcard", c.c, opts.sm ? "sm" : "", c.makes && !c.pt ? "land" : "", opts.cls || ""].join(" ");
+    const state = /\btapped\b/.test(opts.cls || "") ? ", tapped" : /\bdead\b/.test(opts.cls || "") ? ", in the graveyard" : "";
     const pt = c.pt ? `<span class="pt">${c.pt[0]}/${c.pt[1]}</span>` : "";
     const data = opts.data ? Object.entries(opts.data).map(([k, v]) => ` data-${k}="${esc(v)}"`).join("") : "";
-    return `<${tag} class="${cls}"${tag === "button" ? ' type="button"' : ""}${data} aria-label="${esc(c.name)}">
+    return `<${tag} class="${cls}"${tag === "button" ? ' type="button"' : ""}${data} aria-label="${esc(c.name)}${state}">
       <div class="in">
         <div class="bar1"><span class="nm">${esc(c.name)}</span><span class="cost">${pips(c.cost || "")}</span></div>
         <div class="art" aria-hidden="true">${c.art || ""}</div>
@@ -57,15 +58,20 @@
     ["calm", "🌙", "Calm mode", "Fewer animations and no confetti."],
     ["sound", "🔔", "Sounds", "A soft chime for right answers."]
   ];
-  function settingsPanel() {
+  let prefsOpener = null;
+  function closePrefs() { const p = $("#prefs"); if (p) p.remove(); if (prefsOpener && prefsOpener.isConnected) prefsOpener.focus(); prefsOpener = null; }
+  function settingsPanel(ev) {
     let pop = $("#prefs");
-    if (pop) { pop.remove(); return; }
+    if (pop) { closePrefs(); return; }
+    prefsOpener = ev && ev.currentTarget;
     pop = document.createElement("div");
     pop.id = "prefs"; pop.className = "prefs"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Reading settings");
     pop.innerHTML = `<b>Make it comfy</b>${OPTIONS.map(o => `<label><input type="checkbox" data-p="${o[0]}" ${prefs[o[0]] ? "checked" : ""}><span class="em" aria-hidden="true">${o[1]}</span><span><b>${o[2]}</b><small>${o[3]}</small></span></label>`).join("")}<button class="btn sm" type="button" id="prefs-x">Done</button>`;
     document.body.appendChild(pop);
     $$("input", pop).forEach(i => i.onchange = () => { prefs[i.dataset.p] = i.checked; savePrefs(); applyPrefs(); if (i.dataset.p === "sound" && i.checked) sfx("ok"); });
-    $("#prefs-x").onclick = () => pop.remove();
+    $("#prefs-x").onclick = closePrefs;
+    pop.addEventListener("keydown", e => { if (e.key === "Escape") { e.preventDefault(); closePrefs(); } });
+    $("input", pop).focus();
   }
   $("#aa").onclick = settingsPanel;
 
@@ -87,7 +93,7 @@
 
   /* floating "-3", "+🌳" and friends over an element */
   function pop(node, text, cls) {
-    if (!node || calm()) return;
+    if (!node || !node.isConnected || calm()) return;
     const r = node.getBoundingClientRect(), s = document.createElement("span");
     s.className = "popnum " + (cls || ""); s.innerHTML = fmt(text);
     s.style.left = r.left + r.width / 2 + "px"; s.style.top = r.top + r.height / 3 + "px";
@@ -177,6 +183,8 @@
           if (tries === 1) pop(b, "⭐", "star");
         } else {
           b.classList.add("wrong"); b.disabled = true;
+          const nextOpt = $$(".opt", box).find(x => !x.disabled);
+          if (nextOpt) nextOpt.focus({ preventScroll: true });
           why.className = "why bad";
           why.innerHTML = `<b>Not quite, and that's fine.</b>${fmt(o.why || "Have another look and try a different answer.")}`;
           sfx("bad");
@@ -188,7 +196,7 @@
     if (hb) hb.onclick = () => {
       const wrong = $$(".opt", box).filter(b => !b._ok && !b.disabled);
       if (wrong.length) { const w = pickOne(wrong); w.disabled = true; w.classList.add("gone"); }
-      if ($$(".opt", box).filter(b => !b._ok && !b.disabled).length < 1 || wrong.length <= 1) hb.remove();
+      if ($$(".opt", box).filter(b => !b._ok && !b.disabled).length < 1 || wrong.length <= 1) { hb.remove(); const o = $$(".opt", box).find(x => !x.disabled); if (o) o.focus({ preventScroll: true }); }
     };
   }
 
@@ -199,15 +207,13 @@
     get() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } },
     set(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { /* private mode: progress just isn't kept */ } }
   };
-  let P = store.get(); P.done = P.done || {}; P.at = P.at || {}; P.stars = P.stars || {};
+  let P = store.get(); P.done = P.done || {}; P.at = P.at || {}; P.stars = P.stars || {}; P.q = P.q || {};
   const save = () => store.set(P);
   const lessons = L.lessons;
   const byId = id => lessons.find(l => l.id === id);
   const nextLesson = () => lessons.find(l => !P.done[l.id]);
   const starStr = n => `<span class="stars-mini" aria-label="${n} of 3 stars">${"★".repeat(n)}<s>${"★".repeat(3 - n)}</s></span>`;
   const minutes = l => Math.max(2, Math.round(l.steps.length * 0.7));
-  // first-try answers in the lesson being played, for its stars
-  let RUN = { id: null, first: {}, quizzes: 0 };
   let last = { id: null, i: -1 };
 
   /* ---------- views ---------- */
@@ -266,9 +272,34 @@
     app.innerHTML = html;
     $("#aa2").onclick = settingsPanel;
     const r = $("#reset");
-    if (r) r.onclick = () => { if (confirm("Forget which lessons you finished?")) { P = { done: {}, at: {}, stars: {} }; save(); viewHome(); } };
+    if (r) r.onclick = () => { if (confirm("Forget which lessons you finished?")) { P = { done: {}, at: {}, stars: {}, q: {} }; save(); viewHome(); } };
     const nxt = $(".node.next");
     if (nxt && n > 0) setTimeout(() => nxt.scrollIntoView({ block: "center", behavior: calm() ? "auto" : "smooth" }), 250);
+  }
+
+  // After a screen changes, put keyboard and screen-reader focus on its title.
+  function focusHeading(root) {
+    const h = $("h2", root);
+    if (!h) return;
+    h.setAttribute("tabindex", "-1");
+    h.focus({ preventScroll: true });
+  }
+  // Widgets redraw themselves on every tap, which would drop keyboard focus to the page.
+  // Remember what was pressed and put focus back on the same control (or the widget's first one).
+  function keepFocus(box) {
+    let key = null;
+    const ident = el => el.id ? "#" + el.id : Array.from(el.attributes).filter(a => a.name.startsWith("data-")).map(a => `[${a.name}="${a.value}"]`).join("") || null;
+    const restore = () => {
+      if (!box.isConnected || (document.activeElement && document.activeElement !== document.body)) return;
+      const t = (key && box.querySelector(key + ":not([disabled])")) || box.querySelector("button:not([disabled])");
+      if (t) t.focus({ preventScroll: true });
+    };
+    box.addEventListener("click", e => {
+      const b = e.target.closest("button");
+      key = b ? ident(b) : null;
+      if (key && /^\[|^#/.test(key)) key = (b.tagName.toLowerCase()) + key;
+      setTimeout(restore, 0); setTimeout(restore, 450); setTimeout(restore, 1900);
+    }, true);
   }
 
   function viewLesson(id, stepArg) {
@@ -278,10 +309,12 @@
     setNav("");
     const idx = lessons.indexOf(l), total = l.steps.length;
     let i = Math.max(0, Math.min(stepArg != null ? stepArg : 0, total));
-    if (RUN.id !== id || i === 0) RUN = { id, first: {}, quizzes: l.steps.filter(s => s.quiz).length };
+    // the finish screen only counts when it's reached with Next from the last screen
+    const arrived = last.id === id && last.i === total - 1;
+    if (i === total && !arrived && !P.done[id]) { location.replace(`#/l/${id}/${total - 1}`); return; }
     const dir = last.id === id && i < last.i ? "back" : "fwd";
     last = { id, i };
-    P.at[id] = i; save();
+    if (i < total) { P.at[id] = i; save(); }
     const unit = L.units.find(u => u.id === l.unit);
     let dots = "";
     for (let k = 0; k <= total; k++) dots += `<i class="${k < i ? "on" : k === i ? "cur" : ""}"></i>`;
@@ -298,7 +331,7 @@
     const go = k => { location.hash = `#/l/${id}/${k}`; };
     back.onclick = () => i === 0 ? (location.hash = "#/") : go(i - 1);
 
-    if (i === total) return finish(l, screen, next, back);
+    if (i === total) return finish(l, screen, next, back, arrived);
 
     const s = l.steps[i];
     let html = `<div class="sbar"><span class="count">${i + 1} / ${total}</span>${readButton(screen)}</div>`;
@@ -331,27 +364,36 @@
       const [name, opts] = Array.isArray(s.widget) ? s.widget : [s.widget, {}];
       const box = $("#wbox");
       box.dataset.widget = name;
+      keepFocus(box);
       if (s.gate) lock(s.gate, true);
       if (W[name]) W[name](box, opts || {}, { done: () => { if (next.hidden) sfx("ok"); unlock(); } });
       else box.textContent = "Missing widget " + name;
     }
     if (s.quiz) {
       lock("Pick an answer");
-      quiz($("#qbox"), s.quiz, (ok, tries) => { if (ok) { if (!(i in RUN.first)) RUN.first[i] = tries === 1; unlock(); } });
+      // first answers are kept per lesson until it's finished, so going back or refreshing can't change the stars
+      quiz($("#qbox"), s.quiz, (ok, tries) => {
+        const q = P.q[id] = P.q[id] || {};
+        if (!(i in q)) { q[i] = ok && tries === 1; save(); }
+        if (ok) unlock();
+      });
     }
     if (i === total - 1) next.textContent = "Finish ✓";
     window.scrollTo(0, 0);
+    focusHeading(screen);
   }
 
-  function finish(l, screen, next, back) {
+  function finish(l, screen, next, back, arrived) {
     const first = !P.done[l.id];
-    const firsts = Object.values(RUN.first), right = firsts.filter(Boolean).length;
-    // stars: 3 when every quiz was right first time, 2 for at least half, 1 for finishing
-    let stars = 1;
-    if (RUN.id === l.id && firsts.length) stars = right === RUN.quizzes ? 3 : right * 2 >= RUN.quizzes ? 2 : 1;
-    else if (RUN.id === l.id && !RUN.quizzes) stars = 3;
-    stars = Math.max(stars, P.stars[l.id] || 0);
-    P.done[l.id] = true; P.stars[l.id] = stars; delete P.at[l.id]; save();
+    let stars = P.stars[l.id] || 1;
+    if (arrived) {
+      // stars: 3 when every quiz was right first time, 2 for at least half, 1 for finishing
+      const quizzes = l.steps.filter(s => s.quiz).length, q = P.q[l.id] || {};
+      const right = Object.values(q).filter(Boolean).length;
+      const now = !quizzes || right === quizzes ? 3 : right * 2 >= quizzes ? 2 : 1;
+      stars = Math.max(now, P.stars[l.id] || 0);
+      P.done[l.id] = true; P.stars[l.id] = stars; delete P.at[l.id]; delete P.q[l.id]; save();
+    }
     const nx = lessons[lessons.indexOf(l) + 1];
     const n = lessons.filter(x => P.done[x.id]).length;
     screen.classList.add("finish");
@@ -364,8 +406,8 @@
     next.hidden = true;
     back.onclick = () => { location.hash = `#/l/${l.id}/${l.steps.length - 1}`; };
     window.scrollTo(0, 0);
-    sfx("done");
-    confetti(first ? 90 : 40);
+    if (arrived) { sfx("done"); confetti(first ? 90 : 40); }
+    focusHeading(screen);
   }
 
   function viewGlossary() {
@@ -400,8 +442,8 @@
     if (b.classList.contains("on")) return stopSpeaking();
     stopSpeaking();
     const u = new SpeechSynthesisUtterance(speakText(root)); u.lang = "en-US"; u.rate = 0.92;
-    u.onend = u.onerror = () => b.classList.remove("on");
-    b.classList.add("on"); speechSynthesis.speak(u);
+    u.onend = u.onerror = () => { b.classList.remove("on"); b.setAttribute("aria-pressed", "false"); };
+    b.classList.add("on"); b.setAttribute("aria-pressed", "true"); speechSynthesis.speak(u);
   }
 
   function viewExam() {
@@ -449,8 +491,9 @@
     $("#prefs") && $("#prefs").remove();
     const h = location.hash.replace(/^#\/?/, "").split("/");
     if (h[0] === "l" && h[1]) {
-      const step = h[2] != null && h[2] !== "" ? +h[2] : (P.at[h[1]] && !P.done[h[1]] ? P.at[h[1]] : 0);
-      return viewLesson(h[1], isNaN(step) ? 0 : step);
+      if (!byId(h[1])) { location.replace("#/"); return; }
+      const saved = Number.isInteger(P.at[h[1]]) && !P.done[h[1]] ? P.at[h[1]] : 0;
+      return viewLesson(h[1], /^\d{1,3}$/.test(h[2] || "") ? +h[2] : saved);
     }
     stopSpeaking();
     if (h[0] === "glossary") return viewGlossary();
