@@ -38,7 +38,7 @@ window.LEARN = (function () {
     cost: ["The mana cost", "What it costs to play the card, shown as symbols. {3}{W}{W} means <b>3 mana of any color</b> plus <b>2 white</b>. Lesson 6 is all about paying, and it's just matching symbols."],
     art: ["The picture", "Pure decoration! It never changes how the card works. Enjoy it."],
     type: ["The type line", "What kind of card it is. “Creature — Angel” means it's a creature, and the angel part is just its family. The type tells you the card's basic rules."],
-    text: ["The text box", "The card's special rules. Read it like an instruction. Here, “Flying, vigilance” are two superpowers you'll learn in lesson 13. Words in <i>italics</i> are just a story (flavor) and do nothing."],
+    text: ["The text box", "The card's special rules. Read it like an instruction. Here, “Flying, vigilance” are two superpowers you'll learn in lesson 13. Words in <i>italics</i> are either a little story (flavor) or a reminder in brackets: they add no new rules."],
     pt: ["Power / Toughness", "Only creatures have this. The <b>first number</b> is how hard it hits (power). The <b>second</b> is how much damage it can take before dying (toughness). 4/4 means it hits for 4 and survives up to 3 damage."]
   };
 
@@ -83,7 +83,7 @@ window.LEARN = (function () {
     id: "goal", unit: "basics", emoji: "🎯", title: "What is Magic?", blurb: "The goal, in one sentence.",
     steps: [
       { title: "Welcome! Let's start very small.", html: `<p class="big">Magic is a card game for 2 or more people. Each player has their own deck of cards.</p><p>You don't need to know anything else yet. Every lesson adds <b>one</b> small idea, and you'll try each one yourself.</p>`, tip: "Take your time. You can go back to any screen with the ← button, and your progress is saved." },
-      { title: "The goal", html: `<p class="big">Everyone starts with some <b>life</b>, like points in a video game.</p><p>In a normal game it's <b>20 life</b>. Your goal is to bring your opponent's life down to <b>0</b>. When it hits 0, they lose.</p><p>That's it. Everything else in Magic is about <i>how</i> you do that.</p>`, math: "You never have to calculate in your head here. The site counts for you. In real games, people use a phone app or a dice to track life." },
+      { title: "The goal", html: `<p class="big">Everyone starts with some <b>life</b>, like points in a video game.</p><p>In a normal game it's <b>20 life</b>. Your goal is to bring your opponent's life down to <b>0</b>. When it hits 0, they lose.</p><p>That's it. Everything else in Magic is about <i>how</i> you do that.</p>`, math: "You never have to calculate in your head here. The site counts for you. In real games, people use a phone app or a die to track life." },
       { title: "Try it", widget: ["life", { start: 20, hits: [["🐻 Attack with Bears", 2, "Your Bears hit them!"], ["⚡ Lightning Bolt", 3, "Zap!"], ["🐉 Attack with Dragon", 5, "The dragon breathes fire!"]] }], gate: "Bring their life to 0" },
       { title: "How do you hit them?", html: `<p>With your <b>cards</b>. Some cards are creatures that attack. Some are spells, like a lightning bolt. Some help you in other ways.</p><p>You get cards by <b>drawing</b> them from the top of your deck, one each turn.</p>`, cards: ["bears", "bolt"] },
       { title: "Quick check", quiz: { q: "What is the goal of Magic?", options: [{ t: "Bring your opponent's life to 0", ok: true, why: "Exactly. That's the whole game." }, { t: "Have the most cards at the end", why: "No, the number of cards doesn't win. Bringing their life to 0 does." }, { t: "Play all the cards in your deck", why: "You'll never play your whole deck! The goal is bringing the opponent's life to 0." }] } },
@@ -121,7 +121,7 @@ window.LEARN = (function () {
     id: "lands", unit: "mana", emoji: "🌳", title: "Lands: one per turn", blurb: "Where mana comes from.",
     steps: [
       { title: "Cards cost energy", html: `<p class="big">To play a card, you pay its cost in <b>mana</b>. Mana is the game's energy.</p><p>Where does mana come from? Mostly from <b>lands</b>, a special kind of card.</p>`, cards: ["forest", "mountain"] },
-      { title: "How a land works", html: `<p>A land sits on the table. Once per turn, you can turn it sideways (that's called <b>tapping</b>) to get one mana.</p><p>Read the Forest: “{T}: Add {G}.” The {T} symbol means “tap this”, and {G} is one green mana.</p>`, cards: ["forest"] },
+      { title: "How a land works", html: `<p>A land sits on the table. You can turn it sideways (that's called <b>tapping</b>) to get one mana. Then it stays sideways until your next turn, when it stands back up.</p><p>Read the Forest: “{T}: Add {G}.” The {T} symbol means “tap this”, and {G} is one green mana.</p>`, cards: ["forest"] },
       { title: "The big rule", html: `<p class="big">You can play <b>one land per turn</b>. Only on your own turn.</p><p>Playing a land is free: it doesn't cost mana. You just put it on the table.</p>`, mem: "One land per turn. If you remember just one rule today, remember this one." },
       { title: "Try it", widget: ["lands"], gate: "Play four turns" },
       { title: "Why it matters", html: `<p>Because you add one land each turn, you have:</p><ul><li>Turn 1: 1 mana</li><li>Turn 2: 2 mana</li><li>Turn 3: 3 mana</li><li>…and so on.</li></ul><p>So cheap cards come out first, and big cards come later. The game naturally builds up.</p>`, math: "The turn number and the number of lands match (if you played one every turn). No counting needed: just look at your lands." },
@@ -181,7 +181,7 @@ window.LEARN = (function () {
       { title: "Your army", html: `<p class="big">Creatures are the most common cards. They stay on the table and fight for you.</p><p>They attack your opponents and block their attacks. Most games are won by creatures.</p>`, cards: ["bears", "giant", "angel"] },
       { title: "Power and toughness again", html: `<p>Remember: <b>power</b> ⚔️ (first number) is how hard it hits, <b>toughness</b> ❤️ (second number) is how much damage kills it.</p><p>Hill Giant 3/3 hits for 3, and dies if it takes 3 damage or more in one turn.</p>`, cards: ["giant"] },
       { title: "Sleepy newcomers 💤", html: `<p>A creature <b>can't attack</b> on the turn it arrives. It needs to be on your side since the start of your turn.</p><p>This is called <b>summoning sickness</b>. Think: it's tired from the trip.</p><p>It can still <b>block</b> on your opponent's turn though!</p>`, tip: "Some creatures have <b>haste</b>, like Raging Goblin: they can attack right away. More on that in lesson 13." },
-      { title: "Damage heals at night", html: `<p>If a creature takes damage but survives, the damage goes away at the <b>end of the turn</b>.</p><p>So a 3/3 that took 2 damage is back to full health next turn.</p>` },
+      { title: "Damage heals when the turn ends", html: `<p>If a creature takes damage but survives, the damage goes away at the <b>end of that turn</b> (every turn, whoever's turn it is).</p><p>So a 3/3 that took 2 damage is back to full health on the next turn.</p>` },
       { title: "Quick check", quiz: { q: "You cast Grizzly Bears this turn. Can they attack this turn?", options: [{ t: "No, they have summoning sickness 💤", ok: true, why: "Right. Next turn they can attack." }, { t: "Yes, right away", why: "Not without haste. A creature needs to start your turn on your side before it can attack." }] } },
       { title: "One more", quiz: { q: "Hill Giant (3/3) takes 2 damage. What happens?", options: [{ t: "It survives, and the damage heals at the end of the turn", ok: true }, { t: "It dies", why: "It needs 3 damage to die (its toughness). 2 isn't enough." }, { t: "It becomes a 3/1 forever", why: "Damage isn't permanent: it goes away at the end of the turn." }] } }
     ],
@@ -244,7 +244,7 @@ window.LEARN = (function () {
       { title: "Chump blocks", html: `<p>Sometimes you block with a small creature that will surely die, just to stop a big hit. That's a <b>chump block</b>.</p><p>It's a fair trade when the attacker would hurt you a lot. Your life is a resource, but so are your creatures.</p>` },
       { title: "One more", quiz: { q: "Serra Angel (4/4) attacks. You block with Giant Spider (2/4). Who dies?", cards: ["angel", "spider"], options: [{ t: "The Spider dies, the Angel survives", ok: true, why: "The Angel deals 4 to the Spider (4 health): dead. The Spider deals 2 to the Angel (4 health): fine." }, { t: "Nobody", why: "The Angel deals 4, and the Spider's health is 4. Equal counts: the Spider dies." }, { t: "Both", why: "The Spider only deals 2 to an Angel with 4 health." }] } }
     ],
-    recap: ["Untapped creatures can block; one blocker per attacker (several blockers can team up on one attacker).", "Attacker and blocker hit each other at the same time.", "Damage ≥ toughness → it dies. Blocked attackers don't hurt the player."]
+    recap: ["Untapped creatures can block. Each blocker stops one attacker.", "Attacker and blocker hit each other at the same time.", "Damage ≥ toughness → it dies. Blocked attackers don't hurt the player."]
   });
 
   L.push({
@@ -291,7 +291,7 @@ window.LEARN = (function () {
     id: "stack", unit: "deeper", emoji: "🍽️", title: "Responding: the stack", blurb: "Last in, first out.",
     steps: [
       { title: "Spells don't happen right away", html: `<p>When someone casts a spell, it doesn't happen immediately. First it waits in a pile called <b>the stack</b>.</p><p>While it waits, every player gets a chance to <b>respond</b> with an instant.</p>` },
-      { title: "A stack of plates", html: `<p>Picture a stack of plates 🍽️. Each new spell is a plate put on <b>top</b>.</p><p>When everyone is done adding plates, you take them off <b>from the top</b>, one by one. So the <b>last spell cast happens first</b>.</p>`, mem: "Last in, first out. The newest plate comes off first." },
+      { title: "A stack of plates", html: `<p>Picture a stack of plates 🍽️. Each new spell is a plate put on <b>top</b>.</p><p>When nobody wants to add a plate, the <b>top</b> one comes off and happens. Then everyone gets another chance to add a plate before the next one comes off. So the <b>last spell cast happens first</b>.</p>`, mem: "Last in, first out. The newest plate comes off first." },
       { title: "Try it", widget: ["stack"], gate: "Save your Bears, then try Murder" },
       { title: "Why it matters", html: `<p>Responding lets you save your creatures, counter spells (Counterspell!), or use mana right before it's too late.</p><p>In a real game you just say <b>“In response…”</b>. And when you're done, say <b>“OK”</b> or <b>“pass”</b> so others know they can go on.</p>`, cards: ["counter"], tip: "Not sure if someone wants to respond? Ask “Any responses?” before moving on. Everyone does it." },
       { title: "Quick check", quiz: { q: "Your opponent casts Lightning Bolt. You respond with Giant Growth. Which happens first?", options: [{ t: "Giant Growth, it's on top", ok: true, why: "Last in, first out. Your Growth resolves, then the Bolt." }, { t: "Lightning Bolt, it was cast first", why: "It was cast first, so it's at the bottom of the stack. The top (Growth) happens first." }] } },
@@ -322,8 +322,8 @@ window.LEARN = (function () {
         ["💀", "Dies", "Goes from the battlefield to the graveyard."],
         ["🗡️", "Destroy", "Put it in the graveyard. Ignores toughness. (Indestructible stops it.)"],
         ["🌀", "Exile", "Remove it from the game. Stronger than destroy."],
-        ["🪙", "Token", "A creature (or other thing) made by a card, not a real card. Use a coin, a die or a printed token. If it leaves the battlefield, it vanishes."],
-        ["➕", "+1/+1 counter", "A little marker that adds 1 to both power and toughness, for good. Three counters on a 2/2 make it a 5/5."],
+        ["🪙", "Token", "A creature (or other thing) made by a card, not a real card. Use a coin, a die or a printed token. If it leaves the battlefield, it stops existing and can never come back."],
+        ["➕", "+1/+1 counter", "A little marker that adds 1 to both power and toughness, for as long as the creature stays on the battlefield. Three counters on a 2/2 make it a 5/5."],
         ["⏳", "Until end of turn", "The effect lasts only this turn, then wears off."],
         ["👆", "Enters", "Comes onto the battlefield. “When this enters…” triggers once, when it arrives."],
         ["🔁", "Whenever", "Triggers every single time the thing happens."]
@@ -334,7 +334,7 @@ window.LEARN = (function () {
         { t: "⚔️ Swords to Plowshares", b: 1, why: "Exile: any size, and even indestructible ones." },
         { t: "🐻 A creature blocking", b: 0, why: "Combat is damage." }
       ] }], gate: "Sort the four cards" },
-      { title: "Quick check", quiz: { q: "A token creature is exiled. What happens to it?", options: [{ t: "It vanishes for good", ok: true, why: "Tokens stop existing as soon as they leave the battlefield." }, { t: "It goes to exile and can come back", why: "Tokens cease to exist when they leave the battlefield." }] } },
+      { title: "Quick check", quiz: { q: "A token creature is exiled. What happens to it?", options: [{ t: "It vanishes for good", ok: true, why: "A token that leaves the battlefield stops existing. It can never come back." }, { t: "It goes to exile and can come back", why: "Tokens cease to exist when they leave the battlefield." }] } },
       { title: "One more", quiz: { q: "Your 2/2 gets two +1/+1 counters. What is it now?", options: [{ t: "4/4", ok: true, why: "Each counter adds one to both numbers: 2 becomes 3 becomes 4, twice." }, { t: "2/2 until end of turn", why: "Counters stay for good, unlike “until end of turn” effects." }, { t: "3/3", why: "Two counters: count up twice, 2 → 3 → 4." }] }, math: "Count up on your fingers: start at 2, add one per counter. Or ask the table, people are happy to help." }
     ],
     recap: ["<b>Target</b>: you pick it when casting.", "<b>Destroy</b> and <b>exile</b> ignore size; <b>damage</b> doesn't.", "<b>Tokens</b> vanish when they leave the battlefield; <b>counters</b> stay."]
@@ -347,9 +347,9 @@ window.LEARN = (function () {
       { title: "The friendliest way to play", html: `<p class="big"><b>Commander</b> is the most popular way to play Magic with friends. Usually <b>4 players</b>, everyone against everyone.</p><p>All the decks on this site are Commander decks.</p>` },
       { title: "The rules that change", html: `<ul><li>🃏 Your deck has exactly <b>100 cards</b>.</li><li>1️⃣ Only <b>one copy</b> of each card (except basic lands like Forest).</li><li>❤️ Everyone starts at <b>40 life</b>.</li><li>👑 You pick one <b>legendary creature</b> as your <b>commander</b>, your deck's leader.</li></ul>` },
       { title: "Your commander", html: `<p>Your commander starts in the <b>command zone</b>, face up, next to you. It's like a card always in your hand: you can cast it whenever you could cast that creature.</p><p>In the Hatsune Miku deck, the commander is <b>Trostani, Selesnya's Voice</b>.</p>`, cards: ["trostani"] },
-      { title: "It always comes back", html: `<p>If your commander would die or be exiled, you may put it back into the command zone instead.</p><p>But each time you cast it from there, it costs <b>{2} more</b>. That extra is the <b>commander tax</b>.</p>`, widget: ["tax"], gate: "Cast Trostani, then send her back twice" },
-      { title: "Colors: the identity rule", html: `<p>Your deck can only use the colors that appear on your commander. That's its <b>color identity</b>.</p><p>Trostani has {G} and {W}, so her deck only plays green, white and colorless cards. That's also why <b>Arcane Signet</b> and <b>Command Tower</b> make “any color in your commander's color identity”.</p>`, cards: ["signet"] },
-      { title: "Commander damage", html: `<p>One extra way to lose: if a <b>single commander</b> deals you <b>21 combat damage</b> over the game, you lose, even with life left.</p><p>Big commanders can be scary for that reason.</p>`, math: "Players track it on paper or in a life app, one tally per commander. The game on this site tracks it for you." },
+      { title: "It always comes back", html: `<p>If your commander dies or is exiled, it goes to the graveyard or exile as usual, and then you may move it back to the command zone. Almost everyone does.</p><p>But each time you cast it from there, it costs <b>{2} more</b>. That extra is the <b>commander tax</b>.</p>`, widget: ["tax"], gate: "Cast Trostani, then send her back twice" },
+      { title: "Colors: the identity rule", html: `<p>Look at every mana symbol on your commander, in its cost and in its text. Those colors are its <b>color identity</b>, and every card in your deck must fit inside them, symbols in its text included.</p><p>Trostani shows only {G} and {W}, so her deck only plays green, white and colorless cards. That's also why <b>Arcane Signet</b> and <b>Command Tower</b> make “any color in your commander's color identity”.</p>`, cards: ["signet"] },
+      { title: "Commander damage", html: `<p>One extra way to lose: if a <b>single commander</b> deals you <b>21 combat damage</b> over the game, you lose, even with life left.</p><p>And one rare one: if you have to draw a card and your library is empty, you lose.</p><p>Big commanders can be scary for that reason.</p>`, math: "Players track it on paper or in a life app, one tally per commander. The game on this site tracks it for you." },
       { title: "Quick check", quiz: { q: "How many copies of Lightning Bolt can a Commander deck have?", options: [{ t: "One", ok: true, why: "Commander decks are singleton: one of each card, except basic lands." }, { t: "Four", why: "Four is the limit in other formats. Commander allows one." }, { t: "As many as you want", why: "That's only true for basic lands like Forest or Mountain." }] } },
       { title: "One more", quiz: { q: "Your commander costs {G}{G}{W}{W} and you've already cast it once from the command zone. What does it cost now?", options: [{ t: "{2}{G}{G}{W}{W}", ok: true, why: "One previous cast → {2} extra tax." }, { t: "{G}{G}{W}{W}", why: "After the first cast, each new cast from the command zone costs {2} more." }, { t: "Free, it came back", why: "It comes back, but each recast costs {2} more." }] } }
     ],
@@ -360,7 +360,7 @@ window.LEARN = (function () {
     id: "firstturn", unit: "commander", emoji: "🎬", title: "Starting a game and your first turn", blurb: "Shuffle, seven cards, and go.",
     steps: [
       { title: "Setting up", html: `<ol><li>Shuffle your deck well. It becomes your <b>library</b>, face down.</li><li>Put your commander in the command zone.</li><li>Set your life to 40.</li><li>Draw <b>7 cards</b>. That's your opening hand.</li><li>Pick who goes first (a die roll is the usual way).</li></ol>` },
-      { title: "Not happy with your hand?", html: `<p>If your 7 cards look bad (like 0 or 1 land, or 6 lands and nothing else), you can <b>mulligan</b>: shuffle them back and draw a new 7.</p><p>Then put one card from that hand on the bottom of your library for each mulligan you took.</p>`, tip: "Most Commander groups give one free mulligan: the first time, you don't put any card on the bottom. Ask your table.", math: "A good opening hand usually has <b>2 to 4 lands</b>. Just count the lands: 2, 3 or 4? Keep it." },
+      { title: "Not happy with your hand?", html: `<p>If your 7 cards look bad (like 0 or 1 land, or 6 lands and nothing else), you can <b>mulligan</b>: shuffle them back and draw a new 7.</p><p>Then put one card from that hand on the bottom of your library for each mulligan you took.</p>`, tip: "With 3 or more players, your <b>first mulligan is free</b>: that time, you don't put any card on the bottom. It's the official rule.", math: "A good opening hand usually has <b>2 to 4 lands</b>. Just count the lands: 2, 3 or 4? Keep it." },
       { title: "Keep or mulligan?", widget: ["sort", { title: "Keep or mulligan?", buckets: ["👍 Keep", "🔄 Mulligan"], items: [
         { t: "3 lands + 4 spells", b: 0, why: "Classic keep: you can play cards right away." },
         { t: "0 lands + 7 spells", b: 1, why: "You can't cast anything without lands." },
@@ -382,7 +382,7 @@ window.LEARN = (function () {
       { title: "Who should you attack?", html: `<p>A simple rule of thumb: attack whoever is <b>most dangerous</b> right now, not whoever is weakest.</p>`, widget: ["table", { players: [["Alex", 40, "Lots of lands, nothing scary yet"], ["Sam", 22, "Low life, few creatures"], ["Jo", 38, "A huge dragon and 6 creatures"]] }], after: `<p>Jo is the threat: if nobody slows Jo down, Jo wins. Picking on Sam (lowest life) just makes Sam angry and helps Jo.</p>` },
       { title: "Quick check", quiz: { q: "Who is usually the best player to attack?", options: [{ t: "Whoever is closest to winning", ok: true, why: "Slowing the leader keeps the game fair and keeps you alive." }, { t: "Whoever has the lowest life", why: "Knocking out a weak player can help the strongest one win. Aim at the threat." }, { t: "Whoever attacked you last", why: "Revenge is fun, but the real danger is whoever is closest to winning." }] } },
       { title: "Table manners", html: `<ul><li>🗣️ Say what you're doing out loud: “I cast Grizzly Bears.”</li><li>⏸️ Pause after casting a spell so others can respond.</li><li>❓ Ask questions any time. Everyone was new once, and people love explaining their cards.</li><li>🔍 You can always ask to read someone's card.</li><li>🤝 Deals and alliances are allowed (“don't attack me and I won't attack you”), but they're not binding.</li></ul>` },
-      { title: "Power levels: brackets", html: `<p>Decks are rated in <b>brackets</b> from 1 (very casual) to 5 (as strong as possible). Before a game, people say which bracket their deck is, so games stay fair and fun.</p><p>The Hatsune Miku deck on this site is Bracket 3: a fair, friendly level, perfect to start.</p>`, tip: "If you lose a lot to one deck, it's not you: it may just be a higher bracket. It's fine to ask." },
+      { title: "Power levels: brackets", html: `<p>Decks are rated in <b>brackets</b> from 1 (very casual) to 5 (as strong as possible). Before a game, people say which bracket their deck is, so games stay fair and fun.</p><p>Bracket 2 is where store-bought precon decks sit: the best place to start. The upgraded Hatsune Miku deck on this site is Bracket 3, a step stronger, so tell the table when you play it.</p>`, tip: "If you lose a lot to one deck, it's not you: it may just be a higher bracket. It's fine to ask." },
       { title: "You're ready", html: `<p class="big">You now know enough to play a real game of Commander. 🎉</p><p>The best next step: play against the friendly bots in the <a href="../miku/#play">Hatsune Miku deck's Play tab</a>. It handles the counting and shows what you can do.</p><p>And the <a href="#/cheat">cheat sheet</a> is always here.</p>` }
     ],
     recap: ["Last player standing wins; you choose who to attack.", "Attack the biggest threat, not the weakest player.", "Say what you do, pause for responses, ask questions freely.", "Brackets 1–5 describe a deck's power. Start casual."]
@@ -392,7 +392,7 @@ window.LEARN = (function () {
     ["Life", "Your health points. 20 in a normal game, 40 in Commander. At 0 you lose.", "goal"],
     ["Mana", "The energy you spend to cast cards. Mostly made by tapping lands.", "lands"],
     ["Mana cost", "The symbols in the top-right corner of a card: what you pay to cast it.", "cost"],
-    ["Generic mana", "A grey circle with a number, like {2}: that much mana of any color.", "cost"],
+    ["Generic mana", "A grey circle with a number, like {2}: that much mana of any kind, colored or colorless.", "cost"],
     ["Colorless mana", "Mana with no color, made by cards like Sol Ring. It pays grey number slots, never colored ones.", "perms"],
     ["Land", "A card that makes mana. You can play one per turn, for free.", "lands"],
     ["Basic land", "Plains, Island, Swamp, Mountain or Forest. The only cards a Commander deck can have many copies of.", "colors"],
@@ -442,10 +442,10 @@ window.LEARN = (function () {
     ["Enters", "Comes onto the battlefield.", "words"],
     ["Commander", "Your deck's legendary leader, and the name of the 4-player format.", "commander"],
     ["Commander tax", "Each time you cast your commander from the command zone, it costs {2} more than the time before.", "commander"],
-    ["Color identity", "The colors on your commander. Your deck can only use those.", "commander"],
+    ["Color identity", "Every color in the mana symbols on your commander, in its cost and its text. Your deck can only use those.", "commander"],
     ["Commander damage", "21 combat damage from a single commander makes you lose.", "commander"],
     ["Singleton", "Only one copy of each card (Commander rule, basic lands excepted).", "commander"],
-    ["Mulligan", "Shuffle a bad opening hand away and draw a new one, then put a card on the bottom for each mulligan.", "firstturn"],
+    ["Mulligan", "Shuffle a bad opening hand away and draw a new one, then put a card on the bottom for each mulligan. With 3 or more players the first one is free.", "firstturn"],
     ["Opening hand", "The 7 cards you draw at the start of a game.", "firstturn"],
     ["Bracket", "A deck's power level from 1 (casual) to 5 (maximum).", "table"],
     ["Precon", "A preconstructed deck, sold ready to play.", "table"],
@@ -456,7 +456,7 @@ window.LEARN = (function () {
     ["🎯 Goal", "<p>Bring opponents to 0 life. Commander: 40 life, 21 commander damage also knocks someone out.</p>"],
     ["🔁 Your turn", "<ol><li><b>Untap</b> everything.</li><li><b>Upkeep</b>: “at the beginning of your upkeep” cards trigger.</li><li><b>Draw</b> a card.</li><li><b>Main phase 1</b>: one land, creatures, sorceries, anything.</li><li><b>Combat</b>: tap attackers, choose who they attack, blockers are declared, damage.</li><li><b>Main phase 2</b>: same as main 1.</li><li><b>End</b>: end-step triggers, damage heals, next player.</li></ol>"],
     ["🌳 Mana", "<ul><li>One land per turn, on your turn.</li><li>Colored symbols need that color: {W} {U} {B} {R} {G}. Grey numbers take any.</li><li>Pay colored symbols first.</li><li>Unused mana vanishes between steps.</li></ul>"],
-    ["⏱️ When can I cast it?", "<ul><li><b>Instants</b> (and abilities): any time.</li><li><b>Everything else</b>: your main phase, with nothing on the stack.</li><li>Your commander: from the command zone, {2} more for each earlier cast from there.</li></ul>"],
+    ["⏱️ When can I cast it?", "<ul><li><b>Instants</b> and most abilities: any time.</li><li><b>Everything else</b>: your main phase, with nothing on the stack.</li><li>Your commander: from the command zone, {2} more for each earlier cast from there.</li></ul>"],
     ["⚔️ Combat", "<ul><li>New creatures can't attack (unless haste).</li><li>Unblocked: the player takes damage = power.</li><li>Blocked: both hit each other at once. Damage ≥ toughness → dies.</li><li>Flying: only flying/reach can block it. Deathtouch: any damage kills. Trample: extra goes through.</li></ul>"],
     ["🍽️ The stack", "<p>Spells wait on the stack. Anyone can respond. The last one added resolves first. Say “pass” when you're done responding.</p>"],
     ["🗣️ At the table", "<ul><li>Say what you cast, and pause for responses.</li><li>Ask to read any card, any time.</li><li>Attack the biggest threat, not the weakest player.</li><li>Keep a hand with 2–4 lands.</li></ul>"]
@@ -474,7 +474,7 @@ window.LEARN = (function () {
     { q: "Hill Giant (3/3) is blocked by Giant Spider (2/4). What happens?", cards: ["giant", "spider"], options: [{ t: "Both survive", ok: true, why: "3 damage to a 4-health Spider, 2 damage to a 3-health Giant: no one dies." }, { t: "The Spider dies", why: "3 damage isn't enough for 4 health." }, { t: "Both die", why: "Neither deals enough damage." }] },
     { q: "Your hand: 1 land and 6 cards costing 5 or more. Good opening hand?", options: [{ t: "No, mulligan it", ok: true }, { t: "Yes, keep it", why: "One land and expensive cards: you probably won't cast anything for many turns." }] },
     { q: "Which color is blue's symbol?", options: [{ t: "{U}", ok: true, why: "U, because B was already taken by black." }, { t: "{B}", why: "{B} is black. Blue is {U}." }] },
-    { q: "Your commander was exiled. What can you do?", options: [{ t: "Put it back in the command zone", ok: true }, { t: "Nothing, it's gone", why: "Commanders can always return to the command zone instead of exile or the graveyard." }] }
+    { q: "Your commander was exiled. What can you do?", options: [{ t: "Put it back in the command zone", ok: true }, { t: "Nothing, it's gone", why: "After it's exiled or dies, you may move your commander back to the command zone." }] }
   ];
 
   return { cards, anatomy, turn5, colorInfo, zones, units, lessons: L, glossary, cheat, exam };

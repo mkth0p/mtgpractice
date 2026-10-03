@@ -165,7 +165,7 @@
   // Show where the visitor is in the course, if they started it.
   try {
     const p = JSON.parse(localStorage.getItem("learnMagic.v1") || "{}"), n = Object.keys(p.done || {}).length;
-    if (n) { document.getElementById("learn-prog").textContent = n >= 20 ? "✓ Course finished. Revisit any lesson." : n + " of 20 lessons done"; document.querySelector(".learn .cta").firstChild.textContent = n >= 20 ? "Open the course " : "Continue learning "; }
+    if (n) { document.getElementById("learn-prog").textContent = n + (n === 1 ? " lesson" : " lessons") + " done so far"; document.querySelector(".learn .cta").firstChild.textContent = "Continue learning "; }
   } catch (e) { /* no storage: keep the default text */ }
 </script>
 </body>
