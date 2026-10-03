@@ -11,6 +11,7 @@
   function say(el, html, kind) {
     const m = $(".msg", el);
     m.className = "msg " + (kind || "");
+    m.setAttribute("role", "status");
     m.innerHTML = H().fmt(html);
   }
   const shake = node => { node.classList.remove("shake"); void node.offsetWidth; node.classList.add("shake"); };
@@ -74,17 +75,18 @@
     });
   };
 
-  /* Lesson 3: the five beats of a turn. */
+  /* Lesson 3: the six beats of a turn. */
   LW.wheel = function (el, o, api) {
     const steps = window.LEARN.turn5;
     el.innerHTML = title("Tap each step, left to right") + `<div class="wheel">${steps.map((s, k) => `<button type="button" data-k="${k}"><i aria-hidden="true">${s[0]}</i>${s[1]}</button>`).join("")}</div><div class="msg">Start with step 1, <b>Wake up</b>.</div>`;
     const seen = new Set();
     $$("button", el).forEach(b => b.onclick = () => {
       const k = +b.dataset.k;
+      if (k > seen.size) { shake(b); say(el, `One at a time, in order: tap step <b>${seen.size + 1}, ${steps[seen.size][1]}</b> next.`, "bad"); return; }
       $$("button", el).forEach(x => x.classList.remove("on"));
       b.classList.add("on", "seen"); seen.add(k);
-      say(el, `<b>${k + 1}. ${steps[k][1]}</b> · ${steps[k][2]}` + (seen.size === 5 ? `<br><br>✅ That's a whole turn! Then the next player does the same five steps.` : ""), seen.size === 5 ? "good" : "");
-      if (seen.size === 5) api.done();
+      say(el, `<b>${k + 1}. ${steps[k][1]}</b> · ${steps[k][2]}` + (seen.size === steps.length ? `<br><br>✅ That's a whole turn! Then the next player does the same steps.` : ""), seen.size === steps.length ? "good" : "");
+      if (seen.size === steps.length) api.done();
     });
   };
 
@@ -183,23 +185,25 @@
     let pool = [], tapped = [false, false, false], turn = 1, untapped = false;
     const ids = ["forest", "forest", "elves"];
     function draw() {
-      el.innerHTML = title(`Turn ${turn}: tap your cards for mana`) +
+      el.innerHTML = title(turn === 1 ? "Your main phase: tap your cards for mana" : "The next turn") +
+        `<p class="small muted" style="margin:0 0 8px">These three have been on your side since earlier turns, so they're ready to use.</p>` +
         `<div class="row-cards" style="justify-content:center;gap:24px;min-height:150px">${ids.map((id, k) => H().card(id, { sm: true, button: true, cls: tapped[k] ? "tapped" : "", data: { k } })).join("")}</div>
         <div class="zone-label">Your mana right now</div><div class="pool">${pool.map(p => H().pip(p)).join("") || '<span class="muted small">empty</span>'}</div>
         <div class="acts"><button class="btn sm" type="button" id="nt">Next turn</button></div><div class="msg"></div>`;
       $$(".mcard", el).forEach(b => b.onclick = () => {
         const k = +b.dataset.k;
-        if (tapped[k]) { shake(b); say(el, "Already tapped. It's lying sideways, so it has been used this turn. It stands back up at the start of your next turn.", "bad"); return; }
+        if (tapped[k]) { shake(b); say(el, "Already tapped. It's lying sideways, so it has been used. It stands back up at the start of your next turn.", "bad"); return; }
         H().pop(b, "+{G}", "good"); H().sfx("tap");
         tapped[k] = true; pool.push("G"); draw();
         say(el, ids[k] === "elves" ? `Llanowar Elves turned sideways to make ${H().pips("{G}")}. Creatures can have a ${H().pips("{T}")} ability too.` : `The Forest turned sideways (tapped) and made ${H().pips("{G}")}.`);
         if (tapped.every(Boolean) && turn === 1) say(el, `All three tapped: ${H().pips("{G}{G}{G}")} to spend. Now tap <b>Next turn</b> and watch what happens.`, "good");
       });
       $("#nt", el).onclick = () => {
+        if (!tapped.some(Boolean)) { say(el, "First tap at least one card to make mana. Then see what the next turn does to it.", "bad"); return; }
         const had = pool.length;
         turn++; tapped = [false, false, false]; pool = []; untapped = true; draw();
-        say(el, `☀️ New turn: everything <b>untapped</b> (stood back up), ready to use again.${had ? ` The ${had} unused mana you had <b>vanished</b>: mana doesn't keep, so spend it when you make it.` : ""}`, "good");
-        if (untapped) api.done();
+        say(el, `☀️ New turn: everything <b>untapped</b> (stood back up), ready to use again. The ${had} mana you didn't spend <b>vanished</b>. Mana disappears at the end of each step of the turn, so tap lands only when you're about to spend the mana.`, "good");
+        api.done();
       };
       if (!$(".msg", el).innerHTML) say(el, "Tap each card. Watch it turn sideways and make mana.");
     }
@@ -225,7 +229,7 @@
           if (first) right++;
           say(el, "✅ " + (it.why || "Right!"), "good");
           $$(".buckets button", el).forEach(x => x.disabled = true);
-          setTimeout(() => { k++; draw(); }, it.why ? 1700 : 700);
+          setTimeout(() => { if (!el.isConnected) return; k++; draw(); }, it.why ? 1700 : 700);
         } else { first = false; shake(b); say(el, "Not that one. " + (it.hint || "Try another box."), "bad"); }
       });
     }
@@ -257,10 +261,13 @@
     function draw() {
       const c = o.cards[k];
       el.innerHTML = title(`Tap the card to flip it · ${k + 1} of ${o.cards.length}`) +
-        `<button class="fc" type="button" aria-label="Flip the card"><div class="face"><div><span class="em" aria-hidden="true">${c[0]}</span><b>${c[1]}</b><span class="muted small">tap to see what it means</span></div></div><div class="face back"><div>${H().fmt(c[2])}</div></div></button>
+        `<button class="fc" type="button" aria-pressed="false" aria-label="Flashcard: ${c[1]}. Flip it to see what it means."><div class="face" aria-hidden="true"><div><span class="em" aria-hidden="true">${c[0]}</span><b>${c[1]}</b><span class="muted small">tap to see what it means</span></div></div><div class="face back" aria-hidden="true"><div>${H().fmt(c[2])}</div></div></button><p class="sr-only" aria-live="polite" id="fcback"></p>
         <div class="nav"><button class="btn sm" type="button" id="pv" ${k === 0 ? "disabled" : ""}>← Prev</button><span class="small muted">${seen.size} of ${o.cards.length} flipped</span><button class="btn sm" type="button" id="nx" ${k === o.cards.length - 1 ? "disabled" : ""}>Next →</button></div>`;
       const fc = $(".fc", el);
-      fc.onclick = () => { fc.classList.toggle("on"); seen.add(k); $(".nav span", el).textContent = `${seen.size} of ${o.cards.length} flipped`; if (seen.size === o.cards.length) api.done(); };
+      fc.onclick = () => {
+        const on = fc.classList.toggle("on"); seen.add(k);
+        fc.setAttribute("aria-pressed", on ? "true" : "false");
+        $("#fcback", el).innerHTML = on ? `${c[1]}: ${H().fmt(c[2])}` : ""; $(".nav span", el).textContent = `${seen.size} of ${o.cards.length} flipped`; if (seen.size === o.cards.length) api.done(); };
       $("#pv", el).onclick = () => { k--; draw(); };
       $("#nx", el).onclick = () => { k++; draw(); };
     }
@@ -270,12 +277,14 @@
   /* Lessons 11-13: a combat lab. Pick an attacker and a blocker, then fight. */
   LW.combat = function (el, o, api) {
     const atk = o.attackers, blk = o.blockers;
-    let a = o.a || atk[0], b = o.b != null ? o.b : blk[0], oppLife = 20, myLife = 20, fights = 0;
+    let a = o.a || atk[0], b = o.b != null ? o.b : blk[0], oppLife = 20, myLife = 20, fights = 0, guess = null;
+    const GUESSES = ["⚔️ Only the attacker dies", "🛡️ Only the blocker dies", "☠️ Both die", "🙂 Nobody dies"];
     const kws = c => (c.kw || []).map(k => `<span class="kw">${k}</span>`).join("");
     const boxes = (n, cls, hit) => { let s = ""; for (let i = 0; i < n; i++) s += `<i class="${hit && i < hit ? "x" : ""}"></i>`; return `<span class="boxes ${cls}">${s}</span>`; };
     function stats(c, hit) { return `<div class="stats"><span>⚔ ${boxes(c.pt[0], "pw")}</span><span>❤ ${boxes(c.pt[1], "hp", hit)}</span></div><div style="text-align:center">${kws(C(c.id) || c)}</div>`; }
     function draw(res) {
       const ca = C(a), cb = b ? C(b) : null;
+      guess = res ? guess : null;
       el.innerHTML = title(o.title || "Combat lab: pick a fight") +
         (atk.length > 1 ? `<div class="zone-label">Your attacker</div><div class="pick" id="pa">${atk.map(id => `<button type="button" data-id="${id}" class="${id === a ? "on" : ""}">${C(id).name}</button>`).join("")}</div>` : "") +
         (blk.length > 1 ? `<div class="zone-label">Their blocker</div><div class="pick" id="pb">${blk.map(id => `<button type="button" data-id="${id || ""}" class="${id === b ? "on" : ""}">${id ? C(id).name : "No block"}</button>`).join("")}</div>` : "") +
@@ -285,15 +294,26 @@
         <div class="acts"><button class="btn sm pink" type="button" id="go">⚔ Fight!</button><button class="btn sm" type="button" id="rs">Reset lives</button></div><div class="msg"></div>`;
       $$("#pa button", el).forEach(x => x.onclick = () => { a = x.dataset.id; draw(); });
       $$("#pb button", el).forEach(x => x.onclick = () => { b = x.dataset.id || null; draw(); });
+      const go = () => {
+        const atkCard = $(".fight > div:first-child .mcard", el);
+        if (atkCard && !H().calm()) { atkCard.classList.add("lunge"); setTimeout(() => el.isConnected && fight(), 380); } else fight();
+      };
       $("#go", el).onclick = () => {
         $("#go", el).disabled = true;
-        const atkCard = $(".fight > div:first-child .mcard", el);
-        if (atkCard && !H().calm()) { atkCard.classList.add("lunge"); setTimeout(fight, 380); } else fight();
+        const ca = C(a), cb = b ? C(b) : null, has = (c, k) => (c.kw || []).includes(k);
+        const blocks = cb && !(has(ca, "Flying") && !has(cb, "Flying") && !has(cb, "Reach"));
+        if (!blocks || o.predict === false) { guess = null; return go(); }
+        // guess first, then see: predicting is what makes the rule stick
+        $(".acts", el).innerHTML = `<p class="small" style="margin:0 0 6px;width:100%"><b>Your guess first:</b> what happens?</p>` +
+          GUESSES.map((g, k) => `<button class="btn sm" type="button" data-g="${k}">${g}</button>`).join("");
+        say(el, "No pressure: a wrong guess just means you'll remember the answer better.");
+        $$("[data-g]", el).forEach(x => x.onclick = () => { guess = +x.dataset.g; $$("[data-g]", el).forEach(y => y.disabled = true); go(); });
       };
       $("#rs", el).onclick = () => { oppLife = 20; myLife = 20; draw(); };
       say(el, res ? res.text : (o.prompt || "Pick an attacker and a blocker, then tap <b>Fight!</b>"), res ? "good" : "");
     }
     function fight() {
+      const oppBefore = oppLife;
       const ca = C(a), cb = b ? C(b) : null, has = (c, k) => (c.kw || []).includes(k);
       const lines = [];
       let res = { toA: 0, toB: 0 };
@@ -324,10 +344,14 @@
         if (has(ca, "Lifelink") && ca.pt[0]) { myLife += ca.pt[0]; lines.push(`💗 Lifelink: you gain ${ca.pt[0]} life.`); }
         if (has(cb, "Lifelink") && toA) { oppLife += toA; lines.push(`💗 Their lifelink gains them ${toA}.`); }
         if (!res.aDies && !res.bDies) lines.push("Damage that didn't kill heals at the end of the turn.");
+        if (guess != null) {
+          const real = res.aDies && res.bDies ? 2 : res.aDies ? 0 : res.bDies ? 1 : 3;
+          lines.unshift(guess === real ? `🎯 <b>Your guess was right!</b>` : `🤔 You guessed “${GUESSES[guess]}”. Here's what really happens:`);
+        }
       }
       res.text = lines.join("<br>");
       fights++;
-      const oppBefore = +($(".life .p:last-child .n", el) || {}).textContent || oppLife;
+      if (oppLife <= 0) { oppLife = 0; res.text += "<br>🏆 Their life hit <b>0</b>: they would lose! (Tap Reset lives to keep practising.)"; }
       draw(res);
       const [ac, bc] = [$(".fight > div:first-child .mcard", el), $(".fight > div:last-child .mcard", el)];
       if (res.toA && ac) { ac.classList.add("hurt"); H().pop(ac, "-" + res.toA); }
@@ -353,7 +377,7 @@
     function draw() {
       const top = stack.length - 1;
       el.innerHTML = title(mode === "bolt" ? "Your opponent casts Lightning Bolt on your Bears!" : "This time they cast Murder on your Bears!") +
-        `<div class="fight"><div style="display:grid;justify-items:center;gap:6px"><div class="zone-label">Your creature</div>${H().card("bears", { sm: true, cls: bears.alive ? "" : "dead" })}<b>${bears.alive ? `${bears.p}/${bears.t}` : "In the graveyard"}</b></div><span></span>
+        `<div class="fight stackfight"><div style="display:grid;justify-items:center;gap:6px"><div class="zone-label">Your creature</div>${H().card("bears", { sm: true, cls: bears.alive ? "" : "dead" })}<b>${bears.alive ? `${bears.p}/${bears.t}` : "In the graveyard"}</b></div><span></span>
         <div style="width:100%"><div class="zone-label">The stack · top plate goes first</div><div class="stackbox">${stack.map((s, k) => `<div class="plate ${k === top ? "top" : ""}">${H().pips(C(s.id).cost)} ${C(s.id).name}<small>${s.who} · ${s.note}</small></div>`).join("") || '<span class="muted small" style="margin:auto">Empty</span>'}</div></div></div>
         <div class="acts" id="acts"></div><div class="msg"></div>`;
       const acts = $("#acts", el);
@@ -367,7 +391,7 @@
         $("#res", el).onclick = ev => {
           ev.currentTarget.disabled = true;
           const topPlate = $(".plate.top", el);
-          if (topPlate && !H().calm()) { topPlate.classList.add("lift"); setTimeout(resolveTop, 320); } else resolveTop();
+          if (topPlate && !H().calm()) { topPlate.classList.add("lift"); setTimeout(() => el.isConnected && resolveTop(), 320); } else resolveTop();
         };
         const resolveTop = () => {
           const s = stack.pop();
@@ -416,14 +440,14 @@
         `<div class="fight"><div>${H().card("trostani", { sm: true })}</div><span></span>
         <div><div class="zone-label">Trostani is in the</div><b style="font-size:1.1rem">${where === "command" ? "👑 Command zone" : "⚔️ Battlefield"}</b>
         <div class="zone-label">Cost to cast her now</div><div class="cost-big">${base.map(s => H().pip(s)).join("")}${extra ? H().pip(String(extra)) : ""}</div>
-        <div class="small muted" style="margin-top:6px">${base.length + extra} mana in total${extra ? ` (${base.length} + ${extra} tax)` : ""} · cast from the command zone ${casts} ${casts === 1 ? "time" : "times"} so far</div></div></div>
+        <div class="small muted" style="margin-top:6px">${extra ? `Her normal cost, plus ${Array.from({ length: casts }, () => H().pip("2")).join("")} tax (one ${H().pip("2")} per earlier cast)` : "Her normal cost, no tax yet"} · cast from the command zone ${casts} ${casts === 1 ? "time" : "times"} so far</div></div></div>
         <div class="acts">${where === "command" ? `<button class="btn sm go" type="button" id="cast">Cast her</button>` : `<button class="btn sm pink" type="button" id="die">She dies → send her home</button>`}</div><div class="msg"></div>`;
       say(el, msg || "Trostani starts in the command zone. Tap <b>Cast her</b>.", kind);
       const cast = $("#cast", el), die = $("#die", el);
       if (cast) cast.onclick = () => { casts++; where = "field"; draw(`Trostani is on the battlefield. The next time you cast her from the command zone, she'll cost ${H().pip("2")} more.`); };
       if (die) die.onclick = () => {
         where = "command";
-        draw(casts >= 2 ? `👑 Back home again. Each cast from the command zone adds another ${H().pip("2")}. She's never gone for good, she just gets pricier.` : `👑 Instead of the graveyard, you choose to put her back in the command zone. Look at her cost now.`, casts >= 2 ? "good" : "");
+        draw(casts >= 2 ? `👑 Back home again. Each cast from the command zone adds another ${H().pip("2")}. She's never gone for good, she just gets pricier.` : `👑 She went to the graveyard, and you moved her back to the command zone. Look at her cost now.`, casts >= 2 ? "good" : "");
         if (casts >= 2) api.done();
       };
     }
@@ -499,8 +523,88 @@
   };
 
   /* Lesson 20: who to attack at a four-player table. */
+  /* Lesson "table": pick who to attack. Every pick is explained; the threat is the best one. */
   LW.table = function (el, o, api) {
-    el.innerHTML = title("Look at the table") + `<div class="life" style="grid-template-columns:repeat(3,1fr)">${o.players.map(p => `<div class="p"><div class="who">${p[0]}</div><div class="n" style="font-size:1.4rem">❤ ${p[1]}</div><div class="small">${p[2]}</div></div>`).join("")}</div>`;
-    if (api) api.done();
+    el.innerHTML = title(o.title || "Who do you attack?") + `<div class="life seats">${o.players.map((p, k) => `<button class="p" type="button" data-k="${k}"><span class="who">${p[0]}</span><span class="n" style="font-size:1.4rem">❤ ${p[1]}</span><span class="small">${p[2]}</span></button>`).join("")}</div><div class="msg">${o.prompt || "Tap the player you'd attack."}</div>`;
+    $$(".seats .p", el).forEach(b => b.onclick = () => {
+      const p = o.players[+b.dataset.k];
+      $$(".seats .p", el).forEach(x => x.classList.remove("on")); b.classList.add("on");
+      say(el, (p[3] ? "🎯 " : "🤔 ") + p[4], p[3] ? "good" : "bad");
+      if (p[3]) api.done(); else shake(b);
+    });
+  };
+
+  /* Lesson "tricks": creatures entering set off Trostani and Ajani's Pridemate by themselves. */
+  LW.engine = function (el, o, api) {
+    let life = 40, counters = 0, tokens = [], acts = 0, popd = false;
+    function draw(msg, kind) {
+      el.innerHTML = title("Your engine: watch the triggers") +
+        `<div class="row-cards" style="justify-content:center">${H().card("trostani", { sm: true })}${H().card("pridemate", { sm: true })}</div>
+        <div class="stats" style="font-size:.95rem;margin-top:8px"><span>🐱 Pridemate: ${counters ? `<b>${2 + counters}/${2 + counters}</b> (${counters} counter${counters > 1 ? "s" : ""} ${"➕".repeat(Math.min(counters, 8))})` : "<b>2/2</b>"}</span></div>
+        <div class="zone-label">Your tokens</div><div class="row-cards">${tokens.map(t => `<span class="tok">${t === "angel" ? "👼 4/4 Angel" : "🧑 1/1 Citizen"}</span>`).join("") || '<span class="muted small">none yet</span>'}</div>
+        <div class="life" style="grid-template-columns:1fr;margin-top:10px"><div class="p" id="mylife"><div class="who">Your life</div><div class="n">${life}</div></div></div>
+        <div class="acts"><button class="btn sm" type="button" data-a="citizen">A 1/1 Citizen token enters</button><button class="btn sm" type="button" data-a="angel">A 4/4 Angel token enters</button><button class="btn sm go" type="button" data-a="pop" ${tokens.length ? "" : "disabled"}>Populate ${H().pips("{1}{G}{W}")}</button></div>
+        <div class="msg"></div>`;
+      say(el, msg || "Make a creature enter and watch what happens <b>by itself</b>.", kind);
+      $$("[data-a]", el).forEach(x => x.onclick = () => {
+        let t = x.dataset.a;
+        if (t === "pop") {
+          // populate copies a token you have: copy the best one
+          t = tokens.includes("angel") ? "angel" : "citizen"; popd = true;
+        }
+        const tough = t === "angel" ? 4 : 1, before = life;
+        tokens.push(t); life += tough; counters++; acts++;
+        const how = x.dataset.a === "pop" ? `Populate made a copy of your ${t === "angel" ? "Angel" : "Citizen"} token. The copy <b>enters</b> too, so…<br>` : "";
+        draw(`${how}1️⃣ <b>Trostani</b>: “whenever another creature you control enters, gain life equal to its toughness” → you gain ${tough} (${"❤".repeat(tough)}).<br>2️⃣ <b>Ajani's Pridemate</b>: “whenever you gain life” → it gets a ➕ counter.<br>You didn't press anything for those: they're <b>triggers</b>.`, "good");
+        tickLife(before);
+        H().pop($("#mylife", el), "+" + tough, "good");
+        if (acts >= 3 && popd) api.done();
+      });
+    }
+    function tickLife(from) { const n = $("#mylife .n", el); if (n) { n.textContent = from; let v = from; const id = setInterval(() => { if (!n.isConnected || v >= life) return clearInterval(id); n.textContent = ++v; }, 90); } }
+    draw();
+  };
+
+  /* Lesson "others": an opponent attacks you. Choose a block, then whether to use Giant Growth. */
+  LW.defend = function (el, o, api) {
+    let blockOn = null, phase = "block";
+    const tell = (msg, kind) => say(el, msg, kind);
+    function draw() {
+      el.innerHTML = title("Sam's turn: Sam attacks you!") +
+        `<div class="zone-label">Sam's attackers</div><div class="row-cards">${H().card("giant", { sm: true, cls: "tapped" })}${H().card("goblin", { sm: true, cls: "tapped" })}</div>
+        <div class="zone-label">Your untapped cards</div><div class="row-cards">${H().card("spider", { sm: true })}${H().card("forest", { sm: true })}</div>
+        <div class="zone-label">In your hand</div><div class="row-cards">${H().card("growth", { sm: true })}</div>
+        <div class="acts" id="dacts"></div><div class="msg"></div>`;
+      const acts = $("#dacts", el);
+      if (phase === "block") {
+        acts.innerHTML = `<button class="btn sm" type="button" data-b="giant">Spider blocks Hill Giant</button><button class="btn sm" type="button" data-b="goblin">Spider blocks the Goblin</button><button class="btn sm" type="button" data-b="none">Don't block</button>`;
+        tell("It's not your turn, but you still decide things. Your Giant Spider (2/4) is untapped, so it can <b>block</b> one attacker.");
+        $$("[data-b]", el).forEach(x => x.onclick = () => { blockOn = x.dataset.b; phase = "trick"; draw(); });
+      } else if (phase === "trick") {
+        acts.innerHTML = `<button class="btn sm go" type="button" data-t="1">Cast Giant Growth on the Spider</button><button class="btn sm" type="button" data-t="0">Keep it, say “OK”</button>`;
+        tell(`${blockOn === "none" ? "No blocks." : `The Spider blocks ${blockOn === "giant" ? "Hill Giant" : "Raging Goblin"}.`} Before damage, you can still cast an <b>instant</b>. You have an untapped Forest and Giant Growth.`);
+        $$("[data-t]", el).forEach(x => x.onclick = () => { phase = "done"; result(x.dataset.t === "1"); });
+      }
+    }
+    function result(grow) {
+      const lines = [];
+      let best = false;
+      if (blockOn === "none") {
+        lines.push("Both attackers hit you: 3 damage from the Giant and 1 from the Goblin. Nothing of yours dies.");
+        if (grow) lines.push("Giant Growth did nothing useful: the Spider wasn't in a fight. Instants are best used <b>during</b> a fight.");
+      } else if (blockOn === "goblin") {
+        lines.push(`The Spider kills the Goblin and survives. Hill Giant hits you for 3.`);
+        if (grow) lines.push("Giant Growth wasn't needed: the Spider already won that fight. Keep tricks for when they change the result.");
+      } else {
+        lines.push(grow ? "Giant Growth makes the Spider <b>5/7</b>: it hits the Giant for 5 and the Giant (3/3) <b>dies</b>. The Spider survives. Only the Goblin hits you, for 1." : "The Spider (2/4) takes 3 and survives; the Giant (3/3) takes 2 and survives too. The Goblin hits you for 1.");
+        best = grow;
+      }
+      lines.push(best ? "🏆 <b>Best play!</b> You blocked the big one and used your instant to win the fight on someone else's turn." : "💡 The best play here: block <b>Hill Giant</b>, then cast <b>Giant Growth</b> so the Spider wins the fight. Try it!");
+      el.querySelector("#dacts").innerHTML = `<button class="btn sm" type="button" id="again">Try again</button>`;
+      say(el, lines.join("<br>"), best ? "good" : "");
+      $("#again", el).onclick = () => { blockOn = null; phase = "block"; draw(); };
+      if (best) api.done();
+    }
+    draw();
   };
 })();

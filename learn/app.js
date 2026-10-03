@@ -27,9 +27,10 @@
     opts = opts || {};
     const tag = opts.button ? "button" : "div";
     const cls = ["mcard", c.c, opts.sm ? "sm" : "", c.makes && !c.pt ? "land" : "", opts.cls || ""].join(" ");
+    const state = /\btapped\b/.test(opts.cls || "") ? ", tapped" : /\bdead\b/.test(opts.cls || "") ? ", in the graveyard" : "";
     const pt = c.pt ? `<span class="pt">${c.pt[0]}/${c.pt[1]}</span>` : "";
     const data = opts.data ? Object.entries(opts.data).map(([k, v]) => ` data-${k}="${esc(v)}"`).join("") : "";
-    return `<${tag} class="${cls}"${tag === "button" ? ' type="button"' : ""}${data} aria-label="${esc(c.name)}">
+    return `<${tag} class="${cls}"${tag === "button" ? ' type="button"' : ""}${data} aria-label="${esc(c.name)}${state}">
       <div class="in">
         <div class="bar1"><span class="nm">${esc(c.name)}</span><span class="cost">${pips(c.cost || "")}</span></div>
         <div class="art" aria-hidden="true">${c.art || ""}</div>
@@ -57,15 +58,20 @@
     ["calm", "🌙", "Calm mode", "Fewer animations and no confetti."],
     ["sound", "🔔", "Sounds", "A soft chime for right answers."]
   ];
-  function settingsPanel() {
+  let prefsOpener = null;
+  function closePrefs() { const p = $("#prefs"); if (p) p.remove(); if (prefsOpener && prefsOpener.isConnected) prefsOpener.focus(); prefsOpener = null; }
+  function settingsPanel(ev) {
     let pop = $("#prefs");
-    if (pop) { pop.remove(); return; }
+    if (pop) { closePrefs(); return; }
+    prefsOpener = ev && ev.currentTarget;
     pop = document.createElement("div");
     pop.id = "prefs"; pop.className = "prefs"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Reading settings");
     pop.innerHTML = `<b>Make it comfy</b>${OPTIONS.map(o => `<label><input type="checkbox" data-p="${o[0]}" ${prefs[o[0]] ? "checked" : ""}><span class="em" aria-hidden="true">${o[1]}</span><span><b>${o[2]}</b><small>${o[3]}</small></span></label>`).join("")}<button class="btn sm" type="button" id="prefs-x">Done</button>`;
     document.body.appendChild(pop);
     $$("input", pop).forEach(i => i.onchange = () => { prefs[i.dataset.p] = i.checked; savePrefs(); applyPrefs(); if (i.dataset.p === "sound" && i.checked) sfx("ok"); });
-    $("#prefs-x").onclick = () => pop.remove();
+    $("#prefs-x").onclick = closePrefs;
+    pop.addEventListener("keydown", e => { if (e.key === "Escape") { e.preventDefault(); closePrefs(); } });
+    $("input", pop).focus();
   }
   $("#aa").onclick = settingsPanel;
 
@@ -87,7 +93,7 @@
 
   /* floating "-3", "+🌳" and friends over an element */
   function pop(node, text, cls) {
-    if (!node || calm()) return;
+    if (!node || !node.isConnected || calm()) return;
     const r = node.getBoundingClientRect(), s = document.createElement("span");
     s.className = "popnum " + (cls || ""); s.innerHTML = fmt(text);
     s.style.left = r.left + r.width / 2 + "px"; s.style.top = r.top + r.height / 3 + "px";
@@ -177,6 +183,8 @@
           if (tries === 1) pop(b, "⭐", "star");
         } else {
           b.classList.add("wrong"); b.disabled = true;
+          const nextOpt = $$(".opt", box).find(x => !x.disabled);
+          if (nextOpt) nextOpt.focus({ preventScroll: true });
           why.className = "why bad";
           why.innerHTML = `<b>Not quite, and that's fine.</b>${fmt(o.why || "Have another look and try a different answer.")}`;
           sfx("bad");
@@ -188,7 +196,7 @@
     if (hb) hb.onclick = () => {
       const wrong = $$(".opt", box).filter(b => !b._ok && !b.disabled);
       if (wrong.length) { const w = pickOne(wrong); w.disabled = true; w.classList.add("gone"); }
-      if ($$(".opt", box).filter(b => !b._ok && !b.disabled).length < 1 || wrong.length <= 1) hb.remove();
+      if ($$(".opt", box).filter(b => !b._ok && !b.disabled).length < 1 || wrong.length <= 1) { hb.remove(); const o = $$(".opt", box).find(x => !x.disabled); if (o) o.focus({ preventScroll: true }); }
     };
   }
 
@@ -199,15 +207,19 @@
     get() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } },
     set(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { /* private mode: progress just isn't kept */ } }
   };
-  let P = store.get(); P.done = P.done || {}; P.at = P.at || {}; P.stars = P.stars || {};
+  let P = store.get(); P.done = P.done || {}; P.at = P.at || {}; P.stars = P.stars || {}; P.q = P.q || {}; P.weak = Array.isArray(P.weak) ? P.weak : [];
   const save = () => store.set(P);
+  // Questions missed on the first try come back in "Practise my weak spots" until answered right first time.
+  function markWeak(q, firstTry) {
+    const k = P.weak.indexOf(q.q);
+    if (firstTry && k >= 0) P.weak.splice(k, 1);
+    if (!firstTry && k < 0) P.weak.push(q.q);
+  }
   const lessons = L.lessons;
   const byId = id => lessons.find(l => l.id === id);
   const nextLesson = () => lessons.find(l => !P.done[l.id]);
   const starStr = n => `<span class="stars-mini" aria-label="${n} of 3 stars">${"★".repeat(n)}<s>${"★".repeat(3 - n)}</s></span>`;
   const minutes = l => Math.max(2, Math.round(l.steps.length * 0.7));
-  // first-try answers in the lesson being played, for its stars
-  let RUN = { id: null, first: {}, quizzes: 0 };
   let last = { id: null, i: -1 };
 
   /* ---------- views ---------- */
@@ -256,6 +268,7 @@
       html += `</ol></section>`;
     });
     html += `<div class="extras">
+      ${P.weak.length ? `<a href="#/practice" class="weak"><span aria-hidden="true">💪</span><b>Practise my weak spots</b><span>${P.weak.length} question${P.weak.length > 1 ? "s" : ""} you missed before. Get them right to clear the list.</span></a>` : ""}
       <a href="#/exam"><span aria-hidden="true">🏆</span><b>Final quiz</b><span>15 random questions from the whole course.${P.best ? ` Your best: ${P.best}/15.` : ""}</span></a>
       <a href="#/cheat"><span aria-hidden="true">📋</span><b>Cheat sheet</b><span>A whole turn on one screen. Keep it open during your first games.</span></a>
       <a href="#/glossary"><span aria-hidden="true">📖</span><b>Word list</b><span>Every Magic word in plain English.</span></a>
@@ -266,9 +279,34 @@
     app.innerHTML = html;
     $("#aa2").onclick = settingsPanel;
     const r = $("#reset");
-    if (r) r.onclick = () => { if (confirm("Forget which lessons you finished?")) { P = { done: {}, at: {}, stars: {} }; save(); viewHome(); } };
+    if (r) r.onclick = () => { if (confirm("Forget which lessons you finished?")) { P = { done: {}, at: {}, stars: {}, q: {}, weak: [] }; save(); viewHome(); } };
     const nxt = $(".node.next");
     if (nxt && n > 0) setTimeout(() => nxt.scrollIntoView({ block: "center", behavior: calm() ? "auto" : "smooth" }), 250);
+  }
+
+  // After a screen changes, put keyboard and screen-reader focus on its title.
+  function focusHeading(root) {
+    const h = $("h2", root);
+    if (!h) return;
+    h.setAttribute("tabindex", "-1");
+    h.focus({ preventScroll: true });
+  }
+  // Widgets redraw themselves on every tap, which would drop keyboard focus to the page.
+  // Remember what was pressed and put focus back on the same control (or the widget's first one).
+  function keepFocus(box) {
+    let key = null;
+    const ident = el => el.id ? "#" + el.id : Array.from(el.attributes).filter(a => a.name.startsWith("data-")).map(a => `[${a.name}="${a.value}"]`).join("") || null;
+    const restore = () => {
+      if (!box.isConnected || (document.activeElement && document.activeElement !== document.body)) return;
+      const t = (key && box.querySelector(key + ":not([disabled])")) || box.querySelector("button:not([disabled])");
+      if (t) t.focus({ preventScroll: true });
+    };
+    box.addEventListener("click", e => {
+      const b = e.target.closest("button");
+      key = b ? ident(b) : null;
+      if (key && /^\[|^#/.test(key)) key = (b.tagName.toLowerCase()) + key;
+      setTimeout(restore, 0); setTimeout(restore, 450); setTimeout(restore, 1900);
+    }, true);
   }
 
   function viewLesson(id, stepArg) {
@@ -278,10 +316,12 @@
     setNav("");
     const idx = lessons.indexOf(l), total = l.steps.length;
     let i = Math.max(0, Math.min(stepArg != null ? stepArg : 0, total));
-    if (RUN.id !== id || i === 0) RUN = { id, first: {}, quizzes: l.steps.filter(s => s.quiz).length };
+    // the finish screen only counts when it's reached with Next from the last screen
+    const arrived = last.id === id && last.i === total - 1;
+    if (i === total && !arrived && !P.done[id]) { location.replace(`#/l/${id}/${total - 1}`); return; }
     const dir = last.id === id && i < last.i ? "back" : "fwd";
     last = { id, i };
-    P.at[id] = i; save();
+    if (i < total) { P.at[id] = i; save(); }
     const unit = L.units.find(u => u.id === l.unit);
     let dots = "";
     for (let k = 0; k <= total; k++) dots += `<i class="${k < i ? "on" : k === i ? "cur" : ""}"></i>`;
@@ -298,7 +338,7 @@
     const go = k => { location.hash = `#/l/${id}/${k}`; };
     back.onclick = () => i === 0 ? (location.hash = "#/") : go(i - 1);
 
-    if (i === total) return finish(l, screen, next, back);
+    if (i === total) return finish(l, screen, next, back, arrived);
 
     const s = l.steps[i];
     let html = `<div class="sbar"><span class="count">${i + 1} / ${total}</span>${readButton(screen)}</div>`;
@@ -331,27 +371,36 @@
       const [name, opts] = Array.isArray(s.widget) ? s.widget : [s.widget, {}];
       const box = $("#wbox");
       box.dataset.widget = name;
+      keepFocus(box);
       if (s.gate) lock(s.gate, true);
       if (W[name]) W[name](box, opts || {}, { done: () => { if (next.hidden) sfx("ok"); unlock(); } });
       else box.textContent = "Missing widget " + name;
     }
     if (s.quiz) {
       lock("Pick an answer");
-      quiz($("#qbox"), s.quiz, (ok, tries) => { if (ok) { if (!(i in RUN.first)) RUN.first[i] = tries === 1; unlock(); } });
+      // first answers are kept per lesson until it's finished, so going back or refreshing can't change the stars
+      quiz($("#qbox"), s.quiz, (ok, tries) => {
+        const q = P.q[id] = P.q[id] || {};
+        if (!(i in q)) { q[i] = ok && tries === 1; markWeak(s.quiz, q[i]); save(); }
+        if (ok) unlock();
+      });
     }
     if (i === total - 1) next.textContent = "Finish ✓";
     window.scrollTo(0, 0);
+    focusHeading(screen);
   }
 
-  function finish(l, screen, next, back) {
+  function finish(l, screen, next, back, arrived) {
     const first = !P.done[l.id];
-    const firsts = Object.values(RUN.first), right = firsts.filter(Boolean).length;
-    // stars: 3 when every quiz was right first time, 2 for at least half, 1 for finishing
-    let stars = 1;
-    if (RUN.id === l.id && firsts.length) stars = right === RUN.quizzes ? 3 : right * 2 >= RUN.quizzes ? 2 : 1;
-    else if (RUN.id === l.id && !RUN.quizzes) stars = 3;
-    stars = Math.max(stars, P.stars[l.id] || 0);
-    P.done[l.id] = true; P.stars[l.id] = stars; delete P.at[l.id]; save();
+    let stars = P.stars[l.id] || 1;
+    if (arrived) {
+      // stars: 3 when every quiz was right first time, 2 for at least half, 1 for finishing
+      const quizzes = l.steps.filter(s => s.quiz).length, q = P.q[l.id] || {};
+      const right = Object.values(q).filter(Boolean).length;
+      const now = !quizzes || right === quizzes ? 3 : right * 2 >= quizzes ? 2 : 1;
+      stars = Math.max(now, P.stars[l.id] || 0);
+      P.done[l.id] = true; P.stars[l.id] = stars; delete P.at[l.id]; delete P.q[l.id]; save();
+    }
     const nx = lessons[lessons.indexOf(l) + 1];
     const n = lessons.filter(x => P.done[x.id]).length;
     screen.classList.add("finish");
@@ -360,12 +409,13 @@
       <div class="bigstars" aria-label="${stars} of 3 stars">${[0, 1, 2].map(k => `<span class="${k < stars ? "on" : ""}" style="--d:${300 + k * 220}ms">★</span>`).join("")}</div>
       <p class="muted">${stars === 3 ? "Every question right on the first try!" : "Every star counts. Replay any time to collect more."} ${n} of ${lessons.length} lessons done.</p>
       <div class="recap"><b>What you learned</b><ul>${l.recap.map(r => `<li>${fmt(r)}</li>`).join("")}</ul></div>
+      ${l.checkpoint ? `<div class="checkpoint"><b>🎮 Checkpoint: you know enough to try a game!</b><p>Lands, mana, creatures and attacking are the whole core. If you're curious, try a game against the friendly bots now; it shows what you can do. Or carry on, the next lessons make it easier.</p><a class="btn sm" href="../miku/#play">Try a game</a></div>` : ""}
       <div class="acts">${nx ? `<a class="btn go" href="#/l/${nx.id}">Next: ${esc(nx.title)} →</a>` : `<a class="btn go" href="#/exam">Final quiz 🏆</a>`}<a class="btn" href="#/">Course map</a></div>`;
     next.hidden = true;
     back.onclick = () => { location.hash = `#/l/${l.id}/${l.steps.length - 1}`; };
     window.scrollTo(0, 0);
-    sfx("done");
-    confetti(first ? 90 : 40);
+    if (arrived) { sfx("done"); confetti(first ? 90 : 40); }
+    focusHeading(screen);
   }
 
   function viewGlossary() {
@@ -400,25 +450,49 @@
     if (b.classList.contains("on")) return stopSpeaking();
     stopSpeaking();
     const u = new SpeechSynthesisUtterance(speakText(root)); u.lang = "en-US"; u.rate = 0.92;
-    u.onend = u.onerror = () => b.classList.remove("on");
-    b.classList.add("on"); speechSynthesis.speak(u);
+    u.onend = u.onerror = () => { b.classList.remove("on"); b.setAttribute("aria-pressed", "false"); };
+    b.classList.add("on"); b.setAttribute("aria-pressed", "true"); speechSynthesis.speak(u);
   }
 
-  function viewExam() {
+  function allQuizzes(withAll) {
+    const pool = [];
+    lessons.forEach(l => l.steps.forEach(s => { if (s.quiz && (withAll || !s.quiz.noExam)) pool.push(s.quiz); }));
+    L.exam.forEach(q => pool.push(q));
+    return pool;
+  }
+
+  function viewExam(practice) {
     stopSpeaking();
     setNav("exam");
-    const pool = [];
-    lessons.forEach(l => l.steps.forEach(s => { if (s.quiz && !s.quiz.noExam) pool.push(s.quiz); }));
-    L.exam.forEach(q => pool.push(q));
-    const qs = shuffle(pool).slice(0, 15);
+    const pool = allQuizzes(practice);
+    if (practice) { const known = new Set(pool.map(q => q.q)); P.weak = P.weak.filter(k => known.has(k)); save(); }
+    const qs = practice ? shuffle(pool.filter(q => P.weak.includes(q.q))).slice(0, 10) : shuffle(pool).slice(0, 15);
+    if (practice && !qs.length) {
+      P.weak = []; save();
+      app.innerHTML = `<main class="wrap lesson"><h1 class="page-title">Practise my weak spots</h1><div class="screen finish"><div class="trophy" aria-hidden="true">💚</div><h2>Nothing to practise!</h2><p class="muted">Questions you miss on the first try, in lessons or the final quiz, collect here so you can try them again.</p><div class="acts"><a class="btn go" href="#/">Course map</a><a class="btn" href="#/exam">Final quiz</a></div></div></main>`;
+      focusHeading(app);
+      return;
+    }
     let i = 0, score = 0;
-    app.innerHTML = `<main class="wrap lesson"><h1 class="page-title">Final quiz 🏆</h1><p class="muted">15 questions from the whole course. A first-try answer earns a star. You can retake it as often as you like, the questions change.</p>
+    app.innerHTML = `<main class="wrap lesson"><h1 class="page-title">${practice ? "Practise my weak spots 💪" : "Final quiz 🏆"}</h1><p class="muted">${practice ? "Questions you missed before. Get one right on the first try and it leaves the list." : "15 questions from the whole course. A first-try answer earns a star. You can retake it as often as you like, the questions change."}</p>
       <div class="dots" id="edots"></div><div class="screen" id="screen"></div></main>
       <div class="navbar"><div class="wrap"><a class="btn" href="#/" aria-label="Back to the course map">←</a><span class="hint" id="hint">Pick an answer</span><button class="btn go" type="button" id="next" hidden>Next →</button></div></div>`;
     const screen = $("#screen"), next = $("#next"), hint = $("#hint"), dots = $("#edots");
     function show() {
       stopSpeaking();
       dots.innerHTML = qs.map((_, k) => `<i class="${k < i ? "on" : k === i ? "cur" : ""}"></i>`).join("");
+      if (i === qs.length && practice) {
+        const left = P.weak.length;
+        screen.className = "screen finish";
+        screen.innerHTML = `<div class="score">${score} / ${qs.length}</div><h2>${left ? "Nice practice!" : "All cleared! 🎉"}</h2>
+          <p class="muted">${score} right on the first try. ${left ? `${left} still on your practice list.` : "Your practice list is empty."}</p>
+          <div class="acts">${left ? `<button class="btn go" type="button" id="again">Practise again</button>` : ""}<a class="btn" href="#/">Course map</a></div>`;
+        if ($("#again")) $("#again").onclick = () => viewExam(true);
+        next.hidden = true; hint.hidden = true;
+        sfx("done"); if (!left) confetti(60);
+        focusHeading(screen);
+        return;
+      }
       if (i === qs.length) {
         const stars = score >= 14 ? 3 : score >= 10 ? 2 : score >= 6 ? 1 : 0;
         const best = Math.max(P.best || 0, score); P.best = best; save();
@@ -427,14 +501,16 @@
           <h2>${stars === 3 ? "You're ready to play!" : stars === 2 ? "Really solid!" : stars === 1 ? "Good start!" : "Every expert started here."}</h2>
           <p class="muted">${score} questions right on the first try. Your best so far: ${best}. ${stars < 3 ? "The lessons are always there to peek at, and the quiz picks new questions each time." : "Time for a real game against the bots."}</p>
           <div class="acts"><button class="btn go" type="button" id="again">Another round</button><a class="btn" href="../miku/#play">Play a game 🎮</a><a class="btn" href="#/">Course map</a></div>`;
-        $("#again").onclick = viewExam;
+        $("#again").onclick = () => viewExam();
         next.hidden = true; hint.hidden = true;
         sfx("done"); if (stars) confetti(stars * 30);
         return;
       }
       screen.className = "screen fwd"; screen.innerHTML = `<div class="sbar"><span class="count">Question ${i + 1} of ${qs.length}</span>${readButton(screen)}</div><div id="qbox"></div>`;
       next.hidden = true; hint.hidden = false;
+      let marked = false;
       quiz($("#qbox"), qs[i], (ok, tries) => {
+        if (!marked) { marked = true; markWeak(qs[i], ok && tries === 1); save(); }
         if (!ok) return;
         if (tries === 1) score++;
         next.hidden = false; hint.hidden = true;
@@ -449,13 +525,15 @@
     $("#prefs") && $("#prefs").remove();
     const h = location.hash.replace(/^#\/?/, "").split("/");
     if (h[0] === "l" && h[1]) {
-      const step = h[2] != null && h[2] !== "" ? +h[2] : (P.at[h[1]] && !P.done[h[1]] ? P.at[h[1]] : 0);
-      return viewLesson(h[1], isNaN(step) ? 0 : step);
+      if (!byId(h[1])) { location.replace("#/"); return; }
+      const saved = Number.isInteger(P.at[h[1]]) && !P.done[h[1]] ? P.at[h[1]] : 0;
+      return viewLesson(h[1], /^\d{1,3}$/.test(h[2] || "") ? +h[2] : saved);
     }
     stopSpeaking();
     if (h[0] === "glossary") return viewGlossary();
     if (h[0] === "cheat") return viewCheat();
     if (h[0] === "exam") return viewExam();
+    if (h[0] === "practice") return viewExam(true);
     viewHome();
     if (!$(".node.next")) window.scrollTo(0, 0);
   }
