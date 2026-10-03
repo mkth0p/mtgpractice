@@ -41,7 +41,35 @@
   .lede { color: #b7c2cc; margin: 0; max-width: 52ch; font-size: 1.05rem; }
 
   /* the decks, pulled up over the stage */
-  .decks { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); margin-top: -76px; position: relative; }
+  .decks { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); position: relative; }
+  .sec { display: flex; align-items: baseline; gap: 10px; margin: 40px 0 14px; }
+  .sec h2 { font: 800 1.35rem/1.2 var(--f-display); letter-spacing: -.02em; margin: 0; }
+  .sec span { color: var(--muted); font-size: .92rem; }
+
+  /* the beginner course, first thing on the page */
+  .learn { position: relative; margin-top: -76px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; border-radius: 26px; overflow: hidden; text-decoration: none; color: #eef3f4;
+    background: radial-gradient(70% 120% at 100% 0%, rgba(255, 61, 139, .35), transparent 60%), radial-gradient(70% 120% at 0% 100%, rgba(57, 197, 187, .35), transparent 60%), linear-gradient(135deg, #15203a, #241a44);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .08), 0 26px 50px -24px rgba(0, 0, 0, .6); border: 1px solid rgba(255, 255, 255, .1); transition: transform .3s var(--ease); }
+  .learn:hover { transform: translateY(-3px); }
+  @media (min-width: 720px) { .learn { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); } }
+  .learn .txt { padding: 26px 22px 24px; display: grid; gap: 10px; align-content: center; }
+  .learn .new { justify-self: start; font: 600 10px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; padding: 6px 9px; border-radius: 999px; background: #ff3d8b; color: #fff; }
+  .learn b { font: 900 clamp(1.6rem, 5.4vw, 2.3rem)/1.05 var(--f-display); letter-spacing: -.03em; }
+  .learn b em { font-style: normal; color: #64e3d8; }
+  .learn p { margin: 0; color: #c8d1da; max-width: 44ch; }
+  .learn ul { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 4px 0 0; padding: 0; }
+  .learn li { font-size: .82rem; padding: 5px 10px; border-radius: 999px; background: rgba(255, 255, 255, .09); border: 1px solid rgba(255, 255, 255, .14); }
+  .learn .cta { justify-self: start; display: inline-flex; align-items: center; gap: 8px; height: 50px; padding: 0 24px; margin-top: 8px; border-radius: 999px; background: #39c5bb; color: #04201e; font-weight: 800; font-size: 1.02rem; box-shadow: 0 10px 24px -10px rgba(57, 197, 187, .9); }
+  .learn .cta i { font-style: normal; transition: transform .3s var(--ease); }
+  .learn:hover .cta i { transform: translateX(4px); }
+  .learn .prog { font-size: .86rem; color: #9fb0bd; }
+  .learn .fan { position: relative; min-height: 190px; }
+  .fan span { position: absolute; left: 50%; top: 50%; width: 92px; height: 128px; margin: -64px 0 0 -46px; border-radius: 10px; border: 5px solid #15130f; display: grid; place-items: center; font-size: 40px; box-shadow: 0 16px 30px -12px rgba(0, 0, 0, .7); animation: float 5s ease-in-out infinite; }
+  .fan span:nth-child(1) { background: linear-gradient(160deg, #6fd39a, #2f9a57); transform: translate(-70px, 8px) rotate(-14deg); animation-delay: -1s; }
+  .fan span:nth-child(2) { background: linear-gradient(160deg, #fff4cf, #e9dfbd); transform: translate(0, -6px) rotate(0deg); z-index: 1; animation-delay: -2.4s; }
+  .fan span:nth-child(3) { background: linear-gradient(160deg, #ff9b84, #e2553b); transform: translate(70px, 8px) rotate(14deg); animation-delay: -3.6s; }
+  @keyframes float { 50% { margin-top: -74px; } }
+  @media (max-width: 719px) { .learn .fan { min-height: 150px; order: -1; margin-top: 10px; } .fan span { width: 74px; height: 102px; margin: -51px 0 0 -37px; font-size: 32px; } @keyframes float { 50% { margin-top: -59px; } } }
   .deck { display: flex; flex-direction: column; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; box-shadow: 0 2px 6px rgba(0, 0, 0, .06), 0 22px 44px -22px rgba(0, 0, 0, .45); transition: transform .3s var(--ease), box-shadow .3s; }
   .deck:hover { transform: translateY(-4px); box-shadow: 0 2px 6px rgba(0, 0, 0, .06), 0 30px 56px -22px rgba(0, 0, 0, .55); }
   .art { position: relative; aspect-ratio: 16 / 9; background: linear-gradient(135deg, var(--c), #10151b); display: block; }
@@ -64,13 +92,6 @@
   .acts .ghost { border: 1px solid var(--line); background: var(--surface-2); }
   .acts .ghost:hover { border-color: var(--c); }
   :focus-visible { outline: 2.5px solid #39c5bb; outline-offset: 2px; }
-  .study { display: flex; align-items: center; gap: 14px; margin-top: 20px; padding: 16px 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; }
-  .study:hover { border-color: #39c5bb; }
-  .study.learn { margin-top: 24px; background: linear-gradient(120deg, rgba(57, 197, 187, .14), rgba(123, 108, 240, .14)), var(--surface); border-color: #39c5bb; }
-  .study.learn + .study { margin-top: 12px; }
-  .study i { font-style: normal; font-size: 1.6rem; }
-  .study b { display: block; font: 800 1.05rem/1.2 var(--f-display); }
-  .study span { color: var(--muted); font-size: .92rem; }
   footer { color: var(--muted); font-size: .8rem; padding: 28px 0 40px; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
@@ -78,12 +99,24 @@
 <body>
 <header class="stage">
   <div class="wrap">
-    <p class="kicker"><i aria-hidden="true"></i>Four decks · one table</p>
+    <p class="kicker"><i aria-hidden="true"></i>Learn · build · play</p>
     <h1>Commander <span>decks</span></h1>
-    <p class="lede">Pick a deck: a step-by-step guide, every card with rulings, the combos, the stats, and a real four-player game against bots.</p>
+    <p class="lede">New to the game? Start with the course below. Already playing? Pick a deck: a guide, every card with rulings, the combos, and a real four-player game against bots.</p>
   </div>
 </header>
 <main class="wrap">
+  <a class="learn" href="learn/">
+    <div class="txt">
+      <span class="new">Start here if you're new</span>
+      <b>Learn Magic <em>from zero</em></b>
+      <p>Never played? No problem. Tiny lessons, one idea at a time, with things to tap and try. No maths skills needed, and you can't fail.</p>
+      <ul><li>🐢 Go at your own pace</li><li>🔊 Read aloud</li><li>👆 Try everything</li></ul>
+      <span class="cta">Start learning <i aria-hidden="true">→</i></span>
+      <span class="prog" id="learn-prog"></span>
+    </div>
+    <div class="fan" aria-hidden="true"><span>🌳</span><span>👼</span><span>🔥</span></div>
+  </a>
+  <div class="sec"><h2>The decks</h2><span>Guides, every card, and a game against bots</span></div>
   <div class="decks">
     <article class="deck" style="--c:#39c5bb;--on:#04201e">
       <a class="art" href="miku/" tabindex="-1" aria-hidden="true"><img src="https://api.scryfall.com/cards/sld/2429?format=image&amp;version=art_crop" alt="" loading="lazy" onerror="this.remove()"><span class="tags"><span class="b">Bracket 3</span><span>Selesnya</span><span>Tokens</span></span></a>
@@ -126,9 +159,14 @@
       </div>
     </article>
   </div>
-  <a class="study learn" href="learn/"><i aria-hidden="true">✦</i><div><b>New to Magic? Learn it from zero</b><span>20 tiny interactive lessons with quizzes, mana puzzles and a guided first turn. No maths skills needed.</span></div></a>
-  <a class="study" href="storytelling/"><i aria-hidden="true">📖</i><div><b>Révisions storytelling</b><span>Pyramide de Freytag, logos ethos pathos, fonctions de Jakobson, exercices corrigés</span></div></a>
   <footer>Unofficial fan pages. Magic: The Gathering is © Wizards of the Coast. Card images via Scryfall.</footer>
 </main>
+<script>
+  // Show where the visitor is in the course, if they started it.
+  try {
+    const p = JSON.parse(localStorage.getItem("learnMagic.v1") || "{}"), n = Object.keys(p.done || {}).length;
+    if (n) { document.getElementById("learn-prog").textContent = n >= 20 ? "✓ Course finished. Revisit any lesson." : n + " of 20 lessons done"; document.querySelector(".learn .cta").firstChild.textContent = n >= 20 ? "Open the course " : "Continue learning "; }
+  } catch (e) { /* no storage: keep the default text */ }
+</script>
 </body>
 </html>

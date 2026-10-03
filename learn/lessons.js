@@ -250,7 +250,7 @@ window.LEARN = (function () {
   L.push({
     id: "keywords", unit: "combat", emoji: "🦸", title: "Keywords: creature superpowers", blurb: "Flying, trample, deathtouch and friends.",
     steps: [
-      { title: "One word, one rule", html: `<p>Some creatures have a single word in their text box, like <b>Flying</b>. These <b>keywords</b> are shortcuts for a rule that shows up on many cards.</p><p>Learn them once, and you can read thousands of cards.</p>` },
+      { title: "One word, one rule", html: `<p>Some creatures have a single word in their text box, like <b>Flying</b>. These <b>keywords</b> are shortcuts for a rule that shows up on many cards.</p><p>Learn them once, and you can read thousands of cards. Here are the seven you'll see most. (A few rarer ones, like first strike or menace, are in the <a href="#/glossary">word list</a> for later.)</p>` },
       { title: "The main ones", widget: ["flip", { cards: [
         ["🪽", "Flying", "Can only be blocked by creatures with <b>flying</b> or <b>reach</b>. (A flyer can still block ground creatures.)"],
         ["🕸️", "Reach", "Can block creatures with flying. Usually spiders and archers."],
@@ -258,11 +258,7 @@ window.LEARN = (function () {
         ["🦶", "Trample", "When it's blocked, extra damage beyond what kills the blocker goes through to the player."],
         ["💗", "Lifelink", "Damage it deals also gains you that much life."],
         ["⚡", "Haste", "Can attack (and use {T}) the turn it arrives. No summoning sickness."],
-        ["👁️", "Vigilance", "Attacking doesn't tap it, so it can still block next turn."],
-        ["🥇", "First strike", "Deals its combat damage <b>before</b> creatures without first strike. If it kills the other one first, it takes no damage."],
-        ["😈", "Menace", "Can't be blocked except by <b>two or more</b> creatures."],
-        ["🛡️", "Hexproof", "Your opponents' spells and abilities can't target it."],
-        ["💎", "Indestructible", "Damage and “destroy” effects can't kill it. (Exile still works!)"]
+        ["👁️", "Vigilance", "Attacking doesn't tap it, so it can still block next turn."]
       ] }], gate: "Flip all the cards" },
       { title: "Keyword lab", html: `<p>Try these. Some good ones: Dreadmaw blocked by Bears (trample), Rats blocked by Giant (deathtouch), Angel against Giant (flying).</p>`, widget: ["combat", { attackers: ["angel", "dreadmaw", "rats", "nighthawk", "bears"], blockers: [null, "giant", "spider", "bears", "angel"], a: "dreadmaw", b: "bears", need: 3 }], gate: "Try three fights" },
       { title: "Quick check", quiz: { q: "Typhoid Rats (1/1, deathtouch) blocks Colossal Dreadmaw (6/6). What happens to the Dreadmaw?", cards: ["rats", "dreadmaw"], options: [{ t: "It dies: any damage from deathtouch is deadly", ok: true }, { t: "It survives: 1 damage isn't enough for 6 health", why: "Normally yes, but deathtouch makes any damage lethal." }] } },
