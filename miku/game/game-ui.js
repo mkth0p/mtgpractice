@@ -221,7 +221,7 @@
         // watching: your deck is a bot too, named apart from a bot of the same deck
         if (d.watch) { const bot = MK.AI.create({ skill: 1, aggression: aggrOf(d), casual: false }); return { name: `${d.deck.name} (your deck)`, commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, agent: this.paced(bot), deckId: d.deck.id }; }
         const bot = MK.AI.create({ skill: skillOf(d), aggression: aggrOf(d), casual: casualOf(d) });
-        return { name: d.deck.name, commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, agent: this.paced(bot), deckId: d.deck.id };
+        return { name: d.name || d.deck.name, commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, agent: this.paced(bot), deckId: d.deck.id };
       });
       this.helper = MK.AI.create({ skill: 1 });
       // a deck with a coach (Corrupted Miku) shows live tips and a turn checklist
@@ -231,7 +231,8 @@
       this.$.coachBtn.hidden = !this.coach;
       // Companion (ticked in the game setup): a panel that walks you through each stage of the game
       this.companionOn = !!(this.coach && this.coach.companion && this.s.companion !== false);
-      const seed = pm && pm.kind === "retry" ? pm.rec.seed : pm && pm.kind === "puzzle" ? (pm.puzzle.seed || 1) : Math.floor(Math.random() * 2 ** 31);
+      // { kind: "watch", seed } replays a game the Arena played (tournament.js builds it the same way)
+      const seed = pm && pm.kind === "retry" ? pm.rec.seed : pm && pm.kind === "puzzle" ? (pm.puzzle.seed || 1) : pm && pm.kind === "watch" && pm.seed != null ? pm.seed : Math.floor(Math.random() * 2 ** 31);
       const heroIdx = Math.max(0, players.findIndex(p => p.human));
       this.rec = null;
       if (pm && (pm.kind === "assess" || pm.kind === "retry") && PR) {
@@ -1601,17 +1602,19 @@
       over.className = "mg-over";
       const title = g.winner ? `${esc(g.winner.name)} wins` : "Draw";
       const line = p => `<li><b>${esc(p.name)}</b>: ${p === g.winner ? `won in round ${rounds}` : p.lost ? `out (${esc({ life: "life", poison: "poison", commander: "commander damage", library: "empty library", concede: "conceded" }[p.lostReason] || p.lostReason || "lost")})` : `${p.life} life at the end`}, ${p.stats.dmg} damage dealt, ${Object.values(p.stats.cast).reduce((a, b) => a + b, 0)} spells</li>`;
+      const gm = this.gm && this.gm.kind === "watch" ? this.gm : null;
+      if (gm && gm.onDone) { try { gm.onDone({ winner: g.winner ? g.winner.idx : -1, rounds: g.round, turns: g.turn }); } catch (err) { console.error(err); } }
       over.innerHTML = `<h2 class="${g.winner === me ? "win" : "loss"}">${title}</h2><p>${g.winner ? `Round ${rounds}.` : "The game hit the turn limit."} You were following ${esc(me.name)}.</p>
         <ol class="watch-sum">${g.players.map(line).join("")}</ol>
-        <p class="muted small">Bot games don't count in your record.</p>
-        <div class="btns"><button class="mg-btn" data-e="log">Game log</button><button class="mg-btn" data-e="lobby">Lobby</button><button class="mg-btn go" data-e="again">Watch again</button></div>`;
+        <p class="muted small">${gm && gm.note ? esc(gm.note) : "Bot games don't count in your record."}</p>
+        <div class="btns"><button class="mg-btn" data-e="log">Game log</button><button class="mg-btn" data-e="lobby">${esc(this.opts.exitLabel || "Lobby")}</button><button class="mg-btn go" data-e="again">Watch again</button></div>`;
       this.el.appendChild(over);
       over.addEventListener("click", e => {
         const b = e.target.closest("[data-e]");
         if (!b) return;
         if (b.dataset.e === "log") { over.style.display = "none"; this.$.log.classList.add("on"); this.$.log.querySelector("[data-act]").addEventListener("click", () => { over.style.display = ""; }, { once: true }); }
         if (b.dataset.e === "lobby") { this.destroy(); if (this.opts.onExit) this.opts.onExit(); }
-        if (b.dataset.e === "again") { this.destroy(); if (this.opts.onRematch) this.opts.onRematch(this.seats); }
+        if (b.dataset.e === "again") { this.destroy(); if (this.opts.onRematch) this.opts.onRematch(this.seats, gm); }
       });
     }
     /* A puzzle ends with the turn: solved when the goal check says so. */

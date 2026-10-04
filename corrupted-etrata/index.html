@@ -18,9 +18,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cards.scryfall.io" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Martian+Mono:wght@400;500;600&family=Unbounded:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="../miku/styles.css?v=28">
-<link rel="stylesheet" href="theme.css?v=28">
-<link rel="stylesheet" href="train.css?v=28">
+<link rel="stylesheet" href="../miku/styles.css?v=29">
+<link rel="stylesheet" href="theme.css?v=29">
+<link rel="stylesheet" href="train.css?v=29">
 <script>try { var t = localStorage.getItem("cetrataWiki.theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}</script>
 </head>
 <body>
@@ -448,6 +448,17 @@
   </div>
 </div>
 
+<!-- ================================================================== ARENA -->
+<div class="view view-arena" id="view-arena" data-view="arena" data-segs="setup:New,live:Live,standings:Standings,matchups:Matchups,decks:Decks,games:Games,saved:Saved">
+  <div class="segment" data-segment="setup"><div class="wrap" data-arena="setup"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+  <div class="segment" data-segment="live"><div class="wrap" data-arena="live"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+  <div class="segment" data-segment="standings"><div class="wrap" data-arena="standings"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+  <div class="segment" data-segment="matchups"><div class="wrap" data-arena="matchups"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+  <div class="segment" data-segment="decks"><div class="wrap" data-arena="decks"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+  <div class="segment" data-segment="games"><div class="wrap" data-arena="games"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+  <div class="segment" data-segment="saved"><div class="wrap" data-arena="saved"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+</div>
+
 <!-- ================================================================== STATS -->
 <div class="view" id="view-stats" data-view="stats" data-segs="deck:Deck,odds:Odds,power:Power,you:You">
   <div class="segment" data-segment="deck">
@@ -654,16 +665,16 @@
 <div class="peek" id="peek" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="../miku/kit.js?v=28"></script>
-<script src="cards.js?v=28"></script>
-<script src="wiki.js?v=28"></script>
-<script src="guide.js?v=28"></script>
-<script src="quiz.js?v=28"></script>
-<script src="prices.js?v=28"></script>
-<script src="../miku/game/checklist-cetrata.js?v=28"></script>
-<script src="site.js?v=28"></script>
-<script src="train.js?v=28"></script>
-<script src="train-data.js?v=28"></script>
-<script src="../miku/app.js?v=28"></script>
+<script src="../miku/kit.js?v=29"></script>
+<script src="cards.js?v=29"></script>
+<script src="wiki.js?v=29"></script>
+<script src="guide.js?v=29"></script>
+<script src="quiz.js?v=29"></script>
+<script src="prices.js?v=29"></script>
+<script src="../miku/game/checklist-cetrata.js?v=29"></script>
+<script src="site.js?v=29"></script>
+<script src="train.js?v=29"></script>
+<script src="train-data.js?v=29"></script>
+<script src="../miku/app.js?v=29"></script>
 </body>
 </html>
