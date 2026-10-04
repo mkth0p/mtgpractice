@@ -449,11 +449,11 @@ html.mg-open, html.mg-open body { overflow: hidden; overscroll-behavior: none; }
 /* ------------------------------------------------------------------ whose side is whose */
 /* the opponent you look at tints their half of the table with their seat color */
 .mg-board.opp:not(.desk) { background: radial-gradient(90% 85% at 50% 0%, color-mix(in srgb, var(--pc, transparent) 9%, transparent), transparent 75%); }
-.mg-board.me::after { content: "You"; position: absolute; left: 10px; bottom: 2px; font: 600 .62rem var(--f-mono, monospace); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); pointer-events: none; }
+.mg-board.me::after { content: var(--me-label, "You"); position: absolute; left: 10px; bottom: 2px; font: 600 .62rem var(--f-mono, monospace); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); pointer-events: none; }
 .mg-board.me { background: radial-gradient(75% 50% at 50% 50%, color-mix(in srgb, var(--miku) 6%, transparent), transparent 100%); }
 /* your turn: your half of the table lights up */
 .mg.my-turn .mg-board.me { background: radial-gradient(75% 50% at 50% 50%, color-mix(in srgb, var(--miku) 14%, transparent), transparent 100%); }
-.mg.my-turn .mg-board.me::after { color: var(--miku-ink); content: "You · your turn"; }
+.mg.my-turn .mg-board.me::after { color: var(--miku-ink); content: var(--me-turn, "You · your turn"); }
 .mg.my-turn .mg-life b { color: var(--miku-ink); text-shadow: 0 0 18px color-mix(in srgb, var(--miku) 45%, transparent); }
 .mg-life b { transition: color .3s; }
 
@@ -548,3 +548,6 @@ html.mg-open, html.mg-open body { overflow: hidden; overscroll-behavior: none; }
 .pz-sol ol { margin: 6px 0; padding-left: 20px; }
 .pz-sol p { max-width: none; }
 .mg-toast { position: absolute; left: 50%; top: 56px; z-index: 12; transform: translateX(-50%); max-width: min(90%, 420px); padding: 9px 14px; border-radius: 12px; background: var(--miku); color: var(--on-miku, #000); font: 600 .82rem/1.35 var(--f-body, sans-serif); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .6); animation: mg-in .3s var(--ease) both; pointer-events: none; }
+/* a bot game you watched */
+.mg-over .watch-sum { margin: 0; padding: 0 0 0 1.2em; width: min(100%, 380px); text-align: left; font-size: .84rem; line-height: 1.5; color: var(--soft); }
+.mg-over .watch-sum b { color: var(--text); }
