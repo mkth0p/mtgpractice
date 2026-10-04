@@ -1029,6 +1029,7 @@
   };
   const ANSWERS = { creature: ["Infernal Grasp", "Deadly Rollick", "Cyclonic Rift", "Otawara, Soaring City"], other: ["Cyclonic Rift", "Otawara, Soaring City"] };
   const COUNTERS = ["Fierce Guardianship", "Counterspell", "Swan Song", "An Offer You Can't Refuse"];
+  const DEFENSE = ["Toxic Deluge", "Cyclonic Rift", "Deadly Rollick", "Infernal Grasp"];
   /* Adds mana costs as strings: "{1}{U}{B}" + "{3}" = "{4}{U}{B}". */
   function addCost(...cs) {
     let n = 0; const col = [];
@@ -1173,6 +1174,13 @@
       const pw = g.creatures(q).reduce((s, c) => s + Math.max(0, g.power(c)), 0);
       if (pw >= p.life) threats.push({ kind: "lethal", level: "high", name: null, title: `${q.name} can kill you`, text: `${pw} power on board and you're at ${p.life}. Keep blockers back (Etrata's deathtouch) or end it first.`, answers: ["Cyclonic Rift", "Toxic Deluge"].filter(n => inHand(p, n)), answerText: "" });
     }
+    // the whole table's attackers: three precons racing you kill a combo deck before it's ready
+    const lethal = threats.some(t => t.kind === "lethal");
+    const tablePw = g.opponents(p).filter(q => !q.lost).reduce((s, q) => s + g.creatures(q).reduce((n, c) => n + Math.max(0, g.power(c)), 0), 0);
+    if (!lethal && tablePw * 2 >= p.life) {
+      const answers = DEFENSE.filter(n => inHand(p, n));
+      threats.push({ kind: "pressure", level: tablePw * 1.5 >= p.life ? "high" : "low", name: null, title: "The table is racing you", text: `${tablePw} power across the table and you're at ${p.life}: ${tablePw * 1.5 >= p.life ? "a turn or two" : "two or three turns"} of hits kill you. Keep Etrata and your blockers home.`, answers, answerText: answers.length ? `Defense in hand: ${list(answers.map(short))}.` : "Look for Toxic Deluge or Cyclonic Rift." });
+    }
     const who = g.opponents(p).filter(q => !q.lost && q.hand.length >= 2 && g.controlled(q, o => g.isLand(o) && !o.tapped).length >= 2).map(q => q.name);
     const r = { state: { manaNow: now, manaNext: next }, lines, threats, risk: { who, quiet: null } };
     planKey = key; planVal = r;
@@ -1266,6 +1274,8 @@
       const assassins = cands.filter(o => isAssassin(g, o) && o.def.name !== "Etrata, Deadly Fugitive" && !KEEP.includes(o.def.name));
       const stealers = cands.filter(o => ["Gonti, Night Minister", "Thief of Sanity", "Fallen Shinobi", "Etrata, the Silencer"].includes(o.def.name));
       const virtus = cands.find(o => o.def.name === "Virtus the Veiled");
+      const race = r.threats.find(t => (t.kind === "pressure" && t.level === "high") || t.kind === "lethal");
+      if (race) step(`${race.title}: attack only with creatures that can't block well. Etrata (deathtouch) and your biggest blockers stay home.`, ["Etrata, Deadly Fugitive"]);
       if (virtus && onBf(g, p, "Bloodletter of Aclazotz")) {
         const tgt = opp.slice().sort((a, b) => b.life - a.life)[0];
         step(`Virtus attacks ${tgt.name}${g.power(virtus) > 1 ? " (use Rogue's Passage first: it's too big for Tetsuko)" : ""}. If it connects, Bloodletter doubles the half: they lose all their life.`, ["Virtus the Veiled", "Bloodletter of Aclazotz"]);
@@ -1273,7 +1283,7 @@
       if (onBf(g, p, "Ramses, Assassin Lord") && assassins.length) step("Ramses is out: attack with at least one Assassin, then kill that player any way you can this turn and you win the game.", ["Ramses, Assassin Lord"]);
       if (assassins.length && etrata) step(`Send ${list(assassins.slice(0, 3).map(o => nick(o.def.name)))}: each Assassin hit makes Etrata cloak the top card of that player's library for you.`, ["Etrata, Deadly Fugitive"]);
       if (stealers.length) step(`${list(stealers.map(o => nick(o.def.name)))} steal${stealers.length > 1 ? "" : "s"} on a hit: attack the player whose deck you'd most like to play.`, stealers.map(o => o.def.name).slice(0, 2));
-      if (etrata && cands.includes(etrata)) step("Etrata is your engine. Attack with her only when no blocker kills her: she's a 1/4 with deathtouch, a great blocker too.", ["Etrata, Deadly Fugitive"]);
+      if (etrata && cands.includes(etrata) && !race) step("Etrata is your engine. Attack with her only when no blocker kills her: she's a 1/4 with deathtouch, a great blocker too.", ["Etrata, Deadly Fugitive"]);
       const keep = cands.filter(o => KEEP.includes(o.def.name));
       if (keep.length) step(`Keep ${list(keep.map(o => nick(o.def.name)))} home: losing a combo piece in a trade costs more than the damage.`, keep.map(o => o.def.name).slice(0, 2));
       if (!steps.length) step("No good attack: keep your creatures back as blockers.");
@@ -1293,7 +1303,7 @@
       const flash = FLASHERS.filter(n => inHand(p, n));
       if (flash.length) step(`${list(flash.map(short))}: flash it in at the end of the turn before yours.`, flash);
       if (inHand(p, "Vampiric Tutor") && lines[0] && lines[0].tutors.includes("Vampiric Tutor")) step(`Vampiric Tutor at the end of the turn before yours, for ${nick(lines[0].missing[0])}.`, ["Vampiric Tutor"]);
-      for (const t of r.threats.filter(x => x.kind === "lethal")) step(`${t.title}: ${t.text}`, t.answers.slice(0, 2));
+      for (const t of r.threats.filter(x => x.kind === "lethal" || (x.kind === "pressure" && x.level === "high"))) step(`${t.title}: ${t.text}`, t.answers.slice(0, 2));
       if (!steps.length) step("Nothing to do yet. Watch what they set up: the Coach's Plan tab lists the hate pieces.");
       return { stage: "Their turn", title: `${g.active.name}'s turn`, steps };
     }
@@ -1307,6 +1317,13 @@
     }
     const hit = r.threats.find(t => t.kind === "hate" && t.level === "high" && t.answers.some(n => castable(n) || n === "Otawara, Soaring City"));
     if (hit && mode === "main") step(`${hit.title}: ${hit.text} ${hit.answerText}`, [hit.name].concat(hit.answers.slice(0, 1)));
+    const race = r.threats.find(t => (t.kind === "pressure" && t.level === "high") || t.kind === "lethal");
+    if (race && mode === "main" && g.phase !== "main2") {
+      const theirs = g.opponents(p).filter(q => !q.lost).reduce((s, q) => s + g.creatures(q).length, 0), mine = g.creatures(p).length;
+      if (castable("Toxic Deluge") && theirs >= mine + 2) step(`Defend first: Toxic Deluge (pay life equal to the biggest toughness you need) clears ${theirs} creatures to your ${mine}. ${race.title}.`, ["Toxic Deluge"]);
+      else if (castable("Cyclonic Rift") && manaNow(g, p) >= 7) step(`Defend first: overload Cyclonic Rift ({6}{U}) at the end of the turn before yours bounces every attacker. ${race.title}.`, ["Cyclonic Rift"]);
+      else step(`${race.title}: ${race.text}`, ["Etrata, Deadly Fugitive"].concat(race.answers.slice(0, 1)));
+    }
     if (mode === "main" && g.phase === "main2") {
       if (COUNTERS.some(n => inHand(p, n))) step(`Before you pass: keep mana up for ${list(COUNTERS.filter(n => inHand(p, n)).map(short))}.`, COUNTERS.filter(n => inHand(p, n)).slice(0, 2));
       if (onBf(g, p, "Necropotence")) step("Necropotence: pay life now for cards at your end step. Keep enough life for the table's attacks.", ["Necropotence"]);
