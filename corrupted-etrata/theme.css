@@ -62,8 +62,6 @@
 .qz-explain p, .qz-back p { margin: 0 0 6px; }
 .qz-act { align-items: center; }
 
-/* six tabs here: Quiz is one of them */
-.tabs { grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 600px; }
 
 /* the game table takes Corrupted Etrata's blood red in place of Miku's teal */
 :root .mg { --miku: #e0334f; --miku-ink: #ff7088; --on-miku: #23040b; }

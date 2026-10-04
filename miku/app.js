@@ -20,7 +20,7 @@
   const ALL = CARDS.concat(EXTRA);
   const KEY = D.key || "mikuWiki"; // localStorage prefix
   const SHORT = D.short || "Miku";
-  const V = "29"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  const V = "30"; // asset version: keep in step with the ?v= links in index.html and sw.js
   const byName = new Map(ALL.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -129,9 +129,10 @@
     stats: '<path d="M5 20v-8M10 20V5M15 20v-6M20 20V9"/>',
     shop: '<path d="M5 8h14l-1.3 11.1A2 2 0 0 1 15.7 21H8.3a2 2 0 0 1-2-1.9z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
     quiz: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.8M12 17.2h.01"/>',
-    train: '<path d="M4 18l5-5 4 4 7-8"/><path d="M15 9h5v5"/>'
+    train: '<path d="M4 18l5-5 4 4 7-8"/><path d="M15 9h5v5"/>',
+    arena: '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4"/>'
   };
-  const VIEWS = [["guide", "Guide"], ["cards", "Cards"], ["play", "Play"], ["quiz", "Quiz"], ["train", "Train"], ["stats", "Stats"], ["shop", "Shop"]].filter(([id]) => document.getElementById("view-" + id));
+  const VIEWS = [["guide", "Guide"], ["cards", "Cards"], ["play", "Play"], ["arena", "Arena"], ["quiz", "Quiz"], ["train", "Train"], ["stats", "Stats"], ["shop", "Shop"]].filter(([id]) => document.getElementById("view-" + id));
   const VIEW_IDS = VIEWS.map(v => v[0]);
   const viewIndex = id => VIEW_IDS.indexOf(id);
   const SEGS = {};
@@ -139,6 +140,7 @@
     SEGS[v.dataset.view] = (v.dataset.segs || "").split(",").filter(Boolean).map(x => { const i = x.indexOf(":"); return { id: x.slice(0, i), label: x.slice(i + 1) }; });
   });
   $$("[data-nav]").forEach(nav => {
+    nav.style.setProperty("--tabs", VIEWS.length);
     nav.innerHTML = VIEWS.map(([id, label]) =>
       `<a class="tab${id === "play" ? " tab-play" : ""}" href="#${id}" data-tab="${id}"><span class="tab-ic"><svg viewBox="0 0 24 24" fill="${id === "play" ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[id]}</svg></span><span class="tab-lb">${label}</span></a>`).join("");
   });
@@ -1546,14 +1548,16 @@
 
   /* ---------------------------------------------------------------- Play: the game loads on demand */
   const GAME_BASE = D.gameBase || "game/";
-  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-corrupted.js", "game/checklist-corrupted.js", "game/checklist-cetrata.js", "game/brain-corrupted.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/decks-azusa.js", "game/decks-cetrata.js", "game/decks-edgar.js", "game/decks-etrata4.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/practice.js", "game/train-cetrata.js", "game/value.js", "game/analysis.js", "game/game-ui.js"];
+  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-corrupted.js", "game/checklist-corrupted.js", "game/checklist-cetrata.js", "game/brain-corrupted.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/decks-azusa.js", "game/decks-cetrata.js", "game/decks-edgar.js", "game/decks-etrata4.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/practice.js", "game/train-cetrata.js", "game/value.js", "game/analysis.js", "game/tournament.js", "game/game-ui.js", "game/arena.js"];
   let gameP = null, gameMounted = false;
   function loadGame() {
     if (gameP) return gameP;
     if (!$('link[data-game-css]')) {
-      const l = document.createElement("link");
-      l.rel = "stylesheet"; l.href = GAME_BASE + "game.css?v=" + V; l.dataset.gameCss = "";
-      document.head.appendChild(l);
+      for (const css of ["game.css", "arena.css"]) {
+        const l = document.createElement("link");
+        l.rel = "stylesheet"; l.href = GAME_BASE + css + "?v=" + V; l.dataset.gameCss = "";
+        document.head.appendChild(l);
+      }
     }
     gameP = Promise.all(GAME_FILES.map(f => f.replace(/^game\//, GAME_BASE)).map(f => new Promise((res, rej) => {
       const s = document.createElement("script");
@@ -1574,6 +1578,17 @@
     });
   }
   document.addEventListener("click", e => { if (e.target.closest("#retryGame")) showPlay(); });
+  /* Arena: bot tournaments between every deck (game/arena.js), on the same lazy load */
+  function showArena(seg) {
+    loadGame().then(() => {
+      if (!window.MikuArena) throw new Error("arena missing");
+      if (cur.view === "arena") MikuArena.show(seg, $("#view-arena"));
+    }).catch(() => {
+      const h = $("#view-arena [data-segment].on .wrap") || $("#view-arena .wrap");
+      if (h) h.innerHTML = `<div class="empty-state"><b>The Arena couldn't load</b><p class="muted">Check your connection and try again.</p><button class="btn primary" type="button" id="retryArena">Try again</button></div>`;
+    });
+  }
+  document.addEventListener("click", e => { if (e.target.closest("#retryArena")) showArena(cur.seg.arena); });
 
   /* ---------------------------------------------------------------- lazy page rendering */
   const shown = new Set();
@@ -1606,6 +1621,7 @@
     if (key === "guide/start") renderResume();
     if (key === "stats/you") renderMyStats();
     if (view === "play") showPlay();
+    if (view === "arena") showArena(seg);
     requestAnimationFrame(flowFill);
   }
 

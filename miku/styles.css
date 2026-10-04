@@ -217,7 +217,7 @@ body.no-seg .segbar { display: none; }
   -webkit-backdrop-filter: saturate(1.6) blur(18px); backdrop-filter: saturate(1.6) blur(18px);
   border-top: 1px solid var(--line);
 }
-.tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); max-width: 520px; margin: 0 auto; align-items: end; }
+.tabs { display: grid; grid-template-columns: repeat(var(--tabs, 5), minmax(0, 1fr)); max-width: calc(var(--tabs, 5) * 104px); margin: 0 auto; align-items: end; }
 .tab {
   display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0 4px; min-width: 0;
   color: var(--muted); text-decoration: none; font: 600 11px/1.1 var(--f-body); position: relative;
