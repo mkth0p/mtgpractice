@@ -30,12 +30,45 @@ window.LEARN = (function () {
     pacifism: { name: "Pacifism", cost: "{1}{W}", type: "Enchantment — Aura", text: "Enchant creature<br>Enchanted creature can't attack or block.", c: "W", art: "🕊️" },
     solring: { name: "Sol Ring", cost: "{1}", type: "Artifact", text: "{T}: Add {C}{C}.", c: "C", art: "💍" },
     signet: { name: "Arcane Signet", cost: "{2}", type: "Artifact", text: "{T}: Add one mana of any color in your commander's color identity.", c: "C", art: "🔆" },
-    trostani: { name: "Trostani, Selesnya's Voice", cost: "{G}{G}{W}{W}", type: "Legendary Creature — Dryad", text: "Whenever another creature you control enters, you gain life equal to that creature's toughness.<br>{1}{G}{W}, {T}: Populate. <i>(Create a token that's a copy of a creature token you control.)</i>", c: "M", art: "🌸", pt: [2, 5] },
+    trostani: { name: "Trostani, Selesnya's Voice", cost: "{G}{G}{W}{W}", type: "Legendary Creature — Dryad", text: "Whenever another creature you control enters, you gain life equal to that creature's toughness.<br>{1}{G}{W}, {T}: Populate. <i>(Create a token that's a copy of a creature token you control.)</i>", c: "M", art: "🌸", pt: [2, 5], img: "sld/2429", plain: "Every time another creature joins your side, you gain life. Later, pay mana and tap her to copy one of your tokens." },
     pridemate: { name: "Ajani's Pridemate", cost: "{1}{W}", type: "Creature — Cat Soldier", text: "Whenever you gain life, put a +1/+1 counter on Ajani's Pridemate.", c: "W", art: "🐱", pt: [2, 2] },
     crusade: { name: "Cathars' Crusade", cost: "{3}{W}{W}", type: "Enchantment", text: "Whenever a creature you control enters, put a +1/+1 counter on each creature you control.", c: "W", art: "🚩" },
-    crescendo: { name: "Grand Crescendo", cost: "{X}{W}{W}", type: "Instant", text: "Create X 1/1 green and white Citizen creature tokens. Creatures you control gain indestructible until end of turn.", c: "W", art: "🎶" },
+    crescendo: { img: "sld/2432", name: "Grand Crescendo", cost: "{X}{W}{W}", type: "Instant", text: "Create X 1/1 green and white Citizen creature tokens. Creatures you control gain indestructible until end of turn.", c: "W", art: "🎶" },
     rootborn: { name: "Rootborn Defenses", cost: "{2}{W}", type: "Instant", text: "Populate. Creatures you control gain indestructible until end of turn. <i>(To populate, create a token that's a copy of a creature token you control.)</i>", c: "W", art: "🌱" },
     skullclamp: { name: "Skullclamp", cost: "{1}", type: "Artifact — Equipment", text: "Equipped creature gets +1/-1.<br>Whenever equipped creature dies, draw two cards.<br>Equip {1}", c: "C", art: "🗜️" },
+    /* v4: real cards for the advanced lessons and the four-player boards */
+    archangel: { name: "Archangel of Thune", img: "sld/2430", cost: "{3}{W}{W}", type: "Creature — Angel", text: "Flying<br>Lifelink <i>(Damage dealt by this creature also causes you to gain that much life.)</i><br>Whenever you gain life, put a +1/+1 counter on each creature you control.", c: "W", art: "👼", pt: [3, 4], kw: ["Flying", "Lifelink"], plain: "Each time you gain life, all your creatures grow a little. Her own lifelink starts it." },
+    soulwarden: { name: "Soul Warden", img: "sld/2435", cost: "{W}", type: "Creature — Human Cleric", text: "Whenever another creature enters, you gain 1 life.", c: "W", art: "🕊️", pt: [1, 1] },
+    halo: { name: "Halo Fountain", img: "sld/2431", cost: "{2}{W}", type: "Artifact", text: "{W}, {T}, Untap a tapped creature you control: Create a 1/1 green and white Citizen creature token.<br>{W}{W}, {T}, Untap two tapped creatures you control: Draw a card.<br>{W}{W}{W}{W}{W}, {T}, Untap fifteen tapped creatures you control: You win the game.", c: "W", art: "⛲" },
+    cultivate: { name: "Cultivate", img: "sld/2437", cost: "{2}{G}", type: "Sorcery", text: "Search your library for up to two basic land cards, reveal those cards, put one onto the battlefield tapped and the other into your hand, then shuffle.", c: "G", art: "🌱", plain: "Find two basic lands in your deck: one goes on the battlefield, one into your hand. More mana next turn." },
+    beastwithin: { name: "Beast Within", cost: "{2}{G}", type: "Instant", text: "Destroy target permanent. Its controller creates a 3/3 green Beast creature token.", c: "G", art: "🐗", plain: "Destroy anything at all. Its owner gets a 3/3 Beast as a small consolation." },
+    path: { name: "Path to Exile", cost: "{W}", type: "Instant", text: "Exile target creature. Its controller may search their library for a basic land card, put that card onto the battlefield tapped, then shuffle.", c: "W", art: "🛤️" },
+    tower: { name: "Command Tower", cost: "", type: "Land", text: "{T}: Add one mana of any color in your commander's color identity.", c: "L", art: "🗼", makes: "W" },
+    pilgrim: { name: "Avacyn's Pilgrim", cost: "{G}", type: "Creature — Human Monk", text: "{T}: Add {W}.", c: "G", art: "🙏", pt: [1, 1], makes: "W" },
+    virtue: { name: "Intangible Virtue", cost: "{1}{W}", type: "Enchantment", text: "Creature tokens you control get +1/+1 and have vigilance.", c: "W", art: "✨" },
+    hero: { name: "Hero of Bladehold", cost: "{2}{W}{W}", type: "Creature — Human Knight", text: "Battle cry <i>(Whenever this creature attacks, each other attacking creature gets +1/+0 until end of turn.)</i><br>Whenever Hero of Bladehold attacks, create two 1/1 white Soldier creature tokens that are tapped and attacking.", c: "W", art: "🛡️", pt: [3, 4] },
+    craterhoof: { name: "Craterhoof Behemoth", cost: "{5}{G}{G}{G}", type: "Creature — Beast", text: "Haste<br>When Craterhoof Behemoth enters, creatures you control gain trample and get +X/+X until end of turn, where X is the number of creatures you control.", c: "G", art: "🦏", pt: [5, 5], kw: ["Haste"], plain: "The more creatures you have, the bigger they all get this turn, and they trample. With a crowd of tokens, it usually wins the game on the spot." },
+    stampede: { name: "Overwhelming Stampede", cost: "{3}{G}{G}", type: "Sorcery", text: "Until end of turn, creatures you control gain trample and get +X/+X, where X is the greatest power among creatures you control.", c: "G", art: "🐘", plain: "This turn, every creature you have becomes as big as your biggest one, and tramples." },
+    jazal: { name: "Jazal Goldmane", cost: "{2}{W}{W}", type: "Legendary Creature — Cat Warrior", text: "First strike<br>{3}{W}{W}: Attacking creatures you control get +X/+X until end of turn, where X is the number of attacking creatures.", c: "W", art: "🦁", pt: [4, 4], kw: ["First strike"] },
+    heliod: { name: "Heliod, Sun-Crowned", cost: "{2}{W}", type: "Legendary Enchantment Creature — God", text: "Indestructible<br>As long as your devotion to white is less than five, Heliod isn't a creature.<br>Whenever you gain life, put a +1/+1 counter on target creature or enchantment you control.<br>{1}{W}: Another target creature gains lifelink until end of turn.", c: "W", art: "☀️", pt: [5, 5], plain: "Usually just an enchantment that can't be destroyed. Each time you gain life, one of your creatures grows." },
+    krenko: { name: "Krenko, Mob Boss", cost: "{2}{R}{R}", type: "Legendary Creature — Goblin Warrior", text: "{T}: Create X 1/1 red Goblin creature tokens, where X is the number of Goblins you control.", c: "R", art: "👺", pt: [3, 3], plain: "Every time he taps, the goblin crowd doubles. Left alone for two or three turns, it gets out of hand." },
+    talrand: { name: "Talrand, Sky Summoner", cost: "{2}{U}{U}", type: "Legendary Creature — Merfolk Wizard", text: "Whenever you cast an instant or sorcery spell, create a 2/2 blue Drake creature token with flying.", c: "U", art: "🧜", pt: [2, 2] },
+    urdragon: { name: "The Ur-Dragon", cost: "{4}{W}{U}{B}{R}{G}", type: "Legendary Creature — Dragon Avatar", text: "Eminence — As long as The Ur-Dragon is in the command zone or on the battlefield, other Dragon spells you cast cost {1} less to cast.<br>Flying<br>Whenever one or more Dragons you control attack, draw that many cards, then you may put a permanent card from your hand onto the battlefield.", c: "M", art: "🐲", pt: [10, 10], kw: ["Flying"], plain: "Makes its owner's other dragons cheaper even from the command zone, and every dragon attack draws cards." },
+    edgar: { name: "Edgar Markov", cost: "{3}{R}{W}{B}", type: "Legendary Creature — Vampire Knight", text: "Eminence — Whenever you cast another Vampire spell, if Edgar Markov is in the command zone or on the battlefield, create a 1/1 black Vampire creature token.<br>First strike, haste<br>Whenever Edgar Markov attacks, put a +1/+1 counter on each Vampire you control.", c: "M", art: "🧛", pt: [4, 4], kw: ["First strike", "Haste"] },
+    ojutai: { name: "Dragonlord Ojutai", cost: "{3}{W}{U}", type: "Legendary Creature — Elder Dragon", text: "Flying<br>Dragonlord Ojutai has hexproof as long as it's untapped.<br>Whenever Dragonlord Ojutai deals combat damage to a player, look at the top three cards of your library. Put one of them into your hand and the rest on the bottom of your library in any order.", c: "M", art: "🐉", pt: [5, 4], kw: ["Flying"] },
+    hellkite: { name: "Utvara Hellkite", cost: "{6}{R}{R}", type: "Creature — Dragon", text: "Flying<br>Whenever a Dragon you control attacks, create a 6/6 red Dragon creature token with flying.", c: "R", art: "🔥", pt: [6, 6], kw: ["Flying"] },
+    rhystic: { name: "Rhystic Study", cost: "{2}{U}", type: "Enchantment", text: "Whenever an opponent casts a spell, you may draw a card unless that player pays {1}.", c: "U", art: "📚", plain: "Each time you cast a spell, its owner draws a card, unless you pay one extra mana. Ignoring it hands them lots of cards." },
+    bloodartist: { name: "Blood Artist", cost: "{1}{B}", type: "Creature — Vampire", text: "Whenever Blood Artist or another creature dies, target player loses 1 life and you gain 1 life.", c: "B", art: "🩸", pt: [0, 1] },
+    bombardment: { name: "Goblin Bombardment", cost: "{1}{R}", type: "Enchantment", text: "Sacrifice a creature: Goblin Bombardment deals 1 damage to any target.", c: "R", art: "💣" },
+    wrath: { name: "Wrath of God", cost: "{2}{W}{W}", type: "Sorcery", text: "Destroy all creatures. They can't be regenerated.", c: "W", art: "🌩️" },
+    heroic: { name: "Heroic Intervention", cost: "{1}{G}", type: "Instant", text: "Permanents you control gain hexproof and indestructible until end of turn.", c: "G", art: "🛡️" },
+    boots: { name: "Swiftfoot Boots", cost: "{2}", type: "Artifact — Equipment", text: "Equipped creature has hexproof and haste.<br>Equip {1}", c: "C", art: "👢" },
+    cyclonic: { name: "Cyclonic Rift", cost: "{1}{U}", type: "Instant", text: "Return target nonland permanent you don't control to its owner's hand.<br>Overload {6}{U} <i>(You may cast this spell for its overload cost. If you do, change its text by replacing all instances of “target” with “each.”)</i>", c: "U", art: "🌀" },
+    swiftblade: { name: "Boros Swiftblade", cost: "{R}{W}", type: "Creature — Human Soldier", text: "Double strike", c: "M", art: "⚔️", pt: [1, 2], kw: ["Double strike"] },
+    youthful: { name: "Youthful Knight", cost: "{1}{W}", type: "Creature — Human Knight", text: "First strike", c: "W", art: "🤺", pt: [2, 1], kw: ["First strike"] },
+    brute: { name: "Boggart Brute", cost: "{2}{R}", type: "Creature — Goblin Warrior", text: "Menace <i>(This creature can't be blocked except by two or more creatures.)</i>", c: "R", art: "👹", pt: [3, 2], kw: ["Menace"] },
+    gladecover: { name: "Gladecover Scout", cost: "{G}", type: "Creature — Elf Scout", text: "Hexproof <i>(This creature can't be the target of spells or abilities your opponents control.)</i>", c: "G", art: "🧝", pt: [1, 1], kw: ["Hexproof"] },
+    myr: { name: "Darksteel Myr", cost: "{3}", type: "Artifact Creature — Myr", text: "Indestructible <i>(Damage and effects that say “destroy” don't destroy it.)</i>", c: "C", art: "🤖", pt: [0, 1], kw: ["Indestructible"] },
     reckoning: { name: "Hour of Reckoning", cost: "{4}{W}{W}{W}", type: "Sorcery", text: "Convoke <i>(Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)</i><br>Destroy all nontoken creatures.", c: "W", art: "⏳" }
   };
 
@@ -80,10 +113,22 @@ window.LEARN = (function () {
     { id: "types", title: "Kinds of cards", blurb: "Creatures, one-shot spells and the things that stay on the table." },
     { id: "combat", title: "Fighting", blurb: "Attacking, blocking and the creature superpowers." },
     { id: "deeper", title: "How it all fits", blurb: "Where cards go, how to answer a spell, and the full turn." },
-    { id: "commander", title: "Commander, the way you'll play", blurb: "The four-player format the decks on this site are built for." }
+    { id: "commander", title: "Commander, the way you'll play", blurb: "The four-player format the decks on this site are built for." },
+    { id: "rules2", title: "More rules you'll meet", blurb: "Bonus: more keywords, abilities on the stack, board wipes and the game's quiet checks." },
+    { id: "skill", title: "Playing well", blurb: "Bonus: planning turns, spotting the threat, how decks are built, and the Miku game plan."  }
   ];
 
   const L = [];
+  const CITIZENS = n => ({ tok: "Citizen", id: "citizen", pt: [1, 1], c: "M", art: "🧑", n });
+  const GOBLINS = n => ({ tok: "Goblin", id: "goblin", pt: [1, 1], c: "R", art: "👺", n });
+  const DRAKES = n => ({ tok: "Drake (flying)", id: "drake", pt: [2, 2], c: "U", art: "🐉", n });
+  // a real four-player table in the middle of a game. Seats: left, across, right, you.
+  const BOARD_MID = { turn: 1, seats: [
+    { n: "Alex", life: 31, cmd: "talrand", lands: 6, hand: 5, bf: [{ k: "talrand", cmd: 1 }, DRAKES(2), "rhystic"] },
+    { n: "Sam", life: 26, cmd: "krenko", lands: 7, hand: 2, bf: [{ k: "dragon", t: 1 }, GOBLINS(4), "solring"] },
+    { n: "Jo", life: 40, cmd: "urdragon", lands: 5, hand: 6, bf: ["elves", "signet"] },
+    { n: "You", life: 34, cmd: "trostani", lands: 6, hand: 3, bf: [{ k: "trostani", cmd: 1 }, "spider", "bears", { k: "pridemate", ctr: 2 }, "angel", CITIZENS(3)] }
+  ] };
 
   /* ---------------- Part 1: the very basics ---------------- */
   L.push({
@@ -424,28 +469,184 @@ window.LEARN = (function () {
   L.push({
     id: "readboard", unit: "commander", emoji: "🔍", title: "Reading the board", blurb: "Three little puzzles, no counting.",
     steps: [
-      { title: "Look before you leap", html: `<p class="big">Before attacking or blocking, good players look at the board and ask three questions.</p><ol><li>Who can block this?</li><li>Who flies, who has reach?</li><li>What would die?</li></ol><p>Let's try three puzzles.</p>` },
+      { title: "Look before you leap", html: `<p class="big">Before attacking or blocking, good players look at the board and ask three questions.</p><ol><li>Who can block this?</li><li>Who flies, who has reach?</li><li>What would die?</li></ol><p>Let's try some puzzles, first with two cards, then on a real four-player table.</p>` },
+      { title: "A real table", html: `<p>This is how a real Commander game looks in the middle: your three opponents at the top, <b>you</b> at the bottom.</p><ul><li>Tilted tiles are <b>tapped</b>.</li><li><b>+2</b> in green means two +1/+1 counters.</li><li><b>×3</b> means three identical tokens. Tokens have a dashed border.</li><li>A gold outline marks each player's <b>commander</b>.</li></ul>`, widget: ["board", BOARD_MID], tip: "Tap any card on the table to see it big, with its text." },
+      { title: "Puzzle: a dragon attacks", widget: ["board", Object.assign({}, BOARD_MID, { pick: { kind: "perm", prompt: "Sam's <b>Shivan Dragon</b> attacks you. Tap a creature of yours that can block it.", right: ["3/spider", "3/angel"], ok: "Giant Spider has reach, so it can block flyers.", why: { "3/bears": "Grizzly Bears have no flying or reach, so they can't block a dragon.", "3/pridemate": "Ajani's Pridemate has no flying or reach.", "3/trostani": "Trostani has no flying or reach.", "3/citizen": "Citizens have no flying or reach.", "3/angel": "Yes! Serra Angel flies, so she can block a flyer. (Giant Spider could too, thanks to reach.)", "3/spider": "Yes! Giant Spider has reach, so it can block flyers. (Serra Angel could too: she flies.)" }, no: "That one can't block it: it's not yours. Look at your side, at the bottom." } })], gate: "Find the blocker" },
+      { title: "Puzzle: who could block your Angel?", widget: ["board", Object.assign({}, BOARD_MID, { turn: 3, pick: { kind: "perm", prompt: "You attack Alex with <b>Serra Angel</b> (flying). Tap one of Alex's creatures that could block her.", right: ["0/drake"], ok: "Drakes fly, so they can block a flyer. Talrand himself can't.", why: { "0/talrand": "Talrand has no flying or reach.", "3/angel": "That's your Angel. Look at Alex's side, top left." }, no: "Look at Alex's cards, on the left (top on a phone)." } })], gate: "Find a blocker" },
       { title: "Puzzle 1", quiz: { q: "You attack with Serra Angel. Your opponent only has Hill Giant. What happens?", cards: ["angel", "giant"], options: [{ t: "The Giant can't block her: she flies", ok: true, why: "Hill Giant has no flying or reach. The Angel's damage goes straight to the player." }, { t: "The Giant blocks and they fight", why: "Look for flying: the Giant can't block a flyer." }, { t: "The Angel can't attack because of vigilance", why: "Vigilance only means she doesn't tap when attacking." }] } },
       { title: "Puzzle 2", quiz: { q: "Your opponent attacks with Shivan Dragon. Which of your creatures can block it?", cards: ["dragon", "spider", "bears"], options: [{ t: "Giant Spider, it has reach", ok: true, why: "Reach can block flyers. The Bears can't." }, { t: "Grizzly Bears", why: "The Dragon flies. Bears have no flying or reach." }, { t: "Nobody can block a dragon", why: "Creatures with flying or reach can. The Spider has reach." }] } },
       { title: "Puzzle 3", quiz: { q: "Typhoid Rats (deathtouch) attack you. You have Colossal Dreadmaw untapped. Should you block?", cards: ["rats", "dreadmaw"], options: [{ t: "Probably not: deathtouch would kill the Dreadmaw", ok: true, why: "Any damage from deathtouch kills. Taking a little damage is better than losing your biggest creature." }, { t: "Yes, the Dreadmaw is way bigger", why: "Size doesn't help against deathtouch: even 1 damage kills." }, { t: "You can't block a creature with deathtouch", why: "You can, it's just risky." }] } }
     ],
-    recap: ["Look for flying and reach first: they decide who can block.", "Deathtouch makes size not matter.", "Losing a little life can be better than losing a good creature."]
+    recap: ["Opponents sit around you; read their side of the table before you act.", "Look for flying and reach first: they decide who can block.", "Deathtouch makes size not matter.", "Losing a little life can be better than losing a good creature."]
   });
 
   L.push({
     id: "table", unit: "commander", emoji: "🤝", title: "Playing with four people", blurb: "Who to attack, and table manners.",
     steps: [
       { title: "Everyone against everyone", html: `<p>In a four-player game, you choose <b>who</b> to attack, every time. You can even split your attackers between players.</p><p>The last player standing wins. When a player loses, their cards leave the game.</p>` },
-      { title: "Who should you attack?", html: `<p>A simple rule of thumb: attack whoever is <b>most dangerous</b> right now, not whoever is weakest.</p>`, widget: ["table", { players: [
-        ["Alex", 40, "Lots of lands, nothing scary yet", false, "Alex isn't a danger yet. Attacking them now helps whoever is ahead."],
-        ["Sam", 22, "Low life, few creatures", false, "Tempting, but Sam isn't the danger. Knocking Sam out helps the strongest player, and Sam might have helped you against them."],
-        ["Jo", 38, "A huge dragon and 6 creatures", true, "Yes! Jo is the threat: if nobody slows Jo down, Jo wins. Hitting Jo now keeps the game fair and keeps you alive."]] }], gate: "Pick who to attack" },
+      { title: "Who should you attack?", html: `<p>A simple rule of thumb: attack whoever is <b>most dangerous</b> right now, not whoever is weakest.</p>`, widget: ["board", { seats: [
+        { n: "Alex", life: 40, cmd: "talrand", lands: 5, hand: 6, bf: [] },
+        { n: "Sam", life: 22, cmd: "krenko", lands: 4, hand: 1, bf: ["bears"] },
+        { n: "Jo", life: 38, cmd: "urdragon", lands: 9, hand: 4, bf: [{ k: "urdragon", cmd: 1 }, "dragon", "hellkite"] },
+        { n: "You", life: 33, cmd: "trostani", lands: 6, hand: 3, bf: [{ k: "trostani", cmd: 1 }, "spider", CITIZENS(3)] }
+      ], turn: 3, pick: { kind: "seat", prompt: "It's your turn. Tap the <b>player</b> you'd attack.", right: [2], why: { 0: "Alex has nothing on the table yet. Attacking them now helps whoever is ahead.", 1: "Tempting, Sam is low. But Sam isn't the danger, and knocking Sam out helps the strongest player.", 2: "Yes! Jo has three dragons out, the Ur-Dragon among them. If nobody slows Jo down, Jo wins.", 3: "That's you! Pick one of the three opponents." } } }], gate: "Pick who to attack" },
       { title: "Quick check", quiz: { q: "Who is usually the best player to attack?", options: [{ t: "Whoever is closest to winning", ok: true, why: "Slowing the leader keeps the game fair and keeps you alive." }, { t: "Whoever has the lowest life", why: "Knocking out a weak player can help the strongest one win. Aim at the threat." }, { t: "Whoever attacked you last", why: "Revenge is fun, but the real danger is whoever is closest to winning." }] } },
       { title: "Table manners", html: `<ul><li>🗣️ Say what you're doing out loud: “I cast Grizzly Bears.”</li><li>⏸️ Pause after casting a spell so others can respond.</li><li>❓ Ask questions any time. Everyone was new once, and people love explaining their cards.</li><li>🔍 You can always ask to read someone's card.</li><li>🤝 Deals and alliances are allowed (“don't attack me and I won't attack you”), but they're not binding.</li></ul>` },
       { title: "Power levels: brackets", html: `<p>Decks are rated in <b>brackets</b> from 1 (very casual) to 5 (as strong as possible). Before a game, people say which bracket their deck is, so games stay fair and fun.</p><p>Bracket 2 is where store-bought precon decks sit: the best place to start. The upgraded Hatsune Miku deck on this site is Bracket 3, a step stronger, so tell the table when you play it.</p>`, tip: "If you lose a lot to one deck, it's not you: it may just be a higher bracket. It's fine to ask." },
-      { title: "You're ready", html: `<p class="big">You now know enough to play a real game of Commander. 🎉</p><p>The best next step: play against the friendly bots in the <a href="../miku/#play">Hatsune Miku deck's Play tab</a>. It handles the counting and shows what you can do.</p><p>And the <a href="#/cheat">cheat sheet</a> is always here.</p>` }
+      { title: "You're ready", html: `<p class="big">You now know enough to play a real game of Commander. 🎉</p><p>The best next step: play against the friendly bots in the <a href="../miku/#play">Hatsune Miku deck's Play tab</a>. It handles the counting and shows what you can do.</p><p>And the <a href="#/cheat">cheat sheet</a> is always here. When you want more, the two bonus parts after this one go deeper: more rules, and how to play well.</p>` }
     ],
     recap: ["Last player standing wins; you choose who to attack.", "Attack the biggest threat, not the weakest player.", "Say what you do, pause for responses, ask questions freely.", "Brackets 1–5 describe a deck's power. Start casual."]
+  });
+
+  /* ---------------- Part 7: More rules you'll meet ---------------- */
+  L.push({
+    id: "morekw", unit: "rules2", emoji: "🗡️", title: "More superpowers", blurb: "First strike, double strike, menace, hexproof, indestructible.",
+    steps: [
+      { title: "Five more keywords", html: `<p class="big">You know flying, reach, deathtouch and friends. Real games use a few more.</p><p>Each one is a small rule printed in one word. If you forget one, the card usually explains it in <i>(brackets)</i>.</p>` },
+      { title: "Who hits first", widget: ["flip", { cards: [
+        ["🤺", "First strike", "Deals its combat damage <b>before</b> creatures without first strike. If that kills the other creature, it never hits back."],
+        ["⚔️", "Double strike", "Deals combat damage twice: once with the first strikers, then again with everyone else."],
+        ["👹", "Menace", "Can't be blocked by just one creature. Blockers have to come in a group of two or more."]
+      ] }], gate: "Flip all three cards", cards: ["youthful", "swiftblade", "brute"] },
+      { title: "Hard to get rid of", widget: ["flip", { cards: [
+        ["🧝", "Hexproof", "Your <b>opponents</b> can't target it with spells or abilities. You still can."],
+        ["🤖", "Indestructible", "Damage and “destroy” don't kill it. Exile, or making its toughness 0, still work."]
+      ] }], gate: "Flip both cards", cards: ["gladecover", "myr"] },
+      { title: "Quick check", quiz: { q: "Youthful Knight (2/1, first strike) is blocked by Grizzly Bears (2/2). What happens?", cards: ["youthful", "bears"], options: [{ t: "The Bears die before hitting back. The Knight survives.", ok: true, why: "First strike: the Knight's 2 damage lands first and kills the Bears, so they never strike." }, { t: "Both die", why: "Without first strike they'd trade. With it, the Bears die before they can hit." }, { t: "The Knight dies", why: "The Knight hits first, and the Bears don't survive to hit back." }] } },
+      { title: "One more", quiz: { q: "Boggart Brute (menace) attacks you. You have one untapped creature. Can you block?", cards: ["brute"], options: [{ t: "No, menace needs two or more blockers", ok: true }, { t: "Yes, any creature can block it", why: "Menace means one blocker isn't allowed. You'd need two." }, { t: "Only with a flyer", why: "That's flying. Menace is about how many blockers, not which kind." }] } },
+      { title: "Hexproof on a real table", widget: ["board", { turn: 3, seats: [
+        { n: "Alex", life: 28, cmd: "talrand", lands: 6, hand: 4, bf: [{ k: "talrand", cmd: 1 }, DRAKES(1)] },
+        { n: "Jo", life: 36, cmd: "urdragon", lands: 8, hand: 3, bf: ["ojutai", "gladecover"] },
+        { n: "Sam", life: 30, cmd: "krenko", lands: 5, hand: 2, bf: ["brute", GOBLINS(2)] },
+        { n: "You", life: 35, cmd: "trostani", lands: 6, hand: 2, bf: [{ k: "trostani", cmd: 1 }, "pridemate", CITIZENS(2)] }
+      ], pick: { kind: "perm", prompt: "You're holding <b>Swords to Plowshares</b> (exile target creature). Tap a creature you <b>can't</b> target with it.", right: ["1/ojutai", "1/gladecover"], why: { "1/ojutai": "Right: Dragonlord Ojutai has hexproof while it's untapped, and it is. Wait until it attacks (and taps).", "1/gladecover": "Right: Gladecover Scout has hexproof, so your spells can't target it." }, no: "You can target that one. Look for hexproof in the cards' text (tap a card to read it)." } }], gate: "Find a hexproof creature" },
+      { title: "Last one", quiz: { q: "Darksteel Myr (indestructible) is hit by Swords to Plowshares. What happens?", cards: ["myr", "swords"], options: [{ t: "It's exiled", ok: true, why: "Indestructible stops “destroy” and damage, not exile." }, { t: "Nothing, it's indestructible", why: "Indestructible doesn't stop exile." }, { t: "It goes to the graveyard", why: "Swords exiles, it doesn't destroy." }] } }
+    ],
+    recap: ["First strike hits first; double strike hits twice.", "Menace: it takes two or more blockers.", "Hexproof: opponents can't target it. Indestructible: destroy and damage don't kill it, exile does."]
+  });
+
+  L.push({
+    id: "abilstack", unit: "rules2", emoji: "🔔", title: "Abilities on the stack", blurb: "Triggers wait their turn, and you can answer them.",
+    steps: [
+      { title: "Not just spells", html: `<p class="big">Triggers (“Whenever…”) and abilities you pay for (“cost: effect”) also go on the <b>stack</b>, like spells.</p><p>So everyone gets a chance to respond to them, too.</p>`, tip: "One exception: mana abilities, like tapping a land for mana, happen at once. Nobody can respond to those." },
+      { title: "The ability lives on its own", html: `<p>Once an ability is on the stack, it doesn't need its card any more.</p><p>Sam taps <b>Krenko</b> to make goblins. You respond by exiling Krenko with Path to Exile. Krenko is gone, but his ability still waits on the stack, and it still makes goblins.</p>`, cards: ["krenko", "path"], tip: "To really stop an engine like Krenko, remove it <b>before</b> it's used, for example right after it's cast, or on your own turn." },
+      { title: "Quick check", quiz: { q: "Sam taps Krenko. In response, you destroy Krenko. Does Sam still get goblins?", cards: ["krenko"], options: [{ t: "Yes, the ability is already on the stack", ok: true, why: "The ability resolves without its card." }, { t: "No, Krenko is gone so nothing happens", why: "Abilities on the stack are independent of their card." }, { t: "Only if Sam pays again", why: "It was already paid for (by tapping). It just resolves." }] } },
+      { title: "Two triggers at once", html: `<p>One event can set off several triggers. A Citizen token enters: <b>Trostani</b> gains you life, and <b>Soul Warden</b> gains you life too. Those are two separate life gains, so <b>Ajani's Pridemate</b> grows twice.</p><p>When several of <b>your</b> triggers happen together, you choose their order on the stack.</p>`, cards: ["trostani", "soulwarden", "pridemate"] },
+      { title: "One more", quiz: { q: "A creature enters on your side. You control Trostani and Soul Warden. How many times do you gain life?", cards: ["trostani", "soulwarden"], options: [{ t: "Twice: once for each card", ok: true, why: "Each “Whenever” triggers on its own." }, { t: "Once, they combine", why: "Triggers never merge. Each card does its own thing." }, { t: "Only Trostani's counts", why: "Both trigger. That's a big part of what makes the deck strong." }] } }
+    ],
+    recap: ["Triggers and paid abilities use the stack, so anyone can respond.", "An ability on the stack resolves even if its card is gone.", "One event can trigger many cards; you order your own triggers."]
+  });
+
+  L.push({
+    id: "wipes", unit: "rules2", emoji: "🌪️", title: "Board wipes", blurb: "When everything dies at once, and how to survive.",
+    steps: [
+      { title: "Clearing the table", html: `<p class="big">A <b>board wipe</b> is a spell that removes lots of things at once, usually every creature, yours included.</p><p>In Commander, people keep a few of them to stop whoever is running away with the game.</p>`, cards: ["wrath"] },
+      { title: "What survives?", widget: ["board", { turn: 2, seats: [
+        { n: "Alex", life: 30, cmd: "talrand", lands: 6, hand: 3, bf: [{ k: "talrand", cmd: 1 }, DRAKES(2)] },
+        { n: "Sam", life: 24, cmd: "krenko", lands: 6, hand: 1, bf: [{ k: "krenko", cmd: 1 }, GOBLINS(6)] },
+        { n: "Jo", life: 37, cmd: "urdragon", lands: 7, hand: 5, bf: ["signet"] },
+        { n: "You", life: 33, cmd: "trostani", lands: 7, hand: 2, bf: [{ k: "trostani", cmd: 1 }, "pridemate", CITIZENS(4), "virtue", "myr"] }
+      ], pick: { kind: "perm", prompt: "Jo casts <b>Wrath of God</b>: destroy all creatures. Tap one of <b>your</b> permanents that will still be there afterwards.", right: ["3/virtue", "3/myr"], why: { "3/virtue": "Yes: Intangible Virtue is an enchantment, not a creature. Wrath doesn't touch it.", "3/myr": "Yes: Darksteel Myr is indestructible, so “destroy” does nothing to it.", "3/citizen": "Tokens are creatures too, so Wrath destroys them.", "3/trostani": "Trostani is a creature, so she's destroyed (you can recast her from the command zone, for {2} more)." }, no: "That's a creature, so Wrath destroys it. Look for something that isn't a creature, or can't be destroyed." } }], gate: "Find a survivor" },
+      { title: "Saving your team", html: `<p>Because a wipe is a spell, it waits on the stack. You can <b>respond</b> with an instant that protects your creatures.</p><p>The Miku deck has two: <b>Rootborn Defenses</b> and <b>Grand Crescendo</b>. Both make your creatures <b>indestructible</b> until the end of the turn.</p>`, cards: ["rootborn", "crescendo"] },
+      { title: "Quick check", quiz: { q: "An opponent casts Wrath of God. You have Rootborn Defenses and enough untapped lands. What's the best move?", options: [{ t: "Cast Rootborn Defenses in response", ok: true, why: "It resolves first, your creatures become indestructible, and Wrath destroys only theirs." }, { t: "Wait and cast it after Wrath", why: "After Wrath resolves, your creatures are already gone." }, { t: "Nothing can be done", why: "Instants can answer a spell on the stack. That's exactly when to use it." }] } },
+      { title: "Your own wipe", html: `<p><b>Hour of Reckoning</b> destroys every creature that <b>isn't a token</b>. Your army is mostly tokens, so it hurts opponents far more than you.</p><p>And with convoke, your tokens help pay for it.</p>`, cards: ["reckoning"], tip: "Don't put everything on the table at once if you don't need to. Keeping a creature or two in your hand means a wipe doesn't take everything." },
+      { title: "One more", quiz: { q: "You cast Hour of Reckoning. Which of your creatures survive?", cards: ["reckoning"], options: [{ t: "Your tokens", ok: true, why: "It only destroys nontoken creatures." }, { t: "Trostani", why: "Trostani is a real card, not a token, so she's destroyed." }, { t: "None of them", why: "Tokens are spared. That's what makes it great in this deck." }] } }
+    ],
+    recap: ["A board wipe removes lots of permanents at once, often every creature.", "Respond on the stack with protection like Rootborn Defenses or Grand Crescendo.", "Hour of Reckoning spares tokens. Don't overextend into a wipe."]
+  });
+
+  L.push({
+    id: "sba", unit: "rules2", emoji: "⚖️", title: "Things the game checks", blurb: "Zero toughness, legends, “enters tapped” and “instead”.",
+    steps: [
+      { title: "Always checking", html: `<p class="big">Between every action, the game quietly checks a few things.</p><ul><li>A player at 0 life loses.</li><li>A creature with enough damage dies.</li><li>A creature with <b>0 toughness</b> dies, damage or not.</li><li>If you control two legendary permanents with the same name, you keep one and the other goes to the graveyard.</li></ul>` },
+      { title: "The Skullclamp trick, explained", html: `<p>Skullclamp gives <b>+1/-1</b>. Put it on a 1/1 Citizen and it becomes a 2/0: zero toughness, so it dies right away, and Skullclamp draws you two cards.</p><p>The Skullclamp stays, ready for the next token.</p>`, cards: ["skullclamp"] },
+      { title: "Quick check", quiz: { q: "You equip Skullclamp to Soul Warden (1/1). What happens?", cards: ["skullclamp", "soulwarden"], options: [{ t: "It becomes 2/0, dies, and you draw two cards", ok: true, why: "Zero toughness means it dies at the next check, which triggers Skullclamp." }, { t: "It becomes 2/0 and survives until it takes damage", why: "Zero toughness kills on its own, no damage needed." }, { t: "Nothing, the equip fails", why: "Equipping works; the creature just can't survive it." }] } },
+      { title: "Changing what happens: “instead”", html: `<p>Some text changes an event <b>as it happens</b>, often with the word <b>instead</b> or “enters tapped”. These don't use the stack, so nobody can respond to them: the event simply happens differently.</p><p>For example, lands like Graypelt Refuge “enter tapped”: they arrive already sideways, so you can't use them that turn.</p>` },
+      { title: "One more", quiz: { q: "You play a land that “enters tapped”. Can you tap it for mana this turn?", options: [{ t: "No, it's already tapped", ok: true, why: "It untaps with your other cards on your next turn." }, { t: "Yes, once", why: "It's tapped as it arrives, and tapped cards can't be tapped again." }, { t: "Only if you respond quickly", why: "“Enters tapped” doesn't use the stack, so there's nothing to respond to." }] } }
+    ],
+    recap: ["0 life loses, 0 toughness dies, two legends with the same name: keep one.", "Skullclamp on a 1/1 token: it dies at once and you draw two.", "“Instead” and “enters tapped” change events as they happen; nobody can respond."]
+  });
+
+  /* ---------------- Part 8: Playing well ---------------- */
+  L.push({
+    id: "plan", unit: "skill", emoji: "🧭", title: "Planning your turn", blurb: "The best order to do things in.",
+    steps: [
+      { title: "Order matters", html: `<p class="big">The same cards can do more, or less, depending on the order you play them.</p><p>A few habits help most turns:</p><ol><li>Play your <b>land</b> first (you'll have more choices).</li><li>Cast <b>mana makers</b> next, like Sol Ring, so they help pay for the rest.</li><li><b>Attack</b>.</li><li>Cast new creatures <b>after combat</b>.</li><li>Keep instants for <b>other players' turns</b> if you can.</li></ol>` },
+      { title: "Put this turn in order", html: `<p>Your hand: a Forest, Sol Ring, Cultivate, and Ajani's Pridemate. You have creatures ready to attack.</p>`, widget: ["order", { items: ["🌳 Play the Forest", "💍 Cast Sol Ring", "🌱 Cast Cultivate", "⚔️ Attack", "🐱 Cast Ajani's Pridemate"], done: "That's a strong turn: more mana first, then the fight, then the new creature." }], gate: "Put the turn in order", cards: ["solring", "cultivate", "pridemate"] },
+      { title: "Quick check", quiz: { q: "You drew Sol Ring and a 4-mana spell, and you have 3 lands. What first?", cards: ["solring"], options: [{ t: "Sol Ring, then use its mana toward the bigger spell", ok: true, why: "Mana makers first: Sol Ring costs 1 and makes 2, so you can still afford the other spell." }, { t: "The 4-mana spell first", why: "You can't afford it yet. Sol Ring first gives you enough mana." }, { t: "Keep both for next turn", why: "Sol Ring is best played as early as possible." }] } },
+      { title: "One more", quiz: { q: "You hold Rootborn Defenses (an instant). When is it usually best to cast it?", cards: ["rootborn"], options: [{ t: "In response to a wipe or removal spell", ok: true, why: "Instants shine on other players' turns, as an answer." }, { t: "Right away in your main phase", why: "It works then, but it's much stronger as a surprise answer." }, { t: "Never, it's too risky", why: "It's a great card, just best kept as an answer." }] } }
+    ],
+    recap: ["Land, then mana makers, then attack, then new creatures.", "Instants are strongest as answers on other players' turns."]
+  });
+
+  L.push({
+    id: "resources", unit: "skill", emoji: "🃏", title: "Cards are fuel", blurb: "Why drawing cards and ramping win games.",
+    steps: [
+      { title: "More cards, more choices", html: `<p class="big">Every card in your hand is an option. A player with more options usually wins.</p><p>That's why cards that <b>draw extra cards</b> are so strong, and why playing out your whole hand at once can leave you empty-handed.</p>`, cards: ["rhystic", "skullclamp"] },
+      { title: "Ramp: more mana sooner", html: `<p><b>Ramp</b> means getting extra mana early: Llanowar Elves, Arcane Signet, Cultivate. Each one lets you cast your big cards a turn or two before everyone else.</p>`, cards: ["elves", "signet", "cultivate"] },
+      { title: "One card for many", html: `<p>Some cards deal with <b>several</b> of an opponent's cards at once. One Wrath of God against six goblins means you spent one card and they lost six.</p><p>The opposite is a trap: using your one removal spell on a single 1/1 token.</p>`, cards: ["wrath"] },
+      { title: "Quick check", quiz: { q: "An opponent has Rhystic Study. You cast a spell. What should you usually do?", cards: ["rhystic"], options: [{ t: "Pay the extra {1} if you can", ok: true, why: "Otherwise they draw a card every time you cast something." }, { t: "Ignore it", why: "Over a game, it would hand them lots of free cards." }, { t: "Stop casting spells", why: "You still play; just pay the {1} tax when you can." }] } },
+      { title: "One more", quiz: { q: "You have one Swords to Plowshares. Sam has Krenko, Mob Boss and a single Goblin token. Which do you exile?", cards: ["krenko", "swords"], options: [{ t: "Krenko", ok: true, why: "He's the engine: left alone, he makes more and more goblins every turn." }, { t: "The Goblin token", why: "One 1/1 token isn't worth your only removal. Krenko makes tokens forever." }, { t: "Neither, keep it", why: "Krenko gets out of hand fast. He's worth it." }] } }
+    ],
+    recap: ["Cards in hand are options; draw engines add more.", "Ramp gets your big cards out sooner.", "Spend removal on engines and big threats, not on small tokens."]
+  });
+
+  L.push({
+    id: "threat", unit: "skill", emoji: "🎯", title: "Who is winning?", blurb: "Reading a real table to find the threat.",
+    steps: [
+      { title: "Not always the biggest creature", html: `<p class="big">The most dangerous player isn't always the one with the biggest creature.</p><p>Look for <b>engines</b>: cards that make something every turn (tokens, cards, mana). An engine left alone gets stronger every turn.</p>` },
+      { title: "Find the threat", widget: ["board", { turn: 3, seats: [
+        { n: "Alex", life: 36, cmd: "talrand", lands: 5, hand: 7, bf: [{ k: "talrand", cmd: 1 }] },
+        { n: "Sam", life: 29, cmd: "krenko", lands: 6, hand: 2, bf: [{ k: "krenko", cmd: 1 }, GOBLINS(7), "bombardment"] },
+        { n: "Jo", life: 40, cmd: "urdragon", lands: 7, hand: 4, bf: ["dreadmaw"] },
+        { n: "You", life: 33, cmd: "trostani", lands: 6, hand: 3, bf: [{ k: "trostani", cmd: 1 }, CITIZENS(3)] }
+      ], pick: { kind: "seat", prompt: "Tap the <b>player</b> who is the biggest threat right now.", right: [1], why: { 0: "Alex has a full hand, but only Talrand on the table. Worth watching, not the biggest threat yet.", 1: "Yes! Krenko doubles the goblins every turn, and Goblin Bombardment turns each goblin into damage aimed anywhere. Sam is close to winning.", 2: "Colossal Dreadmaw is big, but it's just one creature. It doesn't grow every turn.", 3: "That's you! Look at the opponents." } } }], gate: "Pick the threat" },
+      { title: "What to remove", widget: ["board", { turn: 3, seats: [
+        { n: "Alex", life: 36, cmd: "talrand", lands: 5, hand: 7, bf: [{ k: "talrand", cmd: 1 }] },
+        { n: "Sam", life: 29, cmd: "krenko", lands: 6, hand: 2, bf: [{ k: "krenko", cmd: 1 }, GOBLINS(7), "bombardment"] },
+        { n: "Jo", life: 40, cmd: "urdragon", lands: 7, hand: 4, bf: ["dreadmaw"] },
+        { n: "You", life: 33, cmd: "trostani", lands: 6, hand: 3, bf: [{ k: "trostani", cmd: 1 }, CITIZENS(3)] }
+      ], pick: { kind: "perm", prompt: "You hold <b>Beast Within</b>: destroy target permanent. Tap the best target.", right: ["1/krenko", "1/bombardment"], why: { "1/krenko": "Great pick: no more doubling goblins. (Goblin Bombardment was a fine answer too.)", "1/bombardment": "Great pick: the goblins can't be thrown at faces any more. (Krenko was a fine answer too.)", "1/goblin": "That's one token out of seven. Aim at what makes them, or what makes them dangerous.", "2/dreadmaw": "Big, but it's not the engine that's about to win.", "0/talrand": "Talrand can wait: he's not making anything yet." }, no: "Look at Sam's side: what keeps making goblins, or turns them into damage?" } }], gate: "Pick the target" },
+      { title: "Quick check", quiz: { q: "Which is usually the bigger threat?", options: [{ t: "A card that makes something every turn", ok: true, why: "Engines snowball. A big vanilla creature stays the same size." }, { t: "The biggest creature on the table", why: "Big is scary, but engines grow every turn." }, { t: "Whoever has the most life", why: "Life shows who's been hit, not who's about to win." }] } }
+    ],
+    recap: ["Engines (cards that make something every turn) are often the real threat.", "Aim removal at the engine, not at what it already made.", "Read every player's side before you act."]
+  });
+
+  L.push({
+    id: "deckbuild", unit: "skill", emoji: "🧱", title: "How a deck is built", blurb: "The simple recipe behind a Commander deck.",
+    steps: [
+      { title: "The recipe", html: `<p class="big">Most Commander decks follow the same recipe, give or take a few cards:</p><ul><li>🌳 About <b>36 to 38 lands</b></li><li>💍 About <b>10 ramp</b> cards (extra mana)</li><li>🃏 About <b>10 card draw</b> cards</li><li>🎯 About <b>10 removal</b> cards, plus a couple of board wipes</li><li>⭐ The rest: your <b>plan</b>, the cards that make your deck yours</li></ul>`, math: "No need to count exactly: the deck pages on this site already sort the Miku deck into these groups." },
+      { title: "Sort the Miku deck's cards", widget: ["sort", { title: "What job does each card do?", buckets: ["💍 Ramp", "🃏 Draw", "🎯 Removal", "⭐ Plan"], items: [
+        { t: "Llanowar Elves", b: 0, why: "A creature that makes mana: ramp." },
+        { t: "Cultivate", b: 0, why: "Finds two lands: ramp." },
+        { t: "Skullclamp", b: 1, why: "Turns tokens into cards: draw." },
+        { t: "Swords to Plowshares", b: 2, why: "Exiles a creature: removal." },
+        { t: "Beast Within", b: 2, why: "Destroys any permanent: removal." },
+        { t: "Cathars' Crusade", b: 3, why: "Grows your whole team: that's the deck's plan." },
+        { t: "Craterhoof Behemoth", b: 3, why: "The big finisher: plan." },
+        { t: "Arcane Signet", b: 0, why: "An artifact that makes mana: ramp." }
+      ] }], gate: "Sort the eight cards" },
+      { title: "Quick check", quiz: { q: "Your deck keeps getting stuck with expensive cards in hand. What's it probably missing?", options: [{ t: "Ramp (and maybe lands)", ok: true, why: "More mana sooner means you can cast your big cards." }, { t: "More expensive cards", why: "That would make it worse." }, { t: "Removal", why: "Removal helps, but being stuck on mana means ramp or lands." }] } },
+      { title: "Where to look", html: `<p>The <a href="../miku/">Hatsune Miku deck pages</a> on this site sort every card by its job and explain why it's there. A good next read once this course feels easy.</p>` }
+    ],
+    recap: ["About 37 lands, 10 ramp, 10 draw, 10 removal; the rest is your plan.", "Each card has a job. Knowing the jobs helps you play and build."]
+  });
+
+  L.push({
+    id: "mikuplan", unit: "skill", emoji: "🎤", title: "Playing the Miku deck", blurb: "The game plan, start to finish.",
+    steps: [
+      { title: "Three acts", html: `<p class="big">Most Miku games follow three acts.</p><ol><li>🌱 <b>Set up</b>: lands, ramp (Llanowar Elves, Arcane Signet, Cultivate) and cheap creatures.</li><li>🔁 <b>Engine</b>: Trostani and the token makers. Each token gains life, and life gains grow your team (Ajani's Pridemate, Archangel of Thune, Cathars' Crusade).</li><li>🏁 <b>Finish</b>: a huge army, then a card like Craterhoof Behemoth or Overwhelming Stampede to swing for the win.</li></ol>`, cards: ["trostani", "archangel", "craterhoof"] },
+      { title: "Your turn: what wins?", widget: ["board", { turn: 3, seats: [
+        { n: "Alex", life: 18, cmd: "talrand", lands: 7, hand: 1, bf: [{ k: "talrand", cmd: 1, t: 1 }] },
+        { n: "Sam", life: 15, cmd: "krenko", lands: 6, hand: 0, bf: [GOBLINS(2)] },
+        { n: "Jo", life: 21, cmd: "urdragon", lands: 8, hand: 2, bf: [{ k: "dreadmaw", t: 1 }] },
+        { n: "You", life: 52, cmd: "trostani", lands: 8, hand: 2, bf: [{ k: "trostani", cmd: 1 }, { k: "pridemate", ctr: 6 }, { k: "archangel", ctr: 4 }, CITIZENS(9), "crusade"] }
+      ], prompt: "You have a crowd of creatures, and Craterhoof Behemoth in your hand with enough mana. Tap any card to read it." }] },
+      { title: "Quick check", quiz: { q: "On that table, why is Craterhoof Behemoth so strong right now?", cards: ["craterhoof"], options: [{ t: "It makes every creature bigger, more with a bigger crowd", ok: true, why: "With a dozen creatures, each one gets a lot bigger and tramples: usually enough to win at once." }, { t: "It's a big 5/5", why: "Its body is fine, but the real power is its enter trigger." }, { t: "It destroys their creatures", why: "It doesn't remove anything: it pumps your team." }] } },
+      { title: "Protect the engine", html: `<p>Your plan needs Trostani and your token crowd alive. When an opponent casts a wipe, answer with <b>Rootborn Defenses</b> or <b>Grand Crescendo</b>.</p><p>And if Trostani dies, recast her: she costs {2} more each time, but she's worth it.</p>`, cards: ["rootborn", "crescendo"] },
+      { title: "You're ready for the real thing", html: `<p class="big">That's the whole course. 🎉</p><p>Play the Miku deck against the bots in the <a href="../miku/#play">Play tab</a>, read its <a href="../miku/">card guide</a>, and come back to any lesson whenever something comes up.</p>` }
+    ],
+    recap: ["Set up, build the engine, then finish with a huge pump.", "Protect your board with Rootborn Defenses or Grand Crescendo.", "Recast Trostani when she dies: she's your engine."]
   });
 
   const glossary = [
@@ -503,6 +704,15 @@ window.LEARN = (function () {
     ["Populate", "Create a copy of a creature token you control.", "tricks"],
     ["Convoke", "While casting the spell, tap your creatures to help pay: each pays one grey circle or one of its color.", "tricks"],
     ["Equip", "Pay the Equip cost in your main phase to attach an Equipment to one of your creatures.", "tricks"],
+    ["First strike", "Deals its combat damage before creatures without it. If that kills the other creature, it never hits back.", "morekw"],
+    ["Double strike", "Deals combat damage twice: once with the first strikers, then again with everyone else.", "morekw"],
+    ["Menace", "Can't be blocked except by two or more creatures.", "morekw"],
+    ["Hexproof", "Can't be the target of spells or abilities your opponents control.", "morekw"],
+    ["Indestructible", "Damage and “destroy” don't kill it. Exile still works.", "morekw"],
+    ["Board wipe", "A spell that removes lots of permanents at once, often every creature.", "wipes"],
+    ["Ramp", "Cards that give you extra mana early, like Llanowar Elves, Arcane Signet or Cultivate.", "resources"],
+    ["Engine", "A card that makes something every turn (tokens, cards, mana). Often the real threat.", "threat"],
+    ["Enters tapped", "The card arrives already tapped, so you can't use it that turn.", "sba"],
     ["Pass / OK", "What you say to let a spell happen, or to end your turn.", "others"],
     ["+1/+1 counter", "A marker that permanently adds 1 to power and toughness.", "words"],
     ["Enters", "Comes onto the battlefield.", "words"],

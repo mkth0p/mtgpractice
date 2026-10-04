@@ -430,6 +430,64 @@
     });
   };
 
+
+  /* A real four-player Commander table: three opponents and you, every permanent on the
+     battlefield as a small tile (tap one to see the card big). With `pick`, the learner answers
+     by tapping a permanent ("seat/key") or a player (seat number). Seats are [left, across, right, you]. */
+  const COLOR = { W: "#e9dfbd", U: "#4f9fe0", B: "#6d6475", R: "#e2553b", G: "#2f9a57", M: "#d6b44c", C: "#b8b2a7", L: "#9b8b6a" };
+  function permTile(spec, seat, k) {
+    const p = typeof spec === "string" ? { k: spec } : spec;
+    const c = p.k ? C(p.k) : null;
+    const name = c ? c.name : `${p.tok} token`;
+    const pt = p.pt || (c && c.pt);
+    const ptTxt = pt ? `${pt[0] + (p.ctr || 0)}/${pt[1] + (p.ctr || 0)}` : "";
+    const land = c && c.makes && !c.pt;
+    const id = `${seat}/${p.id || p.k || p.tok.toLowerCase()}`;
+    const real = c && H().useReal();
+    const label = `${p.n > 1 ? p.n + " × " : ""}${name}${ptTxt ? ", " + ptTxt : ""}${p.ctr ? `, with ${p.ctr} +1/+1 counter${p.ctr > 1 ? "s" : ""}` : ""}${p.t ? ", tapped" : ""}${p.cmd ? ", their commander" : ""}`;
+    return `<button class="perm ${p.tok ? "tok" : ""} ${land ? "land" : ""} ${p.t ? "tapped" : ""} ${p.cmd ? "cmdr" : ""}" type="button" data-perm="${id}"${c && !p.tok ? ` data-card="${p.k}"` : ""} style="--pc:${COLOR[(c && c.c) || p.c || "C"]}" aria-label="${H().esc(label)}" title="${H().esc(label)}">
+      <span class="pic" aria-hidden="true">${real ? `<img src="${H().cardImg(c, "art_crop")}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.replaceWith(document.createTextNode('${c.art || "🃏"}'))">` : (c ? c.art : p.art) || "🃏"}</span>
+      ${p.ctr ? `<span class="ctr" aria-hidden="true">+${p.ctr}</span>` : ""}${p.n > 1 ? `<span class="num" aria-hidden="true">×${p.n}</span>` : ""}${ptTxt ? `<span class="ptb" aria-hidden="true">${ptTxt}</span>` : ""}
+      <span class="nm" aria-hidden="true">${H().esc(name)}</span></button>`;
+  }
+  LW.board = function (el, o, api) {
+    const pick = o.pick;
+    let solved = false;
+    const seats = o.seats.map((st, k) => {
+      const me = k === 3;
+      const cmdOut = st.bf.some(x => x && x.cmd);
+      const crit = st.bf.filter(x => { const c = typeof x === "string" ? C(x) : x.k ? C(x.k) : null; return !(c && c.makes && !c.pt); });
+      const lands = st.bf.filter(x => !crit.includes(x));
+      return `<section class="seat ${me ? "me" : ""} ${o.turn === k ? "turn" : ""} ${pick && pick.kind === "seat" ? "pick" : ""}" data-seat="${k}" aria-label="${H().esc(st.n)}, ${st.life} life"${pick && pick.kind === "seat" ? ' tabindex="0" role="button"' : ""}>
+        <div class="who"><b>${me ? "🙂 " : ["👈 ", "👆 ", "👉 "][k]}${H().esc(st.n)}</b><span class="meta">${st.hand != null ? `✋ ${st.hand} · ` : ""}${st.lands ? `🌳 ${st.lands} lands` : ""}</span><span class="life">❤ ${st.life}</span></div>
+        ${!cmdOut && st.cmd ? `<div class="cz">👑 Commander waiting in the command zone: <button class="linkish" type="button" data-zoom="${st.cmd}">${H().esc(C(st.cmd).name)}</button></div>` : ""}
+        <div class="lane">${crit.map((x, i) => permTile(x, k, i)).join("") || '<span class="muted small" style="padding:8px 2px">No creatures or other permanents yet</span>'}</div>
+        ${lands.length ? `<div class="lane">${lands.map((x, i) => permTile(x, k, i)).join("")}</div>` : ""}
+      </section>`;
+    });
+    el.innerHTML = (o.title ? title(o.title) : "") + `<div class="board4">${seats.join("")}</div><div class="msg"></div>`;
+    say(el, pick ? pick.prompt : (o.prompt || "Tap any card to see it big."));
+    const answer = (id, node) => {
+      if (solved) return;
+      const ok = [].concat(pick.right).map(String).includes(String(id));
+      const why = (pick.why && pick.why[id]) || (ok ? pick.ok : pick.no) || (ok ? "Yes!" : "Not this one. Have another look.");
+      node.classList.add(ok ? "right" : "wrong");
+      if (ok) { solved = true; say(el, "✅ " + why, "good"); H().sfx("ok"); H().pop(node, "✓", "star"); api.done(); }
+      else { shake(node); say(el, why, "bad"); H().sfx("bad"); }
+    };
+    $$(".perm", el).forEach(b => b.onclick = e => {
+      if (pick && pick.kind === "perm") return answer(b.dataset.perm, b);
+      if (pick && pick.kind === "seat") return; // the seat handles it
+      if (b.dataset.card) { e.stopPropagation(); H().zoom(b.dataset.card, b); }
+    });
+    if (pick && pick.kind === "seat") $$(".seat", el).forEach(sn => {
+      const go = () => answer(sn.dataset.seat, sn);
+      sn.onclick = e => { if (!e.target.closest("[data-zoom]")) go(); };
+      sn.onkeydown = e => { if ((e.key === "Enter" || e.key === " ") && e.target === sn) { e.preventDefault(); go(); } };
+    });
+    if (!pick) api.done();
+  };
+
   /* Lesson 18: commander tax and coming back from the command zone. */
   LW.tax = function (el, o, api) {
     let casts = 0, where = "command";

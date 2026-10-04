@@ -477,3 +477,53 @@ html.big .mcard.sm { width: 156px; }
 .checkpoint { margin: 16px 0 4px; padding: 14px 16px; border-radius: 16px; border: 2px dashed var(--teal); background: var(--surface); text-align: left; }
 .checkpoint p { margin: 6px 0 10px; }
 .extras a.weak { border: 2px solid var(--pink); }
+
+/* ---------- v4: real card pictures, card zoom, the four-player board ---------- */
+.u6 { --ub: linear-gradient(120deg, #4b2d8f, #5d3aa8); --uc: #5d3aa8; }
+.u7 { --ub: linear-gradient(120deg, #7a4a0c, #8f5a12); --uc: #8f5a12; }
+.mcard.real { padding: 0; background: #111; aspect-ratio: 488 / 680; border-radius: 4.75% / 3.5%; overflow: hidden; }
+.mcard.real .in, .mcard.real .pt { display: none; }
+.mcard.real .face { display: block; width: 100%; height: 100%; object-fit: cover; }
+.mcard.real.sm.land { width: 104px; }
+.mcard.zoomable { cursor: zoom-in; }
+.mcard.zoomable:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+.zoom { position: fixed; inset: 0; z-index: 200; background: rgba(8, 10, 12, .72); display: grid; place-items: center; padding: 16px; animation: fade .2s ease both; }
+.zbox { background: var(--surface); color: var(--ink); border-radius: 22px; padding: 16px; max-width: 760px; width: 100%; max-height: calc(100dvh - 32px); overflow: auto; display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 18px; align-items: start; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .6); }
+.zbox img { width: 100%; border-radius: 4.75% / 3.5%; display: block; }
+.zbox h3 { margin: 0 0 4px; font-size: 1.25rem; }
+.zbox .ztext > p { line-height: 1.55; }
+@media (max-width: 620px) { .zbox { grid-template-columns: 1fr; justify-items: center; } .zbox img { max-width: 250px; } .ztext { width: 100%; } }
+@keyframes fade { from { opacity: 0; } }
+
+.board4 { display: grid; gap: 8px; grid-template-columns: 1fr; }
+.board4 .seat { border: 1.5px solid var(--line); border-radius: 16px; background: var(--surface); padding: 8px 10px 10px; min-width: 0; position: relative; }
+.board4 .seat.me { border-color: var(--teal); background: color-mix(in srgb, var(--teal) 7%, var(--surface)); }
+.board4 .seat.turn::before { content: "▶ their turn"; position: absolute; top: -9px; right: 10px; font-size: .68rem; font-weight: 800; background: var(--pink-btn); color: #fff; border-radius: 999px; padding: 1px 8px; }
+.board4 .seat.me.turn::before { content: "▶ your turn"; }
+.board4 .who { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.board4 .who b { font-size: .98rem; }
+.board4 .who .life { margin-left: auto; font-weight: 800; font-size: 1.05rem; white-space: nowrap; }
+.board4 .who .meta { color: var(--muted); font-size: .76rem; white-space: nowrap; }
+.board4 .lane { display: flex; gap: 6px; overflow-x: auto; padding: 6px 2px 4px; scrollbar-width: thin; }
+.board4 .lane-label { font-size: .66rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+.perm { flex: 0 0 auto; width: 74px; border: 0; padding: 0; background: #1a1a1a; color: #fff; border-radius: 9px; overflow: hidden; position: relative; font: inherit; cursor: pointer; text-align: left; box-shadow: 0 6px 14px -10px rgba(0, 0, 0, .7); transition: transform .3s var(--ease); }
+.perm .pic { height: 54px; display: grid; place-items: center; font-size: 26px; background: color-mix(in srgb, var(--pc, #777) 75%, #222) center / cover no-repeat; }
+.perm .nm { display: block; font-size: .62rem; line-height: 1.15; padding: 3px 4px 4px; font-weight: 700; background: rgba(0, 0, 0, .78); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.perm .ptb { position: absolute; right: 3px; top: 34px; background: #f7f2e6; color: #15130f; font-weight: 800; font-size: .66rem; border-radius: 5px; padding: 0 4px; }
+.perm .ctr { position: absolute; left: 3px; top: 3px; background: var(--good); color: var(--on-good, #fff); font-weight: 800; font-size: .62rem; border-radius: 5px; padding: 0 4px; }
+.perm .num { position: absolute; right: 3px; top: 3px; background: #000a; font-weight: 800; font-size: .66rem; border-radius: 5px; padding: 0 5px; }
+.perm.tok { outline: 2px dashed #fff8; outline-offset: -3px; }
+.perm.cmdr { box-shadow: 0 0 0 2px var(--star, #d9a400); }
+.perm.tapped { transform: rotate(14deg) translateY(4px); opacity: .7; }
+.perm.tapped::after { content: "tapped"; position: absolute; left: 3px; top: 34px; font-size: .58rem; font-weight: 800; background: #000c; border-radius: 4px; padding: 0 3px; }
+.perm.land { width: 58px; } .perm.land .pic { height: 40px; font-size: 20px; } .perm.land .ptb { display: none; }
+.perm:hover, .perm:focus-visible { box-shadow: 0 0 0 3px var(--teal); outline: none; }
+.perm.right { box-shadow: 0 0 0 3px var(--good); } .perm.wrong { box-shadow: 0 0 0 3px var(--pink); opacity: .6; }
+.seat.pick { cursor: pointer; } .seat.pick:hover { border-color: var(--teal); }
+.seat.right { border-color: var(--good); box-shadow: 0 0 0 2px var(--good); } .seat.wrong { border-color: var(--pink); }
+.board4 .cz { font-size: .72rem; color: var(--muted); }
+@media (min-width: 760px) {
+  .board4 { grid-template-columns: 1fr 1fr; grid-template-areas: "b b" "a c" "me me"; }
+  .board4 .seat:nth-child(1) { grid-area: a; } .board4 .seat:nth-child(2) { grid-area: b; } .board4 .seat:nth-child(3) { grid-area: c; } .board4 .seat:nth-child(4) { grid-area: me; }
+  .perm { width: 84px; } .perm .pic { height: 62px; } .perm .ptb, .perm.tapped::after { top: 42px; }
+}
