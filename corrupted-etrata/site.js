@@ -221,7 +221,7 @@
   function quiz(el, A) {
     const { $, esc, mana, rich, store, KEY, linkMentions, CARDS, toast } = A;
     const QS = window.CETRATA_QUIZ || [];
-    const TOPICS = [["all", "All"], ["combos", "Combos"], ["tutors", "Tutors"], ["theft", "Theft"], ["cards", "Cards"], ["rules", "Rules"], ["plan", "Game plan"], ["mana", "Mana"]]
+    const TOPICS = [["all", "All"], ["combos", "Combos"], ["tutors", "Tutors"], ["theft", "Theft"], ["cards", "Cards"], ["rules", "Rules"], ["plan", "Game plan"], ["mana", "Mana"], ["rulings", "Hard rulings"]]
       .filter(([k]) => k === "all" || QS.some(q => q.topic === k));
     const SK = KEY + ".quiz.v1";
     const st = Object.assign({ box: {}, seen: 0, right: 0, topic: "all", mode: "quiz", streak: 0, best: 0 }, store.json(SK, {}));

@@ -20,7 +20,7 @@
   const ALL = CARDS.concat(EXTRA);
   const KEY = D.key || "mikuWiki"; // localStorage prefix
   const SHORT = D.short || "Miku";
-  const V = "24"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  const V = "25"; // asset version: keep in step with the ?v= links in index.html and sw.js
   const byName = new Map(ALL.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -128,9 +128,10 @@
     play: '<path d="M8.5 5.8v12.4a.8.8 0 0 0 1.2.7l9.8-6.2a.8.8 0 0 0 0-1.4L9.7 5.1a.8.8 0 0 0-1.2.7z"/>',
     stats: '<path d="M5 20v-8M10 20V5M15 20v-6M20 20V9"/>',
     shop: '<path d="M5 8h14l-1.3 11.1A2 2 0 0 1 15.7 21H8.3a2 2 0 0 1-2-1.9z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
-    quiz: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.8M12 17.2h.01"/>'
+    quiz: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.8M12 17.2h.01"/>',
+    train: '<path d="M4 18l5-5 4 4 7-8"/><path d="M15 9h5v5"/>'
   };
-  const VIEWS = [["guide", "Guide"], ["cards", "Cards"], ["play", "Play"], ["quiz", "Quiz"], ["stats", "Stats"], ["shop", "Shop"]].filter(([id]) => document.getElementById("view-" + id));
+  const VIEWS = [["guide", "Guide"], ["cards", "Cards"], ["play", "Play"], ["quiz", "Quiz"], ["train", "Train"], ["stats", "Stats"], ["shop", "Shop"]].filter(([id]) => document.getElementById("view-" + id));
   const VIEW_IDS = VIEWS.map(v => v[0]);
   const viewIndex = id => VIEW_IDS.indexOf(id);
   const SEGS = {};
@@ -231,7 +232,7 @@
   }
 
   /* ---------------------------------------------------------------- router */
-  const LEGACY = { deck: ["guide", "start"], combos: ["guide", "combos"], buy: ["shop", "upgrades"], upgrades: ["shop", "upgrades"] };
+  const LEGACY = { deck: ["guide", "start"], ...(document.getElementById("view-quiz") ? {} : { quiz: ["train", "quiz"] }), combos: ["guide", "combos"], buy: ["shop", "upgrades"], upgrades: ["shop", "upgrades"] };
   const chapterById = id => GUIDE.find(ch => ch.id === id);
   let tabTap = false;
   function lastView() { const t = store.get(KEY + ".tab"); return VIEW_IDS.includes(t) && t !== "play" ? t : "guide"; }
@@ -1545,7 +1546,7 @@
 
   /* ---------------------------------------------------------------- Play: the game loads on demand */
   const GAME_BASE = D.gameBase || "game/";
-  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-corrupted.js", "game/checklist-corrupted.js", "game/checklist-cetrata.js", "game/brain-corrupted.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/decks-azusa.js", "game/decks-cetrata.js", "game/decks-edgar.js", "game/decks-etrata4.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/game-ui.js"];
+  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-corrupted.js", "game/checklist-corrupted.js", "game/checklist-cetrata.js", "game/brain-corrupted.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/decks-azusa.js", "game/decks-cetrata.js", "game/decks-edgar.js", "game/decks-etrata4.js", "game/decks-ghalta.js", "game/decks-krenko.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/practice.js", "game/train-cetrata.js", "game/game-ui.js"];
   let gameP = null, gameMounted = false;
   function loadGame() {
     if (gameP) return gameP;
@@ -1714,7 +1715,7 @@
   bindTilt(document);
   observe(document);
   K.ensure(CARDS.map(c => c.name), { miku: !D.key });
-  window.MikuApp = { route, openSheet, loadGame };
+  window.MikuApp = { route, openSheet, loadGame, gameInfo: { base: GAME_BASE, v: V, files: GAME_FILES } };
   if ("serviceWorker" in navigator && location.protocol === "https:" && /github\.io$|^localhost$/.test(location.hostname)) {
     window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => { /* offline mode is optional */ }));
   }
