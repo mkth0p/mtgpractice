@@ -244,6 +244,15 @@ const opps = (g, a) => g.players.filter(q => q !== a);
     const top = { o: { def: MK.get("Toxic Deluge") }, p: b, name: "Toxic Deluge", targets: [] };
     const c = deck.coach.companion(g, a, { mode: "respond", window: "stack", top, can: ["Counterspell"] });
     check("companion: counter a board wipe", c && c.urgent && /Counterspell/.test(c.steps[0].text), c); }
+  // Pressure: the whole table's attackers, not just one lethal board
+  { const { g, a, b, c } = table(); a.life = 20; put(g, a, "Etrata, Deadly Fugitive"); lands(g, a, 3); hand(g, a, "Toxic Deluge");
+    for (const q of [b, c]) for (let i = 0; i < 3; i++) put(g, q, "Serra Angel"); await g.settle();
+    const r = deck.coach.plan(g, a), t = r.threats.find(x => x.kind === "pressure");
+    check("plan: two boards of three Serra Angels race you at 20", t && t.level === "high" && t.answers.includes("Toxic Deluge"), r.threats);
+    const m = deck.coach.companion(g, a, { mode: "main" });
+    check("companion: Toxic Deluge first when you're behind on board", m && m.steps.some(st => /Defend first: Toxic Deluge/.test(st.text)), m && m.steps.map(st => st.text));
+    const k = deck.coach.companion(g, a, { mode: "attack", candidates: g.creatures(a) });
+    check("companion: under pressure Etrata stays home", k && /stay home/.test(k.steps[0].text), k && k.steps.map(st => st.text)); }
   // The coach
   { const { g, a } = table(); put(g, a, "Exquisite Blood"); hand(g, a, "Drift of Phantasms"); hand(g, a, "Demonic Tutor"); await g.settle();
     const tips = deck.coach.tips(g, a);

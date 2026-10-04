@@ -209,14 +209,16 @@
     start(seats, mode) {
       const pm = this.gm = mode || null;
       const PR = MK.Practice;
-      if (pm && pm.kind === "retry") seats = pm.rec.seats.map((s, i) => i === pm.rec.hero ? { human: true, deck: PR.deckById(s.deck) } : { deck: PR.deckById(s.deck), skill: s.skill, aggression: s.aggression });
+      if (pm && pm.kind === "retry") seats = pm.rec.seats.map((s, i) => i === pm.rec.hero ? { human: true, deck: PR.deckById(s.deck) } : { deck: PR.deckById(s.deck), skill: s.skill, aggression: s.aggression, casual: !!s.casual });
       this.seats = seats;
       const lvl = this.s.level === "casual" ? { skill: 0.55 } : { skill: 0.9 };
       const skillOf = d => d.skill != null ? d.skill : lvl.skill;
       const aggrOf = d => d.aggression != null ? d.aggression : d.deck.aggression == null ? 0.55 : d.deck.aggression;
+      // precon (Bracket 1-2) bots play like a casual table: see ai.js
+      const casualOf = d => d.casual != null ? d.casual : (d.deck.bracket || 4) <= 2;
       const players = pm && pm.kind === "puzzle" ? pm.puzzle.players(this) : seats.map((d, i) => {
         if (d.human) return { name: "You", commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, human: true, agent: this.humanAgent(), deckId: d.deck.id };
-        const bot = MK.AI.create({ skill: skillOf(d), aggression: aggrOf(d) });
+        const bot = MK.AI.create({ skill: skillOf(d), aggression: aggrOf(d), casual: casualOf(d) });
         return { name: d.deck.name, commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, agent: this.paced(bot), deckId: d.deck.id };
       });
       this.helper = MK.AI.create({ skill: 1 });
@@ -231,7 +233,7 @@
       const heroIdx = Math.max(0, players.findIndex(p => p.human));
       this.rec = null;
       if (pm && (pm.kind === "assess" || pm.kind === "retry") && PR) {
-        const rec = this.rec = PR.newRecord({ deck: mine.deck.id, mode: pm.kind, seed, hero: heroIdx, seats: seats.map(d => d.human ? { deck: d.deck.id, name: "You" } : { deck: d.deck.id, name: d.deck.name, skill: skillOf(d), aggression: aggrOf(d) }) });
+        const rec = this.rec = PR.newRecord({ deck: mine.deck.id, mode: pm.kind, seed, hero: heroIdx, seats: seats.map(d => d.human ? { deck: d.deck.id, name: "You" } : { deck: d.deck.id, name: d.deck.name, skill: skillOf(d), aggression: aggrOf(d), casual: casualOf(d) }) });
         let agent = players[heroIdx].agent;
         if (pm.kind === "retry") { rec.parent = pm.rec.id; rec.from = pm.at; agent = this.replayFirst(pm.rec, pm.at, agent); }
         players[heroIdx].agent = PR.record(agent, { rec, replayedUntil: pm.kind === "retry" ? pm.at : 0 });

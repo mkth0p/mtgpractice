@@ -135,7 +135,7 @@ async function runOne(seed, seats) {
   const noops = [];
   const players = seats.map((deck, i) => ({
     name: seats.filter(d => d === deck).length > 1 ? `${deck.name} ${"ABCDEF"[i]}` : deck.name, commander: deck.commander, list: deck.list, identity: deck.identity,
-    agent: CHAOS && i === 0 ? chaosAgent(seed * 7 + 1, m => noops.push(m)) : MK.AI.create({ skill: 0.85, aggression: deck.aggression == null ? 0.55 : deck.aggression })
+    agent: CHAOS && i === 0 ? chaosAgent(seed * 7 + 1, m => noops.push(m)) : MK.AI.create({ skill: 0.85, aggression: deck.aggression == null ? 0.55 : deck.aggression, casual: (deck.bracket || 4) <= 2 })
   }));
   const problems = [];
   const errors = [];

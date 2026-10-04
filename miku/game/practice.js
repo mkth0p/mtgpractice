@@ -247,7 +247,7 @@
     return g;
   }
   P.buildGame = buildGame;
-  const botFor = (d, s) => MK.AI.create({ skill: s.skill == null ? 0.9 : s.skill, aggression: s.aggression != null ? s.aggression : (d.aggression == null ? 0.55 : d.aggression) });
+  const botFor = (d, s) => MK.AI.create({ skill: s.skill == null ? 0.9 : s.skill, aggression: s.aggression != null ? s.aggression : (d.aggression == null ? 0.55 : d.aggression), casual: !!s.casual });
 
   /* Replays a record. Options:
      at: the answer index to stop or branch at (default: play every recorded answer)

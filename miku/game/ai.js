@@ -333,10 +333,14 @@
   };
 
   /* ------------------------------------------------------------ the agent */
+  const CASUAL = globalThis.__CASUAL || { life: 0.3, blockers: 0.3, lead: 8, spread: 6, home: 1, homeFrom: 1 };
   AI.create = function (opts) {
     opts = opts || {};
     const skill = opts.skill == null ? 0.85 : opts.skill;
     const aggro = opts.aggression == null ? 0.5 : opts.aggression;
+    // a casual (precon) table: attacks spread around and lean on whoever is ahead instead of piling
+    // onto the weakest, and a blocker stays home. Real precon pods lose their first player later.
+    const casual = !!opts.casual;
     const mem = { tried: new Map(), turn: -1, grudge: {}, loopTurn: -1, usedWindow: new Map() };
     const chance = (g, pr) => g.random() < pr;
 
@@ -588,6 +592,7 @@
       const scoreQ = q => {
         const bl = blockersOf(g, q);
         let s = 40 - q.life + (mem.grudge[q.id] || 0) * 0.4 - bl.length * 2 + (q === lead ? 4 : 0);
+        if (casual) s = (40 - q.life) * CASUAL.life + (mem.grudge[q.id] || 0) * 0.4 - bl.length * 2 * CASUAL.blockers + (q === lead ? CASUAL.lead : 0) - (mem.lastTarget === q.id ? CASUAL.spread : 0);
         s += g.random() * 6 * (1 - skill + 0.3);
         return s;
       };
@@ -607,6 +612,11 @@
       const absorb = qBlockers.length * (atkPower / Math.max(1, candidates.length));
       const alpha = atkPower - absorb >= q.life || (q.poison + power(g, candidates.filter(c => g.kw(c, "infect"))) >= 10 && candidates.some(c => g.kw(c, "infect")));
       const keepBack = [];
+      if (casual && !alpha && !danger && candidates.length >= CASUAL.homeFrom) {
+        // a casual player keeps a blocker home
+        const home = candidates.filter(c => !g.kw(c, "vigilance") && g.power(c) < 10).sort((a, b) => (g.toughness(b) + g.power(b)) - (g.toughness(a) + g.power(a)));
+        keepBack.push(...home.slice(0, CASUAL.home));
+      }
       if (danger && !alpha) {
         // keep our best blockers home (vigilance ones can go)
         // a finisher (Marit Lage, a huge flier) goes on offence: keeping it home loses the race
