@@ -950,7 +950,7 @@
     out.luck = mean(sums.map(s => s.sm.luck).filter(x => x != null));
     out.start = mean(sums.map(s => s.sm.start).filter(x => x != null));
     out.wins = sums.filter(s => s.g.result && s.g.result.win).length;
-    const anch = (MKG() && MKG().Analysis && MKG().Analysis.ANCHORS) || { random: 83, bot: 98.6 };
+    const anch = (MKG() && MKG().Analysis && MKG().Analysis.ANCHORS) || { random: 87.7, bot: 99.9 };
     out.anch = anch;
     out.strength = Math.round(100 * (out.acc - anch.random) / Math.max(1, anch.bot - anch.random));
     // points of win chance lost per game, by skill
