@@ -36,10 +36,10 @@ function randomAgent(seed) {
 async function recordGame(seed) {
   const precons = MK.BOT_DECKS.filter(d => (d.bracket || 4) < 4);
   const seats = [{ deck: "corrupted-etrata", name: "You" }];
-  for (let k = 0; k < 3; k++) { const d = precons[(seed * 3 + k) % precons.length]; seats.push({ deck: d.id, name: d.name, skill: 0.9, aggression: d.aggression }); }
+  for (let k = 0; k < 3; k++) { const d = precons[(seed * 3 + k) % precons.length]; seats.push({ deck: d.id, name: d.name, skill: 0.9, aggression: d.aggression, casual: (d.bracket || 4) <= 2 }); }
   const rec = P.newRecord({ deck: "corrupted-etrata", seed: 2000 + seed, hero: 0, seats });
   const person = PERSON === "random" ? randomAgent(seed) : MK.AI.create({ skill: 0.8 });
-  const g = P.buildGame(rec, (i, d, s) => i === 0 ? P.record(person, { rec }) : MK.AI.create({ skill: s.skill, aggression: s.aggression }));
+  const g = P.buildGame(rec, (i, d, s) => i === 0 ? P.record(person, { rec }) : MK.AI.create({ skill: s.skill, aggression: s.aggression, casual: !!s.casual }));
   await g.play();
   rec.result = { win: g.winner === g.players[0], rounds: g.round };
   return rec;

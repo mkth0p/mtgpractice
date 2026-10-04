@@ -408,7 +408,13 @@ Corrupted Etrata's Train tab (`corrupted-etrata/train.js`) is built on two engin
   `A.grade` judges a loss by the share of the person's chances it gave up, less one standard error;
   `A.summarize` adds up accuracy, classes, skill (what decisions cost) against luck (everything
   else), swings and breakdowns by skill, phase and time taken. `A.ANCHORS` holds the accuracy of a
-  random player and of the bot, the ends of the report's strength scale.
+  random player and of the bot, the ends of the report's strength scale. Land choices (both
+  options lands) look one round further and count only a loss past two standard errors; duplicate
+  options are merged; a blunder needs at least 12 playouts. After the branch the replayed seat's
+  agent reports `bot: true`, so the decks' bot-only logic (tutoring for the missing combo piece)
+  runs in playouts as it does for the bots. `A.botGame(rec)` has the bot play the person's whole
+  game from the first decision (same seat, hand, opponents; once on the same library order, then
+  `runs` times reshuffled), read by `A.tracker` through `P.replay`'s `ui` option.
 
 Never roll dice inside a sort comparator: how often a comparator runs depends on the JavaScript
 engine, so the same seed played out differently in Chrome and Node (engine 3 fixed the bots'

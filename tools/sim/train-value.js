@@ -37,7 +37,7 @@ async function playGames(from, to) {
     const seen = new Set();
     let g = null;
     const players = seats.map((d, i) => {
-      const bot = MK.AI.create({ skill: 0.85 + rnd(16) / 100, aggression: d.aggression == null ? 0.55 : d.aggression });
+      const bot = MK.AI.create({ skill: 0.85 + rnd(16) / 100, aggression: d.aggression == null ? 0.55 : d.aggression, casual: (d.bracket || 4) <= 2 });   // precons play like a casual table, as on the site
       const main = bot.main;
       bot.main = (gg, p, ctx) => {
         const k = gg.turn;
