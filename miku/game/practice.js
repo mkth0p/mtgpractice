@@ -256,6 +256,7 @@
      reseed: a seed for everything after the branch (libraries are reshuffled with it)
      horizon: after the branch, stop once this many more rounds have started
      heroBot: options for the bot that plays the person's seat after the branch
+     ui: an object the game reports to ({ log(entry), event(type, ev) }); ui.bind(g) is called first
      After the recorded answers run out, the bot plays the seat (an unfinished game). */
   P.replay = async function (rec, opts) {
     opts = opts || {};
@@ -285,6 +286,10 @@
       }
       heroBot = MK.AI.create(Object.assign({ skill: 1, aggression: d.aggression == null ? 0.55 : d.aggression }, opts.heroBot || {}));
       const a = {};
+      // once the bot takes the seat over it plays like one: the decks' bot-only logic (tutoring for
+      // the missing combo piece with the planner) checks agent.bot. Before the branch it must stay a
+      // person, or a tutor's search would only offer the bot's pick and the recorded answer.
+      Object.defineProperty(a, "bot", { get: () => st.bot, enumerable: true });
       for (const k of KINDS) a[k] = async (g, p, ctx) => {
         guard(g);
         if (g.over) return fallback(k, ctx);
@@ -309,8 +314,9 @@
         return r.answer;
       };
       return a;
-    });
+    }, opts.ui ? { ui: opts.ui } : null);
     st.g = g;
+    if (opts.ui && opts.ui.bind) opts.ui.bind(g);
     try { await g.play(); }
     catch (e) { st.error = String(e && e.message || e); }
     return st;

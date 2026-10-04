@@ -114,7 +114,7 @@ async function checkReview(page) {
     const t0 = Date.now();
     await page.waitForFunction(() => {
       const a = JSON.parse(localStorage.getItem("cetrataWiki.analysis.v2") || "{}"), id = (JSON.parse(localStorage.getItem("cetrataWiki.games.v1") || "[]")[0] || {}).id;
-      return id && a[id] && a[id].sum && !document.querySelector(".tn-progress");
+      return id && a[id] && a[id].sum && a[id].bot && !document.querySelector(".tn-progress");
     }, null, { timeout: 600000, polling: 1000 });
     await page.waitForTimeout(500);
     const r = await page.evaluate(() => {
@@ -124,13 +124,17 @@ async function checkReview(page) {
         decisions: (rec.moments || []).filter(m => !m.replayed).length, quick: Object.keys(an.quick).length, qerr: Object.values(an.quick).filter(x => x.error).map(x => x.error).slice(0, 3),
         deep: deep.length, derr: deep.filter(x => x.error).map(x => x.error).slice(0, 3), acc: an.sum.accuracy, skill: an.sum.skill, luck: an.sum.luck,
         cards: document.querySelectorAll(".tn-mo").length, rows: document.querySelectorAll(".tn-mo.open .tn-cands tbody tr").length, chart: !!document.querySelector(".tn-chart svg .dot"),
-        flags: document.querySelectorAll(".tn-flag").length, workers: !!(window.MikuApp && window.MikuApp.gameInfo)
+        flags: document.querySelectorAll(".tn-flag").length,
+        bot: an.bot && (an.bot.error || `you ${an.bot.you.win ? "won" : "out R" + an.bot.you.outRound}, bot same deal ${an.bot.same.win ? "won" : "out R" + an.bot.same.outRound}, bot ${an.bot.summary.wins}/${an.bot.summary.n} on fresh shuffles`),
+        botCards: document.querySelectorAll(".tn-botc").length, botRows: document.querySelectorAll(".tn-botr tbody tr").length, workers: !!(window.MikuApp && window.MikuApp.gameInfo)
       };
     });
     console.log(`  game ${gameNo}: analyzed ${r.quick}/${r.decisions} decisions and ${r.deep} in depth in ${((Date.now() - t0) / 1000).toFixed(0)} s: accuracy ${r.acc}, skill ${r.skill}, luck ${r.luck}; ${r.cards} moment cards (${r.rows} options open), ${r.flags} flags, chart ${r.chart}`);
     if (r.quick < r.decisions) note("review", "not every decision was analyzed", r);
     if (r.qerr.length || r.derr.length) note("review", "analysis errors", { q: r.qerr, d: r.derr });
     if (!r.chart) note("review", "no chart");
+    console.log(`  game ${gameNo}: bot in your seat: ${r.bot} (${r.botCards} cards, ${r.botRows} rounds)`);
+    if (!r.bot || r.botCards < 3 || !r.botRows) note("review", "the bot replay is missing", r);
     if (r.deep && !r.rows) note("review", "the open moment shows no options", r);
   } catch (e) { note("review", e.message.split("\n")[0]); }
 }

@@ -393,10 +393,12 @@
 
   /* ---------------------------------------------------------------- the analysis: workers and storage */
   // { [recId]: { v, quick: { [i]: r }, deep: { [i]: r }, sum } }
-  function anStore() { return load(SK.an, {}); }
+  // analyses from an older engine (MK.Analysis.VERSION) are dropped and redone when a game is opened
+  const AN_V = 3;
+  function anStore() { const all = load(SK.an, {}); for (const k of Object.keys(all)) if (!all[k] || all[k].v !== AN_V) delete all[k]; return all; }
   function putAn(recId, f) {
     const all = anStore();
-    const cur = all[recId] = all[recId] || { v: 2, quick: {}, deep: {} };
+    const cur = all[recId] = all[recId] || { v: AN_V, quick: {}, deep: {} };
     f(cur);
     const ids = new Set(games().map(g => g.id));
     for (const k of Object.keys(all)) if (!ids.has(k)) delete all[k];
@@ -455,7 +457,7 @@
   /* One analysis job, in a worker when there is one, else on the page. */
   function job(type, rec, i, opts, progress) {
     return startPool().then(n => {
-      if (!n) return MKG().Analysis[type](rec, i, Object.assign({}, opts, { onProgress: progress }));
+      if (!n) return type === "botgame" ? MKG().Analysis.botGame(rec, Object.assign({}, opts, { onProgress: progress })) : MKG().Analysis[type](rec, i, Object.assign({}, opts, { onProgress: progress }));
       return new Promise(done => { pool.queue.push({ id: ++pool.seq, type, rec: slim(rec), i, opts, progress, done }); pump(); });
     });
   }
@@ -512,6 +514,18 @@
     });
   }
 
+  /* The bot plays your whole game from the first decision: same seat, hand and opponents. */
+  function botGame(rec) {
+    const key = rec.id + ":bot";
+    if (runs.has(key)) return;
+    const run = { phase: "bot", frac: 0 };
+    runs.set(key, run);
+    job("botgame", rec, null, { runs: 10 }, f => { run.frac = f; }).then(r => {
+      putAn(rec.id, a => { a.bot = r && !r.error ? r : { error: (r && r.error) || "failed" }; });
+      runs.delete(key); bus();
+    });
+  }
+
   /* ---------------------------------------------------------------- the review of one game */
   const CLASS = { best: ["Best", "c-best", "★"], good: ["Good", "c-good", "✓"], inaccuracy: ["Inaccuracy", "c-inacc", "?!"], mistake: ["Mistake", "c-mistake", "?"], blunder: ["Blunder", "c-blunder", "??"] };
   const KIND = { mulligan: "Mulligan", main: "Your play", attack: "Attack", block: "Blocks", respond: "Response", choose: "Choice" };
@@ -533,6 +547,7 @@
     const deepIs = Object.keys(store.deep || {}).map(Number).filter(i => store.deep[i] && !store.deep[i].error)
       .sort((a, b) => ((rowsBy.get(b) || {}).rel || 0) - ((rowsBy.get(a) || {}).rel || 0));
     if (st.rvd.open == null && deepIs.length) st.rvd.open = deepIs[0];
+    if (!store.bot && !runs.has(rec.id + ":bot")) botGame(rec);
     const prog = run ? (run.phase === "quick" ? { t: `Replaying your ${run.total} decisions against the alternatives…`, f: run.total ? run.done / run.total : 0 } : { t: `Looking deeper at the ${run.total} moments that cost the most…`, f: run.total ? (run.done + Object.values(run.frac || {}).reduce((a, b) => a + b, 0) - run.done) / run.total : 0 }) : null;
     el.innerHTML = `<div class="tn-review">
       <div class="tn-rvh"><button class="btn ghost small" type="button" data-close>All games</button><span class="muted small">${ago(rec.t)} · vs ${opp.map(esc).join(", ")}</span></div>
@@ -550,6 +565,7 @@
       <section class="tn-sec"><h3>The moments that decided it</h3>
         ${deepIs.length ? `<div class="tn-moments">${deepIs.map(i => deepCard(rec, i, store.deep[i], rowsBy.get(i), st)).join("")}</div>` : `<p class="muted">${run ? "Coming up once the decisions are replayed." : "No decision stood out: well played."}</p>`}
       </section>
+      ${botHTML(rec, store, st)}
       ${sum.swings && sum.swings.length ? `<section class="tn-sec"><h3>What wasn't up to you</h3><div class="tn-swings">${sum.swings.slice(0, 4).map(s => swingHTML(rec, s)).join("")}</div></section>` : ""}
       ${breakdownHTML(sum)}
       ${rv.flags.length ? `<section class="tn-sec"><h3>Habits the review rules noticed</h3><div class="tn-flags">${rv.flags.map(f => `<div class="tn-flag sev${f.sev}${f.info ? " info" : ""}"><div class="tn-fh"><span class="tn-skill">${esc(SKILL_NAME[f.skill] || f.skill)}</span><b>${esc(f.title)}</b><span class="mono small">${f.r ? "round " + f.r : "opening"}</span></div><p>${cnText(esc(f.text))}</p><div class="tn-fa">${f.i != null && f.id !== "mull" ? `<button class="btn ghost small" type="button" data-retry="${f.i}">Retry from here</button>` : ""}${f.i != null && !(store.deep || {})[f.i] && f.id !== "mull" ? `<button class="btn ghost small" type="button" data-one="${f.i}">Analyze this moment</button>` : ""}</div></div>`).join("")}</div></section>` : ""}
@@ -561,7 +577,57 @@
       const one = e.target.closest("[data-one]"); if (one) { deepOne(rec, +one.dataset.one); return; }
       const t = e.target.closest("[data-mopen]"); if (t) { st.rvd.open = st.rvd.open === +t.dataset.mopen ? -1 : +t.dataset.mopen; renderReview(el, st, rec); finish(el); return; }
       const tl = e.target.closest(".tn-timeline summary"); if (tl) st.rvd.tl = !st.rvd.tl;
+      const bt = e.target.closest(".tn-botrounds summary"); if (bt) st.rvd.bt = !st.rvd.bt;
+      if (e.target.closest("[data-botagain]")) { putAn(rec.id, a => { delete a.bot; }); botGame(rec); bus(); return; }
     };
+  }
+  /* You against the bot in your seat: the same deal, then fresh draws for a win rate. */
+  function botHTML(rec, store, st) {
+    const b = store.bot, run = runs.get(rec.id + ":bot");
+    const head = `<h3>The bot in your seat</h3>`;
+    if (!b) return `<section class="tn-sec">${head}<p class="muted small">The bot is replaying your game from your opening hand…</p>${run ? `<div class="sp-bar"><i style="--w:${Math.round((run.frac || 0) * 100)}%"></i></div>` : ""}</section>`;
+    if (b.error || !b.you || !b.same) return `<section class="tn-sec">${head}<p class="muted small">The bot couldn't replay this game${b.error ? ` (${esc(b.error)})` : ""}.</p><div class="btn-row"><button class="btn ghost small" type="button" data-botagain>Try again</button></div></section>`;
+    const y = b.you, s = b.same, m = b.summary || {};
+    const res = x => x.win ? "Won" : x.lost ? `Out in round ${x.outRound || x.rounds}` : x.draw ? "Draw" : `Alive at round ${x.rounds}`;
+    const cmd = x => x.cmdRound != null ? `round ${x.cmdRound}` : "never";
+    const card = (title, x, note) => `<div class="tn-botc"><p class="tn-k">${title}</p><b class="${x.win ? "w" : x.lost ? "l" : ""}">${res(x)}</b><ul><li>Etrata cast <b>${cmd(x)}</b></li><li>Players knocked out <b>${x.knocked}</b></li><li>Damage dealt <b>${x.dmg}</b></li></ul>${note ? `<p class="muted small">${note}</p>` : ""}</div>`;
+    const yourOut = y.win ? Infinity : (y.outRound || y.rounds);
+    const botOut = s.win ? Infinity : (s.outRound || s.rounds);
+    const verdict = y.win && !s.win ? "You did better than the bot with this deal: it didn't win from your seat."
+      : s.win && !y.win ? "The bot won from your seat with the same deal. The round by round comparison shows where it went differently."
+      : y.win && s.win ? "You both won with this deal."
+      : botOut > yourOut ? `The bot lasted ${botOut - yourOut} round${botOut - yourOut === 1 ? "" : "s"} longer with the same deal, but didn't win either.`
+      : botOut < yourOut ? `You lasted ${yourOut - botOut} round${yourOut - botOut === 1 ? "" : "s"} longer than the bot with the same deal.`
+      : "You and the bot went out in the same round with this deal.";
+    const rate = m.n ? `<div class="tn-botc"><p class="tn-k">The bot over ${m.n} fresh shuffles</p><b>${m.wins} win${m.wins === 1 ? "" : "s"} of ${m.n}</b><ul><li>Lasted <b>${m.survived}</b> rounds on average</li><li>Etrata cast <b>${m.cmdRound != null ? "round " + m.cmdRound : "never"}</b>${m.cmdShare != null && m.cmdShare < 1 ? ` (${Math.round(m.cmdShare * 100)}% of games)` : ""}</li><li>Players knocked out <b>${m.knocked}</b></li></ul><p class="muted small">Same opening hand and opponents; every library reshuffled after the opening. A fair share is ${Math.round(m.n / 4 * 10) / 10} wins.</p></div>` : "";
+    const R = Math.max(y.rounds || 0, s.rounds || 0);
+    let rows = "";
+    for (let r = 1; r <= R; r++) {
+      const a = (y.rounds_ || {})[r] || [], c = (s.rounds_ || {})[r] || [];
+      if (!a.length && !c.length && r > Math.min(y.rounds, s.rounds)) continue;
+      const cell = (xs, x) => xs.length ? xs.map(esc).join("<br>") : `<span class="muted">${x.lost && r > (x.outRound || x.rounds) ? "out" : "nothing"}</span>`;
+      rows += `<tr><td class="mono">R${r}</td><td>${cell(a, y)}</td><td>${cell(c, s)}</td></tr>`;
+    }
+    return `<section class="tn-sec">${head}
+      <p>${esc(verdict)}</p>
+      <div class="tn-botcs">${card("You", y)}${card("The bot, same deal", s, "Same seat, opening hand, opponents and library order: it draws what you'd have drawn until its plays change the game.")}${rate}</div>
+      ${lifeChart(y, s, rec.hero || 0)}
+      <details class="tn-botrounds"${st.rvd.bt ? " open" : ""}><summary>Round by round, you and the bot</summary><div class="table-wrap"><table class="stack tn-botr"><thead><tr><th>Round</th><th>You</th><th>The bot</th></tr></thead><tbody>${rows}</tbody></table></div></details>
+    </section>`;
+  }
+  function lifeChart(y, s, hero) {
+    const ly = (y.life || []).map(o => [o.r, o.life[hero]]), ls = (s.life || []).map(o => [o.r, o.life[hero]]);
+    if (ly.length < 2 && ls.length < 2) return "";
+    const W = 420, H = 150, pad = 26;
+    const R = Math.max(2, ...ly.map(p => p[0]), ...ls.map(p => p[0]));
+    const max = Math.max(40, ...ly.map(p => p[1]), ...ls.map(p => p[1]));
+    const X = r => pad + ((r - 1) / (R - 1)) * (W - pad * 2), Y = v => H - pad - (Math.max(0, v) / max) * (H - pad * 2);
+    const pl = (pts, cls) => `<polyline points="${pts.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ")}" class="${cls}"/>`;
+    return `<div class="tn-chart tn-lifec"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Your life by round, you and the bot">
+      ${[0, 20, 40].filter(v => v <= max).map(v => `<line x1="${pad}" x2="${W - pad}" y1="${Y(v)}" y2="${Y(v)}" class="grid"/><text x="2" y="${Y(v) + 3}" class="lab">${v}</text>`).join("")}
+      ${Array.from({ length: R }, (_, k) => k + 1).map(r => `<text x="${X(r) - 6}" y="${H - 8}" class="lab">R${r}</text>`).join("")}
+      ${pl(ly, "ln")}${pl(ls, "ln bot")}
+    </svg><p class="muted small"><span class="tn-key you"></span>Your life · <span class="tn-key bot"></span>The bot's life, each round</p></div>`;
   }
   /* Start, what your decisions cost, what the rest did, the result. */
   function luckBar(sum, res) {
