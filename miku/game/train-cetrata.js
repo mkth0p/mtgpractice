@@ -60,9 +60,27 @@
     };
     return FEATURES.map(k => +v[k].toFixed(3));
   }
+  /* For the table-wide value model (value.js): how close this seat's win lines are, and its tools. */
+  function lineFeatures(g, p) {
+    const ai = A();
+    let now = 0, next = 0, later = 0;
+    try {
+      const r = ai.plan(g, p);
+      const ls = r.lines.filter(l => l.when !== "blocked" && l.kill);
+      now = ls.some(l => l.when === "now") ? 1 : 0;
+      next = !now && ls.some(l => l.when === "next") ? 1 : 0;
+      later = !now && !next && ls.length ? 1 : 0;
+    } catch (e) { /* no planner */ }
+    return {
+      now, next, later,
+      tutors: p.hand.filter(c => ai.ALL_TUTORS.includes(c.def.name)).length,
+      counters: p.hand.filter(c => ai.COUNTERS.includes(c.def.name)).length,
+      engines: g.controlled(p, o => ai.ENGINES.includes(o.def.name)).length
+    };
+  }
   // Fitted by tools/sim/train-wp.js; null until then (a hand-set guess is used instead).
   let WP = null;
-  /*WP*/ WP = {"games":4000,"positions":36264,"wins":574,"logloss":0.3835,"brier":0.1168,"w":[-0.9641,-0.2587,1.3122,-1.0044,-0.5672,-1.0505,1.3155,-0.3912,-1.1372,-0.2362,0.6573,0.2246,0.2864,0.1574,2.1598,1.0797,0.3723,-0.1361,0.2214,-0.191,-0.042,0.0292,-0.1228]}; /*WP-END*/
+  /*WP*/ WP = {"games":4000,"positions":36264,"wins":574,"logloss":0.3833,"brier":0.1168,"w":[-0.96,-0.2517,1.3094,-1.0101,-0.576,-1.0419,1.3116,-0.3873,-1.1393,-0.2444,0.6707,0.2284,0.2894,0.154,2.1699,1.1014,0.3731,-0.1272,0.2074,-0.1908,-0.0394,0.0248,-0.1253]}; /*WP-END*/
   const GUESS = { bias: -1.6, round: 0, life: 1.2, oppLifeAvg: -1.4, oppLifeMin: -0.6, oppsLeft: -1.0, myPower: 0.5, oppPowerMax: -0.3, danger: -1.0, lands: 0.4, mana: 0.6, hand: 0.4, etrata: 0.3, tax: -0.2, lineNow: 2.2, lineNext: 1.0, lineLater: 0.3, tutors: 0.5, engines: 0.4, counters: 0.3, faceDown: 0.2, oppHand: -0.3, stolen: 0.3 };
   const sig = x => 1 / (1 + Math.exp(-x));
   function winProb(f) {
@@ -538,7 +556,7 @@
         const avail = r.state.manaNow - tcost;
         let best = 9, line2 = null;
         for (const l of r.lines.filter(l => l.kill && l.when !== "blocked" && !l.missing.length)) {
-          const w = l.mana <= avail && l.when === "now" ? 0 : l.mana <= r.state.manaNext ? 1 : 2;
+          const w = l.mana <= avail && l.when === "now" ? 0 : l.when === "now" || l.when === "next" ? 1 : 2;   // "now"/"next" already check colors
           if (w < best || (w === best && line2 && l.mana < line2.mana)) { best = w; line2 = l; }
         }
         return { n, w: best, l: line2 };
@@ -750,6 +768,28 @@
     flags.sort((a, b) => b.sev - a.sev || a.i - b.i);
     return { flags, ev, stats, swings: swings.slice(0, 8) };
   }
+  /* The skill a decision belongs to, for the analysis engine (analysis.js): the decision's kind and
+     the names of what you did and what was best. */
+  function categorize(m, r) {
+    const ai = A();
+    const mine = (r && r.mine) || m.ans || "", best = (r && (r.best || r.bot)) || "";
+    const both = mine + " | " + best;
+    const has = list => list.some(n => both.includes(n));
+    if (m.k === "mulligan") return "mull";
+    if (m.k === "attack" || m.k === "block") return "combat";
+    if (m.k === "respond") return "stack";
+    if (m.k === "choose") {
+      const src = m.q && m.q.src || "";
+      if ((m.q && /tutor|vault|search/i.test((m.q.purpose || "") + " " + (m.q.prompt || ""))) || ai.ALL_TUTORS.includes(src)) return "tutor";
+      return "rules";
+    }
+    if (/face down|face up|Face-down/i.test(both)) return "etrata";
+    if (has(ai.ALL_TUTORS)) return "tutor";
+    if (/^Play /.test(mine) || /^Play /.test(best) || has(ai.ROCKS) || /Cast Etrata, Deadly Fugitive/.test(both)) return "tempo";
+    if (has(ai.COUNTERS)) return "stack";
+    return "lines";
+  }
+
   /* Moments worth a deep look: flagged ones first, then the biggest swings, then the go-off turns. */
   function criticalMoments(rec, rv, max) {
     rv = rv || review(rec);
@@ -762,7 +802,7 @@
     return out.slice(0, max || 6);
   }
 
-  const T = { id: "corrupted-etrata", FEATURES, features, winProb, snap, tutorPicks, PUZZLES, puzzleFor, goldfish, handValue, bestBottom, mulliganAdvice, dealHand, scenario, describe, lineSpotter, tutorTarget, clockMath, review, criticalMoments, SKILLS, setMULL: m => { MULL = m; }, getMULL: () => MULL, puzzlePlayers, puzzleSetup, setWP: w => { WP = w; }, getWP: () => WP };
+  const T = { id: "corrupted-etrata", FEATURES, features, winProb, lineFeatures, categorize, snap, tutorPicks, PUZZLES, puzzleFor, goldfish, handValue, bestBottom, mulliganAdvice, dealHand, scenario, describe, lineSpotter, tutorTarget, clockMath, review, criticalMoments, SKILLS, setMULL: m => { MULL = m; }, getMULL: () => MULL, puzzlePlayers, puzzleSetup, setWP: w => { WP = w; }, getWP: () => WP };
   (MK.TRAIN = MK.TRAIN || {})["corrupted-etrata"] = T;
   MK.CETRATA_TRAIN = T;
 })(typeof window !== "undefined" ? window : globalThis);

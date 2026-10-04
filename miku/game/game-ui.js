@@ -1540,7 +1540,7 @@
         const rec = this.rec;
         rec.result = { win, draw, rounds, turn: g.turn, conceded: !!this.conceded, killer, winner: g.winner ? g.winner.idx : null, out: g.players.map(p => p.lost ? p.lostReason : ""), life: g.players.map(p => p.life), dmg: me.stats.dmg, ms: Date.now() - this.startedAt };
         // the log, compact: turn lines and the plays, for the review's timeline
-        rec.log = g.logs.filter(e => e.kind !== "mana").slice(-900).map(e => [e.kind || "", e.p ? e.p.idx : -1, String(e.text || "").slice(0, 220)]);
+        rec.log = g.logs.filter(e => e.kind !== "mana").slice(-900).map(e => [e.kind || "", e.p ? e.p.idx : -1, String(e.text || "").slice(0, 220), e.turn]);
         try { if (this.gm.onDone) this.gm.onDone(rec); } catch (err) { console.error("[miku game] practice save", err); }
       }
       const st = loadStats();

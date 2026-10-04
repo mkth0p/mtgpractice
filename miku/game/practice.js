@@ -265,7 +265,13 @@
     const hero = rec.hero;
     const guard = (g) => {
       if (st.stopRound != null && g.round >= st.stopRound && !g.over) g.end(null, { horizon: true });
-      if (st.pendingShuffle && !g.over) { st.pendingShuffle = false; for (const q of g.players) if (!q.lost) g.shuffleArr(q.library); }
+      if (st.pendingShuffle && !g.over) { st.pendingShuffle = false; reshuffle(g); }
+    };
+    // nobody knew the order of any library, and the person didn't know what the others held:
+    // shuffle every library and, with `hidden`, deal each opponent a new hand from their unseen cards
+    const reshuffle = (g) => {
+      for (const q of g.players) if (!q.lost) g.shuffleArr(q.library);
+      if (opts.hidden) P.resampleHands(g, g.players[hero]);
     };
     const fallback = (k, ctx) => k === "mulligan" ? true : k === "main" ? { type: "pass" } : k === "attack" || k === "block" ? [] : k === "respond" ? null : (ctx && ctx.type === "confirm" ? false : ctx && ctx.options && ctx.options.length ? (ctx.type === "cards" || ctx.type === "targets" ? ctx.options.slice(0, ctx.min || 0) : ctx.type === "option" ? ctx.options[0].id : ctx.type === "number" ? ctx.min : ctx.options[0]) : null);
     const g = buildGame(rec, (i, d, s) => {
@@ -295,8 +301,10 @@
         st.branched = true; st.bot = true;
         if (opts.reseed != null) {
           g.random = MK.rng(opts.reseed);
-          if (k === "choose") st.pendingShuffle = true; else for (const q of g.players) if (!q.lost) g.shuffleArr(q.library);
+          if (k === "choose") st.pendingShuffle = true; else reshuffle(g);
         }
+        st.logFrom = g.logs.length ? g.logs[g.logs.length - 1].n + 1 : 0;
+        st.branchRound = g.round;
         if (opts.horizon != null) st.stopRound = g.round + opts.horizon;
         return r.answer;
       };
@@ -306,6 +314,22 @@
     try { await g.play(); }
     catch (e) { st.error = String(e && e.message || e); }
     return st;
+  };
+
+  /* Deals each opponent of `me` a new hand of the same size from the cards `me` can't see (their
+     hand and library together). Commanders in hand stay: everyone saw them go there. */
+  P.resampleHands = function (g, me) {
+    for (const q of g.players) {
+      if (q === me || q.lost || !q.hand.length) continue;
+      const keep = q.hand.filter(o => o.isCommander || (o.state && o.state.revealed));
+      const back = q.hand.filter(o => !keep.includes(o));
+      if (!back.length) continue;
+      for (const o of back) { o.zone = "library"; q.library.push(o); }
+      g.shuffleArr(q.library);
+      q.hand.length = 0;
+      for (const o of keep) q.hand.push(o);
+      for (let k = 0; k < back.length && q.library.length; k++) { const o = q.library.shift(); o.zone = "hand"; q.hand.push(o); }
+    }
   };
 
   /* The score of a finished or stopped rollout for the seat: 1 win, 0 loss, the model otherwise. */

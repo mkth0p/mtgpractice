@@ -104,27 +104,34 @@ async function openAssess(browser, srv, onError) {
   await page.waitForFunction(() => window.MikuGame && MikuGame.Lobby.table && MikuGame.Lobby.table.g, null, { timeout: 30000 });
   return { ctx, page };
 }
-/* After an assessment game: the review opens, renders its chart and moments, and one moment replays. */
+/* After an assessment game: the review opens and analyzes itself (every decision, then the costly
+   ones in depth, in workers), and renders the score, the chart and the deep moment cards. */
 async function checkReview(page) {
   try {
     await page.waitForSelector(".mg-over [data-e='review']", { timeout: 15000 });
     await page.click(".mg-over [data-e='review']");
-    await page.waitForSelector(".tn-review .tn-moments", { timeout: 15000 });
-    const info = await page.evaluate(() => ({ moments: document.querySelectorAll(".tn-mo").length, chart: !!document.querySelector(".tn-chart svg"), flags: document.querySelectorAll(".tn-flag").length, saved: JSON.parse(localStorage.getItem("cetrataWiki.games.v1") || "[]").length }));
-    console.log(`  game ${gameNo}: review with ${info.moments} key moments, ${info.flags} flags, chart ${info.chart}, ${info.saved} saved games`);
-    if (!info.moments) return note("review", "no key moments");
-    const before = await page.evaluate(() => Object.values(JSON.parse(localStorage.getItem("cetrataWiki.analysis.v1") || "{}")).reduce((n, x) => n + Object.keys(x).length, 0));
-    await page.click(".tn-mo .tn-moh");
-    await page.click(".tn-mo.open [data-one]");
-    await page.waitForFunction(n => Object.values(JSON.parse(localStorage.getItem("cetrataWiki.analysis.v1") || "{}")).reduce((k, x) => k + Object.keys(x).length, 0) > n, before, { timeout: 180000 });
-    await page.waitForTimeout(300);
+    await page.waitForSelector(".tn-review", { timeout: 15000 });
+    const t0 = Date.now();
+    await page.waitForFunction(() => {
+      const a = JSON.parse(localStorage.getItem("cetrataWiki.analysis.v2") || "{}"), id = (JSON.parse(localStorage.getItem("cetrataWiki.games.v1") || "[]")[0] || {}).id;
+      return id && a[id] && a[id].sum && !document.querySelector(".tn-progress");
+    }, null, { timeout: 600000, polling: 1000 });
+    await page.waitForTimeout(500);
     const r = await page.evaluate(() => {
-      const a = JSON.parse(localStorage.getItem("cetrataWiki.analysis.v1")), recId = JSON.parse(localStorage.getItem("cetrataWiki.games.v1"))[0].id, one = Object.values(a[recId] || {})[0] || {};
-      const rows = [...document.querySelectorAll(".tn-mo.open .tn-cands tbody tr")];
-      return { rows: rows.length, verdict: (document.querySelector(".tn-mo.open .tn-verdict") || {}).textContent, error: one.error, ms: one.ms, worker: !!(window.MikuApp && window.MikuApp.gameInfo) };
+      const a = JSON.parse(localStorage.getItem("cetrataWiki.analysis.v2")), rec = JSON.parse(localStorage.getItem("cetrataWiki.games.v1"))[0], an = a[rec.id];
+      const deep = Object.values(an.deep || {});
+      return {
+        decisions: (rec.moments || []).filter(m => !m.replayed).length, quick: Object.keys(an.quick).length, qerr: Object.values(an.quick).filter(x => x.error).map(x => x.error).slice(0, 3),
+        deep: deep.length, derr: deep.filter(x => x.error).map(x => x.error).slice(0, 3), acc: an.sum.accuracy, skill: an.sum.skill, luck: an.sum.luck,
+        cards: document.querySelectorAll(".tn-mo").length, rows: document.querySelectorAll(".tn-mo.open .tn-cands tbody tr").length, chart: !!document.querySelector(".tn-chart svg .dot"),
+        flags: document.querySelectorAll(".tn-flag").length, workers: !!(window.MikuApp && window.MikuApp.gameInfo)
+      };
     });
-    console.log(`  game ${gameNo}: replayed a moment: ${r.rows} options, ${r.verdict}`);
-    if (!r.rows) note("review", "the replay gave no options", r);
+    console.log(`  game ${gameNo}: analyzed ${r.quick}/${r.decisions} decisions and ${r.deep} in depth in ${((Date.now() - t0) / 1000).toFixed(0)} s: accuracy ${r.acc}, skill ${r.skill}, luck ${r.luck}; ${r.cards} moment cards (${r.rows} options open), ${r.flags} flags, chart ${r.chart}`);
+    if (r.quick < r.decisions) note("review", "not every decision was analyzed", r);
+    if (r.qerr.length || r.derr.length) note("review", "analysis errors", { q: r.qerr, d: r.derr });
+    if (!r.chart) note("review", "no chart");
+    if (r.deep && !r.rows) note("review", "the open moment shows no options", r);
   } catch (e) { note("review", e.message.split("\n")[0]); }
 }
 

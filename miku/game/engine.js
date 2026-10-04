@@ -518,7 +518,9 @@
     /* ------------------------------------------------ log and events */
     log(text, extra) {
       if (this.quiet && !(extra && (extra.kind === "lose" || extra.kind === "win" || extra.kind === "turn" || extra.loud))) return null;
-      const e = Object.assign({ n: this.logs.length, turn: this.turn, text }, extra || {});
+      // n keeps counting after old entries are dropped, so it always orders the log
+      this.logN = this.logN == null ? this.logs.length : this.logN;
+      const e = Object.assign({ n: this.logN++, turn: this.turn, text }, extra || {});
       this.logs.push(e);
       if (this.logs.length > 600) this.logs.splice(0, this.logs.length - 600);
       if (this.ui && this.ui.log) this.ui.log(e);

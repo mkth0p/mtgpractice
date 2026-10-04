@@ -259,6 +259,15 @@ const opps = (g, a) => g.players.filter(q => q !== a);
   { const { g, a } = table(); lands(g, a, 4); put(g, a, "Etrata, Deadly Fugitive"); const br = hand(g, a, "Brine Elemental"); g.putFaceDown(a, [br], { kind: "morph" }); await g.settle();
     check("coach: flip Brine with Etrata", deck.coach.tips(g, a).some(x => /Flip Brine/.test(x.title))); }
 
+  // The planner counts colors, not just mana: seven colorless-or-white mana can't start Mindcrank ({3}{U}{U}{B}{B})
+  for (const [label, src] of [["Plains and rocks", ["Plains", "Plains", "Plains", "Plains", "Sol Ring", "Mind Stone"]], ["Islands and Swamps", ["Island", "Swamp", "Island", "Swamp", "Sol Ring", "Mind Stone"]]]) {
+    const { g, a } = table(); for (const n of src) put(g, a, n); put(g, a, "Mindcrank"); put(g, a, "Duskmantle Guildmage"); await g.settle();
+    g.v = (g.v || 0) + 1;
+    const l = MK.CETRATA_AI.plan(g, a).lines.find(x => x.key === "mindcrank");
+    const want = label === "Islands and Swamps" ? "now" : "later";
+    check(`planner: Mindcrank with ${label} is ${want}`, !!l && l.when === want, l && { when: l.when, cost: l.cost, colorShort: l.colorShort });
+  }
+
   // Bot games: no engine errors, the deck wins some
   { let errors = 0, wins = 0;
     const opp = MK.BOT_DECKS.filter(d => d.bracket === 4 && d.id !== deck.id);
