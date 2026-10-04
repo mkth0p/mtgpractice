@@ -243,3 +243,4 @@
 .tn-mine { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .tn-mine li { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
 @media (max-width: 560px) { .tn-luck { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tn-why li { grid-template-columns: minmax(0, 1fr) auto auto; } .tn-why li > .muted { display: none; } }
+.tn-export { display: grid; gap: 4px; margin-top: 12px; justify-items: start; }

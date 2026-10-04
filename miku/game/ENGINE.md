@@ -410,7 +410,10 @@ Corrupted Etrata's Train tab (`corrupted-etrata/train.js`) is built on two engin
   else), swings and breakdowns by skill, phase and time taken. `A.ANCHORS` holds the accuracy of a
   random player and of the bot, the ends of the report's strength scale.
 
-Replays must match the recorded game exactly, so anything that runs while the person thinks
+Never roll dice inside a sort comparator: how often a comparator runs depends on the JavaScript
+engine, so the same seed played out differently in Chrome and Node (engine 3 fixed the bots'
+attack target; games recorded before it replay with `legacyAttackSort`, and judge-export.js runs
+them in Chromium). Replays must match the recorded game exactly, so anything that runs while the person thinks
 (the snapshot's planner, the screen's helpers) must not touch `g.random` or keep objects: the
 recorder swaps the dice and rewinds `MK.objSeq` around each answer. A card that asks about
 objects in no zone must put them in the question's `options` or `cards`, where the replay looks
@@ -425,6 +428,7 @@ node tools/sim/test-practice.js --games 12   # recorded games replay line for li
 node tools/sim/test-train.js                 # every puzzle solvable and not by passing, drills valid
 node tools/sim/test-analysis.js --games 2 [--person random]   # the analysis engine adds up and repeats
 node tools/sim/train-value.js --games 10000 --threads 4 --data /tmp/val.json --write   # refit the value model (writes value.js)
+node tools/sim/judge-export.js export.json --deep   # rerun the analysis on a Train tab export and compare
 node tools/sim/calibrate-analysis.js --games 8 --write   # random-player and bot accuracy anchors (writes analysis.js)
 node tools/sim/train-wp.js --games 4000 --write   # refit the old Etrata win-chance model (writes train-cetrata.js)
 node tools/sim/mull-values.js --write             # recompute the mulligan values

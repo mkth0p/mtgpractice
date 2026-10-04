@@ -591,7 +591,12 @@
         s += g.random() * 6 * (1 - skill + 0.3);
         return s;
       };
-      const ranked = opps.slice().sort((a, b) => scoreQ(b) - scoreQ(a));
+      // score each opponent once: a comparator that rolls dice makes the number of rolls depend on
+      // the browser's sort, so the same seed played out differently in Chrome and Node. Games
+      // recorded before engine 3 keep the old order so their replays still match.
+      let ranked;
+      if (g.opts && g.opts.legacyAttackSort) ranked = opps.slice().sort((a, b) => scoreQ(b) - scoreQ(a));
+      else { const sc = new Map(opps.map(q => [q, scoreQ(q)])); ranked = opps.slice().sort((a, b) => sc.get(b) - sc.get(a)); }
       const q = ranked[0];
       const qBlockers = blockersOf(g, q);
       // crack-back risk: how hard the table can hit us next turn
