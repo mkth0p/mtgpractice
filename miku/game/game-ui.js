@@ -218,6 +218,8 @@
       const casualOf = d => d.casual != null ? d.casual : (d.deck.bracket || 4) <= 2;
       const players = pm && pm.kind === "puzzle" ? pm.puzzle.players(this) : seats.map((d, i) => {
         if (d.human) return { name: "You", commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, human: true, agent: this.humanAgent(), deckId: d.deck.id };
+        // watching: your deck is a bot too, named apart from a bot of the same deck
+        if (d.watch) { const bot = MK.AI.create({ skill: 1, aggression: aggrOf(d), casual: false }); return { name: `${d.deck.name} (your deck)`, commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, agent: this.paced(bot), deckId: d.deck.id }; }
         const bot = MK.AI.create({ skill: skillOf(d), aggression: aggrOf(d), casual: casualOf(d) });
         return { name: d.deck.name, commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, agent: this.paced(bot), deckId: d.deck.id };
       });
@@ -242,7 +244,13 @@
       if (pm && pm.kind === "puzzle") Object.assign(gopts, { setup: g => pm.puzzle.setup(g), stopAtTurn: pm.puzzle.stopAtTurn || 1, round: pm.puzzle.round || 1, maxTurns: 40 });
       const g = this.g = new MK.Game(gopts);
       g.players.forEach((p, i) => { p.color = PLAYER_COLORS[i % PLAYER_COLORS.length]; p.deckId = players[i].deckId || "miku"; });
-      this.me = g.players.find(p => p.human);
+      // a bot game (Watch) has no human: the screen follows one bot's seat instead
+      this.watching = !g.players.some(p => p.human);
+      this.me = g.players.find(p => p.human) || g.players[Math.max(0, seats.findIndex(d => d.follow))];
+      this.el.classList.toggle("watching", this.watching);
+      this.el.style.setProperty("--me-label", JSON.stringify(this.watching ? this.me.name : "You"));
+      this.el.style.setProperty("--me-turn", JSON.stringify(this.watching ? this.me.name + " · their turn" : "You · your turn"));
+      this.el.querySelector(".mg-board.me .cre").dataset.empty = this.watching ? "No creatures" : "Your creatures appear here";
       // the same draw of the game's dice the practice replays make (practice.js buildGame)
       g.activeIdx = pm && pm.kind === "puzzle" ? heroIdx : g.rand(g.players.length);
       if (this.rec) this.rec.first = g.activeIdx;
@@ -408,7 +416,7 @@
       const ph = { untap: 0, upkeep: 1, draw: 2, main1: 3, combat: 4, attackers: 4, blockers: 4, damage: 4, endCombat: 4, main2: 5, end: 6, cleanup: 6, setup: -1 }[g.phase];
       const label = { setup: "Getting ready", untap: "Untap", upkeep: "Upkeep", draw: "Draw", main1: "Main phase", combat: "Combat", attackers: "Attackers", blockers: "Blockers", damage: "Combat damage", endCombat: "End of combat", main2: "Second main", end: "End step", cleanup: "Cleanup" }[g.phase] || g.phase;
       const mine = g.phase !== "setup" && g.active === this.me;
-      const who = g.phase === "setup" ? "Mulligans" : mine ? "Your turn" : esc(g.active.name) + "'s turn";
+      const who = g.phase === "setup" ? "Mulligans" : mine && !this.watching ? "Your turn" : esc(g.active.name) + "'s turn";
       // two short lines: whose turn it is, then where in the turn we are (nothing gets cut off on a phone)
       const html = `<span class="l1"><b>Turn ${Math.max(1, g.round)}</b><span class="who${mine ? " me" : ""}" style="--pc:${mine || !g.active ? "var(--miku)" : g.active.color}">${who}</span></span><span class="l2"><span class="steps">${steps.map((s, i) => `<i class="${i === ph ? "on" : i < ph ? "done" : ""}"></i>`).join("")}</span><span class="step">${esc(label)}</span></span>`;
       if (this.$.phase._html !== html) { this.$.phase.innerHTML = html; this.$.phase._html = html; }
@@ -647,7 +655,7 @@
       if (box._html !== html) { box.innerHTML = html; box._html = html; }
       this.tickNew = false;
     }
-    targetName(a) { const t = a.combat && a.combat.attacking; return t ? (this.g.isPlayer(t) ? (t === this.me ? "at you" : "at " + t.name) : "at " + t.def.name) : ""; }
+    targetName(a) { const t = a.combat && a.combat.attacking; return t ? (this.g.isPlayer(t) ? (t === this.me && !this.watching ? "at you" : "at " + t.name) : "at " + t.def.name) : ""; }
     renderMyBar() {
       const g = this.g, me = this.me;
       const cmd = me.commanders[0];
@@ -724,8 +732,8 @@
         const tip = this.topTip(true);
         html = `<div class="hint">${tip || `Tap a glowing card, or see all ${n} option${n === 1 ? "" : "s"}.`}</div><button class="mg-btn" data-act="respond">Options</button><button class="mg-btn go" data-act="rpass">Pass</button>`;
       } else if (m === "wait") {
-        const who = g.active === this.me ? "Resolving..." : `${esc(g.active.name)} is playing.`;
-        html = `<div class="hint">${who}</div><button class="mg-btn" data-act="ff" aria-label="Skip the animations for this turn">Skip ▸▸</button>`;
+        const who = this.watching ? `Watching <b>${esc(this.me.name)}</b>` : g.active === this.me ? "Resolving..." : `${esc(g.active.name)} is playing.`;
+        html = `<div class="hint">${who}</div>${this.watching ? `<button class="mg-btn" data-act="follow" aria-label="Follow the next player">Follow next</button>` : ""}<button class="mg-btn" data-act="ff" aria-label="Skip the animations for this turn">Skip ▸▸</button>`;
       } else if (m === "prompt") {
         html = `<div class="hint">Answer the question to go on.</div><button class="mg-btn go" data-act="prompt">Show question</button>`;
       } else html = `<div class="hint"></div>`;
@@ -737,7 +745,7 @@
       const li = document.createElement("li");
       const p = e.p;
       // the header counts rounds (everyone's turn once), so the log does too: "Turn 3 · Kaalia"
-      if (e.kind === "turn") { li.className = "turn"; li.textContent = p && this.g ? `Turn ${Math.max(1, this.g.round)} · ${p === this.me ? "You" : p.name}${e.extra ? " · extra turn" : ""}` : e.text.replace(/\.$/, ""); if (p && p.color) li.style.setProperty("--pc", p === this.me ? "var(--miku)" : p.color); }
+      if (e.kind === "turn") { li.className = "turn"; li.textContent = p && this.g ? `Turn ${Math.max(1, this.g.round)} · ${p === this.me && !this.watching ? "You" : p.name}${e.extra ? " · extra turn" : ""}` : e.text.replace(/\.$/, ""); if (p && p.color) li.style.setProperty("--pc", p === this.me ? "var(--miku)" : p.color); }
       else {
         // prefixed: a bare "search" line used to pick up the site's search box style
         li.className = e.kind ? "k-" + e.kind : "";
@@ -779,7 +787,7 @@
       this.$.fx.querySelectorAll(".mg-banner").forEach(x => x.remove());
       const b = document.createElement("div");
       b.className = "mg-banner" + (p === this.me ? " me" : "");
-      b.innerHTML = `<b>TURN ${Math.max(1, this.g.round)}</b><span>${p === this.me ? "Your turn" : esc(p.name)}</span>`;
+      b.innerHTML = `<b>TURN ${Math.max(1, this.g.round)}</b><span>${p === this.me && !this.watching ? "Your turn" : esc(p.name)}</span>`;
       this.$.fx.appendChild(b);
       setTimeout(() => b.remove(), 1500);
     }
@@ -937,8 +945,9 @@
         case "coachplan": this.coachTab = "plan"; this.showCoach(); break;
         case "rpass": this.resolve(null); break;
         case "ff": this.fastForward = true; this.spotOut(); this.render(); break;
-        case "concede": this.$.menu.classList.remove("on"); if (confirm("Concede this game?")) { this.conceded = true; g.lose(this.me, "concede"); if (!g.over) g.end(null, { humanLost: true }); this.resolve(null); } break;
-        case "leave": this.$.menu.classList.remove("on"); if (g.over || confirm("Leave this game? It won't be saved.")) { this.left = true; if (!g.over) { this.conceded = true; g.lose(this.me, "concede"); if (!g.over) g.end(null, { humanLost: true }); } this.resolve(null); this.destroy(); if (this.opts.onExit) this.opts.onExit(); } break;
+        case "follow": { if (!this.watching) break; const ps = g.players; this.me = ps[(this.me.idx + 1) % ps.length]; const o = this.opps(); this.focusId = o[0] && o[0].id; this.el.style.setProperty("--me-label", JSON.stringify(this.me.name)); this.el.style.setProperty("--me-turn", JSON.stringify(this.me.name + " · their turn")); this.toast(`Following ${this.me.name}`); this.render(); break; }
+        case "concede": this.$.menu.classList.remove("on"); if (this.watching) break; if (confirm("Concede this game?")) { this.conceded = true; g.lose(this.me, "concede"); if (!g.over) g.end(null, { humanLost: true }); this.resolve(null); } break;
+        case "leave": this.$.menu.classList.remove("on"); if (g.over || this.watching || confirm("Leave this game? It won't be saved.")) { this.left = true; if (!g.over && this.watching) g.end(null, { left: true }); if (!g.over) { this.conceded = true; g.lose(this.me, "concede"); if (!g.over) g.end(null, { humanLost: true }); } this.resolve(null); this.destroy(); if (this.opts.onExit) this.opts.onExit(); } break;
         case "rules": this.$.menu.classList.remove("on"); this.showRules(); break;
         case "close": this.closeSheet(); break;
         case "prompt": this.showPrompt(); break;
@@ -1431,7 +1440,7 @@
     }
     playerChip(p, sel) {
       const cmd = p.commanders[0], a = cmd && K.art(cmd.def.name);
-      return `<button class="mg-pl${sel ? " sel" : ""}" data-p="${p.id}"><span class="av" style="${a ? `background-image:url('${a.crop}')` : ""}"></span><span>${esc(p === this.me ? "You" : p.name)}</span><b>${p.life}</b></button>`;
+      return `<button class="mg-pl${sel ? " sel" : ""}" data-p="${p.id}"><span class="av" style="${a ? `background-image:url('${a.crop}')` : ""}"></span><span>${esc(p === this.me && !this.watching ? "You" : p.name)}</span><b>${p.life}</b></button>`;
     }
     targetSheet(req) {
       const g = this.g;
@@ -1538,6 +1547,7 @@
       const rounds = Math.max(1, g.round);
       const killer = !win && !draw ? youText((g.logs.slice().reverse().find(e => e.kind === "lose" && e.p === me) || {}).text || "") : "";
       if (this.gm && this.gm.kind === "puzzle") return this.finishPuzzle();
+      if (this.watching) return this.finishWatch();
       if (this.rec && !this.left) {
         const rec = this.rec;
         rec.result = { win, draw, rounds, turn: g.turn, conceded: !!this.conceded, killer, winner: g.winner ? g.winner.idx : null, out: g.players.map(p => p.lost ? p.lostReason : ""), life: g.players.map(p => p.life), dmg: me.stats.dmg, ms: Date.now() - this.startedAt };
@@ -1580,6 +1590,28 @@
         if (b.dataset.e === "lobby") { this.destroy(); if (this.opts.onExit) this.opts.onExit(); }
         if (b.dataset.e === "again") { this.destroy(); if (this.opts.onRematch) this.opts.onRematch(this.seats); }
         if (b.dataset.e === "review") { const rec = this.rec, gm = this.gm; this.destroy(); if (this.opts.onExit) this.opts.onExit(); if (gm && gm.onReview) gm.onReview(rec); }
+      });
+    }
+    /* A bot game you watched: who won, and how the seat you followed did. Not counted in your record. */
+    finishWatch() {
+      if (this.left) return;
+      const g = this.g, me = this.me;
+      const rounds = Math.max(1, g.round);
+      const over = document.createElement("div");
+      over.className = "mg-over";
+      const title = g.winner ? `${esc(g.winner.name)} wins` : "Draw";
+      const line = p => `<li><b>${esc(p.name)}</b>: ${p === g.winner ? `won in round ${rounds}` : p.lost ? `out (${esc({ life: "life", poison: "poison", commander: "commander damage", library: "empty library", concede: "conceded" }[p.lostReason] || p.lostReason || "lost")})` : `${p.life} life at the end`}, ${p.stats.dmg} damage dealt, ${Object.values(p.stats.cast).reduce((a, b) => a + b, 0)} spells</li>`;
+      over.innerHTML = `<h2 class="${g.winner === me ? "win" : "loss"}">${title}</h2><p>${g.winner ? `Round ${rounds}.` : "The game hit the turn limit."} You were following ${esc(me.name)}.</p>
+        <ol class="watch-sum">${g.players.map(line).join("")}</ol>
+        <p class="muted small">Bot games don't count in your record.</p>
+        <div class="btns"><button class="mg-btn" data-e="log">Game log</button><button class="mg-btn" data-e="lobby">Lobby</button><button class="mg-btn go" data-e="again">Watch again</button></div>`;
+      this.el.appendChild(over);
+      over.addEventListener("click", e => {
+        const b = e.target.closest("[data-e]");
+        if (!b) return;
+        if (b.dataset.e === "log") { over.style.display = "none"; this.$.log.classList.add("on"); this.$.log.querySelector("[data-act]").addEventListener("click", () => { over.style.display = ""; }, { once: true }); }
+        if (b.dataset.e === "lobby") { this.destroy(); if (this.opts.onExit) this.opts.onExit(); }
+        if (b.dataset.e === "again") { this.destroy(); if (this.opts.onRematch) this.opts.onRematch(this.seats); }
       });
     }
     /* A puzzle ends with the turn: solved when the goal check says so. */
@@ -1674,6 +1706,9 @@
             <div class="set-row col"><span class="set-label">Who you face <small>${decks.some(d => (s.picks || []).includes(d.id)) ? "picked" : "random each game"}</small></span>
               <div class="bot-picks">${decks.map(d => `<button class="bot-pick${(s.picks || []).includes(d.id) ? " on" : ""}" data-pick="${esc(d.id)}" aria-pressed="${(s.picks || []).includes(d.id)}"><span class="bp-art" data-art-crop="${esc(d.commander)}"></span><span class="bp-name">${esc(d.name)}</span><span class="bp-dots">${colorDots(d.identity)}</span></button>`).join("")}</div></div>
             <button class="btn primary big start" data-start>Shuffle up and play</button>
+            <div class="set-row col watch-row"><span class="set-label">Watch a bot game <small>every seat is a bot, with the decks above</small></span>
+              ${(() => { const fol = this.followable(s); const cur = fol.find(d => d.id === s.follow) || fol[0]; return fol.length > 1 ? `<div class="seg small" role="radiogroup" aria-label="Which bot to follow">${fol.map(d => `<button role="radio" aria-checked="${d === cur}" data-follow="${esc(d.id)}">${esc(d === hero ? `${d.label || d.name} (your deck)` : d.name)}</button>`).join("")}</div>` : ""; })()}
+              <button class="btn big watch" data-watch>Watch bots play</button></div>
           </div>
           <div class="lobby-record">
             <div class="rec"><b>${st.games}</b><span>games</span></div>
@@ -1711,8 +1746,15 @@
         saveSettings(Object.assign(cur, { picks: [...picks] })); this.render();
       }));
       host.querySelector("[data-start]").addEventListener("click", () => this.start());
+      host.querySelectorAll("[data-follow]").forEach(b => b.addEventListener("click", () => { saveSettings(Object.assign(settings(), { follow: b.dataset.follow })); this.render(); }));
+      host.querySelector("[data-watch]").addEventListener("click", () => this.start(this.seats(true)));
     },
-    seats() {
+    /* who a bot game can follow: your deck, or one of the decks you picked to face */
+    followable(s) {
+      const hero = this.hero(s);
+      return [hero].concat(this.pool(s).filter(d => (s.picks || []).includes(d.id))).filter(Boolean);
+    },
+    seats(watch) {
       const s = settings();
       const decks = this.pool(s);
       const n = Math.max(1, Math.min(3, s.opponents || 3));
@@ -1723,7 +1765,13 @@
       while (out.length < n && pool.length) { const d = rnd(pool); out.push(d); left.splice(left.indexOf(d), 1); }
       while (out.length < n && left.length) out.push(rnd(left));
       while (out.length < n) out.push(decks[out.length % decks.length] || MK.MIKU_DECK);
-      return [{ human: true, deck: this.hero(s) || MK.MIKU_DECK }].concat(out.map(d => ({ deck: d })));
+      const mine = this.hero(s) || MK.MIKU_DECK;
+      if (!watch) return [{ human: true, deck: mine }].concat(out.map(d => ({ deck: d })));
+      // a bot game: your deck plays as a bot, and the screen follows the deck you chose
+      const seats = [{ watch: true, deck: mine }].concat(out.map(d => ({ deck: d })));
+      const f = seats.find(x => x.deck.id === s.follow) || seats[0];
+      f.follow = true;
+      return seats;
     },
     start(seats) {
       if (this.table) this.table.destroy();
