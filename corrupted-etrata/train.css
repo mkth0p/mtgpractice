@@ -244,3 +244,19 @@
 .tn-mine li { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
 @media (max-width: 560px) { .tn-luck { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tn-why li { grid-template-columns: minmax(0, 1fr) auto auto; } .tn-why li > .muted { display: none; } }
 .tn-export { display: grid; gap: 4px; margin-top: 12px; justify-items: start; }
+
+/* the bot in your seat */
+.tn-botcs { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin: 10px 0; }
+.tn-botc { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--surface); }
+.tn-botc > b { display: block; font-size: 1.05rem; margin: 2px 0 6px; }
+.tn-botc > b.w { color: var(--teal); }
+.tn-botc > b.l { color: var(--pink); }
+.tn-botc ul { list-style: none; margin: 0; padding: 0; font-size: .88rem; }
+.tn-botc li { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; }
+.tn-botc p { margin: 6px 0 0; }
+.tn-lifec .ln.bot { stroke: var(--pink-fill); stroke-dasharray: 5 3; }
+.tn-key { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin: 0 4px 0 2px; background: var(--teal-fill); }
+.tn-key.bot { background: var(--pink-fill); }
+.tn-botrounds summary { cursor: pointer; font-weight: 600; margin: 8px 0; }
+.tn-botr td { vertical-align: top; font-size: .86rem; }
+.tn-botr td:first-child { white-space: nowrap; }

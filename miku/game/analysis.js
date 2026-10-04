@@ -24,9 +24,9 @@
   const MK = root.MK;
   const P = MK.Practice;
   const A = MK.Analysis = MK.Analysis || {};
-  A.VERSION = 2;
+  A.VERSION = 3;   // 3: the playout bot tutors like a bot; land choices look further ahead
   // accuracy of a random player and of the bot on this scale, from tools/sim/calibrate-analysis.js
-  /*ANCHORS*/ A.ANCHORS = { random: 83.0, bot: 98.6 }; /*ANCHORS-END*/
+  /*ANCHORS*/ A.ANCHORS = { random: 87.7, bot: 99.9 }; /*ANCHORS-END*/
 
   const mean = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0;
   function pairedStats(a, b) {
@@ -75,6 +75,17 @@
         const mine = i < rec.answers.length ? P.deAnswer(g, rec.answers[i], ctx) : undefined;
         let list = await P.candidates(g, p, k, ctx, heroBot, mine);
         list = list.concat(await extraCandidates(g, p, k, ctx, list));
+        // the same play twice (two copies of a land, the same spell from two cards) is one option:
+        // racing both only splits the playouts and shows the noise as two different numbers
+        const byLabel = new Map();
+        for (const c of list) {
+          const prev = byLabel.get(c.label);
+          if (!prev) { byLabel.set(c.label, c); continue; }
+          const keep = c.tags.includes("you") && !prev.tags.includes("you") ? c : prev, other = keep === c ? prev : c;
+          keep.tags = [...new Set(keep.tags.concat(other.tags))];
+          byLabel.set(c.label, keep);
+        }
+        list = [...byLabel.values()];
         if (opts.only) list = list.filter(c => c.tags.some(t => opts.only.includes(t)));
         info = { kind: k, round: g.round, turn: g.turn, mineTurn: g.active === p, cands: list.map(c => ({ label: c.label, tags: c.tags, raw: P.serAnswer(g, k, ctx, c.answer) })) };
         return { stop: true };
@@ -167,13 +178,21 @@
     const mine = cands.find(c => c.tags.includes("you"));
     if (!mine) return { i, error: "No recorded answer here." };
     const same = cands.length === 1;
-    const n = opts.n || 8;
-    const { ok } = await A.race(rec, i, cands, { n0: n, budget: same ? n : n * 2 + (opts.extra == null ? 12 : opts.extra), horizon: opts.horizon == null ? 2 : opts.horizon, onProgress: opts.onProgress });
+    const land = cands.length === 2 && landChoice(cands[0].label, cands[1].label);
+    const n = (opts.n || 8) + (land ? 4 : 0);
+    const { ok } = await A.race(rec, i, cands, { n0: n, budget: same ? n : n * 2 + (opts.extra == null ? 12 : opts.extra), horizon: opts.horizon != null ? opts.horizon : land ? LAND_HORIZON - 1 : 2, onProgress: opts.onProgress });
     const m = ok.find(c => c.tags.includes("you")), b = ok.find(c => c.tags.includes("bot")) || m;
     if (!m) return { i, error: "The playouts failed." };
     const before = Math.max(m.eq, b.eq);
     return { i, kind: o.kind, round: o.round, mine: m.label, bot: b.label, same, vMine: +m.eq.toFixed(4), vBot: +b.eq.toFixed(4), before: +before.toFixed(4), loss: +Math.max(0, b.eq - m.eq).toFixed(4), se: +(m === b ? 0 : (m.se || 0)).toFixed(4), n: m.n, ms: Date.now() - t0 };
   };
+
+  /* A choice between lands (or a land and passing): its effect shows up turns later, so it gets a
+     longer look ahead and a stricter noise margin. */
+  const isLand = l => /^Play /.test(l || "");
+  const landChoice = (a, b) => isLand(a) && (isLand(b) || /^Pass$/.test(b || "")) || isLand(b) && /^Pass$/.test(a || "");
+  A.landChoice = landChoice;
+  const LAND_HORIZON = 5;
 
   /* Deep look at decision i: every option, then why the best one is better. */
   A.deep = async function (rec, i, opts) {
@@ -185,8 +204,13 @@
     // you, the bot and Pass first; then the rest in the order the engine lists them
     const rank = c => c.tags.includes("you") ? 0 : c.tags.includes("bot") ? 1 : /^(Pass|No attack|No blocks|Keep|Mulligan|Yes|No)$/.test(c.label) ? 2 : 3;
     cands = cands.slice().sort((a, b) => rank(a) - rank(b)).slice(0, opts.maxCands || 9);
-    const horizon = opts.horizon == null ? 3 : opts.horizon;
-    const race = await A.race(rec, i, cands, { n0: opts.n0 || 6, budget: opts.budget || Math.max(60, cands.length * 16), horizon, features: true, onProgress: opts.onProgress });
+    const mineC = cands.find(c => c.tags.includes("you"));
+    const land = o.kind === "main" && mineC && isLand(mineC.label) && cands.filter(c => isLand(c.label)).length >= 2;
+    // a tutor pays off a turn or two later, when the piece it found comes down
+    const tutors = (MK.CETRATA_AI && MK.CETRATA_AI.ALL_TUTORS) || [];
+    const tutorish = cands.some(c => (c.tags.includes("you") || c.tags.includes("bot")) && tutors.includes(c.label.replace(/^Cast /, "")));
+    const horizon = opts.horizon != null ? opts.horizon : land ? LAND_HORIZON : tutorish ? 4 : 3;
+    const race = await A.race(rec, i, cands, { n0: opts.n0 || 6, budget: Math.round((opts.budget || Math.max(60, cands.length * 16)) * (land ? 1.5 : 1)), horizon, features: true, onProgress: opts.onProgress });
     const ok = race.ok;
     if (!ok.length) return { i, error: "The playouts failed." };
     const best = race.best, mine = ok.find(c => c.tags.includes("you")) || null;
@@ -324,7 +348,13 @@
       if (!r) continue;
       const loss = d && !d.error ? d.loss : q.loss, se = d && !d.error ? d.se : q.se;
       const ref = d && !d.error ? (d.cands[0] || {}).eq : q.before;
-      const gr = A.grade(loss, se, ref);
+      // between two lands the playouts are noisiest relative to what's at stake: count only what
+      // clears two standard errors
+      const lc = landChoice(r.mine || m.ans, r.best || r.bot);
+      const gr = A.grade(loss, lc ? 2 * (se || 0) : se, ref);
+      // too few playouts to call it a blunder: at most a mistake
+      const nMine = d && !d.error ? ((d.cands.find(c => c.tags.includes("you")) || {}).n || 0) : q ? q.n || 0 : 0;
+      if (gr.cls === "blunder" && nMine < 12) gr.cls = "mistake";
       rows.push({
         i: m.i, r: m.r, k: m.k, ms: m.ms, ans: m.ans,
         before: q && !q.error ? q.before : null, after: q && !q.error ? q.vMine : null,
@@ -367,6 +397,91 @@
       byCat: group("cat"), byPhase: group("phase"), byKind: group("k"), bySpeed: group("speed"), byErr: group("err"),
       dirs: { passive: rows.filter(x => x.dir === "passive" && x.rel >= 0.15).length, rushed: rows.filter(x => x.dir === "rushed" && x.rel >= 0.15).length },
       worst: rows.filter(x => x.adj > 0).sort((a, b) => b.rel - a.rel || b.adj - a.adj).slice(0, 6).map(x => x.i)
+    };
+  };
+
+  /* How a game went for the hero's seat, from its log: rounds, life each round, what the seat did
+     each round, when its commander came down, who went out when. Pass `track.ui` to P.replay. */
+  function tracker(hero) {
+    let g = null, me = null, name = "", cmd = [];
+    const t = { rounds: {}, life: [], out: [], cmdRound: null };
+    const RX = /^(\S.*?) (casts|plays|attacks|activates|uses|flips|turns|channels|cycles|equips) /;
+    t.ui = {
+      bind(game) { g = game; me = g.players[hero]; name = me.name; cmd = me.commanders.map(o => o.def.name); },
+      log(e) {
+        if (!g) return;
+        const r = g.round || 1;
+        if (e.kind === "turn") {
+          if (!t.life.length || t.life[t.life.length - 1].r !== r) t.life.push({ r, life: g.players.map(q => q.lost ? 0 : q.life) });
+          return;
+        }
+        if (e.kind === "lose") { t.out.push({ r, who: e.p ? e.p.name : "?", me: e.p === me, text: e.text }); return; }
+        const m = RX.exec(e.text || "");
+        if (!m || m[1] !== name) return;
+        if (t.cmdRound == null && m[2] === "casts" && cmd.some(c => e.text.startsWith(name + " casts " + c))) t.cmdRound = r;
+        const list = t.rounds[r] = t.rounds[r] || [];
+        if (list.length < 14) list.push(e.text.slice(name.length + 1).replace(/\.$/, ""));
+      }
+    };
+    t.finish = (st) => {
+      const G = st.g;
+      const p = G.players[hero];
+      return {
+        win: G.winner === p, lost: !!p.lost, draw: !!(G.endInfo && G.endInfo.draw), rounds: G.round,
+        cause: p.lost ? p.lostReason || ((t.out.find(o => o.me) || {}).text) : null,
+        outRound: (t.out.find(o => o.me) || {}).r || null,
+        knocked: t.out.filter(o => !o.me).length, cmdRound: t.cmdRound,
+        dmg: p.stats.dmg || 0, cast: Object.values(p.stats.cast || {}).reduce((a, b) => a + b, 0),
+        names: G.players.map(q => q.name), life: t.life, rounds_: t.rounds, out: t.out,
+        error: st.error || (st.diverged ? "diverged" : null)
+      };
+    };
+    return t;
+  }
+  A.tracker = tracker;
+
+  /* The bot plays the person's whole game: their seat, deck, opening hand and opponents, from the
+     first decision on. `same` is the bot on the very same deal (same library order, so it draws what
+     you'd have drawn while the game goes the same way); `runs` replays it with fresh draws after
+     the opening hand, for a win rate. `you` is the person's own game, read the same way. */
+  A.botGame = async function (rec, opts) {
+    opts = opts || {};
+    const runs = opts.runs == null ? 10 : opts.runs;
+    const total = runs + 2;
+    let done = 0;
+    const tick = () => { done++; if (opts.onProgress) opts.onProgress(done / total); };
+    const play = async (reseed) => {
+      const t = tracker(rec.hero);
+      const st = await P.replay(rec, {
+        at: 0, ui: t.ui, reseed,
+        onAt: async (g, p, k, ctx, { heroBot }) => ({ answer: await heroBot[k](g, p, ctx) })
+      });
+      return t.finish(st);
+    };
+    const yt = tracker(rec.hero);
+    const you = yt.finish(await P.replay(rec, { ui: yt.ui }));
+    tick();
+    const same = await play(null); tick();
+    const list = [];
+    for (let k = 0; k < runs; k++) {
+      const r = await play(((rec.seed >>> 0) * 31 + 977 * (k + 1)) >>> 0);
+      list.push({ win: r.win, lost: r.lost, rounds: r.rounds, outRound: r.outRound, cmdRound: r.cmdRound, knocked: r.knocked, dmg: r.dmg, error: r.error });
+      tick();
+    }
+    const ok = list.filter(r => !r.error);
+    const avg = xs => xs.length ? +(xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(1) : null;
+    return {
+      v: A.VERSION, you, same, runs: list,
+      summary: {
+        n: ok.length,
+        wins: ok.filter(r => r.win).length,
+        rounds: avg(ok.map(r => r.rounds)),
+        survived: avg(ok.map(r => r.outRound || r.rounds)),
+        cmdRound: avg(ok.filter(r => r.cmdRound != null).map(r => r.cmdRound)),
+        cmdShare: ok.length ? ok.filter(r => r.cmdRound != null).length / ok.length : null,
+        knocked: avg(ok.map(r => r.knocked)),
+        dmg: avg(ok.map(r => r.dmg))
+      }
     };
   };
 })(typeof window !== "undefined" ? window : globalThis);
