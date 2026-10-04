@@ -48,6 +48,11 @@ const SOLVE = {
     }
   },
   async table(p) { for (const b of await p.$$("#wbox .seats .p")) { await b.click(); if (await p.$("#wbox .msg.good")) break; } },
+  async board(p) {
+    const sel = (await p.$("#wbox .seat.pick")) ? "#wbox .seat .who" : "#wbox .perm";
+    if (!(await p.$("#wbox .seat.pick")) && !(await p.$eval("#next", b => b.hidden))) return; // a board to look at, nothing to pick
+    for (const b of await p.$$(sel)) { await b.click(); if (await p.$("#wbox .msg.good")) break; }
+  },
   async engine(p) { for (const a of ["citizen", "angel", "pop"]) await p.click(`#wbox [data-a='${a}']`); },
   async defend(p) {
     // a weaker defense first, then try again and find the best one
@@ -75,7 +80,14 @@ const SOLVE = {
     const ctx = await browser.newContext({ viewport: vp });
     const p = await ctx.newPage();
     await p.route("**/fonts.googleapis.com/**", r => r.fulfill({ status: 200, contentType: "text/css", body: "" }));
-    await p.route("**/api.scryfall.com/**", r => r.fulfill({ status: 404, body: "" }));
+    // stand-in card pictures (the container can't reach Scryfall); one name is missing on purpose to check the fallback
+    await p.route("**/api.scryfall.com/**", r => {
+      const u = decodeURIComponent(r.request().url());
+      if (/Grizzly Bears/.test(u)) return r.fulfill({ status: 404, body: "" });
+      const name = (u.match(/exact=([^&]+)/) || u.match(/cards\/(sld\/\d+)/) || [, "card"])[1].replace(/[<&"]/g, "");
+      const art = /art_crop/.test(u);
+      r.fulfill({ status: 200, contentType: "image/svg+xml", body: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${art ? "626 457" : "488 680"}"><rect width="100%" height="100%" rx="20" fill="#2b4a3c"/><rect x="20" y="20" width="${art ? 586 : 448}" height="${art ? 417 : 640}" rx="12" fill="#c9d8c0"/><text x="40" y="80" font-size="34" font-family="sans-serif">${name}</text></svg>` });
+    });
     p.on("pageerror", e => issues.push(`[${vp.tag}] page error: ${e.message}`));
     p.on("console", m => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) issues.push(`[${vp.tag}] console: ${m.text()}`); });
     p.on("dialog", d => d.accept());
@@ -110,7 +122,7 @@ const SOLVE = {
           }
           if (gated) await p.waitForFunction(() => !document.querySelector("#next").hidden, null, { timeout: 3000 }).catch(() => {}); // fights and the stack animate first
           if (gated && await p.$eval("#next", b => b.hidden)) { issues.push(`[${vp.tag}] ${l.id} step ${s}: widget ${name} never unlocked Next`); await p.click("#hint .linkish"); }
-          if (shotDir && vp.tag === "phone" && shots < 40 && ["anatomy", "pay", "combat", "stack", "guided", "tax", "sort", "engine", "defend", "table"].includes(name)) { await p.screenshot({ path: path.join(shotDir, `learn-${l.id}-${name}.png`) }); shots++; }
+          if (shotDir && vp.tag === "phone" && shots < 60 && ["anatomy", "pay", "combat", "stack", "guided", "tax", "sort", "engine", "defend", "board"].includes(name)) { await p.screenshot({ path: path.join(shotDir, `learn-${l.id}-${name}.png`) }); shots++; }
         }
         if (await p.$("#qbox")) {
           for (const o of await p.$$("#qbox .opt")) { if (await p.$("#qbox .opt.right")) break; await o.click(); }
@@ -124,6 +136,16 @@ const SOLVE = {
       await p.waitForSelector(".finish", { timeout: 3000 }).catch(() => issues.push(`[${vp.tag}] ${l.id}: no finish screen`));
       if (l.id === "attack" && !(await p.$(".finish .checkpoint a[href='../miku/#play']"))) issues.push(`[${vp.tag}] no "try a game" checkpoint after the attack lesson`);
     }
+    // tapping a card that isn't part of a widget opens it big; Escape closes it
+    await p.goto(base + "#/l/tricks/0"); await p.waitForSelector("#screen [data-zoom]");
+    await p.click("#screen [data-zoom]");
+    if (!(await p.$("#zoom"))) issues.push(`[${vp.tag}] tapping a card didn't open it big`);
+    if (shotDir) await p.screenshot({ path: path.join(shotDir, `learn-zoom-${vp.tag}.png`) });
+    await p.keyboard.press("Escape");
+    if (await p.$("#zoom")) issues.push(`[${vp.tag}] Escape didn't close the big card`);
+    if (!(await p.$("#screen .mcard.real img.face"))) issues.push(`[${vp.tag}] no real card picture after the first lessons`);
+    await p.goto(base + "#/l/goal/0"); await p.waitForSelector("#screen h2");
+    if (await p.$("#screen .mcard.real")) issues.push(`[${vp.tag}] the first lesson should keep drawn cards`);
     const done = await p.evaluate(() => Object.keys(JSON.parse(localStorage.getItem("learnMagic.v1")).done).length);
     if (done !== lessons.length) issues.push(`[${vp.tag}] progress saved ${done} of ${lessons.length}`);
     await p.goto(base + "#/exam"); await p.waitForSelector("#screen .q");

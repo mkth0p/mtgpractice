@@ -22,16 +22,27 @@
   const fmt = html => pips(html);
   const parseCost = str => (String(str).match(/\{([0-9]+|[WUBRGCX])\}/g) || []).map(t => t.slice(1, -1));
 
+  /* Real card pictures come from Scryfall. The first lessons keep the simple drawn cards (easier to
+     read); after that, cards show their real picture, and tapping one opens it big with its text
+     in plain words. If a picture can't load, the drawn card stays. */
+  let realCards = false;
+  const useReal = () => realCards && !prefs.plain;
+  function cardImg(c, version) {
+    const where = c.img ? `cards/${c.img}?` : `cards/named?exact=${encodeURIComponent(c.real || c.name)}&`;
+    return `https://api.scryfall.com/${where}format=image&version=${version || "normal"}`;
+  }
   function card(c, opts) {
-    if (typeof c === "string") c = L.cards[c];
+    if (typeof c === "string") c = Object.assign({ key: c }, L.cards[c]);
     opts = opts || {};
     const tag = opts.button ? "button" : "div";
-    const cls = ["mcard", c.c, opts.sm ? "sm" : "", c.makes && !c.pt ? "land" : "", opts.cls || ""].join(" ");
+    const real = useReal() && !c.tok && !opts.drawn;
+    const cls = ["mcard", c.c, opts.sm ? "sm" : "", c.makes && !c.pt ? "land" : "", real ? "real" : "", !opts.button && c.key ? "zoomable" : "", opts.cls || ""].join(" ");
     const state = /\btapped\b/.test(opts.cls || "") ? ", tapped" : /\bdead\b/.test(opts.cls || "") ? ", in the graveyard" : "";
     const pt = c.pt ? `<span class="pt">${c.pt[0]}/${c.pt[1]}</span>` : "";
     const data = opts.data ? Object.entries(opts.data).map(([k, v]) => ` data-${k}="${esc(v)}"`).join("") : "";
-    return `<${tag} class="${cls}"${tag === "button" ? ' type="button"' : ""}${data} aria-label="${esc(c.name)}${state}">
-      <div class="in">
+    const zoom = !opts.button && c.key ? ` data-zoom="${esc(c.key)}" tabindex="0" role="button"` : "";
+    return `<${tag} class="${cls}"${tag === "button" ? ' type="button"' : ""}${data}${zoom} aria-label="${esc(c.name)}${state}${zoom ? ", tap to see it big" : ""}">
+      ${real ? `<img class="face" src="${cardImg(c)}" alt="" loading="lazy" onerror="this.parentNode.classList.remove('real');this.remove()">` : ""}<div class="in">
         <div class="bar1"><span class="nm">${esc(c.name)}</span><span class="cost">${pips(c.cost || "")}</span></div>
         <div class="art" aria-hidden="true">${c.art || ""}</div>
         <div class="tl">${esc(c.type)}</div>
@@ -52,11 +63,45 @@
     h.classList.toggle("calm", !!prefs.calm);
   }
   applyPrefs();
+  // Tap any card that isn't part of a game widget to see it big, with its text in plain words.
+  function zoomCard(key, opener) {
+    const c = Object.assign({ key }, L.cards[key]);
+    if (!c.name) return;
+    closeZoom();
+    const z = document.createElement("div");
+    z.id = "zoom"; z.className = "zoom"; z.setAttribute("role", "dialog"); z.setAttribute("aria-modal", "true"); z.setAttribute("aria-label", c.name);
+    z.innerHTML = `<div class="zbox">${!prefs.plain && !c.tok ? `<img src="${cardImg(c, "large")}" alt="${esc(c.name)}" onerror="this.remove()">` : ""}
+      <div class="ztext"><h3>${esc(c.name)} <span class="cost">${pips(c.cost || "")}</span></h3><p class="muted small">${esc(c.type)}${c.pt ? ` · <b>${c.pt[0]}/${c.pt[1]}</b>` : ""}</p>
+      ${c.text ? `<p>${fmt(c.text)}</p>` : ""}${c.plain ? `<div class="callout tip"><i aria-hidden="true">💡</i><div><b>In plain words:</b> ${fmt(c.plain)}</div></div>` : ""}
+      <button class="btn go" type="button" id="zoom-x">Close</button></div></div>`;
+    document.body.appendChild(z);
+    z._opener = opener;
+    z.onclick = e => { if (e.target === z) closeZoom(); };
+    z.addEventListener("keydown", e => { if (e.key === "Escape") { e.preventDefault(); closeZoom(); } });
+    $("#zoom-x").onclick = closeZoom;
+    $("#zoom-x").focus();
+  }
+  function closeZoom() {
+    const z = $("#zoom");
+    if (!z) return;
+    const o = z._opener; z.remove();
+    if (o && o.isConnected) o.focus({ preventScroll: true });
+  }
+  document.addEventListener("click", e => {
+    const t = e.target.closest("[data-zoom]");
+    if (t && !e.target.closest("#zoom")) zoomCard(t.dataset.zoom, t);
+  });
+  document.addEventListener("keydown", e => {
+    const t = e.target.closest && e.target.closest("[data-zoom]");
+    if (t && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); zoomCard(t.dataset.zoom, t); }
+  });
+
   const OPTIONS = [
     ["big", "🔠", "Bigger text", "Everything a little larger."],
     ["spaced", "📏", "Easier reading", "More space between lines and letters."],
     ["calm", "🌙", "Calm mode", "Fewer animations and no confetti."],
-    ["sound", "🔔", "Sounds", "A soft chime for right answers."]
+    ["sound", "🔔", "Sounds", "A soft chime for right answers."],
+    ["plain", "🎨", "Simple drawn cards", "Show the easy-to-read drawn cards instead of real card pictures."]
   ];
   let prefsOpener = null;
   function closePrefs() { const p = $("#prefs"); if (p) p.remove(); if (prefsOpener && prefsOpener.isConnected) prefsOpener.focus(); prefsOpener = null; }
@@ -68,7 +113,7 @@
     pop.id = "prefs"; pop.className = "prefs"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Reading settings");
     pop.innerHTML = `<b>Make it comfy</b>${OPTIONS.map(o => `<label><input type="checkbox" data-p="${o[0]}" ${prefs[o[0]] ? "checked" : ""}><span class="em" aria-hidden="true">${o[1]}</span><span><b>${o[2]}</b><small>${o[3]}</small></span></label>`).join("")}<button class="btn sm" type="button" id="prefs-x">Done</button>`;
     document.body.appendChild(pop);
-    $$("input", pop).forEach(i => i.onchange = () => { prefs[i.dataset.p] = i.checked; savePrefs(); applyPrefs(); if (i.dataset.p === "sound" && i.checked) sfx("ok"); });
+    $$("input", pop).forEach(i => i.onchange = () => { prefs[i.dataset.p] = i.checked; savePrefs(); applyPrefs(); if (i.dataset.p === "sound" && i.checked) sfx("ok"); if (i.dataset.p === "plain") realRedraw(); });
     $("#prefs-x").onclick = closePrefs;
     pop.addEventListener("keydown", e => { if (e.key === "Escape") { e.preventDefault(); closePrefs(); } });
     $("input", pop).focus();
@@ -200,7 +245,7 @@
     };
   }
 
-  Object.assign(W, { _: { esc, pips, fmt, card, quiz, shuffle, parseCost, pip, pop, sfx, confetti, calm } });
+  Object.assign(W, { _: { cardImg, useReal, zoom: zoomCard, esc, pips, fmt, card, quiz, shuffle, parseCost, pip, pop, sfx, confetti, calm } });
 
   /* ---------- progress ---------- */
   const store = {
@@ -216,6 +261,9 @@
     if (!firstTry && k < 0) P.weak.push(q.q);
   }
   const lessons = L.lessons;
+  // real card pictures from this lesson on (the first lessons keep the drawn cards)
+  const REAL_FROM = Math.max(0, lessons.findIndex(l => l.id === "creatures"));
+  function realRedraw() { closePrefs(); route(); }
   const byId = id => lessons.find(l => l.id === id);
   const nextLesson = () => lessons.find(l => !P.done[l.id]);
   const starStr = n => `<span class="stars-mini" aria-label="${n} of 3 stars">${"★".repeat(n)}<s>${"★".repeat(3 - n)}</s></span>`;
@@ -256,7 +304,7 @@
     L.units.forEach((u, ui) => {
       const ls = lessons.filter(l => l.unit === u.id);
       const ud = ls.filter(l => P.done[l.id]).length;
-      html += `<section class="unit u${ui % 6}"><header class="banner"><span class="n">Part ${ui + 1} · ${ud}/${ls.length}</span><h2>${esc(u.title)}</h2><p>${esc(u.blurb)}</p></header><ol class="path">`;
+      html += `<section class="unit u${ui % 8}"><header class="banner"><span class="n">Part ${ui + 1} · ${ud}/${ls.length}</span><h2>${esc(u.title)}</h2><p>${esc(u.blurb)}</p></header><ol class="path">`;
       ls.forEach((l, k) => {
         const num = lessons.indexOf(l) + 1, done = P.done[l.id], isNext = nx && nx.id === l.id, st = P.stars[l.id] || 0;
         const off = [0, 1, 1.4, 1, 0, -1, -1.4, -1][k % 8];
@@ -315,6 +363,7 @@
     stopSpeaking();
     setNav("");
     const idx = lessons.indexOf(l), total = l.steps.length;
+    realCards = idx >= REAL_FROM;
     let i = Math.max(0, Math.min(stepArg != null ? stepArg : 0, total));
     // the finish screen only counts when it's reached with Next from the last screen
     const arrived = last.id === id && last.i === total - 1;
@@ -464,6 +513,7 @@
   function viewExam(practice) {
     stopSpeaking();
     setNav("exam");
+    realCards = true;
     const pool = allQuizzes(practice);
     if (practice) { const known = new Set(pool.map(q => q.q)); P.weak = P.weak.filter(k => known.has(k)); save(); }
     const qs = practice ? shuffle(pool.filter(q => P.weak.includes(q.q))).slice(0, 10) : shuffle(pool).slice(0, 15);
