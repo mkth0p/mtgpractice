@@ -1,8 +1,8 @@
 /* Offline support for the Corrupted Miku deck wiki. It shares the Miku site's kit, styles, shell and game
    engine (../miku/). Site files: network first, cache as fallback. Fonts and card images: cache first. */
-const VERSION = "corrupted-v25";
-const V = "?v=25";
-const GAME = ["engine.js", "cards-miku.js", "cards-corrupted.js", "checklist-corrupted.js", "checklist-cetrata.js", "brain-corrupted.js", "cards-etrata.js", "cards-miku-precon.js", "decks-azusa.js", "decks-cetrata.js", "decks-edgar.js", "decks-etrata4.js", "decks-ghalta.js", "decks-krenko.js", "decks-talrand.js", "decks-urdragon.js", "precon-ghired.js", "precon-isperia.js", "precon-kaalia.js", "precon-lathril.js", "precon-wilhelt.js", "ai.js", "practice.js", "practice-worker.js", "train-cetrata.js", "game-ui.js", "game.css"].map(f => "../miku/game/" + f + V);
+const VERSION = "corrupted-v26";
+const V = "?v=26";
+const GAME = ["engine.js", "cards-miku.js", "cards-corrupted.js", "checklist-corrupted.js", "checklist-cetrata.js", "brain-corrupted.js", "cards-etrata.js", "cards-miku-precon.js", "decks-azusa.js", "decks-cetrata.js", "decks-edgar.js", "decks-etrata4.js", "decks-ghalta.js", "decks-krenko.js", "decks-talrand.js", "decks-urdragon.js", "precon-ghired.js", "precon-isperia.js", "precon-kaalia.js", "precon-lathril.js", "precon-wilhelt.js", "ai.js", "practice.js", "practice-worker.js", "train-cetrata.js", "value.js", "analysis.js", "game-ui.js", "game.css"].map(f => "../miku/game/" + f + V);
 const CORE = ["./", "./index.html", "./icon.svg", "./manifest.webmanifest"]
   .concat(["theme.css", "cards.js", "wiki.js", "guide.js", "quiz.js", "prices.js", "site.js"].map(f => "./" + f + V))
   .concat(["styles.css", "kit.js", "app.js"].map(f => "../miku/" + f + V), GAME);

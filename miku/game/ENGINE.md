@@ -387,11 +387,28 @@ Corrupted Etrata's Train tab (`corrupted-etrata/train.js`) is built on two engin
   snapshot of the position (win chance, lines, what the coach would say) is kept at each real
   decision. A game is rebuilt from its seed and seats by `P.buildGame`, and `P.replay(rec, { at,
   onAt, reseed, horizon })` plays the recorded answers up to answer `at`, hands that decision to
-  `onAt`, and lets the bots play on. `P.analyzeMoment(rec, i)` tries every option at one decision
-  many times with the libraries reshuffled the same way for each option, and scores the end with
-  the win-chance model. `practice-worker.js` runs it off the page.
-- `train-cetrata.js` (`MK.TRAIN["corrupted-etrata"]`) holds the win-chance model, the puzzles, the
-  mulligan evaluator, the drill generators and the review rules.
+  `onAt`, and lets the bots play on. `P.replay` takes `hidden: true` to deal the opponents fresh hands at the branch.
+  `practice-worker.js` runs analysis jobs (`quick`, `deep`) off the page; the Train tab keeps a
+  pool of them busy.
+- `train-cetrata.js` (`MK.TRAIN["corrupted-etrata"]`) holds the old Etrata-only win-chance model,
+  the puzzles, the mulligan evaluator, the drill generators and the review rules, plus
+  `lineFeatures(g, p)` (how close the planner's lines are, for the value model) and
+  `categorize(m, r)` (which skill a decision belongs to).
+- `value.js` (`MK.Value`) is the table-wide value model: the same features for every live player
+  (life, cards, mana, board, commander, seats until their turn, deck, and the deck planner's lines
+  when it has one) go through a small neural network into a score, and the win chances are the
+  softmax over the live players. `tools/sim/train-value.js` fits it on every seat of bot games.
+- `analysis.js` (`MK.Analysis`) is the game analysis engine. Every playout replays the game to the
+  decision, reshuffles every library and deals each opponent a fresh hand from the cards the person
+  couldn't see (`P.resampleHands`), plays the option, lets the bots play `horizon` rounds and scores
+  the end with the value model. Options share seeds (common random numbers) and `A.race` drops the
+  ones that fall clearly behind so the close ones get the playouts. `A.quick(rec, i)` compares the
+  person's answer with the bot's on every decision; `A.deep(rec, i)` races every option, explains the
+  difference from the playouts' end features (`why`) and keeps one typical line of each (`lines`).
+  `A.grade` judges a loss by the share of the person's chances it gave up, less one standard error;
+  `A.summarize` adds up accuracy, classes, skill (what decisions cost) against luck (everything
+  else), swings and breakdowns by skill, phase and time taken. `A.ANCHORS` holds the accuracy of a
+  random player and of the bot, the ends of the report's strength scale.
 
 Replays must match the recorded game exactly, so anything that runs while the person thinks
 (the snapshot's planner, the screen's helpers) must not touch `g.random` or keep objects: the
@@ -406,7 +423,10 @@ turn), `stopAtTurn` ends the game after that turn, `round` sets the round counte
 ```
 node tools/sim/test-practice.js --games 12   # recorded games replay line for line, moments analyze
 node tools/sim/test-train.js                 # every puzzle solvable and not by passing, drills valid
-node tools/sim/train-wp.js --games 4000 --write   # refit the win-chance model (writes train-cetrata.js)
+node tools/sim/test-analysis.js --games 2 [--person random]   # the analysis engine adds up and repeats
+node tools/sim/train-value.js --games 10000 --threads 4 --data /tmp/val.json --write   # refit the value model (writes value.js)
+node tools/sim/calibrate-analysis.js --games 8 --write   # random-player and bot accuracy anchors (writes analysis.js)
+node tools/sim/train-wp.js --games 4000 --write   # refit the old Etrata win-chance model (writes train-cetrata.js)
 node tools/sim/mull-values.js --write             # recompute the mulligan values
 node tools/ui/random-play.js --assess --games 3   # assessment games through the screen, then the review
 ```

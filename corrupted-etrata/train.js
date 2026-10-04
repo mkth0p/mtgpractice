@@ -18,7 +18,7 @@
 
   /* ================================================================ state on this device */
   const KEY = "cetrataWiki";
-  const SK = { train: KEY + ".train.v1", games: KEY + ".games.v1", an: KEY + ".analysis.v1" };
+  const SK = { train: KEY + ".train.v1", games: KEY + ".games.v1", an: KEY + ".analysis.v2" };
   const MAX_GAMES = 14;
   let A = null;   // the shell's helpers, set by the first widget
   const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
@@ -31,15 +31,6 @@
     let l = list.slice(0, MAX_GAMES);
     while (l.length && !save(SK.games, l)) l = l.slice(0, l.length - 1);
     bus();
-  }
-  function analyses() { return load(SK.an, {}); }
-  function putAnalysis(recId, i, r) {
-    const a = analyses();
-    a[recId] = a[recId] || {};
-    a[recId][i] = r;
-    const ids = new Set(games().map(g => g.id));
-    for (const k of Object.keys(a)) if (!ids.has(k)) delete a[k];
-    save(SK.an, a);
   }
 
   /* ================================================================ small helpers */
@@ -318,7 +309,7 @@
     el.innerHTML = `<div class="tn-assess panel">
         <p class="eyebrow">Assessment game</p>
         <h3>Play a game the way you'd play it at the table</h3>
-        <p>No coach, no companion: every choice you make is recorded with what the planner saw at that moment. After the game you get a review, and the key moments are replayed many times each way to measure what your choice cost.</p>
+        <p>No coach, no companion: every choice you make is recorded. When the game ends, the analysis engine replays every decision you made against the alternatives, hundreds of times, with the shuffles and the other players' hands dealt fresh each time, and tells you what each choice was worth, why, and how much of the result was luck.</p>
         <div class="seg small" role="radiogroup" aria-label="Opponents">${[["precon", "Casual decks"], ["mixed", "Mixed"], ["b4", "Bracket 4"]].map(([k, l]) => `<button role="radio" aria-checked="${pool === k}" data-pool="${k}">${l}</button>`).join("")}</div>
         <div class="btn-row"><button class="btn primary big" type="button" data-assess>Start an assessment game</button></div>
       </div>
@@ -326,15 +317,14 @@
         <h3>Your recorded games</h3>
         ${list.length ? list.map(g => {
           const res = g.result || {};
-          const an = analyses()[g.id] || {};
-          const acc = accuracyOf(g, an);
+          const sm = (anStore()[g.id] || {}).sum;
           return `<button class="tn-gi" type="button" data-rec="${esc(g.id)}">
             <span class="tn-res ${res.win ? "w" : res.draw ? "d" : "l"}">${res.win ? "Won" : res.draw ? "Draw" : res.conceded ? "Conceded" : "Lost"}</span>
             <span class="tn-gm"><b>${g.mode === "retry" ? "Retry from a moment" : "Assessment"} · round ${res.rounds || "?"}</b><span class="muted small">vs ${g.seats.filter((s, i) => i !== g.hero).map(s => esc(s.name)).join(", ")} · ${ago(g.t)}</span></span>
-            <span class="tn-acc mono">${acc != null ? acc + "%" : "–"}<small>accuracy</small></span>
-            ${sparkWP(g)}
+            <span class="tn-acc mono">${sm && sm.accuracy != null ? Math.round(sm.accuracy) + "%" : "–"}<small>${sm ? "accuracy" : "not analyzed"}</small></span>
+            ${sparkWP(g, sm)}
           </button>`;
-        }).join("") : `<p class="muted">No games yet. Play an assessment game: it takes a normal game's time, and the review is ready when it ends.</p>`}
+        }).join("") : `<p class="muted">No games yet. Play an assessment game: it takes a normal game's time, and the analysis starts when it ends.</p>`}
       </section>
       ${journalHTML(ts)}`;
     el.onclick = e => {
@@ -345,126 +335,221 @@
     };
     el.onsubmit = e => journalSubmit(e, el, st);
   }
-  function sparkWP(g) {
-    const pts = (g.moments || []).filter(m => m.wp != null && m.mine && m.k === "main");
+  function sparkWP(g, sm) {
+    const pts = sm && sm.rows ? sm.rows.filter(x => x.before != null).map(x => x.before) : [];
     if (pts.length < 2) return `<svg class="tn-spark" viewBox="0 0 100 28" aria-hidden="true"></svg>`;
-    const max = Math.max(0.5, ...pts.map(m => m.wp));
-    const d = pts.map((m, i) => `${(i / (pts.length - 1) * 100).toFixed(1)},${(26 - m.wp / max * 24).toFixed(1)}`).join(" ");
+    const max = Math.max(0.3, ...pts);
+    const d = pts.map((v, i) => `${(i / (pts.length - 1) * 100).toFixed(1)},${(26 - v / max * 24).toFixed(1)}`).join(" ");
     return `<svg class="tn-spark" viewBox="0 0 100 28" aria-hidden="true"><polyline points="${d}" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>`;
   }
-  /* Accuracy over the analyzed moments: Lichess's formula on the win chance each choice gave up. */
-  function accuracyOf(rec, an) {
-    const P = MKG() && MKG().Practice;
-    const xs = Object.values(an || {}).filter(r => r && !r.error && r.loss != null);
-    if (!xs.length) return null;
-    const f = P ? P.accuracy : (l => Math.max(0, Math.min(100, 103.1668 * Math.exp(-0.04354 * l) - 3.1669)));
-    // a loss inside the noise counts as none
-    const acc = xs.map(r => f(r.loss > 2 * (r.se || 0) ? r.loss * 100 : 0));
-    return Math.round(acc.reduce((a, b) => a + b, 0) / acc.length);
+
+  /* ---------------------------------------------------------------- the analysis: workers and storage */
+  // { [recId]: { v, quick: { [i]: r }, deep: { [i]: r }, sum } }
+  function anStore() { return load(SK.an, {}); }
+  function putAn(recId, f) {
+    const all = anStore();
+    const cur = all[recId] = all[recId] || { v: 2, quick: {}, deep: {} };
+    f(cur);
+    const ids = new Set(games().map(g => g.id));
+    for (const k of Object.keys(all)) if (!ids.has(k)) delete all[k];
+    // localStorage is small: drop the oldest games' typical lines, then whole analyses, until it fits
+    let tries = 0;
+    while (!save(SK.an, all) && tries++ < 20) {
+      const victim = Object.keys(all).filter(k => k !== recId).find(k => all[k].deep && Object.values(all[k].deep).some(d => d.lines));
+      if (victim) { for (const d of Object.values(all[victim].deep)) delete d.lines; continue; }
+      const other = Object.keys(all).find(k => k !== recId);
+      if (other) delete all[other]; else break;
+    }
+    return cur;
+  }
+  // only what a replay needs goes to a worker
+  const slim = rec => ({ id: rec.id, deck: rec.deck, seed: rec.seed, seats: rec.seats, hero: rec.hero, maxTurns: rec.maxTurns, answers: rec.answers, kinds: rec.kinds });
+  const pool = { workers: [], queue: [], started: null, size: 0, seq: 0, jobs: new Map() };
+  function startPool() {
+    if (pool.started) return pool.started;
+    pool.started = engine().then(() => {
+      const info = window.MikuApp && window.MikuApp.gameInfo;
+      if (!info || typeof Worker === "undefined") return 0;
+      const n = Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1));
+      const files = info.files.filter(f => !/game-ui/.test(f)).map(f => f.replace(/^game\//, "") + "?v=" + info.v);
+      const made = [];
+      for (let k = 0; k < n; k++) {
+        made.push(new Promise(res => {
+          let w;
+          try { w = new Worker(info.base + "practice-worker.js?v=" + info.v); } catch (e) { res(null); return; }
+          const slot = { w, busy: null };
+          w.onmessage = e => {
+            const m = e.data;
+            if (m.type === "ready") { pool.workers.push(slot); res(slot); pump(); return; }
+            const j = pool.jobs.get(m.id);
+            if (!j) return;
+            if (m.type === "progress" && j.progress) j.progress(m.f);
+            if (m.type === "result") { pool.jobs.delete(m.id); slot.busy = null; j.done(m.r); pump(); }
+          };
+          w.onerror = () => { res(null); };
+          w.postMessage({ type: "init", files });
+          setTimeout(() => res(null), 20000);
+        }));
+      }
+      return Promise.all(made).then(xs => (pool.size = xs.filter(Boolean).length));
+    }).catch(() => 0);
+    return pool.started;
+  }
+  function pump() {
+    for (const slot of pool.workers) {
+      if (slot.busy || !pool.queue.length) continue;
+      const j = pool.queue.shift();
+      slot.busy = j;
+      pool.jobs.set(j.id, j);
+      slot.w.postMessage({ type: j.type, id: j.id, rec: j.rec, i: j.i, opts: j.opts });
+    }
+  }
+  /* One analysis job, in a worker when there is one, else on the page. */
+  function job(type, rec, i, opts, progress) {
+    return startPool().then(n => {
+      if (!n) return MKG().Analysis[type](rec, i, Object.assign({}, opts, { onProgress: progress }));
+      return new Promise(done => { pool.queue.push({ id: ++pool.seq, type, rec: slim(rec), i, opts, progress, done }); pump(); });
+    });
+  }
+  const runs = new Map();   // recId -> { phase, done, total, t0 }
+  /* The whole analysis of a game: the quick pass on every decision, then the deep pass on the ones
+     that cost the most (and any the review rules flagged). Results are saved as they come. */
+  function analyzeGame(rec, opts) {
+    opts = opts || {};
+    if (runs.has(rec.id)) return runs.get(rec.id).p;
+    const run = { phase: "quick", done: 0, total: 0, t0: Date.now() };
+    runs.set(rec.id, run);
+    let last = 0;
+    const tick = () => { const now = Date.now(); if (now - last > 400) { last = now; bus(); } };
+    run.p = engine().then(async () => {
+      const An = MKG().Analysis, T = TR();
+      const ms = (rec.moments || []).filter(m => !m.replayed);
+      let cur = anStore()[rec.id] || { quick: {}, deep: {} };
+      const todo = ms.filter(m => !cur.quick || !cur.quick[m.i]);
+      run.total = todo.length; run.done = 0;
+      await Promise.all(todo.map(m => job("quick", rec, m.i, {}).then(r => {
+        putAn(rec.id, a => { a.quick[m.i] = r; });
+        run.done++; tick();
+      })));
+      cur = anStore()[rec.id];
+      let sum = An.summarize(rec, cur.quick, cur.deep);
+      // deep: the decisions that cost the most, plus flagged ones the quick pass couldn't judge
+      let rv = null; try { rv = T.review(rec); } catch (e) { rv = null; }
+      const flagged = rv ? rv.flags.filter(f => !f.info && f.i != null && f.id !== "mull").map(f => f.i) : [];
+      const pick = [...new Set(sum.worst.slice(0, opts.deep || 5).concat(flagged.slice(0, 2)))].filter(i => !cur.deep[i]);
+      run.phase = "deep"; run.total = pick.length; run.done = 0; run.frac = {};
+      bus();
+      await Promise.all(pick.map(i => job("deep", rec, i, { budget: 90 }, f => { run.frac[i] = f; tick(); }).then(r => {
+        putAn(rec.id, a => { a.deep[i] = r; });
+        run.done++; tick();
+      })));
+      cur = anStore()[rec.id];
+      sum = An.summarize(rec, cur.quick, cur.deep);
+      putAn(rec.id, a => { a.sum = sum; a.at = Date.now(); a.model = (MKG().Value && MKG().Value.getModel() || {}).meta || null; });
+      runs.delete(rec.id);
+      bus();
+      return sum;
+    }).catch(err => { console.error(err); runs.delete(rec.id); bus(); });
+    return run.p;
+  }
+  function deepOne(rec, i) {
+    const key = rec.id + ":" + i;
+    if (runs.has(key)) return;
+    const run = { phase: "one", i, frac: 0 };
+    runs.set(key, run);
+    bus();
+    job("deep", rec, i, { budget: 120 }, f => { run.frac = f; }).then(r => {
+      putAn(rec.id, a => { a.deep[i] = r; a.sum = MKG().Analysis.summarize(rec, a.quick, a.deep); });
+      runs.delete(key); bus();
+    });
   }
 
   /* ---------------------------------------------------------------- the review of one game */
-  let worker = null, workerReady = null;
-  const jobs = new Map();
-  function getWorker() {
-    if (workerReady) return workerReady;
-    workerReady = engine().then(() => new Promise((res, rej) => {
-      const info = window.MikuApp && window.MikuApp.gameInfo;
-      if (!info || typeof Worker === "undefined") { rej(new Error("no worker")); return; }
-      try { worker = new Worker(info.base + "practice-worker.js?v=" + info.v); } catch (e) { rej(e); return; }
-      worker.onmessage = e => {
-        const m = e.data;
-        if (m.type === "ready") { res(worker); return; }
-        const j = jobs.get(m.id);
-        if (!j) return;
-        if (m.type === "progress" && j.progress) j.progress(m.k, m.total);
-        if (m.type === "result") { jobs.delete(m.id); j.done(m.r); }
-      };
-      worker.onerror = e => { rej(e); };
-      worker.postMessage({ type: "init", files: info.files.filter(f => !/game-ui|checklist/.test(f)).map(f => f.replace(/^game\//, "") + "?v=" + info.v) });
-    }));
-    workerReady.catch(() => { workerReady = null; });
-    return workerReady;
-  }
-  let jobSeq = 0;
-  /* Deep analysis of one moment: in the worker when there is one, else on the page. */
-  function analyze(rec, i, progress) {
-    const opts = { n: 16, horizon: 3, maxCands: 8 };
-    return getWorker().then(w => new Promise(done => {
-      const id = ++jobSeq;
-      jobs.set(id, { done, progress });
-      w.postMessage(Object.assign({ type: "moment", id, rec, i }, opts));
-    })).catch(() => engine().then(() => MKG().Practice.analyzeMoment(rec, i, Object.assign({ onProgress: progress }, opts))));
-  }
-  const CLASS = { best: ["Best", "c-best"], good: ["Good", "c-good"], inaccuracy: ["Inaccuracy", "c-inacc"], mistake: ["Mistake", "c-mistake"], blunder: ["Blunder", "c-blunder"] };
-  function classOf(r) { const P = MKG() && MKG().Practice; return r && !r.error && P ? P.classify(r.loss, r.se) : null; }
+  const CLASS = { best: ["Best", "c-best", "★"], good: ["Good", "c-good", "✓"], inaccuracy: ["Inaccuracy", "c-inacc", "?!"], mistake: ["Mistake", "c-mistake", "?"], blunder: ["Blunder", "c-blunder", "??"] };
+  const KIND = { mulligan: "Mulligan", main: "Your play", attack: "Attack", block: "Blocks", respond: "Response", choose: "Choice" };
+  const momentByI = (rec, i) => (rec.moments || []).find(m => m.i === i);
   function renderReview(el, st, rec) {
-    const T = TR();
-    if (!T) { el.innerHTML = `<p class="muted">Loading the review…</p>`; engine().then(() => bus()); return; }
-    st.rv = st.rv && st.rv.id === rec.id ? st.rv : { id: rec.id, data: T.review(rec), open: null };
-    const rv = st.rv.data;
-    const an = analyses()[rec.id] || {};
-    const res = rec.result || {};
-    const acc = accuracyOf(rec, an);
+    const T = TR(), An = MKG() && MKG().Analysis;
+    if (!T || !An) { el.innerHTML = `<p class="muted">Loading the analysis engine…</p>`; engine().then(() => bus()); return; }
+    const store = anStore()[rec.id] || { quick: {}, deep: {} };
+    const run = runs.get(rec.id);
     const moments = (rec.moments || []).filter(m => !m.replayed);
-    const crit = T.criticalMoments(rec, rv, 6);
-    const pending = crit.filter(i => !an[i]);
-    const flagsAt = new Map(rv.flags.map(f => [f.i, f]));
+    const haveAll = moments.every(m => store.quick && store.quick[m.i]);
+    if (!run && (!haveAll || !store.sum)) { analyzeGame(rec); return renderReview(el, st, rec); }
+    const sum = store.sum && haveAll ? store.sum : An.summarize(rec, store.quick || {}, store.deep || {});
+    st.rvd = st.rvd && st.rvd.id === rec.id ? st.rvd : { id: rec.id, rv: T.review(rec), open: null };
+    const rv = st.rvd.rv;
+    const res = rec.result || {};
     const opp = rec.seats.filter((s, i) => i !== rec.hero).map(s => s.name);
+    const rowsBy = new Map(sum.rows.map(x => [x.i, x]));
+    const deepIs = Object.keys(store.deep || {}).map(Number).filter(i => store.deep[i] && !store.deep[i].error)
+      .sort((a, b) => ((rowsBy.get(b) || {}).rel || 0) - ((rowsBy.get(a) || {}).rel || 0));
+    if (st.rvd.open == null && deepIs.length) st.rvd.open = deepIs[0];
+    const prog = run ? (run.phase === "quick" ? { t: `Replaying your ${run.total} decisions against the alternatives…`, f: run.total ? run.done / run.total : 0 } : { t: `Looking deeper at the ${run.total} moments that cost the most…`, f: run.total ? (run.done + Object.values(run.frac || {}).reduce((a, b) => a + b, 0) - run.done) / run.total : 0 }) : null;
     el.innerHTML = `<div class="tn-review">
       <div class="tn-rvh"><button class="btn ghost small" type="button" data-close>All games</button><span class="muted small">${ago(rec.t)} · vs ${opp.map(esc).join(", ")}</span></div>
+      ${prog ? `<div class="tn-progress panel"><span>${esc(prog.t)}</span><div class="sp-bar"><i style="--w:${(Math.min(1, Math.max(0, prog.f)) * 100).toFixed(0)}%"></i></div><span class="muted small">${pool.size ? `${pool.size} analysis worker${pool.size > 1 ? "s" : ""} in the background. You can leave this page; it carries on.` : "Running on this page."}</span></div>` : ""}
       <div class="tn-rvtop panel">
-        <div class="tn-big"><b class="${res.win ? "w" : "l"}">${res.win ? "Won" : res.draw ? "Draw" : "Lost"}</b><span>round ${res.rounds || "?"}${res.killer ? ` · ${esc(res.killer)}` : ""}</span></div>
-        <div class="tn-kpis">
-          <div><b>${acc != null ? acc + "%" : "–"}</b><span>accuracy${Object.keys(an).length ? ` (${Object.keys(an).length} moments)` : ""}</span></div>
-          <div><b>${rv.stats.etrataTurn ? "T" + rv.stats.etrataTurn : "–"}</b><span>Etrata out</span></div>
-          <div><b>${rv.stats.cloaks}</b><span>cloaks</span></div>
-          <div><b>${rv.stats.spells}</b><span>spells cast</span></div>
-          <div><b>${moments.length}</b><span>decisions</span></div>
-          <div><b>${rv.flags.filter(f => !f.info).length}</b><span>flags</span></div>
+        <div class="tn-rvscore">
+          <div class="tn-big"><b class="${res.win ? "w" : "l"}">${res.win ? "Won" : res.draw ? "Draw" : "Lost"}</b><span>round ${res.rounds || "?"}${res.killer ? ` · ${esc(res.killer)}` : ""}</span></div>
+          <div class="tn-accbig"><b>${sum.accuracy != null ? Math.round(sum.accuracy) : "–"}</b><span>accuracy</span></div>
         </div>
+        <div class="tn-counts">${["best", "good", "inaccuracy", "mistake", "blunder"].map(c => `<span class="tn-count ${CLASS[c][1]}"><b>${sum.counts[c] || 0}</b>${CLASS[c][0]}</span>`).join("")}</div>
+        ${luckBar(sum, res)}
       </div>
-      <section class="tn-sec"><h3>Win chance through the game</h3>${wpChart(rec, rv, an)}<p class="muted small">From a model fitted on 4,000 bot games of this deck: life totals, boards, mana, cards and how close your lines are. Dots are your decisions; red ones are flagged.</p></section>
-      <section class="tn-sec"><div class="tn-sech"><h3>Key moments</h3>${pending.length ? `<button class="btn primary small" type="button" data-deep>Replay the ${pending.length} key moment${pending.length > 1 ? "s" : ""} (${pending.length * 8 * 16} games)</button>` : ""}</div>
-        <p class="muted small">Each moment is replayed from the seed with every option you had, 16 times each with the libraries reshuffled the same way for every option, then three rounds are played out by the bots and scored by the model.</p>
-        <div class="tn-moments">${crit.map(i => momentCard(rec, i, an[i], flagsAt.get(i), st)).join("") || `<p class="muted">Nothing stood out.</p>`}</div>
+      <section class="tn-sec"><h3>Your win chance, decision by decision</h3>${curveChart(rec, sum)}
+        <p class="muted small">Each dot is one of your decisions, colored by its grade; the line is your chance of winning the game before it (a fair share at a four-player table is 25%). Drops between dots are the draws and the other players.</p></section>
+      <section class="tn-sec"><h3>The moments that decided it</h3>
+        ${deepIs.length ? `<div class="tn-moments">${deepIs.map(i => deepCard(rec, i, store.deep[i], rowsBy.get(i), st)).join("")}</div>` : `<p class="muted">${run ? "Coming up once the decisions are replayed." : "No decision stood out: well played."}</p>`}
       </section>
-      ${rv.flags.length ? `<section class="tn-sec"><h3>What the review rules noticed</h3><div class="tn-flags">${rv.flags.map(f => `<div class="tn-flag sev${f.sev}${f.info ? " info" : ""}"><div class="tn-fh"><span class="tn-skill">${esc(SKILL_NAME[f.skill] || f.skill)}</span><b>${esc(f.title)}</b><span class="mono small">${f.r ? "round " + f.r : "opening"}</span></div><p>${cnText(esc(f.text))}</p><div class="tn-fa">${f.i != null && f.id !== "mull" ? `<button class="btn ghost small" type="button" data-retry="${f.i}">Retry from here</button>` : ""}${f.i != null && !an[f.i] && f.id !== "mull" ? `<button class="btn ghost small" type="button" data-one="${f.i}">Replay this moment</button>` : ""}</div></div>`).join("")}</div></section>` : ""}
-      <section class="tn-sec"><details class="tn-timeline"><summary>Every decision (${moments.length})</summary>${timelineHTML(rec, an, flagsAt)}</details></section>
+      ${sum.swings && sum.swings.length ? `<section class="tn-sec"><h3>What wasn't up to you</h3><div class="tn-swings">${sum.swings.slice(0, 4).map(s => swingHTML(rec, s)).join("")}</div></section>` : ""}
+      ${breakdownHTML(sum)}
+      ${rv.flags.length ? `<section class="tn-sec"><h3>Habits the review rules noticed</h3><div class="tn-flags">${rv.flags.map(f => `<div class="tn-flag sev${f.sev}${f.info ? " info" : ""}"><div class="tn-fh"><span class="tn-skill">${esc(SKILL_NAME[f.skill] || f.skill)}</span><b>${esc(f.title)}</b><span class="mono small">${f.r ? "round " + f.r : "opening"}</span></div><p>${cnText(esc(f.text))}</p><div class="tn-fa">${f.i != null && f.id !== "mull" ? `<button class="btn ghost small" type="button" data-retry="${f.i}">Retry from here</button>` : ""}${f.i != null && !(store.deep || {})[f.i] && f.id !== "mull" ? `<button class="btn ghost small" type="button" data-one="${f.i}">Analyze this moment</button>` : ""}</div></div>`).join("")}</div></section>` : ""}
+      <section class="tn-sec"><details class="tn-timeline"${st.rvd.tl ? " open" : ""}><summary>Every decision (${moments.length})</summary>${timelineHTML(rec, sum, store)}</details></section>
     </div>`;
     el.onclick = e => {
-      if (e.target.closest("[data-close]")) { reviewId = null; st.rv = null; bus(); return; }
-      const r = e.target.closest("[data-retry]");
-      if (r) { startRetry(rec, +r.dataset.retry); return; }
-      const one = e.target.closest("[data-one]");
-      if (one) { runDeep(el, st, rec, [+one.dataset.one]); return; }
-      if (e.target.closest("[data-deep]")) { runDeep(el, st, rec, pending); return; }
-      const t = e.target.closest("[data-mopen]");
-      if (t) { st.rv.open = st.rv.open === +t.dataset.mopen ? null : +t.dataset.mopen; renderReview(el, st, rec); finish(el); }
+      if (e.target.closest("[data-close]")) { reviewId = null; st.rvd = null; bus(); return; }
+      const r = e.target.closest("[data-retry]"); if (r) { startRetry(rec, +r.dataset.retry); return; }
+      const one = e.target.closest("[data-one]"); if (one) { deepOne(rec, +one.dataset.one); return; }
+      const t = e.target.closest("[data-mopen]"); if (t) { st.rvd.open = st.rvd.open === +t.dataset.mopen ? -1 : +t.dataset.mopen; renderReview(el, st, rec); finish(el); return; }
+      const tl = e.target.closest(".tn-timeline summary"); if (tl) st.rvd.tl = !st.rvd.tl;
     };
   }
-  function runDeep(el, st, rec, list) {
-    if (st.busy) return;
-    st.busy = true;
-    const box = el.querySelector(".tn-moments");
-    const bar = document.createElement("div");
-    bar.className = "tn-progress";
-    bar.innerHTML = `<span>Replaying…</span><div class="sp-bar"><i style="--w:0%"></i></div>`;
-    if (box) box.before(bar);
-    let k = 0;
-    const step = () => {
-      if (k >= list.length) { st.busy = false; renderReview(el, st, rec); finish(el); bus(); return; }
-      const i = list[k];
-      bar.querySelector("span").textContent = `Replaying moment ${k + 1} of ${list.length}…`;
-      analyze(rec, i, (a, b) => { const w = ((k + a / b) / list.length) * 100; bar.querySelector("i").style.setProperty("--w", w + "%"); }).then(r => {
-        putAnalysis(rec.id, i, r || { error: "no result" });
-        k++; step();
-      });
-    };
-    step();
+  /* Start, what your decisions cost, what the rest did, the result. */
+  function luckBar(sum, res) {
+    if (sum.start == null) return "";
+    const pts = x => (x >= 0 ? "+" : "−") + Math.abs(Math.round(x * 100));
+    const skill = sum.skill, luck = sum.luck;
+    const verdict = res.win ? (luck > Math.abs(skill) ? "You won, with the table's help." : "You won it.") : (Math.abs(skill) > Math.abs(luck) && skill < -0.05 ? "Your decisions cost you more than the luck did." : luck < -0.1 ? "The draws and the table went against you." : "A fair game that got away.");
+    return `<div class="tn-luck">
+      <div class="tn-lk"><span>Started at</span><b>${pct(sum.start)}</b></div>
+      <div class="tn-lk ${skill < -0.005 ? "neg" : "zero"}"><span>Your decisions</span><b>${pts(skill)}</b></div>
+      <div class="tn-lk ${luck < 0 ? "neg" : "pos"}"><span>Draws and the table</span><b>${pts(luck)}</b></div>
+      <div class="tn-lk ${res.win ? "pos" : "neg"}"><span>Result</span><b>${res.win ? "100%" : "0%"}</b></div>
+      <p class="muted small">${esc(verdict)} Points are percentage points of win chance: your decisions are what you gave up against the best option found; the rest is everything else.</p>
+    </div>`;
   }
-  function momentByI(rec, i) { return (rec.moments || []).find(m => m.i === i); }
-  const KIND = { mulligan: "Mulligan", main: "Your play", attack: "Attack", block: "Blocks", respond: "Response", choose: "Choice" };
+  function curveChart(rec, sum) {
+    const pts = sum.rows.filter(x => x.before != null);
+    if (pts.length < 2) return `<p class="muted">Not enough decisions to chart yet.</p>`;
+    const W = 420, H = 190, pad = 26;
+    const max = Math.min(1, Math.max(0.3, ...pts.map(x => x.before)) * 1.1);
+    const X = k => pad + (k / (pts.length - 1)) * (W - pad * 2);
+    const Y = v => H - pad - (v / max) * (H - pad * 2);
+    const line = pts.map((x, k) => `${X(k).toFixed(1)},${Y(x.before).toFixed(1)}`).join(" ");
+    const area = `${X(0)},${H - pad} ${line} ${X(pts.length - 1)},${H - pad}`;
+    const rounds = [];
+    pts.forEach((x, k) => { if (!k || x.r !== pts[k - 1].r) rounds.push({ k, r: x.r }); });
+    const ticks = [0.1, 0.25, 0.5, 0.75, 1].filter(v => v < max);
+    const col = { best: "c-best", good: "c-good", inaccuracy: "c-inacc", mistake: "c-mistake", blunder: "c-blunder" };
+    return `<div class="tn-chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Win chance by decision">
+      ${ticks.map(v => `<line x1="${pad}" x2="${W - pad}" y1="${Y(v)}" y2="${Y(v)}" class="grid${v === 0.25 ? " fair" : ""}"/><text x="2" y="${Y(v) + 3}" class="lab">${Math.round(v * 100)}%</text>`).join("")}
+      ${rounds.map(o => `<line x1="${X(o.k)}" x2="${X(o.k)}" y1="${pad - 6}" y2="${H - pad}" class="rnd"/><text x="${X(o.k) + 2}" y="${pad - 8}" class="lab">R${o.r}</text>`).join("")}
+      <polygon points="${area}" class="area"/>
+      <polyline points="${line}" class="ln"/>
+      ${pts.map((x, k) => `<circle cx="${X(k).toFixed(1)}" cy="${Y(x.before).toFixed(1)}" r="${x.cls === "mistake" || x.cls === "blunder" ? 4.6 : x.cls === "inaccuracy" ? 3.6 : 2.4}" class="dot ${col[x.cls] || ""}"><title>Round ${x.r}: ${esc(x.ans || "")} (${CLASS[x.cls] ? CLASS[x.cls][0] : ""}, ${pct(x.before)})</title></circle>`).join("")}
+    </svg></div>`;
+  }
   function situation(m) {
     if (!m) return "";
     const bits = [];
@@ -475,74 +560,91 @@
     if (m.lines && m.lines[0]) bits.push(`closest line ${esc(m.lines[0].k)} (${esc(m.lines[0].w)})`);
     return bits.join(" · ");
   }
-  function momentCard(rec, i, r, f, st) {
+  const CAT_TIP = {
+    mull: "Mulligans: count lands and a line, and ship hands that do nothing by turn 3.",
+    tempo: "Mana and tempo: land first, rocks next, Etrata on curve; mana you don't spend is gone.",
+    lines: "Seeing the win: check every turn which line is live and what it still needs.",
+    tutor: "Tutoring: fetch what you can cast this turn, or what completes a line.",
+    etrata: "Etrata: a face-down noncreature card is a free spell for four mana.",
+    stack: "The stack: counters are for wipes, removal on your pieces and the spell that wins.",
+    combat: "Combat: keep Etrata home unless no blocker can kill her; attack where your cloaks live.",
+    rules: "Rules: read what the card actually lets you choose."
+  };
+  function deepCard(rec, i, d, row, st) {
     const m = momentByI(rec, i);
-    if (!m) return "";
-    const cls = classOf(r);
-    const open = st.rv && st.rv.open === i;
-    const c = cls ? CLASS[cls] : null;
+    if (!m || !d) return "";
+    const g = MKG().Analysis.grade(d.loss, d.se, (d.cands[0] || {}).eq);
+    const c = CLASS[g.cls];
+    const open = st.rvd.open === i;
+    const run = runs.get(rec.id + ":" + i);
     return `<article class="tn-mo${open ? " open" : ""}">
       <button class="tn-moh" type="button" data-mopen="${i}">
         <span class="tn-mr mono">R${m.r}</span>
-        <span class="tn-mt"><b>${esc(KIND[m.k] || m.k)}: ${esc(m.ans || "")}</b><span class="muted small">${situation(m)}</span></span>
-        ${c ? `<span class="tn-cls ${c[1]}">${c[0]}</span>` : r && r.error ? `<span class="tn-cls">n/a</span>` : `<span class="tn-cls pend">not replayed</span>`}
+        <span class="tn-mt"><b>${esc(KIND[m.k] || m.k)}: ${esc(m.ans || "")}</b><span class="muted small">${d.best && d.best !== d.mine ? `Best: ${esc(d.best)}` : "Your choice was the best found"}${g.rel >= 0.06 ? ` · gave up ${Math.round(g.rel * 100)}% of your chances` : ""}</span></span>
+        <span class="tn-cls ${c[1]}">${c[2]} ${c[0]}</span>
       </button>
-      ${open ? momentDetail(rec, m, r, f) : ""}
+      ${open ? deepDetail(rec, m, d, row, g) : ""}
+      ${run ? `<div class="sp-bar"><i style="--w:${Math.round((run.frac || 0) * 100)}%"></i></div>` : ""}
     </article>`;
   }
-  function momentDetail(rec, m, r, f) {
+  function deepDetail(rec, m, d, row, g) {
     const hand = (m.hand || []).map(cn).join(", ");
     const bf = (m.bf || []).map(n => n.startsWith("↓") ? (n === "↓?" ? "a face-down card" : cn(n.slice(1)) + " <small>(face down)</small>") : cn(n)).join(", ");
-    let table = "";
-    if (r && !r.error && r.cands) {
-      const best = r.cands[0];
-      table = `<div class="table-wrap"><table class="stack tn-cands"><thead><tr><th>Option</th><th>Score</th><th>vs best</th></tr></thead><tbody>${r.cands.map(c => `<tr class="${c.tags.includes("you") ? "you" : ""}${c === best ? " best" : ""}"><td>${esc(c.label)}${c.tags.includes("you") ? " <span class='tn-tag'>you</span>" : ""}${c.tags.includes("bot") ? " <span class='tn-tag b'>bot</span>" : ""}</td><td class="mono">${pct(c.eq)}</td><td class="mono">${c === best ? "best" : "−" + Math.round(c.loss * 100) + (c.se ? ` ±${Math.round(c.se * 200)}` : "")}</td></tr>`).join("")}</tbody></table></div>
-        <p class="muted small">${r.n} replays per option, ${r.horizon} rounds deep${r.ms ? `, ${(r.ms / 1000).toFixed(1)} s` : ""}. Score: win chance at the end of the replay (wins count 100%, losses 0%). ± is two standard errors of the paired difference.</p>`;
-      const P = MKG().Practice;
-      const cls = P.classify(r.loss, r.se);
-      if (r.mine && r.best && r.mine !== r.best) table += `<p class="tn-verdict ${cls}">${cls === "good" || cls === "best" ? `“${esc(r.best)}” scored a little higher, but inside the noise: your choice was fine.` : `“${esc(r.best)}” would have kept about ${Math.round(r.loss * 100)} points more win chance than “${esc(r.mine)}”.`}</p>`;
-      else if (r.mine) table += `<p class="tn-verdict best">Your choice was the best of the options tried.</p>`;
-    } else if (r && r.error) table = `<p class="muted">${esc(r.error)}</p>`;
+    const best = d.cands[0];
+    const verdict = d.mine && d.best !== d.mine
+      ? (g.cls === "good" || g.cls === "best" ? `“${esc(d.best)}” scored a little higher, inside the noise: your choice was fine.` : `“${esc(d.best)}” keeps ${pct(best.eq)} win chance; “${esc(d.mine)}” keeps ${pct(best.eq - d.loss)}. That's ${Math.round(d.loss * 100)} points, ${Math.round(g.rel * 100)}% of your chances.`)
+      : `Your choice was the best of the ${d.cands.length} options tried.`;
+    const why = (d.why || []).map(w => `<li><span>${esc(w.text)}</span><b>${fmtFeat(w, w.a)}</b><span class="muted">vs</span><b>${fmtFeat(w, w.b)}</b></li>`).join("");
+    const lines = d.lines && d.lines.best && d.lines.mine ? `<div class="tn-lines"><div><p class="tn-k">If you play ${esc(d.best)}</p>${logHTML(d.lines.best)}</div><div><p class="tn-k">What you did</p>${logHTML(d.lines.mine)}</div></div><p class="muted small">One playout of each from the same shuffle, picked as typical: the two differ about as much there as they do on average.</p>` : "";
+    const tags = [row ? `<span class="tn-tag2">${esc(SKILL_NAME[row.cat] || row.cat)}</span>` : "", m.ms != null ? `<span class="tn-tag2">${m.ms < 2500 ? "decided in " + (m.ms / 1000).toFixed(1) + " s: a slip?" : "thought for " + (m.ms / 1000).toFixed(0) + " s"}</span>` : "", row && row.dir ? `<span class="tn-tag2">${row.dir === "passive" ? "too passive" : "too hasty"}</span>` : ""].join("");
     return `<div class="tn-mod">
+      <p class="tn-verdict ${g.cls}">${verdict}</p>
+      <div class="tn-tags">${tags}</div>
       <p><span class="tn-k">Hand</span>${hand || "empty"}</p>
       <p><span class="tn-k">Your board</span>${bf || "empty"}</p>
       <p><span class="tn-k">Table</span>${(m.opp || []).filter(o => !o.lost).map(o => `${esc(o.n)} ${o.life} life, ${o.cr} creature${o.cr === 1 ? "" : "s"} (${o.pw} power), ${o.open} open`).join(" · ")}</p>
-      ${m.stage ? `<p><span class="tn-k">Coach would say</span><b>${esc(m.stage)}${m.ctitle ? ": " + esc(m.ctitle) : ""}</b>${(m.csteps || []).length ? `<br><span class="muted small">${A.mana(esc(m.csteps[0]))}</span>` : ""}</p>` : ""}
-      ${m.wp != null ? `<p><span class="tn-k">Win chance</span>${pct(m.wp)}${m.ms ? ` · you took ${(m.ms / 1000).toFixed(1)} s` : ""}</p>` : ""}
-      ${f ? `<p class="tn-flagline">${esc(f.title)}: ${cnText(esc(f.text))}</p>` : ""}
-      ${table}
-      <div class="btn-row"><button class="btn small" type="button" data-retry="${m.i}">Retry from here</button>${!r ? `<button class="btn primary small" type="button" data-one="${m.i}">Replay this moment</button>` : ""}</div>
+      ${situation(m) ? `<p><span class="tn-k">Situation</span>${situation(m)}</p>` : ""}
+      <div class="table-wrap"><table class="stack tn-cands"><thead><tr><th>Option</th><th>Win chance</th><th>vs best</th><th>Playouts</th></tr></thead><tbody>${d.cands.map(c => `<tr class="${c.tags.includes("you") ? "you" : ""}${c === best ? " best" : ""}${c.pruned ? " pruned" : ""}"><td>${esc(c.label)}${c.tags.includes("you") ? " <span class='tn-tag'>you</span>" : ""}${c.tags.includes("bot") ? " <span class='tn-tag b'>engine</span>" : ""}</td><td class="mono">${pct(c.eq)}</td><td class="mono">${c === best ? "best" : "−" + (c.loss * 100).toFixed(1) + (c.se ? ` ±${(c.se * 200).toFixed(1)}` : "")}</td><td class="mono">${c.n}${c.pruned ? " <span class='muted'>(dropped)</span>" : ""}</td></tr>`).join("")}</tbody></table></div>
+      <p class="muted small">${d.spent} playouts, ${d.horizon} rounds deep, every library reshuffled and every opponent's hand dealt fresh from the cards you couldn't see. Options that fell clearly behind were dropped early so the close ones got more playouts. ± is two standard errors.</p>
+      ${why ? `<div class="tn-why"><p class="tn-k">What the better option changes${d.whyVs ? ` (against ${esc(d.whyVs)})` : ""}</p><ul>${why}</ul></div>` : ""}
+      ${lines}
+      ${row && CAT_TIP[row.cat] && (g.cls === "mistake" || g.cls === "blunder" || g.cls === "inaccuracy") ? `<p class="tn-principle"><span>Principle</span>${esc(CAT_TIP[row.cat])}</p>` : ""}
+      <div class="btn-row"><button class="btn small" type="button" data-retry="${m.i}">Retry from here</button></div>
     </div>`;
   }
-  function wpChart(rec, rv, an) {
-    const pts = (rec.moments || []).filter(m => m.wp != null && !m.replayed);
-    if (pts.length < 2) return `<p class="muted">Not enough decisions to chart.</p>`;
-    const W = 420, H = 190, pad = 26;
-    const max = Math.max(0.4, ...pts.map(m => m.wp)) * 1.08;
-    const x = k => pad + (k / (pts.length - 1)) * (W - pad * 2);
-    const y = v => H - pad - (v / max) * (H - pad * 2);
-    const flagged = new Set(rv.flags.filter(f => !f.info).map(f => f.i));
-    const line = pts.map((m, k) => `${x(k).toFixed(1)},${y(m.wp).toFixed(1)}`).join(" ");
-    const area = `${x(0)},${H - pad} ${line} ${x(pts.length - 1)},${H - pad}`;
-    // round boundaries
-    const rounds = [];
-    pts.forEach((m, k) => { if (!k || m.r !== pts[k - 1].r) rounds.push({ k, r: m.r }); });
-    const ticks = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1].filter(v => v < max);
-    return `<div class="tn-chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Win chance by decision">
-      ${ticks.map(v => `<line x1="${pad}" x2="${W - pad}" y1="${y(v)}" y2="${y(v)}" class="grid"/><text x="2" y="${y(v) + 3}" class="lab">${Math.round(v * 100)}%</text>`).join("")}
-      ${rounds.map(o => `<line x1="${x(o.k)}" x2="${x(o.k)}" y1="${pad - 6}" y2="${H - pad}" class="rnd"/><text x="${x(o.k) + 2}" y="${pad - 8}" class="lab">R${o.r}</text>`).join("")}
-      <polygon points="${area}" class="area"/>
-      <polyline points="${line}" class="ln"/>
-      ${pts.map((m, k) => m.mine || flagged.has(m.i) ? `<circle cx="${x(k).toFixed(1)}" cy="${y(m.wp).toFixed(1)}" r="${flagged.has(m.i) ? 4.5 : 2.4}" class="${flagged.has(m.i) ? "fl" : "pt"}"><title>Round ${m.r}: ${esc(m.ans || "")} (${pct(m.wp)})</title></circle>` : "").join("")}
-    </svg></div>`;
+  function fmtFeat(w, v) {
+    if (w.unit === "%") return Math.round(v * 100) + "%";
+    if (w.unit === "x") return v.toFixed(2) + "×";
+    return (Math.round(v * 10) / 10).toString();
   }
-  function timelineHTML(rec, an, flagsAt) {
-    const ms = (rec.moments || []).filter(m => !m.replayed);
+  function logHTML(o) {
+    const lines = (o.log || []).filter(l => l.k !== "mana").slice(0, 14);
+    return `<ol class="tn-log">${lines.map(l => `<li class="${l.me ? "me" : ""}${l.k === "turn" ? " turn" : ""}">${esc(l.t)}</li>`).join("")}</ol><p class="muted small">Ended at ${pct(o.eq)}${o.won ? " (won)" : o.lost ? " (dead)" : ""}.</p>`;
+  }
+  function swingHTML(rec, s) {
+    const a = momentByI(rec, s.from), b = momentByI(rec, s.to);
+    const t0 = a ? a.t : 0, t1 = b ? b.t : 999;
+    const log = (rec.log || []).filter(e => e[3] != null && e[3] >= t0 && e[3] <= t1 && e[1] !== rec.hero && e[0] !== "turn").slice(-5);
+    return `<div class="tn-swing ${s.dv < 0 ? "neg" : "pos"}"><b>${s.dv < 0 ? "−" : "+"}${Math.abs(Math.round(s.dv * 100))} pts</b><span>round ${s.r}</span>${log.length ? `<ul>${log.map(e => `<li>${esc(e[2])}</li>`).join("")}</ul>` : `<p class="muted small">Between two of your decisions: draws and the other players.</p>`}</div>`;
+  }
+  function breakdownHTML(sum) {
+    const tbl = (title, g, names) => {
+      const keys = Object.keys(g).filter(k => g[k].n);
+      if (!keys.length) return "";
+      return `<div class="tn-bd"><p class="tn-k">${title}</p>${keys.map(k => `<div class="tn-bdr"><span>${esc(names[k] || k)}</span><span class="tn-bar"><i style="--w:${g[k].acc}%"></i></span><b class="mono">${Math.round(g[k].acc)}</b><span class="muted small">${g[k].n}</span></div>`).join("")}</div>`;
+    };
+    return `<section class="tn-sec"><h3>Where your accuracy went</h3><div class="tn-bds">
+      ${tbl("By phase", sum.byPhase, { early: "Rounds 1-3", middle: "Rounds 4-6", late: "Round 7+" })}
+      ${tbl("By skill", sum.byCat, SKILL_NAME)}
+      ${tbl("By time taken", sum.bySpeed, { fast: "Under 2.5 s", normal: "2.5-10 s", slow: "Over 10 s", "?": "Unknown" })}
+    </div>${sum.dirs.passive || sum.dirs.rushed ? `<p class="small">Mistakes from passing when acting was better: <b>${sum.dirs.passive}</b>. From acting when holding back was better: <b>${sum.dirs.rushed}</b>.</p>` : ""}</section>`;
+  }
+  function timelineHTML(rec, sum, store) {
     let out = "", lastR = -1;
-    for (const m of ms) {
-      if (m.r !== lastR) { out += `<h4>Round ${m.r}</h4>`; lastR = m.r; }
-      const r = an[m.i], cls = classOf(r), f = flagsAt.get(m.i);
-      out += `<div class="tn-tl${f ? " flag" : ""}"><span class="mono">${esc(KIND[m.k] || m.k)}</span><span>${esc(m.ans || "")}${m.stage && m.k === "main" ? ` <span class="muted small">· coach: ${esc(m.stage)}</span>` : ""}</span>${cls ? `<span class="tn-cls ${CLASS[cls][1]}">${CLASS[cls][0]}</span>` : ""}<span class="mono small">${m.wp != null ? pct(m.wp) : ""}</span></div>`;
+    for (const x of sum.rows) {
+      if (x.r !== lastR) { out += `<h4>Round ${x.r}</h4>`; lastR = x.r; }
+      const c = CLASS[x.cls];
+      out += `<div class="tn-tl${x.cls === "mistake" || x.cls === "blunder" ? " flag" : ""}"><span class="mono">${esc(KIND[x.k] || x.k)}</span><span>${esc(x.ans || "")}${x.best && x.best !== x.ans && x.adj > 0 ? ` <span class="muted small">· better: ${esc(x.best)}</span>` : ""}</span>${c ? `<span class="tn-cls ${c[1]}">${c[2]}</span>` : ""}<span class="mono small">${x.before != null ? pct(x.before) : ""}</span></div>`;
     }
     return `<div class="tn-tlw">${out}</div>`;
   }
@@ -634,20 +736,17 @@
     const byT = {};
     for (const q of QS) { const b = (quiz.box || {})[q.id]; if (b == null) continue; const k = TOPIC[q.topic] || "rules"; byT[k] = byT[k] || { n: 0, s: 0 }; byT[k].n++; byT[k].s += Math.min(1, b / 3); }
     for (const k of Object.keys(byT)) add(k, byT[k].s / byT[k].n, Math.min(8, byT[k].n * 0.3), `Quiz: ${byT[k].n} questions seen`);
-    // recorded games: the review rules' evidence and the replays
-    const ans = analyses();
+    // recorded games: the review rules' evidence and every graded decision
+    const ans = anStore();
     for (const g of p.gs) {
       let rv = null;
       try { rv = T ? T.review(g) : null; } catch (e) { rv = null; }
-      if (rv) for (const k of Object.keys(rv.ev)) { const e = rv.ev[k]; if (e.n) add(k, e.ok / e.n, e.n * 1.2, `Game ${ago(g.t)}: ${Math.round(e.ok * 10) / 10}/${Math.round(e.n * 10) / 10}`); }
-      const an = ans[g.id] || {};
-      for (const i of Object.keys(an)) {
-        const r = an[i]; if (!r || r.error || r.loss == null) continue;
-        const m = momentByI(g, +i); if (!m) continue;
-        const k = skillOfMoment(m);
-        const lossPct = r.loss > 2 * (r.se || 0) ? r.loss * 100 : 0;
-        add(k, MKG().Practice.accuracy(lossPct) / 100, 3, `Replayed moment, round ${m.r}`);
-      }
+      if (rv) for (const k of Object.keys(rv.ev)) { const e = rv.ev[k]; if (e.n) add(k, e.ok / e.n, e.n * 0.8, `Game ${ago(g.t)}: ${Math.round(e.ok * 10) / 10}/${Math.round(e.n * 10) / 10}`); }
+      const sm = (ans[g.id] || {}).sum;
+      if (!sm) continue;
+      const byCat = {};
+      for (const x of sm.rows) { const b = byCat[x.cat] = byCat[x.cat] || { n: 0, s: 0, w: 0 }; const w = x.deep ? 2 : 0.7; b.n++; b.s += x.acc / 100 * w; b.w += w; }
+      for (const k of Object.keys(byCat)) add(k, byCat[k].s / byCat[k].w, byCat[k].w, `Game ${ago(g.t)}: ${byCat[k].n} decision${byCat[k].n > 1 ? "s" : ""} graded`);
     }
     for (const k of Object.keys(S)) {
       const s = S[k];
@@ -656,17 +755,6 @@
       s.conf = s.w;
     }
     return S;
-  }
-  function skillOfMoment(m) {
-    if (m.k === "mulligan") return "mull";
-    if (m.k === "attack" || m.k === "block") return "combat";
-    if (m.k === "respond") return "stack";
-    if (m.k === "choose") return m.q && m.q.purpose === "tutor" ? "tutor" : "rules";
-    const a = m.ans || "";
-    if (/^Play /.test(a) || /Sol Ring|Signet|Talisman of|Fellwar|Mind Stone|Mox Amber|Dark Ritual|Etrata, Deadly Fugitive$/.test(a)) return "tempo";
-    if (/Tutor|Seal|Intent|Beseech|Vault|Symmetry|Wishclaw|Tribute Mage|Dizzy|Shred|Muddle|Drift|House Guard/.test(a)) return "tutor";
-    if (/face down|Face-down|turn face up/i.test(a)) return "etrata";
-    return "lines";
   }
   function radar(S) {
     const keys = Object.keys(SKILL_NAME);
@@ -699,11 +787,14 @@
     const overall = keys.length ? Math.round(keys.reduce((a, k) => a + S[k].score * Math.min(1, S[k].conf / 6), 0) / keys.reduce((a, k) => a + Math.min(1, S[k].conf / 6), 0)) : null;
     // the games: stats, flags and examples
     const reviews = p.gs.map(g => { try { return { g, rv: T.review(g) }; } catch (e) { return null; } }).filter(Boolean);
-    const ans = analyses();
+    const ans = anStore();
     const examples = k => {
       const out = [];
-      for (const { g, rv } of reviews) for (const f of rv.flags.filter(f => f.skill === k && !f.info)) out.push({ g, f, r: (ans[g.id] || {})[f.i] });
-      return out.sort((a, b) => (b.r && b.r.loss || 0) - (a.r && a.r.loss || 0) || b.f.sev - a.f.sev).slice(0, 2);
+      for (const { g, rv } of reviews) {
+        const sm = (ans[g.id] || {}).sum, rows = sm ? new Map(sm.rows.map(x => [x.i, x])) : new Map();
+        for (const f of rv.flags.filter(f => f.skill === k && !f.info)) out.push({ g, f, r: rows.get(f.i) });
+      }
+      return out.sort((a, b) => (b.r && b.r.rel || 0) - (a.r && a.r.rel || 0) || b.f.sev - a.f.sev).slice(0, 2);
     };
     const avg = f => { const xs = reviews.map(f).filter(x => x != null); return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null; };
     const prof = {
@@ -715,7 +806,8 @@
       thinkAll: avg(x => { const ms = x.g.moments.filter(m => m.ms != null && !m.replayed && m.k === "main"); return ms.length ? ms.reduce((a, m) => a + m.ms, 0) / ms.length / 1000 : null; }),
       wins: p.gs.filter(g => g.result && g.result.win).length, rounds: avg(x => x.g.result && x.g.result.rounds)
     };
-    const accs = p.gs.map(g => accuracyOf(g, ans[g.id])).filter(x => x != null);
+    const G = gameStats(p.gs, ans);
+    const accs = G.accs;
     const journal = p.ts.journal || [];
     const PLAN = {
       mull: ["Mulligan Lab until Silver (80%).", "Before each keep, name the turn Etrata comes down and the line you're digging for."],
@@ -738,6 +830,7 @@
           <div><b>${Math.round(p.ts.prating || 1200)}</b><span>puzzle rating</span></div>
         </div>
       </div>
+      ${engineHTML(G)}
       <section class="tn-sec tn-skills"><h3>Your eight skills</h3>
         <div class="tn-skgrid">${radar(S)}
           <ul class="tn-sklist">${Object.keys(SKILL_NAME).map(k => `<li><span>${esc(SKILL_NAME[k])}</span><span class="tn-bar"><i style="--w:${S[k].conf > 0.5 ? S[k].score : 0}%"></i></span><b class="mono">${S[k].conf > 0.5 ? S[k].score : "–"}</b></li>`).join("")}</ul>
@@ -748,7 +841,7 @@
         ${leaks.length ? "" : `<p class="muted">Nothing to go on yet: do a drill or play an assessment game.</p>`}
         ${leaks.map(k => `<article class="tn-leak panel"><div class="tn-lh"><b>${esc(SKILL_NAME[k])}</b><span class="mono">${S[k].score}</span></div>
           <p class="muted small">${S[k].src.slice(-4).map(s => esc(s.label)).join(" · ")}</p>
-          ${examples(k).map(x => `<div class="tn-ex"><p><b>${esc(x.f.title)}</b> <span class="muted small">round ${x.f.r || "–"}, ${ago(x.g.t)}${x.r && x.r.loss != null ? ` · cost about ${Math.round(x.r.loss * 100)} points of win chance` : ""}</span></p><p>${cnText(esc(x.f.text))}</p><div class="btn-row"><button class="btn ghost small" type="button" data-goto="${esc(x.g.id)}">Open the game</button>${x.f.i != null && x.f.id !== "mull" ? `<button class="btn ghost small" type="button" data-retry="${esc(x.g.id)}|${x.f.i}">Retry that moment</button>` : ""}</div></div>`).join("") || `<p class="muted small">No flagged moment in your games for this one yet: the score comes from drills and puzzles.</p>`}
+          ${examples(k).map(x => `<div class="tn-ex"><p><b>${esc(x.f.title)}</b> <span class="muted small">round ${x.f.r || "–"}, ${ago(x.g.t)}${x.r && x.r.rel >= 0.06 ? ` · gave up ${Math.round(x.r.rel * 100)}% of your chances` : ""}</span></p><p>${cnText(esc(x.f.text))}</p><div class="btn-row"><button class="btn ghost small" type="button" data-goto="${esc(x.g.id)}">Open the game</button>${x.f.i != null && x.f.id !== "mull" ? `<button class="btn ghost small" type="button" data-retry="${esc(x.g.id)}|${x.f.i}">Retry that moment</button>` : ""}</div></div>`).join("") || `<p class="muted small">No flagged moment in your games for this one yet: the score comes from drills and puzzles.</p>`}
           <ul class="tn-plan">${PLAN[k].map(t => `<li>${esc(t)}</li>`).join("")}</ul>
         </article>`).join("")}
       </section>
@@ -772,9 +865,108 @@
       <section class="tn-sec"><h3>Your next five sessions</h3><ol class="tn-next5">${nextFive(leaks, PLAN).map(t => `<li>${esc(t)}</li>`).join("")}</ol></section>
     </div>`;
     el.onclick = e => {
+      if (e.target.closest("[data-analyze-all]")) { p.gs.filter(g => !(anStore()[g.id] || {}).sum).reduce((pr, g) => pr.then(() => analyzeGame(g)), Promise.resolve()); bus(); return; }
       const g = e.target.closest("[data-goto]"); if (g) { location.hash = "train/games"; setTimeout(() => openReview(g.dataset.goto), 60); return; }
       const r = e.target.closest("[data-retry]"); if (r) { const [id, i] = r.dataset.retry.split("|"); const rec = games().find(x => x.id === id); if (rec) startRetry(rec, +i); }
     };
+  }
+  /* ---------------------------------------------------------------- the engine's verdict over all games */
+  // situations a leak can hide in, read from each decision's snapshot
+  const LEAKS = [
+    { id: "live", t: "when a win line was live", f: m => !!(m.lines || []).some(l => l.w === "now") },
+    { id: "close", t: "when a line was one turn away", f: m => !(m.lines || []).some(l => l.w === "now") && (m.lines || []).some(l => l.w === "next") },
+    { id: "noet", t: "while Etrata was off the battlefield", f: m => m.k !== "mulligan" && m.etrata === false },
+    { id: "et", t: "with Etrata on the battlefield", f: m => m.etrata === true },
+    { id: "tutor", t: "with a tutor in hand", f: m => (m.hand || []).some(n => /Tutor|Seal of|Demonic|Vampiric|Imperial|Lim-D|Beseech|Wishclaw|Intuition/.test(n)) },
+    { id: "ctr", t: "holding a counterspell", f: m => (m.ctrs || []).length > 0 },
+    { id: "stack", t: "with a spell on the stack", f: m => m.k === "respond" },
+    { id: "attack", t: "in combat", f: m => m.k === "attack" || m.k === "block" },
+    { id: "late", t: "from round 6 on", f: m => m.r >= 6 },
+    { id: "early", t: "in rounds 1 to 3", f: m => m.r <= 3 && m.k !== "mulligan" },
+    { id: "rich", t: "with 5 or more mana", f: m => m.mana >= 5 },
+    { id: "poor", t: "with 2 mana or less", f: m => m.mana != null && m.mana <= 2 && m.k === "main" },
+    { id: "urgent", t: "when a threat needed an answer", f: m => !!m.urgent },
+    { id: "fast", t: "when you decided in under 2.5 seconds", f: m => m.ms != null && m.ms < 2500 },
+    { id: "slow", t: "after thinking more than 15 seconds", f: m => m.ms != null && m.ms > 15000 }
+  ];
+  function gameStats(gs, ans) {
+    const sums = gs.map(g => ({ g, sm: (ans[g.id] || {}).sum })).filter(x => x.sm && x.sm.rows && x.sm.rows.length);
+    const rows = [];
+    for (const { g, sm } of sums) for (const x of sm.rows) rows.push({ x, m: momentByI(g, x.i) || {}, g });
+    const mean = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+    const n = sums.length;
+    const out = { n, missing: gs.length - n, rows: rows.length, accs: sums.map(s => s.sm.accuracy).filter(x => x != null) };
+    if (!n) return out;
+    out.acc = mean(out.accs);
+    out.skill = mean(sums.map(s => s.sm.skill));
+    out.luck = mean(sums.map(s => s.sm.luck).filter(x => x != null));
+    out.start = mean(sums.map(s => s.sm.start).filter(x => x != null));
+    out.wins = sums.filter(s => s.g.result && s.g.result.win).length;
+    const anch = (MKG() && MKG().Analysis && MKG().Analysis.ANCHORS) || { random: 83, bot: 98.6 };
+    out.anch = anch;
+    out.strength = Math.round(100 * (out.acc - anch.random) / Math.max(1, anch.bot - anch.random));
+    // points of win chance lost per game, by skill
+    const cats = {};
+    for (const { x } of rows) { const c = cats[x.cat] = cats[x.cat] || { n: 0, lost: 0, rel: 0, errs: 0 }; c.n++; c.lost += x.adj; c.rel += x.rel; if (x.rel >= 0.15) c.errs++; }
+    out.cats = Object.keys(cats).map(k => ({ k, n: cats[k].n, perGame: cats[k].lost / n * 100, rel: cats[k].rel / cats[k].n, errs: cats[k].errs })).sort((a, b) => b.perGame - a.perGame);
+    const errs = rows.filter(r => r.x.rel >= 0.15);
+    out.errs = errs.length;
+    out.slips = errs.filter(r => r.x.err === "slip").length;
+    out.passive = errs.filter(r => r.x.dir === "passive").length;
+    out.rushed = errs.filter(r => r.x.dir === "rushed").length;
+    const sp = k => { const xs = rows.filter(r => r.x.speed === k); return xs.length ? { n: xs.length, acc: mean(xs.map(r => r.x.acc)) } : null; };
+    out.speed = { fast: sp("fast"), normal: sp("normal"), slow: sp("slow") };
+    const ph = k => { const xs = rows.filter(r => r.x.phase === k); return xs.length ? { n: xs.length, acc: mean(xs.map(r => r.x.acc)) } : null; };
+    out.phase = { early: ph("early"), middle: ph("middle"), late: ph("late") };
+    // the leak finder: situations where your share of chances given up is well above your average
+    const avgRel = mean(rows.map(r => r.x.rel)) || 0;
+    out.avgRel = avgRel;
+    out.leaks = LEAKS.map(L => {
+      const inn = rows.filter(r => { try { return L.f(r.m); } catch (e) { return false; } });
+      if (inn.length < 4) return null;
+      const rel = mean(inn.map(r => r.x.rel)), acc = mean(inn.map(r => r.x.acc));
+      const worst = inn.slice().sort((a, b) => b.x.rel - a.x.rel)[0];
+      return { id: L.id, t: L.t, n: inn.length, rel, acc, lift: avgRel > 0.002 ? rel / avgRel : 1, worst };
+    }).filter(Boolean).filter(l => l.lift >= 1.4 && l.rel >= 0.04).sort((a, b) => b.lift * Math.sqrt(b.n) - a.lift * Math.sqrt(a.n)).slice(0, 4);
+    // your own mistakes, as a drill: replay each one from the moment it happened
+    out.mine = errs.sort((a, b) => b.x.rel - a.x.rel).slice(0, 8);
+    return out;
+  }
+  function engineHTML(G) {
+    if (!G.n) return `<section class="tn-sec"><h3>What the analysis engine sees</h3><p class="muted">${G.missing ? `${G.missing} game${G.missing > 1 ? "s are" : " is"} waiting to be analyzed.` : "Play an assessment game first."}</p>${G.missing ? `<button class="btn primary small" type="button" data-analyze-all>Analyze my games</button>` : ""}</section>`;
+    const pp = x => (x >= 0 ? "+" : "−") + Math.abs(x * 100).toFixed(0);
+    const bar = (v, max) => `<span class="tn-bar"><i style="--w:${Math.max(2, Math.min(100, v / max * 100)).toFixed(0)}%"></i></span>`;
+    const maxCat = Math.max(1, ...G.cats.map(c => c.perGame));
+    const sp = G.speed, ph = G.phase;
+    const strengthTxt = G.strength >= 100 ? "as accurate as the engine's own bot, or better" : G.strength >= 70 ? "close to the engine's bot" : G.strength >= 40 ? "halfway between random play and the engine's bot" : G.strength >= 15 ? "learning the deck: clearly better than random, far from the bot" : "close to random play: the basics first";
+    const tips = [];
+    if (G.errs >= 3 && G.slips / G.errs >= 0.5) tips.push("More than half of your real mistakes came in under 2.5 seconds: they are slips, not gaps in knowledge. Take a breath on every decision that spends a card.");
+    if (G.errs >= 3 && G.slips / G.errs < 0.25) tips.push("Your real mistakes come after thinking: these are judgment calls. The drills and puzzles for the skills below train exactly that.");
+    if (G.passive >= 2 && G.passive > G.rushed * 2) tips.push(`You lose most by doing too little: ${G.passive} of your mistakes were passing when acting was better. When in doubt, use your mana.`);
+    if (G.rushed >= 2 && G.rushed > G.passive * 2) tips.push(`You lose most by acting too soon: ${G.rushed} of your mistakes were acting when holding back was better. Ask what the table can do in response first.`);
+    if (sp.fast && sp.slow && sp.fast.n >= 4 && sp.slow.n >= 4 && sp.slow.acc - sp.fast.acc >= 8) tips.push(`You're ${Math.round(sp.slow.acc - sp.fast.acc)} points more accurate when you take your time: slow down.`);
+    if (ph.late && ph.early && ph.late.n >= 4 && ph.early.acc - ph.late.acc >= 8) tips.push("Your accuracy drops in the late game, where the table is complex and every choice matters most: count the lines before each turn.");
+    return `<section class="tn-sec tn-engine"><h3>What the analysis engine sees</h3>
+      <div class="tn-engtop">
+        <div class="tn-strength"><div class="tn-sscale"><span class="tn-smark r" style="--x:0%">random</span><span class="tn-smark b" style="--x:100%">bot</span><i style="--x:${Math.max(0, Math.min(108, G.strength))}%"></i></div><p><b>${G.strength}</b> on a scale where random clicks score 0 and the engine's bot 100: ${esc(strengthTxt)}.</p></div>
+        <div class="tn-kpis">
+          <div><b>${Math.round(G.acc)}%</b><span>accuracy over ${G.n} game${G.n > 1 ? "s" : ""} (${G.rows} decisions)</span></div>
+          <div><b>${pp(G.skill)}</b><span>win chance your decisions cost per game</span></div>
+          <div><b>${pp(G.luck)}</b><span>luck and the table, per game</span></div>
+          <div><b>${G.errs}</b><span>real mistakes (${G.slips} slips, ${G.errs - G.slips} judgment)</span></div>
+        </div>
+      </div>
+      ${G.missing ? `<p class="muted small">${G.missing} more game${G.missing > 1 ? "s" : ""} not analyzed yet. <button class="btn ghost small" type="button" data-analyze-all>Analyze ${G.missing > 1 ? "them" : "it"}</button></p>` : ""}
+      ${tips.length ? `<div class="tn-tips">${tips.map(t => `<p class="tn-principle"><span>Pattern</span>${esc(t)}</p>`).join("")}</div>` : ""}
+      <div class="tn-bds">
+        <div class="tn-bd"><p class="tn-k">Win chance lost per game, by skill</p>${G.cats.map(c => `<div class="tn-bdr"><span>${esc(SKILL_NAME[c.k] || c.k)}</span>${bar(c.perGame, maxCat)}<b class="mono">${c.perGame.toFixed(1)}</b><span class="muted small">${c.n}</span></div>`).join("")}<p class="muted small">Points of win chance per game; the small number is decisions.</p></div>
+        <div class="tn-bd"><p class="tn-k">Accuracy by time taken</p>${[["fast", "Under 2.5 s"], ["normal", "2.5-10 s"], ["slow", "Over 10 s"]].filter(([k]) => sp[k]).map(([k, l]) => `<div class="tn-bdr"><span>${l}</span>${bar(sp[k].acc, 100)}<b class="mono">${Math.round(sp[k].acc)}</b><span class="muted small">${sp[k].n}</span></div>`).join("")}
+          <p class="tn-k">By phase</p>${[["early", "Rounds 1-3"], ["middle", "Rounds 4-6"], ["late", "Round 7+"]].filter(([k]) => ph[k]).map(([k, l]) => `<div class="tn-bdr"><span>${l}</span>${bar(ph[k].acc, 100)}<b class="mono">${Math.round(ph[k].acc)}</b><span class="muted small">${ph[k].n}</span></div>`).join("")}</div>
+      </div>
+      <h4>Where your leaks hide</h4>
+      ${G.leaks.length ? `<div class="tn-leakfind">${G.leaks.map(l => `<div class="tn-lf panel"><p><b>${esc(l.t[0].toUpperCase() + l.t.slice(1))}</b>, you give up <b>${(l.lift).toFixed(1)}×</b> as much as usual <span class="muted small">(${l.n} decisions, accuracy ${Math.round(l.acc)})</span></p>${l.worst ? `<p class="muted small">Worst: round ${l.worst.x.r}, ${esc(l.worst.x.ans || "")}${l.worst.x.best && l.worst.x.best !== l.worst.x.ans ? `, where ${esc(l.worst.x.best)} was better` : ""}.</p><div class="btn-row"><button class="btn ghost small" type="button" data-goto="${esc(l.worst.g.id)}">Open the game</button>${l.worst.x.k !== "mulligan" ? `<button class="btn ghost small" type="button" data-retry="${esc(l.worst.g.id)}|${l.worst.x.i}">Retry it</button>` : ""}</div>` : ""}</div>`).join("")}</div>` : `<p class="muted small">${G.rows < 40 ? "The leak finder compares your decisions across situations; it needs a few more games to tell a pattern from chance." : "No situation stands out: your mistakes are spread evenly."}</p>`}
+      ${G.mine.length ? `<h4>Your own mistakes, as a drill</h4><p class="muted small">The decisions where you gave up the largest share of your chances. Retry each from the exact moment until you find the better play.</p><ol class="tn-mine">${G.mine.map(r => `<li><span class="mono">R${r.x.r}</span><span>${esc(r.x.ans || "")}${r.x.best && r.x.best !== r.x.ans ? ` <span class="muted small">· better: ${esc(r.x.best)}</span>` : ""}</span><span class="tn-cls ${CLASS[r.x.cls][1]}">${Math.round(r.x.rel * 100)}%</span>${r.x.k !== "mulligan" ? `<button class="btn ghost small" type="button" data-retry="${esc(r.g.id)}|${r.x.i}">Retry</button>` : `<button class="btn ghost small" type="button" data-goto="${esc(r.g.id)}">Open</button>`}</li>`).join("")}</ol>` : ""}
+    </section>`;
   }
   function profRow(label, v, fmt, target, good) {
     if (v == null) return `<tr><td>${esc(label)}</td><td class="mono">–</td><td>${esc(target)}</td></tr>`;

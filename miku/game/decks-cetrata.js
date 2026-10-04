@@ -1044,6 +1044,32 @@
     if (p.hand.some(c => c.def.types.includes("Land"))) n++;
     return n;
   }
+  /* Whether p can pay a cost with the right colors: now, or next turn (after untapping, plus one
+     land from hand). Counting mana alone misses lines that need {U}{B} from a board of colorless rocks. */
+  function payNow(g, p, cost) { try { return g.canPay(p, pc(cost || "{0}")); } catch (e) { return true; } }
+  function landColors(g, p, c) {
+    const out = new Set();
+    for (const ab of c.def.mana || []) {
+      const prod = typeof ab.produce === "function" ? null : ab.produce;
+      if (!prod) continue;
+      try { for (const u of g.expandProduce(prod, p)) if (u.length === 1) out.add(u[0]); } catch (e) { /* skip */ }
+    }
+    return out;
+  }
+  function payNext(g, p, cost) {
+    try {
+      const c0 = pc(cost || "{0}");
+      if (g.manaAfterUntap(p, c0).can) return true;
+      for (const land of p.hand.filter(c => c.def.types.includes("Land"))) {
+        for (const k of landColors(g, p, land)) {
+          const c = pc(cost || "{0}");
+          if (k !== "C" && c[k] > 0) c[k]--; else if (c.g > 0) c.g--; else continue;
+          if (g.manaAfterUntap(p, c).can) return true;
+        }
+      }
+      return false;
+    } catch (e) { return true; }
+  }
   let planKey = null, planVal = null;
   function plan(g, p) {
     const key = g.v != null ? (g.idBase || 0) + ":" + g.v + ":" + p.id + ":" + g.phase + ":" + (g.active && g.active.id) : null;
@@ -1126,9 +1152,13 @@
       const blockedBy = hate.filter(o => HATE[o.def.name].lines.includes(l.key)).map(o => ({ name: o.def.name, owner: o.controller.name }));
       const combat = l.key === "doubletap" || l.key === "hitlist";
       const sick = l.key === "doubletap" && !(bfObj(g, p, "Virtus the Veiled") && !bfObj(g, p, "Virtus the Veiled").sick);
-      let when = blockedBy.length ? "blocked" : unfound ? "later" : (!onTop && missing.length === tutors.length && n <= now && myTurn && !sick && (!combat || g.phase === "main1")) ? "now" : n <= next ? "next" : "later";
+      // enough mana is not enough: the colors have to be there too
+      const okNow = n <= now && payNow(g, p, cost), okNext = n <= next && (okNow || payNext(g, p, cost));
+      const colorShort = n <= next && !okNext ? "next" : n <= now && !okNow ? "now" : null;
+      if (colorShort) steps.push({ text: `You have ${colorShort === "now" ? "the mana" : "enough mana next turn"} but not the colors: it needs ${(cost.match(/\{[WUBRG]\}/g) || []).join("")}. Get a land or rock that makes them first.`, cards: [] });
+      let when = blockedBy.length ? "blocked" : unfound ? "later" : (!onTop && missing.length === tutors.length && okNow && myTurn && !sick && (!combat || g.phase === "main1")) ? "now" : okNext ? "next" : "later";
       if (l.key === "hitlist" && when === "now") when = "next";   // it takes several hits
-      lines.push({ key: l.key, when, title: l.title, short: SHORT_TITLE[l.key], kill: l.key !== "brine", cost: cost || "{0}", mana: n, steps, tutors: tutors.map(t => t[0]), missing: missing.map(side => side[0]), blockedBy, early: null, onTurn: cost || "{0}" });
+      lines.push({ key: l.key, when, title: l.title, short: SHORT_TITLE[l.key], kill: l.key !== "brine", cost: cost || "{0}", mana: n, steps, tutors: tutors.map(t => t[0]), missing: missing.map(side => side[0]), blockedBy, colorShort, early: null, onTurn: cost || "{0}" });
     }
     const W = { now: 0, next: 1, later: 2, blocked: 3 };
     lines.sort((a, b) => W[a.when] - W[b.when] || a.mana - b.mana || (a.kill === b.kill ? 0 : a.kill ? -1 : 1));
@@ -1317,7 +1347,7 @@
       if (l.when === "now") { for (const st of l.steps.slice(0, 3)) step(st.text, st.cards); return; }
       const what = l.missing.length ? `${l.short}, missing ${l.missing.map(nick).join(" and ")}` : l.short;
       if (l.when === "next") step(`Next turn: ${what}. It costs ${l.cost} and you'll have ${r.state.manaNext} mana. ${l.steps[0] ? l.steps[0].text : ""}`, l.steps[0] ? l.steps[0].cards : []);
-      else step(`Closest line: ${what}. All in, about ${l.mana} mana; you have ${r.state.manaNow}. ${l.steps[0] ? l.steps[0].text : ""}`, l.steps[0] ? l.steps[0].cards : []);
+      else step(`Closest line: ${what}. All in, about ${l.mana} mana; you have ${r.state.manaNow}${l.colorShort ? ", but not the colors it needs" : ""}. ${l.steps[0] ? l.steps[0].text : ""}`, l.steps[0] ? l.steps[0].cards : []);
     }
   }
 
