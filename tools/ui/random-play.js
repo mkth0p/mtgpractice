@@ -168,6 +168,19 @@ async function checkReview(page) {
     }
     if (ASSESS) await checkReview(page);
     if (ASSESS && opt("shots", false)) await page.screenshot({ path: `${opt("shots")}/review-${gameNo}.png`, fullPage: true });
+    if (ASSESS && opt("export", false)) {
+      // the export button on the games list: a JSON file whose replays match
+      try {
+        await page.click("[data-close]");
+        await page.waitForSelector("[data-export]", { timeout: 10000 });
+        const [dl] = await Promise.all([page.waitForEvent("download", { timeout: 120000 }), page.click("[data-export]")]);
+        await dl.saveAs(opt("export"));
+        const ex = JSON.parse(require("fs").readFileSync(opt("export"), "utf8"));
+        const bad = ex.games.filter(g => !g.replay || !g.replay.matches);
+        console.log(`  game ${gameNo}: exported ${ex.games.length} game(s), ${ex.games.filter(g => g.analysis).length} analyzed, replays ${bad.length ? bad.length + " DON'T match" : "all match"}`);
+        if (bad.length) note("export", "replay mismatch", bad.map(g => g.replay));
+      } catch (e) { note("export", e.message.split("\n")[0]); }
+    }
     if (ASSESS && gameNo === GAMES) {
       // the personal analysis (as a preview while it's still locked) reads every saved game
       await page.goto(page.url().replace(/#.*/, "#train/report"));

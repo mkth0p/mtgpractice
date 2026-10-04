@@ -20,7 +20,7 @@
   const ALL = CARDS.concat(EXTRA);
   const KEY = D.key || "mikuWiki"; // localStorage prefix
   const SHORT = D.short || "Miku";
-  const V = "26"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  const V = "27"; // asset version: keep in step with the ?v= links in index.html and sw.js
   const byName = new Map(ALL.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));

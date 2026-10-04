@@ -325,15 +325,63 @@
             ${sparkWP(g, sm)}
           </button>`;
         }).join("") : `<p class="muted">No games yet. Play an assessment game: it takes a normal game's time, and the analysis starts when it ends.</p>`}
+        ${list.length ? `<div class="tn-export"><button class="btn ghost small" type="button" data-export>Export all games and analysis</button><span class="muted small">A JSON file with every game (seed, seats, each answer you gave and how long you took, the log), every analysis result, the models' versions and a replay check: everything needed to rerun and judge the analysis.</span></div>` : ""}
       </section>
       ${journalHTML(ts)}`;
     el.onclick = e => {
       const p = e.target.closest("[data-pool]"); if (p) { st.pool = p.dataset.pool; renderGames(el, st); return; }
       const a = e.target.closest("[data-assess]"); if (a) { a.disabled = true; a.textContent = "Loading…"; startAssessment(pool).then(() => { a.disabled = false; a.textContent = "Start an assessment game"; }).catch(err => { console.error(err); a.textContent = "Couldn't load the game"; }); return; }
       const g = e.target.closest("[data-rec]"); if (g) { openReview(g.dataset.rec); return; }
+      const x = e.target.closest("[data-export]"); if (x) { x.disabled = true; x.textContent = "Checking replays…"; exportAll(f => { x.textContent = `Checking replays… ${Math.round(f * 100)}%`; }).then(() => { x.textContent = "Exported"; }).catch(err => { console.error(err); x.textContent = "Export failed: " + (err && err.message || err); }).finally(() => { setTimeout(() => { x.disabled = false; x.textContent = "Export all games and analysis"; }, 2500); }); return; }
       journalClick(e, el, st);
     };
     el.onsubmit = e => journalSubmit(e, el, st);
+  }
+  /* Everything the analysis saw and said, in one file: the raw saved data (every cetrataWiki key),
+     the versions of the engine and models that produced it, and for each game a replay check (does
+     replaying the seed with the recorded answers give the same game?) and an index of decisions with
+     their grades. tools/sim/judge-export.js reruns the analysis on it. */
+  async function exportAll(progress) {
+    await engine();
+    const MK = MKG(), An = MK.Analysis, P = MK.Practice;
+    const raw = {};
+    for (let k = 0; k < localStorage.length; k++) { const key = localStorage.key(k); if (key && key.startsWith(KEY + ".")) raw[key] = load(key, null); }
+    const list = games(), store = anStore();
+    const info = window.MikuApp && window.MikuApp.gameInfo;
+    const out = {
+      kind: "cetrata-analysis-export", format: 1, exportedAt: new Date().toISOString(), tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      site: { asset: info ? info.v : null, files: info ? info.files : null, url: location.href.replace(/#.*/, "") },
+      engine: {
+        analysis: An.VERSION, anchors: An.ANCHORS, valueModel: (MK.Value && MK.Value.getModel() || {}).meta || null,
+        valueFeatures: MK.Value ? MK.Value.FEATURES : null, wpModel: TR() && TR().getWP ? TR().getWP() : null
+      },
+      device: { ua: navigator.userAgent, cores: navigator.hardwareConcurrency || null, workers: pool.size, lang: navigator.language },
+      notes: "storage drops the oldest games' typical lines (deep.lines) when localStorage is full; moments[].ms is think time in ms; answers are relative to g.idBase",
+      games: [], raw
+    };
+    for (let k = 0; k < list.length; k++) {
+      const rec = list[k], an = store[rec.id] || null;
+      const g0 = { id: rec.id, t: rec.t, when: new Date(rec.t).toISOString(), mode: rec.mode, result: rec.result, seats: rec.seats, deck: rec.deck, hero: rec.hero, seed: rec.seed, decisions: (rec.moments || []).filter(m => !m.replayed).length, answers: (rec.answers || []).length };
+      // the replay check: the recorded answers on the same seed must give the same game
+      try {
+        const r = await P.replay(rec, { at: (rec.answers || []).length + 1 });
+        const g = r.g, me = g && g.players[rec.hero];
+        g0.replay = { diverged: r.diverged || null, error: r.error || null, branched: !!r.branched, rounds: g ? g.round : null, won: g ? g.winner === me : null, matches: !r.diverged && !r.error && !!g && (!rec.result || rec.result.conceded || ((g.winner === me) === !!rec.result.win)) };
+      } catch (err) { g0.replay = { error: String(err && err.message || err) }; }
+      if (an && an.sum) g0.decisionIndex = an.sum.rows.map(x => ({ i: x.i, round: x.r, kind: x.k, yours: x.ans, best: x.best, cls: x.cls, acc: x.acc, loss: x.loss, se: x.se, rel: x.rel, before: x.before, after: x.after, stakes: x.stakes, cat: x.cat, ms: x.ms, deep: x.deep }));
+      g0.analysis = an;
+      g0.analyzedWith = an ? { at: an.at ? new Date(an.at).toISOString() : null, model: an.model || null } : null;
+      g0.rec = rec;
+      out.games.push(g0);
+      if (progress) progress((k + 1) / list.length);
+    }
+    const blob = new Blob([JSON.stringify(out, null, 1)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `etrata-analysis-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    return out;
   }
   function sparkWP(g, sm) {
     const pts = sm && sm.rows ? sm.rows.filter(x => x.before != null).map(x => x.before) : [];
@@ -363,7 +411,7 @@
     return cur;
   }
   // only what a replay needs goes to a worker
-  const slim = rec => ({ id: rec.id, deck: rec.deck, seed: rec.seed, seats: rec.seats, hero: rec.hero, maxTurns: rec.maxTurns, answers: rec.answers, kinds: rec.kinds });
+  const slim = rec => ({ id: rec.id, v: rec.v, engine: rec.engine, deck: rec.deck, seed: rec.seed, seats: rec.seats, hero: rec.hero, maxTurns: rec.maxTurns, answers: rec.answers, kinds: rec.kinds });
   const pool = { workers: [], queue: [], started: null, size: 0, seq: 0, jobs: new Map() };
   function startPool() {
     if (pool.started) return pool.started;
