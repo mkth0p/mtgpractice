@@ -202,26 +202,49 @@
     }
 
     /* -------------------------------------------------------- starting a game */
-    start(seats) {
+    /* mode (practice, optional): { kind: "assess" } records your choices for the review;
+       { kind: "retry", rec, at } replays a recorded game to answer `at`, then hands it to you;
+       { kind: "puzzle", puzzle } sets up a board for a one-turn puzzle. Each takes onDone(rec or
+       result) and onReview(rec). */
+    start(seats, mode) {
+      const pm = this.gm = mode || null;
+      const PR = MK.Practice;
+      if (pm && pm.kind === "retry") seats = pm.rec.seats.map((s, i) => i === pm.rec.hero ? { human: true, deck: PR.deckById(s.deck) } : { deck: PR.deckById(s.deck), skill: s.skill, aggression: s.aggression });
       this.seats = seats;
       const lvl = this.s.level === "casual" ? { skill: 0.55 } : { skill: 0.9 };
-      const players = seats.map((d, i) => {
+      const skillOf = d => d.skill != null ? d.skill : lvl.skill;
+      const aggrOf = d => d.aggression != null ? d.aggression : d.deck.aggression == null ? 0.55 : d.deck.aggression;
+      const players = pm && pm.kind === "puzzle" ? pm.puzzle.players(this) : seats.map((d, i) => {
         if (d.human) return { name: "You", commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, human: true, agent: this.humanAgent(), deckId: d.deck.id };
-        const bot = MK.AI.create({ skill: lvl.skill, aggression: d.deck.aggression == null ? 0.55 : d.deck.aggression });
+        const bot = MK.AI.create({ skill: skillOf(d), aggression: aggrOf(d) });
         return { name: d.deck.name, commander: d.deck.commander, list: d.deck.list, identity: d.deck.identity, agent: this.paced(bot), deckId: d.deck.id };
       });
       this.helper = MK.AI.create({ skill: 1 });
       // a deck with a coach (Corrupted Miku) shows live tips and a turn checklist
       const mine = seats.find(d => d.human);
-      this.coach = mine && mine.deck.coach || null;
+      // practice games are played without the coach: they measure what you'd do on your own
+      this.coach = pm && pm.kind !== "retry" ? null : mine && mine.deck.coach || null;
       this.$.coachBtn.hidden = !this.coach;
       // Companion (ticked in the game setup): a panel that walks you through each stage of the game
       this.companionOn = !!(this.coach && this.coach.companion && this.s.companion !== false);
-      const seed = Math.floor(Math.random() * 2 ** 31);
-      const g = this.g = new MK.Game({ seed, players, endOnHumanLoss: true, maxTurns: 160, ui: { log: e => this.onLog(e), anim: (k, d) => this.onAnim(k, d), pace: (k, d) => this.onPace(k, d) } });
+      const seed = pm && pm.kind === "retry" ? pm.rec.seed : pm && pm.kind === "puzzle" ? (pm.puzzle.seed || 1) : Math.floor(Math.random() * 2 ** 31);
+      const heroIdx = Math.max(0, players.findIndex(p => p.human));
+      this.rec = null;
+      if (pm && (pm.kind === "assess" || pm.kind === "retry") && PR) {
+        const rec = this.rec = PR.newRecord({ deck: mine.deck.id, mode: pm.kind, seed, hero: heroIdx, seats: seats.map(d => d.human ? { deck: d.deck.id, name: "You" } : { deck: d.deck.id, name: d.deck.name, skill: skillOf(d), aggression: aggrOf(d) }) });
+        let agent = players[heroIdx].agent;
+        if (pm.kind === "retry") { rec.parent = pm.rec.id; rec.from = pm.at; agent = this.replayFirst(pm.rec, pm.at, agent); }
+        players[heroIdx].agent = PR.record(agent, { rec, replayedUntil: pm.kind === "retry" ? pm.at : 0 });
+      }
+      const gopts = { seed, players, endOnHumanLoss: true, maxTurns: 160, ui: { log: e => this.onLog(e), anim: (k, d) => this.onAnim(k, d), pace: (k, d) => this.onPace(k, d) } };
+      if (pm && pm.kind === "puzzle") Object.assign(gopts, { setup: g => pm.puzzle.setup(g), stopAtTurn: pm.puzzle.stopAtTurn || 1, round: pm.puzzle.round || 1, maxTurns: 40 });
+      const g = this.g = new MK.Game(gopts);
       g.players.forEach((p, i) => { p.color = PLAYER_COLORS[i % PLAYER_COLORS.length]; p.deckId = players[i].deckId || "miku"; });
       this.me = g.players.find(p => p.human);
-      g.activeIdx = g.rand(g.players.length);
+      // the same draw of the game's dice the practice replays make (practice.js buildGame)
+      g.activeIdx = pm && pm.kind === "puzzle" ? heroIdx : g.rand(g.players.length);
+      if (this.rec) this.rec.first = g.activeIdx;
+      if (pm && pm.kind === "puzzle") this.puzzleBar();
       const opp = this.opps();
       this.focusId = opp[0] && opp[0].id;
       const names = new Set();
@@ -231,6 +254,37 @@
       this.render();
       this.startedAt = Date.now();
       g.play().then(() => this.finish()).catch(err => this.crash(err));
+    }
+    /* Retry: the recorded answers up to `at`, played at full speed, then you. */
+    replayFirst(prev, at, human) {
+      const t = this;
+      let i = 0;
+      const a = {};
+      for (const k of MK.Practice.KINDS) a[k] = (g, p, ctx) => {
+        if (i < at && i < prev.answers.length) { const v = prev.answers[i++]; t.fastForward = true; return MK.Practice.deAnswer(g, v, ctx); }
+        if (i++ === at) { t.fastForward = false; t.toast("Your move: this is the moment you picked."); }
+        return human[k](g, p, ctx);
+      };
+      return a;
+    }
+    /* Puzzle goal and hint, above the boards. */
+    puzzleBar() {
+      const pz = this.gm.puzzle;
+      let bar = this.el.querySelector(".mg-puzzle");
+      if (!bar) { bar = document.createElement("div"); bar.className = "mg-puzzle"; this.el.querySelector(".mg-top").after(bar); }
+      this.hintN = this.hintN || 0;
+      const hints = pz.hints || [];
+      bar.innerHTML = `<div class="pz-goal"><span class="pz-tag">Puzzle</span><b>${esc(pz.title)}</b><span>${mana(esc(pz.goal))}</span></div>
+        ${this.hintN ? `<ol class="pz-hints">${hints.slice(0, this.hintN).map(h => `<li>${mana(esc(h))}</li>`).join("")}</ol>` : ""}
+        ${this.hintN < hints.length ? `<button class="pz-hint" data-act="pzhint">Hint ${this.hintN + 1} of ${hints.length}</button>` : ""}`;
+    }
+    toast(text) {
+      if (!this.el || this.dead) return;
+      const n = document.createElement("div");
+      n.className = "mg-toast";
+      n.textContent = text;
+      this.el.appendChild(n);
+      setTimeout(() => n.remove(), 3200);
     }
     opps() {
       const g = this.g, me = this.me, out = [];
@@ -875,6 +929,7 @@
         case "blkgo": { const out = [...this.blk].map(([id, att]) => ({ blocker: g.find(+id), attacker: att })).filter(b => b.blocker); this.resolve(out); break; }
         case "respond": this.showResponses(); break;
         case "coach": this.showCoach(); break;
+        case "pzhint": this.hintN = (this.hintN || 0) + 1; if (this.gm && this.gm.puzzle) this.gm.puzzleHints = this.hintN; this.puzzleBar(); break;
         case "compmin": this.compMin = !this.compMin; this.compHTML = ""; this.render(); break;
         case "compclose": this.compHidden = this.compKey; this.render(); break;
         case "coachplan": this.coachTab = "plan"; this.showCoach(); break;
@@ -1480,6 +1535,14 @@
       const draw = !g.winner && g.endInfo && g.endInfo.draw;
       const rounds = Math.max(1, g.round);
       const killer = !win && !draw ? youText((g.logs.slice().reverse().find(e => e.kind === "lose" && e.p === me) || {}).text || "") : "";
+      if (this.gm && this.gm.kind === "puzzle") return this.finishPuzzle();
+      if (this.rec && !this.left) {
+        const rec = this.rec;
+        rec.result = { win, draw, rounds, turn: g.turn, conceded: !!this.conceded, killer, winner: g.winner ? g.winner.idx : null, out: g.players.map(p => p.lost ? p.lostReason : ""), life: g.players.map(p => p.life), dmg: me.stats.dmg, ms: Date.now() - this.startedAt };
+        // the log, compact: turn lines and the plays, for the review's timeline
+        rec.log = g.logs.filter(e => e.kind !== "mana").slice(-900).map(e => [e.kind || "", e.p ? e.p.idx : -1, String(e.text || "").slice(0, 220)]);
+        try { if (this.gm.onDone) this.gm.onDone(rec); } catch (err) { console.error("[miku game] practice save", err); }
+      }
       const st = loadStats();
       st.games++;
       if (win) { st.wins++; if (!st.best || rounds < st.best) st.best = rounds; } else if (draw) st.draws++; else st.losses++;
@@ -1505,7 +1568,7 @@
           <div><b>${Object.values(me.stats.cast).reduce((a, b) => a + b, 0)}</b><span>spells cast</span></div>
         </div>
         <p>Record: ${st.wins} win${st.wins === 1 ? "" : "s"} in ${st.games} game${st.games === 1 ? "" : "s"}.</p>
-        <div class="btns"><button class="mg-btn" data-e="log">Game log</button><button class="mg-btn" data-e="lobby">Lobby</button><button class="mg-btn go" data-e="again">Rematch</button></div>`;
+        ${this.rec ? `<div class="btns"><button class="mg-btn" data-e="log">Game log</button><button class="mg-btn" data-e="lobby">Back</button><button class="mg-btn go" data-e="review">Review this game</button></div>` : `<div class="btns"><button class="mg-btn" data-e="log">Game log</button><button class="mg-btn" data-e="lobby">Lobby</button><button class="mg-btn go" data-e="again">Rematch</button></div>`}`;
       this.el.appendChild(over);
       if (win) this.notes();
       over.addEventListener("click", e => {
@@ -1514,6 +1577,29 @@
         if (b.dataset.e === "log") { over.style.display = "none"; this.$.log.classList.add("on"); const back = () => { over.style.display = ""; this.$.log.removeEventListener("transitionend", back); }; this.$.log.querySelector("[data-act]").addEventListener("click", () => { over.style.display = ""; }, { once: true }); }
         if (b.dataset.e === "lobby") { this.destroy(); if (this.opts.onExit) this.opts.onExit(); }
         if (b.dataset.e === "again") { this.destroy(); if (this.opts.onRematch) this.opts.onRematch(this.seats); }
+        if (b.dataset.e === "review") { const rec = this.rec, gm = this.gm; this.destroy(); if (this.opts.onExit) this.opts.onExit(); if (gm && gm.onReview) gm.onReview(rec); }
+      });
+    }
+    /* A puzzle ends with the turn: solved when the goal check says so. */
+    finishPuzzle() {
+      const g = this.g, me = this.me, pz = this.gm.puzzle;
+      let solved = false;
+      try { solved = !!pz.check(g, me); } catch (err) { console.error("[miku game] puzzle check", err); }
+      const res = { id: pz.id, solved, hints: this.hintN || 0, ms: Date.now() - this.startedAt };
+      try { if (this.gm.onDone) this.gm.onDone(res); } catch (err) { console.error(err); }
+      const over = document.createElement("div");
+      over.className = "mg-over";
+      over.innerHTML = `<h2 class="${solved ? "win" : "loss"}">${solved ? "Solved" : "Not this time"}</h2><p>${esc(solved ? pz.win || "Puzzle solved." : pz.fail || "The goal wasn't met by the end of the turn.")}</p>
+        ${solved || this.gm.showSolution ? `<div class="pz-sol"><b>The line</b><ol>${(pz.solution || []).map(x => `<li>${mana(esc(x))}</li>`).join("")}</ol>${pz.lesson ? `<p>${mana(esc(pz.lesson))}</p>` : ""}</div>` : ""}
+        <div class="btns"><button class="mg-btn" data-e="log">Game log</button>${solved ? "" : `<button class="mg-btn" data-e="sol">Show the line</button>`}<button class="mg-btn" data-e="lobby">Back</button><button class="mg-btn go" data-e="again">Try again</button></div>`;
+      this.el.appendChild(over);
+      over.addEventListener("click", e => {
+        const b = e.target.closest("[data-e]");
+        if (!b) return;
+        if (b.dataset.e === "log") { over.style.display = "none"; this.$.log.classList.add("on"); this.$.log.querySelector("[data-act]").addEventListener("click", () => { over.style.display = ""; }, { once: true }); }
+        if (b.dataset.e === "sol") { this.gm.showSolution = true; over.remove(); this.finishPuzzle(); }
+        if (b.dataset.e === "lobby") { this.destroy(); if (this.opts.onExit) this.opts.onExit(); }
+        if (b.dataset.e === "again") { const gm = this.gm; this.destroy(); if (this.opts.onRematch) this.opts.onRematch(null, gm); }
       });
     }
     crash(err) {

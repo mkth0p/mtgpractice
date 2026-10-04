@@ -377,3 +377,36 @@ node tools/sim/test-corrupted.js                        # Corrupted Miku's combo
 They report page errors, "Display error" lines, cards that glow but can't be played, plays that
 do nothing, questions with no way out and stalls. Run both for every deck you can pilot after
 changing `game-ui.js` or anything a person's choices go through.
+
+## Practice mode: recording, replays and puzzles
+
+Corrupted Etrata's Train tab (`corrupted-etrata/train.js`) is built on two engine files:
+
+- `practice.js` (`MK.Practice`) records a person's game and replays it. `P.record(agent, { rec })`
+  wraps the person's agent: every answer is stored with object ids relative to `g.idBase`, and a
+  snapshot of the position (win chance, lines, what the coach would say) is kept at each real
+  decision. A game is rebuilt from its seed and seats by `P.buildGame`, and `P.replay(rec, { at,
+  onAt, reseed, horizon })` plays the recorded answers up to answer `at`, hands that decision to
+  `onAt`, and lets the bots play on. `P.analyzeMoment(rec, i)` tries every option at one decision
+  many times with the libraries reshuffled the same way for each option, and scores the end with
+  the win-chance model. `practice-worker.js` runs it off the page.
+- `train-cetrata.js` (`MK.TRAIN["corrupted-etrata"]`) holds the win-chance model, the puzzles, the
+  mulligan evaluator, the drill generators and the review rules.
+
+Replays must match the recorded game exactly, so anything that runs while the person thinks
+(the snapshot's planner, the screen's helpers) must not touch `g.random` or keep objects: the
+recorder swaps the dice and rewinds `MK.objSeq` around each answer. A card that asks about
+objects in no zone must put them in the question's `options` or `cards`, where the replay looks
+first.
+
+New game options: `setup(g)` builds the position instead of mulligans (no draw on the first
+turn), `stopAtTurn` ends the game after that turn, `round` sets the round counter. The Table's
+`start(seats, mode)` takes `{ kind: "assess" | "retry" | "puzzle", ... }`.
+
+```
+node tools/sim/test-practice.js --games 12   # recorded games replay line for line, moments analyze
+node tools/sim/test-train.js                 # every puzzle solvable and not by passing, drills valid
+node tools/sim/train-wp.js --games 4000 --write   # refit the win-chance model (writes train-cetrata.js)
+node tools/sim/mull-values.js --write             # recompute the mulligan values
+node tools/ui/random-play.js --assess --games 3   # assessment games through the screen, then the review
+```

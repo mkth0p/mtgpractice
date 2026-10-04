@@ -1046,7 +1046,7 @@
   }
   let planKey = null, planVal = null;
   function plan(g, p) {
-    const key = g.v != null ? g.v + ":" + p.id + ":" + g.phase + ":" + (g.active && g.active.id) : null;
+    const key = g.v != null ? (g.idBase || 0) + ":" + g.v + ":" + p.id + ":" + g.phase + ":" + (g.active && g.active.id) : null;
     if (key && key === planKey) return planVal;
     const myTurn = g.active === p, main = myTurn && (g.phase === "main1" || g.phase === "main2");
     const now = manaNow(g, p), next = manaNext(g, p);
@@ -1357,7 +1357,7 @@
     coach: { tips: coachTips, companion, plan, checklist: "corrupted-etrata", companionBlurb: "guides you through each stage of the game: the mulligan, getting Etrata out, which line to assemble, going off, and what to counter on their turns. It stops the game when it has advice." }
   };
   MK.CETRATA_LINES = LINES;
-  MK.CETRATA_AI = { bestPiece, lineState, coachTips, plan, companion };
+  MK.CETRATA_AI = { bestPiece, lineState, coachTips, plan, companion, manaNow, manaNext, findersFor, LINES: PLAN_LINES, HATE, COUNTERS, ENGINES, ROCKS, ALL_TUTORS, GENERAL_TUTORS, TRANSMUTERS, COMBO_NAMES };
   (MK.HERO_DECKS = MK.HERO_DECKS || []).push(MK.CETRATA_DECK);
   (MK.BOT_DECKS = MK.BOT_DECKS || []).push(MK.CETRATA_DECK);
 })(typeof window !== "undefined" ? window : globalThis);

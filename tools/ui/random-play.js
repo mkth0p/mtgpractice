@@ -3,13 +3,15 @@
    attacks, blocks, responses and answers, against the normal bots. Reports page errors, "Display
    error" log lines, cards that glow but offer nothing, and stalls (nothing moves for 20 seconds).
    node tools/ui/random-play.js --hero miku-precon --games 3 [--seed 1] [--pool precon] [--site miku] [--minutes 6]
+   --assess plays Corrupted Etrata's assessment games from the Train tab instead, then opens each
+   game's review and replays one key moment.
    Exits 1 when something is reported. */
 "use strict";
 const { serve, launch, openPlay, rng, answer } = require("./serve");
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf("--" + k); return i < 0 ? d : (args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : true); };
 const HERO = opt("hero", "miku"), SITE = opt("site", "miku"), POOL = opt("pool", "precon");
-const GAMES = +opt("games", 2), MINUTES = +opt("minutes", 6), STALL = 20000;
+const GAMES = +opt("games", 2), MINUTES = +opt("minutes", 6), STALL = 20000, ASSESS = !!opt("assess", false);
 const rnd = rng(+opt("seed", 1));
 const pick = a => a[Math.floor(rnd() * a.length)];
 const issues = [];
@@ -74,11 +76,63 @@ async function act(page, st) {
   }
 }
 
+/* The Train tab's assessment game: same table, with the recorder on. */
+let assessPage = null;
+async function openAssess(browser, srv, onError) {
+  // one page for every game, so the saved games pile up the way they would for a person
+  if (assessPage) {
+    const { ctx, page } = assessPage;
+    await page.goto(`http://127.0.0.1:${srv.address().port}/corrupted-etrata/#train/games`);
+    await page.reload();
+    await page.waitForSelector("[data-assess]", { timeout: 20000 });
+    await page.click("[data-assess]");
+    await page.waitForFunction(() => window.MikuGame && MikuGame.Lobby.table && MikuGame.Lobby.table.g && !MikuGame.Lobby.table.g.over, null, { timeout: 30000 });
+    return { ctx, page };
+  }
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await ctx.newPage();
+  assessPage = { ctx, page };
+  await page.route("**/api.scryfall.com/**", r => r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ data: [], not_found: [] }) }));
+  await page.route("**/fonts.googleapis.com/**", r => r.fulfill({ status: 200, contentType: "text/css", body: "" }));
+  page.on("pageerror", e => onError("page error", e.message + " | " + String(e.stack || "").split("\n").slice(1, 4).join(" | ")));
+  page.on("console", m => { if (m.type() === "error" && !/Failed to load resource|scryfall/i.test(m.text())) onError("console error", m.text()); });
+  page.on("dialog", d => d.accept());
+  await page.addInitScript(() => localStorage.setItem("cetrataWiki.game.settings.v1", JSON.stringify({ speed: "fast", askTriggers: true, stopOnSpells: false })));
+  await page.goto(`http://127.0.0.1:${srv.address().port}/corrupted-etrata/#train/games`);
+  await page.waitForSelector("[data-assess]", { timeout: 20000 });
+  await page.click("[data-assess]");
+  await page.waitForFunction(() => window.MikuGame && MikuGame.Lobby.table && MikuGame.Lobby.table.g, null, { timeout: 30000 });
+  return { ctx, page };
+}
+/* After an assessment game: the review opens, renders its chart and moments, and one moment replays. */
+async function checkReview(page) {
+  try {
+    await page.waitForSelector(".mg-over [data-e='review']", { timeout: 15000 });
+    await page.click(".mg-over [data-e='review']");
+    await page.waitForSelector(".tn-review .tn-moments", { timeout: 15000 });
+    const info = await page.evaluate(() => ({ moments: document.querySelectorAll(".tn-mo").length, chart: !!document.querySelector(".tn-chart svg"), flags: document.querySelectorAll(".tn-flag").length, saved: JSON.parse(localStorage.getItem("cetrataWiki.games.v1") || "[]").length }));
+    console.log(`  game ${gameNo}: review with ${info.moments} key moments, ${info.flags} flags, chart ${info.chart}, ${info.saved} saved games`);
+    if (!info.moments) return note("review", "no key moments");
+    const before = await page.evaluate(() => Object.values(JSON.parse(localStorage.getItem("cetrataWiki.analysis.v1") || "{}")).reduce((n, x) => n + Object.keys(x).length, 0));
+    await page.click(".tn-mo .tn-moh");
+    await page.click(".tn-mo.open [data-one]");
+    await page.waitForFunction(n => Object.values(JSON.parse(localStorage.getItem("cetrataWiki.analysis.v1") || "{}")).reduce((k, x) => k + Object.keys(x).length, 0) > n, before, { timeout: 180000 });
+    await page.waitForTimeout(300);
+    const r = await page.evaluate(() => {
+      const a = JSON.parse(localStorage.getItem("cetrataWiki.analysis.v1")), recId = JSON.parse(localStorage.getItem("cetrataWiki.games.v1"))[0].id, one = Object.values(a[recId] || {})[0] || {};
+      const rows = [...document.querySelectorAll(".tn-mo.open .tn-cands tbody tr")];
+      return { rows: rows.length, verdict: (document.querySelector(".tn-mo.open .tn-verdict") || {}).textContent, error: one.error, ms: one.ms, worker: !!(window.MikuApp && window.MikuApp.gameInfo) };
+    });
+    console.log(`  game ${gameNo}: replayed a moment: ${r.rows} options, ${r.verdict}`);
+    if (!r.rows) note("review", "the replay gave no options", r);
+  } catch (e) { note("review", e.message.split("\n")[0]); }
+}
+
 (async () => {
   const srv = await serve();
   const browser = await launch();
   for (gameNo = 1; gameNo <= GAMES; gameNo++) {
-    const { ctx, page } = await openPlay(browser, srv, { site: SITE, hero: HERO, pool: POOL }, (k, m) => note(k, m));
+    const { ctx, page } = ASSESS ? await openAssess(browser, srv, (k, m) => note(k, m)) : await openPlay(browser, srv, { site: SITE, hero: HERO, pool: POOL }, (k, m) => note(k, m));
     const t0 = Date.now();
     let sig = "", moved = Date.now(), stalled = false, steps = 0;
     for (;;) {
@@ -105,7 +159,17 @@ async function act(page, st) {
       }
       await page.waitForTimeout(60);
     }
-    await ctx.close();
+    if (ASSESS) await checkReview(page);
+    if (ASSESS && opt("shots", false)) await page.screenshot({ path: `${opt("shots")}/review-${gameNo}.png`, fullPage: true });
+    if (ASSESS && gameNo === GAMES) {
+      // the personal analysis (as a preview while it's still locked) reads every saved game
+      await page.goto(page.url().replace(/#.*/, "#train/report"));
+      await page.waitForTimeout(800);
+      if (await page.$("[data-peek]")) await page.click("[data-peek]");
+      await page.waitForSelector(".tn-report", { timeout: 15000 }).catch(() => note("report", "the analysis didn't render"));
+      if (opt("shots", false)) await page.screenshot({ path: `${opt("shots")}/report.png`, fullPage: true });
+    }
+    if (!ASSESS || gameNo === GAMES) await ctx.close();
   }
   console.log(`${HERO}: ${issues.length} problem${issues.length === 1 ? "" : "s"}.`);
   await browser.close(); srv.close();

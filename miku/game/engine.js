@@ -210,6 +210,8 @@
 
   /* ============================================================ the game */
   let objSeq = 0;
+  // practice.js rewinds the counter after a person's decision so a recorded game's ids match its replay
+  MK.objSeq = { get: () => objSeq, set: v => { objSeq = v; } };
   class Game {
     constructor(opts) {
       this.opts = opts || {};
@@ -241,6 +243,9 @@
       this.itemSeq = 0;               // ids of abilities on the stack
       this.extraTurns = [];           // extra turns to take after this one (the newest first)
       this.extraCombats = [];         // additional combat phases this turn
+      // object ids are global; ids relative to idBase are the same each time a game is replayed
+      // from the same seed and the same choices (the practice recorder relies on it)
+      this.idBase = objSeq;
       this.players = (this.opts.players || []).map((cfg, i) => this.makePlayer(cfg, i));
     }
 
@@ -306,6 +311,15 @@
       return out;
     }
     find(id) { return this.battlefield.find(o => o.id === id) || null; }
+    /* Any object of this game by id, in any zone or on the stack (for replays). */
+    findAny(id) {
+      const hit = o => o && o.id === id;
+      let o = this.battlefield.find(hit) || (this.phased || []).find(hit);
+      if (o) return o;
+      for (const p of this.players) for (const z of ["hand", "library", "graveyard", "exile", "command"]) { o = p[z].find(hit); if (o) return o; }
+      for (const it of this.stack) if (hit(it.o)) return it.o;
+      return null;
+    }
     rand(n) { return Math.floor(this.random() * n); }
     shuffleArr(a) { for (let i = a.length - 1; i > 0; i--) { const j = this.rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
@@ -2729,8 +2743,10 @@
 
     /* ------------------------------------------------ turn structure */
     async play() {
-      await this.mulligans();
-      this.round = 1;
+      // a puzzle (the practice drills) sets up its own board instead of shuffling and mulligans
+      if (this.opts.setup) { await this.opts.setup(this); await this.settle(); this.bump(); }
+      else await this.mulligans();
+      this.round = this.opts.round || 1;
       // a round ends when play passes the seat that went first, which need not be seat 0
       const n = this.players.length, first = this.activeIdx, seat = i => (i - first + n) % n;
       let normal = this.active;       // whose regular turn it is or was last (extra turns come after it)
@@ -2743,6 +2759,7 @@
           else await this.takeTurn(p, { extra });
         }
         if (this.over) break;
+        if (this.opts.stopAtTurn && this.turn >= this.opts.stopAtTurn) { this.log("The puzzle's turn is over."); this.end(null, { puzzleEnd: true }); break; }
         if (this.turn >= this.maxTurns) { this.log("The turn limit was reached. The game is a draw."); this.end(null, { draw: true }); break; }
         // extra turns are taken right after this one, the most recently created first
         let e = null;
@@ -2852,7 +2869,7 @@
       if (this.over || p.lost) return this.endTurnEarly(p);
       // draw
       this.phase = "draw";
-      const skipDraw = this.turn === 1 && this.players.length === 2;
+      const skipDraw = this.turn === 1 && (this.players.length === 2 || !!this.opts.setup);   // a puzzle starts after the draw
       if (!skipDraw) this.draw(p, 1);
       this.emit("drawStep", { p });
       await this.settle();
