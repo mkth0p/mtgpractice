@@ -223,6 +223,27 @@ const opps = (g, a) => g.players.filter(q => q !== a);
     check("Crystal Shard: an opponent without mana can't pay", elf.zone === "hand", elf.zone); }
 
   // Bloodletter + the Guildmage's mill with Mindcrank: the drain doubles
+  // The turn planner and the companion
+  { const { g, a } = table(); put(g, a, "Exquisite Blood"); put(g, a, "Vito, Thorn of the Dusk Rose"); for (let i = 0; i < 4; i++) put(g, a, i % 2 ? "Island" : "Swamp"); await g.settle();
+    const r = deck.coach.plan(g, a);
+    check("plan: the vampire loop is live now", r && r.lines[0] && r.lines[0].key === "vampire" && r.lines[0].when === "now", r && r.lines.map(l => l.key + ":" + l.when));
+    const c = deck.coach.companion(g, a, { mode: "main" });
+    check("companion: go off with the vampire loop", c && c.stage === "Go off" && c.urgent, c && c.title); }
+  { const { g, a } = table(); put(g, a, "Mindcrank"); hand(g, a, "Shred Memory"); put(g, a, "Island"); await g.settle();
+    const r = deck.coach.plan(g, a), l = r.lines.find(x => x.key === "mindcrank");
+    check("plan: Shred Memory transmutes for the missing Guildmage", l && l.tutors.includes("Shred Memory") && l.when !== "now", l); }
+  { const { g, a, b } = table(); put(g, a, "Mindcrank"); put(g, a, "Duskmantle Guildmage"); put(g, b, "Linvala, Keeper of Silence"); await g.settle();
+    const l = deck.coach.plan(g, a).lines.find(x => x.key === "mindcrank");
+    check("plan: Linvala blocks Mindcrank", l && l.when === "blocked" && l.blockedBy[0].name === "Linvala, Keeper of Silence", l && l.when); }
+  { const { g, a } = table(); const h = ["Island", "Swamp", "Watery Grave", "Sol Ring", "Demonic Tutor", "Exquisite Blood", "Ponder"].map(n => hand(g, a, n));
+    const c = deck.coach.companion(g, a, { mode: "mulligan", hand: h });
+    check("companion: a keep with lands, a rock, a tutor and a piece", c && c.keep === true, c && c.title);
+    const c2 = deck.coach.companion(g, a, { mode: "mulligan", hand: ["Ponder", "Brainstorm", "Counterspell", "Swan Song", "Island", "Demonic Tutor", "Night's Whisper"].map(n => ({ def: MK.get(n) })) });
+    check("companion: one land is a mulligan", c2 && c2.keep === false, c2 && c2.title); }
+  { const { g, a, b } = table(); put(g, a, "Etrata, Deadly Fugitive"); const v = put(g, a, "Vito, Thorn of the Dusk Rose");
+    const top = { o: { def: MK.get("Toxic Deluge") }, p: b, name: "Toxic Deluge", targets: [] };
+    const c = deck.coach.companion(g, a, { mode: "respond", window: "stack", top, can: ["Counterspell"] });
+    check("companion: counter a board wipe", c && c.urgent && /Counterspell/.test(c.steps[0].text), c); }
   // The coach
   { const { g, a } = table(); put(g, a, "Exquisite Blood"); hand(g, a, "Drift of Phantasms"); hand(g, a, "Demonic Tutor"); await g.settle();
     const tips = deck.coach.tips(g, a);
@@ -247,7 +268,7 @@ const opps = (g, a) => g.players.filter(q => q !== a);
       g.warn = (e) => { errors++; console.log("warn", e && e.message); };
       try { await g.play(); } catch (e) { errors++; console.log(e); }
       if (g.winner === g.players[0]) wins++;
-      try { deck.coach.tips(g, g.players[0]); } catch (e) { errors++; console.log("coach", e); }
+      try { deck.coach.tips(g, g.players[0]); deck.coach.plan(g, g.players[0]); deck.coach.companion(g, g.players[0], { mode: "main" }); } catch (e) { errors++; console.log("coach", e); }
     }
     check("eight bot games without engine errors", errors === 0, errors);
     console.log(`bot games: Corrupted Etrata won ${wins} of 8`);

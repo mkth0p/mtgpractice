@@ -922,6 +922,7 @@
   const GENERAL_TUTORS = ["Demonic Tutor", "Vampiric Tutor", "Imperial Seal", "Grim Tutor", "Diabolic Intent", "Beseech the Mirror", "Scheming Symmetry", "Lim-Dûl's Vault"];
   const TRANSMUTERS = { "Dizzy Spell": 1, "Shred Memory": 2, "Muddle the Mixture": 2, "Drift of Phantasms": 3, "Dimir House Guard": 4 };
   const short = n => n.split(",")[0];
+  const nick = n => n === "Etrata, the Silencer" ? "the Silencer" : short(n);
   const list = names => names.length < 2 ? names.join("") : names.slice(0, -1).join(", ") + " or " + names[names.length - 1];
   /* The tutors p holds that can find this card. */
   function findersFor(g, p, name) {
@@ -1004,6 +1005,322 @@
     return out.sort((a, b) => order[a.level] - order[b.level]);
   }
 
+  /* ================================================================ the turn planner
+     plan(g, p) reads the board into the same shape Corrupted Miku's planner returns, so the game's
+     Coach "Plan" tab and the companion can show it: { state, lines, threats, risk }. Each line:
+     { key, when (now, next, later, blocked), title, short, kill, cost, mana, steps, tutors, missing,
+     blockedBy }. Costs count what's left to cast or activate from here. */
+  const TOP_TUTORS = ["Vampiric Tutor", "Imperial Seal", "Scheming Symmetry", "Lim-Dûl's Vault"];   // to the top: next turn
+  const INSTANT_TUTORS = ["Vampiric Tutor"];
+  const MANTA = { key: "manta", title: "Infinite turns: Scroll of Fate + Wormfang Manta + Crystal Shard", sides: [["Scroll of Fate"], ["Wormfang Manta"], ["Crystal Shard", "Otawara, Soaring City"]] };
+  const PLAN_LINES = LINES.concat([MANTA]);
+  const SHORT_TITLE = { vampire: "Vampire loop", mindcrank: "Mindcrank + Guildmage", doubletap: "Double tap", brine: "Brine lock", hitlist: "Hit list", manta: "Infinite turns" };
+  /* Opposing cards that switch a line off, and what in this deck answers them. */
+  const HATE = {
+    "Rest in Peace": { lines: ["mindcrank"], why: "cards go to exile instead of graveyards, so Guildmage's drain never triggers" },
+    "Leyline of the Void": { lines: ["mindcrank"], why: "your opponents' cards go to exile instead of their graveyard" },
+    "Cursed Totem": { lines: ["mindcrank", "brine", "manta"], why: "creatures' activated abilities can't be activated: no Guildmage, no Etrata flip" },
+    "Linvala, Keeper of Silence": { lines: ["mindcrank", "brine", "manta"], why: "your creatures' activated abilities can't be activated: no Guildmage, no Etrata flip" },
+    "Null Rod": { lines: ["manta"], why: "artifacts' activated abilities can't be activated: no Scroll of Fate, no Crystal Shard" },
+    "Collector Ouphe": { lines: ["manta"], why: "artifacts' activated abilities can't be activated: no Scroll of Fate, no Crystal Shard" },
+    "Stony Silence": { lines: ["manta"], why: "artifacts' activated abilities can't be activated: no Scroll of Fate, no Crystal Shard" },
+    "Hushbringer": { lines: ["hitlist"], why: "dies triggers don't happen, so Mari's hit counters stop" },
+    "Torpor Orb": { lines: [], why: "Tribute Mage and Opposition Agent's enter triggers stop" }
+  };
+  const ANSWERS = { creature: ["Infernal Grasp", "Deadly Rollick", "Cyclonic Rift", "Otawara, Soaring City"], other: ["Cyclonic Rift", "Otawara, Soaring City"] };
+  const COUNTERS = ["Fierce Guardianship", "Counterspell", "Swan Song", "An Offer You Can't Refuse"];
+  /* Adds mana costs as strings: "{1}{U}{B}" + "{3}" = "{4}{U}{B}". */
+  function addCost(...cs) {
+    let n = 0; const col = [];
+    for (const c of cs) { const o = pc(c || ""); n += o.g + o.C + o.hyb.length + o.phy.length; for (const k of ["W", "U", "B", "R", "G"]) for (let i = 0; i < o[k]; i++) col.push(k); }
+    col.sort((a, b) => "WUBRG".indexOf(a) - "WUBRG".indexOf(b));
+    return (n || !col.length ? `{${n}}` : "") + col.map(k => `{${k}}`).join("");
+  }
+  const costN = c => { const o = pc(c || ""); return o.g + o.C + o.hyb.length + o.phy.length + o.W + o.U + o.B + o.R + o.G; };
+  const cardCost = name => { const d = MK.get(name); return d ? d.cost || "" : ""; };
+  function manaNext(g, p) {
+    let n = 0;
+    try { n = g.manaAfterUntap(p, null).total; } catch (e) { n = manaNow(g, p); }
+    if (p.hand.some(c => c.def.types.includes("Land"))) n++;
+    return n;
+  }
+  let planKey = null, planVal = null;
+  function plan(g, p) {
+    const key = g.v != null ? g.v + ":" + p.id + ":" + g.phase + ":" + (g.active && g.active.id) : null;
+    if (key && key === planKey) return planVal;
+    const myTurn = g.active === p, main = myTurn && (g.phase === "main1" || g.phase === "main2");
+    const now = manaNow(g, p), next = manaNext(g, p);
+    const tg = onBf(g, p, "Training Grounds"), etrata = onBf(g, p, "Etrata, Deadly Fugitive");
+    const flip = tg ? "{U}{B}" : "{2}{U}{B}";
+    // the hate pieces on the table, and which lines they stop
+    const hate = g.battlefield.filter(o => o.controller !== p && !o.faceDown && HATE[o.def.name]);
+    const lines = [];
+    for (const l of PLAN_LINES) {
+      const st = lineState(g, p, l);
+      const pieces = l.sides.map(side => side.find(n => onBf(g, p, n)) || side.find(n => onBfAny(g, p, n)) || side.find(n => inHand(p, n)) || null);
+      const missing = l.sides.filter((side, i) => !pieces[i]);
+      // a tutor for each missing side, each tutor once
+      const used = new Set(), tutors = [];
+      let tutorCost = "", onTop = false;
+      for (const side of missing) {
+        const f = [].concat(...side.map(n => findersFor(g, p, n).map(t => [t, n]))).find(([t]) => !used.has(t));
+        if (!f) { tutors.length = 0; tutorCost = ""; onTop = false; break; }
+        used.add(f[0]); tutors.push(f);
+        if (inHand(p, f[0])) tutorCost = addCost(tutorCost, cardCost(f[0]));
+        if (TOP_TUTORS.includes(f[0])) onTop = true;
+      }
+      if (missing.length && tutors.length !== missing.length) {
+        // not reachable yet: only worth showing when half of it is already here
+        if (st.haveSides === 0 || missing.length > 1) continue;
+      }
+      if (!missing.length && l.key === "hitlist" && !g.opponents(p).some(q => !q.lost && (g.hitCount ? g.hitCount(q) : 0) >= 1)) { /* still a plan */ }
+      // what is left to cast or activate, piece by piece
+      const steps = [], cards = [];
+      let cost = tutorCost;
+      for (const [t, n] of tutors) steps.push({ text: `${nick(t)} for ${nick(n)}${TOP_TUTORS.includes(t) ? " (it goes on top: you draw it next turn)" : ""}.`, cards: [t, n] });
+      const unfound = missing.length > tutors.length;
+      if (unfound) for (const side of missing) { cost = addCost(cost, cardCost(side[0])); steps.push({ text: `Find ${list(side.map(nick))}: no tutor for it in hand yet. Dig with Rhystic Study, Necropotence, Brainstorm, or draw a tutor.`, cards: side.slice(0, 2), find: true }); }
+      const need = (name, how) => { if (name && !onBfAny(g, p, name)) { cost = addCost(cost, how || cardCost(name)); return true; } return false; };
+      const piece = i => pieces[i] || (tutors.find(([, n]) => l.sides[i].includes(n)) || [])[1];
+      if (l.key === "vampire") {
+        const a = piece(0), b = piece(1);
+        if (need(a)) steps.push({ text: `Cast ${nick(a)}.`, cards: [a] });
+        if (need(b)) steps.push({ text: `Cast ${nick(b)}.`, cards: [b] });
+        const gm = onBf(g, p, "Duskmantle Guildmage");
+        steps.push({ text: gm ? "Start it: Duskmantle Guildmage's {1}{U}{B}, then {2}{U}{B} to mill an opponent two cards, or any hit that connects. Every opponent drains to 0." : "Start it: any opponent losing life. An Assassin or Changeling Outcast that connects, or their own fetch or shock land. Every opponent drains to 0.", cards: gm ? ["Duskmantle Guildmage"] : ["Changeling Outcast"] });
+      } else if (l.key === "mindcrank") {
+        if (need("Mindcrank")) steps.push({ text: "Cast Mindcrank ({2}).", cards: ["Mindcrank"] });
+        if (need("Duskmantle Guildmage")) steps.push({ text: "Cast Duskmantle Guildmage ({U}{B}).", cards: ["Duskmantle Guildmage"] });
+        cost = addCost(cost, "{1}{U}{B}", "{2}{U}{B}");
+        steps.push({ text: "Guildmage: {1}{U}{B} (cards going to their graveyards drain them), then {2}{U}{B}: mill the lowest-life opponent two. Mindcrank loops until they're dead. One player per start.", cards: ["Duskmantle Guildmage", "Mindcrank"] });
+      } else if (l.key === "doubletap") {
+        if (need("Bloodletter of Aclazotz")) steps.push({ text: "Cast Bloodletter of Aclazotz.", cards: ["Bloodletter of Aclazotz"] });
+        if (need("Virtus the Veiled")) steps.push({ text: "Cast Virtus the Veiled. It has to wait a turn to attack.", cards: ["Virtus the Veiled"] });
+        const v = bfObj(g, p, "Virtus the Veiled");
+        const big = v ? g.power(v) > 1 && g.toughness(v) > 1 : onBf(g, p, "Ramses, Assassin Lord");
+        if (big) { cost = addCost(cost, "{4}"); steps.push({ text: "Rogue's Passage ({4}, {T}): Virtus can't be blocked (Ramses makes it too big for Tetsuko).", cards: ["Rogue's Passage"] }); }
+        else if (onBfAny(g, p, "Tetsuko Umezawa, Fugitive")) steps.push({ text: "Tetsuko makes Virtus, a 1/1, unblockable.", cards: ["Tetsuko Umezawa, Fugitive"] });
+        else steps.push({ text: "Attack someone with no flying or untapped blockers, or use Rogue's Passage ({4}, {T}).", cards: ["Rogue's Passage"] });
+        steps.push({ text: "Virtus connects: they lose half their life, doubled by Bloodletter. All of it.", cards: ["Virtus the Veiled", "Bloodletter of Aclazotz"] });
+      } else if (l.key === "brine") {
+        const bd = g.battlefield.find(o => o.controller === p && nameOf(o) === "Brine Elemental");
+        if (!bd) { cost = addCost(cost, "{3}"); steps.push({ text: "Cast Brine Elemental face down ({3}).", cards: ["Brine Elemental"] }); }
+        if (!bd || bd.faceDown) { cost = addCost(cost, etrata ? flip : "{5}{U}{U}"); steps.push({ text: etrata ? `Etrata turns Brine face up for ${flip}: opponents skip their next untap step.` : "Turn Brine face up for its morph cost {5}{U}{U} (Etrata makes it {2}{U}{B}).", cards: ["Brine Elemental", "Etrata, Deadly Fugitive"] }); }
+        const vs = g.battlefield.find(o => o.controller === p && nameOf(o) === "Vesuvan Shapeshifter");
+        if (!vs) { cost = addCost(cost, "{3}"); steps.push({ text: "Cast Vesuvan Shapeshifter face down ({3}).", cards: ["Vesuvan Shapeshifter"] }); }
+        steps.push({ text: "Next turn and every turn after: Vesuvan turns face up as a copy of Brine ({1}{U}), then face down again at your upkeep. Opponents never untap.", cards: ["Vesuvan Shapeshifter"] });
+      } else if (l.key === "manta") {
+        if (need("Scroll of Fate")) steps.push({ text: "Cast Scroll of Fate ({3}).", cards: ["Scroll of Fate"] });
+        const sh = piece(2);
+        if (need(sh, sh === "Otawara, Soaring City" ? "" : undefined)) steps.push({ text: sh === "Otawara, Soaring City" ? "Play Otawara, Soaring City." : "Cast Crystal Shard ({3}).", cards: [sh] });
+        cost = addCost(cost, etrata ? flip : "{5}{U}{U}", sh === "Otawara, Soaring City" ? "{3}{U}" : "{U}");
+        steps.push({ text: `Scroll of Fate ({T}): manifest Wormfang Manta from your hand. Its enter trigger never happens. Etrata turns it face up for ${etrata ? flip : "{5}{U}{U}"}.`, cards: ["Scroll of Fate", "Wormfang Manta"] });
+        steps.push({ text: `${sh === "Otawara, Soaring City" ? "Otawara" : "Crystal Shard ({U}, {T})"} returns it to your hand: an extra turn. Do it again each turn.`, cards: [sh || "Crystal Shard", "Wormfang Manta"] });
+      } else if (l.key === "hitlist") {
+        if (need("Mari, the Killing Quill")) steps.push({ text: "Cast Mari: opposing creatures that die are exiled with a hit counter.", cards: ["Mari, the Killing Quill"] });
+        if (need("Etrata, the Silencer")) steps.push({ text: "Cast Etrata, the Silencer. It can't be blocked.", cards: ["Etrata, the Silencer"] });
+        const best = g.opponents(p).filter(q => !q.lost).map(q => ({ q, n: g.hitCount ? g.hitCount(q) : 0 })).sort((a, b) => b.n - a.n)[0];
+        steps.push({ text: `Kill their creatures (Toxic Deluge, deathtouch blocks), then hit with the Silencer: three hit counters on one player and they lose.${best ? ` ${best.q.name} has ${best.n}.` : ""} Leave them a creature to exile.`, cards: ["Toxic Deluge", "Etrata, the Silencer"] });
+      }
+      const n = costN(cost);
+      const blockedBy = hate.filter(o => HATE[o.def.name].lines.includes(l.key)).map(o => ({ name: o.def.name, owner: o.controller.name }));
+      const combat = l.key === "doubletap" || l.key === "hitlist";
+      const sick = l.key === "doubletap" && !(bfObj(g, p, "Virtus the Veiled") && !bfObj(g, p, "Virtus the Veiled").sick);
+      let when = blockedBy.length ? "blocked" : unfound ? "later" : (!onTop && missing.length === tutors.length && n <= now && myTurn && !sick && (!combat || g.phase === "main1")) ? "now" : n <= next ? "next" : "later";
+      if (l.key === "hitlist" && when === "now") when = "next";   // it takes several hits
+      lines.push({ key: l.key, when, title: l.title, short: SHORT_TITLE[l.key], kill: l.key !== "brine", cost: cost || "{0}", mana: n, steps, tutors: tutors.map(t => t[0]), missing: missing.map(side => side[0]), blockedBy, early: null, onTurn: cost || "{0}" });
+    }
+    const W = { now: 0, next: 1, later: 2, blocked: 3 };
+    lines.sort((a, b) => W[a.when] - W[b.when] || a.mana - b.mana || (a.kill === b.kill ? 0 : a.kill ? -1 : 1));
+    // threats: hate pieces, and boards that can kill you
+    const threats = [];
+    for (const o of hate) {
+      const h = HATE[o.def.name];
+      const answers = (g.isCreature(o) ? ANSWERS.creature : ANSWERS.other).filter(n => inHand(p, n) || (n === "Otawara, Soaring City" && onBf(g, p, n)));
+      threats.push({ kind: "hate", level: h.lines.length ? "high" : "low", name: o.def.name, title: `${o.controller.name}'s ${nick(o.def.name)}`, text: `${h.why}.`, answers, answerText: answers.length ? `Answer: ${list(answers.map(short))}.` : "No answer in hand: tutor around it or switch lines." });
+    }
+    for (const q of g.opponents(p).filter(q => !q.lost)) {
+      const pw = g.creatures(q).reduce((s, c) => s + Math.max(0, g.power(c)), 0);
+      if (pw >= p.life) threats.push({ kind: "lethal", level: "high", name: null, title: `${q.name} can kill you`, text: `${pw} power on board and you're at ${p.life}. Keep blockers back (Etrata's deathtouch) or end it first.`, answers: ["Cyclonic Rift", "Toxic Deluge"].filter(n => inHand(p, n)), answerText: "" });
+    }
+    const who = g.opponents(p).filter(q => !q.lost && q.hand.length >= 2 && g.controlled(q, o => g.isLand(o) && !o.tapped).length >= 2).map(q => q.name);
+    const r = { state: { manaNow: now, manaNext: next }, lines, threats, risk: { who, quiet: null } };
+    planKey = key; planVal = r;
+    return r;
+  }
+
+  /* ================================================================ the companion
+     companion(g, p, ctx) walks you through the game one stage at a time, like Corrupted Miku's: the
+     mulligan, setting up Etrata and the engines, assembling a line, going off, and what to answer on
+     their turns. Returns { stage, title, steps: [{ text, cards }], urgent, keep }. */
+  const ROCKS = ["Sol Ring", "Mox Amber", "Arcane Signet", "Talisman of Dominance", "Dimir Signet", "Fellwar Stone", "Mind Stone", "Dark Ritual"];
+  const ENGINES = ["Rhystic Study", "Necropotence", "Mystic Remora", "Opposition Agent", "Notion Thief", "Gonti, Night Minister", "Thief of Sanity", "Black Market Connections", "Training Grounds", "Tetsuko Umezawa, Fugitive"];
+  const FLASHERS = ["Opposition Agent", "Notion Thief"];
+  const ALL_TUTORS = GENERAL_TUTORS.concat(Object.keys(TRANSMUTERS), ["Wishclaw Talisman", "Tribute Mage"]);
+  const companionLine = l => l.steps.map(st => ({ text: st.text, cards: st.cards }));
+  function companion(g, p, ctx) {
+    ctx = ctx || {};
+    const mode = ctx.mode || "wait";
+    const myTurn = g.active === p;
+    const castable = name => p.hand.some(c => c.def.name === name && g.castOptions(p, c).length > 0);
+    const steps = [];
+    const step = (text, cards) => steps.push({ text, cards: cards || [] });
+    const etrata = bfObj(g, p, "Etrata, Deadly Fugitive");
+    const home = p.commanders[0] && p.commanders[0].zone === "command" ? p.commanders[0] : null;
+
+    // ---- the opening hand (the sim's rule: 3 to 5 lands, or 2 lands and a rock)
+    if (mode === "mulligan") {
+      const hand = ctx.hand || p.hand, names = hand.map(o => o.def.name);
+      const lands = hand.filter(o => o.def.types.includes("Land")).length;
+      const rocks = names.filter(n => ROCKS.includes(n));
+      const pieces = names.filter(n => COMBO_NAMES.has(n) || MANTA.sides.flat().includes(n));
+      const tutors = names.filter(n => ALL_TUTORS.includes(n));
+      const engines = names.filter(n => ENGINES.includes(n));
+      let title, keep;
+      if (lands === 0 || (lands === 1 && rocks.length < 2)) { title = "Mulligan: too few lands"; keep = false; }
+      else if (lands >= 6) { title = "Mulligan: too many lands"; keep = false; }
+      else if (lands === 2 && !rocks.length) { title = "Risky: two lands and no rock"; keep = null; }
+      else if (pieces.length + tutors.length >= 2) { title = "Great keep: mana and a plan"; keep = true; }
+      else if (pieces.length + tutors.length + engines.length >= 1) { title = "Keep: mana and something to do"; keep = true; }
+      else { title = "Keep: the mana is fine, dig for a plan"; keep = true; }
+      step(`${lands} land${lands === 1 ? "" : "s"}${rocks.length ? ` and ${list(rocks.map(short))}` : ""}. Etrata costs {1}{U}{B}: cast her on turn 3, or turn 2 off a rock.`, rocks.slice(0, 2));
+      if (pieces.length) step(`Combo piece${pieces.length > 1 ? "s" : ""}: ${list(pieces.map(short))}. A tutor finds the partner.`, pieces.slice(0, 3));
+      if (tutors.length) step(`Tutor${tutors.length > 1 ? "s" : ""}: ${list(tutors.map(short))}. Count each as the piece it finds.`, tutors.slice(0, 2));
+      if (engines.length) step(`Engine: ${list(engines.map(short))}. Cards and stolen cards keep you ahead while you assemble.`, engines.slice(0, 2));
+      if (!pieces.length && !tutors.length) step("No combo piece or tutor: you'll be digging. Keep only if the mana is good.");
+      return { stage: "Opening hand", title, keep, steps };
+    }
+    const r = plan(g, p) || { lines: [], threats: [], risk: { who: [] }, state: {} };
+    const lines = r.lines.filter(l => l.when !== "blocked");
+    const counters = COUNTERS.filter(n => castable(n));
+
+    // ---- something on the stack, a combat or an end step
+    if (mode === "respond") {
+      const can = new Set(ctx.can || []);
+      const top = ctx.top, def = top && (top.o ? top.o.def : top.src && top.src.def);
+      const theirs = top && top.p && top.p !== p;
+      const ctr = COUNTERS.filter(n => can.has(n) && (n !== "Swan Song" || (def && /Instant|Sorcery|Enchantment/.test(def.type))) && (n !== "Fierce Guardianship" && n !== "An Offer You Can't Refuse" || (def && !def.types.includes("Creature"))));
+      if (ctx.window === "stack" && theirs && def) {
+        const ai = def.ai || {};
+        const hits = (top.targets || []).filter(t => t && !g.isPlayer(t) && t.controller === p);
+        const wipe = ai.wipe || ((def.types.includes("Sorcery") || def.types.includes("Instant")) && /(destroy|exile|return) all [^.]*(creatures|permanents)|damage to each creature|all creatures get -/i.test(def.text || ""));
+        const piece = hits.find(o => COMBO_NAMES.has(nameOf(o)) || ENGINES.includes(nameOf(o)) || o.def.name === "Etrata, Deadly Fugitive");
+        if (wipe || piece) {
+          if (ctr.length) step(`${ctr[0] === "Fierce Guardianship" && etrata ? "Fierce Guardianship is free with Etrata out. C" : "C"}ounter ${top.name} with ${ctr[0]}${wipe ? ": it's a board wipe" : `: it hits your ${nick(nameOf(piece))}`}.`, [ctr[0]]);
+          else step(`${top.name} ${wipe ? "is a board wipe" : `hits your ${nick(nameOf(piece))}`} and you hold no counter that stops it. Keep Fierce Guardianship or Counterspell up next time.`, ["Fierce Guardianship", "Counterspell"]);
+          return { stage: "Defend", title: wipe ? `Board wipe: ${top.name}` : `${top.name} targets your ${nick(nameOf(piece))}`, steps, urgent: ctr.length > 0 };
+        }
+        const win = ai.combo || /you win the game|loses the game/i.test(def.text || "");
+        if (win && ctr.length) { step(`${top.name} can end the game. Counter it with ${ctr[0]}.`, [ctr[0]]); return { stage: "Defend", title: `${top.p.name} goes for the win`, steps, urgent: true }; }
+        if ((ai.tutor || /search(es)? (their|your) library/i.test(def.text || "")) && onBf(g, p, "Opposition Agent")) step(`${top.p.name} is searching: Opposition Agent hands you what they find.`, ["Opposition Agent"]);
+        if (ctr.length) step(`Nothing here needs ${ctr[0]}. Save counters for a wipe, removal on a combo piece, or someone's winning spell.`, [ctr[0]]);
+        return { stage: myTurn ? "Your turn" : "Their turn", title: `${top.p.name} casts ${top.name}`, steps };
+      }
+      if (ctx.window === "end") {
+        if (ctx.turnOf && g.nextPlayer(ctx.turnOf) !== p) return { stage: "Their turn", title: "", steps };
+        const flash = FLASHERS.filter(n => can.has(n));
+        if (flash.length) step(`Flash in ${list(flash.map(short))} now: it's ready on your turn and they never got a turn to answer it.`, flash);
+        const l = lines.find(x => x.tutors.some(t => INSTANT_TUTORS.includes(t) && can.has(t)));
+        if (l) { const t = l.tutors.find(x => INSTANT_TUTORS.includes(x) && can.has(x)); step(`Vampiric Tutor now for ${nick(l.missing[0])} (${l.short}): you draw it in your draw step.`, [t, l.missing[0]]); }
+        else if (can.has("Brainstorm")) step("Brainstorm at end of turn: dig with mana you didn't use.", ["Brainstorm"]);
+        return { stage: "Their turn", title: "End of turn: your instants", steps, urgent: steps.length > 0 };
+      }
+      return { stage: myTurn ? "Your turn" : "Their turn", title: "", steps };
+    }
+
+    // ---- combat
+    if (mode === "attack") {
+      const opp = g.opponents(p).filter(q => !q.lost);
+      const cands = ctx.candidates || [];
+      const KEEP = ["Mindcrank", "Duskmantle Guildmage", "Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Mari, the Killing Quill", "Tetsuko Umezawa, Fugitive", "Bloodletter of Aclazotz"];
+      const assassins = cands.filter(o => isAssassin(g, o) && o.def.name !== "Etrata, Deadly Fugitive" && !KEEP.includes(o.def.name));
+      const stealers = cands.filter(o => ["Gonti, Night Minister", "Thief of Sanity", "Fallen Shinobi", "Etrata, the Silencer"].includes(o.def.name));
+      const virtus = cands.find(o => o.def.name === "Virtus the Veiled");
+      if (virtus && onBf(g, p, "Bloodletter of Aclazotz")) {
+        const tgt = opp.slice().sort((a, b) => b.life - a.life)[0];
+        step(`Virtus attacks ${tgt.name}${g.power(virtus) > 1 ? " (use Rogue's Passage first: it's too big for Tetsuko)" : ""}. If it connects, Bloodletter doubles the half: they lose all their life.`, ["Virtus the Veiled", "Bloodletter of Aclazotz"]);
+      }
+      if (onBf(g, p, "Ramses, Assassin Lord") && assassins.length) step("Ramses is out: attack with at least one Assassin, then kill that player any way you can this turn and you win the game.", ["Ramses, Assassin Lord"]);
+      if (assassins.length && etrata) step(`Send ${list(assassins.slice(0, 3).map(o => nick(o.def.name)))}: each Assassin hit makes Etrata cloak the top card of that player's library for you.`, ["Etrata, Deadly Fugitive"]);
+      if (stealers.length) step(`${list(stealers.map(o => nick(o.def.name)))} steal${stealers.length > 1 ? "" : "s"} on a hit: attack the player whose deck you'd most like to play.`, stealers.map(o => o.def.name).slice(0, 2));
+      if (etrata && cands.includes(etrata)) step("Etrata is your engine. Attack with her only when no blocker kills her: she's a 1/4 with deathtouch, a great blocker too.", ["Etrata, Deadly Fugitive"]);
+      const keep = cands.filter(o => KEEP.includes(o.def.name));
+      if (keep.length) step(`Keep ${list(keep.map(o => nick(o.def.name)))} home: losing a combo piece in a trade costs more than the damage.`, keep.map(o => o.def.name).slice(0, 2));
+      if (!steps.length) step("No good attack: keep your creatures back as blockers.");
+      return { stage: "Combat", title: "Who attacks", steps };
+    }
+    if (mode === "block") {
+      const at = (ctx.attackers || []).filter(a => a.combat && a.combat.attacking === p);
+      const dmg = at.reduce((s, a) => s + Math.max(0, g.power(a)), 0);
+      step(dmg >= p.life ? `${dmg} damage is coming at you and you're at ${p.life}: block enough to live.` : `${dmg} damage is coming at you (you're at ${p.life}). Take it rather than lose a combo piece.`);
+      if (etrata && !etrata.tapped) step("Etrata blocks well: 4 toughness and deathtouch kill any attacker she blocks.", ["Etrata, Deadly Fugitive"]);
+      return { stage: "Their turn", title: "Blocks", steps };
+    }
+
+    // ---- their turn, waiting
+    if (!myTurn) {
+      if (counters.length || COUNTERS.some(n => inHand(p, n))) step(`Hold ${list(COUNTERS.filter(n => inHand(p, n)).map(short))} for a wipe, removal on a combo piece, or a winning spell. The game stops for you when it matters.`, COUNTERS.filter(n => inHand(p, n)).slice(0, 2));
+      const flash = FLASHERS.filter(n => inHand(p, n));
+      if (flash.length) step(`${list(flash.map(short))}: flash it in at the end of the turn before yours.`, flash);
+      if (inHand(p, "Vampiric Tutor") && lines[0] && lines[0].tutors.includes("Vampiric Tutor")) step(`Vampiric Tutor at the end of the turn before yours, for ${nick(lines[0].missing[0])}.`, ["Vampiric Tutor"]);
+      for (const t of r.threats.filter(x => x.kind === "lethal")) step(`${t.title}: ${t.text}`, t.answers.slice(0, 2));
+      if (!steps.length) step("Nothing to do yet. Watch what they set up: the Coach's Plan tab lists the hate pieces.");
+      return { stage: "Their turn", title: `${g.active.name}'s turn`, steps };
+    }
+
+    // ---- your turn: where you are in the game plan
+    const winNow = lines.find(l => l.when === "now" && l.kill);
+    if (winNow && mode === "main") {
+      if (r.risk.who.length) step(`${list(r.risk.who)} ${r.risk.who.length > 1 ? "have" : "has"} cards and open mana.${counters.length ? ` Keep ${counters[0]} up to protect the combo.` : " Go anyway if waiting gives them a turn."}`, counters.slice(0, 1));
+      for (const st of companionLine(winNow)) step(st.text, st.cards);
+      return { stage: "Go off", title: `Win now: ${winNow.title}`, steps, urgent: true };
+    }
+    const hit = r.threats.find(t => t.kind === "hate" && t.level === "high" && t.answers.some(n => castable(n) || n === "Otawara, Soaring City"));
+    if (hit && mode === "main") step(`${hit.title}: ${hit.text} ${hit.answerText}`, [hit.name].concat(hit.answers.slice(0, 1)));
+    if (mode === "main" && g.phase === "main2") {
+      if (COUNTERS.some(n => inHand(p, n))) step(`Before you pass: keep mana up for ${list(COUNTERS.filter(n => inHand(p, n)).map(short))}.`, COUNTERS.filter(n => inHand(p, n)).slice(0, 2));
+      if (onBf(g, p, "Necropotence")) step("Necropotence: pay life now for cards at your end step. Keep enough life for the table's attacks.", ["Necropotence"]);
+      const flash = FLASHERS.filter(n => inHand(p, n));
+      if (flash.length) step(`Don't cast ${list(flash.map(short))} now: flash it in at the end of the turn before yours.`, flash);
+      const nx = lines[0];
+      if (nx && nx.when === "next") step(`Next turn: ${nx.short} (${nx.cost}, you'll have ${r.state.manaNext} mana).`, nx.steps[0] ? nx.steps[0].cards : []);
+      if (!steps.length) step("Nothing to hold back. Pass when ready.");
+      return { stage: "End of your turn", title: "Before you pass", steps };
+    }
+    const lands = g.controlled(p, o => g.isLand(o)).length;
+    if (p.landsPlayed < g.landDrops(p) && p.hand.some(c => c.def.types.includes("Land"))) step("Play a land first. Crack Polluted Delta now: the shock lands come in untapped if you pay 2 life.");
+    const rocks = ROCKS.filter(castable);
+    if (!etrata) {
+      if (home && g.castOptions(p, home).length) step("Cast Etrata: her Assassin hits cloak their cards, and she makes every flip cheaper.", ["Etrata, Deadly Fugitive"]);
+      else if (home) step(`Etrata costs ${home.def.cost}${g.commanderTax(p, home) ? ` plus {${g.commanderTax(p, home)}} tax` : ""}. Build mana to her.`, ["Etrata, Deadly Fugitive"]);
+      if (rocks.length) step(`Mana first: ${list(rocks.slice(0, 2).map(short))}.`, rocks.slice(0, 2));
+      planStep();
+      return { stage: lands + rocks.length < 3 ? "Ramp" : "Set up", title: "Get Etrata out", steps };
+    }
+    const engines = ENGINES.filter(n => castable(n) && !FLASHERS.includes(n) && !onBf(g, p, n));
+    if (rocks.length && manaNow(g, p) < 5) step(`More mana: ${list(rocks.slice(0, 2).map(short))}. Most lines want 5 to 7.`, rocks.slice(0, 2));
+    if (engines.length) step(`Engine: ${list(engines.slice(0, 2).map(short))}. Cards and theft keep you ahead while you assemble.`, engines.slice(0, 2));
+    planStep();
+    const downs = g.controlled(p, o => !!o.faceDown);
+    if (downs.length) step(`${downs.length} face-down creature${downs.length > 1 ? "s" : ""}: Etrata flips each for ${onBf(g, p, "Training Grounds") ? "{U}{B}" : "{2}{U}{B}"}, or exiles a noncreature card and you cast it for free.`, ["Etrata, Deadly Fugitive"]);
+    if (!steps.length) step("Develop: mana, an engine, and keep a tutor for the missing piece.");
+    return { stage: "Assemble", title: lines[0] ? `Closest: ${lines[0].short}` : "Find a line", steps };
+
+    function planStep() {
+      const l = lines[0];
+      if (!l) {
+        const off = r.lines.find(x => x.when === "blocked");
+        if (off) step(`${off.short} is switched off by ${list(off.blockedBy.map(h => `${h.owner}'s ${nick(h.name)}`))}. Answer it or go for another line.`, off.blockedBy.map(h => h.name).slice(0, 2));
+        else step("No line within reach yet: draw, steal and dig. Rhystic Study, Necropotence and the cloaks find pieces.");
+        return;
+      }
+      if (l.when === "now") { for (const st of l.steps.slice(0, 3)) step(st.text, st.cards); return; }
+      const what = l.missing.length ? `${l.short}, missing ${l.missing.map(nick).join(" and ")}` : l.short;
+      if (l.when === "next") step(`Next turn: ${what}. It costs ${l.cost} and you'll have ${r.state.manaNext} mana. ${l.steps[0] ? l.steps[0].text : ""}`, l.steps[0] ? l.steps[0].cards : []);
+      else step(`Closest line: ${what}. All in, about ${l.mana} mana; you have ${r.state.manaNow}. ${l.steps[0] ? l.steps[0].text : ""}`, l.steps[0] ? l.steps[0].cards : []);
+    }
+  }
+
   /* ================================================================ the deck */
   const B = n => Array(n).fill("Swamp"), I = n => Array(n).fill("Island");
   const LIST = [
@@ -1037,10 +1354,10 @@
     blurb: "Bracket 4 Etrata: steal cards with cloaks, Gonti and Thief of Sanity while tutoring for two-card wins (the vampire loop, Mindcrank + Guildmage, Bloodletter + Virtus, the Brine Elemental untap lock). Coach tips show which piece is missing.",
     watch: ["Exquisite Blood", "Bloodthirsty Conqueror", "Mindcrank", "Bloodletter of Aclazotz", "Brine Elemental", "Ramses, Assassin Lord", "Opposition Agent", "Notion Thief"],
     list: LIST,
-    coach: { tips: coachTips, checklist: "corrupted-etrata" }
+    coach: { tips: coachTips, companion, plan, checklist: "corrupted-etrata", companionBlurb: "guides you through each stage of the game: the mulligan, getting Etrata out, which line to assemble, going off, and what to counter on their turns. It stops the game when it has advice." }
   };
   MK.CETRATA_LINES = LINES;
-  MK.CETRATA_AI = { bestPiece, lineState, coachTips };
+  MK.CETRATA_AI = { bestPiece, lineState, coachTips, plan, companion };
   (MK.HERO_DECKS = MK.HERO_DECKS || []).push(MK.CETRATA_DECK);
   (MK.BOT_DECKS = MK.BOT_DECKS || []).push(MK.CETRATA_DECK);
 })(typeof window !== "undefined" ? window : globalThis);
