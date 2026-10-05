@@ -26,7 +26,7 @@
   const A = MK.Analysis = MK.Analysis || {};
   A.VERSION = 3;   // 3: the playout bot tutors like a bot; land choices look further ahead
   // accuracy of a random player and of the bot on this scale, from tools/sim/calibrate-analysis.js
-  /*ANCHORS*/ A.ANCHORS = { random: 87.7, bot: 99.9 }; /*ANCHORS-END*/
+  /*ANCHORS*/ A.ANCHORS = { random: 87.8, bot: 99.6 }; /*ANCHORS-END*/
 
   const mean = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0;
   function pairedStats(a, b) {

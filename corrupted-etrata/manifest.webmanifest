@@ -1,7 +1,7 @@
 {
   "name": "Corrupted Etrata Deck Wiki",
   "short_name": "Corrupted Etrata",
-  "description": "Corrupted Etrata, a Bracket 4 Etrata, Deadly Fugitive Commander deck (Etrata's Shadow Market v2): a step-by-step guide, every card with rulings, the six win lines, a play checklist, a quiz, and a Commander game against bots.",
+  "description": "Corrupted Etrata, a Bracket 4 Etrata, Deadly Fugitive Commander deck (Etrata's Shadow Market v3): a step-by-step guide, every card with rulings, the four win lines, a play checklist, a quiz, and a Commander game against bots.",
   "start_url": "./#guide",
   "scope": "./",
   "display": "standalone",
