@@ -229,6 +229,36 @@
 .ar-mu li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 10px; font-size: 13.5px; }
 .ar-mu .ar-av { width: 24px; height: 24px; }
 .ar-mu .mono { font: 700 13px/1 var(--f-mono); }
+/* why it wins and loses */
+.ar-verdict { display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+.ar-verdict li { position: relative; padding: 9px 12px 9px 30px; border-radius: 12px; background: var(--surface-2); font-size: 14px; line-height: 1.45; color: var(--ink-soft); }
+.ar-verdict li::before { content: ""; position: absolute; left: 12px; top: 15px; width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+.ar-verdict li.bad { background: var(--pink-soft); color: var(--ink); }
+.ar-verdict li.bad::before { background: var(--pink-fill); }
+.ar-verdict li.good { background: var(--teal-soft); color: var(--ink); }
+.ar-verdict li.good::before { background: var(--teal-fill); }
+.ar-old { margin: 10px 0 0; }
+.ar-two > .ar-wide { grid-column: 1 / -1; }
+.ar-card > .ar-kpis.light { margin-top: 12px; }
+.ar-bars.wrap .ar-bar > span:first-child { white-space: normal; line-height: 1.2; }
+.ar-kill li { grid-template-columns: minmax(0, 1fr) auto 64px; }
+.ar-kill small { text-align: right; }
+.ar-keys { display: grid; gap: 6px; margin-top: 10px; }
+.ar-key { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 10px; padding: 4px 6px; border-radius: 8px; font-size: 13px; }
+.ar-key > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.ar-key-h { padding-bottom: 0; font: 600 10.5px/1 var(--f-mono); text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.ar-key-h > span:first-child { font-weight: 600; }
+.ar-key.up { background: var(--teal-soft); }
+.ar-key.down { background: var(--pink-soft); }
+.ar-kc { display: grid; grid-template-columns: minmax(0, 1fr) 36px; align-items: center; gap: 6px; }
+.ar-kc b { font: 700 12px/1 var(--f-mono); text-align: right; }
+.ar-kc .ar-track { height: 8px; background: var(--surface-3); }
+.ar-kc.l .ar-track i { background: var(--pink-fill); }
+@media (max-width: 560px) {
+  .ar-key { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px 12px; padding: 6px 8px; }
+  .ar-key > span:first-child { grid-column: 1 / -1; }
+  .ar-key-h > span:first-child { display: none; }
+}
 
 /* ---------------- Games */
 .ar-hl { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 1fr); gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }

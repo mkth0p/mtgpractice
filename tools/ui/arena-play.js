@@ -2,13 +2,13 @@
 /* Runs a small tournament in the Arena tab, in its workers: checks every page draws, the race and
    the standings agree, a cup crowns its champion, and that "Watch" replays a tournament game on the
    table with the same result. Screenshots go to --shots DIR when given.
-   node tools/ui/arena-play.js [--site miku] [--format league] [--games 40] [--shots /tmp/arena]   (exits 1 on a problem) */
+   node tools/ui/arena-play.js [--site miku] [--format league] [--games 40] [--shots /tmp/arena] [--jobs 2]   (exits 1 on a problem) */
 "use strict";
 const fs = require("fs");
 const { serve, launch } = require("./serve");
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf("--" + k); return i < 0 ? d : args[i + 1]; };
-const SITE = opt("site", "miku"), FORMAT = opt("format", "league"), GAMES = +opt("games", 40), SHOTS = opt("shots", null);
+const SITE = opt("site", "miku"), FORMAT = opt("format", "league"), GAMES = +opt("games", 40), SHOTS = opt("shots", null), JOBS = +opt("jobs", 0);
 const W = +(process.env.W || 390);
 (async () => {
   const srv = await serve(); const browser = await launch();
@@ -18,6 +18,8 @@ const W = +(process.env.W || 390);
   const errs = []; page.on("pageerror", e => errs.push("PAGEERR " + e.message)); page.on("console", m => { if (m.type() === "error" && !/Failed to load|scryfall/.test(m.text())) errs.push("CONSOLE " + m.text()); });
   const cfg = { format: FORMAT, games: GAMES, pod: 4, rounds: 3, series: 1, top: 4, koSeries: 3, level: "sharp", casual: true, seed: 42 };
   if (FORMAT === "cup") cfg.entrants = ["edgar", "ghalta", "krenko", "talrand", "lathril", "kaalia", "miku", "etrata"];
+  // --jobs N: at most N game workers (the Arena starts one fewer than the cores it sees)
+  if (JOBS > 0) await page.addInitScript(n => { Object.defineProperty(Navigator.prototype, "hardwareConcurrency", { get: () => n + 1 }); }, JOBS);
   await page.addInitScript(c => { if (!sessionStorage.getItem("armed")) { sessionStorage.setItem("armed", "1"); for (const k of ["mikuWiki", "etrataWiki", "corruptedWiki", "cetrataWiki"]) localStorage.setItem(k + ".game.settings.v1", JSON.stringify({ speed: "fast" })); localStorage.setItem("mtgArena.cfg.v1", JSON.stringify(c)); } }, cfg);
   const base = `http://127.0.0.1:${srv.address().port}/${SITE}/`;
   const shot = async n => { if (SHOTS) { fs.mkdirSync(SHOTS, { recursive: true }); await page.screenshot({ path: `${SHOTS}/${n}-${W}.png`, fullPage: false }); } };
@@ -49,6 +51,16 @@ const W = +(process.env.W || 390);
     await page.waitForTimeout(300);
     await shot(seg);
   }
+  // the deck profile explains why it wins and loses, in sentences and in its own cards, without widening the page
+  await page.goto(base + "#arena/decks");
+  await page.waitForSelector("[data-arena=decks] .ar-why", { timeout: 10000 }).catch(() => errs.push("the deck profile has no 'why it wins and loses'"));
+  const why = await page.evaluate(() => ({ verdict: document.querySelectorAll(".ar-why .ar-verdict li").length, keys: document.querySelectorAll(".ar-keys .ar-key:not(.ar-key-h)").length, killers: document.querySelectorAll(".ar-kill li").length, old: document.querySelectorAll("[data-arena=decks] .ar-old").length, wide: document.documentElement.scrollWidth - innerWidth, text: (document.querySelector("[data-arena=decks]") || document.body).innerText }));
+  if (!why.verdict) errs.push("the profile has no verdict sentences");
+  if (!why.keys) errs.push("the profile lists no key cards");
+  if (why.old) errs.push("a new tournament's profile says it wasn't recorded");
+  if (why.wide > 1) errs.push(`the deck profile is ${why.wide}px wider than the screen`);
+  if (/undefined|NaN/.test(why.text)) errs.push("the deck profile shows undefined or NaN");
+  if (SHOTS) await page.screenshot({ path: `${SHOTS}/decks-full-${W}.png`, fullPage: true });
   await page.goto(base + "#arena/standings");
   await page.waitForSelector(".ar-table tbody tr");
   const table = await page.$$eval(".ar-table tbody tr", rs => rs.map(r => r.dataset.deck));

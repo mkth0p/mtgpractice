@@ -230,9 +230,18 @@
     });
     return out;
   };
+  const cardIndex = new WeakMap(); // tournament -> Map(card name -> its number in st.cards)
   /* Store one finished game. */
   T.record = function (st, job, res) {
     const g = Object.assign({ gi: job.gi, r: job.ri, p: job.pi, k: job.k, seed: job.seed, d: job.seats.map(s => s.deck) }, res);
+    // the cards each seat cast, as numbers into one list of names the tournament keeps (saves space)
+    if (Array.isArray(res.cards)) {
+      const names = st.cards = st.cards || [];
+      let ix = cardIndex.get(st);
+      if (!ix || ix.size !== names.length) { ix = new Map(names.map((c, i) => [c, i])); cardIndex.set(st, ix); }
+      g.cc = res.cards.map(list => (list || []).map(c => { if (!ix.has(c)) { ix.set(c, names.length); names.push(c); } return ix.get(c); }));
+      delete g.cards;
+    }
     st.games[job.gi] = g;
     const pod = st.rounds[job.ri] && st.rounds[job.ri].pods[job.pi];
     if (pod && !pod.res.includes(job.gi)) pod.res.push(job.gi);
@@ -269,7 +278,10 @@
   /* Plays a job (see T.jobs) and returns its summary:
      f first seat, w winner seat (-1 for none), draw, rd rounds, tn turns, ms;
      per seat: pl finishing place, out round knocked out (0 = still in), why how they went out,
-     dmg damage dealt to players, cast spells cast, tok tokens made, mull mulligans, life at the end. */
+     dmg damage dealt to players, cast spells cast, tok tokens made, mull mulligans, life at the end,
+     by the seat that knocked them out (-1 for no one), cmd [commander casts, commander trips off the
+     battlefield], um [mana left unused at its end steps, end steps counted], cards the names of the
+     spells it cast (T.record turns these into numbers in st.cards). */
   T.playGame = async function (job) {
     const n = job.seats.length;
     const players = job.seats.map(s => {
@@ -280,7 +292,28 @@
     });
     const out = new Array(n).fill(0), seq = new Array(n).fill(0);
     let k = 0, g = null, errs = 0, err = "";
-    const ui = { anim(kind, d) { if (kind === "lose" && d && d.p && !seq[d.p.idx]) { seq[d.p.idx] = ++k; out[d.p.idx] = Math.max(1, g.round || 1); } } };
+    /* What the deck profiles' "how it wins, how it loses" needs, read off the game's events and
+       never written back to it: who last hurt each player (their killer), the commanders' trips off
+       the battlefield, and the mana each player left unused going into its end step. */
+    const hit = new Array(n).fill(-1), cmdOff = new Array(n).fill(0), unused = new Array(n).fill(0), measured = new Array(n).fill(0);
+    const ctrlOf = q => (q && q.controller) || null;
+    const ui = {
+      anim(kind, d) { if (kind === "lose" && d && d.p && !seq[d.p.idx]) { seq[d.p.idx] = ++k; out[d.p.idx] = Math.max(1, g.round || 1); } },
+      event(type, ev) {
+        try {
+          if ((type === "damage" && ev.toPlayer) || type === "loseLife") {
+            const t = ev.target || ev.p, c = ctrlOf(ev.src);
+            if (t && c && c !== t && c.idx != null && !t.lost) hit[t.idx] = c.idx;
+          } else if (type === "leaves") {
+            if (ev.o && ev.o.isCommander && ev.o.owner) cmdOff[ev.o.owner.idx]++;
+          } else if (type === "endStep" && ev.p && !ev.p.lost) {
+            let m = 0;
+            for (const s of g.manaSources(ev.p)) if (s.o.zone === "battlefield" && !s.hasCost) m += s.options[0].units.length * (s.mult || 1);
+            unused[ev.p.idx] += m; measured[ev.p.idx]++;
+          }
+        } catch (e) { /* a number for the profile, never a reason to stop a game */ }
+      }
+    };
     // built exactly as the Play table builds a watched game, so the seed replays it there
     g = new MK.Game({ seed: job.seed, players, endOnHumanLoss: true, maxTurns: job.maxTurns || T.MAX_TURNS, ui });
     g.players.forEach((p, i) => { p.deckId = players[i].deckId; });
@@ -306,9 +339,24 @@
       why: g.players.map(p => p.lost ? p.lostReason || "life" : ""),
       dmg: g.players.map(p => p.stats.dmg), cast: g.players.map(p => Object.values(p.stats.cast).reduce((a, b) => a + b, 0)),
       tok: g.players.map(p => p.stats.tokens), mull: g.players.map(p => p.mulls || 0), life: g.players.map(p => p.life),
+      by: g.players.map(p => killer(g, p, hit, w)),
+      cmd: g.players.map(p => [p.commanders.reduce((s, o) => s + (p.stats.cast[o.def.name] || 0), 0), cmdOff[p.idx]]),
+      um: g.players.map(p => [unused[p.idx], measured[p.idx]]),
+      cards: g.players.map(p => Object.keys(p.stats.cast)),
       err: errs + (crash ? 1 : 0), msg: crash || err || undefined
     };
   };
+  /* The seat that knocked p out, or -1: the commander's owner for 21 commander damage, the winner
+     for an alternate win, otherwise the last opponent who hurt them. Decking, conceding or dying
+     to your own cards names no one. */
+  function killer(g, p, hit, w) {
+    if (!p.lost) return -1;
+    const why = p.lostReason || "life";
+    if (why === "alt") return w;
+    if (why === "library" || why === "concede") return -1;
+    if (why === "commander") for (const q of g.players) if (q !== p && q.commanders.some(o => (p.cmdDmg[o.id] || 0) >= 21)) return q.idx;
+    return hit[p.idx];
+  }
 
   /* ------------------------------------------------------------ the numbers */
   function pointsOf(g, i) { return g.w === i ? 3 : g.w < 0 && !g.out[i] ? 1 : 0; }
@@ -461,6 +509,103 @@
     for (const b of Object.keys(mx[id] || {})) { const c = mx[id][b]; if (c.n) opp.push({ id: b, n: c.n, above: c.above / c.n, wins: c.wins }); }
     opp.sort((a, b) => b.above - a.above);
     return { id, n, wins, how, outHow, rounds, seat, opp };
+  };
+  /* Why a deck wins and loses: how its games end, who knocks it out, its key cards, its commander,
+     its mana and its mulligans, where it sits when it dies. Tournaments saved before these were
+     recorded have only the endings; `tracked` says how many of its games carry the rest. */
+  const LOSS = { life: "running out of life", commander: "21 commander damage", poison: "10 poison counters", alt: "an opponent's alternate win", library: "drawing from an empty library", concede: "conceding", draw: "a draw at the turn limit" };
+  T.LOSS = LOSS;
+  T.breakdown = function (st, id) {
+    const e = T.entrant(id), cmdNames = new Set([].concat(e && e.commander || []));
+    const names = st.cards || [];
+    const r = {
+      id, n: 0, wins: 0, losses: 0, tracked: 0, trackedWins: 0, trackedLosses: 0,
+      lossHow: {}, killers: {}, noKiller: 0, outRounds: [], winHow: {}, winRounds: [],
+      firstOut: 0, firstOutRounds: [], cards: [], cmd: null, mana: null, mull: null
+    };
+    const cards = new Map(), cmd = { casts: 0, off: 0, n: 0, wCasts: 0, wN: 0, lCasts: 0, lN: 0 };
+    const mana = { all: [0, 0], win: [0, 0], loss: [0, 0] }, mull = { n: 0, total: 0, kept: 0, keptWins: 0, mulled: 0, mulledWins: 0 };
+    const num = (a, i) => (Array.isArray(a) && a[i] != null ? a[i] : null);
+    for (const g of games(st)) {
+      const i = g.d.indexOf(id); if (i < 0) continue;
+      r.n++;
+      const won = g.w === i;
+      if (won) {
+        r.wins++; r.winRounds.push(g.rd);
+        let last = -1;
+        g.d.forEach((_, j) => { if (j !== i && g.out[j] && (last < 0 || g.pl[j] < g.pl[last])) last = j; });
+        const k = last >= 0 ? (g.why && g.why[last]) || "life" : "life";
+        r.winHow[k] = (r.winHow[k] || 0) + 1;
+      } else {
+        r.losses++;
+        const knocked = !!(g.out && g.out[i]);
+        const k = knocked ? (g.why && g.why[i]) || "life" : "draw";
+        r.lossHow[k] = (r.lossHow[k] || 0) + 1;
+        if (knocked) {
+          r.outRounds.push(g.out[i]);
+          const lastPlace = Math.max(...g.pl);
+          if (g.pl[i] === lastPlace && g.pl.filter(x => x === lastPlace).length === 1) { r.firstOut++; r.firstOutRounds.push(g.out[i]); }
+          const by = num(g.by, i);
+          if (by != null) {
+            if (by >= 0 && g.d[by] && by !== i) { const kk = r.killers[g.d[by]] = r.killers[g.d[by]] || { id: g.d[by], n: 0, rounds: [] }; kk.n++; kk.rounds.push(g.out[i]); }
+            else r.noKiller++;
+          }
+        }
+      }
+      const m = num(g.mull, i);
+      if (m != null) { mull.n++; mull.total += m; if (m) { mull.mulled++; if (won) mull.mulledWins++; } else { mull.kept++; if (won) mull.keptWins++; } }
+      // the rest is recorded from this version on
+      if (!Array.isArray(g.by)) continue;
+      r.tracked++; if (won) r.trackedWins++; else r.trackedLosses++;
+      const um = num(g.um, i);
+      if (um && um[1]) { for (const b of [mana.all, won ? mana.win : mana.loss]) { b[0] += um[0]; b[1] += um[1]; } }
+      const c = num(g.cmd, i);
+      if (c) { cmd.n++; cmd.casts += c[0]; cmd.off += c[1]; if (won) { cmd.wN++; cmd.wCasts += c[0]; } else { cmd.lN++; cmd.lCasts += c[0]; } }
+      for (const ci of num(g.cc, i) || []) {
+        const nm = names[ci]; if (!nm || cmdNames.has(nm)) continue;
+        const row = cards.get(nm) || { name: nm, n: 0, win: 0, loss: 0 };
+        row.n++; if (won) row.win++; else row.loss++;
+        cards.set(nm, row);
+      }
+    }
+    r.killers = Object.values(r.killers).map(k => Object.assign(k, { round: median(k.rounds) })).sort((a, b) => b.n - a.n || a.round - b.round);
+    r.medWin = median(r.winRounds); r.medOut = median(r.outRounds); r.medFirstOut = median(r.firstOutRounds);
+    // a card's share of the wins and of the losses it was cast in; the cards it casts most, biggest gap first
+    const W = r.trackedWins, L = r.trackedLosses;
+    r.cards = [...cards.values()].map(c => Object.assign(c, { inWins: W ? c.win / W : null, inLosses: L ? c.loss / L : null, gap: (W ? c.win / W : 0) - (L ? c.loss / L : 0) }))
+      .sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
+    if (cmd.n) r.cmd = { casts: cmd.casts / cmd.n, off: cmd.off / cmd.n, inWins: cmd.wN ? cmd.wCasts / cmd.wN : null, inLosses: cmd.lN ? cmd.lCasts / cmd.lN : null };
+    const per = b => (b[1] ? b[0] / b[1] : null);
+    if (mana.all[1]) r.mana = { all: per(mana.all), win: per(mana.win), loss: per(mana.loss) };
+    if (mull.n) r.mull = { per: mull.total / mull.n, kept: mull.kept, keptRate: mull.kept ? mull.keptWins / mull.kept : null, mulled: mull.mulled, mulledRate: mull.mulled ? mull.mulledWins / mull.mulled : null };
+    return r;
+  };
+  /* The breakdown in a few plain sentences, the most telling first: [{ tone: "bad"|"good"|"", text }]. */
+  T.verdict = function (st, id, b) {
+    b = b || T.breakdown(st, id);
+    const out = [], P = st.cfg.pod || 4, name = x => st.names[x] || x, pc = x => Math.round(100 * x) + "%";
+    if (!b.n) return out;
+    const ls = Object.entries(b.lossHow).sort((a, c) => c[1] - a[1]);
+    if (ls.length) {
+      const [k, v] = ls[0];
+      out.push({ tone: "", text: k === "draw" ? `Its non-wins are most often draws at the turn limit (${v} of ${b.losses}): it survives but can't close.` : `Its losses come most often from ${LOSS[k] || k} (${v} of ${b.losses}).` });
+    }
+    const top = b.killers[0];
+    if (top && top.n >= 2) out.push({ tone: top.n >= Math.max(3, b.losses / 3) ? "bad" : "", text: `${name(top.id)} knocks it out most: ${top.n} time${top.n > 1 ? "s" : ""}, usually around round ${Math.round(top.round)}.` });
+    if (b.n >= 4) {
+      const fo = b.firstOut / b.n;
+      if (fo > 1.4 / P) out.push({ tone: "bad", text: `It's the first deck out in ${pc(fo)} of its games (a fair share is ${pc(1 / P)})${b.medFirstOut != null ? `, typically by round ${Math.round(b.medFirstOut)}` : ""}.` });
+      else if (fo < 0.6 / P) out.push({ tone: "good", text: `It's rarely the first one out (${pc(fo)} of its games).` });
+    }
+    if (b.wins) {
+      const wh = Object.entries(b.winHow).sort((a, c) => c[1] - a[1])[0];
+      out.push({ tone: "good", text: `When it wins, it's mostly by ${(HOW[wh[0]] || wh[0])} (${wh[1]} of ${b.wins}), around round ${Math.round(b.medWin)}.` });
+    } else out.push({ tone: "bad", text: "It hasn't won a game yet." });
+    if (b.mana && b.mana.all >= 2.5) out.push({ tone: "bad", text: `It ends its turns with ${b.mana.all.toFixed(1)} mana unused on average: it has more mana than things to spend it on.` });
+    const swing = b.cards.filter(c => c.n >= 3 && c.inWins != null && c.inLosses != null).sort((a, c) => c.gap - a.gap)[0];
+    if (swing && swing.gap >= 0.25) out.push({ tone: "good", text: `It wins far more when it casts ${swing.name}: cast in ${pc(swing.inWins)} of its wins, ${pc(swing.inLosses)} of its losses.` });
+    if (b.mull && b.mull.mulled >= 3 && b.mull.keptRate != null && b.mull.mulledRate != null && b.mull.keptRate - b.mull.mulledRate >= 0.15) out.push({ tone: "bad", text: `Mulligans hurt it: it wins ${pc(b.mull.mulledRate)} after a mulligan, ${pc(b.mull.keptRate)} keeping seven.` });
+    return out;
   };
   /* The games worth a look: the fastest win, the longest game, the biggest upset, the most damage. */
   T.highlights = function (st, rt) {
