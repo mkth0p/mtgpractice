@@ -19,6 +19,7 @@
                            // 5: priority windows in upkeep, draw, beginning of combat, each combat damage step and end of combat; the end
                            //    of combat step happens with no attackers too; a person divides combat damage among two or more blockers
                            //    (games recorded before 5 replay without these: legacySteps)
+                           //    and the Etrata bots expect double blocks and run their own block plan (legacyEtrata)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",
