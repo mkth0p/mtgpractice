@@ -2,7 +2,8 @@
    Azusa plays three lands a turn. The deck ramps into Primeval Titan, Field of the Dead Zombies,
    Scute Swarm and Avenger of Zendikar, and kills with Dark Depths + Thespian's Stage: the Stage
    copies Dark Depths without its ice counters, so it's sacrificed at once for Marit Lage, a 20/20
-   flying, indestructible Avatar. Every land search here looks for the missing combo piece first.
+   flying, indestructible Avatar. Every land search here looks for the missing combo piece first,
+   and the bot's decisions live in `brain` (Azusa's plan).
    A player can pilot it from the Play tab (MK.HERO_DECKS) and it also sits at the table as a bot.
    Card text follows the printed Oracle text; `note` says where the engine simplifies a card. */
 (function (root) {
@@ -22,7 +23,7 @@
   const DEPTHS = "Dark Depths", STAGE = "Thespian's Stage";
 
   /* ---------- tokens */
-  T.maritLage = MK.tokenDef({ key: "marit-lage", name: "Marit Lage", pt: [20, 20], colors: "B", supertypes: ["Legendary"], subtypes: ["Avatar"], keywords: ["flying", "indestructible"] });
+  T.maritLage = MK.tokenDef({ key: "marit-lage", name: "Marit Lage", pt: [20, 20], colors: "B", supertypes: ["Legendary"], subtypes: ["Avatar"], keywords: ["flying", "indestructible"], ai: { attackTarget: lageTarget, attackFocus: lageAttackFocus } });
   T.azusaInsect = MK.tokenDef({ key: "insect-g1", name: "Insect", pt: [1, 1], colors: "G", subtypes: ["Insect"] });
   T.azusaElemental = MK.tokenDef({ key: "elemental-g53", name: "Elemental", pt: [5, 3], colors: "G", subtypes: ["Elemental"] });
   T.food = T.food || MK.tokenDef({
@@ -66,33 +67,161 @@
   /* A search spell is the best play while half of the combo is still in the library. */
   const comboMissing = (g, p) => !has(g, p, "Marit Lage") && ((!has(g, p, DEPTHS) && !inHand(p, DEPTHS) && inLib(p, DEPTHS)) || (!has(g, p, STAGE) && !inHand(p, STAGE) && inLib(p, STAGE)));
   const tutorCast = (g, p) => (comboMissing(g, p) ? 30 : undefined);
-  /* Deck plan: play the combo lands, copy Dark Depths with the Stage, and go find a missing piece. */
-  function plan(g, p, o, ctx) {
+  /* A combo piece sits in the graveyard with no copy on the battlefield or in hand, and no Marit
+     Lage is out: Life from the Loam, Splendid Reclamation and Titania bring it back. */
+  const inGy = (p, n) => p.graveyard.some(c => c.def.name === n);
+  const pieceInGy = (g, p) => !has(g, p, "Marit Lage") && [DEPTHS, STAGE].some(n => inGy(p, n) && !has(g, p, n) && !inHand(p, n));
+  const lageOf = (g, p) => g.controlled(p, o => o.def.name === "Marit Lage")[0] || null;
+
+  /* ================================================================ the brain (Azusa's ai.plan)
+     Azusa's plan runs from the command zone, the battlefield or the hand, so it's always there.
+     On other players' spells it keeps Marit Lage alive, and in combat Zuran Orb keeps us alive. In
+     our main phases, in order: make Marit Lage, go find the missing half of the combo (or bring it
+     back from the graveyard), cast the landfall cards and extra land drops before the lands,
+     Craterhoof when the swing kills, and Skullclamp on the 1/1 tokens. Marit Lage's token picks
+     whom the whole team attacks (lageFocus below). */
+  // cards that do more when they're out before this turn's land drops, best first
+  const BEFORE_LANDS = ["Azusa, Lost but Seeking", "Exploration", "Dryad of the Ilysian Grove", "Oracle of Mul Daya", "Wayward Swordtooth",
+    "Scute Swarm", "Avenger of Zendikar", "Lotus Cobra", "Tireless Provisioner", "Tireless Tracker", "Rampaging Baloths", "Khalni Heart Expedition", "Courser of Kruphix"];
+  const MORE_DROPS = new Set(BEFORE_LANDS.slice(0, 5));
+  const enterUntapped = (g, p, c) => { const t = c.def.etbTapped; if (t === true) return false; if (typeof t === "function") { try { return !t(g, { controller: p, def: c.def, id: -1 }); } catch (e) { return false; } } return true; };
+  const castAct = (acts, n) => acts.find(a => a.type === "cast" && a.card.def.name === n && !a.alt && !a.faceDown);
+  const activateAct = (acts, n, f) => acts.find(a => a.type === "activate" && a.card.def.name === n && (!f || f(a)));
+  // an opponent's spell or ability that would remove a creature: it targets it, or it's an enters
+  // trigger that exiles, destroys or bounces a target (Oblivion Ring picks as it resolves)
+  const REMOVAL_TEXT = /(exile|destroy|return)[^.]*target[^.]*(creature|permanent)/i;
+  function threatensRemoval(g, p, item, o) {
+    if (!item || item.p === p) return false;
+    if ((item.targets || []).includes(o)) return true;
+    return item.kind === "trigger" && !!item.o && !!item.o.def && REMOVAL_TEXT.test(item.o.def.text || "") && item.trig && item.trig.tr && item.trig.tr.on === "enters";
+  }
+  function brain(g, p, o, ctx) {
+    const acts = ctx.actions || [];
+    const lage = lageOf(g, p);
+    // keep Marit Lage: Snakeskin Veil (hexproof), else Heroic Intervention, against removal aimed at her
+    if ((ctx.window === "stack" || ctx.window === "ability") && lage) {
+      const top = g.stack[g.stack.length - 1];
+      if (!threatensRemoval(g, p, top, lage)) return null;
+      const veil = castAct(acts, "Snakeskin Veil");
+      if (veil && g.canTarget(p, lage)) return { type: "cast", card: veil.card, targets: [lage] };
+      const hi = castAct(acts, "Heroic Intervention");
+      if (hi) return { type: "cast", card: hi.card };
+      return null;
+    }
+    // lethal combat damage coming at us: Zuran Orb turns spare lands into enough life to live
+    if (ctx.window === "combat" && g.combat && g.combat.attacker !== p) {
+      const orb = activateAct(acts, "Zuran Orb");
+      if (!orb) return null;
+      const need = incomingDamage(g, p) - p.life + 1;
+      const spare = g.controlled(p, x => g.isLand(x) && x.def.name !== DEPTHS && x.def.name !== STAGE).length;
+      const n = Math.ceil(need / 2);
+      return need > 0 && n <= spare ? { type: "activate", card: orb.card, idx: orb.idx, repeat: n } : null;
+    }
     if (!mainWin(ctx)) return null;
-    const acts = ctx.actions;
-    const depths = g.battlefield.find(x => x.def.name === DEPTHS && x.zone === "battlefield");
-    if (depths && !has(g, p, "Marit Lage")) {
+    // 1. the combo: the Stage copies Dark Depths, and the pieces get played first
+    const depths = g.battlefield.find(x => x.def.name === DEPTHS && x.zone === "battlefield" && x.controller === p);
+    if (depths && !lage) {
       const st = acts.find(a => a.type === "activate" && a.card.def.name === STAGE && a.ab && a.ab.stage);
       if (st) return { type: "activate", card: st.card, idx: st.idx };
     }
-    const playPiece = acts.find(a => a.type === "land" && (a.card.def.name === DEPTHS || a.card.def.name === STAGE));
-    if (playPiece) return playPiece;
-    // a combo piece still in the library: go get it (the half that's missing, else Dark Depths)
+    const playPiece = acts.find(a => a.type === "land" && (a.card.def.name === DEPTHS || a.card.def.name === STAGE) && !has(g, p, a.card.def.name));
+    if (playPiece && !lage) return playPiece;
+    // 2. a combo piece still in the library: go get it (the half that's missing, else Dark Depths)
     if (comboMissing(g, p)) {
-      const crop = acts.find(a => a.type === "cast" && a.card.def.name === "Crop Rotation");
+      const crop = castAct(acts, "Crop Rotation");
       if (crop) return { type: "cast", card: crop.card };
-      const rec = acts.find(a => a.type === "activate" && a.card.def.name === "Elvish Reclaimer");
+      const rec = activateAct(acts, "Elvish Reclaimer");
       if (rec) return { type: "activate", card: rec.card, idx: rec.idx };
+      const map = activateAct(acts, "Expedition Map");
+      if (map) return { type: "activate", card: map.card, idx: map.idx };
+      for (const n of ["Sylvan Scrying", "Expedition Map", "Primeval Titan", "Hour of Promise"]) { const a = castAct(acts, n); if (a) return { type: "cast", card: a.card }; }
+    }
+    // a combo piece in the graveyard: bring it back
+    if (pieceInGy(g, p)) {
+      for (const n of ["Life from the Loam", "Ramunap Excavator", "Titania, Protector of Argoth", "Splendid Reclamation", "Conduit of Worlds"]) { const a = castAct(acts, n); if (a) return { type: "cast", card: a.card }; }
+    }
+    // 3. landfall cards and extra land drops before this turn's lands
+    const landActs = acts.filter(a => a.type === "land");
+    if (landActs.length) {
+      const landsLeft = new Set(landActs.map(a => a.card)).size;
+      const dropsLeft = g.landDrops(p) - p.landsPlayed;
+      for (const n of BEFORE_LANDS) {
+        if (MORE_DROPS.has(n) && landsLeft <= dropsLeft) continue;
+        const a = castAct(acts, n);
+        if (a) return { type: "cast", card: a.card };
+      }
+      // one land first when it pays for a landfall card that's one mana short, then the rest after it
+      if (landsLeft >= 2 && dropsLeft >= 2) {
+        const mana = manaNow(g, p);
+        const want = p.hand.concat(p.command.filter(c => c.isCommander)).filter(c => BEFORE_LANDS.includes(c.def.name) && !g.castOptions(p, c).length && g.spellCost && MK.util.costMV(g.spellCost(p, c)) === mana + 1);
+        const untapped = landActs.filter(a => enterUntapped(g, p, a.card) && a.card.def.name !== DEPTHS && a.card.def.mana && a.card.def.mana.length);
+        if (want.length && untapped.length) return untapped.find(a => isBasicCard(a.card)) || untapped[0];
+      }
+    }
+    // 4. Craterhoof before combat when the swing kills someone (trample: blockers soak only their toughness)
+    const hoof = ctx.window === "main1" && castAct(acts, "Craterhoof Behemoth");
+    if (hoof && hoofKills(g, p)) return { type: "cast", card: hoof.card };
+    // 5. Skullclamp on the 1/1 tokens: two cards each
+    const clamp = activateAct(acts, "Skullclamp", a => a.ab.label === "Equip");
+    if (clamp && p.library.length > 20 && p.hand.length < 8 && g.creatures(p).some(c => c.isToken && g.toughness(c) === 1 && c.def.name !== "Scute Swarm")) {
+      return { type: "activate", card: clamp.card, idx: clamp.idx, maxTries: 12 };
     }
     return null;
   }
+  /* The combat damage about to hit p: unblocked attackers, and what tramplers push past their blockers. */
+  function incomingDamage(g, p) {
+    let n = 0;
+    for (const a of g.combat.attackers) {
+      if (!a.combat || g.defenderOf(a.combat.attacking) !== p || g.kw(a, "infect")) continue;
+      let d = Math.max(0, g.power(a)) * (g.kw(a, "double strike") ? 2 : 1);
+      if (a.combat.wasBlocked) d = g.kw(a, "trample") ? Math.max(0, d - a.combat.blockedBy.reduce((s, b) => s + Math.max(0, g.toughness(b)), 0)) : 0;
+      n += d;
+    }
+    return n;
+  }
+  /* Craterhoof Behemoth's swing: everything that can attack (and the hasty Hoof) gets +X/+X and
+     trample, X the creatures we'll control. It kills an opponent whose untapped creatures can't
+     soak enough of it, or it's twice the lowest life total anyway. */
+  function hoofKills(g, p) {
+    const x = g.creatures(p).length + 1;
+    const ready = g.creatures(p).filter(c => (!c.sick || g.kw(c, "haste")) && !c.tapped && !g.kw(c, "defender") && !g.ch(c).cantAttack);
+    const dmg = ready.reduce((s, c) => s + Math.max(0, g.power(c)) + x, 0) + 5 + x;
+    const opps = g.opponents(p);
+    if (!opps.length) return false;
+    const soak = q => g.creatures(q).filter(c => !c.tapped).reduce((s, c) => s + Math.max(0, g.toughness(c)), 0);
+    return opps.some(q => dmg - soak(q) >= q.life) || dmg >= 2 * Math.min(...opps.map(q => q.life));
+  }
+  /* Whom Marit Lage and the team attack together: someone the swing kills now, else whoever dies
+     in the fewest swings, where a player with most of the table's creatures counts as up to one
+     and a half swings closer (they're the one killing us). A swing is Marit Lage's power
+     unless a flier or reach creature can chump her, plus the other attackers that get past the
+     player's untapped creatures (they block the biggest ones). */
+  function lageFocus(g, p, ml, among) {
+    const opps = g.opponents(p).filter(q => !among || among.includes(q));
+    if (!opps.length) return null;
+    const team = g.creatures(p).filter(c => c !== ml && !c.tapped && (!c.sick || g.kw(c, "haste")) && g.power(c) > 0 && !g.ch(c).cantAttack && !g.kw(c, "defender") && !(c.def.mana.length && g.power(c) <= 1))
+      .map(c => Math.max(0, g.power(c))).sort((a, b) => a - b);
+    const swing = q => {
+      const chump = g.creatures(q).some(b => g.canBlock(b, ml));
+      const walls = g.creatures(q).filter(b => !b.tapped).length - (chump ? 1 : 0);
+      const rest = team.slice(0, Math.max(0, team.length - walls)).reduce((s, n) => s + n, 0);
+      return (chump && !g.kw(ml, "trample") ? 0 : Math.max(0, g.power(ml))) + rest;
+    };
+    const danger = q => g.creatures(q).reduce((s, c) => s + Math.max(0, g.power(c)) + 0.5, 0) + (g.battlefield.some(c => c.controller === q && c.isCommander) ? 5 : 0);
+    const swings = q => Math.ceil(Math.max(1, q.life) / Math.max(1, swing(q)));
+    const total = opps.reduce((s, q) => s + danger(q), 0) || 1;
+    const score = q => swings(q) === 1 ? -10 - danger(q) / total : swings(q) - 1.5 * danger(q) / total;
+    return opps.slice().sort((x, y) => score(x) - score(y))[0];
+  }
+  function lageTarget(g, p, a, targets) { return lageFocus(g, p, a, targets); }
+  function lageAttackFocus(g, p, ml) { return lageFocus(g, p, ml, null); }
 
   /* ================================================================ commander */
   D({
     name: "Azusa, Lost but Seeking", cost: "{2}{G}", type: "Legendary Creature — Human Monk", pt: "1/2",
     text: "You may play two additional lands on each of your turns.",
     statics: [{ extraLands: 2 }],
-    ai: { priority: 9, plan }
+    ai: { priority: 9, plan: brain }
   });
 
   /* ================================================================ creatures */
@@ -285,7 +414,8 @@
       do: (g, s, ctx) => g.gainLife(ctx.p, 2, s),
       ai: { use: (g, p, o, ctx) => p.life <= 3 && ctx.window === "combat" }
     }],
-    ai: { priority: 3, target: (g, p, req) => req.purpose === "sacrifice" ? req.options.filter(c => c.tapped).sort((a, b) => g.isBasic(b) - g.isBasic(a))[0] || req.options[0] : undefined }
+    // tapped basics go first, never Dark Depths or Thespian's Stage while another land is left
+    ai: { priority: 3, target: (g, p, req) => sacPick(g, p, req) }
   });
   D({
     name: "Exploration", cost: "{G}", type: "Enchantment",
@@ -347,6 +477,8 @@
      big threats most. */
   function sylvanWorth(g, p, c) {
     const d = c.def, ai = d.ai || {};
+    // the missing half of Dark Depths + Thespian's Stage is worth the most
+    if ((d.name === DEPTHS || d.name === STAGE) && !has(g, p, "Marit Lage") && !has(g, p, d.name)) return 20;
     if (d.types.includes("Land")) return g.controlled(p, o => g.isLand(o)).length >= 6 ? 0 : 5;
     return 3 + Math.min(5, d.mv) + (ai.tutor ? 4 : 0) + (ai.finisher ? 4 : 0) + (ai.wipe ? 2 : 0);
   }
@@ -376,7 +508,7 @@
     note: "The land is sacrificed as the spell resolves.",
     canCast: (g, p) => g.controlled(p, o => g.isLand(o)).length > 0,
     spell: { do: async (g, ctx) => { if (await sacOwnLand(g, ctx.p, ctx.o)) await g.search(ctx.p, { filter: (g2, c) => isLandCard(c), to: "battlefield", prompt: "Search for a land card", src: ctx.o }); } },
-    ai: { never: true, plan, cards: pickLands, target: sacPick }
+    ai: { never: true, cards: pickLands, target: sacPick }
   });
   D({
     name: "Harrow", cost: "{2}{G}", type: "Instant",
@@ -461,6 +593,8 @@
     },
     ai: {
       protection: true, priority: 3,
+      // keep {G} open for it while Marit Lage is out
+      keepUp: (g, p) => (lageOf(g, p) ? 1 : 0),
       target: (g, p, req) => { const top = g.stack[g.stack.length - 1]; return (top && top.p !== p && top.targets.find(t => t && req.options.includes(t))) || undefined; }
     }
   });
@@ -502,8 +636,7 @@
       condition: (g, o) => (o.counters.ice || 0) > 0,
       do: (g, s) => { g.removeCounters(s, "ice", 1); depthsCheck(g, s); },
       ai: { use: (g, p, o, ctx) => { if (!endBeforeMe(g, p, ctx) || has(g, p, STAGE) || has(g, p, "Marit Lage")) return false; const n = Math.floor(manaNow(g, p) / 3); return n > 0 ? { repeat: n } : false; } }
-    }],
-    ai: { plan }
+    }]
   });
   const STAGE_AB = {
     label: "Become a copy of target land", cost: "{2}", tap: true, stage: true,
@@ -523,7 +656,7 @@
     text: "{T}: Add {C}.\n{2}, {T}: Thespian's Stage becomes a copy of target land, except it has this ability.",
     mana: [{ tap: true, produce: "C" }],
     abilities: [STAGE_AB],
-    ai: { plan, target: (g, p, req) => req.purpose === "stage" ? req.options.find(o => o.def.name === DEPTHS && o.controller === p) || req.options.find(o => o.def.name === DEPTHS) || null : undefined }
+    ai: { target: (g, p, req) => req.purpose === "stage" ? req.options.find(o => o.def.name === DEPTHS && o.controller === p) || req.options.find(o => o.def.name === DEPTHS) || null : undefined }
   });
   land("Blast Zone", {
     text: "Blast Zone enters with a charge counter on it.\n{T}: Add {C}.\n{X}{X}, {T}: Put X charge counters on Blast Zone.\n{3}, {T}, Sacrifice Blast Zone: Destroy each nonland permanent with mana value equal to the number of charge counters on Blast Zone.",

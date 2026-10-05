@@ -564,7 +564,8 @@
     function main(g, p, { phase }) {
       resetTurn(g);
       const win = phase;
-      if (win === "main2") mem.keepUp = p.hand.some(o => hintOf(p, o).counter) ? 2 : 0;
+      // a card can ask for mana left open too (`ai.keepUp`: Snakeskin Veil while Marit Lage is out)
+      if (win === "main2") mem.keepUp = p.hand.some(o => hintOf(p, o).counter) ? 2 : p.hand.reduce((n, o) => { const k = hintOf(p, o).keepUp; return Math.max(n, (k && k(g, p, o)) || 0); }, 0);
       const acts = g.legalActions(p);
       if (!acts.length) return { type: "pass" };
       const fresh = a => attempts(a, win) < 2;
@@ -637,7 +638,9 @@
       let ranked;
       if (g.opts && g.opts.legacyAttackSort) ranked = opps.slice().sort((a, b) => scoreQ(b) - scoreQ(a));
       else { const sc = new Map(opps.map(q => [q, scoreQ(q)])); ranked = opps.slice().sort((a, b) => sc.get(b) - sc.get(a)); }
-      const q = ranked[0];
+      // a permanent of ours can name the player the whole attack goes at (`ai.attackFocus`: Marit Lage
+      // picks whoever she and the rest of the team kill soonest)
+      const q = attackFocus(g, p, opps) || ranked[0];
       const qBlockers = blockersOf(g, q);
       // crack-back risk: how hard the table can hit us next turn
       const threatIn = Math.max(...opps.map(o => power(g, g.creatures(o).filter(c => !g.kw(c, "defender")))));
@@ -682,6 +685,14 @@
       }
       for (const d of decl) { const tq = g.defenderOf(d.target); mem.lastTarget = tq.id; }
       return decl;
+    }
+    function attackFocus(g, p, opps) {
+      for (const s of g.controlled(p, x => x.def.ai && x.def.ai.attackFocus)) {
+        let q = null;
+        try { q = s.def.ai.attackFocus(g, p, s); } catch (e) { q = null; }
+        if (q && opps.includes(q)) return q;
+      }
+      return null;
     }
     /* A permanent can ask for an attacker to go in even into a trade (ai.pushAttack): Etrata wants
        every Assassin connecting, because each hit cloaks another card. */
