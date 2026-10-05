@@ -1604,7 +1604,32 @@
     }
     return null;
   }
+  /* The Bracket 4 mulligan (Sperling, Draftsim/learncedh on Yuriko): mulligan is the default; keep for a start that
+     does something by turn 2-3: a 0-2 mana evasive creature plus the mana to cast Etrata by turn 3, or fast mana
+     plus a real threat, or a broken turn 1-2 engine (Rhystic Study, Mystic Remora, Necropotence) with the lands for
+     it. Interaction alone or draw without development isn't a keep. */
+  const ROCKS2 = c => !c.def.types.includes("Land") && c.def.ai && c.def.ai.ramp && c.def.mv <= 2;
+  const RITUAL = c => /^(Dark Ritual|Cabal Ritual|Lotus Petal|Chrome Mox|Mox Amber|Mana Vault)$/.test(c.def.name);
+  const EVASIVE_CHEAP = (g, c) => c.def.types.includes("Creature") && c.def.mv <= 2 && (c.def.changeling || c.def.subtypes.includes("Assassin") || c.def.keywords.some(k => ["flying", "shadow", "fear", "menace", "skulk"].includes(k)) || /can't be blocked/.test(c.def.text || ""));
+  const ENGINE_START = c => /^(Rhystic Study|Mystic Remora|Necropotence|Dark Confidant|Esper Sentinel)$/.test(c.def.name);
+  function b4Mulligan(g, p, { hand, mulls }) {
+    const lands = hand.filter(c => c.def.types.includes("Land")).length;
+    const rocks = hand.filter(ROCKS2).length, rituals = hand.filter(RITUAL).length;
+    const sources2 = lands + rocks;   // mana by turn 2-3 (a rock counts once it's cast)
+    const cheap = hand.filter(c => EVASIVE_CHEAP(g, c)).length;
+    const threat = hand.some(c => !c.def.types.includes("Land") && c.def.types.includes("Creature") && c.def.mv >= 3 && c.def.mv <= 4 && (c.def.ai && c.def.ai.priority >= 7));
+    const tutor = hand.some(c => c.def.ai && c.def.ai.tutor && c.def.mv <= 2);
+    if (mulls >= 3) return lands >= 1 && lands <= 5;
+    if (lands < 1 || lands > 5) return false;
+    if (lands >= 2 && lands <= 4 && hand.some(ENGINE_START)) return true;                          // a broken start
+    if (lands >= 2 && lands <= 4 && cheap >= 1 && sources2 >= 3) return true;                     // a body, then Etrata by turn 3
+    if (lands >= 1 && lands <= 3 && (rocks + rituals) >= 2 && (cheap >= 1 || threat || tutor)) return true;   // fast mana plus a threat
+    if (mulls >= 1 && lands >= 2 && lands <= 4 && (cheap >= 1 || rocks >= 1 || tutor)) return true;   // the second look: a functional hand
+    if (mulls >= 2 && lands >= 2 && lands <= 5) return true;
+    return false;
+  }
   function heistMulligan(g, p, { hand, mulls }) {
+    if (ON.has("mull2")) return b4Mulligan(g, p, { hand, mulls });
     const lands = hand.filter(o => o.def.types.includes("Land")).length;
     const cheap = hand.filter(o => !o.def.types.includes("Land") && o.def.mv <= 2).length;
     const rocks = hand.filter(o => !o.def.types.includes("Land") && o.def.ai && o.def.ai.ramp && o.def.mv <= 2).length;
@@ -1766,7 +1791,23 @@
   };
   /* Ramses waits in hand (out of reach of sorcery-speed removal) until he makes this turn's attack a kill: his
      +1/+1 for the other Assassins counted. Late, or with nothing else to cast, he comes down anyway. */
+  /* Don't overextend into wraths (HEIST_ON=holdBoard): with four creatures already out, further creatures that aren't
+     engine pieces wait in hand; with six out, all of them do. A creature that makes this turn's attack a kill still
+     comes down. */
+  const KEY = new Set(["Etrata, Deadly Fugitive", "Ramses, Assassin Lord", "Bloodletter of Aclazotz", "Roaming Throne", "Achilles Davenport", "Interceptor, Shadow's Hound", "Roshan, Hidden Magister", "Tetsuko Umezawa, Fugitive", "Satoru, the Infiltrator", "Spark Double", "Auton Soldier", "Sakashima the Impostor"]);
+  function holdBoard(g, p, o, ctx) {
+    if (!ON.has("holdBoard") || !o.def.types.includes("Creature") || o.zone !== "hand" || KEY.has(o.def.name) || !mainWin(ctx.window) || g.active !== p) return undefined;
+    const n = g.creatures(p).length;
+    if (n < 4 || p.hand.length <= 2) return undefined;
+    if (n < 6 && o.def.mv <= 1) return undefined;
+    // it makes the attack lethal (haste) or we're at the kill already: play it
+    const able = g.creatures(p).filter(c => g.canAttack(c, p) && g.power(c) > 0);
+    if (liveOpps(g, p).some(q => outcome(g, p, q, able).kill)) return undefined;
+    return false;
+  }
   function castHold(g, p, o, ctx) {
+    const hb = holdBoard(g, p, o, ctx);
+    if (hb !== undefined) return hb;
     if (!ON.has("holdRamses") || o.def.name !== "Ramses, Assassin Lord" || o.zone !== "hand") return undefined;
     if (ctx.window !== "main1" || g.active !== p) return false;
     const able = g.creatures(p).filter(c => g.canAttack(c, p) && g.power(c) > 0);

@@ -24,8 +24,29 @@ Wizards' Commander Brackets update of 21 October 2025 (magic.wizards.com/en/news
 - **One pilot's real record** (ShoMinamoto's Assassin typal value list): 7 wins in 27 games, about the fair share of 25%.
 - **The Yuriko template** (EDHREC "tempo" theme, 610 decks; the learncedh cEDH page; an Archidekt "High Power Bracket 4 Tempo" list with 30 lands, 13 one-mana evasive creatures, 13 ninjas and **21 instants, nearly all free**: Force of Will, Force of Negation, Fierce Guardianship, Deadly Rollick, Snuff Out, Force of Despair, Flare of Denial, Flare of Malice, Misdirection, Commandeer, Submerge, Subtlety, Dismember, An Offer You Can't Refuse): the Dimir aggro shell that works at high power is **cheap evasive bodies + ninjutsu + free interaction + top-deck manipulation**, with the commander providing the damage multiplier. Its weaknesses, per the "how to beat Yuriko" article (Levi Perry, 2025-02-26): bigger creatures that block 1/1 fliers, removal on the commander, and pressure in the mid game once the removal runs out.
 
-## 4. Design rules (filled in from the research reports; see §5 for the versions)
-_To be completed when the three research reports are in._
+## 4. Design rules
+From `../sources/bracket4-piloting-and-aggro.md` (65 sources; the numbers in brackets are its source tags) and the facts above. Deckbuilding counts are added from `../sources/bracket4-deckbuilding.md` when it lands.
+
+### Piloting rules the bot follows
+1. **Mulligan is the default.** Keep only a hand that does something by turn 2–3: a 0–2 mana evasive creature plus the mana to cast Etrata by turn 3, or fast mana plus a real threat, or a broken turn 1–2 engine (Rhystic Study, Mystic Remora, Necropotence) with lands for it. Interaction alone, or draw without development, is not a keep [S3, S11, S51, S52]. (`b4Mulligan` in `decks-heist.js`, switch `HEIST_ON=mull2` while it's measured.)
+2. **Develop first, interact on fundamental turns.** Mana, then the engine pieces; counters are for wipes, for removal aimed at Ramses or Etrata, and for an opponent's actual win attempt, never for a Sol Ring [S3, S4, S11]. Free counters (Force of Will, Fierce Guardianship, Force of Negation, Flare of Denial, Mana Drain) let the deck tap out for threats and still answer.
+3. **Don't overextend into wraths.** Two or three pressure creatures out, the rest in hand to rebuild; prefer noncreature permanents (equipment, enchantments, the typal artifacts) for the rest of the plan [S16, S54]. The telemetry says this is the aggro list's main loss against precons (56% of losses had a wipe).
+4. **Pick one player and kill them.** Voltron and Assassin decks eliminate one player at a time, which with Ramses is the whole game [S27, S1]; the mark is the opponent the current board kills soonest, and everything that gets through goes at them (`pickMark`, `heistAttack`). Spreading damage is only right on a poison plan (not this deck).
+5. **Protect the engine before it goes down.** Boots/Greaves on Ramses first, then Etrata; Mithril Coat on Ramses; Fading Hope/Snapback to save Etrata (she returns without tax); don't deploy Ramses into open mana when he can wait a turn for protection, but his anthem is worth more than hiding him (measured: holding him cost 1.2 points, so he comes down and the counters protect him).
+6. **Go for it when the window is there**, and aim to win second or third rather than first when a kill isn't on the table [S5, S11]: in bot games this means the attack only commits everything when the kill is real (`outcome().kill`), and otherwise sends only what gets through.
+
+### Closing tools that fit this deck (what turns 15 damage a game into kills)
+- **Ramses, Assassin Lord**: one opponent dying after an Assassin attacked them wins the game. He is the deck's win condition, the tutors' first target and the thing to protect.
+- **Halvers + Bloodletter**: Quietus Spike, Scytheclaw, Virtus, Unstoppable Slasher, Shredder, Radioactive Man halve what's left; Bloodletter of Aclazotz doubles life loss on our turn, so one halver connecting takes everything. Wound Reflection and Archfiend of Despair are slower doublers.
+- **One-shot halvers**: Blood Tribute (kicked by tapping Etrata, a Vampire), Rush of Dread; with Bloodletter either kills the target outright. **Hatred** turns any unblocked Assassin into a kill for X life.
+- **Extra combat / double strike**: Genji Glove is the colorless repeatable extra combat [S30]; Leyline Axe and Fireshrieker give double strike (two cloaks per hit).
+- **One-sided wipes**: Kindred Dominance (Assassin) and Massacre Wurm clear three boards and keep ours [S34, S38].
+- **Team evasion**: Archetype of Imagination, Levitation, Eldrazi Monument, Cover of Darkness (fear is blocked by ~half the field's black/artifact creatures [S37]), Vela (intimidate on colorless face-downs: only artifact creatures block them), Dolmen Gate, Reverse the Polarity.
+- **Overrun/anthems**: Coat of Arms (symmetric; cast only when our shared-type count beats theirs), Obelisk of Urd, Door of Destinies, Achilles, Ramses.
+- **Theft is the card-advantage engine, not the finisher** [S62, S60]: every cloak is a body and, with Satoru/They Came from the Pipes/Kindred Discovery, a card.
+
+### Bracket 4 shell (from the EDHREC Bracket 4 Etrata data and the Yuriko template)
+Fast mana (Sol Ring, Mana Vault, Chrome Mox, Lotus Petal, Dark Ritual, Cabal Ritual, Ancient Tomb, signets/talismans), the tutor suite (Demonic, Vampiric, Imperial Seal, Grim Tutor, Diabolic Intent, Demonic Consultation; Pyre of Heroes, Fleshwrither and the transmuters for Ramses), free interaction (Force of Will, Fierce Guardianship, Force of Negation, Flare of Denial, Deadly Rollick, Snuff Out, Flare of Malice, Mana Drain, Swan Song, An Offer You Can't Refuse), and draw engines (Rhystic Study, Mystic Remora, Dark Confidant, Esper Sentinel, Satoru, Kindred Discovery, Skullclamp). 30–33 lands.
 
 ## 5. Versions
 _To be completed._
