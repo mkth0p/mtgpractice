@@ -13,28 +13,29 @@
 (function (root) {
   "use strict";
   const MK = root.MK = root.MK || {};
-  MK.ENGINE_VERSION = 10;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
+  MK.ENGINE_VERSION = 8;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
                            // 4: the bots gang-block, chump only where it saves life, pick lands for the colors their hand needs, and counter combo pieces
                            //    and judge the table's threats per attacker; deck brains steer the bots of your decks
-                           // 5: priority windows in upkeep, draw, beginning of combat, each combat damage step and end of combat; the end
+                           // 7: morph-cast creatures turn up only for their morph cost; Corrupted Etrata v3 list (legacyMorph)
+                           // 8: the bot and rules work of PR #41; games recorded before 8 replay without each part:
+                           //  - priority windows in upkeep, draw, beginning of combat, each combat damage step and end of combat; the end
                            //    of combat step happens with no attackers too; a person divides combat damage among two or more blockers
-                           //    (games recorded before 5 replay without these: legacySteps)
+                           //    (legacySteps)
                            //    and the Etrata bots expect double blocks and run their own block plan (legacyEtrata)
-                           // 6: the bots gang up on a runaway leader: removal and counterspells aim at the most dangerous player, a runaway
-                           //    is called sooner and the whole team swings at it, and a weak seat isn't finished off while the leader runs away
-                           // 7: the precon bots Ghired and Lathril attack with their commander, Ghired values Phyrexian Rebirth's Horror
+                           //  - the bots gang up on a runaway leader: removal and counterspells aim at the most dangerous player, a runaway
+                           //    is called sooner and the whole team swings at it, and a weak seat isn't finished off while the leader runs away (legacyThreat)
+                           //  - the precon bots Ghired and Lathril attack with their commander, Ghired values Phyrexian Rebirth's Horror
                            //    and copies a lone Rhino with Second Harvest, and Wilhelt waits to recast himself while two spells
-                           //    are castable (games recorded before 7 replay without these: legacyDecks)
-                           // 8: cards the bots used to end games still holding get used: indestructible spells (Heroic Intervention,
+                           //    are castable (legacyDecks)
+                           //  - cards the bots used to end games still holding get used: indestructible spells (Heroic Intervention,
                            //    Rootborn Defenses, Grand Crescendo) save creatures in combat, Return of the Wildspeaker draws in a main
                            //    phase and pumps a lethal attack, flash creatures come down in the second main phase, and
-                           //    draw-per-creature sorceries go off with two creatures (games recorded before 8 replay without: legacyHints)
-                           // 9: the bots see mass removal on the stack (Toxic Deluge, Evacuation, Reiver Demon's and Dread Cacodemon's
+                           //    draw-per-creature sorceries go off with two creatures (legacyHints)
+                           //  - the bots see mass removal on the stack (Toxic Deluge, Evacuation, Reiver Demon's and Dread Cacodemon's
                            //    triggers, Liliana's and Elspeth's minus, Blast Zone) and answer it with protection that stops that kind
-                           //    of wipe: indestructible doesn't stop -X/-X or bounce, hexproof stops no wipe (games recorded before 9
-                           //    replay without: legacyWipes)
-                           // 10: the bots' threat judgement counts Azusa's lands at a quarter weight: three land drops a turn made her
-                           //    read as the table's leader while she was behind (games recorded before 10 replay without: legacyAzusa)
+                           //    of wipe: indestructible doesn't stop -X/-X or bounce, hexproof stops no wipe (legacyWipes)
+                           //  - the bots' threat judgement counts Azusa's lands at a quarter weight: three land drops a turn made her
+                           //    read as the table's leader while she was behind (legacyAzusa)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",
@@ -213,13 +214,16 @@
      leaves the battlefield. The bots only ever read `o.def`, so they never learn what it is. */
   const FACE_KIND = { cloak: "Cloaked", manifest: "Manifested", dread: "Manifested", morph: "Morph" };
   MK.FACE_DOWN_NAME = "Face-down creature";
-  MK.faceDownDef = function (card, kind) {
+  MK.faceDownDef = function (card, kind, legacy) {
     const abilities = [];
     const creature = card.types.includes("Creature");
     const upAi = card.faceUpAi || { use: (g, p, o, ctx) => AIfaceUp(g, p, o, ctx) };
     // turning a face-down permanent face up is a special action: no stack, any time you have priority
-    if (creature && card.cost) abilities.push({ label: "Turn face up", cost: card.cost, special: true, faceUp: true, do: (g, src) => g.turnFaceUp(src), ai: upAi });
-    if (card.morph) abilities.push({ label: "Turn face up (morph)", cost: card.morph, special: true, faceUp: true, do: (g, src) => g.turnFaceUp(src), ai: upAi });
+    // a manifested or cloaked creature card turns up for its mana cost; one cast face down by morph only for
+    // its morph cost (games recorded before engine 7 still offer the mana cost, so their replays match)
+    if (creature && card.cost && (kind !== "morph" || legacy)) abilities.push({ label: "Turn face up", cost: card.cost, special: true, faceUp: true, do: (g, src) => g.turnFaceUp(src), ai: upAi });
+    // megamorph: turning it up for its megamorph cost also puts a +1/+1 counter on it
+    if (card.morph) abilities.push({ label: card.megamorph ? "Turn face up (megamorph)" : "Turn face up (morph)", cost: card.morph, special: true, faceUp: true, do: (g, src) => { if (g.turnFaceUp(src) && card.megamorph) g.addCounters(src, "p1", 1); }, ai: upAi });
     const def = normalize({
       name: MK.FACE_DOWN_NAME, types: ["Creature"], subtypes: [], pt: [2, 2], colors: [], faceDownOf: card, faceKind: kind,
       keywords: kind === "cloak" ? ["ward"] : [],
@@ -1949,7 +1953,7 @@
     /* Morph: a face-down 2/2 creature spell for {3}. Nobody else sees what it is. */
     async castFaceDown(p, o, way) {
       if (!this.pay(p, way.cost, {})) return false;
-      o.def = MK.faceDownDef(o.cardDef, "morph");
+      o.def = MK.faceDownDef(o.cardDef, "morph", !!(this.opts && this.opts.legacyMorph));
       o.faceDown = { kind: "morph" };
       const item = { kind: "spell", o, p, x: 0, door: 0, alt: 0, targets: [], mode: null, id: ++this.ts, name: "a face-down creature", faceDown: true };
       return this.putOnStack(p, o, item);
