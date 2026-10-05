@@ -196,6 +196,9 @@
   /* Combo pieces (MK.COMBOS, registered by the deck files): a tutor fetches the card that
      completes a combo first, then a piece of a combo that's half there, then any kill piece. */
   function comboBonus(g, p, o) {
+    // a deck with its own brain says what its tutors want
+    const db = deckBrain(p);
+    if (db && db.tutorBonus) return db.tutorBonus(g, p, o) || 0;
     const combos = MK.COMBOS;
     if (!combos || !combos.length) return 0;
     const name = o.def.name;
@@ -212,6 +215,16 @@
     return best;
   }
   AI.comboBonus = comboBonus;
+  /* A deck's own brain (MK.DECK_BRAINS[deck id], registered by its card file): plan(g, p, ctx) runs
+     before the card plans, choose(g, p, req) before the generic choices (undefined: no say),
+     tutorBonus(g, p, card) replaces the generic combo bonus, keepHome(g, p, creature) keeps a
+     creature out of an attack that doesn't kill ("always": even one that does), mulligan(g, p,
+     { hand, mulls }) keeps or not. */
+  function deckBrain(p) {
+    const b = MK.DECK_BRAINS;
+    return b && p && p.deckId && b[p.deckId] ? b[p.deckId] : null;
+  }
+  AI.deckBrain = deckBrain;
   /* A card's hints for this player. A card one bot deck casts through its own plan says so
      (`ai.brain`: that deck's id, `ai.never`); any other deck plays it by `ai.otherwise`, so a Force
      of Will in an Etrata list isn't a dead card. */
@@ -382,6 +395,8 @@
 
     /* ---------------- mulligan */
     function mulligan(g, p, { hand, mulls }) {
+      const db = deckBrain(p);
+      if (db && db.mulligan) { const r = db.mulligan(g, p, { hand, mulls }); if (r !== undefined) return r; }
       const lands = hand.filter(o => o.def.types.includes("Land")).length;
       const ramp = hand.filter(o => !o.def.types.includes("Land") && o.def.ai && o.def.ai.ramp && o.def.mv <= 2).length;
       if (mulls >= 2) return lands >= 1 && lands <= 6;
@@ -542,6 +557,16 @@
 
     /* ---------------- deck plans: def.ai.plan(g, p, o, {window, actions}) returns an action or null */
     function runPlans(g, p, win, acts) {
+      const db = deckBrain(p);
+      if (db && db.plan) {
+        let a = null;
+        try { a = db.plan(g, p, { window: win, actions: acts }); } catch (e) { a = null; }
+        if (a) {
+          const key = `deck:${a.type}:${a.card && a.card.id}:${a.idx}`;
+          const n = mem.tried.get(key) || 0;
+          if (n < (a.maxTries || 2)) { mem.tried.set(key, n + 1); return a; }
+        }
+      }
       const seen = new Set();
       const holders = g.controlled(p).concat(p.hand, p.command);
       for (const o of holders) {
@@ -647,6 +672,7 @@
       const absorb = qBlockers.length * (atkPower / Math.max(1, candidates.length));
       const alpha = atkPower - absorb >= q.life || (q.poison + power(g, candidates.filter(c => g.kw(c, "infect"))) >= 10 && candidates.some(c => g.kw(c, "infect")));
       const keepBack = [];
+      const db = deckBrain(p), keep = db && db.keepHome;
       if (casual && !alpha && !danger && candidates.length >= CASUAL.homeFrom) {
         // a casual player keeps a blocker home
         const home = candidates.filter(c => !g.kw(c, "vigilance") && g.power(c) < 10).sort((a, b) => (g.toughness(b) + g.power(b)) - (g.toughness(a) + g.power(a)));
@@ -678,6 +704,7 @@
         if (a.def.mana.length && g.power(a) <= 1 && !alpha) go = false;
         // a card's own say: false keeps it home (an engine commander), true sends it (a creature whose hit wins)
         if (!alpha && a.def.ai && a.def.ai.attack) { const say = a.def.ai.attack(g, p, a, bl); if (say === false) go = false; else if (say === true) go = true; }
+        if (keep) { const k = keep(g, p, a); if (k === "always" || (k && !alpha)) go = false; }
         if (go) decl.push({ attacker: a, target });
       }
       for (const d of decl) { const tq = g.defenderOf(d.target); mem.lastTarget = tq.id; }
@@ -914,6 +941,12 @@
 
     /* ---------------- all other choices */
     function choose(g, p, req) {
+      const db = deckBrain(p);
+      if (db && db.choose) {
+        let r;
+        try { r = db.choose(g, p, req); } catch (e) { r = undefined; }
+        if (r !== undefined) return r;
+      }
       const pur = req.purpose;
       const src = req.src;
       const def = src && src.def;
