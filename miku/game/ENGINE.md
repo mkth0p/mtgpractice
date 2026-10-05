@@ -35,7 +35,17 @@ a card:
   everything they cause, so card code can keep calling it. `g.waitingTriggers()` lists those not yet
   resolved (on the stack, pending, and the one resolving now), next one last.
 - Other response windows: `"attackers"` (attackers declared, before blocks), `"combat"` (after blocks)
-  and `"end"` (end of each turn, for the other players). None in upkeep, draw or beginning of combat.
+  and `"end"` (end of each turn, for the other players). Since engine version 5 every player, the
+  active player first, also gets priority in `"upkeep"` (after its triggers, before the draw),
+  `"draw"` (after the card is drawn), `"beginCombat"` (before attackers), `"damage"` (after each
+  combat damage step) and `"endCombat"` (after "at end of combat" triggers; this step happens even
+  when nothing attacks). `ctx.turnOf` is the active player. The bots only run deck plans and
+  `first` abilities there; the table stops for a person only with "Stop in upkeep, draw and every
+  combat step". Records made before version 5 replay without them (`legacySteps`).
+- Combat damage: a person whose attacker has two or more blockers divides its damage
+  (`type: "distribute"`, `purpose: "combatDamage"`, `req.suggest` is the default split, `req.trample`);
+  the engine makes the answer legal (with trample, lethal damage to each blocker before the player).
+  Bots get the default: lethal damage to each blocker in turn, the easiest first.
 - A commander that would go to the graveyard, exile or a library goes to the command zone; one that
   would go to its owner's hand stays there.
 - The legend rule is a choice for people (`purpose: "legendKeep"`); bots keep the newest.
@@ -308,7 +318,8 @@ subtypes: ["Goblin"], keywords: [], abilities, triggers, mana })`. Keep `key` un
 | `morph: (g, p, o) => number` | score for casting it face down (default: never) |
 
 `ability.ai.use(g, p, o, { window, turnOf })` says when to activate: window is `main1`, `main2`,
-`stack`, `ability`, `attackers`, `combat` or `end` (end of another player's turn, `turnOf` is that player). Return false, true,
+`stack`, `ability`, `attackers`, `combat` or `end` (end of another player's turn, `turnOf` is that player);
+the step windows (`upkeep`, `draw`, `beginCombat`, `damage`, `endCombat`) reach only deck plans and `first` abilities. Return false, true,
 or `{ repeat: n }` for loops (the engine stops early when the ability can't be activated). `first: true`
 checks the ability before anything else (win-the-game abilities).
 
