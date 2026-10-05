@@ -1026,16 +1026,18 @@
       if (r) return { type: "cast", card: r.card, targets: [top], maxTries: 1 };
       return null;
     }
-    // a board wipe while the combo or Shalai is out
-    if (top.kind === "spell" && isWipe(top) && g.battlefield.some(o => KEY(g, p, o))) {
+    // a board wipe while the combo or Shalai is out (engine 9: also Toxic Deluge, and wipes on a trigger or
+    // ability, as the bots read them off the stack; Flawless Maneuver only against destroy and damage)
+    const mass = MK.AI && MK.AI.newWipes && MK.AI.newWipes(g) ? MK.AI.massHarm(g, p, top) : null;
+    if (((top.kind === "spell" && isWipe(top)) || mass) && g.battlefield.some(o => KEY(g, p, o))) {
       const f = acts.find(a => a.type === "cast" && a.card.def.name === "Flawless Maneuver");
-      const destroyOnly = /destroy all/i.test(top.o.def.text || "") && !/exile|return/i.test(top.o.def.text || "");
+      const destroyOnly = mass ? mass.kind === "destroy" || mass.kind === "damage" : /destroy all/i.test(top.o.def.text || "") && !/exile|return/i.test(top.o.def.text || "");
       if (f && destroyOnly) return { type: "cast", card: f.card, alt: f.alt, maxTries: 1 };
       const tp = cast("Teferi's Protection");
       if (tp) return { type: "cast", card: tp.card, maxTries: 1 };
       const r = cast("Reprieve");
       if (r && top.kind === "spell") return { type: "cast", card: r.card, targets: [top], maxTries: 1 };
-      if (f) return { type: "cast", card: f.card, alt: f.alt, maxTries: 1 };
+      if (f && (!mass || destroyOnly)) return { type: "cast", card: f.card, alt: f.alt, maxTries: 1 };
       return null;
     }
     // removal aimed at Shalai or a combo piece

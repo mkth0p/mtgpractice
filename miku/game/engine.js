@@ -13,19 +13,37 @@
 (function (root) {
   "use strict";
   const MK = root.MK = root.MK || {};
-  MK.ENGINE_VERSION = 7;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
-                           // 7: morph-cast creatures turn up only for their morph cost; Corrupted Etrata v3 list
-                           //    (5 and 6 are taken by the bot and rules work in a parallel branch)
+  MK.ENGINE_VERSION = 8;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
                            // 4: the bots gang-block, chump only where it saves life, pick lands for the colors their hand needs, and counter combo pieces
                            //    and judge the table's threats per attacker; deck brains steer the bots of your decks
+                           // 7: morph-cast creatures turn up only for their morph cost; Corrupted Etrata v3 list (legacyMorph)
+                           // 8: the bot and rules work of PR #41; games recorded before 8 replay without each part:
+                           //  - priority windows in upkeep, draw, beginning of combat, each combat damage step and end of combat; the end
+                           //    of combat step happens with no attackers too; a person divides combat damage among two or more blockers
+                           //    (legacySteps)
+                           //    and the Etrata bots expect double blocks and run their own block plan (legacyEtrata)
+                           //  - the bots gang up on a runaway leader: removal and counterspells aim at the most dangerous player, a runaway
+                           //    is called sooner and the whole team swings at it, and a weak seat isn't finished off while the leader runs away (legacyThreat)
+                           //  - the precon bots Ghired and Lathril attack with their commander, Ghired values Phyrexian Rebirth's Horror
+                           //    and copies a lone Rhino with Second Harvest, and Wilhelt waits to recast himself while two spells
+                           //    are castable (legacyDecks)
+                           //  - cards the bots used to end games still holding get used: indestructible spells (Heroic Intervention,
+                           //    Rootborn Defenses, Grand Crescendo) save creatures in combat, Return of the Wildspeaker draws in a main
+                           //    phase and pumps a lethal attack, flash creatures come down in the second main phase, and
+                           //    draw-per-creature sorceries go off with two creatures (legacyHints)
+                           //  - the bots see mass removal on the stack (Toxic Deluge, Evacuation, Reiver Demon's and Dread Cacodemon's
+                           //    triggers, Liliana's and Elspeth's minus, Blast Zone) and answer it with protection that stops that kind
+                           //    of wipe: indestructible doesn't stop -X/-X or bounce, hexproof stops no wipe (legacyWipes)
+                           //  - the bots' threat judgement counts Azusa's lands at a quarter weight: three land drops a turn made her
+                           //    read as the table's leader while she was behind (legacyAzusa)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",
     "Spells, activated abilities and triggered abilities all use the stack, and the other players can respond to each one. Mana abilities and special actions (turning a card face up, unlocking a door) don't use it.",
-    "You get a chance to respond when an opponent casts a spell or puts an ability on the stack, after attackers are declared, after blockers are declared, and at the end of each opponent's turn. The bots get the same windows. There are no windows in upkeep, draw or beginning of combat.",
+    "You get a chance to respond when an opponent casts a spell or puts an ability on the stack, after attackers are declared, after blockers are declared, and at the end of each opponent's turn. The bots get the same windows. Every player also gets priority in upkeep, draw, beginning of combat, each combat damage step and end of combat; the game stops there for you only with \"Stop in upkeep, draw and every combat step\" on. There's no priority in the main phases of an opponent's turn except in response to something.",
     "Triggered abilities that happen at the same time go on the stack in a sensible fixed order (the active player's first, so they resolve last) instead of the order you pick. Their targets are chosen as they resolve.",
     "Targets for your own triggered abilities (Heliod, Lathiel, Cleric Class) are picked for you unless you switch on \"Ask me for trigger targets\".",
-    "Combat damage is split among blockers for you: lethal damage to each blocker in turn, then the rest to the last one or, with trample, to the player.",
+    "With two or more blockers, you divide your attacker's combat damage among them (with trample, each blocker needs lethal damage before the rest goes past). The bots use lethal damage to each blocker in turn, the easiest first.",
     "A commander that would go to the graveyard, exile or a library goes to the command zone. One that would go to your hand stays there, so you can recast it without commander tax.",
     "Bots never look at your hand or library. They follow simple rules of thumb, not a search of every line.",
     "Face-down creatures (cloak, manifest, morph) are hidden from your opponents. Turning one face up is a special action: no stack, any time you could cast an instant.",
@@ -138,6 +156,16 @@
     return def;
   };
   /* A token copy of a card, "except" some characteristics (eternalize, Lazotep Quarry, Esika's copies). */
+  /* A definition laid over an object's own that changes it without being a copy effect ("it's a
+     black Zombie in addition to its other colors and types"). Copy effects skip it and read the
+     definition beneath (706.2): MK.overlay(d, base) registers d, MK.copiable(o) is what a copy of o copies. */
+  const OVERLAID = new WeakMap();
+  MK.overlay = function (d, base) { OVERLAID.set(d, base); return d; };
+  MK.copiable = function (o) {
+    let d = o.copyDef || o.def;
+    while (OVERLAID.has(d)) d = OVERLAID.get(d);
+    return d;
+  };
   MK.derive = function (def, over) {
     const d = Object.create(def);
     Object.assign(d, over || {});
@@ -962,7 +990,7 @@
     /* Token copy of an object's copiable values (not counters, damage or tapped state). */
     copyToken(p, source, opts) {
       opts = opts || {};
-      const base = source.copyDef || source.def;
+      const base = MK.copiable(source);
       const def = opts.except ? MK.derive(base, opts.except) : base;
       const n = opts.count == null ? 1 : opts.count;
       const list = [];
@@ -2483,16 +2511,19 @@
       for (const a of c.attackers) if (a.combat) a.combat.blockedBy = a.combat.blockedBy.filter(b => b !== o);
       o.combat = null;
     }
-    async doCombat(p) {
+    async doCombat(p, opts) {
       this.combat = { attacker: p, attackers: [], blocks: [] };
       this.phase = "combat";
       this.bump();
       this.emit("beginCombat", { p });
       await this.settle();
       if (this.over) return;
+      // beginning of combat step: the players may act before attackers are declared (tap or kill a would-be attacker)
+      await this.stepWindow(p, "beginCombat");
+      if (this.over || !this.combat) return;
       // declare attackers
       const candidates = this.creatures(p).filter(o => this.canAttack(o, p));
-      if (!candidates.length) { this.combat = null; return; }
+      if (!candidates.length || (opts && opts.noAttack)) { if (this.opts.legacySteps) { this.combat = null; return; } return this.endCombat(p, true); }
       this.phase = "attackers";
       this.bump();
       let decl = await p.agent.attack(this, p, { candidates, targets: this.attackTargets(p) });
@@ -2506,7 +2537,7 @@
         const d = decl.find(x => x.attacker === o);
         if (d) d.target = must; else decl.push({ attacker: o, target: must });
       }
-      if (!decl.length) { this.combat = null; this.phase = "main2"; this.bump(); return; }
+      if (!decl.length) { if (this.opts.legacySteps) { this.combat = null; this.phase = "main2"; this.bump(); return; } return this.endCombat(p, true); }
       for (const d of decl) {
         const a = d.attacker;
         if (!this.kw(a, "vigilance")) a.tapped = true;
@@ -2561,20 +2592,49 @@
       // damage
       const fs = this.combat.attackers.some(a => this.kw(a, "first strike") || this.kw(a, "double strike")) ||
         this.combat.attackers.some(a => a.combat && a.combat.blockedBy.some(b => this.kw(b, "first strike") || this.kw(b, "double strike")));
-      if (fs) { await this.damageStep(true); if (this.over) return; }
+      // each combat damage step ends with a priority window (510.3)
+      if (fs) { await this.damageStep(true); if (this.over) return; await this.trickWindow(p, "damage"); if (this.over || !this.combat) return; }
       await this.damageStep(false);
+      if (this.over) return;
+      await this.trickWindow(p, "damage");
       if (this.over) return;
       await this.endCombat(p);
     }
-    async endCombat(p) {
+    /* End of combat step: its triggers, then a priority window (511.1-2), then creatures leave
+       combat. It happens even when no creature attacked (508.8). */
+    async endCombat(p, noAttack) {
       this.phase = "endCombat";
-      this.emit("endCombat", { p });
+      this.bump();
+      this.emit("endCombat", { p, noAttack: !!noAttack });
       for (const o of this.battlefield.slice()) if (o.state.exileEoc) this.exile(o);
+      if (!this.opts.legacySteps) {
+        await this.settle();
+        if (this.over) return;
+        await this.stepWindow(p, "endCombat");
+        if (this.over) return;
+      }
       this.effects = this.effects.filter(e => e.until !== "eoc");
       for (const o of this.battlefield) o.combat = null;
       this.combat = null;
       this.bump();
       await this.settle();
+    }
+    /* Priority in a step where the stack is empty (upkeep, draw, beginning and end of combat):
+       each player in turn order from the active player may cast instants and activate abilities.
+       Games recorded before engine 5 (legacySteps) had no such windows. */
+    async stepWindow(active, win) {
+      if (this.opts.legacySteps) return;
+      for (const q of this.orderFrom(active)) {
+        if (this.over || q.lost) continue;
+        let n = 0;
+        while (n++ < 12) {
+          const act = await this.askRespond(q, { window: win, turnOf: active });
+          if (!act) break;
+          const ok = await this.perform(q, act);
+          if (this.over) return;
+          if (!ok && q.agent.bot) break;
+        }
+      }
     }
     validateBlocks(q, incoming, blocks) {
       const used = new Set();
@@ -2596,12 +2656,13 @@
       return fixed;
     }
     async trickWindow(active, win) {
+      if (win === "damage" && this.opts.legacySteps) return;
       for (const q of this.orderFrom(active)) {
         if (this.over || q.lost) continue;
         let n = 0;
         while (n++ < 12) {
           if (!this.combat) return;
-          const act = await this.askRespond(q, { window: win || "combat" });
+          const act = await this.askRespond(q, { window: win || "combat", turnOf: active });
           if (!act) break;
           const ok = await this.perform(q, act);
           if (this.over) return;
@@ -2613,7 +2674,10 @@
     async damageStep(first) {
       const c = this.combat;
       if (!c) return;
-      const strikes = o => first ? (this.kw(o, "first strike") || this.kw(o, "double strike")) : (!(o.state.struckFirst === this.turn) || this.kw(o, "double strike"));
+      // the regular step: creatures that didn't strike in this combat's first-strike step, and double strikers (510.4).
+      // Kept per combat, so a creature that struck first in an earlier combat this turn still deals damage in a later one.
+      const struck = c.struckFirst || (c.struckFirst = new Set());
+      const strikes = o => first ? (this.kw(o, "first strike") || this.kw(o, "double strike")) : (!struck.has(o) || this.kw(o, "double strike"));
       const events = [];
       for (const a of c.attackers) {
         if (a.zone !== "battlefield" || !a.combat) continue;
@@ -2624,26 +2688,18 @@
             if (!blockers.length) {
               if (this.kw(a, "trample") && dmg > 0) events.push({ src: a, target: this.liveTarget(a.combat.attacking), n: dmg });
             } else {
-              const order = blockers.slice().sort((x, y) => this.lethalDamageLeft(x) - this.lethalDamageLeft(y));
-              for (let i = 0; i < order.length && dmg > 0; i++) {
-                const b = order[i];
-                const lethal = this.kw(a, "deathtouch") ? 1 : Math.max(1, this.lethalDamageLeft(b));
-                const last = i === order.length - 1;
-                let give = Math.min(dmg, lethal);
-                if (last && !this.kw(a, "trample")) give = dmg;
-                events.push({ src: a, target: b, n: give });
-                dmg -= give;
-              }
-              if (dmg > 0 && this.kw(a, "trample")) events.push({ src: a, target: this.liveTarget(a.combat.attacking), n: dmg });
+              const split = await this.assignCombatDamage(a, blockers, dmg);
+              for (const [b, n] of split.blockers) events.push({ src: a, target: b, n });
+              if (split.player > 0) events.push({ src: a, target: this.liveTarget(a.combat.attacking), n: split.player });
             }
           } else if (dmg > 0) {
             events.push({ src: a, target: this.liveTarget(a.combat.attacking), n: dmg });
           }
-          if (first) a.state.struckFirst = this.turn;
+          if (first) struck.add(a);
         }
         for (const b of blockers) {
           if (!strikes(b)) continue;
-          if (first) b.state.struckFirst = this.turn;
+          if (first) struck.add(b);
           const n = Math.max(0, this.power(b));
           if (n > 0) events.push({ src: b, target: a, n });
         }
@@ -2663,6 +2719,49 @@
       if (hits.length) this.emit("combatDamageStep", { hits: hits.map(e => ({ src: e.src, p: e.target, amount: e.n, controller: e.src.controller })) });
       await this.settle();
       await this.pace("damage", {});
+    }
+    /* How a blocked attacker's combat damage is divided among its blockers (510.1c-d). The attacking
+       player divides it as they like; with trample, each blocker must be assigned lethal damage
+       (1 with deathtouch, counting damage already marked) before the rest can go to the player or
+       planeswalker it attacks. The bots, and a person with one blocker, get the default: lethal
+       damage to each blocker in turn, the easiest first, then the rest to the last one or, with
+       trample, past them. A person with two or more blockers chooses (purpose "combatDamage"). */
+    async assignCombatDamage(a, blockers, dmg) {
+      const tr = this.kw(a, "trample");
+      const lethal = b => (this.kw(a, "deathtouch") ? 1 : Math.max(1, this.lethalDamageLeft(b)));
+      const auto = new Map();
+      let left = dmg;
+      const order = blockers.slice().sort((x, y) => this.lethalDamageLeft(x) - this.lethalDamageLeft(y));
+      for (let i = 0; i < order.length && left > 0; i++) {
+        const b = order[i];
+        let give = Math.min(left, lethal(b));
+        if (i === order.length - 1 && !tr) give = left;
+        auto.set(b, give);
+        left -= give;
+      }
+      const def = { blockers: [...auto], player: tr ? left : 0 };
+      const p = a.controller;
+      if (blockers.length < 2 || dmg <= 0 || !p.agent || p.agent.bot || this.opts.legacySteps) return def;
+      const suggest = {};
+      for (const [b, n] of auto) suggest[b.id] = n;
+      const into = tr ? this.liveTarget(a.combat.attacking) : null;
+      const ans = await this.ask(p, {
+        type: "distribute", total: dmg, options: blockers.slice(), purpose: "combatDamage", src: a, suggest, trample: tr,
+        prompt: `${a.def.name}: divide ${dmg} combat damage among its blockers` + (tr ? ` (lethal damage to each first; the rest tramples over to ${into ? this.nameOf(into) : "nothing"})` : "")
+      });
+      if (!ans || typeof ans !== "object") return def;
+      // the answer, made legal: amounts in range, then any damage left unassigned placed
+      const got = new Map();
+      let used = 0;
+      for (const b of blockers) { const n = Math.max(0, Math.min(dmg - used, Math.floor(+ans[b.id] || 0))); got.set(b, n); used += n; }
+      left = dmg - used;
+      if (tr) {
+        for (const b of blockers) { const k = Math.min(Math.max(0, lethal(b) - got.get(b)), left); got.set(b, got.get(b) + k); left -= k; }
+      } else if (left > 0) {
+        const most = blockers.reduce((m, b) => (got.get(b) > got.get(m) ? b : m), blockers[0]);
+        got.set(most, got.get(most) + left); left = 0;
+      }
+      return { blockers: [...got].filter(([, n]) => n > 0), player: left };
     }
     liveTarget(t) {
       if (this.isPlayer(t)) return t.lost ? null : t;
@@ -2876,12 +2975,16 @@
       this.runDelayed("upkeep", p);
       await this.settle();
       if (this.over || p.lost) return this.endTurnEarly(p);
+      await this.stepWindow(p, "upkeep");
+      if (this.over || p.lost) return this.endTurnEarly(p);
       // draw
       this.phase = "draw";
       const skipDraw = this.turn === 1 && (this.players.length === 2 || !!this.opts.setup);   // a puzzle starts after the draw
       if (!skipDraw) this.draw(p, 1);
       this.emit("drawStep", { p });
       await this.settle();
+      if (this.over || p.lost) return this.endTurnEarly(p);
+      await this.stepWindow(p, "draw");
       if (this.over || p.lost) return this.endTurnEarly(p);
       // main 1 (Sagas get their lore counter first)
       this.phase = "main1";
@@ -2895,7 +2998,10 @@
       if (this.over || p.lost) return this.endTurnEarly(p);
       // combat
       this.emptyPools();
+      // "End the turn" in the first main phase still goes through the combat phase, with no attackers,
+      // so "at the beginning of combat" triggers happen (records before engine 5 skipped it)
       if (!res || !res.skipCombat) await this.doCombat(p);
+      else if (!this.opts.legacySteps) await this.doCombat(p, { noAttack: true });
       if (this.over || p.lost) return this.endTurnEarly(p);
       // additional combat phases (and main phases) added this turn
       for (let k = 0; k < 10 && this.extraCombats.length; k++) {

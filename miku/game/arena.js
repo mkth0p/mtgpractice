@@ -569,6 +569,25 @@
     const opp = pr.opp.filter(o => o.n >= 2);
     const mu = list => list.length ? list.map(o => `<li>${deckTag(o.id)}<span class="mono">${pct(o.above)}</span><small class="muted">${o.n} games</small></li>`).join("") : `<li class="muted">Not enough shared games yet.</li>`;
     const site = e.site ? `<a class="btn" href="../${e.site}/">Open its site</a>` : "";
+    // why it wins and loses (T.breakdown); tournaments from before it was recorded show only the endings
+    const bd = T.breakdown(st, id), verdict = T.verdict(st, id, bd);
+    const untracked = `<p class="muted small ar-old">Not recorded in this tournament: it was played before the Arena kept track of this. Run a new one to see it.</p>`;
+    const partly = bd.tracked && bd.tracked < bd.n ? ` <span class="muted small">(from the ${bd.tracked} games that recorded it)</span>` : "";
+    const kpis = list => `<div class="ar-kpis light">${list.map(([b, s]) => `<div><b>${b}</b><span>${s}</span></div>`).join("")}</div>`;
+    const num = (x, d) => (x == null ? "–" : x.toFixed(d));
+    const LOSSL = { life: "Ran out of life", commander: "Commander damage", poison: "Poison", alt: "Alternate win", library: "Decked", concede: "Conceded", draw: "Draw (turn limit)" };
+    const killers = bd.killers.slice(0, 5);
+    const whoCard = !bd.tracked ? untracked : killers.length || bd.noKiller ? `<ol class="ar-mu ar-kill">${killers.map(k => `<li>${deckTag(k.id)}<span class="mono">${k.n}×</span><small class="muted">round ${Math.round(k.round)}</small></li>`).join("")}${bd.noKiller ? `<li><span class="muted">No one (it decked or its own cards did it)</span><span class="mono">${bd.noKiller}×</span><span></span></li>` : ""}</ol>` : `<p class="muted small">It hasn't been knocked out yet.</p>`;
+    const cardRows = bd.cards.slice(0, 8).sort((a, b) => b.gap - a.gap);
+    const cell = (x, k) => `<span class="ar-kc ${k}"><span class="ar-track"><i style="width:${pct(x || 0, 1)}"></i></span><b>${x == null ? "–" : pct(x)}</b></span>`;
+    const cardsCard = !bd.tracked ? untracked : cardRows.length ? `<div class="ar-keys"><div class="ar-key ar-key-h"><span>Card</span><span>In its wins</span><span>In its losses</span></div>${cardRows.map(c => `<div class="ar-key${c.gap >= 0.2 ? " up" : c.gap <= -0.2 ? " down" : ""}"><span title="${esc(c.name)}">${esc(c.name)}</span>${cell(c.inWins, "w")}${cell(c.inLosses, "l")}</div>`).join("")}</div>` : `<p class="muted small">No spells cast yet.</p>`;
+    const cmdName = [].concat(e.commander || [])[0] || "its commander";
+    const cmdCard = !bd.cmd ? untracked : kpis([[num(bd.cmd.casts, 1), "casts per game"], [num(bd.cmd.off, 1), "times it was killed or removed, per game"], [num(bd.cmd.inWins, 1) + " / " + num(bd.cmd.inLosses, 1), "casts per win / per loss"]]);
+    const mm = bd.mull, manaCard = kpis([
+      [bd.mana ? num(bd.mana.all, 1) : "–", "mana left unused per turn"], [bd.mana ? num(bd.mana.win, 1) + " / " + num(bd.mana.loss, 1) : "–", "unused in wins / in losses"],
+      [mm ? num(mm.per, 2) : "–", "mulligans per game"], [mm && mm.keptRate != null ? pct(mm.keptRate) : "–", `won keeping seven${mm ? ` (${mm.kept})` : ""}`],
+      [mm && mm.mulledRate != null ? pct(mm.mulledRate) : "–", `won after a mulligan${mm ? ` (${mm.mulled})` : ""}`]]) + (bd.mana ? "" : `<p class="muted small ar-old">Unused mana wasn't recorded in this tournament: it was played before the Arena kept track of it.</p>`);
+    const outCard = kpis([[row.n ? pct(bd.firstOut / row.n) : "–", `first one out (fair share ${pct(1 / P)})`], [bd.medFirstOut == null ? "–" : "Round " + Math.round(bd.medFirstOut), "when it's first out (median)"], [bd.medOut == null ? "–" : "Round " + Math.round(bd.medOut), "when it goes out at all (median)"]]);
     host.innerHTML = `<div class="ar">
       <div class="ar-chips" role="tablist" aria-label="Deck">${A.standings.map(r => `<button type="button" role="tab" class="ar-dchip${r.id === id ? " on" : ""}" aria-selected="${r.id === id}" data-deck="${esc(r.id)}">${av(r.id)}${esc(r.name)}</button>`).join("")}</div>
       <div class="bot-card ar-prof">
@@ -578,10 +597,18 @@
           <p class="bc-precon">95% interval for its win rate: ${pct(row.ci[0])} to ${pct(row.ci[1])}. ${row.n < 30 ? "Few games yet, so treat it loosely." : ""}</p>
           <div class="btn-row">${site}<button class="btn ghost" type="button" data-games="${esc(id)}">Its games</button></div></div>
       </div>
+      <section class="ar-card ar-why"><h3 class="ar-h">Why it wins and loses</h3>
+        ${verdict.length ? `<ul class="ar-verdict">${verdict.map(v => `<li class="${v.tone}">${esc(v.text)}</li>`).join("")}</ul>` : `<p class="muted small">Not enough games yet.</p>`}
+        ${!bd.tracked ? `<p class="ar-note muted">This tournament was played before the Arena recorded who knocks a deck out, its cards, its commander and its mana; those parts fill in for new tournaments.</p>` : ""}</section>
       <div class="ar-two">
+        <section class="ar-card"><h3 class="ar-h">How it loses</h3><p class="muted small">How each of its ${plural(bd.losses, "loss", "losses")} ended for it.</p><div class="ar-bars wrap">${bars(bd.lossHow, Math.max(1, bd.losses), LOSSL)}</div></section>
+        <section class="ar-card"><h3 class="ar-h">Who knocks it out</h3><p class="muted small">The deck that dealt the final blow, and the median round it happened.${partly}</p>${whoCard}</section>
+        <section class="ar-card"><h3 class="ar-h">When it goes out</h3><p class="muted small">Where it sits when it dies: out before everyone else, and how soon.</p>${outCard}</section>
         <section class="ar-card"><h3 class="ar-h">How it wins</h3><p class="muted small">How the last opponent went out in each of its ${plural(pr.wins, "win")}.</p><div class="ar-bars">${bars(pr.how, Math.max(1, pr.wins), HOW)}</div></section>
-        <section class="ar-card"><h3 class="ar-h">How it loses</h3><p class="muted small">How it went out when it was knocked out.</p><div class="ar-bars">${bars(pr.outHow, Math.max(1, Object.values(pr.outHow).reduce((a, b) => a + b, 0)), HOW)}</div></section>
-        <section class="ar-card"><h3 class="ar-h">When it wins</h3><p class="muted small">Its wins by round${row.avgWin != null ? `; on average round ${row.avgWin.toFixed(1)}` : ""}.</p>
+        <section class="ar-card ar-wide"><h3 class="ar-h">Its key cards</h3><p class="muted small">Its most-cast spells (not the commander) and how often each was cast in the games it won and the games it lost. A card cast much more in wins is one it needs; much more in losses, one that doesn't pull its weight.${partly}</p>${cardsCard}</section>
+        <section class="ar-card"><h3 class="ar-h">Its commander</h3><p class="muted small">${esc(cmdName)}: how often it's cast, and how often it gets killed or removed.${partly}</p>${cmdCard}</section>
+        <section class="ar-card"><h3 class="ar-h">Mana and mulligans</h3><p class="muted small">Mana it could still have made going into its end step, and how its opening hands went.${partly}</p>${manaCard}</section>
+        <section class="ar-card"><h3 class="ar-h">When it wins</h3><p class="muted small">Its wins by round${bd.medWin != null ? `; usually around round ${Math.round(bd.medWin)} (median)` : ""}.</p>
           <div class="ar-hist small">${Array.from({ length: rmax }, (_, i) => i + 1).map(r => `<span class="ar-hb" title="Round ${r}: ${pr.rounds[r] || 0}"><i style="height:${pct((pr.rounds[r] || 0) / maxR, 1)}"></i><small>${r % 2 || rmax < 14 ? r : ""}</small></span>`).join("")}</div></section>
         <section class="ar-card"><h3 class="ar-h">By turn order</h3><p class="muted small">Its win rate by when it took its first turn. The tick is a fair share.</p>
           <div class="ar-bars">${Array.from({ length: P }, (_, i) => pr.seat[i] || { n: 0, wins: 0 }).map((s, i) => `<div class="ar-bar"><span>${["First", "Second", "Third", "Fourth"][i]} <small class="muted">${s.n}</small></span><span class="ar-track"><i style="width:${pct(s.n ? s.wins / s.n : 0, 1)}"></i><u style="left:${pct(1 / P, 1)}"></u></span><b>${s.n ? pct(s.wins / s.n) : "–"}</b></div>`).join("")}</div></section>

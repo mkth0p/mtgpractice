@@ -316,7 +316,9 @@
         if (found.length) log(g, `${q.name}'s search is exiled (Opposition Agent): ${p.name} may play ${found.map(c => c.def.name).join(" and ")}.`, p, found.map(c => c.def.name).concat(["Opposition Agent"]));
       }
     }],
-    ai: { priority: 7, threat: 3, instantEnd: true }
+    // flash at the end of the turn before ours, or in our second main phase while the mana is still there:
+    // the bot rarely leaves it open past its own turn, so it used to end games in hand (engine 8)
+    ai: { priority: 7, threat: 3, instantEnd: true, cast: (g, p, o, { window }) => (window === "main2" && AI().newHints && AI().newHints(g) ? 18 : undefined) }
   });
   const AGENT_SNAP = new WeakMap();
   let notionDrawing = false;
@@ -342,7 +344,9 @@
         log(g, `${p.name} draws instead of ${ev.p.name} (Notion Thief).`, p, ["Notion Thief"]);
       }
     }],
-    ai: { priority: 7, threat: 3, instantEnd: true }
+    // flash at the end of the turn before ours, or in our second main phase while the mana is still there:
+    // the bot rarely leaves it open past its own turn, so it used to end games in hand (engine 8)
+    ai: { priority: 7, threat: 3, instantEnd: true, cast: (g, p, o, { window }) => (window === "main2" && AI().newHints && AI().newHints(g) ? 18 : undefined) }
   });
   D({
     name: "Brine Elemental", cost: "{4}{U}{U}", type: "Creature — Elemental", pt: "5/4",
@@ -384,7 +388,7 @@
      creature (Brine Elemental) and it can pay the morph cost {1}{U} this turn. */
   const vesDown = (g, p, o) => !!o && o.def.triggers.some(t => t.on === "turnedFaceUp" && t.self) && g.canPay(p, pc("{1}{U}"), { for: "special" });
   function becomeCopy(g, s, pick) {
-    const base = pick.copyDef || pick.def;
+    const base = MK.copiable(pick);
     const ai = Object.assign({}, base.ai || {});
     const prev = ai.confirm;
     ai.confirm = (g2, p, req) => (req.purpose === "vesuvanDown" ? vesDown(g2, p, req.src) : prev ? prev(g2, p, req) : true);

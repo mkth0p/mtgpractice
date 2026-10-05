@@ -97,11 +97,34 @@
   // the creatures that make the deck win: they stay out of risky fights
   const ENGINE = ["Ramses, Assassin Lord", "Interceptor, Shadow's Hound", "Roshan, Hidden Magister"];
 
+  /* The brain's newer reads (gang blocks...) are gated so practice games recorded before them
+     replay as they were played: `legacyBots` (engine < 4) and `legacyEtrata` (engine < 5). */
+  const sharp = g => !(g.opts && (g.opts.legacyBots || g.opts.legacyEtrata));
+  /* Several blockers on one attacker (ai.js gangFight): which blockers it kills and whether the
+     ones left alive kill it. */
+  function gangFight(g, a, bs) {
+    const lethal = o => Math.max(1, g.lethalDamageLeft(o));
+    const ds = g.kw(a, "double strike");
+    let dmg = Math.max(0, g.power(a)) * (ds ? 2 : 1);
+    const lost = [];
+    for (const b of bs.slice().sort((x, y) => lethal(x) - lethal(y))) {
+      const need = g.kw(a, "deathtouch") ? 1 : lethal(b);
+      if (dmg <= 0) break;
+      if (dmg >= need && !g.kw(b, "indestructible")) lost.push(b);
+      dmg -= need;
+    }
+    const firstA = g.kw(a, "first strike") || ds;
+    const hitters = bs.filter(b => !(firstA && lost.includes(b) && !g.kw(b, "first strike") && !g.kw(b, "double strike")));
+    const sum = hitters.reduce((s, b) => s + Math.max(0, g.power(b)), 0);
+    const aDies = !g.kw(a, "indestructible") && (sum >= lethal(a) || hitters.some(b => g.kw(b, "deathtouch") && g.power(b) > 0));
+    return { aDies, lost };
+  }
   /* How a bot defender blocks: the same tests as ai.js block(). It blocks with a creature that
-     survives and kills the attacker, survives a 3-power hit, or trades up; it never blocks menace;
-     and it chumps the biggest attackers when the rest would kill it. A person may block anything,
-     and menace only with two. Returns the attackers that get blocked; `evade` holds attackers we
-     plan to make unblockable first. */
+     survives and kills the attacker, survives a 3-power hit, or trades up; it puts two blockers
+     on an attacker they kill together when that's worth it (the only way to block menace); and it
+     chumps the biggest attackers when the rest would kill it. A person may block anything, and
+     menace only with two. Returns the attackers that get blocked; `evade` holds attackers we plan
+     to make unblockable first. */
   function predictBlocks(g, q, attackers, evade) {
     const A = AI();
     const bot = !q.agent || !!q.agent.bot;
@@ -123,6 +146,22 @@
         if (s > bs) { bs = s; best = b; }
       }
       if (best && bs > 0) { used.add(best.id); blocked.add(a); }
+    }
+    // two blockers that together kill an attacker worth more than what it kills back (engine 4
+    // bots gang-block; a person may too). The only way to block menace.
+    if (sharp(g)) {
+      for (const a of incoming) {
+        if (blocked.has(a) || (evade && evade.has(a))) continue;
+        const cands = mine.filter(b => !used.has(b.id) && g.canBlock(b, a)).sort((x, y) => A.value(g, x) - A.value(g, y)).slice(0, 8);
+        let best = null, bs = bot ? 1.5 : 0;
+        for (let i = 0; i < cands.length; i++) for (let j = i + 1; j < cands.length; j++) {
+          const r = gangFight(g, a, [cands[i], cands[j]]);
+          if (!r.aDies) continue;
+          const s = A.value(g, a) + (a.isCommander ? 2 : 0) - r.lost.reduce((t, b) => t + A.value(g, b), 0);
+          if (s > bs) { bs = s; best = [cands[i], cands[j]]; }
+        }
+        if (best) { for (const b of best) used.add(b.id); blocked.add(a); }
+      }
     }
     let rest = incoming.filter(a => !blocked.has(a));
     let guard = 0;
@@ -224,9 +263,13 @@
     return plan.map(d => ({ attacker: d.attacker, target: d.target }));
   }
 
-  /* Blocks: Ramses and Roshan don't block where they'd die, unless the hit would kill us. */
+  /* Blocks: Ramses and Roshan don't block where they'd die, unless the hit would kill us. Then
+     (engine 4 blocks) a spare deathtouch creature trades with a big attacker, and a face-down
+     creature hiding a land or a cheap card chumps a big hit. */
   function etrataBlock(g, q, ctx) {
     if (!brainOn(q)) return undefined;
+    // engine 4 games recorded before the smart blocks asked the brain keep their own blocks
+    if (ctx.smart && !sharp(g)) return undefined;
     const A = AI();
     let blocks = ctx.blocks.slice();
     const lethal = list => ctx.attackers.filter(a => !list.some(b => b.attacker === a)).reduce((s, a) => s + hitOf(g, a), 0) >= q.life;
@@ -234,6 +277,43 @@
       if (!ENGINE.includes(b.blocker.def.name) || !A.fight(g, b.attacker, b.blocker).bDies) continue;
       const without = blocks.filter(x => x !== b);
       if (!lethal(without)) blocks = without;
+    }
+    if (ctx.smart) blocks = junkBlocks(g, q, ctx.attackers, dtBlocks(g, q, ctx.attackers, blocks));
+    return blocks;
+  }
+  /* A face-down creature hiding a land or a cheap card (or a small token) does little else: it
+     stands in front of a big hit. With life to spare it only meets the biggest hits; the lower
+     our life, the smaller the hits it takes. */
+  const junk = (g, c) => (c.faceDown && c.cardDef && (c.cardDef.types.includes("Land") || c.cardDef.mv <= (c.cardDef.types.includes("Creature") ? 2 : 3))) || (c.isToken && g.power(c) <= 2);
+  /* A deathtouch creature that isn't an engine piece trades with the biggest attacker it can stop:
+     Unstoppable Slasher even comes back. */
+  function dtBlocks(g, q, attackers, blocks) {
+    const A = AI();
+    const used = new Set(blocks.map(b => b.blocker.id));
+    const isBlocked = a => blocks.some(b => b.attacker === a);
+    const pool = g.creatures(q).filter(c => !c.tapped && !used.has(c.id) && !g.ch(c).cantBlock && g.kw(c, "deathtouch") && g.power(c) > 0 && !ENGINE.includes(c.def.name) && !c.isCommander);
+    const open = attackers.filter(a => !isBlocked(a) && !g.kw(a, "menace") && hitOf(g, a) >= 4).sort((x, y) => A.value(g, y) - A.value(g, x));
+    for (const a of open) {
+      const b = pool.find(c => !used.has(c.id) && g.canBlock(c, a) && A.fight(g, a, c).aDies && A.value(g, c) < A.value(g, a));
+      if (!b) continue;
+      used.add(b.id); blocks = blocks.concat([{ blocker: b, attacker: a }]);
+    }
+    return blocks;
+  }
+  function junkBlocks(g, q, attackers, blocks) {
+    const used = new Set(blocks.map(b => b.blocker.id));
+    const isBlocked = a => blocks.some(b => b.attacker === a);
+    const pool = g.creatures(q).filter(c => !c.tapped && !used.has(c.id) && !g.ch(c).cantBlock && junk(g, c));
+    if (!pool.length) return blocks;
+    const open = attackers.filter(a => !isBlocked(a) && !g.kw(a, "menace") && !g.kw(a, "trample")).sort((x, y) => hitOf(g, y) - hitOf(g, x));
+    let incoming = attackers.filter(a => !isBlocked(a)).reduce((s, a) => s + hitOf(g, a), 0);
+    for (const a of open) {
+      const hit = hitOf(g, a);
+      const bar = q.life - incoming <= 15 ? 3 : q.life - incoming <= 25 ? 4 : 6;
+      if (hit < bar) continue;
+      const b = pool.find(c => !used.has(c.id) && g.canBlock(c, a));
+      if (!b) continue;
+      used.add(b.id); blocks = blocks.concat([{ blocker: b, attacker: a }]); incoming -= hit;
     }
     return blocks;
   }
@@ -537,7 +617,7 @@
         else if (mode === 1) g.draw(p, 1);
         else {
           const t = await g.chooseTarget(p, trig({ kind: "creature", you: true, purpose: "copy", prompt: "Silent Hallcreeper becomes a copy of", filter: (g2, c) => c !== s && !c.faceDown }), s);
-          if (t && s.zone === "battlefield") { s.def = t.copyDef || t.def; g.ts++; g.bump(); log(g, `Silent Hallcreeper becomes a copy of ${t.def.name}.`, p, [t.def.name]); }
+          if (t && s.zone === "battlefield") { s.def = MK.copiable(t); g.ts++; g.bump(); log(g, `Silent Hallcreeper becomes a copy of ${t.def.name}.`, p, [t.def.name]); }
         }
       }
     }],
@@ -802,7 +882,7 @@
       if (!opts.length) return;
       const pick = await g.ask(p, { type: "target", prompt: "Spark Double: enter as a copy of", options: opts, optional: true, purpose: "sparkCopy", src: o });
       if (!pick || !opts.includes(pick)) return;
-      const base = pick.copyDef || pick.def;
+      const base = MK.copiable(pick);
       o.def = MK.derive(base, { supertypes: base.supertypes.filter(t => t !== "Legendary"), legendary: false });
       eo.counters = g.isPlaneswalker(pick) ? { loyalty: 1 } : { p1: 1 };
       g.ts++;

@@ -102,6 +102,12 @@ async function endStep(g, a) { g.phase = "end"; g.emit("endStep", { p: a }); g.r
     lands(g, a, 4);
     const pick = MK.ETRATA_BRAIN.tutorPick(g, a, a.library.slice());
     check("brain: tutors find Ramses first", pick && pick.def.name === "Ramses, Assassin Lord", pick && pick.def.name); }
+  // two 2/2s together kill Etrata (1/4 deathtouch): the bots gang-block her, so she goes elsewhere
+  { const { g, a, b } = table(); a.deckId = "etrata";
+    const et = put(g, a, "Etrata, Deadly Fugitive"); put(g, b, "Mischievous Sneakling"); put(g, b, "Mischievous Sneakling"); await g.settle();
+    check("brain: two blockers gang-block Etrata", MK.ETRATA_BRAIN.predictBlocks(g, b, [et]).has(et));
+    const decl = MK.ETRATA_BRAIN.attack(g, a, { candidates: [et], targets: g.attackTargets(a), decl: [] }) || [];
+    check("brain: Etrata doesn't attack into a gang block", decl.length === 1 && decl[0].target !== b, decl.map(x => x.target.name)); }
   { const { g, a, b, c, d } = table(); a.deckId = "corrupted-etrata";
     const oc = put(g, a, "Changeling Outcast"); await g.settle();
     check("brain: Corrupted Etrata keeps its own attacks", MK.ETRATA_BRAIN.attack(g, a, { candidates: [oc], targets: g.attackTargets(a), decl: [] }) === undefined); }

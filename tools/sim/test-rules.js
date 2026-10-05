@@ -236,6 +236,114 @@ function armed(g, q) { put(g, q, "Plains"); hand(g, q, "Swords to Plowshares"); 
     g.phaseOut(g.controlled(a)); g.phaseIn(a);
     check("phasing out a creature and its Equipment together doesn't copy the Equipment", g.battlefield.filter(o => o === clamp).length === 1, g.battlefield.filter(o => o === clamp).length); }
 
+  // ---------------------------------------------------------------- priority in every step (engine 5)
+  { const { g, a, b } = table({ human: true }); const sw = put(g, a, "Soul Warden"); armed(g, a); armed(g, b); await g.settle();
+    const seen = [];
+    const rec = who => (g2, q, ctx) => { seen.push({ who, win: ctx.window, hand: a.hand.length, phase: g2.phase }); return null; };
+    a.agent.respond = rec("A"); b.agent.respond = rec("B");
+    a.agent.attack = () => [{ attacker: sw, target: b }];
+    const hand0 = a.hand.length;
+    g.turn = 0; await g.takeTurn(a);
+    const wins = w => seen.filter(s => s.win === w).map(s => s.who).join("");
+    check("upkeep: the active player, then the others get priority", wins("upkeep") === "AB", seen.map(s => s.who + ":" + s.win));
+    check("upkeep priority comes before the draw", (seen.find(s => s.win === "upkeep") || {}).hand === hand0, seen.find(s => s.win === "upkeep"));
+    check("draw step: priority after the card is drawn", wins("draw") === "AB" && (seen.find(s => s.win === "draw") || {}).hand === hand0 + 1, seen.filter(s => s.win === "draw"));
+    check("beginning of combat: priority before attackers", wins("beginCombat") === "AB" && seen.findIndex(s => s.win === "beginCombat") < seen.findIndex(s => s.win === "attackers"), seen.map(s => s.who + ":" + s.win));
+    check("combat damage step: priority after damage", wins("damage") === "AB" && seen.findIndex(s => s.win === "damage") > seen.findIndex(s => s.win === "combat"));
+    check("end of combat: priority", wins("endCombat") === "AB" && seen.findIndex(s => s.win === "endCombat") > seen.findIndex(s => s.win === "damage")); }
+
+  // an instant in the opponent's upkeep removes the creature before it can attack; at beginning of combat too
+  { const { g, a, b } = table(); const sw = put(g, a, "Soul Warden"); armed(g, b); await g.settle();
+    b.agent.respond = (g2, q, ctx) => { if (ctx.window !== "beginCombat" || sw.zone !== "battlefield") return null; const s = ctx.actions.find(x => x.type === "cast" && x.card.def.name === "Swords to Plowshares"); return s ? { type: "cast", card: s.card, targets: [sw] } : null; };
+    let asked = 0; a.agent.attack = (g2, p, ctx) => { asked++; return ctx.candidates.map(c => ({ attacker: c, target: b })); };
+    const life = b.life;
+    await g.doCombat(a);
+    check("Swords to Plowshares at beginning of combat: the creature never attacks", sw.zone === "exile" && asked === 0 && b.life === life, { zone: sw.zone, asked, life: b.life }); }
+
+  // the end of combat step happens without attackers (508.8)
+  { const { g, a } = table(); await g.settle();
+    const evs = []; const emit = g.emit.bind(g); g.emit = (t, ev) => { evs.push(t); return emit(t, ev); };
+    await g.doCombat(a);
+    check("with nothing to attack, beginning and end of combat still happen", evs.includes("beginCombat") && evs.includes("endCombat") && !g.combat, evs); }
+  { const { g, a } = table({ human: true }); put(g, a, "Soul Warden"); await g.settle();
+    const evs = []; const emit = g.emit.bind(g); g.emit = (t, ev) => { evs.push(t); return emit(t, ev); };
+    let asked = 0; a.agent.attack = () => { asked++; return []; };
+    a.agent.main = (g2) => ({ type: "pass", skipCombat: g2.phase === "main1" });
+    g.turn = 0; await g.takeTurn(a);
+    check("\"End the turn\" in main 1 still has a combat phase (beginning of combat triggers), with no attack", evs.includes("beginCombat") && evs.includes("endCombat") && asked === 0, { evs: evs.filter(e => /Combat/.test(e)), asked }); }
+
+  // ---------------------------------------------------------------- combat damage
+  async function fight(opts) {
+    const { g, a, b } = table({ human: !!opts.answer, answers: req => (req.purpose === "combatDamage" ? opts.answer(req) : undefined) });
+    const atk = put(g, a, "Elvish Spirit Guide");
+    g.pump(atk, opts.power - 2, opts.power - 2, opts.kws || null);
+    const blockers = (opts.blockers || []).map(t => { const o = put(g, b, "Elvish Spirit Guide"); if (t !== 2) g.pump(o, t - 2, t - 2); return o; });
+    armed(g, b); await g.settle();
+    const asked = [];
+    if (opts.answer) { const ch = a.agent.choose; a.agent.choose = (g2, p, req) => { if (req.purpose === "combatDamage") asked.push(req); return ch(g2, p, req); }; }
+    a.agent.attack = () => [{ attacker: atk, target: opts.at ? opts.at(g, b) : b }];
+    b.agent.block = (g2, q, ctx) => blockers.map(o => ({ blocker: o, attacker: atk }));
+    b.agent.respond = (g2, q, ctx) => (opts.respond ? opts.respond(g2, ctx, { atk, blockers }) : null);
+    const life = b.life;
+    await g.doCombat(a);
+    return { g, a, b, atk, blockers, lost: life - b.life, asked };
+  }
+  { const r = await fight({ power: 5, blockers: [2, 2], answer: req => { const m = {}; m[req.options[0].id] = 5; return m; } });
+    check("a person divides damage among blockers: all 5 on one 2/2", r.asked.length === 1 && r.blockers[0].zone !== "battlefield" && r.blockers[1].zone === "battlefield", r.blockers.map(o => o.zone)); }
+  { const r = await fight({ power: 6, kws: ["trample"], blockers: [2, 2], answer: req => { const m = {}; m[req.options[0].id] = 1; m[req.options[1].id] = 1; return m; } });
+    check("with trample a person's split is topped up to lethal for each blocker before the player", r.blockers.every(o => o.zone !== "battlefield") && r.lost === 2, { zones: r.blockers.map(o => o.zone), lost: r.lost }); }
+  { const r = await fight({ power: 6, kws: ["trample"], blockers: [2, 2], answer: req => { const m = {}; m[req.options[0].id] = 4; return m; } });
+    check("with trample a person may put more than lethal on a blocker", r.lost === 0 && r.blockers.every(o => o.zone !== "battlefield"), { lost: r.lost }); }
+  { const r = await fight({ power: 5, blockers: [2], answer: () => ({}) });
+    check("one blocker: no question, it takes all the damage", r.asked.length === 0 && r.blockers[0].zone !== "battlefield" && r.lost === 0); }
+  { const r = await fight({ power: 5, kws: ["trample", "deathtouch"], blockers: [3, 3] });
+    check("deathtouch and trample (bot): 1 to each blocker, the rest to the player", r.lost === 3 && r.blockers.every(o => o.zone !== "battlefield"), { lost: r.lost }); }
+  { const r = await fight({ power: 7, kws: ["trample"], blockers: [2, 4] });
+    check("trample (bot): lethal to each blocker, then the rest to the player", r.lost === 1 && r.blockers.every(o => o.zone !== "battlefield"), { lost: r.lost, z: r.blockers.map(o => o.zone) }); }
+  { const r = await fight({ power: 5, kws: ["trample"], blockers: [2, 4] });
+    check("trample (bot) short of lethal for all: nothing tramples over", r.lost === 0 && r.blockers[0].zone !== "battlefield" && r.blockers[1].damage === 3, { lost: r.lost, z: r.blockers.map(o => o.zone) }); }
+  { const r = await fight({ power: 4, blockers: [2], respond: (g2, ctx, s) => { if (ctx.window === "combat" && s.blockers[0].zone === "battlefield") g2.bounce(s.blockers[0]); return null; } });
+    check("a blocked attacker whose blocker left deals no damage", r.lost === 0 && r.atk.zone === "battlefield", r.lost); }
+  { const r = await fight({ power: 4, kws: ["trample"], blockers: [2], respond: (g2, ctx, s) => { if (ctx.window === "combat" && s.blockers[0].zone === "battlefield") g2.bounce(s.blockers[0]); return null; } });
+    check("with trample it deals all its damage to the player", r.lost === 4, r.lost); }
+  { const r = await fight({ power: 3, kws: ["first strike"], blockers: [2] });
+    check("first strike: the blocker dies before it deals damage", r.blockers[0].zone !== "battlefield" && r.atk.damage === 0 && r.atk.zone === "battlefield"); }
+  { const r = await fight({ power: 2, kws: ["double strike"], blockers: [] });
+    check("double strike unblocked: damage in both steps", r.lost === 4, r.lost); }
+  { const r = await fight({ power: 2, kws: ["first strike"], blockers: [], respond: (g2, ctx, s) => { if (ctx.window === "damage" && !s.atk.state.ds) { s.atk.state.ds = 1; g2.grant(s.atk, ["double strike"]); } return null; } });
+    check("gaining double strike after the first-strike step: it deals damage again", r.lost === 4, r.lost); }
+  { const r = await fight({ power: 3, blockers: [3], respond: (g2, ctx, s) => { if (ctx.window === "combat" && !s.atk.state.fs) { s.atk.state.fs = 1; g2.grant(s.blockers[0], ["first strike"]); } return null; } });
+    check("a blocker given first strike after blocks strikes first", r.atk.zone !== "battlefield" && r.blockers[0].zone === "battlefield" && r.blockers[0].damage === 0, { atk: r.atk.zone, blk: r.blockers[0].zone }); }
+  // first strike "until end of combat" in the first combat: the creature still deals damage in a second combat that turn
+  { const { g, a, b } = table(); const atk = put(g, a, "Elvish Spirit Guide"); await g.settle();
+    a.agent.attack = () => (atk.tapped ? [] : [{ attacker: atk, target: b }]);
+    g.grant(atk, ["first strike"], { until: "eoc" });
+    const l0 = b.life; await g.doCombat(a); const l1 = b.life;
+    atk.tapped = false; await g.doCombat(a);
+    check("a creature that struck first in an earlier combat deals damage in a later one", l0 - l1 === 2 && l1 - b.life === 2, { first: l0 - l1, second: l1 - b.life }); }
+  // planeswalkers and commander damage
+  { const { g, a, b } = table(); const atk = put(g, a, "Elvish Spirit Guide"); const pw = put(g, b, "Sorin, Imperious Bloodlord"); await g.settle();
+    a.agent.attack = () => [{ attacker: atk, target: pw }];
+    const life = b.life, loy = pw.counters.loyalty; await g.doCombat(a);
+    check("combat damage to a planeswalker removes loyalty, not life", pw.counters.loyalty === loy - 2 && b.life === life, { loy: pw.counters.loyalty, life: b.life }); }
+  { const { g, a, b } = table(); const cmd = a.commanders[0]; g.removeFromZone(cmd); cmd.zone = "new"; g.enterMany([{ o: cmd, controller: a, opts: {} }]); cmd.sick = false; await g.settle();
+    a.agent.attack = () => [{ attacker: cmd, target: b }];
+    await g.doCombat(a);
+    g.damage(cmd, b, 3);
+    check("commander damage counts combat damage only", b.cmdDmg[cmd.id] === g.power(cmd), b.cmdDmg); }
+
+  // ---------------------------------------------------------------- copies skip non-copy overlays
+  /* Liliana returns a Dragon "as a black Zombie in addition to its other types"; Miirym copies it.
+     That Zombie overlay isn't a copiable value (706.2): the token is a plain Goldspan Dragon. The
+     overlay's type line used to be a getter, and Miirym's "except" assigning type threw. */
+  { const { g, a } = table(); put(g, a, "Miirym, Sentinel Wyrm"); const lil = put(g, a, "Liliana, Death's Majesty", { loyalty: 5 });
+    const gd = g.newObj(MK.get("Goldspan Dragon"), a, "graveyard"); a.graveyard.push(gd); await g.settle();
+    let err = null;
+    try { await g.activate(a, lil, lil.def.abilities.findIndex(ab => ab.loyalty === -3), { targets: [gd] }); await g.settle(); } catch (e) { err = String(e && e.message || e); }
+    const tok = g.battlefield.find(o => o.isToken && o.def.name === "Goldspan Dragon");
+    check("Miirym copies a Dragon Liliana returned as a Zombie without an engine error", !err && gd.zone === "battlefield" && !!tok, { err, zone: gd.zone });
+    check("the returned Dragon is a black Zombie; Miirym's token copy of it is neither", g.hasSub(gd, "Zombie") && gd.def.colors.includes("B") && !!tok && !g.hasSub(tok, "Zombie") && !tok.def.colors.includes("B") && !/Zombie/.test(tok.def.type), tok && { type: tok.def.type, colors: tok.def.colors }); }
+
   // ---------------------------------------------------------------- bot games stay clean
   { let errs = 0, done = 0;
     for (let seed = 1; seed <= 6; seed++) {

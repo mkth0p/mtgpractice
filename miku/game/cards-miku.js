@@ -14,6 +14,9 @@
   const trig = spec => Object.assign({ trigger: true }, spec);
   const opponentsOf = (g, p) => g.opponents(p);
   const greatestPower = (g, list) => list.reduce((m, o) => Math.max(m, g.power(o)), 0);
+  /* A draw-per-creature sorcery (Camaraderie, Shamanic Revelation) with two creatures out still
+     beats ending the game with it in hand: cast it once the better spells are paid for (engine 8). */
+  const twoCreatureDraw = (g, p) => (AI().newHints && AI().newHints(g) && g.creatures(p).length === 2 ? 12 : undefined);
   const attackingMine = (g, p) => g.combat ? g.combat.attackers.filter(a => a.controller === p && a.zone === "battlefield") : [];
   const hasLand = (g, p, sub) => g.controlled(p, o => g.isLand(o) && o.def.subtypes.includes(sub)).length > 0;
   const otherLands = (g, o) => g.controlled(o.controller, x => x !== o && g.isLand(x)).length;
@@ -625,7 +628,8 @@
         g.log(`Creatures ${ctx.p.name} controls gain indestructible.`, { p: ctx.p });
       }
     },
-    ai: { protection: true, instantEnd: true, x: (g, p, o, xMax) => xMax }
+    // also after blockers, when it keeps creatures of ours alive through the combat (engine 8)
+    ai: { protection: true, instantEnd: true, x: (g, p, o, xMax) => xMax, combat: (g, p) => AI().newHints(g) && AI().combatSave(g, p) >= 5 }
   });
 
   D({
@@ -669,7 +673,31 @@
         do: (g, ctx) => g.addEffect({ objs: g.creatures(ctx.p).filter(o => !g.hasSub(o, "Human")), pt: [3, 3] })
       }
     ],
-    ai: { mode: (g, p) => (g.combat && g.combat.attacker === p ? 1 : 0), instantEnd: true }
+    /* Engine 8: the draw is cast in a main phase too when it draws three or more (the mana is
+       rarely left open for it at the end of a turn), and the +3/+3 after blockers when it makes an
+       attack lethal or adds 9 damage. */
+    ai: {
+      mode: (g, p) => (g.combat && g.combat.attacker === p ? 1 : 0), instantEnd: true,
+      cast: (g, p) => {
+        if (!AI().newHints(g)) return undefined;
+        const n = greatestPower(g, g.creatures(p).filter(o => !g.hasSub(o, "Human")));
+        return n >= 3 && p.hand.length <= 6 ? 15 + Math.min(n, 8) * 0.5 : undefined;
+      },
+      combat: (g, p) => {
+        if (!AI().newHints(g) || !g.combat || g.combat.attacker !== p) return false;
+        const open = attackingMine(g, p).filter(a => a.combat && !a.combat.wasBlocked && !g.hasSub(a, "Human"));
+        if (!open.length) return false;
+        if (open.length >= 3) return true;
+        for (const q of g.opponents(p)) {
+          if (q.lost) continue;
+          const at = attackingMine(g, p).filter(a => a.combat && !a.combat.wasBlocked && g.defenderOf(a.combat.attacking) === q);
+          const dmg = at.reduce((s, a) => s + Math.max(0, g.power(a)), 0);
+          const more = at.filter(a => !g.hasSub(a, "Human")).length * 3;
+          if (more && dmg < q.life && dmg + more >= q.life) return true;
+        }
+        return false;
+      }
+    }
   });
 
   D({
@@ -681,7 +709,8 @@
         g.log(`Creatures ${ctx.p.name} controls gain indestructible.`, { p: ctx.p });
       }
     },
-    ai: { protection: true }
+    // also after blockers, when it keeps creatures of ours alive through the combat (engine 8)
+    ai: { protection: true, combat: (g, p) => AI().newHints(g) && AI().combatSave(g, p) >= 5 }
   });
 
   /* ================================================================ sorceries */
@@ -695,7 +724,7 @@
         g.addEffect({ objs: g.creatures(ctx.p), pt: [1, 1] });
       }
     },
-    ai: { draw: true, minCreatures: 3 }
+    ai: { draw: true, minCreatures: 3, cast: twoCreatureDraw }
   });
 
   D({
@@ -708,7 +737,7 @@
         if (big) g.gainLife(ctx.p, 4 * big, ctx.o);
       }
     },
-    ai: { draw: true, minCreatures: 3 }
+    ai: { draw: true, minCreatures: 3, cast: twoCreatureDraw }
   });
 
   D({

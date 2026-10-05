@@ -15,7 +15,15 @@
   }, root.MK_SITE || {});
   const SETTINGS_KEY = SITE.key + ".game.settings.v1";
   const STATS_KEY = SITE.key + ".game.stats.v1";
-  const DEFAULTS = { opponents: 3, level: "sharp", speed: "normal", pool: "precon", askTriggers: false, stopOnSpells: false, companion: true, picks: [], hero: SITE.defaultHero };
+  // the priority windows of steps with an empty stack (engine 5), and the line each one shows
+  const STEP_WINDOWS = {
+    upkeep: who => `Upkeep of ${who} turn. Anything now?`,
+    draw: who => `Draw step of ${who} turn. Anything now?`,
+    beginCombat: who => `Beginning of combat on ${who} turn. Anything before attackers?`,
+    damage: () => `Combat damage is dealt. Anything now?`,
+    endCombat: () => `End of combat. Anything now?`
+  };
+  const DEFAULTS = { opponents: 3, level: "sharp", speed: "normal", pool: "precon", askTriggers: false, stopOnSpells: false, stopOnSteps: false, companion: true, picks: [], hero: SITE.defaultHero };
   // which bot decks can be dealt: precons and upgraded decks (Brackets 2 and 3), Bracket 4 decks, or both
   const POOLS = [["precon", "Casual", "Precons and upgraded decks (Brackets 2 and 3)"], ["mixed", "Mixed", "Every deck"], ["b4", "Bracket 4", "Bracket 4 decks"]];
   const bracketOf = d => d.bracket || 4;
@@ -650,7 +658,7 @@
         const c = this.respondCtx;
         const tg = (c.window === "stack" || c.window === "ability") && c.top.targets && c.top.targets.filter(Boolean).length ? ` targeting ${esc(youText(c.top.targets.filter(Boolean).map(t => g.nameOf(t)).join(" and ")).replace(/^You$/, "you"))}` : "";
         const ab = c.window === "ability" ? (c.top.kind === "trigger" ? `<b>${esc(c.top.o.def.name)}</b>'s triggered ability${tg} is on the stack. Respond?` : `<b>${esc(c.top.p.name)}</b> activates <b>${esc(c.top.name)}</b>${tg}. Respond?`) : "";
-        text = c.window === "trigger" ? `<b>${esc(c.src.def.name)}</b>'s ability is about to resolve. Respond?` : c.window === "stack" ? `<b>${esc(c.top.p.name)}</b> casts <b>${esc(c.top.name)}</b>${tg}. Respond?` : ab || (c.window === "attackers" ? `Attackers are declared. Anything before blocks?` : c.window === "combat" ? `Blockers are set. Anything before damage?` : `End of <b>${esc(c.turnOf.name)}</b>'s turn. Anything before yours?`);
+        text = c.window === "trigger" ? `<b>${esc(c.src.def.name)}</b>'s ability is about to resolve. Respond?` : c.window === "stack" ? `<b>${esc(c.top.p.name)}</b> casts <b>${esc(c.top.name)}</b>${tg}. Respond?` : ab || (c.window === "attackers" ? `Attackers are declared. Anything before blocks?` : c.window === "combat" ? `Blockers are set. Anything before damage?` : STEP_WINDOWS[c.window] ? STEP_WINDOWS[c.window](c.turnOf === me ? "your" : `<b>${esc(c.turnOf.name)}</b>'s`) : `End of <b>${esc(c.turnOf.name)}</b>'s turn. Anything before yours?`);
       }
       const html = `<div class="mg-ticker${this.tickNew ? " new" : ""}">${text || "&nbsp;"}</div>`;
       if (box._html !== html) { box.innerHTML = html; box._html = html; }
@@ -961,6 +969,7 @@
       m.innerHTML = `
         <label>Speed <select data-set="speed"><option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option></select></label>
         <label><input type="checkbox" data-set="stopOnSpells"${s.stopOnSpells ? " checked" : ""}> Stop on every opponent spell and ability</label>
+        <label><input type="checkbox" data-set="stopOnSteps"${s.stopOnSteps ? " checked" : ""}> Stop in upkeep, draw and every combat step</label>
         <label><input type="checkbox" data-set="askTriggers"${s.askTriggers ? " checked" : ""}> Choose targets for my triggers</label>
         ${this.coach && this.coach.companion ? `<label><input type="checkbox" data-set="companion"${this.companionOn ? " checked" : ""}> Companion: guide me each stage</label>` : ""}
         <div class="sep"></div>
@@ -1368,6 +1377,9 @@
         if (!involved || !acts.length) return null;
       } else if (ctx.window === "end") {
         if (g.nextPlayer(ctx.turnOf) !== me || !acts.length) return null;
+      } else if (STEP_WINDOWS[ctx.window]) {
+        // upkeep, draw, beginning of combat, combat damage, end of combat: only with "Stop in every step"
+        if (!acts.length || !this.s.stopOnSteps) return null;
       } else if (ctx.window === "trigger") {
         if (!spells.length) return null;
       }
@@ -1381,7 +1393,7 @@
     /* One sheet per question type. Trigger targets are picked for you unless you asked for them. */
     async askChoice(req) {
       const g = this.g;
-      const fromTrigger = (req.spec && req.spec.trigger) || (req.type === "distribute" && req.src && req.src.zone === "battlefield");
+      const fromTrigger = (req.spec && req.spec.trigger) || (req.type === "distribute" && req.purpose !== "combatDamage" && req.src && req.src.zone === "battlefield");
       if (fromTrigger && !this.s.askTriggers) return this.helper.choose(g, this.me, req);
       if (req.auto && req.options && req.options.length === 1) return req.type === "cards" ? req.options.slice() : req.options[0];
       if (req.purpose === "manaColor" || req.purpose === "altExile" && req.options.length === 1) return this.helper.choose(g, this.me, req);
@@ -1532,7 +1544,8 @@
           if (d < 0 && cur <= 0) return;
           map[id] = cur + d; left -= d; paint();
         })));
-        sh.querySelector("[data-auto]").addEventListener("click", () => res(this.helper.choose(this.g, this.me, req)), { once: true });
+        // combat damage comes with the engine's default split (lethal to each blocker in turn)
+        sh.querySelector("[data-auto]").addEventListener("click", () => res(req.suggest ? Object.assign({}, req.suggest) : this.helper.choose(this.g, this.me, req)), { once: true });
         sh.querySelector("[data-ok]").addEventListener("click", () => res(map), { once: true });
       });
     }

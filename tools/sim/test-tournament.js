@@ -118,6 +118,51 @@ function runFake(cfg, rseed) {
     ok(st.status === "done" && st.games.length === 3, "a real three-game league finishes");
     const A = T.analyze(st);
     ok(A.standings.length === 4 && A.elo.n === 3, "the analysis covers every deck and game");
+
+    // how it wins, how it loses: the new per-seat numbers
+    ok(Array.isArray(a.by) && Array.isArray(a.cmd) && Array.isArray(a.um) && Array.isArray(a.cards), "a game reports killers, commander, mana and cards");
+    for (const g of st.games) {
+      ok(g.cc && !g.cards && g.cc.every(l => l.every(i => typeof st.cards[i] === "string")), `game ${g.gi}: cast cards are stored as numbers into st.cards`);
+      ok(g.by.every((k, i) => k === -1 || (k >= 0 && k < g.d.length && k !== i)), `game ${g.gi}: a killer is another seat or no one`);
+      ok(g.w < 0 || g.by[g.w] === -1, `game ${g.gi}: the winner has no killer`);
+      ok(g.by.every((k, i) => k < 0 || g.out[i] > 0), `game ${g.gi}: only a deck that went out has a killer`);
+      ok(g.d.every((_, i) => !(g.why[i] === "commander" || g.why[i] === "alt") || g.by[i] >= 0), `game ${g.gi}: commander damage and alternate wins name their killer`);
+      ok(g.cmd.every(c => c.length === 2 && c[0] >= 0 && c[1] >= 0), `game ${g.gi}: commander casts and removals are counts`);
+      ok(g.um.every(u => u.length === 2 && u[0] >= 0 && u[1] >= 0) && (g.w < 0 || g.um[g.w][1] >= 1), `game ${g.gi}: unused mana is measured at its end steps`);
+      ok(g.d.every((_, i) => g.cc[i].length <= g.cast[i]), `game ${g.gi}: distinct cards cast never exceed spells cast`);
+    }
+    for (const id of st.cfg.entrants) {
+      const b = T.breakdown(st, id);
+      ok(b.n === 3 && b.wins + b.losses === b.n && b.tracked === b.n, `${id}: breakdown covers its games (${b.wins}+${b.losses}/${b.n}, tracked ${b.tracked})`);
+      ok(Object.values(b.lossHow).reduce((s, x) => s + x, 0) === b.losses, `${id}: every loss has an ending`);
+      ok(b.killers.reduce((s, k) => s + k.n, 0) + b.noKiller === b.outRounds.length, `${id}: every knock-out has a killer or no one`);
+      ok(b.mana && b.mana.all >= 0 && b.cmd && b.cmd.casts >= 0 && b.mull && b.mull.per >= 0, `${id}: mana, commander and mulligans are filled`);
+      ok(b.cards.every(c => c.n === c.win + c.loss && !(c.inWins > 1) && !(c.inLosses > 1)), `${id}: card shares are proper`);
+      ok(!b.cards.some(c => [].concat(T.entrant(id).commander).includes(c.name)), `${id}: the commander isn't listed among the key cards`);
+      const v = T.verdict(st, id, b);
+      ok(v.length >= 1 && v.every(x => typeof x.text === "string" && x.text.length > 10 && !/undefined|NaN/.test(x.text)), `${id}: the verdict reads cleanly: ${v.map(x => x.text).join(" | ")}`);
+    }
+    // a saved tournament reloads and keeps adding cards to the same list
+    const copy = JSON.parse(JSON.stringify(st)), before = copy.cards.length;
+    T.record(copy, Object.assign({}, job, { gi: 3 }), Object.assign({}, a));
+    ok(copy.cards.length === before && JSON.stringify(copy.games[3].cc) === JSON.stringify(st.games[job.gi].cc), "a reloaded tournament reuses its card list");
+  }
+
+  // tournaments saved before these numbers existed still read: everything new defaults
+  {
+    const ids = all.map(e => e.id);
+    const st = runFake({ format: "league", entrants: ids, pod: 4, games: 40, seed: 3 });
+    ok(!st.cards && st.games.every(g => !g.by), "the fake (old-format) games carry none of the new numbers");
+    const old = JSON.parse(JSON.stringify(st));
+    let clean = true;
+    for (const id of ids) {
+      const b = T.breakdown(old, id), v = T.verdict(old, id, b);
+      if (b.tracked !== 0 || b.cmd || b.mana || b.cards.length || b.killers.length || b.wins + b.losses !== b.n) clean = false;
+      if (v.some(x => /undefined|NaN/.test(x.text))) clean = false;
+    }
+    ok(clean, "an old tournament's breakdown defaults the missing parts and still reads");
+    const b = T.breakdown(old, ids[0]);
+    ok(b.n > 0 && Object.keys(b.lossHow).length + b.wins > 0, "an old tournament still shows how its games ended");
   }
 
   console.log(`${passes} passed, ${fails} failed`);

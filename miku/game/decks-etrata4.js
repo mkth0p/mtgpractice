@@ -58,7 +58,9 @@
     name: "Mischievous Sneakling", cost: "{1}{U/B}", type: "Creature — Shapeshifter", pt: "2/2", changeling: true,
     keywords: ["changeling", "flash"],
     text: "Changeling (This card is every creature type.)\nFlash",
-    ai: { priority: 5, instantEnd: true }
+    // flash at the end of the turn before ours, or in our second main phase while the mana is still
+    // there: the bot rarely leaves it open past its own turn, so it used to end games in hand (engine 8)
+    ai: { priority: 5, instantEnd: true, cast: (g, p, o, { window }) => (window === "main2" && AI().newHints && AI().newHints(g) ? 16 : undefined) }
   });
   D({
     name: "Midnight Assassin", cost: "{2}{B}", type: "Creature — Vampire Assassin", pt: "1/2",

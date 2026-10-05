@@ -276,14 +276,20 @@
     if (!top || top.p === p || top.countered) return null;
     const S = st(p);
     const d = top.o.def;
-    if (d.ai && d.ai.wipe) {
-      const spares = d.ai.spares;
-      const dying = g.creatures(p).filter(c => !g.kw(c, "indestructible") && !(spares && spares(c)));
+    // engine 9: also mass removal the bots read off the spell (Toxic Deluge, Evacuation); indestructible
+    // only saves the board from destroy and damage
+    const AI = MK.AI;
+    const mass = AI && AI.newWipes && AI.newWipes(g) && !(d.ai && d.ai.wipe) ? AI.massHarm(g, p, top) : null;
+    if ((d.ai && d.ai.wipe) || mass) {
+      const spares = d.ai && d.ai.spares;
+      const dying = mass ? mass.hit.filter(c => g.isCreature(c) && (mass.kind === "minus" || mass.kind === "bounce" || mass.kind === "exile" || !g.kw(c, "indestructible")))
+        : g.creatures(p).filter(c => !g.kw(c, "indestructible") && !(spares && spares(c)));
       if (dying.length < 2) return null;
       const worth = dying.reduce((s, c) => s + valueOf(g, c), 0);
-      const fm = castAct(actions, "Flawless Maneuver", true) || castAct(actions, "Flawless Maneuver");
+      const indest = !mass || mass.kind === "destroy" || mass.kind === "damage";
+      const fm = indest && (castAct(actions, "Flawless Maneuver", true) || castAct(actions, "Flawless Maneuver"));
       if (fm && worth >= 8) return { type: "cast", card: fm.card, alt: fm.alt, maxTries: 1 };
-      const bc = castAct(actions, "Boros Charm");
+      const bc = indest && castAct(actions, "Boros Charm");
       if (bc && worth >= 10) return { type: "cast", card: bc.card, mode: 1, maxTries: 1 };
       const bomb = freeOutlets(g, p).find(o => o.def.name === "Goblin Bombardment");
       if (bomb) {
@@ -1176,7 +1182,7 @@
     text: "If you control a commander, you may cast this spell without paying its mana cost.\nCreatures you control gain indestructible until end of turn.",
     altCosts: [{ label: "Free (you control a commander)", cost: "", condition: (g, p) => commanderOut(g, p) }],
     spell: { do: (g, ctx) => { g.grant(g.creatures(ctx.p), ["indestructible"]); g.log(`Creatures ${ctx.p.name} controls gain indestructible until end of turn.`, { p: ctx.p }); } },
-    ai: { never: true, brain: "edgar", otherwise: { protection: true, protects: (g, q, top) => !!(top.o && top.o.def.ai && top.o.def.ai.wipe) } }   // cast by Edgar's plan in response to a board wipe
+    ai: { never: true, brain: "edgar", otherwise: { protection: true, protects: (g, q, top) => !!(top.o && top.o.def.ai && top.o.def.ai.wipe) || !!(MK.AI && MK.AI.newWipes && MK.AI.newWipes(g) && MK.AI.massHarm(g, q, top)) } }   // cast by Edgar's plan in response to a board wipe
   });
 
   D({
