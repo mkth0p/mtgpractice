@@ -109,7 +109,7 @@ window.CETRATA_TRAIN_DATA = {
       principle: "Same cost, different reach: spend the narrow one."
     },
     {
-      context: "Your main phase. You activate the flip on a face-down <i-c>Wormfang Manta</i-c> you manifested with <i-c>Scroll of Fate</i-c> ({2}{U}{B}). In response, an opponent kills Etrata with Infernal Grasp.",
+      context: "Your main phase. You activate the flip on a face-down <i-c>Wormfang Manta</i-c> you manifested with <i-c>Scroll of Fate</i-c> ({2}{U}{B}). In response, an opponent kills Etrata with Go for the Throat.",
       q: "What happens to your activation?",
       options: ["It still resolves: the Manta turns face up", "It's countered because Etrata left", "The Manta stays face down and you get the mana back"],
       answer: 0,

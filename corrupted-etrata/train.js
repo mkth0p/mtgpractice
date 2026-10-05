@@ -926,12 +926,12 @@
     const PLAN = {
       mull: ["Mulligan Lab until Silver (80%).", "Before each keep, name the turn Etrata comes down and the line you're digging for."],
       tempo: ["Every turn: land, then rocks, then Etrata. Check the land drop before you pass.", "Clock Math for the costs, and play two assessment games watching only your mana."],
-      lines: ["Line Spotter until you answer in under 8 seconds.", "Puzzles: Court is in session, Crank the whole table, Ramses' contract.", "In games, open the Plan in your head at the start of each of your turns: what's live, what's one card away."],
+      lines: ["Line Spotter until you answer in under 8 seconds.", "Puzzles: Court is in session, Crank the whole table, One point is enough.", "In games, open the Plan in your head at the start of each of your turns: what's live, what's one card away."],
       tutor: ["Tutor Target until Silver.", "Rule: tutor for the piece you can cast this turn; a stronger card next turn is worth less."],
-      etrata: ["Puzzles: Three cloaks, Nobody untaps, Their wipe, your turn.", "Look at your face-down cards at the start of every turn: a stolen spell is a free cast."],
+      etrata: ["Puzzles: Three cloaks, The blocker that bites, Their wipe, your turn.", "Look at your face-down cards at the start of every turn: a stolen spell is a free cast."],
       stack: ["Stack Sentinel until Gold.", "Counters are for wipes, removal on your pieces and winning spells. Say which before you pass priority."],
       combat: ["Threat Read until Silver.", "Keep Etrata home unless no blocker can kill her; she's your engine."],
-      rules: ["Clock Math and the Quiz's rules topic until box 3.", "Puzzles: Milling isn't losing life, The third hit."]
+      rules: ["Clock Math and the Quiz's rules topic until box 3.", "Puzzles: Milling isn't losing life, Blocked doesn't matter."]
     };
     el.innerHTML = `<div class="tn-report">
       ${p.unlocked ? "" : `<p class="tn-peek">A preview: the analysis isn't unlocked yet, so some skills have little data.</p>`}

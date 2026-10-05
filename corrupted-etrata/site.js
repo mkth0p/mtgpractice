@@ -17,8 +17,8 @@
       result: "Any opponent losing life starts a loop that drains every opponent to 0.", start: "Any opponent losing life, or you gaining life, starts it: an attack, a Hooded Blightfang trigger, Vampire of the Dire Moon's lifelink, their fetch land or shock land, Mindcrank. Your own life loss (Night's Whisper, Necropotence) doesn't." },
     { id: "crank", name: "Mindcrank + Duskmantle Guildmage", need: [["Mindcrank"], ["Duskmantle Guildmage"]],
       result: "Each card put into their graveyard costs them 1 life, and each life lost mills them again, until they're dead. Each opponent needs their own starter.", start: "Activate the Guildmage ({1}{U}{B}), then any life loss or mill starts it. Do it on an opponent's turn when they cast a spell." },
-    { id: "double", name: "Double tap", need: [["Bloodletter of Aclazotz"], ["Virtus the Veiled"]], plus: ["Tetsuko Umezawa, Fugitive", "Rogue's Passage", "Ramses, Assassin Lord"],
-      result: "Virtus's hit makes them lose half their life, rounded up. Bloodletter doubles that on your turn: all of it.", start: "Tetsuko makes Virtus unblockable, but not with Ramses out (Ramses makes it a 2/2): use Rogue's Passage then. With Ramses, that player dying after an Assassin attacked them wins you the game." },
+    { id: "double", name: "Double tap", need: [["Bloodletter of Aclazotz"], ["Virtus the Veiled"]], plus: ["Tetsuko Umezawa, Fugitive", "Rogue's Passage"],
+      result: "Virtus's hit makes that player lose half their life, rounded up. Bloodletter doubles that on your turn: all of it. It kills one player, not the table.", start: "Tetsuko makes the 1/1 Virtus unblockable. Without Tetsuko, use Rogue's Passage ({4}, {T}) or attack a player with no untapped blockers." },
     { id: "manta", name: "Infinite turns", need: [["Scroll of Fate"], ["Wormfang Manta"], ["Crystal Shard"]], plus: ["Training Grounds"],
       result: "An extra turn every turn. The Manta is summoning sick each time, so win the extra turns with your other creatures.", start: "Manifest the Manta with Scroll of Fate, flip it with Etrata ({2}{U}{B}), bounce it with Crystal Shard ({U}, {T}). Manifested again next turn: 5 mana a turn, 3 with Training Grounds." }
   ];
@@ -153,14 +153,14 @@
     const tg = (k, label, on) => `<button class="chip" type="button" data-k="${k}" aria-pressed="${on}">${label}</button>`;
     el.innerHTML = `<div class="w-head"><span class="w-tag mono">Try it</span><b>Does the double tap kill?</b></div>
       <div class="w-fields">${stepperHTML("life", "Their life", 40, 1, 99)}${stepperHTML("dmg", "Other combat damage to them (Virtus's 1 not included)", 0, 0, 60)}</div>
-      <div class="chips wrap" role="group" aria-label="What's out">${tg("blood", "Bloodletter of Aclazotz out (your turn)", true)}${tg("virtus", "Virtus connects", true)}${tg("crank", "Mindcrank out", false)}${tg("ramses", "Ramses out, and an Assassin attacked them", false)}</div>
+      <div class="chips wrap" role="group" aria-label="What's out">${tg("blood", "Bloodletter of Aclazotz out (your turn)", true)}${tg("virtus", "Virtus connects", true)}${tg("crank", "Mindcrank out", false)}</div>
       <div class="w-out">
         <div><b data-o="combat">0</b><span>life lost to combat damage</span></div>
         <div><b data-o="half">0</b><span>life lost to Virtus's trigger</span></div>
         <div><b data-o="left">0</b><span>life left</span></div>
       </div>
       <p class="w-verdict" data-o="v"></p>
-      <p class="muted small">Bloodletter: "If an opponent would lose life during your turn, they lose twice that much life instead." Damage makes a player lose life, so combat damage doubles too. Virtus is a 1/1 Assassin, so <i-c>Tetsuko Umezawa, Fugitive</i-c> makes it unblockable, unless <i-c>Ramses, Assassin Lord</i-c> makes it a 2/2: then use <i-c>Rogue's Passage</i-c>. Mindcrank's mill doesn't loop on its own here: it needs <i-c>Duskmantle Guildmage</i-c>.</p>`;
+      <p class="muted small">Bloodletter: "If an opponent would lose life during your turn, they lose twice that much life instead." Damage makes a player lose life, so combat damage doubles too. Virtus is a 1/1 Assassin, so <i-c>Tetsuko Umezawa, Fugitive</i-c> makes it unblockable; without Tetsuko, use <i-c>Rogue's Passage</i-c>. It kills only the player it hits. Mindcrank's mill doesn't loop on its own here: it needs <i-c>Duskmantle Guildmage</i-c>.</p>`;
     const out = k => $(`[data-o="${k}"]`, el);
     const on = k => { const i = el.querySelector(`[data-k="${k}"]`); return !!i && i.getAttribute("aria-pressed") === "true"; };
     function run() {
@@ -175,7 +175,6 @@
       bump(out("combat"), combat); bump(out("half"), half); bump(out("left"), Math.max(0, life));
       const lost = combat + half;
       let v = life <= 0 ? "<b>Dead.</b>" : `They live at ${life}.${!blood && virtus ? " Without Bloodletter, Virtus only takes half." : ""}`;
-      if (life <= 0 && on("ramses")) v += " Ramses: you win the game.";
       if (on("crank")) v += ` Mindcrank mills ${lost} card${lost === 1 ? "" : "s"}.`;
       out("v").innerHTML = v;
     }
@@ -341,7 +340,7 @@
         <div class="btn-row"><button class="btn primary" type="button" data-copy-proxy>Copy the proxy list</button><a class="btn" href="proxies-A4.pdf" target="_blank" rel="noopener">Print the proxies (A4 PDF)</a><button class="btn ghost" type="button" data-reset>Clear ticks</button></div>
         <section class="cl-sec"><h3>Proxy these (${count(proxy)})</h3><p class="muted small">Tick each one once it's printed and sleeved. The price is what the real card would cost.</p>
         <div class="swaps">${proxy.map((c, i) => `<div class="swap plain${done.has(c.name) ? " done" : ""}"><button class="tick" type="button" data-px="${esc(c.name)}" aria-pressed="${done.has(c.name)}" aria-label="Printed ${esc(c.name)}"><span><em>${i + 1}</em>${TICK}</span></button><div class="who"><span class="add"><i-c>${esc(c.name)}</i-c>${c.qty > 1 ? ` ×${c.qty}` : ""}</span><span class="sub-note">${esc(cat(c.name))}${c.gc ? '<span class="tag new">Game Changer</span>' : ""}</span></div><span class="eur mono">${c.usd == null ? "" : "$" + (c.usd * c.qty).toFixed(2)}</span></div>`).join("")}</div></section>
-        <section class="cl-sec"><h3>Take from your Etrata deck (${count(keep)})</h3><p class="muted small">Pull these out of the Etrata deck. Your Etrata deck has 11 Islands and 10 Swamps; this one needs 8 of each.</p>
+        <section class="cl-sec"><h3>Take from your Etrata deck (${count(keep)})</h3><p class="muted small">Pull these out of the Etrata deck. Your Etrata deck has 11 Islands and 10 Swamps; this one needs 8 Islands and 9 Swamps.</p>
         <div class="swaps">${keep.map((c, i) => `<div class="swap plain done"><span class="tick" aria-hidden="true"><span><em>${i + 1}</em>${TICK}</span></span><div class="who"><span class="add"><i-c>${esc(c.name)}</i-c>${c.qty > 1 ? ` ×${c.qty}` : ""}</span><span class="sub-note">${esc(cat(c.name))}</span></div></div>`).join("")}</div></section>`;
       if (linkMentions) linkMentions(el);
     }

@@ -21,11 +21,11 @@ window.CETRATA_CARDS = [
    "Wormfang Manta",
    "Scroll of Fate",
    "Training Grounds",
-   "Roshan, Hidden Magister",
+   "Changeling Outcast",
    "Tetsuko Umezawa, Fugitive",
    "Fierce Guardianship"
   ],
-  "warn": "Cloaks are 2/2s with no creature types, so they don't trigger her until Roshan or Leyline of Transformation makes them Assassins. With Ramses out she's a 2/5 and Tetsuko no longer makes her unblockable."
+  "warn": "Cloaks are 2/2s with no creature types, so they never trigger her. Her cloaks come from real Assassins: herself, Virtus the Veiled, a face-up Silumgar Assassin, Changeling Outcast and Black Market Connections' tokens."
  },
  {
   "name": "Exquisite Blood",
@@ -114,7 +114,7 @@ window.CETRATA_CARDS = [
    "combo"
   ],
   "why": "Whenever you gain life, target opponent loses that much. With Exquisite Blood or Bloodthirsty Conqueror that's an infinite loop. His {3}{B}{B} ability gives your creatures lifelink, which starts the loop by itself in combat.",
-  "how": "Find him with Drift of Phantasms or a tutor and cast him early: a 1/3 for three gets little attention. He's a 1-power Vampire, not an Assassin, so Tetsuko Umezawa keeps him unblockable even with Ramses out.",
+  "how": "Find him with Drift of Phantasms or a tutor and cast him early: a 1/3 for three gets little attention. He has 1 power, so Tetsuko Umezawa makes him unblockable.",
   "syn": [
    "Exquisite Blood",
    "Bloodthirsty Conqueror",
@@ -196,29 +196,6 @@ window.CETRATA_CARDS = [
   "warn": "It can't block, so it isn't one of your defenders. A 2/1 dies to every ping and to Toxic Deluge for X=1."
  },
  {
-  "name": "Ramses, Assassin Lord",
-  "qty": 1,
-  "cost": "{2}{U}{B}",
-  "mv": 4,
-  "type": "Legendary Creature — Human Assassin",
-  "cat": "Creature",
-  "pt": "4/4",
-  "text": "Deathtouch\nOther Assassins you control get +1/+1.\nWhenever a player loses the game, if they were attacked this turn by an Assassin you controlled, you win the game.",
-  "roles": [
-   "combo"
-  ],
-  "why": "Turns one elimination into a win: whenever a player loses the game, if one of your Assassins attacked them this turn, you win. That makes the double tap into a table win. He's also a 4/4 deathtouch lord for your other Assassins.",
-  "how": "Transmute Dimir House Guard for him, or cast him free with a bargained Beseech the Mirror. On the kill turn, attack the target with an Assassin first (Changeling Outcast is the easy one), then finish them in combat or with a loop after combat.",
-  "syn": [
-   "Virtus the Veiled",
-   "Bloodletter of Aclazotz",
-   "Silumgar Assassin",
-   "Changeling Outcast",
-   "Dimir House Guard"
-  ],
-  "warn": "His +1/+1 makes Virtus a 2/2 and Etrata a 2/5, so Tetsuko no longer makes them unblockable. Use Rogue's Passage on Virtus instead."
- },
- {
   "name": "Bloodletter of Aclazotz",
   "qty": 1,
   "cost": "{1}{B}{B}{B}",
@@ -234,9 +211,9 @@ window.CETRATA_CARDS = [
   "how": "Transmute Dimir House Guard for it, or cast it free with a bargained Beseech the Mirror. Cast it before combat on the turn Virtus or another evasive Assassin can connect. A 2/4 flier is also a fine blocker.",
   "syn": [
    "Virtus the Veiled",
-   "Ramses, Assassin Lord",
-   "Mindcrank",
    "Tetsuko Umezawa, Fugitive",
+   "Rogue's Passage",
+   "Mindcrank",
    "Exquisite Blood",
    "Dimir House Guard"
   ],
@@ -254,17 +231,16 @@ window.CETRATA_CARDS = [
   "roles": [
    "combo"
   ],
-  "why": "A 1/1 deathtouch Assassin: when it deals combat damage to a player, they lose half their life, rounded up. With Bloodletter of Aclazotz that's all of it, and with Ramses, killing that player wins the game.",
-  "how": "Find it with Drift of Phantasms or a tutor. Cast it early as a deathtouch blocker, then attack on the turn Bloodletter is out. Tetsuko makes it unblockable, but only while Ramses isn't pumping it, so bring Rogue's Passage for the three-card turn.",
+  "why": "A 1/1 deathtouch Assassin: when it deals combat damage to a player, they lose half their life, rounded up. With Bloodletter of Aclazotz out on your turn that's all of it, so one hit kills that player.",
+  "how": "Find it with Drift of Phantasms or a tutor. Cast it early as a deathtouch blocker, then attack on the turn Bloodletter is out. As a 1/1 it's unblockable with Tetsuko; without Tetsuko, use Rogue's Passage.",
   "syn": [
    "Bloodletter of Aclazotz",
-   "Ramses, Assassin Lord",
    "Tetsuko Umezawa, Fugitive",
    "Rogue's Passage",
    "Drift of Phantasms",
    "Mindcrank"
   ],
-  "warn": "Its Partner with Gorm the Great does nothing here; when it enters, nobody has Gorm to find. With Ramses out it's a 2/2, so Tetsuko doesn't make it unblockable."
+  "warn": "Its Partner with Gorm the Great does nothing here; when it enters, nobody has Gorm to find. It kills one player, not the table: the other opponents still need another line."
  },
  {
   "name": "Tetsuko Umezawa, Fugitive",
@@ -290,7 +266,7 @@ window.CETRATA_CARDS = [
    "Shred Memory",
    "Muddle the Mixture"
   ],
-  "warn": "Ramses gives other Assassins +1/+1, so Etrata and Virtus lose the evasion while he's out. The Manta keeps it only if it isn't an Assassin."
+  "warn": "It checks power and toughness as blockers are declared. Face-down creatures and cloaks are 2/2s, so they don't qualify, and a megamorphed Silumgar Assassin (3/2) doesn't either."
  },
  {
   "name": "Vampire of the Dire Moon",
@@ -329,7 +305,7 @@ window.CETRATA_CARDS = [
    "utility",
    "combo"
   ],
-  "why": "A 1/4 deathtouch wall that also drains. Etrata, Ramses, Virtus, Bloodthirsty Conqueror, Vampire of the Dire Moon and the Blightfang itself have deathtouch, so every attack with one makes each opponent lose 1 and you gain 1. With a drain and a payoff out, that one attack starts the loop.",
+  "why": "A 1/4 deathtouch wall that also drains. Etrata, Virtus, Bloodthirsty Conqueror, Vampire of the Dire Moon and the Blightfang itself have deathtouch, so every attack with one makes each opponent lose 1 and you gain 1. With a drain and a payoff out, that one attack starts the loop.",
   "how": "Transmute Drift of Phantasms for it or cast it on turn 3 and keep it back as a blocker. On the kill turn, attack with any deathtouch creature: the trigger happens on attack, before blockers, so it doesn't even need to connect.",
   "syn": [
    "Exquisite Blood",
@@ -339,7 +315,7 @@ window.CETRATA_CARDS = [
    "Virtus the Veiled",
    "Drift of Phantasms"
   ],
-  "warn": "Face-down creatures and cloaks have no abilities, so they don't trigger it. It's not an Assassin, so it doesn't trigger Etrata or Ramses."
+  "warn": "Face-down creatures and cloaks have no abilities, so they don't trigger it. It's not an Assassin, so it doesn't trigger Etrata."
  },
  {
   "name": "Silumgar Assassin",
@@ -358,12 +334,11 @@ window.CETRATA_CARDS = [
   "how": "Cast it face down on turn 3 instead of tapping out for a sorcery-speed play. Flip it when an opponent's attacker or key creature shows up. Etrata's {2}{U}{B} flip also works ({U}{B} with Training Grounds), but only the megamorph flip gives the +1/+1 counter.",
   "syn": [
    "Etrata, Deadly Fugitive",
-   "Roshan, Hidden Magister",
    "Training Grounds",
-   "Ramses, Assassin Lord",
-   "Infernal Grasp"
+   "Tetsuko Umezawa, Fugitive",
+   "Deadly Rollick"
   ],
-  "warn": "The destroy trigger targets, so it can't hit hexproof creatures. With its +1/+1 counter it's a 3/2 and Ramses makes it bigger still, so Tetsuko no longer makes it unblockable."
+  "warn": "The destroy trigger targets, so it can't hit hexproof creatures. With its +1/+1 counter it's a 3/2, so Tetsuko no longer makes it unblockable."
  },
  {
   "name": "Toxic Deluge",
@@ -379,11 +354,11 @@ window.CETRATA_CARDS = [
    "combo"
   ],
   "why": "Pay X life, all creatures get -X/-X. It resets a board that's racing you, and it's the deck's only sweeper, so it buys the turns the vampire loop and the Manta loop need.",
-  "how": "Pick the smallest X that kills what matters. X=3 keeps Etrata (1/4), Hooded Blightfang (1/4) and Ramses (4/4) alive. Enduring Tenacity dies at X=3 or more and comes back as an enchantment, so the wipe costs you nothing there.",
+  "how": "Pick the smallest X that kills what matters. X=3 keeps Etrata (1/4) and Hooded Blightfang (1/4) alive. Enduring Tenacity dies at X=3 or more and comes back as an enchantment, so the wipe costs you nothing there.",
   "syn": [
    "Enduring Tenacity",
    "Hooded Blightfang",
-   "Ramses, Assassin Lord",
+   "Etrata, Deadly Fugitive",
    "Drift of Phantasms"
   ],
   "warn": "Face-down creatures are 2/2s, so X=2 kills your cloaks and a face-down Silumgar Assassin. Vampire of the Dire Moon and Starscape Cleric die at X=1."
@@ -485,31 +460,6 @@ window.CETRATA_CARDS = [
   "warn": "It doesn't reduce morph costs, turning up for a mana cost, transmute, ninjutsu, or artifact abilities like Crystal Shard."
  },
  {
-  "name": "Roshan, Hidden Magister",
-  "qty": 1,
-  "cost": "{3}{B}",
-  "mv": 4,
-  "type": "Legendary Creature — Human Assassin",
-  "cat": "Creature",
-  "pt": "4/4",
-  "text": "Other creatures you control are Assassins in addition to their other types. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.\nFace-down creatures you control have menace.\nWhenever a permanent you control is turned face up, you draw a card and you lose 1 life.",
-  "roles": [
-   "facedown",
-   "draw",
-   "utility"
-  ],
-  "why": "Every other creature you control is an Assassin, so your cloaks trigger Etrata. Face-down creatures get menace, and whenever a permanent you control is turned face up, you draw a card. In the Manta loop, that's a card every turn, and a face-down Silumgar Assassin flip draws one too.",
-  "how": "Transmute Dimir House Guard for him. Cast him before combat on turn 4 or 5, then attack with every cloak. Draw off each Manta and Silumgar Assassin flip.",
-  "syn": [
-   "Etrata, Deadly Fugitive",
-   "Silumgar Assassin",
-   "Wormfang Manta",
-   "Ramses, Assassin Lord",
-   "Dimir House Guard"
-  ],
-  "warn": "Making everything an Assassin means Ramses pumps everything, which can push your 1-power creatures out of Tetsuko's range."
- },
- {
   "name": "Mindcrank",
   "qty": 1,
   "cost": "{2}",
@@ -558,28 +508,6 @@ window.CETRATA_CARDS = [
   "warn": "The first ability doesn't start the loop by itself. It needs a card to go to an opponent's graveyard after it resolves."
  },
  {
-  "name": "Leyline of Transformation",
-  "qty": 1,
-  "cost": "{2}{U}{U}",
-  "mv": 4,
-  "type": "Enchantment",
-  "cat": "Enchantment",
-  "pt": "",
-  "text": "If Leyline of Transformation is in your opening hand, you may begin the game with it on the battlefield.\nAs Leyline of Transformation enters, choose a creature type.\nCreatures you control are the chosen type in addition to their other types. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.",
-  "roles": [
-   "utility"
-  ],
-  "why": "Choose Assassin, and every creature you control is one, cloaks included. Each cloak that connects then makes another one, and Ramses pumps your whole board. If it's in your opening hand, it starts on the battlefield for free.",
-  "how": "Keep hands that have it. Later, transmute Dimir House Guard for it or cast it for four when you want Etrata's engine running.",
-  "syn": [
-   "Etrata, Deadly Fugitive",
-   "Ramses, Assassin Lord",
-   "Dimir House Guard",
-   "Secluded Courtyard"
-  ],
-  "warn": "If it's cloaked or manifested and turned face up, it never chose a type and does nothing. With Ramses, your 1-power creatures leave Tetsuko's range."
- },
- {
   "name": "Changeling Outcast",
   "qty": 1,
   "cost": "{B}",
@@ -591,41 +519,15 @@ window.CETRATA_CARDS = [
   "roles": [
    "utility"
   ],
-  "why": "A one-mana unblockable creature that is every type, so it's an Assassin and a Vampire. It cloaks a card with Etrata every turn and starts the Mindcrank and vampire loops with a single point of damage. It also satisfies Ramses's 'attacked by an Assassin' check.",
-  "how": "Play it on turn 1 or 2 and attack every turn. On the kill turn, attack the target with it first so Ramses can turn their loss into your win. It's also a clean ninjutsu enabler for Fallen Shinobi.",
+  "why": "A one-mana unblockable creature that is every type, so it's an Assassin and a Vampire. It cloaks a card with Etrata every turn and starts the Mindcrank and vampire loops with a single point of damage.",
+  "how": "Play it on turn 1 or 2 and attack every turn. With a drain and a payoff out, its 1 damage starts the vampire loop. It's also a clean ninjutsu enabler for Fallen Shinobi.",
   "syn": [
    "Etrata, Deadly Fugitive",
-   "Ramses, Assassin Lord",
    "Fallen Shinobi",
    "Mindcrank",
    "Exquisite Blood"
   ],
   "warn": "It can't block, so don't count it as defense."
- },
- {
-  "name": "Gonti, Night Minister",
-  "qty": 1,
-  "cost": "{2}{B}{B}",
-  "mv": 4,
-  "type": "Legendary Creature — Aetherborn Rogue",
-  "cat": "Creature",
-  "pt": "3/4",
-  "text": "Whenever a player casts a spell they don't own, that player creates a Treasure token.\nWhenever a creature deals combat damage to one of your opponents, its controller looks at the top card of that opponent's library and exiles it face down. They may play that card for as long as it remains exiled. Mana of any type can be spent to cast a spell this way.",
-  "roles": [
-   "steal",
-   "draw"
-  ],
-  "why": "Whenever a creature deals combat damage to one of your opponents, its controller exiles the top card of that player's library face down and may play it. Every hit from Changeling Outcast, Etrata's Assassins or a cloak steals a card. Casting spells you don't own also makes Treasures.",
-  "how": "Transmute Dimir House Guard for him, or cast him on turn 4 before combat. Attack with everything evasive that turn. Spend the Treasures on Beseech the Mirror's bargain or a big flip.",
-  "syn": [
-   "Changeling Outcast",
-   "Thief of Sanity",
-   "Fallen Shinobi",
-   "Etrata, Deadly Fugitive",
-   "Beseech the Mirror",
-   "Mox Amber"
-  ],
-  "warn": "His second ability triggers for any creature, so an opponent who hits another opponent steals a card too. His first ability gives anyone casting a spell they don't own a Treasure."
  },
  {
   "name": "Thief of Sanity",
@@ -644,11 +546,10 @@ window.CETRATA_CARDS = [
   "syn": [
    "Duskmantle Guildmage",
    "Mindcrank",
-   "Gonti, Night Minister",
    "Tetsuko Umezawa, Fugitive",
    "Drift of Phantasms"
   ],
-  "warn": "It's a 2/2 flier, so any flying blocker or removal stops it. It isn't an Assassin unless Roshan or Leyline makes it one."
+  "warn": "It's a 2/2 flier, so any flying blocker or removal stops it. It isn't an Assassin, so its hits don't trigger Etrata."
  },
  {
   "name": "Fallen Shinobi",
@@ -666,7 +567,6 @@ window.CETRATA_CARDS = [
   "how": "Ninjutsu it in for {2}{U}{B} by returning an unblocked Changeling Outcast, then recast the Outcast. Free cards from the top of their library can include their best spells.",
   "syn": [
    "Changeling Outcast",
-   "Gonti, Night Minister",
    "Etrata, Deadly Fugitive",
    "Rogue's Passage"
   ],
@@ -759,8 +659,7 @@ window.CETRATA_CARDS = [
   "how": "Cast it when you know what's in their deck. Take a card that wins for you, or the combo piece they're closest to. Drift of Phantasms can transmute for it.",
   "syn": [
    "Drift of Phantasms",
-   "Opposition Agent",
-   "Gonti, Night Minister"
+   "Opposition Agent"
   ],
   "warn": "You must pay the card's real cost in its colors. Don't take an off-color card you can't cast."
  },
@@ -777,11 +676,10 @@ window.CETRATA_CARDS = [
    "draw",
    "ramp"
   ],
-  "why": "Each first main phase, choose one or more: a Treasure for 1 life, a card for 2 life, or a 3/2 changeling Mercenary for 3 life. The Mercenary is an Assassin, so it triggers Etrata, and gets Ramses's pump.",
+  "why": "Each first main phase, choose one or more: a Treasure for 1 life, a card for 2 life, or a 3/2 changeling Mercenary for 3 life. The Mercenary is an Assassin, so it triggers Etrata.",
   "how": "Find it with Drift of Phantasms. Early, take the card and the Treasure. Late, add a Mercenary when you need another Assassin to attack.",
   "syn": [
    "Etrata, Deadly Fugitive",
-   "Ramses, Assassin Lord",
    "Beseech the Mirror",
    "Exquisite Blood"
   ],
@@ -1032,14 +930,13 @@ window.CETRATA_CARDS = [
   "roles": [
    "tutor"
   ],
-  "why": "Search for any card and exile it. If you bargained (sacrificed an artifact, enchantment or token), you may cast it free if its mana value is 4 or less. It fetches and casts Ramses, Bloodletter, Enduring Tenacity, Mindcrank, Guildmage, Blight-Priest or Starscape Cleric in one spell.",
-  "how": "Bargain a Treasure or a spent rock, then cast Bloodletter or Ramses free on the kill turn. Without the free cast, the card goes to your hand like a Demonic Tutor.",
+  "why": "Search for any card and exile it. If you bargained (sacrificed an artifact, enchantment or token), you may cast it free if its mana value is 4 or less. It fetches and casts Bloodletter, Enduring Tenacity, Notion Thief, Mindcrank, Guildmage, Blight-Priest or Starscape Cleric in one spell.",
+  "how": "Bargain a Treasure or a spent rock, then cast Bloodletter free on the kill turn. Without the free cast, the card goes to your hand like a Demonic Tutor.",
   "syn": [
    "Bloodletter of Aclazotz",
-   "Ramses, Assassin Lord",
    "Enduring Tenacity",
    "Black Market Connections",
-   "Gonti, Night Minister",
+   "Notion Thief",
    "Mind Stone"
   ],
   "warn": "Exquisite Blood and Bloodthirsty Conqueror have mana value 5, too big for the free cast."
@@ -1212,15 +1109,13 @@ window.CETRATA_CARDS = [
   "roles": [
    "tutor"
   ],
-  "why": "Transmute for {1}{B}{B} to find any card with mana value 4: Ramses, Bloodletter, Enduring Tenacity, Gonti, Roshan or Leyline. Cast, it's a 2/3 with fear that regenerates by sacrificing a creature.",
-  "how": "Transmute it for Bloodletter or Ramses on the turn before the double tap. As a creature, it protects itself by sacrificing a cloak.",
+  "why": "Transmute for {1}{B}{B} to find any card with mana value 4: Bloodletter, Enduring Tenacity, Notion Thief, Beseech the Mirror or Deadly Rollick. Cast, it's a 2/3 with fear that regenerates by sacrificing a creature.",
+  "how": "Transmute it for Bloodletter on the turn before the double tap, or for Enduring Tenacity when you have a drain. As a creature, it protects itself by sacrificing a cloak.",
   "syn": [
-   "Ramses, Assassin Lord",
    "Bloodletter of Aclazotz",
    "Enduring Tenacity",
-   "Roshan, Hidden Magister",
-   "Leyline of Transformation",
-   "Notion Thief"
+   "Notion Thief",
+   "Beseech the Mirror"
   ]
  },
  {
@@ -1279,7 +1174,6 @@ window.CETRATA_CARDS = [
   "how": "Use it on the combo turn or against a game-ending spell. You can also counter your own unimportant spell for two Treasures.",
   "syn": [
    "Beseech the Mirror",
-   "Gonti, Night Minister",
    "Fierce Guardianship"
   ],
   "warn": "Two Treasures can speed an opponent up a lot in the early turns."
@@ -1326,25 +1220,6 @@ window.CETRATA_CARDS = [
    "Dimir House Guard"
   ],
   "warn": "Without Etrata on the battlefield, it costs {3}{B}."
- },
- {
-  "name": "Infernal Grasp",
-  "qty": 1,
-  "cost": "{1}{B}",
-  "mv": 2,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "Destroy target creature. You lose 2 life.",
-  "roles": [
-   "removal"
-  ],
-  "why": "Two mana at instant speed: destroy any creature for 2 life.",
-  "how": "Kill a blocker before combat, or a threat at the end of an opponent's turn.",
-  "syn": [
-   "Silumgar Assassin",
-   "Shred Memory"
-  ]
  },
  {
   "name": "Cyclonic Rift",
@@ -1399,14 +1274,13 @@ window.CETRATA_CARDS = [
   "roles": [
    "ramp"
   ],
-  "why": "A free mana source when you control a legendary creature. Etrata, Ramses, Gonti, Roshan, Vito, Virtus and Tetsuko are all legendary, so it's usually on after turn 2 or 3.",
+  "why": "A free mana source when you control a legendary creature. Etrata, Tetsuko, Virtus and Vito are the legendary creatures, so it's usually on once Etrata is out.",
   "how": "Play it alongside Etrata, or once a legend is down. Etrata makes it tap for {U} or {B}.",
   "syn": [
    "Etrata, Deadly Fugitive",
    "Tetsuko Umezawa, Fugitive",
    "Vito, Thorn of the Dusk Rose",
-   "Ramses, Assassin Lord",
-   "Gonti, Night Minister"
+   "Virtus the Veiled"
   ],
   "warn": "With no legendary creature or planeswalker out, it makes nothing."
  },
@@ -1775,7 +1649,7 @@ window.CETRATA_CARDS = [
   "syn": [
    "Wormfang Manta",
    "Etrata, Deadly Fugitive",
-   "Ramses, Assassin Lord",
+   "Tetsuko Umezawa, Fugitive",
    "Vito, Thorn of the Dusk Rose"
   ]
  },
@@ -1814,12 +1688,12 @@ window.CETRATA_CARDS = [
    "land",
    "utility"
   ],
-  "why": "{4}, {T}: target creature can't be blocked this turn. It gets Virtus through when Ramses has made it too big for Tetsuko.",
-  "how": "Use it on Virtus on the double tap turn, or on any Assassin that has to attack for Ramses.",
+  "why": "{4}, {T}: target creature can't be blocked this turn. It gets Virtus through on the double tap turn when Tetsuko isn't out.",
+  "how": "Use it on Virtus on the double tap turn, or on Bloodthirsty Conqueror or an Assassin that has to connect.",
   "syn": [
    "Virtus the Veiled",
-   "Ramses, Assassin Lord",
    "Bloodletter of Aclazotz",
+   "Tetsuko Umezawa, Fugitive",
    "Fallen Shinobi"
   ],
   "warn": "It makes only colorless mana."
@@ -1858,13 +1732,95 @@ window.CETRATA_CARDS = [
   "roles": [
    "land"
   ],
-  "why": "Taps for {C}, or any color for creature spells of the chosen type and abilities of creatures of that type. Name Assassin and it pays for Etrata's flips once Roshan or Leyline makes your face-down creatures Assassins.",
-  "how": "Name Assassin in most games. Name Vampire if the vampire court is your plan.",
+  "why": "Taps for {C}, or any color for creature spells of the chosen type and abilities of creatures of that type. Name Vampire for Etrata, Vito, Bloodletter, Blight-Priest, the Conqueror and Vampire of the Dire Moon.",
+  "how": "Name Vampire in most games. Name Assassin if Etrata, Virtus and Silumgar Assassin are your plan. It can't pay Etrata's flip: face-down creatures have no types.",
   "syn": [
-   "Roshan, Hidden Magister",
-   "Leyline of Transformation",
    "Etrata, Deadly Fugitive",
-   "Ramses, Assassin Lord"
+   "Vito, Thorn of the Dusk Rose",
+   "Bloodletter of Aclazotz",
+   "Path of Ancestry"
+  ]
+ },
+ {
+  "name": "Choked Estuary",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "pt": "",
+  "text": "As Choked Estuary enters, you may reveal an Island or Swamp card from your hand. If you don't, Choked Estuary enters tapped.\n{T}: Add {U} or {B}.",
+  "roles": [
+   "land"
+  ],
+  "why": "Taps for {U} or {B}, untapped if you reveal an Island or Swamp card from your hand. Added in v3 for the mana: bot games showed the deck was short on lands.",
+  "how": "Play it while you still hold a basic or a typed dual (Watery Grave, Sunken Hollow, Undercity Sewers) to reveal.",
+  "syn": [
+   "Island",
+   "Swamp",
+   "Watery Grave",
+   "Sunken Hollow"
+  ]
+ },
+ {
+  "name": "Darkwater Catacombs",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "pt": "",
+  "text": "{1}, {T}: Add {U}{B}.",
+  "roles": [
+   "land"
+  ],
+  "why": "A filter land: pay {1} from another source and it makes {U}{B}, both of Etrata's colors at once. Always untapped. Added in v3 for the mana.",
+  "how": "Pair it with Sol Ring or a basic to turn colorless mana into {U}{B}. It makes nothing on its own, so don't play it as your only land.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Sol Ring",
+   "Duskmantle Guildmage"
+  ]
+ },
+ {
+  "name": "Tainted Isle",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "pt": "",
+  "text": "{T}: Add {C}.\n{T}: Add {U} or {B}. Activate only if you control a Swamp.",
+  "roles": [
+   "land"
+  ],
+  "why": "Taps for {C}, and for {U} or {B} if you control a Swamp. Always untapped. Added in v3 for the mana.",
+  "how": "Play it after a Swamp or a typed dual. Watery Grave, Sunken Hollow and Undercity Sewers are Swamps.",
+  "syn": [
+   "Swamp",
+   "Watery Grave",
+   "Sunken Hollow",
+   "Undercity Sewers"
+  ]
+ },
+ {
+  "name": "River of Tears",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "pt": "",
+  "text": "{T}: Add {U}. If you played a land this turn, add {B} instead.",
+  "roles": [
+   "land"
+  ],
+  "why": "Taps for {U}, or {B} on a turn you played a land. Always untapped. Added in v3 for the mana.",
+  "how": "Use it for {U} on opponents' turns (Counterspell, Muddle the Mixture). On your turn, play your land first if you need {B} from it.",
+  "syn": [
+   "Counterspell",
+   "Dark Ritual",
+   "Island"
   ]
  },
  {
@@ -1879,7 +1835,7 @@ window.CETRATA_CARDS = [
   "roles": [
    "land"
   ],
-  "why": "Eight basic Islands. They turn on Sunken Hollow, Drowned Catacomb and Gloomlake Verge and survive nonbasic land hate.",
+  "why": "Eight basic Islands. They turn on Sunken Hollow, Drowned Catacomb and Gloomlake Verge, let Choked Estuary enter untapped, and survive nonbasic land hate.",
   "how": "Fetch one with Polluted Delta when you need {U} and expect land hate.",
   "syn": [
    "Polluted Delta",
@@ -1890,7 +1846,7 @@ window.CETRATA_CARDS = [
  },
  {
   "name": "Swamp",
-  "qty": 8,
+  "qty": 9,
   "cost": "",
   "mv": 0,
   "type": "Basic Land — Swamp",
@@ -1900,7 +1856,7 @@ window.CETRATA_CARDS = [
   "roles": [
    "land"
   ],
-  "why": "Eight basic Swamps. They turn on Sunken Hollow, Drowned Catacomb and Gloomlake Verge and survive nonbasic land hate.",
+  "why": "Nine basic Swamps. They turn on Sunken Hollow, Drowned Catacomb, Gloomlake Verge and Tainted Isle and survive nonbasic land hate.",
   "how": "Play a Swamp first when your hand has Dark Ritual or Necropotence.",
   "syn": [
    "Polluted Delta",
