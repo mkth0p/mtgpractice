@@ -80,7 +80,7 @@
   }
   // Fitted by tools/sim/train-wp.js; null until then (a hand-set guess is used instead).
   let WP = null;
-  /*WP*/ WP = {"games":4000,"positions":36264,"wins":574,"logloss":0.3833,"brier":0.1168,"w":[-0.96,-0.2517,1.3094,-1.0101,-0.576,-1.0419,1.3116,-0.3873,-1.1393,-0.2444,0.6707,0.2284,0.2894,0.154,2.1699,1.1014,0.3731,-0.1272,0.2074,-0.1908,-0.0394,0.0248,-0.1253]}; /*WP-END*/
+  /*WP*/ WP = {"games":4000,"positions":43155,"wins":1698,"logloss":0.6309,"brier":0.222,"w":[-1.4248,-1.0532,0.3821,-0.4835,-0.0028,0.4835,0.4122,-0.1401,-0.8537,0.3239,0.6452,0.201,0.1093,0.3461,1.855,1.1363,0.3536,0.3232,0.1264,-0.1101,-0.0207,0.2732,0.0599]}; /*WP-END*/
   const GUESS = { bias: -1.6, round: 0, life: 1.2, oppLifeAvg: -1.4, oppLifeMin: -0.6, oppsLeft: -1.0, myPower: 0.5, oppPowerMax: -0.3, danger: -1.0, lands: 0.4, mana: 0.6, hand: 0.4, etrata: 0.3, tax: -0.2, lineNow: 2.2, lineNext: 1.0, lineLater: 0.3, tutors: 0.5, engines: 0.4, counters: 0.3, faceDown: 0.2, oppHand: -0.3, stolen: 0.3 };
   const sig = x => 1 / (1 + Math.exp(-x));
   function winProb(f) {
@@ -299,14 +299,13 @@
     { key: "vampire", sides: [["Exquisite Blood", "Bloodthirsty Conqueror"], ["Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond", "Enduring Tenacity", "Starscape Cleric"]], finish: 0 },
     { key: "mindcrank", sides: [["Mindcrank"], ["Duskmantle Guildmage"]], finish: 7 },
     { key: "doubletap", sides: [["Bloodletter of Aclazotz"], ["Virtus the Veiled"]], finish: 0, wait: "Virtus the Veiled" },
-    { key: "brine", sides: [["Brine Elemental"], ["Vesuvan Shapeshifter"]], finish: 4, etrata: true, faceDown: true },
     { key: "manta", sides: [["Scroll of Fate"], ["Wormfang Manta"], ["Crystal Shard", "Otawara, Soaring City"]], finish: 5, etrata: true, noCast: ["Wormfang Manta", "Otawara, Soaring City"] }
   ];
   const GF_ROCKS = { "Sol Ring": [1, 2], "Arcane Signet": [2, 1], "Talisman of Dominance": [2, 1], "Dimir Signet": [2, 1], "Fellwar Stone": [2, 1], "Mind Stone": [2, 1], "Mox Amber": [0, 1] };
   const GF_TOP = { "Vampiric Tutor": 1, "Imperial Seal": 1, "Scheming Symmetry": 1, "Lim-Dûl's Vault": 2 };
   const GF_HAND = { "Demonic Tutor": 2, "Grim Tutor": 3, "Diabolic Intent": 2, "Beseech the Mirror": 4 };
   const GF_TRANS = { "Shred Memory": 2, "Muddle the Mixture": 2, "Drift of Phantasms": 3, "Dimir House Guard": 4 };
-  const GF_DRAW = { "Rhystic Study": [3, 1, 99], "Necropotence": [3, 2, 99], "Mystic Remora": [1, 1, 3], "Black Market Connections": [3, 1, 99] };
+  const GF_DRAW = { "Rhystic Study": [3, 1, 99], "Necropotence": [3, 2, 99], "Mystic Remora": [1, 1, 3], "Black Market Connections": [3, 1, 99], "Phyrexian Arena": [3, 1, 99] };
   const GF_CANTRIP = { "Brainstorm": [1, 1], "Ponder": [1, 1], "Night's Whisper": [2, 2] };
   let GF_DECK = null;
   function gfDeck() {
@@ -427,7 +426,7 @@
   }
   // Expected value of taking a mulligan, by how many you've already taken (tools/sim/mull-values.js).
   let MULL = null;
-  /*MULL*/ MULL = [null,0.66,0.507,0.335,0.106,-0.143,0.15]; /*MULL-END*/
+  /*MULL*/ MULL = [null,0.7482,0.5976,0.4058,0.2063,-0.0552,0.15]; /*MULL-END*/
   /* Should you keep? mulls = mulligans already taken (0: the first one is free). */
   function mulliganAdvice(hand, mulls) {
     const k = Math.max(0, mulls - 1);
@@ -713,8 +712,8 @@
       // Wishclaw on a turn you didn't win
       for (const m of mains) if (/^Wishclaw Talisman:/.test(m.ans) && !wonOnTurn(t)) { took("tutor", false); flag({ id: "wishclaw", skill: "tutor", sev: 2, i: m.i, r: m.r, title: "Wishclaw used on a turn you didn't win", text: "Wishclaw goes to an opponent after you use it, and they get to tutor with it on their turn. Use it the turn you go off." }); }
       // hate on the table with an answer in hand, not used
-      const hate = mains.find(m => (m.threats || []).some(x => /Linvala|Rest in Peace|Leyline of the Void|Cursed Totem|Null Rod|Collector Ouphe|Stony Silence|Hushbringer|Torpor Orb/.test(x)) && (m.acts || []).some(a => /Infernal Grasp|Deadly Rollick|Cyclonic Rift|Otawara/.test(a)));
-      if (hate && !mains.some(m => /Infernal Grasp|Deadly Rollick|Cyclonic Rift|Otawara/.test(m.ans))) { took("lines", false); flag({ id: "hate", skill: "lines", sev: 2, i: hate.i, r: hate.r, title: "A hate piece stayed on the table", text: `${hate.threats.join("; ")}. You had an answer you could cast and kept it.` }); }
+      const hate = mains.find(m => (m.threats || []).some(x => /Linvala|Rest in Peace|Leyline of the Void|Cursed Totem|Null Rod|Collector Ouphe|Stony Silence|Hushbringer|Torpor Orb/.test(x)) && (m.acts || []).some(a => /Deadly Rollick|Cyclonic Rift|Otawara|Silumgar Assassin/.test(a)));
+      if (hate && !mains.some(m => /Deadly Rollick|Cyclonic Rift|Otawara|Silumgar Assassin/.test(m.ans))) { took("lines", false); flag({ id: "hate", skill: "lines", sev: 2, i: hate.i, r: hate.r, title: "A hate piece stayed on the table", text: `${hate.threats.join("; ")}. You had an answer you could cast and kept it.` }); }
     }
     if (etrataCast) took("tempo", etrataCast <= 3);
     if (etrataWindow && (!etrataCast || etrataCast > etrataWindow.own)) flag({ id: "etrata", skill: "tempo", sev: 2, i: etrataWindow.m.i, r: etrataWindow.m.r, title: "Etrata could have come down sooner", text: `You could cast Etrata on your turn ${etrataWindow.own} and ${etrataCast ? `cast her on turn ${etrataCast}` : "never cast her"}. She makes every flip cheaper and turns each Assassin hit into a stolen card.` });

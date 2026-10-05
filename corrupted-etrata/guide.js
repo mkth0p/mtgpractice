@@ -30,13 +30,14 @@ window.CETRATA_GUIDE = [
       { t: "p", html: "This is the v3 list. It cut the two slowest lines, the Brine lock and the hit list, for two more vampire payoffs and three cheap blockers: <i-c>Vampire of the Dire Moon</i-c>, <i-c>Hooded Blightfang</i-c> and <i-c>Silumgar Assassin</i-c>. A second round cut five slow spells (Ramses, Assassin Lord, Gonti, Night Minister, Leyline of Transformation, Roshan, Hidden Magister and Infernal Grasp) for five lands, because bot games showed the deck was short on mana. A third round swapped Praetor's Grasp, Fallen Shinobi and an Island for <i-c>Phyrexian Arena</i-c>, <i-c>Aetherize</i-c> and <i-c>Mutavault</i-c>. Against precons, v3 now wins about 69% of paired bot games, up from 49.7% for v2; against Bracket 4 decks, about 43%, up from 24.8%." },
       { t: "widget", id: "comboFinder" },
       { t: "h", text: "How fast it is" },
-      { t: "p", html: "The write-up's simulator played 8,000 games for each setting. It doesn't count stolen cards or most combat damage, so treat these as a floor." },
-      { t: "table", head: ["Opponents", "Won by turn 6", "By turn 7", "By turn 8"], rows: [
-        ["Answer 30% of combo attempts", "25%", "40%", "52%"],
-        ["Never answer", "32%", "50%", "64%"],
-        ["The old v1 list, answering", "13%", "25%", "34%"]
+      { t: "p", html: "Measured in four-player games in this site's engine, with bots playing every seat: 2,400 games against three precons and 1,000 against three Bracket 4 decks. A round is one turn for each player. Bots play the deck worse than a practised person, so treat these as a floor." },
+      { t: "table", head: ["Opponents", "Won by round 6", "By round 7", "By round 8", "Won in all"], rows: [
+        ["Three precons", "20%", "33%", "43%", "69%"],
+        ["Three Bracket 4 decks", "15%", "26%", "34%", "43%"],
+        ["The v2 list, against precons", "8%", "15%", "23%", "50%"],
+        ["The v2 list, against Bracket 4", "5%", "11%", "16%", "25%"]
       ] },
-      { t: "p", html: "The median win is turn 7 against a table that never answers, and turn 8 against one that does. The old v1 list's median was turn 10." },
+      { t: "p", html: "The median win is round 7 against Bracket 4 tables and round 8 against precons. The v2 list's was round 8 and round 9." },
       { t: "h", text: "Is it for you?" },
       { t: "list", items: [
         "You'll enjoy it if you like playing other people's cards. A lot of your best turns use their spells.",
