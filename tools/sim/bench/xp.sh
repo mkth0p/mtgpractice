@@ -10,6 +10,6 @@ for F in b2 b4; do
   S=$("$D/bench.sh" "$NAME-$F" "$N" "$OPP" "$V" | tail -1)
   P=$( [ "$BASE" != "$NAME" ] && node "$D/paired.js" "$OUT" "$BASE-$F" "$NAME-$F" --hero "${HERO_NAME:-Etrata Heist}" | tail -1)
   T=$( [ -n "$TELE" ] && node "$D/telesum.js" "$OUT" "$NAME-$F" | sed -n 1,2p | tr '\n' ' ')
-  echo "$(date +%H:%M) $NAME-$F | ${LIST_FILE:+list=$(basename "$LIST_FILE") }${NO_COMMANDER:+NO_COMMANDER }${V:+variant=$V }| $S | vs $BASE: $P" | tee -a "$LOG"
+  echo "$(date +%H:%M) $NAME-$F | ${LIST_FILE:+list=$(basename "$LIST_FILE") }${NO_COMMANDER:+NO_COMMANDER }${HEIST_ON:+HEIST_ON=$HEIST_ON }${HEIST_OFF:+HEIST_OFF=$HEIST_OFF }${HEIST_TUTOR:+HEIST_TUTOR=$HEIST_TUTOR }${V:+variant=$V }| $S | vs $BASE: $P" | tee -a "$LOG"
   if [ -n "$T" ]; then echo "    tele: $T" | tee -a "$LOG"; fi
 done

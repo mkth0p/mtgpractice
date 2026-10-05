@@ -68,7 +68,11 @@ module.exports = function install(MK, opts) {
       else if (ev.src && ctl(ev.src) === this.__tele.hero) ev.__kind = kindNow(this, ev.src);
     }
     if (type === "enters" && ev && ev.o && this.__tele && this.__tele.hero && ev.p === this.__tele.hero && !ev.o.isToken && ev.o.owner !== this.__tele.hero) this.__tele.steals++;
+    // the round each of the hero's own nonland cards first entered the battlefield
+    if (type === "enters" && ev && ev.o && this.__tele && this.__tele.hero && ev.p === this.__tele.hero && ev.o.owner === this.__tele.hero && !ev.o.isToken && !ev.o.faceDown && !this.isLand(ev.o)) { const f = this.__tele.first || (this.__tele.first = {}); if (f[ev.o.def.name] == null) f[ev.o.def.name] = this.round; }
     if (type === "turnedFaceUp" && ev && ev.o && this.__tele && ev.p === this.__tele.hero && ev.o.owner !== this.__tele.hero) this.__tele.faceUpStolen++;
+    // the hero's key permanents leaving the battlefield (Ramses, Etrata): round and where to
+    if (type === "leaves" && ev && ev.lki && this.__tele && this.__tele.hero && ev.lki.controller === this.__tele.hero && /^(Ramses, Assassin Lord|Etrata, Deadly Fugitive|Bloodletter of Aclazotz)$/.test(ev.lki.name)) (this.__tele.left || (this.__tele.left = [])).push([this.round, ev.lki.name, ev.to]);
     return oe.apply(this, arguments);
   };
   const oc = G.cloakTop;
@@ -98,6 +102,14 @@ module.exports = function install(MK, opts) {
     }
     return ot.apply(this, arguments);
   };
+  // what the hero's searches found (tutors, transmute), with the round
+  const os = G.search;
+  G.search = async function (p, o) {
+    const r = await os.apply(this, arguments);
+    const s = st(this);
+    if (s.hero && p === s.hero && o && (o.purpose || "tutor") === "tutor") (s.found || (s.found = [])).push([this.round, (o.src && o.src.def && o.src.def.name) || "?", r.map(c => c.def.name).join("+") || "-"]);
+    return r;
+  };
   const op = G.play;
   G.play = async function () {
     const g = this, s = st(g);
@@ -106,7 +118,7 @@ module.exports = function install(MK, opts) {
     if (h) rows.push({
       seed: g.seed, win: g.winner === h, rounds: g.round, casts: h.stats.cast[h.commanders[0] ? h.commanders[0].def.name : ""] || 0,
       steals: s.steals, etrataSteals: s.etrataSteals, flips: s.flips, stolenFlips: s.stolenFlips, freeCasts: s.freeCasts, faceUpStolen: s.faceUpStolen,
-      dmg: s.dmg, cmdDmg: s.cmdDmg, outs: s.outs, altWin: s.altWin || null, heroLost: h.lost ? h.lostReason : null, trace: s.trace || []
+      dmg: s.dmg, cmdDmg: s.cmdDmg, outs: s.outs, altWin: s.altWin || null, heroLost: h.lost ? h.lostReason : null, trace: s.trace || [], first: s.first || {}, cast: Object.assign({}, h.stats.cast), found: s.found || [], left: s.left || [], end: (() => { const g2 = g; return { oppLife: g2.players.filter(q => q !== h).map(q => q.lost ? 0 : q.life), heroLife: h.life }; })()
     });
     return r;
   };

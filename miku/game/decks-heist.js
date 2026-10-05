@@ -539,6 +539,79 @@
     ai: { priority: 7 }
   });
 
+
+  D({
+    name: "Sakashima the Impostor", cost: "{2}{U}{U}", type: "Legendary Creature — Human Rogue", pt: "3/1",
+    text: "You may have Sakashima the Impostor enter as a copy of any creature on the battlefield, except its name is Sakashima the Impostor, it's legendary in addition to its other types, and it has \"{2}{U}{U}: Return Sakashima the Impostor to its owner's hand at the beginning of the next end step.\"",
+    note: "The return-to-hand ability isn't offered to the bots.",
+    asEnters: async (g, p, o, item, eo) => {
+      const opts = g.battlefield.filter(c => c !== o && g.isCreature(c) && !c.faceDown);
+      if (!opts.length) return;
+      const pick = await g.ask(p, { type: "target", prompt: "Sakashima the Impostor: enter as a copy of", options: opts, optional: true, purpose: "sakashimaCopy", src: o });
+      if (!pick || !opts.includes(pick)) return;
+      const base = MK.copiable(pick);
+      o.def = MK.derive(base, { name: "Sakashima the Impostor", supertypes: base.supertypes.includes("Legendary") ? base.supertypes : ["Legendary"].concat(base.supertypes), legendary: true });
+      g.ts++;
+      log(g, `Sakashima the Impostor enters as a copy of ${base.name}.`, p, [base.name]);
+    },
+    ai: { priority: 6, hold: (g, p) => !g.battlefield.some(c => g.isCreature(c) && !c.faceDown && valueOf(g, c) >= 6), target: (g, p, req) => (req.purpose === "sakashimaCopy" && H.copyTarget ? H.copyTarget(g, p, req) : undefined) }
+  });
+
+
+  /* ---------------- ways to Ramses */
+  D({
+    name: "Demonic Consultation", cost: "{B}", type: "Instant",
+    text: "Choose a card name. Exile the top six cards of your library, then reveal cards from the top of your library until you reveal a card with the chosen name. Put that card into your hand and exile all other cards revealed this way.",
+    note: "You choose among the names of the cards in your library (the bots pick their tutor target; they don't know the order).",
+    spell: {
+      do: async (g, ctx) => {
+        const p = ctx.p;
+        const names = [...new Set(p.library.map(c => c.def.name))];
+        if (!names.length) return;
+        const want = H.consultName ? H.consultName(g, p) : null;
+        const ans = await g.ask(p, { type: "option", prompt: "Demonic Consultation: choose a card name", options: names.map((n, i) => ({ id: i, label: n })), purpose: "consultName", src: ctx.o, want });
+        const name = names[ans] != null ? names[ans] : names[0];
+        for (let i = 0; i < 6 && p.library.length; i++) g.moveTo(p.library[0], "exile");
+        while (p.library.length) {
+          const c = p.library[0];
+          if (c.def.name === name) { g.moveTo(c, "hand"); log(g, `${p.name} reveals ${name} (Demonic Consultation).`, p, [name]); return; }
+          g.moveTo(c, "exile");
+        }
+        log(g, `${p.name} exiles the rest of their library without finding ${name}.`, p, []);
+      }
+    },
+    ai: { priority: 7, tutor: true, option: (g, p, req) => (req.purpose === "consultName" && req.want ? (req.options.find(o => o.label === req.want) || req.options[0]).id : undefined), cast: (g, p) => (H.consultName && H.consultName(g, p) ? 30 : false) }
+  });
+  D({
+    name: "Fleshwrither", cost: "{2}{B}{B}", type: "Creature — Horror", pt: "3/3",
+    text: "Transfigure {1}{B}{B} ({1}{B}{B}, Sacrifice this creature: Search your library for a creature card with the same mana value as this creature, put that card onto the battlefield, then shuffle. Transfigure only as a sorcery.)",
+    abilities: [{
+      label: "Transfigure", cost: "{1}{B}{B}", timing: "sorcery", sacSelf: true,
+      do: async (g, src, ctx) => {
+        const p = ctx.p, mv = src.cardDef ? src.cardDef.mv : 4;
+        await g.search(p, { filter: (g2, c) => c.def.types.includes("Creature") && c.def.mv === mv, to: "battlefield", prompt: "Transfigure: a creature card with mana value " + mv, purpose: "tutor", src });
+      },
+      ai: { use: (g, p, o, ctx) => ctx.window === "main1" && !!H.transfigureWant && H.transfigureWant(g, p, 4) }
+    }],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Pyre of Heroes", cost: "{2}", type: "Artifact",
+    text: "{2}, {T}, Sacrifice a creature: Search your library for a creature card that shares a creature type with the sacrificed creature and has mana value equal to 1 plus that creature's mana value. Put that card onto the battlefield, then shuffle. Activate only as a sorcery.",
+    note: "The sacrificed creature's types and mana value are read as it's sacrificed, as the ability is activated.",
+    abilities: [{
+      label: "Sacrifice: search one mana value up", cost: "{2}", tap: true, timing: "sorcery",
+      sacCost: { filter: (g, c, src) => c.controller === src.controller && g.isCreature(c) && !c.faceDown, prompt: "Pyre of Heroes: sacrifice a creature" },
+      do: async (g, src, ctx) => {
+        const p = ctx.p, info = ctx.sacrificed || null;
+        if (!info) return;
+        await g.search(p, { filter: (g2, c) => c.def.types.includes("Creature") && c.def.mv === info.mv + 1 && (c.def.changeling || info.allTypes || c.def.subtypes.some(t => info.subtypes.includes(t))), to: "battlefield", prompt: "Pyre of Heroes: a creature card sharing a type, mana value " + (info.mv + 1), purpose: "tutor", src });
+      },
+      ai: { use: (g, p, o, ctx) => ctx.window === "main1" && !!H.pyrePick && !!H.pyrePick(g, p) }
+    }],
+    ai: { priority: 5 }
+  });
+
   /* ================================================================ equipment and artifacts */
   D({
     name: "Quietus Spike", cost: "{3}", type: "Artifact — Equipment", equip: "{3}",
@@ -766,6 +839,7 @@
      Ramses out one kill wins the game. Attackers that can't get through to the mark hit whoever they can reach
      (each Assassin hit still steals a card), and the best blockers stay home when the table can hit back. */
   const DECK_ID = "etrata-heist-aggro";
+  const ON = new Set(String((typeof process !== "undefined" && process.env && process.env.HEIST_ON) || "").split(",").filter(Boolean));
   const EB = () => MK.ETRATA_BRAIN || {};
   const MEM = new WeakMap();
   const mem = p => { let m = MEM.get(p); if (!m) { m = {}; MEM.set(p, m); } return m; };
@@ -786,7 +860,7 @@
     const own = !a.faceDown && HALVE_ON_HIT.has(a.def.name) ? 1 + (isAssassin(g, a) ? g.battlefield.filter(o => o !== a && o.controller === a.controller && o.def.name === "Roaming Throne").length : 0) : 0;
     return own + g.battlefield.filter(e => e.attachedTo === a && SPIKES.has(e.def.name)).length;
   }
-  function lifeAfter(g, p, q, through) {
+  function lifeAfter(g, p, q, through, bonus) {
     let life = q.life;
     const bl = g.active === p && g.battlefield.some(o => o.controller === p && o.def.name === "Bloodletter of Aclazotz") ? 2 : 1;
     const wound = g.battlefield.filter(o => o.controller === p && o.def.name === "Grievous Wound" && o.state.enchanted === q).length;
@@ -794,15 +868,15 @@
     for (const step of [through.filter(fs), through.filter(a => !fs(a) || g.kw(a, "double strike"))]) {
       const hitters = step.filter(a => g.power(a) > 0);
       if (!hitters.length || life <= 0) continue;
-      life -= bl * hitters.reduce((t, a) => t + g.power(a), 0);
+      life -= bl * hitters.reduce((t, a) => t + g.power(a) + (bonus ? bonus(a) : 0), 0);
       for (const a of hitters) for (let k = halvesOnHit(g, a) + wound; k > 0 && life > 0; k--) life -= bl * Math.ceil(life / 2);
     }
     return life;
   }
-  function outcome(g, p, q, attackers, evade) {
+  function outcome(g, p, q, attackers, evade, bonus) {
     const blocked = EB().predictBlocks(g, q, attackers, evade);
     const through = attackers.filter(a => !blocked.has(a));
-    const life = lifeAfter(g, p, q, through);
+    const life = lifeAfter(g, p, q, through, bonus);
     return { blocked, through, life, dmg: q.life - life, kill: life <= 0 };
   }
   MK.HEIST_MODEL = { lifeAfter, outcome, halvesOnHit };
@@ -868,8 +942,19 @@
     const mark = pickMark(g, p, able);
     const decl = [], toMark = [];
     const byGain = able.slice().sort((x, y) => hitValue(g, p, y, mark) - hitValue(g, p, x, mark));
+    const gate = onBf(g, p, "Dolmen Gate");
+    const haunted = onBf(g, p, "Haunted One");
     for (const a of byGain) {
-      if (a.def.ai && a.def.ai.attack && a.def.ai.attack(g, p, a, g.creatures(mark).filter(b => !b.tapped && g.canBlock(b, a))) === false && !(a.def.name === "Etrata, Deadly Fugitive")) continue;
+      const isEtrata = a.isCommander && a.def.name === "Etrata, Deadly Fugitive";
+      // with Dolmen Gate no blocker hurts an attacker: everything goes at the mark
+      if (gate && mark) { toMark.push(a); decl.push({ attacker: a, target: mark, a }); continue; }
+      // with Haunted One, Etrata attacking pumps the team: she goes where no blocker kills her (or blocks at all)
+      if (isEtrata && haunted && mark) {
+        const safe = opps.filter(q => !g.creatures(q).some(b => !b.tapped && g.canBlock(b, a) && AI().fight && AI().fight(g, a, b).aDies));
+        const t = safe.includes(mark) ? mark : safe[0];
+        if (t) { decl.push({ attacker: a, target: t, a }); if (t === mark) toMark.push(a); continue; }
+      }
+      if (a.def.ai && a.def.ai.attack && a.def.ai.attack(g, p, a, g.creatures(mark).filter(b => !b.tapped && g.canBlock(b, a))) === false && !isEtrata) continue;
       const trial = toMark.concat([a]);
       if (mark && !E.predictBlocks(g, mark, trial).has(a)) { toMark.push(a); decl.push({ attacker: a, target: mark, a }); continue; }
       const open = opps.filter(q => q !== mark && !E.predictBlocks(g, q, decl.filter(d => d.target === q).map(d => d.attacker).concat([a])).has(a));
@@ -974,8 +1059,10 @@
   };
 
   /* ---------------- tutors and mulligans */
-  const TUTOR_WANT = ["Ramses, Assassin Lord", "Bloodletter of Aclazotz", "Quietus Spike", "Unstoppable Slasher", "Virtus the Veiled", "Roaming Throne", "Interceptor, Shadow's Hound",
+  const TUTOR_WANT0 = ["Ramses, Assassin Lord", "Bloodletter of Aclazotz", "Quietus Spike", "Unstoppable Slasher", "Virtus the Veiled", "Roaming Throne", "Interceptor, Shadow's Hound",
     "Shredder, Shadow Master", "Genji Glove", "Achilles Davenport", "Roshan, Hidden Magister", "Leyline of Transformation", "Arcane Adaptation", "Maskwood Nexus", "Kindred Discovery", "Ezio, Blade of Vengeance", "Black Widow, Deadly Hunter", "Rhystic Study"];
+  // research switch: HEIST_TUTOR="Card A|Card B|..." replaces the tutor order
+  const TUTOR_WANT = (typeof process !== "undefined" && process.env && process.env.HEIST_TUTOR) ? process.env.HEIST_TUTOR.split("|") : TUTOR_WANT0;
   /* The kill kit: a doubler (Bloodletter: a halving hit takes all of it), the halvers, and Ramses (one kill wins). */
   const KIT_HALVERS = ["Quietus Spike", "Virtus the Veiled", "Unstoppable Slasher", "Shredder, Shadow Master", "Grievous Wound", "Radioactive Man", "Scytheclaw"];
   function kitWant(g, p) {
@@ -1001,6 +1088,10 @@
     const have = n => g.battlefield.some(o => o.controller === p && !o.faceDown && o.def.name === n) || p.hand.some(c => c.def.name === n);
     const enabled = g.battlefield.some(o => o.controller === p && (o.def.makesAssassins && o.def.name !== "Roaming Throne" || o.def.name === "Maskwood Nexus")) || p.hand.some(c => c.def.makesAssassins && c.def.name !== "Roaming Throne" || c.def.name === "Maskwood Nexus");
     if (H.kitTutor) for (const n of kitWant(g, p)) { const c = cands.find(x => x.def.name === n); if (c) return c; }
+    // the vampire loop (hybrid lists only): half of it out, the other half first
+    const VAMP = [["Exquisite Blood"], ["Sanguine Bond", "Bloodthirsty Conqueror", "Vito, Thorn of the Dusk Rose", "Marauding Blight-Priest"]];
+    const side = i => VAMP[i].some(have);
+    if (side(0) !== side(1)) { const need = VAMP[side(0) ? 1 : 0]; const c = cands.find(x => need.includes(x.def.name)); if (c) return c; }
     for (const n of TUTOR_WANT) {
       if (have(n)) continue;
       if (enabled && ["Maskwood Nexus", "Leyline of Transformation", "Arcane Adaptation", "Roshan, Hidden Magister"].includes(n)) continue;
@@ -1141,12 +1232,53 @@
     if (win === "main2" || win === "end") { const f = flickerPlan(g, p, acts, win); if (f) return f; }
     return null;
   }
+  /* Spark Double and Auton Soldier: a second Etrata when Assassins connect (every hit cloaks twice), else Ramses
+     (a second "you win"), else the best creature. */
+  H.copyTarget = (g, p, req) => {
+    const opts = req.options.filter(c => !c.faceDown);
+    const et = opts.find(c => c.controller === p && c.def.name === "Etrata, Deadly Fugitive");
+    const connectors = g.creatures(p).filter(c => c !== et && isAssassin(g, c) && evasive(g, c)).length;
+    const ram = opts.find(c => c.controller === p && c.def.name === "Ramses, Assassin Lord");
+    if (ram && !ON.has("copyEtrata")) return ram;
+    if (et && (connectors >= 1 || ON.has("copyEtrata"))) return et;
+    if (ram) return ram;
+    return opts.sort((a, b) => valueOf(g, b) - valueOf(g, a))[0] || null;
+  };
+  /* The ways to Ramses: Demonic Consultation names what the tutors want; Fleshwrither and Pyre of Heroes put a
+     wanted creature of the right mana value onto the battlefield. */
+  const inLib = (p, n) => p.library.some(c => c.def.name === n);
+  const haveIt = (g, p, n) => g.battlefield.some(o => o.controller === p && !o.faceDown && o.def.name === n) || p.hand.some(c => c.def.name === n);
+  H.consultName = (g, p) => { const c = heistTutor(g, p, p.library.filter(x => !x.def.types.includes("Land"))); return c ? c.def.name : null; };
+  H.transfigureWant = (g, p, mv) => { const c = heistTutor(g, p, p.library.filter(x => x.def.types.includes("Creature") && x.def.mv === mv)); return !!c; };
+  H.pyrePick = (g, p) => {
+    for (const n of TUTOR_WANT) {
+      if (haveIt(g, p, n) || !inLib(p, n)) continue;
+      const d = MK.defs.get(n);
+      if (!d || !d.types.includes("Creature")) continue;
+      const fodder = g.creatures(p).filter(c => !c.faceDown && c.owner === p && g.mvOf(c) === d.mv - 1 && !TUTOR_WANT.slice(0, 3).includes(c.def.name) && (c.def.changeling || d.changeling || g.ch(c).allTypes || [...g.ch(c).subtypes].some(t => d.subtypes.includes(t))));
+      if (fodder.length) return fodder.sort((a, b) => (a.isCommander - b.isCommander) || (valueOf(g, a) - valueOf(g, b)))[0];
+    }
+    return null;
+  };
+  /* Ramses waits in hand (out of reach of sorcery-speed removal) until he makes this turn's attack a kill: his
+     +1/+1 for the other Assassins counted. Late, or with nothing else to cast, he comes down anyway. */
+  function castHold(g, p, o, ctx) {
+    if (!ON.has("holdRamses") || o.def.name !== "Ramses, Assassin Lord" || o.zone !== "hand") return undefined;
+    if (ctx.window !== "main1" || g.active !== p) return false;
+    const able = g.creatures(p).filter(c => g.canAttack(c, p) && g.power(c) > 0);
+    const lord = a => (isAssassin(g, a) ? 1 : 0);
+    if (able.some(a => isAssassin(g, a)) && liveOpps(g, p).some(q => outcome(g, p, q, able, null, lord).kill)) return undefined;
+    if (g.round >= 9 || p.hand.length <= 1) return undefined;
+    return false;
+  }
   function heistChoose(g, p, req) {
+    if (req.type === "target" && req.purpose === "sacrifice" && req.src && req.src.def.name === "Pyre of Heroes") { const f = H.pyrePick(g, p); if (f && req.options.includes(f)) return f; }
+    if (req.type === "target" && (req.purpose === "sparkCopy" || req.purpose === "autonCopy" || req.purpose === "sakashimaCopy")) { const t = H.copyTarget(g, p, req); if (t && req.options.includes(t)) return t; }
     // the creature an evasion source was used for
     const ev = mem(p).evade;
     if (ev && ev.turn === g.turn && req.type === "target" && req.src && EVADE[req.src.def.name] && req.options.includes(ev.o)) return ev.o;
     if (req.type === "target" && req.purpose === "transmute") return req.options.find(x => x === p);
-    if (req.type === "cards" && req.purpose === "tutor" && req.options.length > 1) {
+    if (req.type === "cards" && req.purpose === "tutor" && req.options.length > 1 && !OFF.has("tutor")) {
       const c = heistTutor(g, p, req.options);
       return c ? [c] : undefined;
     }
@@ -1164,13 +1296,17 @@
   /* What a creature is worth keeping: a stolen face-down land is the first to go (Thieving Amalgam drains for it). */
   const sacScore = (g, p, o) => (o.isCommander ? 50 : 0) + (o.owner !== p ? -3 : 0) + (o.faceDown && o.cardDef && o.cardDef.types.includes("Land") ? -4 : 0) + (o.isToken ? -2 : 0) + valueOf(g, o);
 
-  (MK.DECK_BRAINS = MK.DECK_BRAINS || {})[DECK_ID] = {
-    plan: heistPlan,
-    attack: (g, p, cands, targets) => (brainOn(p) ? heistAttack(g, p, cands, targets) : null),
-    choose: heistChoose, tutor: heistTutor, mulligan: heistMulligan,
-    ownFlips: true, flipUse: heistFlipUse
-  };
-  MK.DECK_TUTORS = MK.DECK_TUTORS || {}; MK.DECK_TUTORS[DECK_ID] = heistTutor;
+  // research switches: HEIST_ON="kit,flipFirst,copyEtrata" turns optional behaviours on
+  if (ON.has("kit")) H.kitTutor = true;
+  if (ON.has("flipFirst")) H.flipFirst = true;
+  // research switches: HEIST_OFF="attack,mulligan,plan,flips,choose" (environment, Node only) turns parts of this brain off
+  const OFF = new Set(String((typeof process !== "undefined" && process.env && process.env.HEIST_OFF) || "").split(",").filter(Boolean));
+  (MK.DECK_BRAINS = MK.DECK_BRAINS || {})[DECK_ID] = Object.assign({
+    plan: OFF.has("plan") ? null : heistPlan,
+    attack: OFF.has("attack") ? null : (g, p, cands, targets) => (brainOn(p) ? heistAttack(g, p, cands, targets) : null),
+    choose: OFF.has("choose") ? null : heistChoose, tutor: OFF.has("tutor") ? null : heistTutor
+  }, OFF.has("mulligan") ? {} : { mulligan: heistMulligan }, OFF.has("flips") ? {} : { ownFlips: true, flipUse: heistFlipUse }, { castHold });
+  MK.DECK_TUTORS = MK.DECK_TUTORS || {}; if (!OFF.has("tutor")) MK.DECK_TUTORS[DECK_ID] = heistTutor;
   MK.DECK_TYPES = MK.DECK_TYPES || {}; MK.DECK_TYPES[DECK_ID] = "Assassin";
   // Etrata's own hooks (cards-etrata.js) run for this deck too: her blocks, combat flips, Boots, the unblockable-for-a-kill plan
   if (MK.ETRATA_BRAIN && MK.ETRATA_BRAIN.decks) MK.ETRATA_BRAIN.decks.add(DECK_ID);

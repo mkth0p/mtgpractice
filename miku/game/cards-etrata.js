@@ -375,6 +375,9 @@
      attacker could be turned face up in it: the mana stays open for the flip, and they come down
      in the second main phase. */
   function etrataCast(g, p, o, ctx) {
+    // a deck brain that holds some cards itself (decks-heist.js castHold)
+    const db = brainOn(p) && AI().deckBrain ? AI().deckBrain(p) : null;
+    if (db && db.castHold) { const r = db.castHold(g, p, o, ctx); if (r !== undefined) return r; }
     if (!brainOn(p) || ctx.window !== "main1" || g.active !== p || o.isCommander) return undefined;
     if (combatCard(o.def)) return undefined;
     return flipReady(g, p) ? false : undefined;

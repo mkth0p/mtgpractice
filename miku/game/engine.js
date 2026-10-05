@@ -2361,7 +2361,8 @@
       if (tappers) tappers.forEach(c => this.tap(c));
       if (untappers) untappers.forEach(c => this.untap(c));
       if (discarded) discarded.forEach(c => this.discard(p, c));
-      if (sacrificed) this.sacrifice(sacrificed);
+      // what the sacrificed creature looked like (Pyre of Heroes searches by its types and mana value)
+      if (sacrificed) { ctx.sacrificed = Object.assign(this.lki(sacrificed), { allTypes: !!this.ch(sacrificed).allTypes }); this.sacrifice(sacrificed); }
       if (ab.sacSelf) this.sacrifice(o);
       if (ab.exileSelf) this.moveTo(o, "exile");
       ctx.targets.forEach((t, i) => { ctx.legal[i] = !!t; });

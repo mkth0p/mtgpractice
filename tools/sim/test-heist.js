@@ -301,6 +301,22 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
     put(g, a, "Akroma's Memorial"); const bk = put(g, b, "Hired Poisoner"); await g.settle();
     check("Akroma's Memorial: flying, first strike, haste and protection from black", g.kw(hp, "first strike") && g.kw(hp, "haste") && g.protectedFrom(hp, bk)); }
 
+
+  // the ways to Ramses: Demonic Consultation, Fleshwrither, Pyre of Heroes
+  { const { g, a } = table(); lands(g, a, 1, "Swamp"); const ram = lib(g, a, "Ramses, Assassin Lord"); for (let i = 0; i < 8; i++) lib(g, a, "Island");
+    a.agent.choose = (g2, p, req) => (req.purpose === "consultName" ? req.options.find(o => o.label === "Ramses, Assassin Lord").id : MK.AI.create({ skill: 1 }).choose(g2, p, req));
+    const dc = hand(g, a, "Demonic Consultation"); await g.cast(a, dc); await g.settle();
+    check("Demonic Consultation: exiles six, then finds the named card", ram.zone === "hand" && a.exile.length >= 6, { zone: ram.zone, ex: a.exile.length }); }
+  { const { g, a } = table(); lands(g, a, 3, "Swamp"); const fw = put(g, a, "Fleshwrither"); const ram = lib(g, a, "Ramses, Assassin Lord"); await g.settle();
+    a.agent.choose = (g2, p, req) => (req.purpose === "tutor" ? [ram] : MK.AI.create({ skill: 1 }).choose(g2, p, req));
+    await g.activate(a, fw, g.abilitiesOf(fw)[0].i, {}); await g.settle();
+    check("Fleshwrither: transfigure puts a mana value 4 creature onto the battlefield", ram.zone === "battlefield" && fw.zone === "graveyard"); }
+  { const { g, a } = table(); lands(g, a, 2); const py = put(g, a, "Pyre of Heroes"); const vt = put(g, a, "Virtus the Veiled"); const ram = lib(g, a, "Ramses, Assassin Lord"); lib(g, a, "Hostage Taker"); await g.settle();
+    a.agent.choose = (g2, p, req) => (req.purpose === "sacrifice" ? vt : req.purpose === "tutor" ? [req.options.find(c => c === ram)].filter(Boolean) : MK.AI.create({ skill: 1 }).choose(g2, p, req));
+    let offered = null; const os = g.search.bind(g); g.search = async (p, o) => { offered = p.library.filter(c => o.filter(g, c)).map(c => c.def.name); return os(p, o); };
+    await g.activate(a, py, g.abilitiesOf(py)[0].i, {}); await g.settle();
+    check("Pyre of Heroes: a mana value 3 Assassin finds a mana value 4 Assassin (not a Pirate)", ram.zone === "battlefield" && vt.zone === "graveyard" && offered && !offered.includes("Hostage Taker"), offered); }
+
   // the engine rules: "triggers an additional time" stays with its creature type, anyColor, castEntry
   { const { g, a } = table(); const rt = put(g, a, "Roaming Throne"); await g.settle();
     check("triggerExtra: a non-Assassin's trigger isn't doubled", (() => { const n = g.staticsOf(rt).find(st => st.triggerExtra).triggerExtra(g, rt, { src: put(g, a, "Llanowar Elves"), controller: a }); return n === 0; })()); }

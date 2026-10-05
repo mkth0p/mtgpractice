@@ -1,12 +1,320 @@
 [
- {"title": "Closing: halving and doubling (combat-damage kills)", "why": "Pure aggro dealt about 15 damage a game against 120 total life. These turn one connection into half or all of a player's life, and Ramses turns one kill into the game.",
-  "cards": [["Bloodletter of Aclazotz","doubles every life loss on our turn: a halving hit takes all of it"],["Quietus Spike","equipment halver; no P/T change, so it keeps Tetsuko's evasion"],["Scytheclaw","halver with its own 1/1 body; +1/+1 breaks Tetsuko"],["Shredder, Shadow Master","attacks all three opponents at once, each hit halves"],["Grievous Wound","every source that damages the enchanted player halves them"],["Radioactive Man","a 5-mana deathtouch halver"],["Unstoppable Slasher","3-mana deathtouch Assassin halver that comes back"],["Virtus the Veiled","3-mana 1/1 deathtouch Assassin halver: unblockable with Tetsuko"],["Ramses, Assassin Lord","one opponent dying after an Assassin attacked them wins the game"]]},
- {"title": "Extra combats, double strike and extra turns", "why": "No blue, black or colorless extra-combat card had been found. The Scryfall search `o:\"additional combat\" id<=ub legal:commander` finds Genji Glove (colorless), Illusionist's Gambit (on an opponent's turn, for their attack) and Swinging Ship (an Attraction).",
-  "cards": [["Genji Glove","colorless: double strike and an extra combat each turn"],["Leyline Axe","double strike and trample, free in the opening hand"],["Fireshrieker","double strike for {3}, equip {2}"],["Time Warp","extra turn"],["Temporal Manipulation","extra turn"],["Capture of Jingzhou","extra turn"],["Notorious Throng","fliers for the damage dealt this turn; with prowl, an extra turn"],["Alrund's Epiphany","extra turn and two fliers (7 mana)"]]},
- {"title": "Turning steals into value without a flip", "why": "Each cloak is a stolen card. These draw, make mana or pump for it.",
-  "cards": [["Satoru, the Infiltrator","draws when cloaks and ninjutsu creatures enter"],["They Came from the Pipes","draws for each face-down creature entering"],["Glitch Interpreter","draws when colorless (face-down) creatures connect"],["Thieving Amalgam","manifests each opponent's top card in their upkeep; stolen creatures dying drain 2"],["Orochi Soul-Reaver","Treasure and a manifest of their top card per player hit"],["Grim Hireling","two Treasures per player hit"],["Forsaken Monument","face-down (colorless) creatures +2/+2"],["Garland, Royal Kidnapper","creatures you control but don't own +2/+2 (monarch: not in the engine)"],["Roaming Throne","Assassin: Etrata's cloak trigger happens twice"],["Spark Double","a second Etrata"],["Auton Soldier","a second Etrata with myriad (each token cloaks too)"],["Ghostly Flicker","a cloaked card returns face up and ours for good"],["Hostage Taker","removal you can cast"],["Rogue Class","a second steal on each hit, team menace"],["Predators' Hour","team menace and a steal per hit for a turn"],["Reno and Rude","2-mana menace Assassin that steals its hit"]]},
- {"title": "Evasion for the whole team", "why": "Stolen 2/2s and 1/1 Assassins need to connect.",
-  "cards": [["Vela the Night-Clad","others get intimidate: a colorless face-down creature can only be blocked by artifact creatures"],["Archetype of Imagination","our creatures fly, theirs can't"],["Levitation","team flying"],["Intimidation","team fear"],["Eldrazi Monument","+1/+1, flying, indestructible; a creature a turn"],["Interceptor, Shadow's Hound","Assassins have menace"],["Cover of Darkness","Assassins have fear"],["Winged Boots","flying and ward {4}"],["Glen Elendra Liege","blue and black anthem with flying"],["Massacre Girl, Known Killer","menace Assassin, team wither"]]},
- {"title": "Cheap connectors", "why": "The trace shows the deck too slow on turns 1 to 3.",
-  "cards": [["Assassin Initiate","1-mana Assassin"],["Hullcarver","1-mana artifact deathtouch Assassin"],["Ruthless Ripper","1-mana deathtouch Assassin"],["Poison-Blade Mentor","2-mana deathtouch Assassin"],["Evie Frye","2-mana Assassin looter that makes a creature unblockable"],["Slither Blade","1-mana unblockable"],["Triton Shorestalker","1-mana unblockable"],["Invisible Stalker","2-mana hexproof unblockable"],["Gray Harbor Merfolk","2-mana 2/3 unblockable with Etrata out"],["Shoreline Looter","2-mana unblockable that draws"],["Looter il-Kor","2-mana shadow looter"],["Prickly Boggart","1-mana fear"],["Vampire Cutthroat","1-mana skulk lifelink"],["Nightshade Stinger","1-mana flier"],["Network Disruptor","1-mana flier that taps a blocker"],["Sygg, River Cutthroat","draws when an opponent lost 3 life"],["Mist-Syndicate Naga","ninja that copies itself"],["Bident of Thassa","a card per hit"]]}
+ {
+  "title": "Closing: halving and doubling (combat-damage kills)",
+  "why": "Pure aggro dealt about 15 damage a game against 120 total life. These turn one connection into half or all of a player's life, and Ramses turns one kill into the game.",
+  "cards": [
+   [
+    "Bloodletter of Aclazotz",
+    "doubles every life loss on our turn: a halving hit takes all of it"
+   ],
+   [
+    "Quietus Spike",
+    "equipment halver; no P/T change, so it keeps Tetsuko's evasion"
+   ],
+   [
+    "Scytheclaw",
+    "halver with its own 1/1 body; +1/+1 breaks Tetsuko"
+   ],
+   [
+    "Shredder, Shadow Master",
+    "attacks all three opponents at once, each hit halves"
+   ],
+   [
+    "Grievous Wound",
+    "every source that damages the enchanted player halves them"
+   ],
+   [
+    "Radioactive Man",
+    "a 5-mana deathtouch halver"
+   ],
+   [
+    "Unstoppable Slasher",
+    "3-mana deathtouch Assassin halver that comes back"
+   ],
+   [
+    "Virtus the Veiled",
+    "3-mana 1/1 deathtouch Assassin halver: unblockable with Tetsuko"
+   ],
+   [
+    "Ramses, Assassin Lord",
+    "one opponent dying after an Assassin attacked them wins the game"
+   ]
+  ]
+ },
+ {
+  "title": "Extra combats, double strike and extra turns",
+  "why": "No blue, black or colorless extra-combat card had been found. The Scryfall search `o:\"additional combat\" id<=ub legal:commander` finds Genji Glove (colorless), Illusionist's Gambit (on an opponent's turn, for their attack) and Swinging Ship (an Attraction).",
+  "cards": [
+   [
+    "Genji Glove",
+    "colorless: double strike and an extra combat each turn"
+   ],
+   [
+    "Leyline Axe",
+    "double strike and trample, free in the opening hand"
+   ],
+   [
+    "Fireshrieker",
+    "double strike for {3}, equip {2}"
+   ],
+   [
+    "Time Warp",
+    "extra turn"
+   ],
+   [
+    "Temporal Manipulation",
+    "extra turn"
+   ],
+   [
+    "Capture of Jingzhou",
+    "extra turn"
+   ],
+   [
+    "Notorious Throng",
+    "fliers for the damage dealt this turn; with prowl, an extra turn"
+   ],
+   [
+    "Alrund's Epiphany",
+    "extra turn and two fliers (7 mana)"
+   ]
+  ]
+ },
+ {
+  "title": "Turning steals into value without a flip",
+  "why": "Each cloak is a stolen card. These draw, make mana or pump for it.",
+  "cards": [
+   [
+    "Satoru, the Infiltrator",
+    "draws when cloaks and ninjutsu creatures enter"
+   ],
+   [
+    "They Came from the Pipes",
+    "draws for each face-down creature entering"
+   ],
+   [
+    "Glitch Interpreter",
+    "draws when colorless (face-down) creatures connect"
+   ],
+   [
+    "Thieving Amalgam",
+    "manifests each opponent's top card in their upkeep; stolen creatures dying drain 2"
+   ],
+   [
+    "Orochi Soul-Reaver",
+    "Treasure and a manifest of their top card per player hit"
+   ],
+   [
+    "Grim Hireling",
+    "two Treasures per player hit"
+   ],
+   [
+    "Forsaken Monument",
+    "face-down (colorless) creatures +2/+2"
+   ],
+   [
+    "Garland, Royal Kidnapper",
+    "creatures you control but don't own +2/+2 (monarch: not in the engine)"
+   ],
+   [
+    "Roaming Throne",
+    "Assassin: Etrata's cloak trigger happens twice"
+   ],
+   [
+    "Spark Double",
+    "a second Etrata"
+   ],
+   [
+    "Auton Soldier",
+    "a second Etrata with myriad (each token cloaks too)"
+   ],
+   [
+    "Ghostly Flicker",
+    "a cloaked card returns face up and ours for good"
+   ],
+   [
+    "Hostage Taker",
+    "removal you can cast"
+   ],
+   [
+    "Rogue Class",
+    "a second steal on each hit, team menace"
+   ],
+   [
+    "Predators' Hour",
+    "team menace and a steal per hit for a turn"
+   ],
+   [
+    "Reno and Rude",
+    "2-mana menace Assassin that steals its hit"
+   ],
+   [
+    "Staff of Eden, Vault's Key",
+    "draws a card per permanent you control but don't own (not built)"
+   ],
+   [
+    "Become Anonymous",
+    "instant: one creature and two cards become three cloaks (not built)"
+   ],
+   [
+    "Ixidron",
+    "turns every other nontoken creature face down (not built)"
+   ],
+   [
+    "Conspiracy",
+    "type changer that replaces types (not built: Arcane Adaptation does the job here)"
+   ]
+  ]
+ },
+ {
+  "title": "Evasion for the whole team",
+  "why": "Stolen 2/2s and 1/1 Assassins need to connect.",
+  "cards": [
+   [
+    "Vela the Night-Clad",
+    "others get intimidate: a colorless face-down creature can only be blocked by artifact creatures"
+   ],
+   [
+    "Archetype of Imagination",
+    "our creatures fly, theirs can't"
+   ],
+   [
+    "Levitation",
+    "team flying"
+   ],
+   [
+    "Intimidation",
+    "team fear"
+   ],
+   [
+    "Eldrazi Monument",
+    "+1/+1, flying, indestructible; a creature a turn"
+   ],
+   [
+    "Interceptor, Shadow's Hound",
+    "Assassins have menace"
+   ],
+   [
+    "Cover of Darkness",
+    "Assassins have fear"
+   ],
+   [
+    "Winged Boots",
+    "flying and ward {4}"
+   ],
+   [
+    "Glen Elendra Liege",
+    "blue and black anthem with flying"
+   ],
+   [
+    "Massacre Girl, Known Killer",
+    "menace Assassin, team wither"
+   ],
+   [
+    "Dolmen Gate",
+    "attacking creatures you control take no combat damage"
+   ],
+   [
+    "Haunted One",
+    "Background in the 99: Etrata becoming tapped gives every creature sharing a type +2/+0 and undying"
+   ],
+   [
+    "Sword Coast Sailor",
+    "Background in the 99: Etrata unblockable against the highest life total"
+   ],
+   [
+    "Reverse the Polarity",
+    "instant: creatures can't be blocked this turn"
+   ],
+   [
+    "Akroma's Memorial",
+    "team flying, first strike, haste, protection from black and red (7 mana)"
+   ],
+   [
+    "Teferi's Veil",
+    "attackers phase out after combat (not built: they couldn't block)"
+   ],
+   [
+    "Nanogene Conversion",
+    "every creature becomes an Etrata for a turn (not built: it copies the opponents' creatures too)"
+   ]
+  ]
+ },
+ {
+  "title": "Cheap connectors",
+  "why": "The trace shows the deck too slow on turns 1 to 3.",
+  "cards": [
+   [
+    "Assassin Initiate",
+    "1-mana Assassin"
+   ],
+   [
+    "Hullcarver",
+    "1-mana artifact deathtouch Assassin"
+   ],
+   [
+    "Ruthless Ripper",
+    "1-mana deathtouch Assassin"
+   ],
+   [
+    "Poison-Blade Mentor",
+    "2-mana deathtouch Assassin"
+   ],
+   [
+    "Evie Frye",
+    "2-mana Assassin looter that makes a creature unblockable"
+   ],
+   [
+    "Slither Blade",
+    "1-mana unblockable"
+   ],
+   [
+    "Triton Shorestalker",
+    "1-mana unblockable"
+   ],
+   [
+    "Invisible Stalker",
+    "2-mana hexproof unblockable"
+   ],
+   [
+    "Gray Harbor Merfolk",
+    "2-mana 2/3 unblockable with Etrata out"
+   ],
+   [
+    "Shoreline Looter",
+    "2-mana unblockable that draws"
+   ],
+   [
+    "Looter il-Kor",
+    "2-mana shadow looter"
+   ],
+   [
+    "Prickly Boggart",
+    "1-mana fear"
+   ],
+   [
+    "Vampire Cutthroat",
+    "1-mana skulk lifelink"
+   ],
+   [
+    "Nightshade Stinger",
+    "1-mana flier"
+   ],
+   [
+    "Network Disruptor",
+    "1-mana flier that taps a blocker"
+   ],
+   [
+    "Sygg, River Cutthroat",
+    "draws when an opponent lost 3 life"
+   ],
+   [
+    "Mist-Syndicate Naga",
+    "ninja that copies itself"
+   ],
+   [
+    "Bident of Thassa",
+    "a card per hit"
+   ]
+  ]
+ }
 ]
