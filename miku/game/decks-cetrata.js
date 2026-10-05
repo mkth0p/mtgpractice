@@ -1870,15 +1870,16 @@
   const B = n => Array(n).fill("Swamp"), I = n => Array(n).fill("Island");
   const LIST = [
     // win lines and their pieces (v3, 2026-10-05: the Brine lock and the hit list are out, and five
-    // slow spells became lands from the Etrata deck; see etrata-deck/underused-tech)
+    // slow spells became lands from the Etrata deck, then Praetor's Grasp and Fallen Shinobi made way for
+    // Phyrexian Arena, Aetherize and Mutavault; see etrata-deck/underused-tech)
     "Enduring Tenacity", "Starscape Cleric", "Vampire of the Dire Moon", "Hooded Blightfang", "Silumgar Assassin",
     "Duskmantle Guildmage", "Mindcrank", "Scroll of Fate", "Wormfang Manta", "Crystal Shard", "Training Grounds",
     "Bloodthirsty Conqueror", "Bloodletter of Aclazotz",
     "Vito, Thorn of the Dusk Rose", "Changeling Outcast", "Marauding Blight-Priest", "Exquisite Blood", "Sanguine Bond",
     "Virtus the Veiled", "Tetsuko Umezawa, Fugitive", "Toxic Deluge",
     // theft and card advantage
-    "Thief of Sanity", "Black Market Connections", "Fallen Shinobi", "Opposition Agent", "Notion Thief",
-    "Windfall", "Praetor's Grasp", "Rhystic Study", "Necropotence", "Mystic Remora", "Brainstorm", "Ponder", "Night's Whisper",
+    "Thief of Sanity", "Black Market Connections", "Phyrexian Arena", "Opposition Agent", "Notion Thief",
+    "Windfall", "Aetherize", "Rhystic Study", "Necropotence", "Mystic Remora", "Brainstorm", "Ponder", "Night's Whisper",
     // tutors
     "Demonic Tutor", "Vampiric Tutor", "Imperial Seal", "Grim Tutor", "Diabolic Intent", "Beseech the Mirror", "Lim-Dûl's Vault",
     "Scheming Symmetry", "Wishclaw Talisman", "Tribute Mage", "Shred Memory", "Muddle the Mixture", "Drift of Phantasms", "Dimir House Guard",
@@ -1889,23 +1890,23 @@
     // lands
     "Command Tower", "Watery Grave", "Drowned Catacomb", "Darkslick Shores", "Underground River", "Sunken Hollow", "Morphic Pool",
     "Gloomlake Verge", "Undercity Sewers", "Polluted Delta", "Otawara, Soaring City", "Takenuma, Abandoned Mire", "Rogue's Passage",
-    "Path of Ancestry", "Secluded Courtyard", "Choked Estuary", "Darkwater Catacombs", "Tainted Isle", "River of Tears"
-  ].concat(I(8), B(9));
+    "Path of Ancestry", "Secluded Courtyard", "Choked Estuary", "Darkwater Catacombs", "Tainted Isle", "River of Tears", "Mutavault"
+  ].concat(I(7), B(9));
 
   /* Lines whose pieces left the list (the Brine lock and the hit list in v3) drop out of the plan, the
      coach and the bots' tutoring. Their cards stay defined above. */
   for (let i = LINES.length - 1; i >= 0; i--) if (!LINES[i].sides.every(side => side.some(n => LIST.includes(n)))) LINES.splice(i, 1);
   for (let i = PLAN_LINES.length - 1; i >= 0; i--) if (!PLAN_LINES[i].sides.every(side => side.some(n => LIST.includes(n)))) PLAN_LINES.splice(i, 1);
   const V3_ADDS = ["Enduring Tenacity", "Starscape Cleric", "Vampire of the Dire Moon", "Hooded Blightfang", "Silumgar Assassin",
-    "Choked Estuary", "Darkwater Catacombs", "Tainted Isle", "River of Tears", "Swamp"];
+    "Choked Estuary", "Darkwater Catacombs", "Tainted Isle", "River of Tears", "Swamp", "Phyrexian Arena", "Aetherize", "Mutavault"];
   const V3_CUTS = ["Mari, the Killing Quill", "Etrata, the Silencer", "Brine Elemental", "Vesuvan Shapeshifter", "Dizzy Spell",
-    "Ramses, Assassin Lord", "Gonti, Night Minister", "Leyline of Transformation", "Roshan, Hidden Magister", "Infernal Grasp"];
+    "Ramses, Assassin Lord", "Gonti, Night Minister", "Leyline of Transformation", "Roshan, Hidden Magister", "Infernal Grasp", "Praetor's Grasp", "Fallen Shinobi", "Island"];
   MK.CETRATA_DECK = {
     id: "corrupted-etrata", hero: "corrupted-etrata", alsoOn: ["etrata"], variant: "corrupted-etrata",
     label: "Corrupted Etrata", name: "Corrupted Etrata", title: "Etrata, Deadly Fugitive",
     commander: "Etrata, Deadly Fugitive", identity: ["U", "B"], bracket: 4, aggression: 0.6,
     style: "Dimir theft and odd combos",
-    blurb: "Bracket 4 Etrata: steal cards with cloaks, Thief of Sanity and Fallen Shinobi while tutoring for two-card wins (the vampire loop, Mindcrank + Guildmage, Bloodletter + Virtus, the Wormfang Manta turns), with cheap deathtouch blockers for the early turns. Coach tips show which piece is missing.",
+    blurb: "Bracket 4 Etrata: steal cards with cloaks, Thief of Sanity and Notion Thief while tutoring for two-card wins (the vampire loop, Mindcrank + Guildmage, Bloodletter + Virtus, the Wormfang Manta turns), with cheap deathtouch blockers for the early turns. Coach tips show which piece is missing.",
     watch: ["Exquisite Blood", "Bloodthirsty Conqueror", "Mindcrank", "Bloodletter of Aclazotz", "Enduring Tenacity", "Hooded Blightfang", "Opposition Agent", "Notion Thief"],
     list: LIST,
     // games recorded before engine 7 replay with the v2 list

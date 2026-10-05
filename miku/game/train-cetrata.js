@@ -456,7 +456,7 @@
   const PRECON_CMDS = ["Kaalia of the Vast", "Lathril, Blade of the Elves", "Wilhelt, the Rotcleaver", "Ghired, Conclave Exile", "Isperia, Supreme Judge", "Krenko, Mob Boss", "Talrand, Sky Summoner"];
   const OPP_CREATURES = ["Serra Angel", "Llanowar Elves", "Elvish Archdruid", "Cemetery Reaper", "Angel of Indemnity", "Old Gnawbone", "Mischievous Sneakling", "Death Baron", "Archangel of Thune"];
   const DECK_LANDS = ["Watery Grave", "Drowned Catacomb", "Darkslick Shores", "Underground River", "Sunken Hollow", "Command Tower", "Island", "Swamp", "Island", "Swamp"];
-  const FILLER = ["Rhystic Study", "Mystic Remora", "Brainstorm", "Ponder", "Night's Whisper", "Counterspell", "Swan Song", "Infernal Grasp", "Deadly Rollick", "Gonti, Night Minister", "Thief of Sanity", "Black Market Connections", "Fallen Shinobi", "Opposition Agent", "Toxic Deluge", "Cyclonic Rift", "Arcane Signet", "Mind Stone"];
+  const FILLER = ["Rhystic Study", "Mystic Remora", "Brainstorm", "Ponder", "Night's Whisper", "Counterspell", "Swan Song", "Aetherize", "Deadly Rollick", "Phyrexian Arena", "Thief of Sanity", "Black Market Connections", "Hooded Blightfang", "Opposition Agent", "Toxic Deluge", "Cyclonic Rift", "Arcane Signet", "Mind Stone"];
   function scenario(seed, opts) {
     opts = opts || {};
     const rnd = rngFrom(seed);

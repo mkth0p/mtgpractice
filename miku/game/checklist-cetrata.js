@@ -52,7 +52,7 @@
       key: "combat", when: "Combat", phase: "combat",
       items: [
         { text: "Every Assassin that connects cloaks the top card of that player's library. Changeling Outcast, Etrata (1/4) and Virtus get in with Tetsuko.", cards: ["Changeling Outcast", "Tetsuko Umezawa, Fugitive"] },
-        { text: "Unblocked Changeling Outcast? Ninjutsu Fallen Shinobi ({2}{U}{B}) in its place: their top two cards are yours to play free this turn.", cards: ["Fallen Shinobi", "Changeling Outcast"] },
+        { text: "Mutavault ({1}) becomes a 2/2 with every creature type: an Assassin, so it cloaks when it connects.", cards: ["Mutavault"] },
         { text: "Thief of Sanity: each hit looks at their top three cards and exiles one for you to cast.", cards: ["Thief of Sanity"] }
       ]
     },
@@ -60,7 +60,7 @@
       key: "end", when: "Before you pass", phase: "main2",
       items: [
         { text: "Necropotence: pay life now for cards (they arrive at your end step). Keep enough life for the table.", cards: ["Necropotence"] },
-        { text: "Keep {U} or the free counters up: Fierce Guardianship, An Offer You Can't Refuse, Swan Song, Counterspell.", cards: ["Fierce Guardianship", "Swan Song", "Counterspell"] },
+        { text: "Keep {U} or the free counters up: Fierce Guardianship, An Offer You Can't Refuse, Swan Song, Counterspell. Aetherize ({3}{U}) answers a big attack.", cards: ["Fierce Guardianship", "Swan Song", "Counterspell"] },
         { text: "Scroll of Fate: manifest a big creature or an expensive spell from your hand; Etrata flips it later for 4.", cards: ["Scroll of Fate"] }
       ]
     },
