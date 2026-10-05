@@ -423,6 +423,22 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
     await g.playLand(a, fp, true); await g.settle();
     check("Fell Mire: enters untapped for 3 life", fp.zone === "battlefield" && !fp.tapped && a.life === 37 && g.isLand(fp), { tapped: fp.tapped, life: a.life }); }
 
+
+  // the brain's closers: Coat of Arms only when our typal board beats theirs; Hatred's X; Blood Tribute with Bloodletter
+  { const { g, a, b } = table(); const H = MK.HEIST_HOOKS; a.deckId = "etrata-heist-aggro"; a.agent.bot = true;
+    for (let i = 0; i < 4; i++) put(g, a, "Hired Poisoner"); put(g, b, "Llanowar Elves"); put(g, b, "Llanowar Elves"); const coat = hand(g, a, "Coat of Arms"); await g.settle();
+    check("Coat of Arms: cast with four Assassins against two Elves", H.coatCast(g, a, coat, { window: "main1" }) === 24);
+    for (let i = 0; i < 4; i++) put(g, b, "Llanowar Elves"); await g.settle();
+    check("Coat of Arms: not cast when the opponent's Elves would gain as much", H.coatCast(g, a, coat, { window: "main1" }) === false); }
+  { const { g, a, b } = table(); const H = MK.HEIST_HOOKS; a.deckId = "etrata-heist-aggro"; a.agent.bot = true; lands(g, a, 5, "Swamp"); put(g, a, "Ramses, Assassin Lord"); const oc = put(g, a, "Changeling Outcast"); const ht = hand(g, a, "Hatred"); b.life = 25; await g.settle();
+    a.agent.attack = () => [{ attacker: oc, target: b }];
+    let x = null; const ow = g.trickWindow.bind(g);
+    g.trickWindow = async (p, w) => { if (!w && x == null) { x = H.hatredTrick(g, a, ht) ? H.hatredX(g, a) : -1; } return ow(p, w); };
+    await g.doCombat(a); await g.settle();
+    check("Hatred: with Ramses out it pays exactly what kills (23 life: the Outcast is 2/2 under Ramses, hitting 25)", x === 23, x); }
+  { const { g, a, b } = table(); const H = MK.HEIST_HOOKS; a.deckId = "etrata-heist-aggro"; a.agent.bot = true; put(g, a, "Bloodletter of Aclazotz"); const bt = hand(g, a, "Blood Tribute"); await g.settle();
+    check("Blood Tribute: with Bloodletter out it's a kill, cast at once", H.halfSpellCast(g, a, bt, { window: "main1" }) === 60); }
+
   // the engine rules: "triggers an additional time" stays with its creature type, anyColor, castEntry
   { const { g, a } = table(); const rt = put(g, a, "Roaming Throne"); await g.settle();
     check("triggerExtra: a non-Assassin's trigger isn't doubled", (() => { const n = g.staticsOf(rt).find(st => st.triggerExtra).triggerExtra(g, rt, { src: put(g, a, "Llanowar Elves"), controller: a }); return n === 0; })()); }

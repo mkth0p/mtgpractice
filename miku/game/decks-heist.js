@@ -1034,6 +1034,88 @@
     ai: { priority: 5, confirm: (g, p, req) => { const a = req.ev && req.ev.o; return !!a && !a.isToken && a.owner === p && !a.faceDown && (a.combat && a.combat.blockedBy || []).some(b => AI().fight(g, a, b).aDies); } }
   });
 
+
+  /* ---------------- the closers' hooks: when the brain casts and aims Coat of Arms, Kindred Dominance, Hatred, the
+     half-life spells, the altars (with Vein Ripper), Force of Despair, Siren Stormtamer and the flares */
+  const sharedCount = (g, who) => { const cre = g.creatures(); const types = new Map(cre.map(c => [c.id, typesLite(g, c)])); let n = 0; for (const c of cre) { if (c.controller !== who) continue; for (const d of cre) if (d !== c && shareTypeLite(types.get(c.id), types.get(d.id))) n++; } return n; };
+  /* Coat of Arms: ours when our shared-type count clearly beats every opponent's (a typal opponent gets it too) */
+  H.coatCast = (g, p, o, ctx) => {
+    if (!mainWin(ctx.window)) return false;
+    const ours = sharedCount(g, p), theirs = Math.max(0, ...liveOpps(g, p).map(q => sharedCount(g, q)));
+    return ours >= 6 && ours >= theirs * 1.5 + 2 ? 24 : false;
+  };
+  /* Kindred Dominance: before combat when it destroys far more of theirs than of ours (our Assassins survive) and
+     the attack then connects; otherwise the generic wipe rule (ai.wipe) in the second main phase */
+  H.dominanceCast = (g, p, o, ctx) => {
+    if (ctx.window !== "main1") return undefined;
+    const dead = g.creatures().filter(c => !isAssassin(g, c));
+    const theirs = dead.filter(c => c.controller !== p).reduce((t, c) => t + valueOf(g, c), 0), ours = dead.filter(c => c.controller === p).reduce((t, c) => t + valueOf(g, c), 0);
+    return theirs >= 12 && ours * 3 <= theirs ? 36 : false;
+  };
+  /* Hatred after blockers: the life X that makes an unblocked attacker's hit lethal on its defender (Bloodletter and
+     the halvers counted), paid when we keep at least 6 life, or 1 with Ramses out and an Assassin in the attack */
+  H.hatredTrick = (g, p, o) => {
+    const c = g.combat;
+    if (!c || c.attacker !== p || !brainOn(p)) return false;
+    const ramses = onBf(g, p, "Ramses, Assassin Lord");
+    for (const a of c.attackers.filter(a => a.controller === p && a.combat && !a.combat.wasBlocked && g.isPlayer(a.combat.attacking) && g.power(a) >= 0)) {
+      const q = a.combat.attacking;
+      if (q.lost) continue;
+      const through = c.attackers.filter(x => x.controller === p && x.combat && !x.combat.wasBlocked && x.combat.attacking === q);
+      const keep = ramses && through.some(x => isAssassin(g, x)) ? 1 : 6;
+      let lo = 1, hi = p.life - keep;
+      if (hi < lo || lifeAfter(g, p, q, through, x => (x === a ? hi : 0)) > 0) continue;
+      while (lo < hi) { const mid = (lo + hi) >> 1; if (lifeAfter(g, p, q, through, x => (x === a ? mid : 0)) <= 0) hi = mid; else lo = mid + 1; }
+      mem(p).hatred = { o: a, x: lo, turn: g.turn };
+      return true;
+    }
+    return false;
+  };
+  H.hatredX = (g, p) => { const h = mem(p).hatred; return h && h.turn === g.turn ? h.x : 0; };
+  H.hatredTarget = (g, p, req) => { const h = mem(p).hatred; return h && h.turn === g.turn && req.options.includes(h.o) ? h.o : undefined; };
+  /* Blood Tribute and Rush of Dread: at the mark, when the halving (doubled by Bloodletter: all of it) plus this
+     turn's attack kills, or when it just takes 20 from the player we're killing anyway */
+  H.halfSpellCast = (g, p, o, ctx) => {
+    if (ctx.window !== "main1" || !brainOn(p)) return false;
+    const able = g.creatures(p).filter(c => g.canAttack(c, p) && g.power(c) > 0);
+    const bl = onBf(g, p, "Bloodletter of Aclazotz");
+    for (const q of liveOpps(g, p)) {
+      if (bl) { mem(p).halfAt = q; return 60; }
+      const after = q.life - Math.ceil(q.life / 2);
+      const r = able.length ? outcome(g, p, q, able) : { dmg: 0 };
+      if (after - r.dmg <= 0 || (q === pickMark(g, p, able) && q.life >= 20)) { mem(p).halfAt = q; return 30; }
+    }
+    return false;
+  };
+  H.halfSpellTarget = (g, p, req) => { const q = mem(p).halfAt; return q && req.options.includes(q) ? q : req.options.slice().sort((a, b) => b.life - a.life)[0]; };
+  /* Vein Ripper and an altar: sacrifice bodies to drain 2 each, when that kills an opponent (the mark first) */
+  const fodder = (g, p) => g.creatures(p).filter(c => !c.isCommander && !["Ramses, Assassin Lord", "Vein Ripper", "Bloodletter of Aclazotz"].includes(c.def.name)).sort((a, b) => sacScore(g, p, a) - sacScore(g, p, b));
+  H.altarUse = (g, p, o, ctx) => {
+    if (!mainWin(ctx.window) || !onBf(g, p, "Vein Ripper")) return false;
+    const n = fodder(g, p).length, opps = liveOpps(g, p).filter(q => q.life <= 2 * n);
+    if (!opps.length) return false;
+    const q = opps.includes(mem(p).mark) ? mem(p).mark : opps.sort((a, b) => a.life - b.life)[0];
+    mem(p).drainAt = q;
+    return { repeat: Math.ceil(q.life / 2) };
+  };
+  H.coatTarget = (g, p, opts) => { for (const n of ["Ramses, Assassin Lord", "Etrata, Deadly Fugitive", "Bloodletter of Aclazotz"]) { const c = opts.find(x => x.controller === p && x.def.name === n); if (c) return c; } return opts.filter(c => c.controller === p && c.def.legendary).sort((a, b) => valueOf(g, b) - valueOf(g, a))[0]; };
+  /* Force of Despair at the end of an opponent's turn (or on the stack) when what entered this turn is worth it */
+  H.despairPlan = (g, p, o, ctx) => {
+    if (o.zone !== "hand" || g.active === p || !brainOn(p)) return null;
+    if (!(ctx.window === "end" || ctx.window === "stack" || ctx.window === "ability")) return null;
+    const fresh = g.creatures().filter(c => c.enteredTurn === g.turn);
+    const theirs = fresh.filter(c => c.controller !== p).reduce((t, c) => t + valueOf(g, c), 0), ours = fresh.filter(c => c.controller === p).reduce((t, c) => t + valueOf(g, c), 0);
+    if (theirs < 9 || ours * 2 > theirs) return null;
+    const acts = (ctx.actions || []).filter(a => a.type === "cast" && a.card === o).sort((a, b) => (b.alt || 0) - (a.alt || 0));
+    return acts.length ? { type: "cast", card: o, alt: acts[0].alt, maxTries: 1 } : null;
+  };
+  H.stormtamerUse = (g, p, o, ctx) => {
+    const top = g.stack[g.stack.length - 1];
+    if (!top || top.p === p) return false;
+    return (top.targets || []).some(t => t && (t === p || (!g.isPlayer(t) && t.controller === p && g.isCreature(t) && (t.isCommander || valueOf(g, t) >= 6))));
+  };
+  H.flareSac = (g, p, req) => req.options.filter(c => c.controller === p && c.owner === p && !c.isCommander && c.def.name !== "Ramses, Assassin Lord").sort((a, b) => valueOf(g, a) - valueOf(g, b))[0];
+
   /* ================================================================ equipment and artifacts */
   D({
     name: "Quietus Spike", cost: "{3}", type: "Artifact — Equipment", equip: "{3}",
@@ -1694,6 +1776,9 @@
     return false;
   }
   function heistChoose(g, p, req) {
+    if (req.type === "number" && req.purpose === "hatredX") return Math.max(req.min, Math.min(req.max, H.hatredX(g, p)));
+    if (req.type === "target" && req.purpose === "sacrifice" && req.src && /Altar$/.test(req.src.def.name)) { const f = fodder(g, p).find(c => req.options.includes(c)); if (f) return f; }
+    if (req.type === "target" && req.src && req.src.def.name === "Vein Ripper" && req.options.some(x => g.isPlayer(x))) { const q = mem(p).drainAt || mem(p).mark; if (q && req.options.includes(q)) return q; const qs = req.options.filter(x => g.isPlayer(x) && x !== p); if (qs.length) return qs.sort((a, b) => a.life - b.life)[0]; }
     if (req.type === "target" && req.purpose === "sacrifice" && req.src && req.src.def.name === "Pyre of Heroes") { const f = H.pyrePick(g, p); if (f && req.options.includes(f)) return f; }
     if (req.type === "target" && (req.purpose === "sparkCopy" || req.purpose === "autonCopy" || req.purpose === "sakashimaCopy")) { const t = H.copyTarget(g, p, req); if (t && req.options.includes(t)) return t; }
     // the creature an evasion source was used for
