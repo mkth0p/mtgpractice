@@ -1,5 +1,5 @@
 /* Corrupted Etrata: settings that turn the shared deck-site shell (../miku/app.js) into the Corrupted
-   Etrata site (Etrata's Shadow Market v2, a Bracket 4 Etrata, Deadly Fugitive list), the game's hero
+   Etrata site (Etrata's Shadow Market v3, a Bracket 4 Etrata, Deadly Fugitive list), the game's hero
    (MK_SITE), and this deck's tools: the combo checker, the tutor map, the double-tap calculator, the
    play checklist, the quiz and the buy list. */
 (function () {
@@ -13,18 +13,14 @@
   /* ================================================================ shared data */
   // Each line needs one card from every group in `need`; `plus` cards make it better but aren't required.
   const COMBOS = [
-    { id: "court", name: "Vampire court loop", need: [["Exquisite Blood", "Bloodthirsty Conqueror"], ["Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond"]],
-      result: "Any opponent losing life starts a loop that drains every opponent to 0.", start: "Any opponent losing life starts it: an attack, their fetch land or shock land, Mindcrank. Your own life loss (Night's Whisper, Necropotence) doesn't." },
+    { id: "court", name: "Vampire court loop", need: [["Exquisite Blood", "Bloodthirsty Conqueror"], ["Marauding Blight-Priest", "Starscape Cleric", "Vito, Thorn of the Dusk Rose", "Sanguine Bond", "Enduring Tenacity"]], plus: ["Hooded Blightfang", "Vampire of the Dire Moon"],
+      result: "Any opponent losing life starts a loop that drains every opponent to 0.", start: "Any opponent losing life, or you gaining life, starts it: an attack, a Hooded Blightfang trigger, Vampire of the Dire Moon's lifelink, their fetch land or shock land, Mindcrank. Your own life loss (Night's Whisper, Necropotence) doesn't." },
     { id: "crank", name: "Mindcrank + Duskmantle Guildmage", need: [["Mindcrank"], ["Duskmantle Guildmage"]],
       result: "Each card put into their graveyard costs them 1 life, and each life lost mills them again, until they're dead. Each opponent needs their own starter.", start: "Activate the Guildmage ({1}{U}{B}), then any life loss or mill starts it. Do it on an opponent's turn when they cast a spell." },
-    { id: "brine", name: "Brine Elemental lock", need: [["Brine Elemental"], ["Vesuvan Shapeshifter"]], plus: ["Training Grounds"],
-      result: "Opponents never untap again.", start: "Both face down for {3} each. Etrata flips Brine for {2}{U}{B} ({U}{B} with Training Grounds); Vesuvan flips as a copy for {1}{U}, then turns face down each upkeep and flips again." },
     { id: "double", name: "Double tap", need: [["Bloodletter of Aclazotz"], ["Virtus the Veiled"]], plus: ["Tetsuko Umezawa, Fugitive", "Rogue's Passage", "Ramses, Assassin Lord"],
       result: "Virtus's hit makes them lose half their life, rounded up. Bloodletter doubles that on your turn: all of it.", start: "Tetsuko makes Virtus unblockable, but not with Ramses out (Ramses makes it a 2/2): use Rogue's Passage then. With Ramses, that player dying after an Assassin attacked them wins you the game." },
     { id: "manta", name: "Infinite turns", need: [["Scroll of Fate"], ["Wormfang Manta"], ["Crystal Shard"]], plus: ["Training Grounds"],
-      result: "An extra turn every turn. The Manta is summoning sick each time, so win the extra turns with your other creatures.", start: "Manifest the Manta with Scroll of Fate, flip it with Etrata ({2}{U}{B}), bounce it with Crystal Shard ({U}, {T}). Manifested again next turn: 5 mana a turn, 3 with Training Grounds." },
-    { id: "hits", name: "Hit list", need: [["Mari, the Killing Quill"], ["Toxic Deluge"], ["Etrata, the Silencer"]], plus: ["Ramses, Assassin Lord"],
-      result: "Hit counters pile up on the exiled creatures; the Silencer knocks out a player with three.", start: "Mari's hit counters go on opposing creatures that die. Wipe with Toxic Deluge, then connect with the Silencer. Ramses turns that loss into a win." }
+      result: "An extra turn every turn. The Manta is summoning sick each time, so win the extra turns with your other creatures.", start: "Manifest the Manta with Scroll of Fate, flip it with Etrata ({2}{U}{B}), bounce it with Crystal Shard ({U}, {T}). Manifested again next turn: 5 mana a turn, 3 with Training Grounds." }
   ];
   const COMBO_PIECES = [...new Set(COMBOS.flatMap(c => c.need.flat()))];
   const ALL_PLUS = [...new Set(COMBOS.flatMap(c => c.plus || []))].filter(n => !COMBO_PIECES.includes(n));
@@ -40,7 +36,6 @@
     { name: "Scheming Symmetry", how: "You and another player each put any card on top. {B}, sorcery. Pick the opponent least likely to use it.", any: true },
     { name: "Wishclaw Talisman", how: "Any card, to your hand. Then an opponent gets the Talisman: use it on the turn you win.", any: true },
     { name: "Tribute Mage", how: "Enters: an artifact with mana value 2, to your hand.", list: ["Mindcrank", "Wishclaw Talisman", "Dimir Signet", "Talisman of Dominance", "Arcane Signet", "Mind Stone", "Fellwar Stone"] },
-    { name: "Dizzy Spell", how: "Transmute {1}{U}{U}: a card with mana value 1.", mv: 1 },
     { name: "Shred Memory", how: "Transmute {1}{B}{B}: a card with mana value 2.", mv: 2 },
     { name: "Muddle the Mixture", how: "Transmute {1}{U}{U}: a card with mana value 2.", mv: 2 },
     { name: "Drift of Phantasms", how: "Transmute {1}{U}{U}: a card with mana value 3.", mv: 3 },
@@ -62,7 +57,7 @@
     ],
     colors: [["U", "blue", "Island"], ["B", "black", "Swamp"]],
     pipNote: "Etrata asks for {1}{U}{B}, and her flip for {2}{U}{B} ({U}{B} with Training Grounds).",
-    oddsNote: "Fifteen tutors make the real odds of finding a combo piece much better than these draw-only numbers: count a tutor as the piece it finds.",
+    oddsNote: "Fourteen tutors make the real odds of finding a combo piece much better than these draw-only numbers: count a tutor as the piece it finds.",
     oddsGroups: ({ is }) => [
       { id: "l2", label: "At least 2 lands", lands: 2 },
       { id: "l3", label: "At least 3 lands", lands: 3 },
@@ -71,7 +66,7 @@
       { id: "piece", label: "Any combo piece", f: c => COMBO_PIECES.includes(c.name) },
       { id: "pieceortutor", label: "A combo piece or a tutor", f: c => COMBO_PIECES.includes(c.name) || c.roles.includes("tutor") },
       { id: "steal", label: "A theft card", f: is("steal") },
-      { id: "court", label: "Exquisite Blood and Blight-Priest", both: [["Exquisite Blood", "Bloodthirsty Conqueror"], ["Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond"]] },
+      { id: "court", label: "A vampire drain and a payoff", both: [["Exquisite Blood", "Bloodthirsty Conqueror"], ["Marauding Blight-Priest", "Starscape Cleric", "Vito, Thorn of the Dusk Rose", "Sanguine Bond", "Enduring Tenacity"]] },
       { id: "crank", label: "Mindcrank and Duskmantle Guildmage", both: [["Mindcrank"], ["Duskmantle Guildmage"]] }
     ],
     botSim: null,

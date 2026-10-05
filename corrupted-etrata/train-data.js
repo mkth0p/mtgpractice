@@ -5,11 +5,11 @@
 window.CETRATA_TRAIN_DATA = {
   stack: [
     {
-      context: "Round 5, an opponent's main phase. You control <i-c>Etrata, Deadly Fugitive</i-c> and a face-down <i-c>Brine Elemental</i-c>. You have Island, Island, Swamp untapped.",
+      context: "Round 5, an opponent's main phase. You control <i-c>Etrata, Deadly Fugitive</i-c> and a face-down <i-c>Silumgar Assassin</i-c>. You have Island, Island, Swamp untapped.",
       q: "They cast Damnation. Your hand: <i-c>Swan Song</i-c>, <i-c>Counterspell</i-c>. What do you do?",
       options: ["Swan Song the Damnation", "Counterspell the Damnation", "Let it resolve and recast Etrata"],
       answer: 0,
-      explain: "<i-c>Swan Song</i-c> hits sorceries for one mana, and a 2/2 Bird for them is nothing next to losing Etrata and the Brine. Keep <i-c>Counterspell</i-c>: it's your only answer to a creature spell.",
+      explain: "<i-c>Swan Song</i-c> hits sorceries for one mana, and a 2/2 Bird for them is nothing next to losing Etrata and your face-down removal. Keep <i-c>Counterspell</i-c>: it's your only answer to a creature spell.",
       principle: "Counter with the narrowest spell that hits. Keep the flexible counter for what only it can stop."
     },
     {
@@ -73,7 +73,7 @@ window.CETRATA_TRAIN_DATA = {
       q: "Your hand: <i-c>Swan Song</i-c>, <i-c>An Offer You Can't Refuse</i-c>, <i-c>Counterspell</i-c>. What do you do?",
       options: ["Swan Song it", "Offer it", "Counterspell it", "Let it resolve"],
       answer: [1, 2],
-      explain: "Cursed Totem stops creatures' activated abilities: no <i-c>Duskmantle Guildmage</i-c> drain, and Etrata's flip is an activated ability of your face-down creatures, so Brine and Manta are off too. It must be countered. <i-c>Swan Song</i-c> can't target an artifact; <i-c>An Offer You Can't Refuse</i-c> and <i-c>Counterspell</i-c> both can. Offer is cheaper and leaves Counterspell for a creature; Counterspell gives them nothing. Either is fine.",
+      explain: "Cursed Totem stops creatures' activated abilities: no <i-c>Duskmantle Guildmage</i-c> drain, and Etrata's flip is an activated ability of your face-down creatures, so the Manta loop is off too. (A face-down <i-c>Silumgar Assassin</i-c> can still flip by megamorph: that's a special action, not an ability.) It must be countered. <i-c>Swan Song</i-c> can't target an artifact; <i-c>An Offer You Can't Refuse</i-c> and <i-c>Counterspell</i-c> both can. Offer is cheaper and leaves Counterspell for a creature; Counterspell gives them nothing. Either is fine.",
       principle: "Know which hate pieces shut off which line: Cursed Totem and Linvala stop three of them."
     },
     {
@@ -109,11 +109,11 @@ window.CETRATA_TRAIN_DATA = {
       principle: "Same cost, different reach: spend the narrow one."
     },
     {
-      context: "Your main phase. You activate the flip on a face-down <i-c>Brine Elemental</i-c> ({2}{U}{B}). In response, an opponent kills Etrata with Infernal Grasp.",
+      context: "Your main phase. You activate the flip on a face-down <i-c>Wormfang Manta</i-c> you manifested with <i-c>Scroll of Fate</i-c> ({2}{U}{B}). In response, an opponent kills Etrata with Infernal Grasp.",
       q: "What happens to your activation?",
-      options: ["It still resolves: the Brine turns face up", "It's countered because Etrata left", "The Brine stays face down and you get the mana back"],
+      options: ["It still resolves: the Manta turns face up", "It's countered because Etrata left", "The Manta stays face down and you get the mana back"],
       answer: 0,
-      explain: "Once an ability is activated it's on the stack on its own, independent of its source (rule 113.7a). Etrata granted the ability, but it was already activated. Brine turns face up and each opponent skips their next untap step.",
+      explain: "Once an ability is activated it's on the stack on its own, independent of its source (rule 113.7a). Etrata granted the ability, but it was already activated. The Manta turns face up, and <i-c>Crystal Shard</i-c> can still bounce it for an extra turn.",
       principle: "Killing the source doesn't stop an ability that's already on the stack."
     },
     {
@@ -191,12 +191,12 @@ window.CETRATA_TRAIN_DATA = {
       principle: "Theft that also removes a key card counts twice."
     },
     {
-      context: "Round 7. <i-c>Mari, the Killing Quill</i-c> has exiled creatures with hit counters. One opponent owns two hit cards, one owns one, one owns none but is at 8 life.",
-      q: "<i-c>Etrata, the Silencer</i-c> is unblockable. Who does she hit?",
-      options: ["The player with two hit cards", "The player at 8 life", "The player with one hit card"],
-      answer: 0,
-      explain: "The Silencer exiles one of their creatures with a hit counter and “that player loses the game if they own three or more exiled cards with hit counters on them.” Two plus one is three: that player is out now.",
-      principle: "Count hit counters per player, not per creature."
+      context: "Round 4. You have Etrata, a face-down <i-c>Silumgar Assassin</i-c> and {2}{B} open. Opponents' creatures: a 6/6 attacking you, a 3/1 commander that draws its controller a card whenever it deals combat damage, and a 1/1 mana elf.",
+      q: "You flip the Assassin for its megamorph cost. What does its trigger destroy?",
+      options: ["The 6/6 attacker", "The 3/1 card-draw commander", "The mana elf"],
+      answer: 1,
+      explain: "The trigger destroys “target creature with power 3 or less an opponent controls”, so the 6/6 isn't a legal target: block it with Etrata, whose deathtouch kills it. The commander is a repeatable card engine and costs more each time it's recast; the elf is one mana.",
+      principle: "Aim Silumgar Assassin at engines with power 3 or less. Leave big attackers to your deathtouch blockers."
     },
     {
       context: "Round 5. You have Etrata and four face-down 2/2s. One opponent has three untapped 1/1 tokens, one has a 5/5 with first strike, one has no creatures and no open mana.",
@@ -215,12 +215,12 @@ window.CETRATA_TRAIN_DATA = {
       principle: "Deathtouch doesn't work if she's dead before regular combat damage."
     },
     {
-      context: "Round 6. You have a face-down <i-c>Brine Elemental</i-c>, Etrata and plenty of mana. The player to your right just passed after tapping six lands on their turn.",
-      q: "When do you flip the Brine (each opponent skips their next untap step)?",
-      options: ["Now, at the end of their turn", "In your main phase", "On the next opponent's upkeep"],
+      context: "Round 6. You have a face-down <i-c>Silumgar Assassin</i-c>, Etrata and {2}{B} open. Nobody attacked you this turn cycle. The player to your right, whose turn is ending, has a 3/3 that gives their creatures lifelink.",
+      q: "When do you flip the Assassin to destroy the 3/3?",
+      options: ["Now, at the end of their turn", "In your main phase", "Not at all: keep it face down forever"],
       answer: 0,
-      explain: "Etrata's flip is an activated ability, so you can use it at instant speed. At the end of the turn of the player before you, every opponent has spent their mana on their own turn, and your lands untap in a moment. Flipping on an opponent's upkeep is too late for that player: they've already untapped.",
-      principle: "Instant-speed flips at the end of the turn before yours: the table is tapped and you untap next."
+      explain: "Megamorph is a special action, so you can flip any time you have priority. Holding it until now kept a 2/2 blocker and the threat of removal up all around the table. At the end of the turn before yours the mana is spare, and your lands untap in a moment. Flipping in your main phase spends mana you could use on your own turn.",
+      principle: "Hold face-down removal until the end of the turn before yours: you keep the blocker and the threat, and you untap next."
     },
     {
       context: "Round 5. One opponent has six open mana and a known combo deck. Another casts Rhystic Study on their turn. You hold one <i-c>Counterspell</i-c>.",

@@ -14,10 +14,10 @@ window.CETRATA_CARDS = [
    "facedown",
    "steal"
   ],
-  "why": "The engine of the deck. She gives every face-down creature you control \"{2}{U}{B}: turn this face up\", which turns Brine Elemental and Wormfang Manta from 7-mana flips into 4-mana ones and lets you cast face-down instants and sorceries for free. Every time an Assassin you control deals combat damage to an opponent, she also cloaks the top card of that player's library for you.",
+  "why": "The engine of the deck. She gives every face-down creature you control \"{2}{U}{B}: turn this face up\", which turns Wormfang Manta from a 7-mana flip into a 4-mana one, flips a face-down Silumgar Assassin at instant speed and lets you cast face-down instants and sorceries for free. Every time an Assassin you control deals combat damage to an opponent, she also cloaks the top card of that player's library for you.",
   "how": "Cast her on turn 2 or 3 off a rock. Keep her home as a 1/4 deathtouch blocker unless Tetsuko Umezawa makes her unblockable. While she's on the battlefield, Fierce Guardianship and Deadly Rollick are free.",
   "syn": [
-   "Brine Elemental",
+   "Silumgar Assassin",
    "Wormfang Manta",
    "Scroll of Fate",
    "Training Grounds",
@@ -39,12 +39,14 @@ window.CETRATA_CARDS = [
   "roles": [
    "combo"
   ],
-  "why": "The main drain of the vampire court loop. Whenever an opponent loses life, you gain that much, and Marauding Blight-Priest, Vito or Sanguine Bond turn every gain into more life loss. Any pair of them loops until every opponent is dead.",
+  "why": "The main drain of the vampire court loop. Whenever an opponent loses life, you gain that much, and any of the five payoffs (Marauding Blight-Priest, Starscape Cleric, Vito, Sanguine Bond, Enduring Tenacity) turns every gain into more life loss. Any pair of them loops until every opponent is dead.",
   "how": "Find it with Demonic Tutor, Vampiric Tutor, Imperial Seal or Grim Tutor when a payoff is already on the battlefield. Cast it with counter backup, then start the loop: an attack, a Mindcrank trigger, or an opponent cracking a fetch land or paying for a shock land.",
   "syn": [
    "Marauding Blight-Priest",
    "Vito, Thorn of the Dusk Rose",
    "Sanguine Bond",
+   "Starscape Cleric",
+   "Enduring Tenacity",
    "Bloodletter of Aclazotz",
    "Changeling Outcast",
    "Demonic Tutor"
@@ -63,10 +65,12 @@ window.CETRATA_CARDS = [
   "roles": [
    "combo"
   ],
-  "why": "A second Exquisite Blood on a 5/5 flying deathtouch body: whenever an opponent loses life, you gain that much. With Blight-Priest, Vito or Sanguine Bond it's the same infinite loop. When the loop isn't ready, it's still a big flying attacker.",
+  "why": "A second Exquisite Blood on a 5/5 flying deathtouch body: whenever an opponent loses life, you gain that much. With Blight-Priest, Starscape Cleric, Vito, Sanguine Bond or Enduring Tenacity it's the same infinite loop. When the loop isn't ready, it's still a big flying attacker.",
   "how": "Tutor for it when your opponents run enchantment removal, or when you want a threat that also ends the game. Cast it the turn before a payoff, or after one with protection up, and attack to start the loop.",
   "syn": [
    "Marauding Blight-Priest",
+   "Starscape Cleric",
+   "Enduring Tenacity",
    "Vito, Thorn of the Dusk Rose",
    "Sanguine Bond",
    "Bloodletter of Aclazotz",
@@ -132,15 +136,64 @@ window.CETRATA_CARDS = [
   "roles": [
    "combo"
   ],
-  "why": "The third payoff for the vampire court loop: whenever you gain life, target opponent loses that much. With Exquisite Blood or Bloodthirsty Conqueror it kills the table one player at a time. It's an enchantment, so it survives creature wipes that kill Vito and Blight-Priest.",
+  "why": "A payoff for the vampire court loop: whenever you gain life, target opponent loses that much. With Exquisite Blood or Bloodthirsty Conqueror it kills the table one player at a time. It's an enchantment, so it survives creature wipes that kill Vito, Blight-Priest and Starscape Cleric.",
   "how": "Tutor for it when the drain is on the battlefield and creature removal is the problem. Cast it with counter backup, then start the loop with any opponent losing life.",
   "syn": [
    "Exquisite Blood",
    "Bloodthirsty Conqueror",
    "Bloodletter of Aclazotz",
-   "Demonic Tutor"
+   "Demonic Tutor",
+   "Enduring Tenacity"
   ],
   "warn": "At five mana it's the slowest payoff. Prefer Blight-Priest or Vito when you can get either."
+ },
+ {
+  "name": "Enduring Tenacity",
+  "qty": 1,
+  "cost": "{2}{B}{B}",
+  "mv": 4,
+  "type": "Enchantment Creature — Snake Glimmer",
+  "cat": "Creature",
+  "pt": "4/3",
+  "text": "Whenever you gain life, target opponent loses that much life.\nWhen Enduring Tenacity dies, if it was a creature, return it to the battlefield under its owner's control. It's an enchantment. (It's not a creature.)",
+  "roles": [
+   "combo"
+  ],
+  "why": "A fourth payoff for the vampire court loop that's hard to get rid of: whenever you gain life, target opponent loses that much, so with Exquisite Blood or Bloodthirsty Conqueror it loops like Sanguine Bond. When it dies as a creature it comes back as an enchantment, so creature removal and Toxic Deluge only make it safer.",
+  "how": "Transmute Dimir House Guard for it, or cast it free with a bargained Beseech the Mirror. Cast it as a 4/3 blocker on turn 4. If they kill it, it returns as a plain enchantment that still does the loop.",
+  "syn": [
+   "Exquisite Blood",
+   "Bloodthirsty Conqueror",
+   "Dimir House Guard",
+   "Beseech the Mirror",
+   "Culling the Weak",
+   "Toxic Deluge"
+  ],
+  "warn": "It comes back only once: in its enchantment form it isn't a creature, so it can't die again, but enchantment removal, exile or a bounce gets rid of it for good. Like Vito, its trigger targets one opponent."
+ },
+ {
+  "name": "Starscape Cleric",
+  "qty": 1,
+  "cost": "{1}{B}",
+  "mv": 2,
+  "type": "Creature — Bat Cleric",
+  "cat": "Creature",
+  "pt": "2/1",
+  "text": "Offspring {2}{B} (You may pay an additional {2}{B} as you cast this spell. If you do, when this creature enters, create a 1/1 token copy of it.)\nFlying\nThis creature can't block.\nWhenever you gain life, each opponent loses 1 life.",
+  "roles": [
+   "combo"
+  ],
+  "why": "A two-mana Marauding Blight-Priest: whenever you gain life, each opponent loses 1. With Exquisite Blood or Bloodthirsty Conqueror it drains the whole table, and it's the cheapest loop payoff in the deck.",
+  "how": "Cast it on turn 2 and attack in the air, or pay the offspring cost later for a second copy that keeps the loop alive if one dies. Transmute Shred Memory or Muddle the Mixture for it when you need the payoff.",
+  "syn": [
+   "Exquisite Blood",
+   "Bloodthirsty Conqueror",
+   "Marauding Blight-Priest",
+   "Shred Memory",
+   "Muddle the Mixture",
+   "Tetsuko Umezawa, Fugitive"
+  ],
+  "warn": "It can't block, so it isn't one of your defenders. A 2/1 dies to every ping and to Toxic Deluge for X=1."
  },
  {
   "name": "Ramses, Assassin Lord",
@@ -154,13 +207,12 @@ window.CETRATA_CARDS = [
   "roles": [
    "combo"
   ],
-  "why": "Turns one elimination into a win: whenever a player loses the game, if one of your Assassins attacked them this turn, you win. That makes the double tap and the hit list into table wins. He's also a 4/4 deathtouch lord for your other Assassins.",
+  "why": "Turns one elimination into a win: whenever a player loses the game, if one of your Assassins attacked them this turn, you win. That makes the double tap into a table win. He's also a 4/4 deathtouch lord for your other Assassins.",
   "how": "Transmute Dimir House Guard for him, or cast him free with a bargained Beseech the Mirror. On the kill turn, attack the target with an Assassin first (Changeling Outcast is the easy one), then finish them in combat or with a loop after combat.",
   "syn": [
    "Virtus the Veiled",
    "Bloodletter of Aclazotz",
-   "Etrata, the Silencer",
-   "Mari, the Killing Quill",
+   "Silumgar Assassin",
    "Changeling Outcast",
    "Dimir House Guard"
   ],
@@ -226,12 +278,14 @@ window.CETRATA_CARDS = [
   "roles": [
    "utility"
   ],
-  "why": "Creatures you control with power or toughness 1 or less can't be blocked. That covers Etrata (1/4), Virtus, Vito, Tetsuko herself and the 6/1 Wormfang Manta. It's the deck's cheapest evasion and turns every small Assassin into a reliable cloak trigger.",
+  "why": "Creatures you control with power or toughness 1 or less can't be blocked. That covers Etrata (1/4), Virtus, Vito, Tetsuko herself, Vampire of the Dire Moon, Hooded Blightfang, Starscape Cleric, an unflipped Silumgar Assassin (2/1) and the 6/1 Wormfang Manta. It's the deck's cheapest evasion and turns every small Assassin into a reliable cloak trigger.",
   "how": "Transmute Shred Memory or Muddle the Mixture for her, or just cast her on turn 2. On Manta turns, the 6/1 Manta attacks unblocked.",
   "syn": [
    "Etrata, Deadly Fugitive",
    "Virtus the Veiled",
    "Vito, Thorn of the Dusk Rose",
+   "Vampire of the Dire Moon",
+   "Hooded Blightfang",
    "Wormfang Manta",
    "Shred Memory",
    "Muddle the Mixture"
@@ -239,53 +293,77 @@ window.CETRATA_CARDS = [
   "warn": "Ramses gives other Assassins +1/+1, so Etrata and Virtus lose the evasion while he's out. The Manta keeps it only if it isn't an Assassin."
  },
  {
-  "name": "Mari, the Killing Quill",
+  "name": "Vampire of the Dire Moon",
   "qty": 1,
-  "cost": "{1}{B}{B}",
-  "mv": 3,
-  "type": "Legendary Creature — Vampire Assassin",
+  "cost": "{B}",
+  "mv": 1,
+  "type": "Creature — Vampire",
   "cat": "Creature",
-  "pt": "3/2",
-  "text": "Whenever a creature an opponent controls dies, exile it with a hit counter on it.\nAssassins, Mercenaries, and Rogues you control have deathtouch and \"Whenever this creature deals combat damage to a player, you may remove a hit counter from a card that player owns in exile. If you do, draw a card and create two Treasure tokens.\"",
+  "pt": "1/1",
+  "text": "Deathtouch\nLifelink",
   "roles": [
-   "combo",
-   "utility"
+   "utility",
+   "combo"
   ],
-  "why": "Whenever a creature an opponent controls dies, it's exiled with a hit counter. That feeds Etrata, the Silencer's 'three hit counters and you lose', especially after Toxic Deluge. She also gives your Assassins, Mercenaries and Rogues deathtouch.",
-  "how": "Find her with Drift of Phantasms. Have her on the battlefield before Toxic Deluge or a big combat, then send the Silencer at the player with the most hit counters. Use the draw-and-Treasures mode only on players you aren't putting on the hit list.",
+  "why": "A turn-1 deathtouch blocker that keeps big attackers off you while you set up. Its lifelink starts the vampire loop when a drain and a payoff are out, and its deathtouch attack triggers Hooded Blightfang.",
+  "how": "Play it on turn 1 and leave it home. With Tetsuko out it's unblockable, so on the kill turn it attacks, gains you life and starts the loop.",
   "syn": [
-   "Etrata, the Silencer",
-   "Toxic Deluge",
-   "Ramses, Assassin Lord",
-   "Black Market Connections",
-   "Drift of Phantasms",
-   "Opposition Agent"
+   "Hooded Blightfang",
+   "Tetsuko Umezawa, Fugitive",
+   "Exquisite Blood",
+   "Marauding Blight-Priest",
+   "Starscape Cleric"
   ],
-  "warn": "Her granted ability removes hit counters. It's optional: say no when that player is on your hit list."
+  "warn": "It's a 1/1, so any ping or Toxic Deluge for X=1 kills it. It's a Vampire, not an Assassin, so it doesn't trigger Etrata's cloak."
  },
  {
-  "name": "Etrata, the Silencer",
+  "name": "Hooded Blightfang",
   "qty": 1,
-  "cost": "{2}{U}{B}",
-  "mv": 4,
-  "type": "Legendary Creature — Vampire Assassin",
+  "cost": "{2}{B}",
+  "mv": 3,
+  "type": "Creature — Snake",
   "cat": "Creature",
-  "pt": "3/5",
-  "text": "Etrata, the Silencer can't be blocked.\nWhenever Etrata deals combat damage to a player, exile target creature that player controls and put a hit counter on that card. That player loses the game if they own three or more exiled cards with hit counters on them. Etrata's owner shuffles Etrata into their library.",
+  "pt": "1/4",
+  "text": "Deathtouch\nWhenever a creature you control with deathtouch attacks, each opponent loses 1 life and you gain 1 life.\nWhenever a creature you control with deathtouch deals damage to a planeswalker, destroy that planeswalker.",
   "roles": [
-   "combo",
+   "utility",
+   "combo"
+  ],
+  "why": "A 1/4 deathtouch wall that also drains. Etrata, Ramses, Virtus, Bloodthirsty Conqueror, Vampire of the Dire Moon and the Blightfang itself have deathtouch, so every attack with one makes each opponent lose 1 and you gain 1. With a drain and a payoff out, that one attack starts the loop.",
+  "how": "Transmute Drift of Phantasms for it or cast it on turn 3 and keep it back as a blocker. On the kill turn, attack with any deathtouch creature: the trigger happens on attack, before blockers, so it doesn't even need to connect.",
+  "syn": [
+   "Exquisite Blood",
+   "Bloodthirsty Conqueror",
+   "Vampire of the Dire Moon",
+   "Etrata, Deadly Fugitive",
+   "Virtus the Veiled",
+   "Drift of Phantasms"
+  ],
+  "warn": "Face-down creatures and cloaks have no abilities, so they don't trigger it. It's not an Assassin, so it doesn't trigger Etrata or Ramses."
+ },
+ {
+  "name": "Silumgar Assassin",
+  "qty": 1,
+  "cost": "{1}{B}",
+  "mv": 2,
+  "type": "Creature — Human Assassin",
+  "cat": "Creature",
+  "pt": "2/1",
+  "text": "Creatures with power greater than Silumgar Assassin's power can't block it.\nMegamorph {2}{B} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)\nWhen Silumgar Assassin is turned face up, destroy target creature with power 3 or less an opponent controls.",
+  "roles": [
+   "facedown",
    "removal"
   ],
-  "why": "An unblockable 3/5 Assassin. When she hits, she exiles a creature that player controls with a hit counter, and a player who owns three or more exiled cards with hit counters loses. With Mari and Ramses it's the hit list win, and she triggers the commander Etrata too.",
-  "how": "Transmute Dimir House Guard for her, or cast her free with a bargained Beseech the Mirror. Attack the player Mari has already marked twice. Her attack also satisfies Ramses.",
+  "why": "Cast face down for {3}, it's a 2/2 blocker that holds removal: turn it face up for {2}{B} at any time and destroy an opponent's creature with power 3 or less. Turning face up by megamorph is a special action, so nobody can respond to the flip itself. Face up it's an Assassin, so its hits cloak with Etrata.",
+  "how": "Cast it face down on turn 3 instead of tapping out for a sorcery-speed play. Flip it when an opponent's attacker or key creature shows up. Etrata's {2}{U}{B} flip also works ({U}{B} with Training Grounds), but only the megamorph flip gives the +1/+1 counter.",
   "syn": [
-   "Mari, the Killing Quill",
+   "Etrata, Deadly Fugitive",
+   "Roshan, Hidden Magister",
+   "Training Grounds",
    "Ramses, Assassin Lord",
-   "Toxic Deluge",
-   "Dimir House Guard",
-   "Beseech the Mirror"
+   "Infernal Grasp"
   ],
-  "warn": "Her trigger needs a creature to target. If the player controls none after a wipe, nothing happens. She's shuffled into your library when it resolves."
+  "warn": "The destroy trigger targets, so it can't hit hexproof creatures. With its +1/+1 counter it's a 3/2 and Ramses makes it bigger still, so Tetsuko no longer makes it unblockable."
  },
  {
   "name": "Toxic Deluge",
@@ -300,62 +378,15 @@ window.CETRATA_CARDS = [
    "removal",
    "combo"
   ],
-  "why": "Pay X life, all creatures get -X/-X. It resets a board that's racing you, and with Mari out, every opposing creature that dies is exiled with a hit counter for the Silencer's hit list.",
-  "how": "Pick the smallest X that kills what matters. X=3 keeps Etrata (1/4) and Ramses (4/4) alive. For the hit list, leave your target one creature with toughness above X so the Silencer has something to exile.",
+  "why": "Pay X life, all creatures get -X/-X. It resets a board that's racing you, and it's the deck's only sweeper, so it buys the turns the vampire loop and the Manta loop need.",
+  "how": "Pick the smallest X that kills what matters. X=3 keeps Etrata (1/4), Hooded Blightfang (1/4) and Ramses (4/4) alive. Enduring Tenacity dies at X=3 or more and comes back as an enchantment, so the wipe costs you nothing there.",
   "syn": [
-   "Mari, the Killing Quill",
-   "Etrata, the Silencer",
+   "Enduring Tenacity",
+   "Hooded Blightfang",
    "Ramses, Assassin Lord",
    "Drift of Phantasms"
   ],
-  "warn": "Face-down creatures are 2/2s, so X=2 kills your cloaks, and Mari dies at X=2 too."
- },
- {
-  "name": "Brine Elemental",
-  "qty": 1,
-  "cost": "{4}{U}{U}",
-  "mv": 6,
-  "type": "Creature — Elemental",
-  "cat": "Creature",
-  "pt": "5/4",
-  "text": "Morph {5}{U}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen Brine Elemental is turned face up, each opponent skips their next untap step.",
-  "roles": [
-   "combo",
-   "facedown"
-  ],
-  "why": "When it's turned face up, each opponent skips their next untap step. Its morph costs {5}{U}{U}, but Etrata flips it for {2}{U}{B}, or {U}{B} with Training Grounds. With Vesuvan Shapeshifter copying it every upkeep, opponents never untap again.",
-  "how": "Cast it face down for {3}, then flip it with Etrata's ability at the end of an opponent's turn or on your turn. Get Vesuvan down face down as well before you flip, so the lock starts right away.",
-  "syn": [
-   "Vesuvan Shapeshifter",
-   "Etrata, Deadly Fugitive",
-   "Training Grounds",
-   "Scroll of Fate",
-   "Roshan, Hidden Magister"
-  ],
-  "warn": "Alone it's one skipped untap step. If Brine dies, Vesuvan has nothing to copy and the lock ends."
- },
- {
-  "name": "Vesuvan Shapeshifter",
-  "qty": 1,
-  "cost": "{3}{U}{U}",
-  "mv": 5,
-  "type": "Creature — Shapeshifter",
-  "cat": "Creature",
-  "pt": "0/0",
-  "text": "As Vesuvan Shapeshifter enters or is turned face up, you may choose another creature on the battlefield. If you do, until Vesuvan Shapeshifter is turned face down, it becomes a copy of that creature, except it has \"At the beginning of your upkeep, you may turn this creature face down.\"\nMorph {1}{U}",
-  "roles": [
-   "combo",
-   "facedown"
-  ],
-  "why": "The other half of the Brine lock. When it's turned face up it can become a copy of Brine Elemental, so the 'skip your untap step' trigger happens again. At your upkeep it turns itself face down, then you flip it again for {1}{U}.",
-  "how": "Cast it face down for {3}. Once Brine is face up, turn Vesuvan face up for {1}{U} copying Brine. In each of your upkeeps, turn it face down with its trigger and pay {1}{U} again.",
-  "syn": [
-   "Brine Elemental",
-   "Etrata, Deadly Fugitive",
-   "Scroll of Fate",
-   "Roshan, Hidden Magister"
-  ],
-  "warn": "It needs a Brine Elemental on the battlefield to copy. Plan to pay {1}{U} every upkeep."
+  "warn": "Face-down creatures are 2/2s, so X=2 kills your cloaks and a face-down Silumgar Assassin. Vampire of the Dire Moon and Starscape Cleric die at X=1."
  },
  {
   "name": "Scroll of Fate",
@@ -377,7 +408,6 @@ window.CETRATA_CARDS = [
    "Crystal Shard",
    "Etrata, Deadly Fugitive",
    "Training Grounds",
-   "Brine Elemental",
    "Drift of Phantasms"
   ]
  },
@@ -443,15 +473,14 @@ window.CETRATA_CARDS = [
    "utility",
    "combo"
   ],
-  "why": "Activated abilities of your creatures cost up to {2} less. Etrata's flip drops to {U}{B} and Duskmantle Guildmage's drain to {U}{B}. The Brine flip and the Manta loop get much cheaper.",
-  "how": "Transmute Dizzy Spell for it, or cast it on turn 1 or 2. With it out, the Manta loop is {U}{B} for the flip and {U} for Shard, 3 mana a turn.",
+  "why": "Activated abilities of your creatures cost up to {2} less. Etrata's flip drops to {U}{B} and Duskmantle Guildmage's drain to {U}{B}. The Manta loop and the Silumgar Assassin flip get much cheaper.",
+  "how": "Find it with Vampiric Tutor or Imperial Seal, or cast it on turn 1 or 2. With it out, the Manta loop is {U}{B} for the flip and {U} for Shard, 3 mana a turn.",
   "syn": [
    "Etrata, Deadly Fugitive",
    "Duskmantle Guildmage",
    "Wormfang Manta",
-   "Brine Elemental",
-   "Vito, Thorn of the Dusk Rose",
-   "Dizzy Spell"
+   "Silumgar Assassin",
+   "Vito, Thorn of the Dusk Rose"
   ],
   "warn": "It doesn't reduce morph costs, turning up for a mana cost, transmute, ninjutsu, or artifact abilities like Crystal Shard."
  },
@@ -469,13 +498,12 @@ window.CETRATA_CARDS = [
    "draw",
    "utility"
   ],
-  "why": "Every other creature you control is an Assassin, so your cloaks trigger Etrata. Face-down creatures get menace, and whenever a permanent you control is turned face up, you draw a card. In the Brine lock and the Manta loop, that's a card every turn.",
-  "how": "Transmute Dimir House Guard for him. Cast him before combat on turn 4 or 5, then attack with every cloak. Draw off each Brine, Vesuvan and Manta flip.",
+  "why": "Every other creature you control is an Assassin, so your cloaks trigger Etrata. Face-down creatures get menace, and whenever a permanent you control is turned face up, you draw a card. In the Manta loop, that's a card every turn, and a face-down Silumgar Assassin flip draws one too.",
+  "how": "Transmute Dimir House Guard for him. Cast him before combat on turn 4 or 5, then attack with every cloak. Draw off each Manta and Silumgar Assassin flip.",
   "syn": [
    "Etrata, Deadly Fugitive",
-   "Vesuvan Shapeshifter",
+   "Silumgar Assassin",
    "Wormfang Manta",
-   "Brine Elemental",
    "Ramses, Assassin Lord",
    "Dimir House Guard"
   ],
@@ -546,7 +574,6 @@ window.CETRATA_CARDS = [
   "syn": [
    "Etrata, Deadly Fugitive",
    "Ramses, Assassin Lord",
-   "Mari, the Killing Quill",
    "Dimir House Guard",
    "Secluded Courtyard"
   ],
@@ -571,8 +598,7 @@ window.CETRATA_CARDS = [
    "Ramses, Assassin Lord",
    "Fallen Shinobi",
    "Mindcrank",
-   "Exquisite Blood",
-   "Dizzy Spell"
+   "Exquisite Blood"
   ],
   "warn": "It can't block, so don't count it as defense."
  },
@@ -665,7 +691,6 @@ window.CETRATA_CARDS = [
   "syn": [
    "Wishclaw Talisman",
    "Scheming Symmetry",
-   "Mari, the Killing Quill",
    "Drift of Phantasms",
    "Fierce Guardianship"
   ],
@@ -752,11 +777,10 @@ window.CETRATA_CARDS = [
    "draw",
    "ramp"
   ],
-  "why": "Each first main phase, choose one or more: a Treasure for 1 life, a card for 2 life, or a 3/2 changeling Mercenary for 3 life. The Mercenary is an Assassin, so it triggers Etrata, gets Ramses's pump and gets Mari's deathtouch.",
+  "why": "Each first main phase, choose one or more: a Treasure for 1 life, a card for 2 life, or a 3/2 changeling Mercenary for 3 life. The Mercenary is an Assassin, so it triggers Etrata, and gets Ramses's pump.",
   "how": "Find it with Drift of Phantasms. Early, take the card and the Treasure. Late, add a Mercenary when you need another Assassin to attack.",
   "syn": [
    "Etrata, Deadly Fugitive",
-   "Mari, the Killing Quill",
    "Ramses, Assassin Lord",
    "Beseech the Mirror",
    "Exquisite Blood"
@@ -823,8 +847,7 @@ window.CETRATA_CARDS = [
   "why": "One mana: whenever an opponent casts a noncreature spell, you may draw unless they pay {4}. In the early turns it draws several cards per round.",
   "how": "Cast it on turn 1 or 2. Pay its cumulative upkeep for two or three turns, then let it go.",
   "syn": [
-   "Rhystic Study",
-   "Dizzy Spell"
+   "Rhystic Study"
   ],
   "warn": "Cumulative upkeep grows each turn. Don't keep paying once it costs more than it draws."
  },
@@ -845,8 +868,7 @@ window.CETRATA_CARDS = [
   "syn": [
    "Vampiric Tutor",
    "Imperial Seal",
-   "Polluted Delta",
-   "Dizzy Spell"
+   "Polluted Delta"
   ]
  },
  {
@@ -865,8 +887,7 @@ window.CETRATA_CARDS = [
   "how": "Cast it early when your hand has a gap. Shuffle if none of the three helps.",
   "syn": [
    "Vampiric Tutor",
-   "Imperial Seal",
-   "Dizzy Spell"
+   "Imperial Seal"
   ]
  },
  {
@@ -906,7 +927,6 @@ window.CETRATA_CARDS = [
   "syn": [
    "Exquisite Blood",
    "Mindcrank",
-   "Brine Elemental",
    "Wormfang Manta",
    "Muddle the Mixture"
   ]
@@ -929,8 +949,7 @@ window.CETRATA_CARDS = [
   "syn": [
    "Brainstorm",
    "Necropotence",
-   "Exquisite Blood",
-   "Dizzy Spell"
+   "Exquisite Blood"
   ],
   "warn": "The card is on top, not in your hand, so a shuffle or mill sets you back."
  },
@@ -970,11 +989,11 @@ window.CETRATA_CARDS = [
    "tutor"
   ],
   "why": "Three mana: any card into your hand for 3 life. A fourth unrestricted tutor.",
-  "how": "Use it for Exquisite Blood, Brine Elemental or Wormfang Manta, which no transmute card can find.",
+  "how": "Use it for Exquisite Blood, Sanguine Bond or Wormfang Manta, which no transmute card can find.",
   "syn": [
    "Exquisite Blood",
    "Bloodthirsty Conqueror",
-   "Brine Elemental",
+   "Sanguine Bond",
    "Wormfang Manta",
    "Drift of Phantasms"
   ]
@@ -1013,12 +1032,12 @@ window.CETRATA_CARDS = [
   "roles": [
    "tutor"
   ],
-  "why": "Search for any card and exile it. If you bargained (sacrificed an artifact, enchantment or token), you may cast it free if its mana value is 4 or less. It fetches and casts Ramses, Bloodletter, the Silencer, Mindcrank, Guildmage or Blight-Priest in one spell.",
+  "why": "Search for any card and exile it. If you bargained (sacrificed an artifact, enchantment or token), you may cast it free if its mana value is 4 or less. It fetches and casts Ramses, Bloodletter, Enduring Tenacity, Mindcrank, Guildmage, Blight-Priest or Starscape Cleric in one spell.",
   "how": "Bargain a Treasure or a spent rock, then cast Bloodletter or Ramses free on the kill turn. Without the free cast, the card goes to your hand like a Demonic Tutor.",
   "syn": [
    "Bloodletter of Aclazotz",
    "Ramses, Assassin Lord",
-   "Etrata, the Silencer",
+   "Enduring Tenacity",
    "Black Market Connections",
    "Gonti, Night Minister",
    "Mind Stone"
@@ -1062,8 +1081,7 @@ window.CETRATA_CARDS = [
   "syn": [
    "Opposition Agent",
    "Brainstorm",
-   "Necropotence",
-   "Dizzy Spell"
+   "Necropotence"
   ],
   "warn": "It helps an opponent. Never give it to a player close to winning."
  },
@@ -1112,29 +1130,6 @@ window.CETRATA_CARDS = [
   ]
  },
  {
-  "name": "Dizzy Spell",
-  "qty": 1,
-  "cost": "{U}",
-  "mv": 1,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "Target creature gets -3/-0 until end of turn.\nTransmute {1}{U}{U} ({1}{U}{U}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)",
-  "roles": [
-   "tutor",
-   "removal"
-  ],
-  "why": "Transmute for {1}{U}{U} to find any card with mana value 1, most often Training Grounds. In a pinch, -3/-0 blunts an attacker.",
-  "how": "Transmute it on turn 2 or 3 for Training Grounds, Vampiric Tutor or Changeling Outcast.",
-  "syn": [
-   "Training Grounds",
-   "Vampiric Tutor",
-   "Changeling Outcast",
-   "Mystic Remora",
-   "Culling the Weak"
-  ]
- },
- {
   "name": "Shred Memory",
   "qty": 1,
   "cost": "{1}{B}",
@@ -1147,14 +1142,15 @@ window.CETRATA_CARDS = [
    "tutor",
    "utility"
   ],
-  "why": "Transmute for {1}{B}{B} to find any card with mana value 2: Mindcrank, Duskmantle Guildmage or Tetsuko. Cast normally, it exiles up to four cards from one graveyard.",
+  "why": "Transmute for {1}{B}{B} to find any card with mana value 2: Mindcrank, Duskmantle Guildmage, Tetsuko, Starscape Cleric or Silumgar Assassin. Cast normally, it exiles up to four cards from one graveyard.",
   "how": "Transmute it on turn 2 or 3 for the missing Mindcrank piece. Keep it as graveyard hate against reanimator decks.",
   "syn": [
    "Mindcrank",
    "Duskmantle Guildmage",
    "Tetsuko Umezawa, Fugitive",
    "Demonic Tutor",
-   "Wishclaw Talisman"
+   "Wishclaw Talisman",
+   "Starscape Cleric"
   ]
  },
  {
@@ -1170,14 +1166,15 @@ window.CETRATA_CARDS = [
    "tutor",
    "removal"
   ],
-  "why": "Either a counterspell for an instant or sorcery, or a transmute for {1}{U}{U} to find a mana value 2 card: Mindcrank, Guildmage or Tetsuko.",
+  "why": "Either a counterspell for an instant or sorcery, or a transmute for {1}{U}{U} to find a mana value 2 card: Mindcrank, Guildmage, Tetsuko, Starscape Cleric or Silumgar Assassin.",
   "how": "Transmute it early for the missing combo piece. Later, hold {U}{U} to counter a wipe or a tutor.",
   "syn": [
    "Mindcrank",
    "Duskmantle Guildmage",
    "Tetsuko Umezawa, Fugitive",
    "Counterspell",
-   "Demonic Tutor"
+   "Demonic Tutor",
+   "Silumgar Assassin"
   ]
  },
  {
@@ -1192,7 +1189,7 @@ window.CETRATA_CARDS = [
   "roles": [
    "tutor"
   ],
-  "why": "Transmute for {1}{U}{U} to find any card with mana value 3: Scroll of Fate, Crystal Shard, Mari, Virtus, Vito, Blight-Priest or Toxic Deluge. Cast, it's a 0/5 flying wall.",
+  "why": "Transmute for {1}{U}{U} to find any card with mana value 3: Scroll of Fate, Crystal Shard, Virtus, Vito, Blight-Priest, Hooded Blightfang or Toxic Deluge. Cast, it's a 0/5 flying wall.",
   "how": "Transmute it for the piece of the line you're closest to. Cast it as a blocker against aggressive fliers.",
   "syn": [
    "Scroll of Fate",
@@ -1200,7 +1197,7 @@ window.CETRATA_CARDS = [
    "Marauding Blight-Priest",
    "Vito, Thorn of the Dusk Rose",
    "Virtus the Veiled",
-   "Mari, the Killing Quill"
+   "Hooded Blightfang"
   ]
  },
  {
@@ -1215,12 +1212,12 @@ window.CETRATA_CARDS = [
   "roles": [
    "tutor"
   ],
-  "why": "Transmute for {1}{B}{B} to find any card with mana value 4: Ramses, Bloodletter, the Silencer, Roshan or Leyline. Cast, it's a 2/3 with fear that regenerates by sacrificing a creature.",
+  "why": "Transmute for {1}{B}{B} to find any card with mana value 4: Ramses, Bloodletter, Enduring Tenacity, Gonti, Roshan or Leyline. Cast, it's a 2/3 with fear that regenerates by sacrificing a creature.",
   "how": "Transmute it for Bloodletter or Ramses on the turn before the double tap. As a creature, it protects itself by sacrificing a cloak.",
   "syn": [
    "Ramses, Assassin Lord",
    "Bloodletter of Aclazotz",
-   "Etrata, the Silencer",
+   "Enduring Tenacity",
    "Roshan, Hidden Magister",
    "Leyline of Transformation",
    "Notion Thief"
@@ -1262,8 +1259,7 @@ window.CETRATA_CARDS = [
   "how": "Hold it for a board wipe, a tutor or removal aimed at a combo piece.",
   "syn": [
    "Exquisite Blood",
-   "Mindcrank",
-   "Dizzy Spell"
+   "Mindcrank"
   ],
   "warn": "The 2/2 flier can block Thief of Sanity or Bloodletter."
  },
@@ -1344,10 +1340,9 @@ window.CETRATA_CARDS = [
    "removal"
   ],
   "why": "Two mana at instant speed: destroy any creature for 2 life.",
-  "how": "Kill a blocker before combat, or a threat at the end of an opponent's turn. With Mari out, the creature is exiled with a hit counter.",
+  "how": "Kill a blocker before combat, or a threat at the end of an opponent's turn.",
   "syn": [
-   "Mari, the Killing Quill",
-   "Etrata, the Silencer",
+   "Silumgar Assassin",
    "Shred Memory"
   ]
  },
@@ -1367,8 +1362,7 @@ window.CETRATA_CARDS = [
   "why": "Two mana to bounce one nonland permanent, or seven to bounce everything opponents control at instant speed. Overloaded at the end of the turn before yours, it clears the way for your combo.",
   "how": "Overload it at the end of the opponent's turn right before yours, then go off with the table empty. Single-target it to remove a stax piece.",
   "syn": [
-   "Brine Elemental",
-   "Vesuvan Shapeshifter",
+   "Wormfang Manta",
    "Muddle the Mixture"
   ]
  },
@@ -1405,7 +1399,7 @@ window.CETRATA_CARDS = [
   "roles": [
    "ramp"
   ],
-  "why": "A free mana source when you control a legendary creature. Etrata, Ramses, Mari, Gonti, Roshan, Vito, Virtus, Tetsuko and the Silencer are all legendary, so it's usually on after turn 2 or 3.",
+  "why": "A free mana source when you control a legendary creature. Etrata, Ramses, Gonti, Roshan, Vito, Virtus and Tetsuko are all legendary, so it's usually on after turn 2 or 3.",
   "how": "Play it alongside Etrata, or once a legend is down. Etrata makes it tap for {U} or {B}.",
   "syn": [
    "Etrata, Deadly Fugitive",
@@ -1552,13 +1546,14 @@ window.CETRATA_CARDS = [
    "ramp"
   ],
   "why": "Sacrifice a creature: add {B}{B}{B}{B}. Sacrifice a stolen cloak and the card goes to its owner's graveyard, which starts the Mindcrank loop with Guildmage active. Sacrifice a face-up Wormfang Manta and you get an extra turn too.",
-  "how": "Hold it for the turn it wins: casting Exquisite Blood out of nowhere, or turning a cloak into both mana and a loop starter. Early, sacrifice Changeling Outcast or a cloak you don't need for a fast Etrata plus a 2-drop.",
+  "how": "Sacrificing Enduring Tenacity while it's a creature brings it back as an enchantment. Hold it for the turn it wins: casting Exquisite Blood out of nowhere, or turning a cloak into both mana and a loop starter. Early, sacrifice Changeling Outcast or a cloak you don't need for a fast Etrata plus a 2-drop.",
   "syn": [
    "Wormfang Manta",
    "Duskmantle Guildmage",
    "Mindcrank",
    "Dark Ritual",
-   "Changeling Outcast"
+   "Changeling Outcast",
+   "Enduring Tenacity"
   ],
   "warn": "The sacrifice is part of the cost. If it's countered, the creature is still gone."
  },
@@ -1801,8 +1796,7 @@ window.CETRATA_CARDS = [
   "how": "Play it as a land unless a combo creature is in your graveyard. Channel costs {1} less per legendary creature you control.",
   "syn": [
    "Wormfang Manta",
-   "Vesuvan Shapeshifter",
-   "Brine Elemental",
+   "Starscape Cleric",
    "Marauding Blight-Priest",
    "Etrata, Deadly Fugitive"
   ]
@@ -1847,7 +1841,7 @@ window.CETRATA_CARDS = [
   "syn": [
    "Marauding Blight-Priest",
    "Bloodletter of Aclazotz",
-   "Mari, the Killing Quill",
+   "Starscape Cleric",
    "Changeling Outcast"
   ],
   "warn": "It enters tapped."
