@@ -13,7 +13,7 @@
 (function (root) {
   "use strict";
   const MK = root.MK = root.MK || {};
-  MK.ENGINE_VERSION = 7;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
+  MK.ENGINE_VERSION = 8;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
                            // 4: the bots gang-block, chump only where it saves life, pick lands for the colors their hand needs, and counter combo pieces
                            //    and judge the table's threats per attacker; deck brains steer the bots of your decks
                            // 5: priority windows in upkeep, draw, beginning of combat, each combat damage step and end of combat; the end
@@ -25,6 +25,10 @@
                            // 7: the precon bots Ghired and Lathril attack with their commander, Ghired values Phyrexian Rebirth's Horror
                            //    and copies a lone Rhino with Second Harvest, and Wilhelt waits to recast himself while two spells
                            //    are castable (games recorded before 7 replay without these: legacyDecks)
+                           // 8: cards the bots used to end games still holding get used: indestructible spells (Heroic Intervention,
+                           //    Rootborn Defenses, Grand Crescendo) save creatures in combat, Return of the Wildspeaker draws in a main
+                           //    phase and pumps a lethal attack, flash creatures come down in the second main phase, and
+                           //    draw-per-creature sorceries go off with two creatures (games recorded before 8 replay without: legacyHints)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",

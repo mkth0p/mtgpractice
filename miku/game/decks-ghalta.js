@@ -957,7 +957,8 @@
         g.log(`Permanents ${ctx.p.name} controls gain hexproof and indestructible until end of turn.`, { p: ctx.p });
       }
     },
-    ai: { protection: true }
+    // also after blockers, when it keeps creatures of ours alive through the combat (engine 8)
+    ai: { protection: true, combat: (g, p) => !!AI().newHints && AI().newHints(g) && AI().combatSave(g, p) >= 5 }
   });
 
   function ramThroughPlan(g, p) {

@@ -61,6 +61,39 @@
   AI.value = value;
   AI.threat = threat;
 
+  /* Games recorded before engine 8 (legacyHints) replay with the card hints of before: cards that
+     ended games still in hand (protection that never saw a wipe, end-of-turn spells the mana was
+     never left open for) now get used in combat or in the main phase. */
+  AI.newHints = g => !(g && g.opts && g.opts.legacyHints);
+  /* After blockers: the value of p's creatures this combat's damage would kill, which an
+     "indestructible until end of turn" spell saves. Rough: first strike and damage order are
+     ignored, and an attacker blocked by several of ours deals its damage to them in order. */
+  AI.combatSave = function (g, p) {
+    const c = g.combat;
+    if (!c) return 0;
+    const dies = (o, dmg, dt) => o.zone === "battlefield" && !g.kw(o, "indestructible") && dmg > 0 && (dt || dmg >= Math.max(1, g.lethalDamageLeft(o)));
+    let saved = 0;
+    for (const a of c.attackers) {
+      if (!a.combat || a.zone !== "battlefield") continue;
+      const blockers = (a.combat.blockedBy || []).filter(b => b.zone === "battlefield");
+      if (a.controller === p) {
+        const dmg = blockers.reduce((s, b) => s + Math.max(0, g.power(b)), 0);
+        if (blockers.length && dies(a, dmg, blockers.some(b => g.kw(b, "deathtouch") && g.power(b) > 0))) saved += value(g, a) + (a.isCommander ? 4 : 0);
+      } else {
+        let left = Math.max(0, g.power(a));
+        const dt = g.kw(a, "deathtouch");
+        for (const b of blockers) {
+          if (left <= 0) break;
+          const need = dt ? 1 : Math.max(1, g.lethalDamageLeft(b));
+          const dmg = Math.min(left, need);
+          left -= dmg;
+          if (b.controller === p && dies(b, dmg, dt)) saved += value(g, b) + (b.isCommander ? 4 : 0);
+        }
+      }
+    }
+    return saved;
+  };
+
   function boardValue(g, q) { return g.battlefield.filter(o => o.controller === q).reduce((s, o) => s + value(g, o), 0); }
   function power(g, list) { return list.reduce((s, o) => s + Math.max(0, g.power(o)), 0); }
   function untappedMana(g, p) { return g.maxX(p, MK.parseCost(""), 1); }
@@ -1462,7 +1495,8 @@
         // instants that pick a mode for combat (Return of the Wildspeaker)
         for (const a of acts) {
           if (a.type !== "cast" || attempts(a, win) >= 1) continue;
-          const ai = a.card.def.ai || {};
+          // a card one deck's brain plays (ai.brain) gets its combat hint from ai.otherwise elsewhere
+          const ai = AI.newHints(g) ? hintOf(q, a.card) : (a.card.def.ai || {});
           if (ai.combat && ai.combat(g, q, a.card)) { noteTry(a, win); return { type: "cast", card: a.card, alt: a.alt }; }
         }
         for (const a of acts) {
