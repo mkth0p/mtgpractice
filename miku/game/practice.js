@@ -242,7 +242,7 @@
       const list = d.legacyList && (rec.engine || 0) < d.legacyList.before ? d.legacyList.list : d.list;
       return { name: s.name || d.name, commander: d.commander, list, identity: d.identity, human: i === rec.hero, agent: agents(i, d, s), deckId: d.id };
     });
-    const g = new MK.Game(Object.assign({ seed: rec.seed, players, endOnHumanLoss: true, maxTurns: rec.maxTurns || 160, legacyAttackSort: (rec.engine || 0) < 3, legacyBots: (rec.engine || 0) < 4, legacyMorph: (rec.engine || 0) < 5 }, extra || {}));
+    const g = new MK.Game(Object.assign({ seed: rec.seed, players, endOnHumanLoss: true, maxTurns: rec.maxTurns || 160, legacyAttackSort: (rec.engine || 0) < 3, legacyBots: (rec.engine || 0) < 4, legacyMorph: (rec.engine || 0) < 7 }, extra || {}));
     g.players.forEach((p, i) => { p.deckId = players[i].deckId; });
     // the table picks who goes first with the game's dice right after it's built
     g.activeIdx = g.rand(g.players.length);

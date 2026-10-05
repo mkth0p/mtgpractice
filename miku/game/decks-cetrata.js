@@ -1908,8 +1908,8 @@
     blurb: "Bracket 4 Etrata: steal cards with cloaks, Thief of Sanity and Fallen Shinobi while tutoring for two-card wins (the vampire loop, Mindcrank + Guildmage, Bloodletter + Virtus, the Wormfang Manta turns), with cheap deathtouch blockers for the early turns. Coach tips show which piece is missing.",
     watch: ["Exquisite Blood", "Bloodthirsty Conqueror", "Mindcrank", "Bloodletter of Aclazotz", "Enduring Tenacity", "Hooded Blightfang", "Opposition Agent", "Notion Thief"],
     list: LIST,
-    // games recorded before engine 5 replay with the v2 list
-    legacyList: { before: 5, list: V3_ADDS.reduce((l, n) => { const i = l.indexOf(n); return l.slice(0, i).concat(l.slice(i + 1)); }, LIST).concat(V3_CUTS) },
+    // games recorded before engine 7 replay with the v2 list
+    legacyList: { before: 7, list: V3_ADDS.reduce((l, n) => { const i = l.indexOf(n); return l.slice(0, i).concat(l.slice(i + 1)); }, LIST).concat(V3_CUTS) },
     coach: { tips: coachTips, companion, plan, checklist: "corrupted-etrata", companionBlurb: "guides you through each stage of the game: the mulligan, getting Etrata out, which line to assemble, going off, and what to counter on their turns. It stops the game when it has advice." }
   };
   MK.CETRATA_LINES = LINES;

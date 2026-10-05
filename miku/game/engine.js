@@ -13,8 +13,9 @@
 (function (root) {
   "use strict";
   const MK = root.MK = root.MK || {};
-  MK.ENGINE_VERSION = 5;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
-                           // 5: morph-cast creatures turn up only for their morph cost; Corrupted Etrata v3 list
+  MK.ENGINE_VERSION = 7;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
+                           // 7: morph-cast creatures turn up only for their morph cost; Corrupted Etrata v3 list
+                           //    (5 and 6 are taken by the bot and rules work in a parallel branch)
                            // 4: the bots gang-block, chump only where it saves life, pick lands for the colors their hand needs, and counter combo pieces
                            //    and judge the table's threats per attacker; deck brains steer the bots of your decks
 
@@ -191,7 +192,7 @@
     const upAi = card.faceUpAi || { use: (g, p, o, ctx) => AIfaceUp(g, p, o, ctx) };
     // turning a face-down permanent face up is a special action: no stack, any time you have priority
     // a manifested or cloaked creature card turns up for its mana cost; one cast face down by morph only for
-    // its morph cost (games recorded before engine 5 still offer the mana cost, so their replays match)
+    // its morph cost (games recorded before engine 7 still offer the mana cost, so their replays match)
     if (creature && card.cost && (kind !== "morph" || legacy)) abilities.push({ label: "Turn face up", cost: card.cost, special: true, faceUp: true, do: (g, src) => g.turnFaceUp(src), ai: upAi });
     // megamorph: turning it up for its megamorph cost also puts a +1/+1 counter on it
     if (card.morph) abilities.push({ label: card.megamorph ? "Turn face up (megamorph)" : "Turn face up (morph)", cost: card.morph, special: true, faceUp: true, do: (g, src) => { if (g.turnFaceUp(src) && card.megamorph) g.addCounters(src, "p1", 1); }, ai: upAi });
