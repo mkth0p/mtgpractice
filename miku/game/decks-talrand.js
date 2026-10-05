@@ -155,7 +155,11 @@
     const pool = (g.librarySearch ? g.librarySearch(p) : p.library).filter(c => filter(c));
     let pick = null;
     if (pool.length) {
-      if (isBot(p)) pick = bestTutor(g, p, pool);
+      if (isBot(p)) {
+        // a deck with its own brain (ai.js) picks for itself
+        const br = MK.AI && MK.AI.brainOf ? MK.AI.brainOf(p) : null;
+        pick = (br && br.tutor ? br.tutor(g, p, pool) : null) || bestTutor(g, p, pool);
+      }
       else { const a = await g.ask(p, { type: "cards", prompt: `${src.def.name}: search your library for ${what}`, options: pool, min: 0, max: 1, purpose: "tutor", to, src }); pick = (a && a[0]) || null; }
     }
     g.shuffle(p);

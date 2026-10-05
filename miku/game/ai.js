@@ -67,8 +67,9 @@
   function isInstant(g, p, o) { return g.isInstantSpeed(p, o); }
   function lethalFor(g, o) { return Math.max(1, g.lethalDamageLeft(o)); }
 
-  /* Who the table leader is, from p's point of view (bots gang up a little on the leader). */
-  function leader(g, p) {
+  /* The table leader by the old rough score (board, life, hand). Only games recorded before
+     engine 3 still use it, through the old attack code, so their replays match. */
+  function leaderOld(g, p) {
     const opps = g.opponents(p);
     let best = null, bs = -1e9;
     for (const q of opps) {
@@ -77,6 +78,119 @@
     }
     return best;
   }
+  AI.leader = leader;
+
+  /* ------------------------------------------------------------ the table's threats */
+  /* How close q is to a combo kill (MK.COMBOS) with what's on their battlefield: a whole combo
+     wins any moment, one piece short is close (more so with cards in hand to find it). The hand
+     itself is hidden, so only public cards count. */
+  function comboThreat(g, q) {
+    const combos = MK.COMBOS;
+    if (!combos || !combos.length) return 0;
+    const names = new Set(g.battlefield.filter(o => o.controller === q).map(o => o.def.name));
+    let best = 0;
+    for (const c of combos) {
+      const held = c.pieces.filter(n => names.has(n)).length;
+      if (!held) continue;
+      const miss = c.pieces.length - held;
+      const s = (miss === 0 ? 30 : miss === 1 ? 3 + Math.min(2, q.hand.length * 0.5) : 0) * (c.kill === false ? 0.5 : 1);
+      if (s > best) best = s;
+    }
+    return best;
+  }
+  /* A permanent that completes or nearly completes a combo on its controller's side: removal
+     goes there first. */
+  function comboPieceThreat(g, o) {
+    const combos = MK.COMBOS;
+    if (!combos || !combos.length || !o.controller) return 0;
+    const names = new Set(g.battlefield.filter(x => x.controller === o.controller && x !== o).map(x => x.def.name));
+    let best = 0;
+    for (const c of combos) {
+      if (!c.pieces.includes(o.def.name)) continue;
+      const miss = c.pieces.filter(n => n !== o.def.name && !names.has(n)).length;
+      const s = (miss === 0 ? 14 : miss === 1 ? 5 : 1) * (c.kill === false ? 0.5 : 1);
+      if (s > best) best = s;
+    }
+    return best;
+  }
+  /* The damage a creature's attack would deal if nothing blocked it. */
+  function hitDamage(g, a) { return Math.max(0, g.power(a)) * (g.kw(a, "double strike") ? 2 : 1); }
+  function evasive(g, a) { return g.kw(a, "flying") || g.ch(a).unblockable || g.kw(a, "menace") || g.kw(a, "shadow") || g.kw(a, "fear"); }
+  /* How likely opponent q is to win, from what p can see, as a log-odds score (higher is more
+     dangerous; one point is about e times as likely). The weights were fitted on bot games (who
+     went on to win from each round's position): lands, how close their attacks are to killing the
+     weakest player at the table (evasive power counts extra), board value (engines, commander),
+     cards in hand, life, commander damage already dealt, and combo pieces on the battlefield. An
+     attack that can kill us next turn counts a little extra: we're the one at risk. */
+  function playerThreat(g, p, q) {
+    if (!q || q.lost) return 0;
+    let val = 0, lands = 0, atk = 0, eva = 0, infect = 0;
+    for (const o of g.battlefield) {
+      if (o.controller !== q) continue;
+      if (g.isLand(o)) { lands++; continue; }
+      val += Math.max(0, threat(g, o, p));
+      if (g.isCreature(o) && !g.kw(o, "defender")) {
+        const d = hitDamage(g, o);
+        if (g.kw(o, "infect")) infect += d;
+        else { atk += d; if (evasive(g, o) || g.kw(o, "trample")) eva += d; }
+      }
+    }
+    const others = g.players.filter(x => x !== q && !x.lost);
+    let t = Math.min(lands, 10) * 0.09 + Math.min(val, 60) * 0.026 + Math.min(atk, 60) * 0.013 + Math.min(eva, 60) * 0.013 + Math.min(q.hand.length, 10) * 0.06 + Math.min(q.life, 60) * 0.014;
+    if (others.length) {
+      const minLife = Math.max(1, Math.min(...others.map(x => x.life)));
+      const minPoison = Math.max(1, Math.min(...others.map(x => 10 - x.poison)));
+      t += Math.min(2, Math.max(atk / minLife, infect / minPoison)) * 0.35;
+    }
+    if (atk >= p.life || infect >= 10 - p.poison) t += 0.3;
+    // commander damage they've already stacked on someone
+    let cmd = 0;
+    for (const x of others) for (const o of g.battlefield) if (o.controller === q && o.isCommander && x.cmdDmg[o.id]) cmd = Math.max(cmd, x.cmdDmg[o.id]);
+    t += Math.min(cmd, 21) * 0.05;
+    return t + comboThreat(g, q) * 0.08;
+  }
+  /* Every opponent's threat as a share of the table's: their chance to win (a softmax of the
+     scores) against the average opponent's (1 is average, 2 twice as likely, kept within 0.3-3). */
+  function threatModel(g, p) {
+    const opps = g.opponents(p);
+    const abs = new Map(opps.map(q => [q, playerThreat(g, p, q)]));
+    const mx = Math.max(0, ...abs.values());
+    const e = new Map(opps.map(q => [q, Math.exp(abs.get(q) - mx)]));
+    const avg = opps.length ? [...e.values()].reduce((s, x) => s + x, 0) / opps.length : 1;
+    const rel = new Map(opps.map(q => [q, Math.max(0.3, Math.min(3, e.get(q) / avg))]));
+    let top = null;
+    for (const q of opps) if (!top || abs.get(q) > abs.get(top)) top = q;
+    return { abs, rel, top };
+  }
+  AI.playerThreat = playerThreat;
+  AI.comboThreat = comboThreat;
+  AI.threatModel = threatModel;
+  /* Who the table leader is, from p's point of view: the most dangerous opponent. */
+  function leader(g, p) { return threatModel(g, p).top; }
+  /* What a creature's combat damage to a player is worth beyond the damage: its own triggers and
+     the ones on p's other permanents ("whenever a creature you control deals combat damage to a
+     player": Etrata cloaks, card draw, treasure, copies). A card can price its hit with
+     `ai.hitValue(g, p, attacker, q)`. */
+  function hitTriggerValue(g, p, a, q) {
+    let v = 0;
+    const ev = { src: a, p: q, amount: Math.max(1, g.power(a)) };
+    for (const s of g.battlefield) {
+      if (s.controller !== p) continue;
+      for (const tr of s.def.triggers) {
+        if (tr.on !== "combatDamagePlayer") continue;
+        let ok = false;
+        try { ok = !tr.when || !!tr.when(g, s, ev); } catch (e) { ok = false; }
+        if (!ok) continue;
+        const hv = s.def.ai && s.def.ai.hitValue;
+        let w = 2.5;
+        if (typeof hv === "function") { try { w = +hv(g, p, a, q) || 0; } catch (e) { w = 2.5; } }
+        else if (typeof hv === "number") w = hv;
+        v += w;
+      }
+    }
+    return v;
+  }
+  AI.hitTriggerValue = hitTriggerValue;
 
   /* One creature fighting another (a attacks, b blocks). */
   function fight(g, a, b) {
@@ -99,21 +213,28 @@
     const amount = req && req.spec && req.spec.amount;
     const creatures = options.filter(o => !isPlayer(g, o) && o.controller !== p);
     const players = options.filter(o => isPlayer(g, o) && o !== p);
+    // the table's threats: a permanent is worth more to remove when its controller is the
+    // biggest danger, or when it's a combo piece; a player is the target by the same measure
+    const tm = threatModel(g, p);
+    const relOf = q => tm.rel.get(q) || 1;
+    // (a spell or ability on the stack, a card in no zone: no score, the first one stays first)
+    const sc = new Map(creatures.map(o => [o, o.zone === "battlefield" && o.def ? threat(g, o, p) * (0.7 + 0.3 * relOf(o.controller)) + comboPieceThreat(g, o) : 0]));
+    const byScore = list => list.slice().sort((a, b) => sc.get(b) - sc.get(a));
+    const playerScore = q => relOf(q) * 10 + (amount != null ? amount * 6 / Math.max(4, q.life) : 0);
+    const bestPlayer = () => {
+      // a player this damage kills goes first, then the most dangerous one
+      const dead = amount != null ? players.filter(q => q.life <= amount) : [];
+      const pool = dead.length ? dead : players;
+      return pool.slice().sort((a, b) => (playerScore(b) - playerScore(a)) || (a.life - b.life))[0];
+    };
     // damage effects: kill a creature if we can, else the most dangerous opponent
     if (amount != null) {
-      const killable = creatures.filter(o => g.isCreature(o) && !g.kw(o, "indestructible") && lethalFor(g, o) <= amount).sort((a, b) => threat(g, b, p) - threat(g, a, p));
-      if (killable.length && threat(g, killable[0], p) >= 3) return killable[0];
-      if (players.length) return players.slice().sort((a, b) => a.life - b.life)[0];
+      const killable = byScore(creatures.filter(o => g.isCreature(o) && !g.kw(o, "indestructible") && lethalFor(g, o) <= amount));
+      if (killable.length && sc.get(killable[0]) >= 3 && !(players.length && players.some(q => q.life <= amount))) return killable[0];
+      if (players.length) return bestPlayer();
     }
-    if (creatures.length) {
-      const lead = leader(g, p);
-      const sorted = creatures.slice().sort((a, b) => (threat(g, b, p) + (b.controller === lead ? 1.5 : 0)) - (threat(g, a, p) + (a.controller === lead ? 1.5 : 0)));
-      return sorted[0];
-    }
-    if (players.length) {
-      const lead = leader(g, p);
-      return players.includes(lead) ? lead : players.slice().sort((a, b) => a.life - b.life)[0];
-    }
+    if (creatures.length) return byScore(creatures)[0];
+    if (players.length) return bestPlayer();
     // only our own things are legal: pick the least valuable (a forced target)
     const own = options.filter(o => !isPlayer(g, o));
     if (own.length && !(req && req.optional)) return own.slice().sort((a, b) => value(g, a) - value(g, b))[0];
@@ -183,6 +304,31 @@
       if (units.length > 1 && !Array.isArray(prod)) s += 1;
     }
     if (o.def.abilities.length) s += 0.5;
+    if (p.agent && p.agent.smart && p.agent.smart(g, "colors")) s += colorGap(g, p, o, need);
+    return s;
+  }
+  /* What a land adds toward the colored mana the cards we hold ask for (engine 4): each color the
+     land makes that our hand or commander needs more sources of than we have. A five-color deck
+     with Sarkhan Unbroken stuck in hand fetches the blue it lacks, not a third red. */
+  function colorGap(g, p, o, have) {
+    const want = { W: 0, U: 0, B: 0, R: 0, G: 0 };
+    const cards = p.hand.filter(c => c !== o && !c.def.types.includes("Land")).concat(p.command.filter(c => c.isCommander));
+    for (const c of cards) {
+      const cost = c.def.costObj;
+      if (!cost) continue;
+      for (const k of "WUBRG") {
+        const n = cost[k] + cost.phy.filter(x => x === k).length + (cost.hyb.some(h => h.includes(k)) ? 1 : 0);
+        if (n > want[k]) want[k] = n;
+      }
+    }
+    let s = 0;
+    const made = new Set();
+    for (const m of o.def.mana) {
+      const prod = typeof m.produce === "function" ? "" : m.produce;
+      const units = Array.isArray(prod) ? prod.join("") : prod === "any" || prod === "any5" ? g.identityOf(p).join("") : String(prod || "");
+      for (const k of "WUBRG") if (units.includes(k)) made.add(k);
+    }
+    for (const k of made) if (want[k] > have[k]) s += 2.5;
     return s;
   }
   function cardScore(g, p, o, req) {
@@ -196,6 +342,9 @@
   /* Combo pieces (MK.COMBOS, registered by the deck files): a tutor fetches the card that
      completes a combo first, then a piece of a combo that's half there, then any kill piece. */
   function comboBonus(g, p, o) {
+    // a deck with its own brain says what its tutors want
+    const db = deckBrain(p);
+    if (db && db.tutorBonus) return db.tutorBonus(g, p, o) || 0;
     const combos = MK.COMBOS;
     if (!combos || !combos.length) return 0;
     const name = o.def.name;
@@ -212,6 +361,18 @@
     return best;
   }
   AI.comboBonus = comboBonus;
+  /* A deck's own brain (MK.DECK_BRAINS[deck id], registered by its card file): plan(g, p, ctx) runs
+     before the card plans, attack(g, p, candidates, targets) can declare the attack ({ decl }) or
+     keep creatures home ({ home }), tutor(g, p, cards) picks for the shared tutors (tutors: true
+     lets the deck's own choose pick), choose(g, p, req) before the generic choices (undefined: no say),
+     tutorBonus(g, p, card) replaces the generic combo bonus, keepHome(g, p, creature) keeps a
+     creature out of an attack that doesn't kill ("always": even one that does), mulligan(g, p,
+     { hand, mulls }) keeps or not. */
+  function deckBrain(p) {
+    const b = MK.DECK_BRAINS;
+    return b && p && p.deckId && b[p.deckId] ? b[p.deckId] : null;
+  }
+  AI.deckBrain = deckBrain;
   /* A card's hints for this player. A card one bot deck casts through its own plan says so
      (`ai.brain`: that deck's id, `ai.never`); any other deck plays it by `ai.otherwise`, so a Force
      of Will in an Etrata list isn't a dead card. */
@@ -363,6 +524,10 @@
 
   /* ------------------------------------------------------------ the agent */
   const CASUAL = globalThis.__CASUAL || { life: 0.3, blockers: 0.3, lead: 8, spread: 6, home: 1, homeFrom: 1 };
+  /* The brain a deck registered for its bots (see deckBrain), or null. */
+  const brainOf = deckBrain;
+  AI.brainOf = brainOf;
+
   AI.create = function (opts) {
     opts = opts || {};
     const skill = opts.skill == null ? 0.85 : opts.skill;
@@ -372,6 +537,11 @@
     const casual = !!opts.casual;
     const mem = { tried: new Map(), turn: -1, grudge: {}, loopTurn: -1, usedWindow: new Map() };
     const chance = (g, pr) => g.random() < pr;
+    // The play skills added in engine 4 ("block", "colors", "counter"). `classic: true` turns them off and
+    // `features: [...]` keeps only those listed, so old and new bots can be seated against each
+    // other; games recorded before engine 4 (legacyBots) replay with the old play.
+    const smartSet = opts.classic ? new Set() : opts.features ? new Set(opts.features) : null;
+    const smart = (g, name) => !(g.opts && g.opts.legacyBots) && (!smartSet || smartSet.has(name));
 
     function resetTurn(g) {
       if (mem.turn !== g.turn) { mem.turn = g.turn; mem.tried = new Map(); mem.usedWindow = new Map(); }
@@ -382,6 +552,8 @@
 
     /* ---------------- mulligan */
     function mulligan(g, p, { hand, mulls }) {
+      const db = deckBrain(p);
+      if (db && db.mulligan) { const r = db.mulligan(g, p, { hand, mulls }); if (r !== undefined) return r; }
       const lands = hand.filter(o => o.def.types.includes("Land")).length;
       const ramp = hand.filter(o => !o.def.types.includes("Land") && o.def.ai && o.def.ai.ramp && o.def.mv <= 2).length;
       if (mulls >= 2) return lands >= 1 && lands <= 6;
@@ -457,6 +629,8 @@
     function scoreCast(g, p, act, win) {
       const o = act.card, d = o.def, ai = hintOf(p, o);
       if (ai.never) return -1;
+      // a deck's say on any of its casts (`ai.castPlan`, like ai.attackPlan): false holds the card
+      if (deckHold(g, p, o, win)) return -1;
       if (ai.cast) { const r = ai.cast(g, p, o, { window: win }); if (r === false) return -1; if (typeof r === "number") return r; }
       const instant = isInstant(g, p, o);
       let s = 10 + (ai.priority != null ? ai.priority : 5) + d.mv * 0.6;
@@ -482,6 +656,14 @@
         if (left < mem.keepUp) s -= 12;
       }
       return s;
+    }
+    function deckHold(g, p, o, win) {
+      for (const s of g.controlled(p).concat(p.command)) {
+        const f = s.def.ai && s.def.ai.castPlan;
+        if (!f) continue;
+        try { if (f(g, p, o, { window: win }) === false) return true; } catch (e) { /* no say */ }
+      }
+      return false;
     }
     /* Casting a morph card face down: only when its hint says so. */
     function morphScore(g, p, act) {
@@ -540,8 +722,19 @@
       return plus[0] || null;
     }
 
-    /* ---------------- deck plans: def.ai.plan(g, p, o, {window, actions}) returns an action or null */
+    /* ---------------- deck plans: def.ai.plan(g, p, o, {window, actions}) returns an action or null.
+       A deck's own brain (deckBrain) plans first. */
     function runPlans(g, p, win, acts) {
+      const br = brainOf(p);
+      if (br && br.plan) {
+        let a = null;
+        try { a = br.plan(g, p, { window: win, actions: acts }); } catch (e) { if (g.warn) g.warn(e); a = null; }
+        if (a) {
+          const key = `brain:${a.type}:${a.card && a.card.id}:${a.idx}:${a.alt}`;
+          const n = mem.tried.get(key) || 0;
+          if (n < (a.maxTries || 2)) { mem.tried.set(key, n + 1); return a; }
+        }
+      }
       const seen = new Set();
       const holders = g.controlled(p).concat(p.hand, p.command);
       for (const o of holders) {
@@ -564,7 +757,8 @@
     function main(g, p, { phase }) {
       resetTurn(g);
       const win = phase;
-      if (win === "main2") mem.keepUp = p.hand.some(o => hintOf(p, o).counter) ? 2 : 0;
+      // a card can ask for mana left open too (`ai.keepUp`: Snakeskin Veil while Marit Lage is out)
+      if (win === "main2") mem.keepUp = p.hand.some(o => hintOf(p, o).counter) ? 2 : p.hand.reduce((n, o) => { const k = hintOf(p, o).keepUp; return Math.max(n, (k && k(g, p, o)) || 0); }, 0);
       const acts = g.legalActions(p);
       if (!acts.length) return { type: "pass" };
       const fresh = a => attempts(a, win) < 2;
@@ -618,12 +812,232 @@
     /* ---------------- attacking */
     function blockersOf(g, q) { return g.creatures(q).filter(c => !c.tapped); }
     function canBeBlockedBySome(g, a, blockers) { return blockers.filter(b => g.canBlock(b, a)); }
-    function attack(g, p, { candidates, targets }) {
+    /* Each attacker goes where its hit is worth the most. A hit is scored by the damage that gets
+       past the blockers that defender has left (one blocker stops one attacker), the step it makes
+       toward killing that player (life, commander damage or poison; a kill removes a seat), its
+       combat-damage triggers, and the creature a bad block would cost us, all weighed by how
+       dangerous that player is (threatModel). Attackers are placed biggest first, so a player
+       whose blockers are used up starts to look open, and a lethal swing piles on. Against a
+       runaway leader, attackers with only chip damage elsewhere stay home, and the whole team
+       goes at the leader when that beats splitting up. Casual (precon) bots still lean on the
+       leader, spread their attacks and keep a blocker home. */
+    function attack(g, p, ctx) {
+      if (g.opts && (g.opts.legacyAttackSort || g.opts.legacyBots)) return attackOld(g, p, ctx);
+      let { candidates } = ctx;
+      const { targets } = ctx;
+      resetTurn(g);
+      const opps = g.opponents(p).filter(q => targets.includes(q));
+      if (!opps.length) return [];
+      // the deck's brain can declare the whole attack, or keep some creatures home
+      const br = deckBrain(p);
+      if (br && br.attack) {
+        let r = null;
+        try { r = br.attack(g, p, candidates, targets); } catch (e) { if (g.warn) g.warn(e); r = null; }
+        if (r && r.decl) return r.decl;
+        if (r && r.home) candidates = candidates.filter(c => !r.home.includes(c));
+      }
+      const tm = threatModel(g, p);
+      // a runaway leader: well over a fair share of the opponents' chances to win
+      const runaway = opps.length >= 2 && tm.top && tm.rel.get(tm.top) >= 1.8;
+      // one roll per opponent, in seat order: weaker bots misjudge the table more
+      const noise = new Map(opps.map(q => [q, g.random() * 3 * (1 - skill + 0.3)]));
+      // crack-back risk: how hard the table can hit us next turn
+      const threatIn = Math.max(...opps.map(o => power(g, g.creatures(o).filter(c => !g.kw(c, "defender")))));
+      const danger = p.life <= threatIn * 1.2 + 4;
+      // a swing that could kill someone keeps nothing home
+      const atkPower = power(g, candidates);
+      const infectPower = power(g, candidates.filter(c => g.kw(c, "infect")));
+      const alphaAny = opps.some(q => atkPower - blockersOf(g, q).length * (atkPower / Math.max(1, candidates.length)) >= q.life || (infectPower > 0 && q.poison + infectPower >= 10));
+      const keepBack = [];
+      // the brain's pieces stay out of an attack that doesn't kill ("always": even one that does)
+      if (br && br.keepHome) for (const c of candidates) { const k = br.keepHome(g, p, c); if (k === "always" || (k && !alphaAny)) keepBack.push(c); }
+      const homeOrder = () => candidates.filter(c => !g.kw(c, "vigilance") && g.power(c) < 10).sort((a, b) => ((g.toughness(b) + g.power(b)) - (g.toughness(a) + g.power(a))) || (a.id - b.id));
+      if (casual && !alphaAny && !danger && candidates.length >= CASUAL.homeFrom) keepBack.push(...homeOrder().slice(0, CASUAL.home));
+      if (danger && !alphaAny) {
+        // keep our best blockers home (vigilance ones can go); a finisher goes on offence
+        const home = homeOrder();
+        const need = Math.min(home.length, Math.max(1, Math.ceil(opps.reduce((n, o) => n + g.creatures(o).length, 0) / 3)));
+        for (const c of home.slice(0, need)) if (!keepBack.includes(c)) keepBack.push(c);
+      }
+      // what each defending player has left as we place attackers
+      let st = null, loySent = null;
+      const reset = () => { st = new Map(opps.map(q => [q, { blk: blockersOf(g, q), dmg: 0, poison: 0, cmd: {}, n: 0 }])); loySent = new Map(); };
+      reset();
+      const hitVals = new Map();
+      const hitOf = (a, q) => { const k = a.id + ":" + q.id; if (!hitVals.has(k)) hitVals.set(k, hitTriggerValue(g, p, a, q)); return hitVals.get(k); };
+      /* The defender's likely block on a, from the blockers it has left: what it costs us, what it
+         costs them, and how much damage still gets through. */
+      function blockOf(a, q) {
+        const s = st.get(q);
+        const dmg = hitDamage(g, a);
+        const cands = s.blk.filter(b => g.canBlock(b, a));
+        const out = { pBlock: 0, loss: 0, gain: 0, stopper: null, through: dmg };
+        if (!cands.length || (g.kw(a, "menace") && cands.length < 2)) return out;
+        let bad = null, wall = null, trade = null, chump = null;
+        for (const b of cands) {
+          const f = fight(g, a, b);
+          if (f.aDies && !f.bDies) { if (!bad) bad = b; }
+          else if (!f.aDies && !f.bDies) { if (!wall) wall = b; }
+          else if (f.aDies && f.bDies) { if (!trade) trade = b; }
+          else if (!chump || value(g, b) < value(g, chump)) chump = b;
+        }
+        const lethal = s.dmg + dmg >= q.life || (a.isCommander && (q.cmdDmg[a.id] || 0) + (s.cmd[a.id] || 0) + dmg >= 21);
+        const keep = g.kw(a, "indestructible") ? 0 : value(g, a);
+        if (bad) { out.pBlock = 0.85; out.stopper = bad; out.loss = keep * 0.85; }
+        else if (wall) { out.pBlock = 0.7; out.stopper = wall; }
+        else if (trade) { out.pBlock = 0.5; out.stopper = trade; out.loss = keep * 0.5; out.gain = value(g, trade) * 0.5; }
+        else { out.pBlock = lethal ? 0.9 : 0.2; out.stopper = chump; out.gain = value(g, chump) * out.pBlock * 0.8; }
+        const over = g.kw(a, "trample") ? Math.max(0, dmg - (g.kw(a, "deathtouch") ? 1 : lethalFor(g, out.stopper))) : 0;
+        out.through = dmg * (1 - out.pBlock) + over * out.pBlock;
+        out.connect = over > 0 ? 1 : 1 - out.pBlock;
+        return out;
+      }
+      /* What sending a at target t gains. */
+      function hitScore(a, t) {
+        const q = g.defenderOf(t), s = st.get(q);
+        if (!s) return { score: -1e9 };
+        const rel = tm.rel.get(q) || 1;
+        // damage is worth what it takes off that player's chance to win: hitting a player who is
+        // out of the race helps whoever is winning
+        const m = rel;
+        const b = blockOf(a, q);
+        if (b.connect == null) b.connect = 1;
+        let score = b.gain - b.loss + noise.get(q) + Math.min(2, (mem.grudge[q.id] || 0) * 0.05);
+        if (casual) score += (q === tm.top ? CASUAL.lead * 0.3 : 0) - (mem.lastTarget === q.id ? CASUAL.spread * 0.3 : 0);
+        if (!g.isPlayer(t)) {
+          // a planeswalker: killing it is worth its threat, a dent is worth a share of it
+          const left = (t.counters.loyalty || 0) - (loySent.get(t) || 0);
+          if (left <= 0) return { score: -1e9 };
+          const pv = threat(g, t, p) * (0.7 + 0.3 * rel);
+          score += b.through >= left ? pv : pv * 0.4 * b.through / left;
+          return { score, b };
+        }
+        let dv = 0, kill = false;
+        if (g.kw(a, "infect")) {
+          const left = Math.max(1, 10 - q.poison - s.poison);
+          dv = Math.min(b.through, left) * 4 * (0.6 + 12 / (left * 4 + 8));
+          kill = b.through >= left;
+        } else {
+          const lifeLeft = q.life - s.dmg;
+          const cmdLeft = a.isCommander ? 21 - (q.cmdDmg[a.id] || 0) - (s.cmd[a.id] || 0) : Infinity;
+          const left = Math.max(1, Math.min(lifeLeft, cmdLeft));
+          // damage counts for more as the player nears death; casual players care less about that
+          const lw = casual ? 0.8 + 6 / (left + 8) : 0.6 + 12 / (left + 8);
+          dv = Math.min(b.through, left) * lw;
+          kill = lifeLeft > 0 && b.through >= left;
+        }
+        score += dv * m + hitOf(a, q) * b.connect * (0.8 + 0.2 * rel);
+        if (kill) score += 6 + 6 * rel;
+        return { score, b, kill };
+      }
+      function commit(a, t, b) {
+        const q = g.defenderOf(t), s = st.get(q);
+        if (!s || !b) return;
+        s.n++;
+        if (b.stopper && b.pBlock >= 0.5) s.blk = s.blk.filter(x => x !== b.stopper);
+        if (!g.isPlayer(t)) { loySent.set(t, (loySent.get(t) || 0) + b.through); return; }
+        if (g.kw(a, "infect")) s.poison += b.through;
+        else { s.dmg += b.through; if (a.isCommander) s.cmd[a.id] = (s.cmd[a.id] || 0) + b.through; }
+      }
+      // place the attackers, biggest first
+      const order = candidates.filter(a => !keepBack.includes(a) && (g.power(a) > 0 || a.def.triggers.some(t => t.on === "attacks"))).sort((x, y) => (hitDamage(g, y) - hitDamage(g, x)) || (x.id - y.id));
+      // a card's own say (Etrata, the Silencer stacks hit counters on one player)
+      const hook = new Map();
+      for (const a of order) if (a.def.ai && a.def.ai.attackTarget) { const t = a.def.ai.attackTarget(g, p, a, targets); if (t && targets.includes(t)) hook.set(a, t); }
+      // a permanent of ours can name the player the whole attack goes at (`ai.attackFocus`: Marit Lage
+      // picks whoever she and the rest of the team kill soonest)
+      const focus = attackFocus(g, p, opps);
+      if (focus) for (const a of order) if (!hook.has(a)) hook.set(a, focus);
+      // plan 1: each attacker where it's worth the most, given the attackers placed before it
+      let plan = [], total = 0;
+      for (const a of order) {
+        let target = hook.get(a) || null, best = target ? hitScore(a, target) : null;
+        if (!target) {
+          for (const t of targets) {
+            if (!g.isPlayer(t) && !st.has(t.controller)) continue;
+            const h = hitScore(a, t);
+            if (!best || h.score > best.score) { best = h; target = t; }
+          }
+        }
+        if (!target) continue;
+        // with a runaway leader at the table, chip damage on anyone else only helps the leader:
+        // an attacker with nothing better to do stays home to block (vigilance ones can go)
+        if (runaway && !hook.has(a) && g.defenderOf(target) !== tm.top && !best.kill && best.score < 2 && !g.kw(a, "vigilance")) continue;
+        commit(a, target, best.b);
+        plan.push({ a, target });
+        total += best.score;
+      }
+      // plan 2: everyone at the most dangerous player. A defender blocks one attacker per blocker,
+      // so a big blocker that scares off each attacker alone eats one of them and lets the rest
+      // through. Worth it when the whole swing beats plan 1 and we aren't left open to die.
+      let swarm = false;
+      const top = tm.top;
+      if (top && !danger && order.length >= 2) {
+        const keep = { st, loySent };
+        reset();
+        const plan2 = [];
+        let total2 = 0;
+        for (const a of order) {
+          if (a.def.mana.length && g.power(a) <= 1) continue;
+          const t = hook.get(a) || top;
+          const h = hitScore(a, t);
+          commit(a, t, h.b);
+          plan2.push({ a, target: t });
+          total2 += h.score;
+        }
+        if (plan2.filter(x => x.target === top).length >= 2 && total2 > total + 1) { plan = plan2; swarm = true; }
+        else { st = keep.st; loySent = keep.loySent; }
+      }
+      // a player the planned damage kills: everyone aimed there goes in
+      const lethalAt = q => { const s = st.get(q); return !!s && (s.dmg >= q.life || q.poison + s.poison >= 10 || Object.keys(s.cmd).some(id => (q.cmdDmg[id] || 0) + s.cmd[id] >= 21)); };
+      let decl = [];
+      for (const { a, target } of plan) {
+        const tq = g.defenderOf(target);
+        const bl = canBeBlockedBySome(g, a, blockersOf(g, tq));
+        const alpha = lethalAt(tq);
+        let go;
+        if (alpha) go = true;
+        else if (!bl.length) go = true;
+        else if (swarm && tq === top) go = true;
+        else {
+          const bad = bl.some(b => { const f = fight(g, a, b); return f.aDies && !f.bDies; });
+          const trade = bl.some(b => { const f = fight(g, a, b); return f.aDies && f.bDies; });
+          if (!bad && !trade) go = true;
+          else if (!bad && trade) go = chance(g, aggro * 0.8) || value(g, a) < 3 || pushed(g, p, a);
+          else go = g.kw(a, "indestructible") || (a.isToken && g.power(a) <= 1 && chance(g, aggro * 0.3));
+        }
+        if (a.def.mana.length && g.power(a) <= 1 && !alpha) go = false;
+        // a card's own say: false keeps it home (an engine commander), true sends it (a creature whose hit wins)
+        if (!alpha && a.def.ai && a.def.ai.attack) { const say = a.def.ai.attack(g, p, a, bl); if (say === false) go = false; else if (say === true) go = true; }
+        if (go) decl.push({ attacker: a, target });
+      }
+      // a deck's own plan (ai.attackPlan) can replace the whole attack
+      const planned = deckHook(g, p, "attackPlan", { candidates, targets, decl, skill, aggro, casual });
+      if (planned) decl = planned;
+      // remember the player we sent the most at (casual tables spread their attacks)
+      const count = new Map();
+      for (const d of decl) { const tq = g.defenderOf(d.target); count.set(tq, (count.get(tq) || 0) + 1); }
+      let most = null;
+      for (const [tq, n] of count) if (!most || n > count.get(most)) most = tq;
+      if (most) mem.lastTarget = most.id;
+      return decl;
+    }
+    /* The attack before per-attacker judgment: one opponent for the whole attack. Games recorded
+       before engine 3 (legacyAttackSort) still play it, so their replays match. */
+    function attackOld(g, p, { candidates, targets }) {
       resetTurn(g);
       const opps = g.opponents(p);
       if (!opps.length) return [];
+      // the deck's brain can declare the whole attack, or keep some creatures home
+      const br = brainOf(p);
+      if (br && br.attack) {
+        let r = null;
+        try { r = br.attack(g, p, candidates, targets); } catch (e) { if (g.warn) g.warn(e); r = null; }
+        if (r && r.decl) return r.decl;
+        if (r && r.home) candidates = candidates.filter(c => !r.home.includes(c));
+      }
       // who to hit: low life, weak defence, grudges, a bit of the leader
-      const lead = leader(g, p);
+      const lead = leaderOld(g, p);
       const scoreQ = q => {
         const bl = blockersOf(g, q);
         let s = 40 - q.life + (mem.grudge[q.id] || 0) * 0.4 - bl.length * 2 + (q === lead ? 4 : 0);
@@ -642,11 +1056,12 @@
       // crack-back risk: how hard the table can hit us next turn
       const threatIn = Math.max(...opps.map(o => power(g, g.creatures(o).filter(c => !g.kw(c, "defender")))));
       const danger = p.life <= threatIn * 1.2 + 4;
-      const decl = [];
+      let decl = [];
       const atkPower = power(g, candidates);
       const absorb = qBlockers.length * (atkPower / Math.max(1, candidates.length));
       const alpha = atkPower - absorb >= q.life || (q.poison + power(g, candidates.filter(c => g.kw(c, "infect"))) >= 10 && candidates.some(c => g.kw(c, "infect")));
       const keepBack = [];
+      const db = deckBrain(p), keep = db && db.keepHome;
       if (casual && !alpha && !danger && candidates.length >= CASUAL.homeFrom) {
         // a casual player keeps a blocker home
         const home = candidates.filter(c => !g.kw(c, "vigilance") && g.power(c) < 10).sort((a, b) => (g.toughness(b) + g.power(b)) - (g.toughness(a) + g.power(a)));
@@ -678,10 +1093,49 @@
         if (a.def.mana.length && g.power(a) <= 1 && !alpha) go = false;
         // a card's own say: false keeps it home (an engine commander), true sends it (a creature whose hit wins)
         if (!alpha && a.def.ai && a.def.ai.attack) { const say = a.def.ai.attack(g, p, a, bl); if (say === false) go = false; else if (say === true) go = true; }
+        if (keep) { const k = keep(g, p, a); if (k === "always" || (k && !alpha)) go = false; }
         if (go) decl.push({ attacker: a, target });
       }
+      const planned = deckHook(g, p, "attackPlan", { candidates, targets, decl, skill, aggro, casual });
+      if (planned) decl = planned;
       for (const d of decl) { const tq = g.defenderOf(d.target); mem.lastTarget = tq.id; }
       return decl;
+    }
+    /* Deck-level hooks, on one of the deck's cards (the commander, or a permanent it controls), for
+       a deck whose bot follows its own plan:
+         ai.attackPlan(g, p, ctx)   the whole attack: gets what the rules of thumb chose (ctx.decl)
+                                    and returns its own declarations, or nothing to keep those
+         ai.blockPlan(g, q, ctx)    the same for blocks (ctx.blocks)
+         ai.targetPlan(g, p, req)   a target for any card: one of req.options, or nothing
+         ai.castPlan(g, p, o, ctx)  false holds a card back this window */
+    function deckHook(g, p, key, ctx) {
+      const holders = g.controlled(p).concat(p.command);
+      for (const o of holders) {
+        const f = o.def.ai && o.def.ai[key];
+        if (!f) continue;
+        let r = null;
+        try { r = f(g, p, ctx); } catch (e) { r = null; }
+        if (Array.isArray(r)) return r;
+      }
+      return null;
+    }
+    function deckPick(g, p, req) {
+      for (const o of g.controlled(p).concat(p.command)) {
+        const f = o.def.ai && o.def.ai.targetPlan;
+        if (!f) continue;
+        let t;
+        try { t = f(g, p, req); } catch (e) { t = undefined; }
+        if (t != null && req.options.includes(t)) return t;
+      }
+      return undefined;
+    }
+    function attackFocus(g, p, opps) {
+      for (const s of g.controlled(p, x => x.def.ai && x.def.ai.attackFocus)) {
+        let q = null;
+        try { q = s.def.ai.attackFocus(g, p, s); } catch (e) { q = null; }
+        if (q && opps.includes(q)) return q;
+      }
+      return null;
     }
     /* A permanent can ask for an attacker to go in even into a trade (ai.pushAttack): Etrata wants
        every Assassin connecting, because each hit cloaks another card. */
@@ -717,6 +1171,7 @@
       const blocks = [];
       const incoming = attackers.slice().sort((a, b) => g.power(b) - g.power(a));
       for (const a of incoming) mem.grudge[a.controller.id] = (mem.grudge[a.controller.id] || 0) + Math.max(0, g.power(a));
+      if (smart(g, "block")) return blockSmart(g, q, mine, incoming);
       const unblocked = () => incoming.filter(a => !blocks.some(b => b.attacker === a));
       // 1. good blocks: we survive and kill it, or we survive
       for (const a of incoming) {
@@ -748,6 +1203,91 @@
         blocks.push({ blocker: cands[0], attacker: a });
         rest = unblocked();
       }
+      return deckHook(g, q, "blockPlan", { attackers, blocks, skill }) || blocks;
+    }
+    /* Several blockers on one attacker: which blockers it kills (it assigns lethal damage to the
+       one easiest to kill first, as the engine does) and whether the ones left alive kill it. */
+    function gangFight(g, a, bs) {
+      const ds = g.kw(a, "double strike");
+      let dmg = Math.max(0, g.power(a)) * (ds ? 2 : 1);
+      const lost = [];
+      for (const b of bs.slice().sort((x, y) => lethalFor(g, x) - lethalFor(g, y))) {
+        const need = g.kw(a, "deathtouch") ? 1 : lethalFor(g, b);
+        if (dmg <= 0) break;
+        if (dmg >= need && !g.kw(b, "indestructible")) lost.push(b);
+        dmg -= need;
+      }
+      // a first striker kills before the blockers without first strike deal damage
+      const firstA = g.kw(a, "first strike") || ds;
+      const hitters = bs.filter(b => !(firstA && lost.includes(b) && !g.kw(b, "first strike") && !g.kw(b, "double strike")));
+      const sum = hitters.reduce((s, b) => s + Math.max(0, g.power(b)), 0);
+      const aDies = !g.kw(a, "indestructible") && (sum >= lethalFor(g, a) || hitters.some(b => g.kw(b, "deathtouch") && g.power(b) > 0));
+      return { aDies, lost };
+    }
+    /* Blocks with a look at the whole fight (engine 4):
+       1. one blocker that kills the attacker and lives, lives through a big hit, or trades up;
+       2. two blockers that together kill an attacker worth more than what it kills back (the only
+          way to block a menace creature);
+       3. chump blocks while the hits would kill us, each on the attacker whose block saves the
+          most (a trampler's damage goes through a chump blocker);
+       4. a token-sized chump blocker in front of a big hit when the life left would be low. */
+    function blockSmart(g, q, mine, incoming) {
+      const used = new Set(), blocks = [];
+      const free = a => mine.filter(b => !used.has(b.id) && g.canBlock(b, a));
+      const isBlocked = a => blocks.some(b => b.attacker === a);
+      const take = (b, a) => { used.add(b.id); blocks.push({ blocker: b, attacker: a }); };
+      const sure = () => chance(g, 0.6 + skill * 0.4);
+      // 1. single blocks
+      for (const a of incoming) {
+        if (g.kw(a, "menace")) continue;
+        let best = null, bs = -1e9;
+        for (const b of free(a)) {
+          const f = fight(g, a, b);
+          let s = -1e9;
+          if (!f.bDies && f.aDies) s = 10 + value(g, a) - value(g, b) * 0.2;
+          else if (!f.bDies && g.power(a) >= 3) s = 4 + g.power(a) * 0.5 - value(g, b) * 0.1;
+          else if (f.bDies && f.aDies && value(g, b) + 1 < value(g, a)) s = 2 + value(g, a) - value(g, b);
+          if (s > bs) { bs = s; best = b; }
+        }
+        if (best && bs > 0 && sure()) take(best, a);
+      }
+      // 2. gang blocks
+      for (const a of incoming) {
+        if (isBlocked(a)) continue;
+        const cands = free(a).sort((x, y) => value(g, x) - value(g, y)).slice(0, 8);
+        let best = null, bs = 1.5;
+        for (let i = 0; i < cands.length; i++) for (let j = i + 1; j < cands.length; j++) {
+          const r = gangFight(g, a, [cands[i], cands[j]]);
+          if (!r.aDies) continue;
+          const s = value(g, a) + (a.isCommander ? 2 : 0) - r.lost.reduce((t, b) => t + value(g, b), 0);
+          if (s > bs) { bs = s; best = [cands[i], cands[j]]; }
+        }
+        if (best && sure()) for (const b of best) take(b, a);
+      }
+      // 3. chump blocks that keep us alive
+      const hitOf = a => g.kw(a, "infect") ? 0 : Math.max(0, g.power(a)) * (g.kw(a, "double strike") ? 2 : 1);
+      const dmgOf = list => list.reduce((s, a) => s + hitOf(a), 0);
+      const poisonOf = list => list.reduce((s, a) => s + (g.kw(a, "infect") ? Math.max(0, g.power(a)) : 0), 0);
+      const cmdDanger = a => a.isCommander && (q.cmdDmg[a.id] || 0) + g.power(a) >= 21;
+      const rest = () => incoming.filter(a => !isBlocked(a) && !g.kw(a, "menace"));
+      const cheapest = a => free(a).sort((x, y) => value(g, x) - value(g, y))[0];
+      // what blocking a with b saves: all of it, or what b soaks up of a trampler's damage
+      const saved = (a, b) => (cmdDanger(a) ? 100 : 0) + (g.kw(a, "trample") ? Math.min(hitOf(a) + poisonOf([a]), g.toughness(b)) : hitOf(a) + poisonOf([a]) * 4);
+      const unblocked = () => incoming.filter(a => !isBlocked(a));
+      for (let guard = 0; guard < 20; guard++) {
+        const left = unblocked();
+        if (!(dmgOf(left) >= q.life || q.poison + poisonOf(left) >= 10 || left.some(cmdDanger))) break;
+        let best = null, bs = 0;
+        for (const a of rest()) { const b = cheapest(a); if (b && saved(a, b) > bs) { bs = saved(a, b); best = { a, b }; } }
+        if (!best) break;
+        take(best.b, best.a);
+      }
+      // 4. a cheap chump blocker keeps our life out of the danger zone
+      for (const a of rest().filter(x => !g.kw(x, "trample") && hitOf(x) >= 3).sort((x, y) => hitOf(y) - hitOf(x))) {
+        if (q.life - dmgOf(unblocked()) >= 12) break;
+        const b = cheapest(a);
+        if (b && value(g, b) < 2 && !b.isCommander) take(b, a);
+      }
       return blocks;
     }
 
@@ -763,6 +1303,33 @@
       if (ai.threat) s += ai.threat;
       if (ai.tutor) s += 3;
       return s;
+    }
+    /* A spell that completes a combo (MK.COMBOS) whose other pieces its caster has on the
+       battlefield wins the game, so it's the one to counter; a piece of a half-built combo counts
+       too. Only the battlefield counts: the bots never look at an opponent's hand. */
+    function comboDanger(g, top) {
+      const combos = MK.COMBOS;
+      if (!combos || !combos.length || !top.o) return 0;
+      const name = top.o.def.name, pc = top.p;
+      let best = 0;
+      for (const c of combos) {
+        if (!c.pieces.includes(name)) continue;
+        const others = c.pieces.filter(n => n !== name);
+        const out = others.filter(n => g.battlefield.some(o => o.controller === pc && o.def.name === n)).length;
+        const b = (out === others.length ? 15 : out * 3) * (c.kill === false ? 0.6 : 1);
+        if (b > best) best = b;
+      }
+      return best;
+    }
+    /* How dangerous a spell must be to spend a counterspell on it. Mana held up for a counter
+       is wasted once our own turn comes, so the last opponent before us meets a lower bar; a
+       spell from a player who threatens lethal on us meets a lower bar too. */
+    function counterBar(g, q, top, bar) {
+      if (g.nextPlayer(g.active) === q) bar -= 1.5;
+      const pc = top.p;
+      const hit = pc && power(g, g.creatures(pc).filter(c => !g.kw(c, "defender")));
+      if (hit && hit >= q.life * 0.6) bar -= 1.5;
+      return Math.max(3, bar);
     }
     /* The counterspell can target that spell (Dispel, An Offer You Can't Refuse, Wash Away). */
     function counterFits(g, q, act, top) {
@@ -805,12 +1372,13 @@
       if (win === "stack") {
         const top = ctx.top;
         if (!top || !isOppSpell(g, q, top)) return null;
-        const danger = spellDanger(g, q, top);
+        let danger = spellDanger(g, q, top);
         // counterspells
         const counters = acts.filter(a => a.type === "cast" && hintOf(q, a.card).counter && counterFits(g, q, a, top));
         // a hand full of counterspells spends them on smaller threats too
         const held = q.hand.filter(o => hintOf(q, o).counter).length;
-        const bar = Math.max(3, 6 * (1.2 - skill * 0.4) - Math.max(0, held - 1) * 1.5);
+        let bar = Math.max(3, 6 * (1.2 - skill * 0.4) - Math.max(0, held - 1) * 1.5);
+        if (counters.length && smart(g, "counter")) { danger += comboDanger(g, top); bar = counterBar(g, q, top, bar); }
         if (counters.length && danger >= bar) {
           const c = counters.sort((x, y) => x.card.def.mv - y.card.def.mv)[0];
           if (attempts(c, win) < 1) { noteTry(c, win); return { type: "cast", card: c.card, targets: [top], alt: c.alt }; }
@@ -917,6 +1485,13 @@
       const pur = req.purpose;
       const src = req.src;
       const def = src && src.def;
+      // the deck's brain answers first (undefined: no opinion)
+      const br = deckBrain(p);
+      if (br && br.choose) {
+        let r;
+        try { r = br.choose(g, p, req); } catch (e) { if (g.warn) g.warn(e); r = undefined; }
+        if (r !== undefined) return r;
+      }
       switch (req.type) {
         case "confirm": {
           if (pur === "demonstrate") return false;
@@ -949,6 +1524,9 @@
         case "target": {
           const opts = req.options;
           if (!opts.length) return null;
+          // a deck's own pick (`ai.targetPlan`, like ai.attackPlan): one of the options, or nothing
+          const own = deckPick(g, p, req);
+          if (own !== undefined) return own;
           if (def && def.ai && def.ai.target) { const t = def.ai.target(g, p, req); if (t !== undefined && (t === null ? req.optional : opts.includes(t))) return t; }
           // a spell on the stack (counterspells): the most dangerous opponent's spell, never our own
           if (req.spec && req.spec.kind === "spell" && pur !== "redirect") {
@@ -993,7 +1571,7 @@
       }
     }
 
-    const agent = { bot: true, skill, aggression: aggro, mem, mulligan, main, attack, block, respond, choose };
+    const agent = { bot: true, skill, aggression: aggro, mem, smart, mulligan, main, attack, block, respond, choose };
     return agent;
   };
 

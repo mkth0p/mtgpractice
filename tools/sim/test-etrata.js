@@ -80,6 +80,32 @@ async function endStep(g, a) { g.phase = "end"; g.emit("endStep", { p: a }); g.r
     for (let i = 0; i < 6 && !b.lost; i++) { const act = a.agent.main(g, a, { phase: "main2" }); if (!act || act.type !== "activate") break; await g.activate(a, act.card, act.idx); await g.settle(); }
     check("bot: Guildmage + Mindcrank loop kills the weakest opponent", b.lost, { life: b.life }); }
 
+  // The Etrata brain (the three Etrata lists): attacks where they get through, kills when it can
+  { const { g, a, b, c, d } = table(); a.deckId = "etrata-b4";
+    const oc = put(g, a, "Changeling Outcast"), hp = put(g, a, "Universal Automaton");
+    for (const q of [b, c, d]) put(g, q, "Fanatic of Rhonas");
+    for (const q of [b, c, d]) q.life = 30;
+    await g.settle();
+    const decl = a.agent.attack(g, a, { candidates: [oc, hp], targets: g.attackTargets(a) });
+    check("brain: the unblockable Assassin attacks", decl.some(x => x.attacker === oc), decl.map(x => x.attacker.def.name));
+    check("brain: a creature every player would block stays home", !decl.some(x => x.attacker === hp), decl.map(x => x.attacker.def.name)); }
+  { const { g, a, b, c, d } = table(); a.deckId = "etrata-b4";
+    put(g, a, "Ramses, Assassin Lord"); const o1 = put(g, a, "Changeling Outcast"), o2 = put(g, a, "Changeling Outcast");
+    b.life = 30; c.life = 4; d.life = 30;
+    await g.settle();
+    const decl = a.agent.attack(g, a, { candidates: [o1, o2], targets: g.attackTargets(a) });
+    check("brain: with Ramses out, the attack goes at the player it can kill", decl.length >= 1 && decl.every(x => x.target === c), decl.map(x => x.target.name));
+    await attack(g, a, decl);
+    check("brain: that kill wins the game with Ramses", g.over && g.winner === a, { over: g.over, life: c.life }); }
+  { const { g, a } = table(); a.deckId = "etrata";
+    for (const n of ["Ezio, Blade of Vengeance", "Ramses, Assassin Lord", "Mari, the Killing Quill"]) a.library.unshift(g.newObj(MK.get(n), a, "library"));
+    lands(g, a, 4);
+    const pick = MK.ETRATA_BRAIN.tutorPick(g, a, a.library.slice());
+    check("brain: tutors find Ramses first", pick && pick.def.name === "Ramses, Assassin Lord", pick && pick.def.name); }
+  { const { g, a, b, c, d } = table(); a.deckId = "corrupted-etrata";
+    const oc = put(g, a, "Changeling Outcast"); await g.settle();
+    check("brain: Corrupted Etrata keeps its own attacks", MK.ETRATA_BRAIN.attack(g, a, { candidates: [oc], targets: g.attackTargets(a), decl: [] }) === undefined); }
+
   console.log(`${passed} checks passed, ${failed} failed.`);
   process.exit(failed ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });

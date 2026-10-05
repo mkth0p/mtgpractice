@@ -145,6 +145,8 @@ async function runOne(seed, seats) {
     log(e) { if (LOGGAME) console.log(`  t${e.turn} ${e.text}`); }
   };
   g = new MK.Game({ seed, players, strict: STRICT, maxTurns: MAXTURNS, ui });
+  // the deck ids, as the table sets them (a deck's bot brain keys on it)
+  g.players.forEach((p, i) => { p.deckId = seats[i].id; });
   g.activeIdx = FIRST === "random" ? g.rand(players.length) : (+FIRST || 0) % players.length;
   g.players.forEach((p, i) => { p.deckId = seats[i].id; });
   for (const p of g.players) p.startCards = p.library.length + p.command.length;

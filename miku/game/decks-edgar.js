@@ -164,8 +164,12 @@
   async function tutor(g, p, src, opts) {
     const filter = opts.filter || (() => true);
     let f = filter;
-    if (p.agent && p.agent.bot) {
-      const pick = tutorPick(g, p, p.library.filter(o => filter(g, o)));
+    // a deck with its own brain (ai.js deckBrain) or tutor picks (MK.DECK_TUTORS) picks for itself
+    const br = MK.AI && MK.AI.deckBrain ? MK.AI.deckBrain(p) : null;
+    const own = (MK.DECK_TUTORS && MK.DECK_TUTORS[p.deckId]) || (br && br.tutor);
+    if (p.agent && p.agent.bot && !(br && br.tutors && !own)) {
+      const cands = p.library.filter(o => filter(g, o));
+      const pick = (own && own(g, p, cands)) || tutorPick(g, p, cands);
       if (pick) f = (g2, o) => o === pick;
     }
     const got = await g.search(p, { filter: f, to: opts.to || "hand", prompt: opts.prompt, src, hidden: opts.hidden !== false, purpose: "tutor" });

@@ -241,6 +241,30 @@ const repeat = (g, p, o, idx, n) => g.perform(p, { type: "activate", card: o, id
     check("brain: Torpor Orb is a high threat when you hold Ranger-Captain", r.threats.some(t => t.name === "Torpor Orb" && t.level === "high"), r.threats); }
   { check("checklist is defined", !!(globalThis.MK_CHECKLISTS && globalThis.MK_CHECKLISTS.corrupted && globalThis.MK_CHECKLISTS.corrupted.length)); }
 
+  // The bot's brain (MK.DECK_BRAINS.corrupted): it plays a whole main phase on its own
+  const botTable = () => { const t = table(); t.a.deckId = "corrupted"; for (const q of t.g.players.slice(1)) q.life = 20; return t; };
+  const lib = (g, p, names) => { for (const n of names) p.library.push(g.newObj(MK.get(n), p, "library")); };
+  { const { g, a, b, c, d } = botTable(); lands(g, a, 2); put(g, a, "Archangel of Thune"); const sf = put(g, a, "Spike Feeder"); sf.counters.p1 = 2; hand(g, a, "Walking Ballista"); await g.settle();
+    await g.mainPhase(a);
+    check("bot: Thune + Feeder + Ballista kills the table", [b, c, d].every(q => q.lost), [b.life, c.life, d.life]); }
+  { const { g, a, b, c, d } = botTable(); lands(g, a, 3, ["Plains"]); put(g, a, "Heliod, Sun-Crowned"); const wb = put(g, a, "Walking Ballista"); wb.counters.p1 = 2; await g.settle();
+    await g.mainPhase(a);
+    check("bot: Heliod + Ballista: lifelink, then ping everyone out", [b, c, d].every(q => q.lost), [b.life, c.life, d.life]); }
+  { const { g, a, b, c, d } = botTable(); lands(g, a, 1, ["Plains"]); put(g, a, "Devoted Druid"); put(g, a, "Vizier of Remedies"); hand(g, a, "Walking Ballista"); await g.settle();
+    await g.mainPhase(a);
+    check("bot: Druid + Vizier mana goes into a huge Ballista", [b, c, d].every(q => q.lost), [b.life, c.life, d.life]); }
+  { const { g, a, b, c, d } = botTable(); lands(g, a, 5, ["Forest", "Plains", "Forest", "Savannah", "Forest"]); put(g, a, "Archangel of Thune"); hand(g, a, "Eladamri's Call"); lib(g, a, ["Llanowar Elves", "Sol Ring", "Spike Feeder", "Forest"]); await g.settle();
+    const life = a.life;
+    await g.mainPhase(a);
+    check("bot: Eladamri's Call finds Spike Feeder and loops it with Thune the same turn", a.life >= life + 40 && g.creatures(a).some(o => o.def.name === "Spike Feeder"), [a.life - life, a.hand.map(o => o.def.name)]); }
+  { const { g, a, b } = botTable(); lands(g, a, 6); put(g, a, "Archangel of Thune"); const sf = put(g, a, "Spike Feeder"); sf.counters.p1 = 2; hand(g, a, "Walking Ballista"); hand(g, a, "Silence");
+    lands(g, b, 2, ["Plains"]); hand(g, b, "Swords to Plowshares"); await g.settle();
+    await g.mainPhase(a);
+    check("bot: Silence first when an opponent holds cards and open mana", (a.stats.cast["Silence"] || 0) === 1 && g.players.slice(1).every(q => q.lost), [a.stats.cast, b.life]); }
+  { const { g, a } = botTable(); put(g, a, "Devoted Druid"); hand(g, a, "Worldly Tutor"); lib(g, a, ["Sol Ring", "Llanowar Elves", "Vizier of Remedies", "Craterhoof Behemoth"]);
+    const pick = MK.AI.create({}).choose(g, a, { type: "cards", purpose: "tutor", options: a.library.slice(), min: 0, max: 1, src: a.hand[0] });
+    check("bot: a tutor finds Vizier for the Druid on the battlefield", pick && pick[0] && pick[0].def.name === "Vizier of Remedies", pick && pick.map(o => o.def.name)); }
+
   console.log(`${passed} passed, ${failed} failed`);
   process.exit(failed ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });
