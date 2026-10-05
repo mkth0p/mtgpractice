@@ -84,6 +84,17 @@ module.exports = function install(MK, opts) {
     if (s.hero && top && top.kind === "spell" && top.p !== s.hero && !top.countered && top.o && top.o.def && (WIPE.test(top.o.def.name) || (top.o.def.ai && top.o.def.ai.wipe)) && !(top.o.def.name === "Cyclonic Rift" && top.alt !== 1)) s.wipes = (s.wipes || 0) + 1;
     return ort.apply(this, arguments);
   };
+  // what the hero counters, and what counters the hero's spells
+  const ocs = G.counterSpell;
+  G.counterSpell = function (item, by) {
+    const s = st(this), r = ocs.apply(this, arguments);
+    if (r && s.hero && item && item.o && item.o.def) {
+      const byHero = by && by.controller === s.hero, ofHero = item.p === s.hero;
+      if (byHero) (s.countered || (s.countered = [])).push(item.o.def.name);
+      if (ofHero) (s.gotCountered || (s.gotCountered = [])).push(item.o.def.name);
+    }
+    return r;
+  };
   const oc = G.cloakTop;
   G.cloakTop = function (p, from, src) { const s = st(this); if (s.hero && p === s.hero && src && src.def && src.def.name === ET && from && from !== p) s.etrataSteals++; return oc.apply(this, arguments); };
   const olose = G.lose;
@@ -127,7 +138,7 @@ module.exports = function install(MK, opts) {
     if (h) rows.push({
       seed: g.seed, win: g.winner === h, rounds: g.round, casts: h.stats.cast[h.commanders[0] ? h.commanders[0].def.name : ""] || 0,
       steals: s.steals, etrataSteals: s.etrataSteals, flips: s.flips, stolenFlips: s.stolenFlips, freeCasts: s.freeCasts, faceUpStolen: s.faceUpStolen,
-      dmg: s.dmg, cmdDmg: s.cmdDmg, outs: s.outs, altWin: s.altWin || null, heroLost: h.lost ? h.lostReason : null, trace: s.trace || [], first: s.first || {}, cast: Object.assign({}, h.stats.cast), found: s.found || [], left: s.left || [], wipes: s.wipes || 0, lostMyTurn: s.lostMyTurn || 0, lostTheirTurn: s.lostTheirTurn || 0, end: (() => { const g2 = g; return { oppLife: g2.players.filter(q => q !== h).map(q => q.lost ? 0 : q.life), heroLife: h.life }; })()
+      dmg: s.dmg, cmdDmg: s.cmdDmg, outs: s.outs, altWin: s.altWin || null, heroLost: h.lost ? h.lostReason : null, trace: s.trace || [], first: s.first || {}, cast: Object.assign({}, h.stats.cast), found: s.found || [], left: s.left || [], wipes: s.wipes || 0, countered: s.countered || [], gotCountered: s.gotCountered || [], lostMyTurn: s.lostMyTurn || 0, lostTheirTurn: s.lostTheirTurn || 0, end: (() => { const g2 = g; return { oppLife: g2.players.filter(q => q !== h).map(q => q.lost ? 0 : q.life), heroLife: h.life }; })()
     });
     return r;
   };
