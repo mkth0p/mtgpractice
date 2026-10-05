@@ -228,6 +228,8 @@
     if (name === "Ghalta, Stampede Tyrant" && dest === "battlefield") s += Math.min(4, p.hand.filter(isCreatureCard).length * 1.5);
     if (d.legendary && g.controlled(p, o => o.def.name === name).length) s -= 10;
     if (dest !== "battlefield" && d.mv > ctx.pot) s -= 1.5 * (d.mv - ctx.pot);
+    // other decks share these tutors: their combo pieces (MK.COMBOS) come first
+    if (MK.AI && MK.AI.comboBonus) s += MK.AI.comboBonus(g, p, c);
     return s;
   }
   function pickTutor(g, p, options, dest) {

@@ -1143,6 +1143,8 @@
   /* ================================================================ counterspells */
   const hardCounter = { counter: true, target: topOpposing };
   const brainOnly = { never: true, target: topOpposing };
+  // Talrand's brain casts these; any other deck holding one counters like with Counterspell
+  const brainCounter = Object.assign({ brain: "talrand", otherwise: { counter: true } }, brainOnly);
   D({
     name: "Counterspell", cost: "{U}{U}", type: "Instant", text: "Counter target spell.",
     spell: { targets: [specSpell("Counter target spell")], do: (g, ctx) => counterTarget(g, ctx) },
@@ -1153,21 +1155,21 @@
     text: "You may pay 1 life and exile a blue card from your hand rather than pay this spell's mana cost.\nCounter target spell.",
     altCosts: [{ label: "Pay 1 life, exile a blue card", cost: "", payLife: 1, exileFromHand: { filter: (g, c) => isBlueCard(c), prompt: "Force of Will: exile a blue card from your hand" } }],
     spell: { targets: [specSpell("Counter target spell")], do: (g, ctx) => counterTarget(g, ctx) },
-    ai: { never: true, target: forceTarget }
+    ai: { never: true, target: forceTarget, brain: "talrand", otherwise: { counter: true } }
   });
   D({
     name: "Force of Negation", cost: "{1}{U}{U}", type: "Instant",
     text: "If it's not your turn, you may exile a blue card from your hand rather than pay this spell's mana cost.\nCounter target noncreature spell. If that spell is countered this way, exile it instead of putting it into its owner's graveyard.",
     altCosts: [{ label: "Exile a blue card (not your turn)", cost: "", condition: (g, p) => g.active !== p, exileFromHand: { filter: (g, c) => isBlueCard(c), prompt: "Force of Negation: exile a blue card from your hand" } }],
     spell: { targets: [specSpell("Counter target noncreature spell", nonCreature)], do: (g, ctx) => counterTarget(g, ctx, toZoneIfCountered(g, "exile")) },
-    ai: { never: true, target: forceTarget }
+    ai: { never: true, target: forceTarget, brain: "talrand", otherwise: { counter: true } }
   });
   D({
     name: "Fierce Guardianship", cost: "{2}{U}", type: "Instant",
     text: "If you control a commander, you may cast this spell without paying its mana cost.\nCounter target noncreature spell.",
     altCosts: [{ label: "Free (you control a commander)", cost: "", condition: (g, p) => g.battlefield.some(o => o.controller === p && o.isCommander) }],
     spell: { targets: [specSpell("Counter target noncreature spell", nonCreature)], do: (g, ctx) => counterTarget(g, ctx) },
-    ai: brainOnly
+    ai: brainCounter
   });
   D({
     name: "Pact of Negation", cost: "{0}", type: "Instant",
@@ -1194,7 +1196,7 @@
   D({
     name: "Mana Leak", cost: "{1}{U}", type: "Instant", text: "Counter target spell unless its controller pays {3}.",
     spell: { targets: [specSpell("Counter target spell")], do: (g, ctx) => counterUnless(g, ctx, 3) },
-    ai: brainOnly
+    ai: brainCounter
   });
   const creatureSpell = it => it.o.def.types.includes("Creature");
   D({

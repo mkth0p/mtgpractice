@@ -673,6 +673,8 @@
     { key: "heliodFeeder", pieces: ["Heliod, Sun-Crowned", "Spike Feeder"], title: "Heliod + Spike Feeder", how: "Remove a counter from Feeder (gain 2), Heliod puts it back: infinite life. Add Ballista or Thune to turn it into a kill." },
     { key: "druid", pieces: ["Devoted Druid", "Vizier of Remedies"], title: "Devoted Druid + Vizier of Remedies", how: "Use Devoted Druid's \"Tap for {G}, then untap it\" with ×N: Vizier makes the -1/-1 counter zero, so it's unlimited green mana. Spend it on Walking Ballista ({4}: +1 counter), Shalai ({4}{G}{G}) or Finale of Devastation with X 10+." }
   ];
+  // the bots' tutors fetch these pieces first (ai.js comboBonus); Druid + Vizier only makes mana
+  MK.COMBOS = (MK.COMBOS || []).concat(COMBOS.map(c => ({ pieces: c.pieces, kill: c.key !== "druid" && c.key !== "heliodFeeder" })));
   const HATE = {
     "Grafdigger's Cage": "stops Natural Order, Chord, Green Sun's Zenith and Finale (creatures can't enter from your library)",
     "Torpor Orb": "stops your creatures' enters abilities (Recruiter, Ranger-Captain, Gearhulk, Speaker, Witness)",

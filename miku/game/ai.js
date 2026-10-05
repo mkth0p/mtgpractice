@@ -190,8 +190,36 @@
     if (d.types.includes("Land")) return landScore(g, p, o);
     let s = (d.ai && d.ai.priority != null ? d.ai.priority : 5) + d.mv * 0.6;
     if (req && req.purpose === "tutor" && d.ai && d.ai.finisher) s += 4;
+    if (req && req.purpose === "tutor") s += comboBonus(g, p, o);
     return s;
   }
+  /* Combo pieces (MK.COMBOS, registered by the deck files): a tutor fetches the card that
+     completes a combo first, then a piece of a combo that's half there, then any kill piece. */
+  function comboBonus(g, p, o) {
+    const combos = MK.COMBOS;
+    if (!combos || !combos.length) return 0;
+    const name = o.def.name;
+    const have = n => p.hand.some(c => c !== o && c.def.name === n) || g.battlefield.some(c => c.controller === p && c.def.name === n);
+    if (have(name)) return 0;
+    let best = 0;
+    for (const c of combos) {
+      if (!c.pieces.includes(name)) continue;
+      const others = c.pieces.filter(n => n !== name);
+      const held = others.filter(have).length;
+      const b = (held === others.length ? 12 : 3 + held * 4) * (c.kill === false ? 0.6 : 1);
+      if (b > best) best = b;
+    }
+    return best;
+  }
+  AI.comboBonus = comboBonus;
+  /* A card's hints for this player. A card one bot deck casts through its own plan says so
+     (`ai.brain`: that deck's id, `ai.never`); any other deck plays it by `ai.otherwise`, so a Force
+     of Will in an Etrata list isn't a dead card. */
+  function hintOf(p, o) {
+    const ai = o.def.ai || {};
+    return ai.brain && ai.otherwise && p && p.deckId && p.deckId !== ai.brain ? Object.assign({ target: ai.target }, ai.otherwise) : ai;
+  }
+  AI.hintOf = hintOf;
   /* A tutor to hand: a card that costs more than we can pay next turn waits in the hand, so it
      loses value with every missing mana; ramp is worth more while we're short; lands while we
      have too few. A finisher or a combo piece the deck marks (`ai.tutorBonus`) comes first. */
@@ -205,6 +233,7 @@
     if (d.mv > next) s -= (d.mv - next) * 1.6;
     if (ai.ramp) s += sources < 5 ? 2.5 : -1.5;
     if (ai.tutorBonus) s += typeof ai.tutorBonus === "function" ? ai.tutorBonus(g, p, o) || 0 : ai.tutorBonus;
+    s += comboBonus(g, p, o);
     if (ai.never) s -= 20;
     return s;
   }
@@ -382,10 +411,16 @@
     }
 
     /* ---------------- scoring casts */
+    /* What a removal card could hit: its spell's targets, an Aura's enchant target, or (a creature
+       whose enters trigger picks the target, like Solitude) any opposing creature it can target. */
     function harmTargetsFor(g, p, o) {
-      const specs = (o.def.spell && o.def.spell.targets) || [];
+      const d = o.def;
+      const specs = (d.spell && d.spell.targets) || (d.aura && d.targets) || [];
       const spec = specs[0];
-      if (!spec) return [];
+      if (!spec) {
+        if (!d.types.includes("Creature")) return [];
+        return g.battlefield.filter(c => c.controller !== p && g.isCreature(c) && g.canTarget(p, c));
+      }
       return g.targetOptions(p, spec, o).filter(t => !g.isPlayer(t) ? t.controller !== p : t !== p);
     }
     function bestThreat(g, p, list) {
@@ -420,7 +455,7 @@
       return theirs >= 14 && theirs >= mine * 2 + 6;
     }
     function scoreCast(g, p, act, win) {
-      const o = act.card, d = o.def, ai = d.ai || {};
+      const o = act.card, d = o.def, ai = hintOf(p, o);
       if (ai.never) return -1;
       if (ai.cast) { const r = ai.cast(g, p, o, { window: win }); if (r === false) return -1; if (typeof r === "number") return r; }
       const instant = isInstant(g, p, o);
@@ -529,7 +564,7 @@
     function main(g, p, { phase }) {
       resetTurn(g);
       const win = phase;
-      if (win === "main2") mem.keepUp = p.hand.some(o => o.def.ai && o.def.ai.counter) ? 2 : 0;
+      if (win === "main2") mem.keepUp = p.hand.some(o => hintOf(p, o).counter) ? 2 : 0;
       const acts = g.legalActions(p);
       if (!acts.length) return { type: "pass" };
       const fresh = a => attempts(a, win) < 2;
@@ -744,7 +779,7 @@
       const atMe = c.attackers.filter(a => a.combat && g.defenderOf(a.combat.attacking) === q && !a.combat.wasBlocked);
       const dmg = power(g, atMe);
       if (!atMe.length || !(dmg >= q.life || dmg >= 8)) return null;
-      const rem = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.removal && isInstant(g, q, a.card));
+      const rem = acts.filter(a => a.type === "cast" && hintOf(q, a.card).removal && isInstant(g, q, a.card));
       for (const r of rem) {
         const spec = (r.card.def.spell && r.card.def.spell.targets || [])[0];
         if (!spec) continue;
@@ -772,9 +807,9 @@
         if (!top || !isOppSpell(g, q, top)) return null;
         const danger = spellDanger(g, q, top);
         // counterspells
-        const counters = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.counter && counterFits(g, q, a, top));
+        const counters = acts.filter(a => a.type === "cast" && hintOf(q, a.card).counter && counterFits(g, q, a, top));
         // a hand full of counterspells spends them on smaller threats too
-        const held = q.hand.filter(o => o.def.ai && o.def.ai.counter).length;
+        const held = q.hand.filter(o => hintOf(q, o).counter).length;
         const bar = Math.max(3, 6 * (1.2 - skill * 0.4) - Math.max(0, held - 1) * 1.5);
         if (counters.length && danger >= bar) {
           const c = counters.sort((x, y) => x.card.def.mv - y.card.def.mv)[0];
@@ -789,7 +824,7 @@
         // protection against a wipe or removal on our best creature
         const hurts = (top.o.def.ai && top.o.def.ai.wipe) || (top.o.def.ai && top.o.def.ai.removal && top.targets.some(t => t && !g.isPlayer(t) && t.controller === q && value(g, t) >= 6));
         if (hurts) {
-          const prot = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.protection && (!a.card.def.ai.protects || a.card.def.ai.protects(g, q, top)));
+          const prot = acts.filter(a => { const h = a.type === "cast" && hintOf(q, a.card); return h && h.protection && (!h.protects || h.protects(g, q, top)); });
           const cmdHit = top.targets.some(t => t && !g.isPlayer(t) && t.controller === q && t.isCommander);
           if (prot.length && (boardValue(g, q) >= 12 || cmdHit)) {
             const c = prot[0];
@@ -812,7 +847,7 @@
         const harm = top.kind === "ability" && (top.ab.targets || []).some(sp => sp.purpose === "harm");
         const hit = harm && top.targets.some(t => t && !g.isPlayer(t) && !t.kind && t.controller === q && (value(g, t) >= 6 || t.isCommander));
         if (!hit) return null;
-        const prot = acts.filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.protection && (!a.card.def.ai.protects || a.card.def.ai.protects(g, q, top)));
+        const prot = acts.filter(a => { const h = a.type === "cast" && hintOf(q, a.card); return h && h.protection && (!h.protects || h.protects(g, q, top)); });
         const c = prot[0];
         if (!c || attempts(c, win) >= 1) return null;
         noteTry(c, win);
@@ -852,7 +887,7 @@
         // flash and end-of-turn instants, just before our turn
         if (mineNext) {
           const cands = acts.filter(a => a.type === "cast" && attempts(a, win) < 1).map(a => {
-            const ai = a.card.def.ai || {};
+            const ai = hintOf(q, a.card);
             if (ai.counter || ai.never || ai.trick) return null;
             if (ai.protection && !ai.instantEnd) return null;
             if (ai.removal) { const { best, score } = bestThreat(g, q, harmTargetsFor(g, q, a.card)); if (!best || score < (ai.minThreat || 3) + 1) return null; return { a, s: 20 + score }; }
