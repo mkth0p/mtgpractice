@@ -1,5 +1,5 @@
 /* Corrupted Etrata: settings that turn the shared deck-site shell (../miku/app.js) into the Corrupted
-   Etrata site (Etrata's Shadow Market v2, a Bracket 4 Etrata, Deadly Fugitive list), the game's hero
+   Etrata site (Etrata's Shadow Market v3, a Bracket 4 Etrata, Deadly Fugitive list), the game's hero
    (MK_SITE), and this deck's tools: the combo checker, the tutor map, the double-tap calculator, the
    play checklist, the quiz and the buy list. */
 (function () {
@@ -13,18 +13,14 @@
   /* ================================================================ shared data */
   // Each line needs one card from every group in `need`; `plus` cards make it better but aren't required.
   const COMBOS = [
-    { id: "court", name: "Vampire court loop", need: [["Exquisite Blood", "Bloodthirsty Conqueror"], ["Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond"]],
-      result: "Any opponent losing life starts a loop that drains every opponent to 0.", start: "Any opponent losing life starts it: an attack, their fetch land or shock land, Mindcrank. Your own life loss (Night's Whisper, Necropotence) doesn't." },
+    { id: "court", name: "Vampire court loop", need: [["Exquisite Blood", "Bloodthirsty Conqueror"], ["Marauding Blight-Priest", "Starscape Cleric", "Vito, Thorn of the Dusk Rose", "Sanguine Bond", "Enduring Tenacity"]], plus: ["Hooded Blightfang", "Vampire of the Dire Moon"],
+      result: "Any opponent losing life starts a loop that drains every opponent to 0.", start: "Any opponent losing life, or you gaining life, starts it: an attack, a Hooded Blightfang trigger, Vampire of the Dire Moon's lifelink, their fetch land or shock land, Mindcrank. Your own life loss (Night's Whisper, Necropotence) doesn't." },
     { id: "crank", name: "Mindcrank + Duskmantle Guildmage", need: [["Mindcrank"], ["Duskmantle Guildmage"]],
       result: "Each card put into their graveyard costs them 1 life, and each life lost mills them again, until they're dead. Each opponent needs their own starter.", start: "Activate the Guildmage ({1}{U}{B}), then any life loss or mill starts it. Do it on an opponent's turn when they cast a spell." },
-    { id: "brine", name: "Brine Elemental lock", need: [["Brine Elemental"], ["Vesuvan Shapeshifter"]], plus: ["Training Grounds"],
-      result: "Opponents never untap again.", start: "Both face down for {3} each. Etrata flips Brine for {2}{U}{B} ({U}{B} with Training Grounds); Vesuvan flips as a copy for {1}{U}, then turns face down each upkeep and flips again." },
-    { id: "double", name: "Double tap", need: [["Bloodletter of Aclazotz"], ["Virtus the Veiled"]], plus: ["Tetsuko Umezawa, Fugitive", "Rogue's Passage", "Ramses, Assassin Lord"],
-      result: "Virtus's hit makes them lose half their life, rounded up. Bloodletter doubles that on your turn: all of it.", start: "Tetsuko makes Virtus unblockable, but not with Ramses out (Ramses makes it a 2/2): use Rogue's Passage then. With Ramses, that player dying after an Assassin attacked them wins you the game." },
+    { id: "double", name: "Double tap", need: [["Bloodletter of Aclazotz"], ["Virtus the Veiled"]], plus: ["Tetsuko Umezawa, Fugitive", "Rogue's Passage"],
+      result: "Virtus's hit makes that player lose half their life, rounded up. Bloodletter doubles that on your turn: all of it. It kills one player, not the table.", start: "Tetsuko makes the 1/1 Virtus unblockable. Without Tetsuko, use Rogue's Passage ({4}, {T}) or attack a player with no untapped blockers." },
     { id: "manta", name: "Infinite turns", need: [["Scroll of Fate"], ["Wormfang Manta"], ["Crystal Shard"]], plus: ["Training Grounds"],
-      result: "An extra turn every turn. The Manta is summoning sick each time, so win the extra turns with your other creatures.", start: "Manifest the Manta with Scroll of Fate, flip it with Etrata ({2}{U}{B}), bounce it with Crystal Shard ({U}, {T}). Manifested again next turn: 5 mana a turn, 3 with Training Grounds." },
-    { id: "hits", name: "Hit list", need: [["Mari, the Killing Quill"], ["Toxic Deluge"], ["Etrata, the Silencer"]], plus: ["Ramses, Assassin Lord"],
-      result: "Hit counters pile up on the exiled creatures; the Silencer knocks out a player with three.", start: "Mari's hit counters go on opposing creatures that die. Wipe with Toxic Deluge, then connect with the Silencer. Ramses turns that loss into a win." }
+      result: "An extra turn every turn. The Manta is summoning sick each time, so win the extra turns with your other creatures.", start: "Manifest the Manta with Scroll of Fate, flip it with Etrata ({2}{U}{B}), bounce it with Crystal Shard ({U}, {T}). Manifested again next turn: 5 mana a turn, 3 with Training Grounds." }
   ];
   const COMBO_PIECES = [...new Set(COMBOS.flatMap(c => c.need.flat()))];
   const ALL_PLUS = [...new Set(COMBOS.flatMap(c => c.plus || []))].filter(n => !COMBO_PIECES.includes(n));
@@ -40,7 +36,6 @@
     { name: "Scheming Symmetry", how: "You and another player each put any card on top. {B}, sorcery. Pick the opponent least likely to use it.", any: true },
     { name: "Wishclaw Talisman", how: "Any card, to your hand. Then an opponent gets the Talisman: use it on the turn you win.", any: true },
     { name: "Tribute Mage", how: "Enters: an artifact with mana value 2, to your hand.", list: ["Mindcrank", "Wishclaw Talisman", "Dimir Signet", "Talisman of Dominance", "Arcane Signet", "Mind Stone", "Fellwar Stone"] },
-    { name: "Dizzy Spell", how: "Transmute {1}{U}{U}: a card with mana value 1.", mv: 1 },
     { name: "Shred Memory", how: "Transmute {1}{B}{B}: a card with mana value 2.", mv: 2 },
     { name: "Muddle the Mixture", how: "Transmute {1}{U}{U}: a card with mana value 2.", mv: 2 },
     { name: "Drift of Phantasms", how: "Transmute {1}{U}{U}: a card with mana value 3.", mv: 3 },
@@ -62,7 +57,7 @@
     ],
     colors: [["U", "blue", "Island"], ["B", "black", "Swamp"]],
     pipNote: "Etrata asks for {1}{U}{B}, and her flip for {2}{U}{B} ({U}{B} with Training Grounds).",
-    oddsNote: "Fifteen tutors make the real odds of finding a combo piece much better than these draw-only numbers: count a tutor as the piece it finds.",
+    oddsNote: "Fourteen tutors make the real odds of finding a combo piece much better than these draw-only numbers: count a tutor as the piece it finds.",
     oddsGroups: ({ is }) => [
       { id: "l2", label: "At least 2 lands", lands: 2 },
       { id: "l3", label: "At least 3 lands", lands: 3 },
@@ -71,7 +66,7 @@
       { id: "piece", label: "Any combo piece", f: c => COMBO_PIECES.includes(c.name) },
       { id: "pieceortutor", label: "A combo piece or a tutor", f: c => COMBO_PIECES.includes(c.name) || c.roles.includes("tutor") },
       { id: "steal", label: "A theft card", f: is("steal") },
-      { id: "court", label: "Exquisite Blood and Blight-Priest", both: [["Exquisite Blood", "Bloodthirsty Conqueror"], ["Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond"]] },
+      { id: "court", label: "A vampire drain and a payoff", both: [["Exquisite Blood", "Bloodthirsty Conqueror"], ["Marauding Blight-Priest", "Starscape Cleric", "Vito, Thorn of the Dusk Rose", "Sanguine Bond", "Enduring Tenacity"]] },
       { id: "crank", label: "Mindcrank and Duskmantle Guildmage", both: [["Mindcrank"], ["Duskmantle Guildmage"]] }
     ],
     botSim: null,
@@ -158,14 +153,14 @@
     const tg = (k, label, on) => `<button class="chip" type="button" data-k="${k}" aria-pressed="${on}">${label}</button>`;
     el.innerHTML = `<div class="w-head"><span class="w-tag mono">Try it</span><b>Does the double tap kill?</b></div>
       <div class="w-fields">${stepperHTML("life", "Their life", 40, 1, 99)}${stepperHTML("dmg", "Other combat damage to them (Virtus's 1 not included)", 0, 0, 60)}</div>
-      <div class="chips wrap" role="group" aria-label="What's out">${tg("blood", "Bloodletter of Aclazotz out (your turn)", true)}${tg("virtus", "Virtus connects", true)}${tg("crank", "Mindcrank out", false)}${tg("ramses", "Ramses out, and an Assassin attacked them", false)}</div>
+      <div class="chips wrap" role="group" aria-label="What's out">${tg("blood", "Bloodletter of Aclazotz out (your turn)", true)}${tg("virtus", "Virtus connects", true)}${tg("crank", "Mindcrank out", false)}</div>
       <div class="w-out">
         <div><b data-o="combat">0</b><span>life lost to combat damage</span></div>
         <div><b data-o="half">0</b><span>life lost to Virtus's trigger</span></div>
         <div><b data-o="left">0</b><span>life left</span></div>
       </div>
       <p class="w-verdict" data-o="v"></p>
-      <p class="muted small">Bloodletter: "If an opponent would lose life during your turn, they lose twice that much life instead." Damage makes a player lose life, so combat damage doubles too. Virtus is a 1/1 Assassin, so <i-c>Tetsuko Umezawa, Fugitive</i-c> makes it unblockable, unless <i-c>Ramses, Assassin Lord</i-c> makes it a 2/2: then use <i-c>Rogue's Passage</i-c>. Mindcrank's mill doesn't loop on its own here: it needs <i-c>Duskmantle Guildmage</i-c>.</p>`;
+      <p class="muted small">Bloodletter: "If an opponent would lose life during your turn, they lose twice that much life instead." Damage makes a player lose life, so combat damage doubles too. Virtus is a 1/1 Assassin, so <i-c>Tetsuko Umezawa, Fugitive</i-c> makes it unblockable; without Tetsuko, use <i-c>Rogue's Passage</i-c>. It kills only the player it hits. Mindcrank's mill doesn't loop on its own here: it needs <i-c>Duskmantle Guildmage</i-c>.</p>`;
     const out = k => $(`[data-o="${k}"]`, el);
     const on = k => { const i = el.querySelector(`[data-k="${k}"]`); return !!i && i.getAttribute("aria-pressed") === "true"; };
     function run() {
@@ -180,7 +175,6 @@
       bump(out("combat"), combat); bump(out("half"), half); bump(out("left"), Math.max(0, life));
       const lost = combat + half;
       let v = life <= 0 ? "<b>Dead.</b>" : `They live at ${life}.${!blood && virtus ? " Without Bloodletter, Virtus only takes half." : ""}`;
-      if (life <= 0 && on("ramses")) v += " Ramses: you win the game.";
       if (on("crank")) v += ` Mindcrank mills ${lost} card${lost === 1 ? "" : "s"}.`;
       out("v").innerHTML = v;
     }
@@ -346,7 +340,7 @@
         <div class="btn-row"><button class="btn primary" type="button" data-copy-proxy>Copy the proxy list</button><a class="btn" href="proxies-A4.pdf" target="_blank" rel="noopener">Print the proxies (A4 PDF)</a><button class="btn ghost" type="button" data-reset>Clear ticks</button></div>
         <section class="cl-sec"><h3>Proxy these (${count(proxy)})</h3><p class="muted small">Tick each one once it's printed and sleeved. The price is what the real card would cost.</p>
         <div class="swaps">${proxy.map((c, i) => `<div class="swap plain${done.has(c.name) ? " done" : ""}"><button class="tick" type="button" data-px="${esc(c.name)}" aria-pressed="${done.has(c.name)}" aria-label="Printed ${esc(c.name)}"><span><em>${i + 1}</em>${TICK}</span></button><div class="who"><span class="add"><i-c>${esc(c.name)}</i-c>${c.qty > 1 ? ` ×${c.qty}` : ""}</span><span class="sub-note">${esc(cat(c.name))}${c.gc ? '<span class="tag new">Game Changer</span>' : ""}</span></div><span class="eur mono">${c.usd == null ? "" : "$" + (c.usd * c.qty).toFixed(2)}</span></div>`).join("")}</div></section>
-        <section class="cl-sec"><h3>Take from your Etrata deck (${count(keep)})</h3><p class="muted small">Pull these out of the Etrata deck. Your Etrata deck has 11 Islands and 10 Swamps; this one needs 8 of each.</p>
+        <section class="cl-sec"><h3>Take from your Etrata deck (${count(keep)})</h3><p class="muted small">Pull these out of the Etrata deck. Your Etrata deck has 11 Islands and 10 Swamps; this one needs 7 Islands and 9 Swamps.</p>
         <div class="swaps">${keep.map((c, i) => `<div class="swap plain done"><span class="tick" aria-hidden="true"><span><em>${i + 1}</em>${TICK}</span></span><div class="who"><span class="add"><i-c>${esc(c.name)}</i-c>${c.qty > 1 ? ` ×${c.qty}` : ""}</span><span class="sub-note">${esc(cat(c.name))}</span></div></div>`).join("")}</div></section>`;
       if (linkMentions) linkMentions(el);
     }
@@ -381,7 +375,7 @@
       const left = rows.filter(c => !owned.has(c.name)).reduce((t, c) => t + (c.usd || 0) * c.qty, 0);
       el.innerHTML = `<div class="swap-progress"><div class="sp-top"><span><b>${rows.filter(c => owned.has(c.name)).length}</b> of ${rows.length} owned</span><span class="mono">${usd(left)} left of ${usd(all)} (about ${Math.round(left * 0.85)}€)</span></div><div class="sp-bar"><i style="--w:${all ? ((all - left) / all) * 100 : 0}%"></i></div></div>
         <div class="swaps">${rows.map((c, i) => `<div class="swap plain${owned.has(c.name) ? " done" : ""}"><button class="tick" type="button" data-own="${esc(c.name)}" aria-pressed="${owned.has(c.name)}" aria-label="I own ${esc(c.name)}"><span><em>${i + 1}</em>${TICK}</span></button><div class="who"><span class="add"><i-c>${esc(c.name)}</i-c>${c.qty > 1 ? ` ×${c.qty}` : ""}</span><span class="sub-note">${esc(printing(c.printing))}${c.base ? '<span class="tag miku">In the Etrata deck</span>' : ""}${c.gc ? '<span class="tag new">Game Changer</span>' : ""}</span></div>${c.url ? `<a class="eur mono" href="${esc(c.url)}" target="_blank" rel="noopener">${c.usd == null ? "No price" : usd(c.usd * c.qty)}</a>` : `<span class="eur mono">${c.usd == null ? "No price" : usd(c.usd * c.qty)}</span>`}</div>`).join("")}</div>
-        <p class="muted small">Cheapest legal regular printing, TCGplayer prices via Archidekt or MTGGoldfish, in US dollars, looked up ${esc(P.date || "")}; euros at ×0.85. Check Cardmarket before buying. Basic lands have no price here. Cards that are also in the <a href="../etrata/">Etrata deck</a> start ticked.</p>`;
+        <p class="muted small">Cheapest legal regular printing, TCGplayer prices via Archidekt or MTGGoldfish, in US dollars, looked up ${esc(P.date || "")}; euros at ×0.85. Check Cardmarket before buying. Basic lands and the cards marked "No price" (their lookup didn't go through) aren't counted in the total. Cards that are also in the <a href="../etrata/">Etrata deck</a> start ticked.</p>`;
       if (linkMentions) linkMentions(el);
     }
     el.addEventListener("click", e => {

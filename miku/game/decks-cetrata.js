@@ -1,4 +1,4 @@
-/* Corrupted Etrata: the Bracket 4 list "Etrata's Shadow Market v2" (Etrata, Deadly Fugitive), a Dimir
+/* Corrupted Etrata: the Bracket 4 list "Etrata's Shadow Market" (v3, Etrata, Deadly Fugitive), a Dimir
    deck of theft and odd two-card combos. A player can pilot it from the Corrupted Etrata site, and the
    Etrata site offers it too (alsoOn).
    The cards no other file defines are here; the rest come from cards-etrata.js (Etrata, Mindcrank,
@@ -7,9 +7,10 @@
    Card text follows the printed Oracle text. Where the engine simplifies a card, its `note` says how.
    The engine has no draw or search replacement and no "spend mana as though it were any type", so
    the cards that need those work through triggers instead (see each note).
-   Win lines that work here: the vampire loop, Mindcrank + Duskmantle Guildmage, Bloodletter + Virtus,
-   the Brine Elemental untap lock (with Vesuvan Shapeshifter), Mari + Etrata, the Silencer, Ramses,
-   and the Wormfang Manta turn loop (manifest it with Scroll of Fate, flip it, bounce it). */
+   Win lines in the v3 list: the vampire loop, Mindcrank + Duskmantle Guildmage, Bloodletter + Virtus
+   and the Wormfang Manta turn loop (manifest it with Scroll of Fate, flip it, bounce it). The v2 lines
+   (the Brine Elemental lock, Mari + Etrata, the Silencer) keep their cards and code here; they drop out
+   of the plan when their pieces aren't in the list. */
 (function (root) {
   "use strict";
   const MK = root.MK, D = MK.defineOnce, T = MK.T;
@@ -65,7 +66,7 @@
      The bots tutor toward these. A line is "live" when one card of each side is on our battlefield,
      "one away" when only one side is missing (counting the hand). */
   const LOSS = ["Exquisite Blood", "Bloodthirsty Conqueror"];                              // opponent loses life: you gain it
-  const GAIN = ["Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond"];   // you gain life: opponents lose it
+  const GAIN = ["Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond", "Enduring Tenacity", "Starscape Cleric", "Defiant Bloodlord"];   // you gain life: opponents lose it
   const LINES = [
     { key: "vampire", title: "Vampire loop", sides: [LOSS, GAIN] },
     { key: "mindcrank", title: "Mindcrank + Duskmantle Guildmage", sides: [["Mindcrank"], ["Duskmantle Guildmage"]] },
@@ -921,6 +922,223 @@
     ai: { plan: deckPlan, cards: (g, p, req) => { if (req.purpose !== "takenuma") return null; const b = bestPiece(g, p, req.options); return [b ? b.c : req.options.slice().sort((a, c) => c.def.mv - a.def.mv)[0]]; } }
   });
 
+  /* ================================================================ upgrade candidates
+     Cards tried as upgrades (etrata-deck/underused-tech/FINDINGS.md). The deck list below says which
+     ones are in; the rest stay defined so the sim can test them (tools/sim/run.js --cut). */
+  const defendingCombat = (g, p) => !!g.combat && g.combat.attacker !== p;
+  const attackersAt = (g, p) => (g.combat ? g.combat.attackers.filter(a => a.zone === "battlefield" && a.combat && g.defenderOf(a.combat.attacking) === p) : []);
+  D({
+    name: "Silumgar Assassin", cost: "{1}{B}", type: "Creature — Human Assassin", pt: "2/1",
+    morph: "{2}{B}", megamorph: true,
+    text: "Creatures with power greater than Silumgar Assassin's power can't block it.\nMegamorph {2}{B} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)\nWhen Silumgar Assassin is turned face up, destroy target creature with power 3 or less an opponent controls.",
+    canBeBlockedBy: (g, a, b) => g.power(b) <= g.power(a),
+    triggers: [{
+      on: "turnedFaceUp", self: true,
+      do: async (g, s, ev, { p }) => {
+        const t = await g.chooseTarget(p, trig({ kind: "creature", purpose: "harm", prompt: "Silumgar Assassin: destroy target creature with power 3 or less an opponent controls", filter: (g2, o, pl) => o.controller !== pl && g2.power(o) <= 3 }), s);
+        if (t && t.zone === "battlefield" && g.power(t) <= 3) g.destroy(t, s);
+      }
+    }],
+    // the bots flip it to kill an attacker coming at them, or a real threat in their main phase
+    faceUpAi: {
+      use: (g, p, o, ctx) => {
+        const ok = c => c.controller !== p && g.power(c) <= 3;
+        if (ctx.window === "combat" && defendingCombat(g, p)) return attackersAt(g, p).some(a => ok(a) && !a.combat.wasBlocked && g.power(a) >= 2);
+        if (mainWin(ctx)) return g.battlefield.some(c => g.isCreature(c) && ok(c) && AI().threat && AI().threat(g, c, p) >= 4);
+        return false;
+      }
+    },
+    ai: { priority: 6, morph: (g, p) => (manaNow(g, p) >= 3 ? 9 : -1), cast: (g, p) => (manaNow(g, p) >= 3 ? false : undefined) }
+  });
+  D({
+    name: "Stratus Dancer", cost: "{1}{U}", type: "Creature — Djinn Monk", pt: "2/1",
+    keywords: ["flying"], morph: "{1}{U}", megamorph: true,
+    text: "Flying\nMegamorph {1}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)\nWhen Stratus Dancer is turned face up, counter target instant or sorcery spell.",
+    triggers: [{
+      on: "turnedFaceUp", self: true,
+      do: async (g, s, ev, { p }) => {
+        const isIS = item => item.kind === "spell" && !item.faceDown && (item.o.def.types.includes("Instant") || item.o.def.types.includes("Sorcery"));
+        const it = await g.chooseTarget(p, trig({ kind: "spell", purpose: "counter", prompt: "Stratus Dancer: counter target instant or sorcery spell", filter: (g2, item) => isIS(item) }), s);
+        if (it && g.stack.includes(it) && isIS(it)) g.counterSpell(it, s);
+      }
+    }],
+    faceUpAi: {
+      inStack: true,
+      use: (g, p, o, ctx) => {
+        const t = g.stack[g.stack.length - 1];
+        if (ctx.window !== "stack" || !t || t.p === p || t.kind !== "spell" || t.faceDown) return false;
+        const d = t.o.def, ai = d.ai || {};
+        if (!(d.types.includes("Instant") || d.types.includes("Sorcery"))) return false;
+        return !!(ai.wipe || ai.finisher || ai.combo || (ai.removal && t.targets.some(x => x && !g.isPlayer(x) && x.controller === p)) || d.mv >= 5);
+      }
+    },
+    ai: { priority: 6, morph: (g, p) => (manaNow(g, p) >= 3 ? 9 : -1), cast: (g, p) => (manaNow(g, p) >= 3 ? false : undefined) }
+  });
+  D({
+    name: "Kadena's Silencer", cost: "{1}{U}", type: "Creature — Naga Wizard", pt: "2/1",
+    morph: "{1}{U}", megamorph: true,
+    text: "When Kadena's Silencer is turned face up, counter all abilities your opponents control.\nMegamorph {1}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)",
+    triggers: [{
+      on: "turnedFaceUp", self: true,
+      do: (g, s, ev, { p }) => {
+        const list = g.stack.filter(it => (it.kind === "ability" || it.kind === "trigger") && it.p !== p && it.p && g.opponents(p).includes(it.p));
+        for (const it of list) g.counterSpell(it, s);
+        log(g, list.length ? `Kadena's Silencer counters ${list.length} abilit${list.length === 1 ? "y" : "ies"}.` : "Kadena's Silencer finds no ability to counter.", p, ["Kadena's Silencer"]);
+      }
+    }],
+    faceUpAi: {
+      inStack: true,
+      use: (g, p, o, ctx) => {
+        if (ctx.window !== "ability") return false;
+        const t = g.stack[g.stack.length - 1];
+        if (!t || t.p === p || !g.opponents(p).includes(t.p)) return false;
+        const harm = (t.targets || []).some(x => x && !g.isPlayer(x) && !x.kind && x.controller === p);
+        return harm || g.stack.filter(it => (it.kind === "ability" || it.kind === "trigger") && g.opponents(p).includes(it.p)).length >= 3;
+      }
+    },
+    ai: { priority: 6, morph: (g, p) => (manaNow(g, p) >= 3 ? 9 : -1), cast: (g, p) => (manaNow(g, p) >= 3 ? false : undefined) }
+  });
+  D({
+    name: "Thousand Winds", cost: "{4}{U}{U}", type: "Creature — Elemental", pt: "5/6",
+    keywords: ["flying"], morph: "{5}{U}{U}",
+    text: "Flying\nMorph {5}{U}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen Thousand Winds is turned face up, return all other tapped creatures to their owners' hands.",
+    triggers: [{
+      on: "turnedFaceUp", self: true,
+      do: (g, s, ev, { p }) => {
+        const list = g.battlefield.filter(o => o !== s && o.tapped && g.isCreature(o));
+        for (const o of list) g.bounce(o);
+        log(g, `Thousand Winds returns ${list.length} tapped creature${list.length === 1 ? "" : "s"}.`, p, ["Thousand Winds"]);
+      }
+    }],
+    // after blocks, when the attackers coming at us are worth more than what we'd lose
+    faceUpAi: {
+      use: (g, p, o, ctx) => {
+        if (ctx.window !== "combat" || !defendingCombat(g, p)) return false;
+        const theirs = attackersAt(g, p).filter(a => a.tapped);
+        const mineTapped = g.battlefield.filter(c => c !== o && c.tapped && g.isCreature(c) && c.controller === p);
+        return theirs.length >= 3 && theirs.length > mineTapped.length + 1;
+      }
+    },
+    ai: { priority: 5, morph: (g, p) => (manaNow(g, p) >= 3 ? 8 : -1), cast: (g, p) => (manaNow(g, p) >= 3 ? false : undefined) }
+  });
+  D({
+    name: "Hooded Blightfang", cost: "{2}{B}", type: "Creature — Snake", pt: "1/4",
+    keywords: ["deathtouch"],
+    text: "Deathtouch\nWhenever a creature you control with deathtouch attacks, each opponent loses 1 life and you gain 1 life.\nWhenever a creature you control with deathtouch deals damage to a planeswalker, destroy that planeswalker.",
+    triggers: [{
+      on: "attacks", when: (g, s, ev) => ev.o.controller === s.controller && g.kw(ev.o, "deathtouch"),
+      do: (g, s, ev, { p }) => { for (const q of g.opponents(p)) g.loseLife(q, 1, s); g.gainLife(p, 1, s); }
+    }, {
+      on: "damage", when: (g, s, ev) => !!ev.src && ev.src.controller === s.controller && g.isCreature(ev.src) && g.kw(ev.src, "deathtouch") && !!ev.target && !g.isPlayer(ev.target) && ev.target.zone === "battlefield" && g.isPlaneswalker(ev.target),
+      do: (g, s, ev) => { if (ev.target.zone === "battlefield") g.destroy(ev.target, s); }
+    }],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Gifted Aetherborn", cost: "{B}{B}", type: "Creature — Aetherborn Vampire", pt: "2/3",
+    keywords: ["deathtouch", "lifelink"], text: "Deathtouch, lifelink",
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Royal Assassin", cost: "{1}{B}{B}", type: "Creature — Human Assassin", pt: "1/1",
+    text: "{T}: Destroy target tapped creature.",
+    abilities: [{
+      label: "Destroy a tapped creature", tap: true,
+      targets: [{ kind: "creature", purpose: "harm", prompt: "Destroy target tapped creature", filter: (g, o) => o.tapped }],
+      do: (g, s, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0] && t.zone === "battlefield" && t.tapped) g.destroy(t, s); },
+      ai: {
+        use: (g, p, o, ctx) => {
+          const big = c => c.controller !== p && c.tapped && g.isCreature(c) && (g.power(c) >= 3 || (AI().threat && AI().threat(g, c, p) >= 5));
+          if (ctx.window === "combat" && defendingCombat(g, p)) return attackersAt(g, p).some(big);
+          if (ctx.window === "end") return g.battlefield.some(big);
+          return false;
+        }
+      }
+    }],
+    ai: { priority: 5, target: (g, p, req) => (req.purpose === "harm" && req.src && req.src.def.name === "Royal Assassin" ? req.options.filter(o => o && o.controller !== p).sort((a, b) => g.power(b) - g.power(a))[0] : undefined) }
+  });
+  D({
+    name: "Memory Lapse", cost: "{1}{U}", type: "Instant",
+    text: "Counter target spell. If that spell is countered this way, put it on top of its owner's library instead of into that player's graveyard.",
+    spell: {
+      targets: [{ kind: "spell", purpose: "counter", prompt: "Counter target spell" }],
+      do: (g, ctx) => {
+        const it = ctx.targets[0];
+        if (!ctx.legal[0] || !it) return;
+        const card = it.o, copy = it.isCopy;
+        if (!g.counterSpell(it, ctx.o) || copy || card.isCommander) return;
+        if (card.zone === "graveyard") {
+          const q = card.owner;
+          g.removeFromZone(card); card.zone = "library"; q.library.unshift(card); g.bump();
+          log(g, `${card.def.name} goes on top of ${q.name}'s library.`, ctx.p, [card.def.name]);
+        }
+      }
+    },
+    ai: { counter: true }
+  });
+  D({
+    name: "Snuff Out", cost: "{3}{B}", type: "Instant",
+    text: "If you control a Swamp, you may pay 4 life rather than pay this spell's mana cost.\nDestroy target nonblack creature. It can't be regenerated.",
+    altCosts: [{ label: "Pay 4 life (you control a Swamp)", cost: "", payLife: 4, condition: (g, p) => p.life > 8 && g.battlefield.some(o => o.controller === p && g.isLand(o) && g.hasSub(o, "Swamp")) }],
+    spell: { targets: [{ kind: "creature", purpose: "harm", prompt: "Destroy target nonblack creature", filter: (g, o) => !g.colorsOf(o).has("B") }], do: (g, ctx) => { if (ctx.legal[0]) g.destroy(ctx.targets[0], ctx.o, { noRegen: true }); } },
+    ai: { removal: true, minThreat: 4 }
+  });
+  /* More payoffs for the vampire loop: "whenever you gain life, an opponent loses life". */
+  const drainOnGain = (each) => ({
+    on: "gainLife", when: (g, s, ev) => ev.p === s.controller,
+    do: async (g, s, ev, { p }) => {
+      if (each) { for (const q of g.opponents(p)) g.loseLife(q, 1, s); return; }
+      const t = await g.chooseTarget(p, trig({ kind: "opponent", purpose: "harm", prompt: `${s.def.name}: target opponent loses ${ev.amount} life` }), s);
+      if (t) g.loseLife(t, ev.amount, s);
+    }
+  });
+  D({
+    name: "Enduring Tenacity", cost: "{2}{B}{B}", type: "Enchantment Creature — Snake Glimmer", pt: "4/3",
+    text: "Whenever you gain life, target opponent loses that much life.\nWhen Enduring Tenacity dies, if it was a creature, return it to the battlefield under its owner's control. It's an enchantment. (It's not a creature.)",
+    notCreatureUnless: (g, o) => !o.state.enduring,
+    triggers: [drainOnGain(false), {
+      on: "dies", self: true, intervening: (g, s, ev) => !(ev.lki && ev.lki.wasEnduring),
+      do: (g, s, ev) => {
+        const o = ev.o;
+        if (!o || o.zone !== "graveyard") return;
+        g.putOntoBattlefield([o], o.owner);
+        if (o.zone === "battlefield") { o.state.enduring = true; g.bump(); log(g, "Enduring Tenacity returns as an enchantment.", o.owner, ["Enduring Tenacity"]); }
+      }
+    }],
+    ai: { priority: 7 }
+  });
+  const starscapeTrig = drainOnGain(true);
+  T.cetrataStarscape = MK.tokenDef({ key: "cetrata-starscape", name: "Starscape Cleric", pt: [1, 1], colors: "B", subtypes: ["Bat", "Cleric"], keywords: ["flying"], cantBlock: true, text: "Flying\nThis creature can't block.\nWhenever you gain life, each opponent loses 1 life.", triggers: [starscapeTrig] });
+  D({
+    name: "Starscape Cleric", cost: "{1}{B}", type: "Creature — Bat Cleric", pt: "2/1",
+    keywords: ["flying"], kicker: "{2}{B}", cantBlock: true,
+    text: "Offspring {2}{B} (You may pay an additional {2}{B} as you cast this spell. If you do, when this creature enters, create a 1/1 token copy of it.)\nFlying\nThis creature can't block.\nWhenever you gain life, each opponent loses 1 life.",
+    note: "Offspring is paid like kicker; the 1/1 copy is made as it resolves.",
+    onResolve: (g, p, o, item) => { if (item && item.kicked && o.zone === "battlefield") g.createToken(p, T.cetrataStarscape); },
+    triggers: [starscapeTrig],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Defiant Bloodlord", cost: "{5}{B}{B}", type: "Creature — Vampire", pt: "4/5",
+    keywords: ["flying"], text: "Flying\nWhenever you gain life, target opponent loses that much life.",
+    triggers: [drainOnGain(false)],
+    ai: { priority: 6 }
+  });
+  /* Mutavault has every creature type while animated: it makes itself an Assassin (makesAssassins). */
+  const vaultUp = (g, s) => !!(s.state.animated && s.state.animated.turn === g.turn);
+  D({
+    name: "Mutavault", type: "Land",
+    text: "{T}: Add {C}.\n{1}: Until end of turn, Mutavault becomes a 2/2 creature with all creature types. It's still a land.",
+    note: "While animated it counts as an Assassin and a Vampire (the engine names the types this deck checks).",
+    mana: [{ tap: true, produce: "C" }],
+    makesAssassins: (g, s, o) => o === s && vaultUp(g, s),
+    abilities: [{
+      label: "Becomes a 2/2 creature", cost: "{1}", noSelfMana: true,
+      do: (g, s) => { s.state.animated = { turn: g.turn, pt: [2, 2], subtypes: ["Shapeshifter", "Assassin", "Vampire"], colors: [] }; g.bump(); log(g, "Mutavault becomes a 2/2 creature with all creature types.", s.controller, ["Mutavault"]); },
+      ai: { use: (g, p, o, ctx) => ctx.window === "main1" && g.active === p && !o.sick && !o.tapped && !vaultUp(g, o) && g.turn >= 6 && manaNow(g, p) >= 4 }
+    }]
+  });
+
   /* ================================================================ the coach
      tips(g, p): what to look for right now, most urgent first ({ level, title, text, cards }). */
   const GENERAL_TUTORS = ["Demonic Tutor", "Vampiric Tutor", "Imperial Seal", "Grim Tutor", "Diabolic Intent", "Beseech the Mirror", "Scheming Symmetry", "Lim-Dûl's Vault"];
@@ -1553,9 +1771,12 @@
     const have = blockersOf(g, p).length;
     const need = pr.high ? 2 : pr.top > 0 ? 1 : 0;
     if (have >= need) return null;
-    const list = acts.filter(a => a.type === "cast" && !a.faceDown && !a.alt && a.card.def.types.includes("Creature") && blockScore(g, a.card) > 2)
-      .sort((a, b) => blockScore(g, b.card) - blockScore(g, a.card));
-    return list.length ? { type: "cast", card: list[0].card, maxTries: 1 } : null;
+    // a morph creature whose hint says so goes down face down: a 2/2 blocker that holds its flip
+    const morphOk = a => { const ai = a.card.def.ai || {}; return !!ai.morph && ai.morph(g, p, a.card) > 0; };
+    const score = a => (a.faceDown ? 3.5 : blockScore(g, a.card));
+    const list = acts.filter(a => a.type === "cast" && !a.alt && a.card.def.types.includes("Creature") && blockScore(g, a.card) >= 0 && (a.faceDown ? morphOk(a) : !morphOk(a) && blockScore(g, a.card) > 2))
+      .sort((a, b) => score(b) - score(a));
+    return list.length ? { type: "cast", card: list[0].card, faceDown: !!list[0].faceDown, maxTries: 1 } : null;
   }
 
   /* ---------- developing */
@@ -1648,36 +1869,48 @@
   /* ================================================================ the deck */
   const B = n => Array(n).fill("Swamp"), I = n => Array(n).fill("Island");
   const LIST = [
-    // win lines and their pieces
-    "Mari, the Killing Quill", "Etrata, the Silencer", "Ramses, Assassin Lord", "Duskmantle Guildmage", "Mindcrank",
-    "Scroll of Fate", "Wormfang Manta", "Crystal Shard", "Training Grounds", "Brine Elemental", "Vesuvan Shapeshifter",
-    "Bloodthirsty Conqueror", "Bloodletter of Aclazotz", "Roshan, Hidden Magister", "Leyline of Transformation",
+    // win lines and their pieces (v3, 2026-10-05: the Brine lock and the hit list are out, and five
+    // slow spells became lands from the Etrata deck, then Praetor's Grasp and Fallen Shinobi made way for
+    // Phyrexian Arena, Aetherize and Mutavault; see etrata-deck/underused-tech)
+    "Enduring Tenacity", "Starscape Cleric", "Vampire of the Dire Moon", "Hooded Blightfang", "Silumgar Assassin",
+    "Duskmantle Guildmage", "Mindcrank", "Scroll of Fate", "Wormfang Manta", "Crystal Shard", "Training Grounds",
+    "Bloodthirsty Conqueror", "Bloodletter of Aclazotz",
     "Vito, Thorn of the Dusk Rose", "Changeling Outcast", "Marauding Blight-Priest", "Exquisite Blood", "Sanguine Bond",
     "Virtus the Veiled", "Tetsuko Umezawa, Fugitive", "Toxic Deluge",
     // theft and card advantage
-    "Gonti, Night Minister", "Thief of Sanity", "Black Market Connections", "Fallen Shinobi", "Opposition Agent", "Notion Thief",
-    "Windfall", "Praetor's Grasp", "Rhystic Study", "Necropotence", "Mystic Remora", "Brainstorm", "Ponder", "Night's Whisper",
+    "Thief of Sanity", "Black Market Connections", "Phyrexian Arena", "Opposition Agent", "Notion Thief",
+    "Windfall", "Aetherize", "Rhystic Study", "Necropotence", "Mystic Remora", "Brainstorm", "Ponder", "Night's Whisper",
     // tutors
     "Demonic Tutor", "Vampiric Tutor", "Imperial Seal", "Grim Tutor", "Diabolic Intent", "Beseech the Mirror", "Lim-Dûl's Vault",
-    "Scheming Symmetry", "Wishclaw Talisman", "Tribute Mage", "Dizzy Spell", "Shred Memory", "Muddle the Mixture", "Drift of Phantasms", "Dimir House Guard",
+    "Scheming Symmetry", "Wishclaw Talisman", "Tribute Mage", "Shred Memory", "Muddle the Mixture", "Drift of Phantasms", "Dimir House Guard",
     // interaction
-    "Counterspell", "Swan Song", "An Offer You Can't Refuse", "Fierce Guardianship", "Deadly Rollick", "Infernal Grasp", "Cyclonic Rift",
+    "Counterspell", "Swan Song", "An Offer You Can't Refuse", "Fierce Guardianship", "Deadly Rollick", "Cyclonic Rift",
     // mana
     "Sol Ring", "Mox Amber", "Arcane Signet", "Talisman of Dominance", "Dimir Signet", "Fellwar Stone", "Mind Stone", "Dark Ritual", "Culling the Weak",
     // lands
     "Command Tower", "Watery Grave", "Drowned Catacomb", "Darkslick Shores", "Underground River", "Sunken Hollow", "Morphic Pool",
     "Gloomlake Verge", "Undercity Sewers", "Polluted Delta", "Otawara, Soaring City", "Takenuma, Abandoned Mire", "Rogue's Passage",
-    "Path of Ancestry", "Secluded Courtyard"
-  ].concat(I(8), B(8));
+    "Path of Ancestry", "Secluded Courtyard", "Choked Estuary", "Darkwater Catacombs", "Tainted Isle", "River of Tears", "Mutavault"
+  ].concat(I(7), B(9));
 
+  /* Lines whose pieces left the list (the Brine lock and the hit list in v3) drop out of the plan, the
+     coach and the bots' tutoring. Their cards stay defined above. */
+  for (let i = LINES.length - 1; i >= 0; i--) if (!LINES[i].sides.every(side => side.some(n => LIST.includes(n)))) LINES.splice(i, 1);
+  for (let i = PLAN_LINES.length - 1; i >= 0; i--) if (!PLAN_LINES[i].sides.every(side => side.some(n => LIST.includes(n)))) PLAN_LINES.splice(i, 1);
+  const V3_ADDS = ["Enduring Tenacity", "Starscape Cleric", "Vampire of the Dire Moon", "Hooded Blightfang", "Silumgar Assassin",
+    "Choked Estuary", "Darkwater Catacombs", "Tainted Isle", "River of Tears", "Swamp", "Phyrexian Arena", "Aetherize", "Mutavault"];
+  const V3_CUTS = ["Mari, the Killing Quill", "Etrata, the Silencer", "Brine Elemental", "Vesuvan Shapeshifter", "Dizzy Spell",
+    "Ramses, Assassin Lord", "Gonti, Night Minister", "Leyline of Transformation", "Roshan, Hidden Magister", "Infernal Grasp", "Praetor's Grasp", "Fallen Shinobi", "Island"];
   MK.CETRATA_DECK = {
     id: "corrupted-etrata", hero: "corrupted-etrata", alsoOn: ["etrata"], variant: "corrupted-etrata",
     label: "Corrupted Etrata", name: "Corrupted Etrata", title: "Etrata, Deadly Fugitive",
     commander: "Etrata, Deadly Fugitive", identity: ["U", "B"], bracket: 4, aggression: 0.6,
     style: "Dimir theft and odd combos",
-    blurb: "Bracket 4 Etrata: steal cards with cloaks, Gonti and Thief of Sanity while tutoring for two-card wins (the vampire loop, Mindcrank + Guildmage, Bloodletter + Virtus, the Brine Elemental untap lock). Coach tips show which piece is missing.",
-    watch: ["Exquisite Blood", "Bloodthirsty Conqueror", "Mindcrank", "Bloodletter of Aclazotz", "Brine Elemental", "Ramses, Assassin Lord", "Opposition Agent", "Notion Thief"],
+    blurb: "Bracket 4 Etrata: steal cards with cloaks, Thief of Sanity and Notion Thief while tutoring for two-card wins (the vampire loop, Mindcrank + Guildmage, Bloodletter + Virtus, the Wormfang Manta turns), with cheap deathtouch blockers for the early turns. Coach tips show which piece is missing.",
+    watch: ["Exquisite Blood", "Bloodthirsty Conqueror", "Mindcrank", "Bloodletter of Aclazotz", "Enduring Tenacity", "Hooded Blightfang", "Opposition Agent", "Notion Thief"],
     list: LIST,
+    // games recorded before engine 7 replay with the v2 list
+    legacyList: { before: 7, list: V3_ADDS.reduce((l, n) => { const i = l.indexOf(n); return l.slice(0, i).concat(l.slice(i + 1)); }, LIST).concat(V3_CUTS) },
     coach: { tips: coachTips, companion, plan, checklist: "corrupted-etrata", companionBlurb: "guides you through each stage of the game: the mulligan, getting Etrata out, which line to assemble, going off, and what to counter on their turns. It stops the game when it has advice." }
   };
   MK.CETRATA_LINES = LINES;

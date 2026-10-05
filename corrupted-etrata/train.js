@@ -775,7 +775,7 @@
         <label>Mulligans<select name="mull"><option>0</option><option>1</option><option>2</option><option>3</option></select></label>
         <label>Etrata out on turn<input name="et" type="number" min="1" max="20" placeholder="3"></label>
         <label>Game ended on turn<input name="end" type="number" min="1" max="40" placeholder="8"></label>
-        <label>Line that won (or tried)<select name="line"><option value="">None</option><option value="vampire">Vampire loop</option><option value="mindcrank">Mindcrank + Guildmage</option><option value="doubletap">Double tap</option><option value="brine">Brine lock</option><option value="manta">Infinite turns</option><option value="hitlist">Hit list</option><option value="combat">Combat</option></select></label>
+        <label>Line that won (or tried)<select name="line"><option value="">None</option><option value="vampire">Vampire loop</option><option value="mindcrank">Mindcrank + Guildmage</option><option value="doubletap">Double tap</option><option value="manta">Infinite turns</option><option value="combat">Combat</option></select></label>
         <label>What beat you<select name="why"><option value="">Nothing / I won</option><option value="speed">Someone was faster</option><option value="interaction">My combo got answered</option><option value="removal">Etrata kept dying</option><option value="mana">Mana problems</option><option value="flood">Flood or no action</option><option value="target">The table ganged up on me</option><option value="misplay">My own misplay</option></select></label>
         <label class="wide">One thing I'd do differently<input name="note" maxlength="200" placeholder="e.g. hold Swan Song for the wipe"></label>
         <div class="btn-row wide"><button class="btn primary" type="submit">Save the game</button></div>
@@ -926,12 +926,12 @@
     const PLAN = {
       mull: ["Mulligan Lab until Silver (80%).", "Before each keep, name the turn Etrata comes down and the line you're digging for."],
       tempo: ["Every turn: land, then rocks, then Etrata. Check the land drop before you pass.", "Clock Math for the costs, and play two assessment games watching only your mana."],
-      lines: ["Line Spotter until you answer in under 8 seconds.", "Puzzles: Court is in session, Crank the whole table, Ramses' contract.", "In games, open the Plan in your head at the start of each of your turns: what's live, what's one card away."],
+      lines: ["Line Spotter until you answer in under 8 seconds.", "Puzzles: Court is in session, Crank the whole table, One point is enough.", "In games, open the Plan in your head at the start of each of your turns: what's live, what's one card away."],
       tutor: ["Tutor Target until Silver.", "Rule: tutor for the piece you can cast this turn; a stronger card next turn is worth less."],
-      etrata: ["Puzzles: Three cloaks, Nobody untaps, Their wipe, your turn.", "Look at your face-down cards at the start of every turn: a stolen spell is a free cast."],
+      etrata: ["Puzzles: Three cloaks, The blocker that bites, Their wipe, your turn.", "Look at your face-down cards at the start of every turn: a stolen spell is a free cast."],
       stack: ["Stack Sentinel until Gold.", "Counters are for wipes, removal on your pieces and winning spells. Say which before you pass priority."],
       combat: ["Threat Read until Silver.", "Keep Etrata home unless no blocker can kill her; she's your engine."],
-      rules: ["Clock Math and the Quiz's rules topic until box 3.", "Puzzles: Milling isn't losing life, The third hit."]
+      rules: ["Clock Math and the Quiz's rules topic until box 3.", "Puzzles: Milling isn't losing life, Blocked doesn't matter."]
     };
     el.innerHTML = `<div class="tn-report">
       ${p.unlocked ? "" : `<p class="tn-peek">A preview: the analysis isn't unlocked yet, so some skills have little data.</p>`}
