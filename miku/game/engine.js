@@ -13,7 +13,8 @@
 (function (root) {
   "use strict";
   const MK = root.MK = root.MK || {};
-  MK.ENGINE_VERSION = 3;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
+  MK.ENGINE_VERSION = 4;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
+                           // 4: the bots gang-block, chump only where it saves life, pick lands for the colors their hand needs, and counter combo pieces
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",

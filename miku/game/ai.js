@@ -183,6 +183,31 @@
       if (units.length > 1 && !Array.isArray(prod)) s += 1;
     }
     if (o.def.abilities.length) s += 0.5;
+    if (p.agent && p.agent.smart && p.agent.smart(g, "colors")) s += colorGap(g, p, o, need);
+    return s;
+  }
+  /* What a land adds toward the colored mana the cards we hold ask for (engine 4): each color the
+     land makes that our hand or commander needs more sources of than we have. A five-color deck
+     with Sarkhan Unbroken stuck in hand fetches the blue it lacks, not a third red. */
+  function colorGap(g, p, o, have) {
+    const want = { W: 0, U: 0, B: 0, R: 0, G: 0 };
+    const cards = p.hand.filter(c => c !== o && !c.def.types.includes("Land")).concat(p.command.filter(c => c.isCommander));
+    for (const c of cards) {
+      const cost = c.def.costObj;
+      if (!cost) continue;
+      for (const k of "WUBRG") {
+        const n = cost[k] + cost.phy.filter(x => x === k).length + (cost.hyb.some(h => h.includes(k)) ? 1 : 0);
+        if (n > want[k]) want[k] = n;
+      }
+    }
+    let s = 0;
+    const made = new Set();
+    for (const m of o.def.mana) {
+      const prod = typeof m.produce === "function" ? "" : m.produce;
+      const units = Array.isArray(prod) ? prod.join("") : prod === "any" || prod === "any5" ? g.identityOf(p).join("") : String(prod || "");
+      for (const k of "WUBRG") if (units.includes(k)) made.add(k);
+    }
+    for (const k of made) if (want[k] > have[k]) s += 2.5;
     return s;
   }
   function cardScore(g, p, o, req) {
@@ -372,6 +397,11 @@
     const casual = !!opts.casual;
     const mem = { tried: new Map(), turn: -1, grudge: {}, loopTurn: -1, usedWindow: new Map() };
     const chance = (g, pr) => g.random() < pr;
+    // The play skills added in engine 4 ("block", "colors", "counter"). `classic: true` turns them off and
+    // `features: [...]` keeps only those listed, so old and new bots can be seated against each
+    // other; games recorded before engine 4 (legacyBots) replay with the old play.
+    const smartSet = opts.classic ? new Set() : opts.features ? new Set(opts.features) : null;
+    const smart = (g, name) => !(g.opts && g.opts.legacyBots) && (!smartSet || smartSet.has(name));
 
     function resetTurn(g) {
       if (mem.turn !== g.turn) { mem.turn = g.turn; mem.tried = new Map(); mem.usedWindow = new Map(); }
@@ -717,6 +747,7 @@
       const blocks = [];
       const incoming = attackers.slice().sort((a, b) => g.power(b) - g.power(a));
       for (const a of incoming) mem.grudge[a.controller.id] = (mem.grudge[a.controller.id] || 0) + Math.max(0, g.power(a));
+      if (smart(g, "block")) return blockSmart(g, q, mine, incoming);
       const unblocked = () => incoming.filter(a => !blocks.some(b => b.attacker === a));
       // 1. good blocks: we survive and kill it, or we survive
       for (const a of incoming) {
@@ -750,6 +781,91 @@
       }
       return blocks;
     }
+    /* Several blockers on one attacker: which blockers it kills (it assigns lethal damage to the
+       one easiest to kill first, as the engine does) and whether the ones left alive kill it. */
+    function gangFight(g, a, bs) {
+      const ds = g.kw(a, "double strike");
+      let dmg = Math.max(0, g.power(a)) * (ds ? 2 : 1);
+      const lost = [];
+      for (const b of bs.slice().sort((x, y) => lethalFor(g, x) - lethalFor(g, y))) {
+        const need = g.kw(a, "deathtouch") ? 1 : lethalFor(g, b);
+        if (dmg <= 0) break;
+        if (dmg >= need && !g.kw(b, "indestructible")) lost.push(b);
+        dmg -= need;
+      }
+      // a first striker kills before the blockers without first strike deal damage
+      const firstA = g.kw(a, "first strike") || ds;
+      const hitters = bs.filter(b => !(firstA && lost.includes(b) && !g.kw(b, "first strike") && !g.kw(b, "double strike")));
+      const sum = hitters.reduce((s, b) => s + Math.max(0, g.power(b)), 0);
+      const aDies = !g.kw(a, "indestructible") && (sum >= lethalFor(g, a) || hitters.some(b => g.kw(b, "deathtouch") && g.power(b) > 0));
+      return { aDies, lost };
+    }
+    /* Blocks with a look at the whole fight (engine 4):
+       1. one blocker that kills the attacker and lives, lives through a big hit, or trades up;
+       2. two blockers that together kill an attacker worth more than what it kills back (the only
+          way to block a menace creature);
+       3. chump blocks while the hits would kill us, each on the attacker whose block saves the
+          most (a trampler's damage goes through a chump blocker);
+       4. a token-sized chump blocker in front of a big hit when the life left would be low. */
+    function blockSmart(g, q, mine, incoming) {
+      const used = new Set(), blocks = [];
+      const free = a => mine.filter(b => !used.has(b.id) && g.canBlock(b, a));
+      const isBlocked = a => blocks.some(b => b.attacker === a);
+      const take = (b, a) => { used.add(b.id); blocks.push({ blocker: b, attacker: a }); };
+      const sure = () => chance(g, 0.6 + skill * 0.4);
+      // 1. single blocks
+      for (const a of incoming) {
+        if (g.kw(a, "menace")) continue;
+        let best = null, bs = -1e9;
+        for (const b of free(a)) {
+          const f = fight(g, a, b);
+          let s = -1e9;
+          if (!f.bDies && f.aDies) s = 10 + value(g, a) - value(g, b) * 0.2;
+          else if (!f.bDies && g.power(a) >= 3) s = 4 + g.power(a) * 0.5 - value(g, b) * 0.1;
+          else if (f.bDies && f.aDies && value(g, b) + 1 < value(g, a)) s = 2 + value(g, a) - value(g, b);
+          if (s > bs) { bs = s; best = b; }
+        }
+        if (best && bs > 0 && sure()) take(best, a);
+      }
+      // 2. gang blocks
+      for (const a of incoming) {
+        if (isBlocked(a)) continue;
+        const cands = free(a).sort((x, y) => value(g, x) - value(g, y)).slice(0, 8);
+        let best = null, bs = 1.5;
+        for (let i = 0; i < cands.length; i++) for (let j = i + 1; j < cands.length; j++) {
+          const r = gangFight(g, a, [cands[i], cands[j]]);
+          if (!r.aDies) continue;
+          const s = value(g, a) + (a.isCommander ? 2 : 0) - r.lost.reduce((t, b) => t + value(g, b), 0);
+          if (s > bs) { bs = s; best = [cands[i], cands[j]]; }
+        }
+        if (best && sure()) for (const b of best) take(b, a);
+      }
+      // 3. chump blocks that keep us alive
+      const hitOf = a => g.kw(a, "infect") ? 0 : Math.max(0, g.power(a)) * (g.kw(a, "double strike") ? 2 : 1);
+      const dmgOf = list => list.reduce((s, a) => s + hitOf(a), 0);
+      const poisonOf = list => list.reduce((s, a) => s + (g.kw(a, "infect") ? Math.max(0, g.power(a)) : 0), 0);
+      const cmdDanger = a => a.isCommander && (q.cmdDmg[a.id] || 0) + g.power(a) >= 21;
+      const rest = () => incoming.filter(a => !isBlocked(a) && !g.kw(a, "menace"));
+      const cheapest = a => free(a).sort((x, y) => value(g, x) - value(g, y))[0];
+      // what blocking a with b saves: all of it, or what b soaks up of a trampler's damage
+      const saved = (a, b) => (cmdDanger(a) ? 100 : 0) + (g.kw(a, "trample") ? Math.min(hitOf(a) + poisonOf([a]), g.toughness(b)) : hitOf(a) + poisonOf([a]) * 4);
+      const unblocked = () => incoming.filter(a => !isBlocked(a));
+      for (let guard = 0; guard < 20; guard++) {
+        const left = unblocked();
+        if (!(dmgOf(left) >= q.life || q.poison + poisonOf(left) >= 10 || left.some(cmdDanger))) break;
+        let best = null, bs = 0;
+        for (const a of rest()) { const b = cheapest(a); if (b && saved(a, b) > bs) { bs = saved(a, b); best = { a, b }; } }
+        if (!best) break;
+        take(best.b, best.a);
+      }
+      // 4. a cheap chump blocker keeps our life out of the danger zone
+      for (const a of rest().filter(x => !g.kw(x, "trample") && hitOf(x) >= 3).sort((x, y) => hitOf(y) - hitOf(x))) {
+        if (q.life - dmgOf(unblocked()) >= 12) break;
+        const b = cheapest(a);
+        if (b && value(g, b) < 2 && !b.isCommander) take(b, a);
+      }
+      return blocks;
+    }
 
     /* ---------------- responding */
     function isOppSpell(g, q, item) { return item && item.p !== q; }
@@ -763,6 +879,33 @@
       if (ai.threat) s += ai.threat;
       if (ai.tutor) s += 3;
       return s;
+    }
+    /* A spell that completes a combo (MK.COMBOS) whose other pieces its caster has on the
+       battlefield wins the game, so it's the one to counter; a piece of a half-built combo counts
+       too. Only the battlefield counts: the bots never look at an opponent's hand. */
+    function comboDanger(g, top) {
+      const combos = MK.COMBOS;
+      if (!combos || !combos.length || !top.o) return 0;
+      const name = top.o.def.name, pc = top.p;
+      let best = 0;
+      for (const c of combos) {
+        if (!c.pieces.includes(name)) continue;
+        const others = c.pieces.filter(n => n !== name);
+        const out = others.filter(n => g.battlefield.some(o => o.controller === pc && o.def.name === n)).length;
+        const b = (out === others.length ? 15 : out * 3) * (c.kill === false ? 0.6 : 1);
+        if (b > best) best = b;
+      }
+      return best;
+    }
+    /* How dangerous a spell must be to spend a counterspell on it. Mana held up for a counter
+       is wasted once our own turn comes, so the last opponent before us meets a lower bar; a
+       spell from a player who threatens lethal on us meets a lower bar too. */
+    function counterBar(g, q, top, bar) {
+      if (g.nextPlayer(g.active) === q) bar -= 1.5;
+      const pc = top.p;
+      const hit = pc && power(g, g.creatures(pc).filter(c => !g.kw(c, "defender")));
+      if (hit && hit >= q.life * 0.6) bar -= 1.5;
+      return Math.max(3, bar);
     }
     /* The counterspell can target that spell (Dispel, An Offer You Can't Refuse, Wash Away). */
     function counterFits(g, q, act, top) {
@@ -805,12 +948,13 @@
       if (win === "stack") {
         const top = ctx.top;
         if (!top || !isOppSpell(g, q, top)) return null;
-        const danger = spellDanger(g, q, top);
+        let danger = spellDanger(g, q, top);
         // counterspells
         const counters = acts.filter(a => a.type === "cast" && hintOf(q, a.card).counter && counterFits(g, q, a, top));
         // a hand full of counterspells spends them on smaller threats too
         const held = q.hand.filter(o => hintOf(q, o).counter).length;
-        const bar = Math.max(3, 6 * (1.2 - skill * 0.4) - Math.max(0, held - 1) * 1.5);
+        let bar = Math.max(3, 6 * (1.2 - skill * 0.4) - Math.max(0, held - 1) * 1.5);
+        if (counters.length && smart(g, "counter")) { danger += comboDanger(g, top); bar = counterBar(g, q, top, bar); }
         if (counters.length && danger >= bar) {
           const c = counters.sort((x, y) => x.card.def.mv - y.card.def.mv)[0];
           if (attempts(c, win) < 1) { noteTry(c, win); return { type: "cast", card: c.card, targets: [top], alt: c.alt }; }
@@ -993,7 +1137,7 @@
       }
     }
 
-    const agent = { bot: true, skill, aggression: aggro, mem, mulligan, main, attack, block, respond, choose };
+    const agent = { bot: true, skill, aggression: aggro, mem, smart, mulligan, main, attack, block, respond, choose };
     return agent;
   };
 
