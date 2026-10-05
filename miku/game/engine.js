@@ -13,13 +13,15 @@
 (function (root) {
   "use strict";
   const MK = root.MK = root.MK || {};
-  MK.ENGINE_VERSION = 5;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
+  MK.ENGINE_VERSION = 6;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
                            // 4: the bots gang-block, chump only where it saves life, pick lands for the colors their hand needs, and counter combo pieces
                            //    and judge the table's threats per attacker; deck brains steer the bots of your decks
                            // 5: priority windows in upkeep, draw, beginning of combat, each combat damage step and end of combat; the end
                            //    of combat step happens with no attackers too; a person divides combat damage among two or more blockers
                            //    (games recorded before 5 replay without these: legacySteps)
                            //    and the Etrata bots expect double blocks and run their own block plan (legacyEtrata)
+                           // 6: the bots gang up on a runaway leader: removal and counterspells aim at the most dangerous player, a runaway
+                           //    is called sooner and the whole team swings at it, and a weak seat isn't finished off while the leader runs away
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",

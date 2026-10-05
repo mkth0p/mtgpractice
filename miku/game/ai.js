@@ -162,6 +162,18 @@
     for (const q of opps) if (!top || abs.get(q) > abs.get(top)) top = q;
     return { abs, rel, top };
   }
+  /* Games recorded before engine 6 (legacyThreat) replay with the bots that didn't gang up on a
+     runaway leader. */
+  function gangUp(g) { return !(g.opts && g.opts.legacyThreat); }
+  /* How much p wants permanent o gone, counting who controls it: the pieces of the player most
+     likely to win are worth far more (the square of their share of the table's chances), so
+     removal goes at a runaway leader before it trims anyone else; a combo piece counts on top. */
+  function harmWorth(g, p, o, tm) {
+    if (o.zone !== "battlefield" || !o.def) return 0;
+    const rel = (tm || threatModel(g, p)).rel.get(o.controller) || 1;
+    if (!gangUp(g)) return threat(g, o, p) * (0.7 + 0.3 * rel) + comboPieceThreat(g, o);
+    return threat(g, o, p) * (0.1 + 0.9 * rel * rel) + comboPieceThreat(g, o);
+  }
   AI.playerThreat = playerThreat;
   AI.comboThreat = comboThreat;
   AI.threatModel = threatModel;
@@ -218,7 +230,7 @@
     const tm = threatModel(g, p);
     const relOf = q => tm.rel.get(q) || 1;
     // (a spell or ability on the stack, a card in no zone: no score, the first one stays first)
-    const sc = new Map(creatures.map(o => [o, o.zone === "battlefield" && o.def ? threat(g, o, p) * (0.7 + 0.3 * relOf(o.controller)) + comboPieceThreat(g, o) : 0]));
+    const sc = new Map(creatures.map(o => [o, harmWorth(g, p, o, tm)]));
     const byScore = list => list.slice().sort((a, b) => sc.get(b) - sc.get(a));
     const playerScore = q => relOf(q) * 10 + (amount != null ? amount * 6 / Math.max(4, q.life) : 0);
     const bestPlayer = () => {
@@ -596,8 +608,10 @@
       return g.targetOptions(p, spec, o).filter(t => !g.isPlayer(t) ? t.controller !== p : t !== p);
     }
     function bestThreat(g, p, list) {
+      // scored the way pickHarm will aim it: the leader's pieces clear the bar sooner, the others' later
       let best = null, bs = -1e9;
-      for (const t of list) { if (g.isPlayer(t)) continue; const s = threat(g, t, p); if (s > bs) { bs = s; best = t; } }
+      const tm = gangUp(g) && list.some(t => !g.isPlayer(t)) ? threatModel(g, p) : null;
+      for (const t of list) { if (g.isPlayer(t)) continue; const s = tm ? harmWorth(g, p, t, tm) : threat(g, t, p); if (s > bs) { bs = s; best = t; } }
       return { best, score: bs };
     }
     function alphaDamage(g, p, bonus) {
@@ -838,7 +852,7 @@
       }
       const tm = threatModel(g, p);
       // a runaway leader: well over a fair share of the opponents' chances to win
-      const runaway = opps.length >= 2 && tm.top && tm.rel.get(tm.top) >= 1.8;
+      const runaway = opps.length >= 2 && tm.top && tm.rel.get(tm.top) >= (gangUp(g) ? 1.4 : 1.8);
       // one roll per opponent, in seat order: weaker bots misjudge the table more
       const noise = new Map(opps.map(q => [q, g.random() * 3 * (1 - skill + 0.3)]));
       // crack-back risk: how hard the table can hit us next turn
@@ -927,7 +941,9 @@
           kill = lifeLeft > 0 && b.through >= left;
         }
         score += dv * m + hitOf(a, q) * b.connect * (0.8 + 0.2 * rel);
-        if (kill) score += 6 + 6 * rel;
+        // a kill removes a seat, but while a leader runs away a weak seat still alive keeps it busy:
+        // finishing that seat off only helps the leader
+        if (kill) score += gangUp(g) && runaway && q !== tm.top ? 0 : 6 + 6 * rel;
         return { score, b, kill };
       }
       function commit(a, t, b) {
@@ -969,10 +985,13 @@
       }
       // plan 2: everyone at the most dangerous player. A defender blocks one attacker per blocker,
       // so a big blocker that scares off each attacker alone eats one of them and lets the rest
-      // through. Worth it when the whole swing beats plan 1 and we aren't left open to die.
+      // through. Worth it when the whole swing beats plan 1 and we aren't left open to die. A
+      // runaway leader has to be slowed down: the whole team goes at it, even at some cost, and the
+      // blockers kept home are enough.
       let swarm = false;
       const top = tm.top;
-      if (top && !danger && order.length >= 2) {
+      const gang = gangUp(g) && runaway;
+      if (top && (!danger || gang) && order.length >= 2) {
         const keep = { st, loySent };
         reset();
         const plan2 = [];
@@ -985,7 +1004,7 @@
           plan2.push({ a, target: t });
           total2 += h.score;
         }
-        if (plan2.filter(x => x.target === top).length >= 2 && total2 > total + 1) { plan = plan2; swarm = true; }
+        if (plan2.filter(x => x.target === top).length >= 2 && (total2 > total + 1 || gang)) { plan = plan2; swarm = true; }
         else { st = keep.st; loySent = keep.loySent; }
       }
       // a player the planned damage kills: everyone aimed there goes in
@@ -1380,6 +1399,8 @@
         const held = q.hand.filter(o => hintOf(q, o).counter).length;
         let bar = Math.max(3, 6 * (1.2 - skill * 0.4) - Math.max(0, held - 1) * 1.5);
         if (counters.length && smart(g, "counter")) { danger += comboDanger(g, top); bar = counterBar(g, q, top, bar); }
+        // a spell from the most dangerous player matters more, one from a player out of the race less
+        if (counters.length && gangUp(g) && top.p && top.p !== q) danger *= 0.7 + 0.3 * (threatModel(g, q).rel.get(top.p) || 1);
         if (counters.length && danger >= bar) {
           const c = counters.sort((x, y) => x.card.def.mv - y.card.def.mv)[0];
           if (attempts(c, win) < 1) { noteTry(c, win); return { type: "cast", card: c.card, targets: [top], alt: c.alt }; }
