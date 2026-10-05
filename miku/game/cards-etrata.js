@@ -85,6 +85,298 @@
     return g.counterSpell(it, ctx.o) ? it : null;
   }
 
+  /* ================================================================ bot brain
+     The plan the bots follow with the three Etrata lists (base, stage 1 and B4). Other decks that
+     play Etrata, Deadly Fugitive (Corrupted Etrata) keep their own plans: every hook below checks
+     the deck first. */
+  const BRAIN_DECKS = new Set(["etrata", "etrata-aggro", "etrata-b4"]);
+  const brainOn = p => !!p && BRAIN_DECKS.has(p.deckId) && !!p.agent && !!p.agent.bot;
+  const onField = (g, p, name) => g.battlefield.some(o => o.controller === p && !o.faceDown && o.def.name === name);
+  const hitOf = (g, a) => Math.max(0, g.power(a)) * (g.kw(a, "double strike") ? 2 : 1);
+  const HALVERS = ["Unstoppable Slasher", "Virtus the Veiled"];
+  // the creatures that make the deck win: they stay out of risky fights
+  const ENGINE = ["Ramses, Assassin Lord", "Interceptor, Shadow's Hound", "Roshan, Hidden Magister"];
+
+  /* How a bot defender blocks: the same tests as ai.js block(). It blocks with a creature that
+     survives and kills the attacker, survives a 3-power hit, or trades up; it never blocks menace;
+     and it chumps the biggest attackers when the rest would kill it. A person may block anything,
+     and menace only with two. Returns the attackers that get blocked; `evade` holds attackers we
+     plan to make unblockable first. */
+  function predictBlocks(g, q, attackers, evade) {
+    const A = AI();
+    const bot = !q.agent || !!q.agent.bot;
+    const mine = g.creatures(q).filter(c => !c.tapped);
+    const used = new Set(), blocked = new Set();
+    const incoming = attackers.slice().sort((a, b) => g.power(b) - g.power(a));
+    const canStop = (a, pool) => bot ? !g.kw(a, "menace") : pool.filter(b => g.canBlock(b, a)).length >= (g.kw(a, "menace") ? 2 : 1);
+    for (const a of incoming) {
+      const pool = evade && evade.has(a) ? [] : mine.filter(b => !used.has(b.id) && g.canBlock(b, a));
+      if (!pool.length || !canStop(a, pool)) continue;
+      let best = null, bs = -1e9;
+      for (const b of pool) {
+        const f = A.fight(g, a, b);
+        let s = -1e9;
+        if (!f.bDies && f.aDies) s = 10;
+        else if (!f.bDies && g.power(a) >= 3) s = 4;
+        else if (f.bDies && f.aDies && A.value(g, b) + 1 < A.value(g, a)) s = 2;
+        else if (!bot) s = 1;
+        if (s > bs) { bs = s; best = b; }
+      }
+      if (best && bs > 0) { used.add(best.id); blocked.add(a); }
+    }
+    let rest = incoming.filter(a => !blocked.has(a));
+    let guard = 0;
+    while (rest.reduce((s, a) => s + hitOf(g, a), 0) >= q.life && guard++ < 20) {
+      const a = rest.filter(x => !(evade && evade.has(x)) && canStop(x, mine.filter(b => !used.has(b.id) && g.canBlock(b, x))))[0];
+      if (!a) break;
+      const b = mine.find(c => !used.has(c.id) && g.canBlock(c, a));
+      used.add(b.id); blocked.add(a);
+      rest = rest.filter(x => x !== a);
+    }
+    return blocked;
+  }
+  /* What a group of attackers does to q: the damage that gets through and whether q is out after
+     it (life, Slasher and Virtus halving what's left, Etrata the Silencer's third hit counter,
+     Strixhaven Stadium's tenth point counter). */
+  function attackOutcome(g, p, q, attackers, evade) {
+    const blocked = predictBlocks(g, q, attackers, evade);
+    const through = attackers.filter(a => !blocked.has(a));
+    const dmg = through.reduce((s, a) => s + hitOf(g, a), 0);
+    let life = q.life - dmg;
+    for (const a of through) if (HALVERS.includes(a.def.name) && life > 0) life -= Math.ceil(life / 2);
+    // Wound Reflection takes the life they lost this turn again at the end step
+    if (onField(g, p, "Wound Reflection")) life -= (q.life - life) + (q.lifeLostThisTurn || 0);
+    let kill = life <= 0;
+    if (!kill && through.some(a => a.def.name === "Etrata, the Silencer") && g.hitCount(q) >= 2 && g.creatures(q).length) kill = true;
+    const stadium = g.battlefield.find(o => o.controller === p && o.def.name === "Strixhaven Stadium");
+    if (!kill && stadium && (stadium.counters.point || 0) + through.length >= 10) kill = true;
+    return { blocked, through, dmg, kill };
+  }
+  /* What a hit with this attacker is worth beyond its damage: a cloaked card when it's an Assassin
+     and Etrata is out, the cards the deck draws on a hit, its own hit trigger. */
+  function hitGain(g, p, a) {
+    const assassin = isAssassin(g, a);
+    let s = hitOf(g, a);
+    if (assassin && onField(g, p, "Etrata, Deadly Fugitive")) s += 3;
+    if (assassin && (onField(g, p, "Ezio, Blade of Vengeance") || onField(g, p, "Mari, the Killing Quill"))) s += 1.5;
+    if (g.kw(a, "deathtouch") && onField(g, p, "Black Widow, Deadly Hunter")) s += 1.5;
+    if (!a.faceDown && a.def.triggers.some(t => t.on === "combatDamagePlayer")) s += 2;
+    return s;
+  }
+  /* How good a creature is at home: deathtouch stops anything, toughness soaks a hit. */
+  const blockWorth = (g, o) => (g.ch(o).cantBlock ? -10 : 0) + (g.kw(o, "deathtouch") ? 4 : 0) + Math.max(0, g.toughness(o)) + Math.max(0, g.power(o)) * 0.5;
+
+  /* The attack. A kill comes first: with Ramses out, a player who dies after an Assassin attacked
+     them wins the game, so everything goes at the player it can kill (the attackers the kill
+     doesn't need stay home). Otherwise each attacker goes where it gets through (each hit cloaks a
+     card and draws), and stays home where it would be blocked: a creature that stays back keeps
+     the crack-back off us. When the table can hit us hard, the best blockers stay home too. */
+  function etrataAttack(g, p, ctx) {
+    if (!brainOn(p)) return undefined;
+    const A = AI();
+    const { candidates, targets } = ctx;
+    const opps = g.opponents(p).filter(q => targets.includes(q) && !q.lost);
+    if (!opps.length) return undefined;
+    const ramses = onField(g, p, "Ramses, Assassin Lord");
+    const able = candidates.filter(a => g.power(a) > 0);
+    // 1. a kill
+    let kill = null, ks = -1e9;
+    for (const q of opps) {
+      const r = attackOutcome(g, p, q, able);
+      if (!r.kill) continue;
+      if (ramses && !r.through.concat(able).some(a => g.hasSub(a, "Assassin"))) continue;
+      const sc = (ramses ? 100 : 0) - q.life * 0.1;
+      if (sc > ks) { ks = sc; kill = q; }
+    }
+    if (kill) {
+      // keep home whatever the kill doesn't need: the engine pieces first, then the best blockers
+      // (with Ramses, one Assassin must still attack that player)
+      let team = able.slice();
+      const order = able.slice().sort((x, y) => (ENGINE.includes(y.def.name) - ENGINE.includes(x.def.name)) || (blockWorth(g, y) - blockWorth(g, x)));
+      for (const a of order) {
+        const without = team.filter(x => x !== a);
+        if (without.length && attackOutcome(g, p, kill, without).kill && (!ramses || without.some(x => g.hasSub(x, "Assassin")))) team = without;
+      }
+      return team.map(a => ({ attacker: a, target: kill }));
+    }
+    // 2. who gets through where. The target: with Ramses out, the player closest to dying (one kill
+    // wins the game); otherwise the strongest player (biggest board and hand), healthier ones a bit less
+    const bv = q => g.battlefield.filter(o => o.controller === q).reduce((s, o) => s + A.value(g, o), 0);
+    const focus = ramses ? (q => q.life) : (q => -bv(q) * 0.6 - q.hand.length * 0.5 + q.life * 0.25);
+    const plan = [];
+    for (const a of able) {
+      const open = opps.filter(q => !predictBlocks(g, q, [a]).has(a));
+      if (!open.length) continue;
+      let t = null;
+      if (a.def.ai && a.def.ai.attackTarget) { try { t = a.def.ai.attackTarget(g, p, a, open); } catch (e) { t = null; } }
+      if (!t || !open.includes(t)) t = open.slice().sort((x, y) => focus(x) - focus(y))[0];
+      plan.push({ attacker: a, target: t, gain: hitGain(g, p, a) });
+    }
+    // 3. enough blockers stay home when the table can hit us hard
+    const threatIn = Math.max(0, ...opps.map(q => g.creatures(q).filter(c => !g.kw(c, "defender")).reduce((s, c) => s + Math.max(0, g.power(c)), 0)));
+    if (p.life <= threatIn * 1.2 + 4) {
+      const need = Math.max(1, Math.ceil(opps.reduce((n, q) => n + g.creatures(q).length, 0) / 3));
+      const going = new Set(plan.map(d => d.attacker));
+      let home = g.creatures(p).filter(c => !going.has(c) && !c.tapped && !g.ch(c).cantBlock).length;
+      const pull = plan.filter(d => !g.kw(d.attacker, "vigilance") && !g.ch(d.attacker).cantBlock).sort((x, y) => (blockWorth(g, y.attacker) - y.gain * 0.5) - (blockWorth(g, x.attacker) - x.gain * 0.5));
+      for (const d of pull) { if (home >= need) break; plan.splice(plan.indexOf(d), 1); home++; }
+    }
+    return plan.map(d => ({ attacker: d.attacker, target: d.target }));
+  }
+
+  /* Blocks: Ramses and Roshan don't block where they'd die, unless the hit would kill us. */
+  function etrataBlock(g, q, ctx) {
+    if (!brainOn(q)) return undefined;
+    const A = AI();
+    let blocks = ctx.blocks.slice();
+    const lethal = list => ctx.attackers.filter(a => !list.some(b => b.attacker === a)).reduce((s, a) => s + hitOf(g, a), 0) >= q.life;
+    for (const b of ctx.blocks) {
+      if (!ENGINE.includes(b.blocker.def.name) || !A.fight(g, b.attacker, b.blocker).bDies) continue;
+      const without = blocks.filter(x => x !== b);
+      if (!lethal(without)) blocks = without;
+    }
+    return blocks;
+  }
+  /* Who wears Swiftfoot Boots or Lightning Greaves: the piece the deck can least afford to lose. */
+  const PROTECT = { "Ramses, Assassin Lord": 100, "Interceptor, Shadow's Hound": 70, "Roshan, Hidden Magister": 60, "Etrata, Deadly Fugitive": 40, "Black Widow, Deadly Hunter": 25, "Ezio, Blade of Vengeance": 25, "Achilles Davenport": 20 };
+  const HEXERS = ["Swiftfoot Boots", "Lightning Greaves"];
+  const protectRank = (g, c) => (PROTECT[c.def.name] || 0) + Math.max(0, g.power(c)) - (c.faceDown ? 5 : 0);
+  // a creature already safe from targeted removal by something other than this equipment
+  const shielded = (g, c, eq) => (g.kw(c, "hexproof") || g.kw(c, "shroud")) && !(eq && eq.attachedTo === c);
+  /* Targets the deck picks itself: the equipment above, and Spark Double copies Ramses (a second
+     "you win the game" trigger and +1/+1 lord) or the best engine piece. */
+  const COPY = ["Ramses, Assassin Lord", "Interceptor, Shadow's Hound", "Achilles Davenport", "Ezio, Blade of Vengeance", "Black Widow, Deadly Hunter", "Roshan, Hidden Magister"];
+  function etrataTargets(g, p, req) {
+    if (!brainOn(p)) return undefined;
+    const src = req.src;
+    const ev = evadeWant.get(p);
+    if (ev && ev.turn === g.turn && src && EVADE[src.def.name] && req.options.includes(ev.o)) return ev.o;
+    if (req.purpose === "equip" && src && HEXERS.includes(src.def.name)) {
+      return req.options.filter(c => c.controller === p && !shielded(g, c, src)).sort((a, b) => protectRank(g, b) - protectRank(g, a))[0];
+    }
+    if (req.purpose === "sparkCopy") {
+      for (const n of COPY) { const c = req.options.find(x => !x.faceDown && x.def.name === n); if (c) return c; }
+    }
+    return undefined;
+  }
+  /* After blockers: turn an unblocked face-down creature face up when the card hits harder than a
+     2/2 (its own cost or Etrata's {2}{U}{B}, whichever is cheaper), the biggest first. */
+  function combatFlip(g, p, acts) {
+    let best = null, bs = 1;
+    for (const a of acts) {
+      if (a.type !== "activate" || !a.ab || !(a.ab.faceUp || a.ab.etrata)) continue;
+      const o = a.card;
+      if (!o.faceDown || !o.combat || !o.combat.attacking || o.combat.wasBlocked) continue;
+      const d = o.cardDef;
+      if (!d.types.includes("Creature") || !d.pt) continue;
+      const gain = (d.pt[0] || 0) - 2 + (d.keywords.includes("double strike") ? d.pt[0] : 0);
+      const cost = MK.util.costMV(g.abilityCost(p, o, a.ab, 0));
+      const s = gain - cost * 0.1;
+      if (gain >= 2 && s > bs) { bs = s; best = a; }
+    }
+    return best ? { type: "activate", card: best.card, idx: best.idx } : null;
+  }
+  /* Creatures that change this turn's combat: lords and type changers (statics), and the ones that
+     draw when another creature connects. The rest can wait for the second main phase. */
+  const ON_HIT = ["Black Widow, Deadly Hunter", "Ezio, Blade of Vengeance", "Mari, the Killing Quill", "Gix, Yawgmoth Praetor", "Grazilaxx, Illithid Scholar", "Glitch Interpreter", "Spark Double"];
+  const combatCard = d => !d.types.includes("Creature") || d.keywords.includes("haste") || d.keywords.includes("flash") || d.statics.length > 0 || !!d.makesAssassins || ON_HIT.includes(d.name);
+  /* A face-down attacker we could turn face up into something bigger, and the mana to do it. */
+  function flipReady(g, p) {
+    const etrata = onField(g, p, "Etrata, Deadly Fugitive");
+    const mana = manaNow(g, p);
+    return g.creatures(p).some(o => {
+      if (!o.faceDown || o.tapped || (o.sick && !g.kw(o, "haste"))) return false;
+      const d = o.cardDef;
+      if (!d.types.includes("Creature") || !d.pt || d.pt[0] < 4) return false;
+      return (etrata && mana >= 4) || (d.cost && g.canPay(p, d.costObj, { for: "special" }));
+    });
+  }
+  /* The first main phase holds the creatures that don't change this combat while a face-down
+     attacker could be turned face up in it: the mana stays open for the flip, and they come down
+     in the second main phase. */
+  function etrataCast(g, p, o, ctx) {
+    if (!brainOn(p) || ctx.window !== "main1" || g.active !== p || o.isCommander) return undefined;
+    if (combatCard(o.def)) return undefined;
+    return flipReady(g, p) ? false : undefined;
+  }
+  /* Before combat: when one more unblockable attacker turns this attack into a kill, make it so
+     (Rogue's Passage, Access Tunnel, Key to the City, or Brotherhood Regalia's equip). */
+  const EVADE = { "Rogue's Passage": () => true, "Access Tunnel": (g, c) => g.power(c) <= 3, "Key to the City": () => true, "Brotherhood Regalia": () => true };
+  const evadeWant = new WeakMap();
+  function evasionPlan(g, p, acts) {
+    const able = g.creatures(p).filter(c => g.canAttack(c, p) && g.power(c) > 0);
+    const opps = g.opponents(p).filter(q => !q.lost);
+    if (!able.length || opps.some(q => attackOutcome(g, p, q, able).kill)) return null;
+    for (const a of acts) {
+      if (a.type !== "activate" || !EVADE[a.card.def.name] || (a.card.def.name === "Brotherhood Regalia" && a.ab.label !== "Equip" && a.ab.label !== "Equip legendary creature")) continue;
+      for (const c of able) {
+        if (g.ch(c).unblockable || !EVADE[a.card.def.name](g, c) || (a.ab.label === "Equip legendary creature" && !c.def.legendary)) continue;
+        if (a.card.def.name === "Key to the City" && p.hand.length < 1) continue;
+        if (opps.some(q => attackOutcome(g, p, q, able, new Set([c])).kill)) {
+          evadeWant.set(p, { o: c, turn: g.turn });
+          return { type: "activate", card: a.card, idx: a.idx };
+        }
+      }
+    }
+    return null;
+  }
+  /* The plan outside the attack: after blockers, turn unblocked face-down attackers face up; in the
+     first main phase, move Boots or Greaves onto the piece that matters most when it's bare, and
+     make an attacker unblockable when that sets up a kill. */
+  function etrataPlan(g, p, o, ctx) {
+    if (!brainOn(p)) return null;
+    const win = ctx.window, acts = ctx.actions || [];
+    if (win === "combat" && g.active === p && g.phase === "damage") return combatFlip(g, p, acts);
+    if (win === "main1" && g.active === p) {
+      for (const eq of g.controlled(p, x => HEXERS.includes(x.def.name))) {
+        const act = acts.find(a => a.type === "activate" && a.card === eq && a.ab && a.ab.label === "Equip");
+        if (!act) continue;
+        const want = g.creatures(p).filter(c => !shielded(g, c, eq) && g.canTarget(p, c)).sort((a, b) => protectRank(g, b) - protectRank(g, a))[0];
+        const cur = eq.attachedTo && eq.attachedTo.zone === "battlefield" ? eq.attachedTo : null;
+        if (!want || want === cur || (PROTECT[want.def.name] || 0) < 20) continue;
+        if (cur && protectRank(g, cur) >= protectRank(g, want)) continue;
+        return { type: "activate", card: eq, idx: act.idx };
+      }
+      return evasionPlan(g, p, acts);
+    }
+    return null;
+  }
+
+  /* What the deck's tutors fetch: a land while short of them, then Ramses (a player who dies after
+     an Assassin attacked them wins the game), then Interceptor and Roshan (menace for Assassins and
+     for face-down creatures, and the bots never block menace), then whatever else turns hits into
+     cards and kills. Other decks' tutors (Demonic Tutor, Imperial Seal) ask MK.DECK_TUTORS. */
+  const TUTOR_WANT = ["Ramses, Assassin Lord", "Interceptor, Shadow's Hound", "Roshan, Hidden Magister", "Etrata, the Silencer", "Black Widow, Deadly Hunter", "Ezio, Blade of Vengeance", "Achilles Davenport",
+    "Unstoppable Slasher", "Virtus the Veiled", "Rhystic Study", "Cover of Darkness", "Maskwood Nexus", "Leyline of Transformation", "Arcane Adaptation", "Mari, the Killing Quill"];
+  function etrataTutorPick(g, p, cands) {
+    if (!cands.length) return null;
+    const lands = g.controlled(p, o => g.isLand(o)).length;
+    if (lands < 3 && !p.hand.some(c => c.def.types.includes("Land"))) {
+      const l = cands.find(c => c.def.types.includes("Land") && !c.def.supertypes.includes("Basic")) || cands.find(c => c.def.types.includes("Land"));
+      if (l) return l;
+    }
+    const have = n => g.battlefield.some(o => o.controller === p && !o.faceDown && o.def.name === n) || p.hand.some(c => c.def.name === n);
+    // a player with two hit counters dies to Etrata, the Silencer's next hit
+    if (g.opponents(p).some(q => g.hitCount(q) >= 2) && !have("Etrata, the Silencer")) {
+      const si = cands.find(x => x.def.name === "Etrata, the Silencer");
+      if (si) return si;
+    }
+    // a second Assassin enabler is only worth it without the first
+    const enabled = g.battlefield.some(o => o.controller === p && (o.def.makesAssassins || o.def.name === "Maskwood Nexus")) || p.hand.some(c => c.def.makesAssassins || c.def.name === "Maskwood Nexus");
+    for (const n of TUTOR_WANT) {
+      if (have(n)) continue;
+      if (enabled && ["Maskwood Nexus", "Leyline of Transformation", "Arcane Adaptation"].includes(n)) continue;
+      const c = cands.find(x => x.def.name === n);
+      if (c) return c;
+    }
+    return null;
+  }
+  MK.DECK_TUTORS = MK.DECK_TUTORS || {};
+  MK.DECK_TYPES = MK.DECK_TYPES || {};
+  for (const id of BRAIN_DECKS) { MK.DECK_TUTORS[id] = etrataTutorPick; MK.DECK_TYPES[id] = "Assassin"; }
+  // for the tests (tools/sim/test-etrata.js)
+  MK.ETRATA_BRAIN = { decks: BRAIN_DECKS, predictBlocks, attackOutcome, attack: etrataAttack, tutorPick: etrataTutorPick };
+
   /* Etrata's ability for her face-down creatures. It isn't a special action, so Training Grounds
      makes it {U}{B}. */
   const ETRATA_UP = {
@@ -135,6 +427,7 @@
     }],
     ai: {
       priority: 9,
+      attackPlan: etrataAttack, blockPlan: etrataBlock, targetPlan: etrataTargets, castPlan: etrataCast, plan: etrataPlan,
       // every Assassin that connects cloaks a card, so a face-down or cheap Assassin trading is fine
       pushAttack: (g, p, a) => isAssassin(g, a) && (!!a.faceDown || g.power(a) <= 2) && a.def.name !== "Etrata, Deadly Fugitive",
       // she's the engine: attack only where no untapped blocker can kill her

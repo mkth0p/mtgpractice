@@ -77,6 +77,7 @@
     }
     return best;
   }
+  AI.leader = leader;
 
   /* One creature fighting another (a attacks, b blocks). */
   function fight(g, a, b) {
@@ -457,6 +458,8 @@
     function scoreCast(g, p, act, win) {
       const o = act.card, d = o.def, ai = hintOf(p, o);
       if (ai.never) return -1;
+      // a deck's say on any of its casts (`ai.castPlan`, like ai.attackPlan): false holds the card
+      if (deckHold(g, p, o, win)) return -1;
       if (ai.cast) { const r = ai.cast(g, p, o, { window: win }); if (r === false) return -1; if (typeof r === "number") return r; }
       const instant = isInstant(g, p, o);
       let s = 10 + (ai.priority != null ? ai.priority : 5) + d.mv * 0.6;
@@ -482,6 +485,14 @@
         if (left < mem.keepUp) s -= 12;
       }
       return s;
+    }
+    function deckHold(g, p, o, win) {
+      for (const s of g.controlled(p).concat(p.command)) {
+        const f = s.def.ai && s.def.ai.castPlan;
+        if (!f) continue;
+        try { if (f(g, p, o, { window: win }) === false) return true; } catch (e) { /* no say */ }
+      }
+      return false;
     }
     /* Casting a morph card face down: only when its hint says so. */
     function morphScore(g, p, act) {
@@ -642,7 +653,7 @@
       // crack-back risk: how hard the table can hit us next turn
       const threatIn = Math.max(...opps.map(o => power(g, g.creatures(o).filter(c => !g.kw(c, "defender")))));
       const danger = p.life <= threatIn * 1.2 + 4;
-      const decl = [];
+      let decl = [];
       const atkPower = power(g, candidates);
       const absorb = qBlockers.length * (atkPower / Math.max(1, candidates.length));
       const alpha = atkPower - absorb >= q.life || (q.poison + power(g, candidates.filter(c => g.kw(c, "infect"))) >= 10 && candidates.some(c => g.kw(c, "infect")));
@@ -680,8 +691,38 @@
         if (!alpha && a.def.ai && a.def.ai.attack) { const say = a.def.ai.attack(g, p, a, bl); if (say === false) go = false; else if (say === true) go = true; }
         if (go) decl.push({ attacker: a, target });
       }
+      const planned = deckHook(g, p, "attackPlan", { candidates, targets, decl, skill, aggro, casual });
+      if (planned) decl = planned;
       for (const d of decl) { const tq = g.defenderOf(d.target); mem.lastTarget = tq.id; }
       return decl;
+    }
+    /* Deck-level hooks, on one of the deck's cards (the commander, or a permanent it controls), for
+       a deck whose bot follows its own plan:
+         ai.attackPlan(g, p, ctx)   the whole attack: gets what the rules of thumb chose (ctx.decl)
+                                    and returns its own declarations, or nothing to keep those
+         ai.blockPlan(g, q, ctx)    the same for blocks (ctx.blocks)
+         ai.targetPlan(g, p, req)   a target for any card: one of req.options, or nothing
+         ai.castPlan(g, p, o, ctx)  false holds a card back this window */
+    function deckHook(g, p, key, ctx) {
+      const holders = g.controlled(p).concat(p.command);
+      for (const o of holders) {
+        const f = o.def.ai && o.def.ai[key];
+        if (!f) continue;
+        let r = null;
+        try { r = f(g, p, ctx); } catch (e) { r = null; }
+        if (Array.isArray(r)) return r;
+      }
+      return null;
+    }
+    function deckPick(g, p, req) {
+      for (const o of g.controlled(p).concat(p.command)) {
+        const f = o.def.ai && o.def.ai.targetPlan;
+        if (!f) continue;
+        let t;
+        try { t = f(g, p, req); } catch (e) { t = undefined; }
+        if (t != null && req.options.includes(t)) return t;
+      }
+      return undefined;
     }
     /* A permanent can ask for an attacker to go in even into a trade (ai.pushAttack): Etrata wants
        every Assassin connecting, because each hit cloaks another card. */
@@ -748,7 +789,7 @@
         blocks.push({ blocker: cands[0], attacker: a });
         rest = unblocked();
       }
-      return blocks;
+      return deckHook(g, q, "blockPlan", { attackers, blocks, skill }) || blocks;
     }
 
     /* ---------------- responding */
@@ -949,6 +990,9 @@
         case "target": {
           const opts = req.options;
           if (!opts.length) return null;
+          // a deck's own pick (`ai.targetPlan`, like ai.attackPlan): one of the options, or nothing
+          const own = deckPick(g, p, req);
+          if (own !== undefined) return own;
           if (def && def.ai && def.ai.target) { const t = def.ai.target(g, p, req); if (t !== undefined && (t === null ? req.optional : opts.includes(t))) return t; }
           // a spell on the stack (counterspells): the most dangerous opponent's spell, never our own
           if (req.spec && req.spec.kind === "spell" && pur !== "redirect") {

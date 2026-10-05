@@ -874,7 +874,8 @@
       { on: "enters", when: (g, s, ev) => ev.o !== s && ev.o.controller === s.controller && g.isCreature(ev.o) && chosenType(g, s, ev.o), do: (g, s, ev, { p }) => drawLog(g, p, 1, s) },
       { on: "attacks", when: (g, s, ev) => ev.o.controller === s.controller && chosenType(g, s, ev.o), do: (g, s, ev, { p }) => drawLog(g, p, 1, s) }
     ],
-    ai: { priority: 7, option: (g, p, req) => (req.purpose === "creatureType" ? "Dragon" : undefined) }
+    // a deck that names its own type (MK.DECK_TYPES, by deck id: Assassin for Etrata) picks it
+    ai: { priority: 7, option: (g, p, req) => (req.purpose === "creatureType" ? (MK.DECK_TYPES && MK.DECK_TYPES[p.deckId]) || "Dragon" : undefined) }
   });
 
   /* A creature spell's power on the stack is its printed power. */

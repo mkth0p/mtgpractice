@@ -165,7 +165,10 @@
     const filter = opts.filter || (() => true);
     let f = filter;
     if (p.agent && p.agent.bot) {
-      const pick = tutorPick(g, p, p.library.filter(o => filter(g, o)));
+      // a deck with its own tutor picks (MK.DECK_TUTORS, by deck id) uses them
+      const cands = p.library.filter(o => filter(g, o));
+      const own = MK.DECK_TUTORS && MK.DECK_TUTORS[p.deckId];
+      const pick = (own && own(g, p, cands)) || tutorPick(g, p, cands);
       if (pick) f = (g2, o) => o === pick;
     }
     const got = await g.search(p, { filter: f, to: opts.to || "hand", prompt: opts.prompt, src, hidden: opts.hidden !== false, purpose: "tutor" });

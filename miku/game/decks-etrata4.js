@@ -207,7 +207,16 @@
         g.bump();
       }
     }],
-    ai: { priority: 7, cards: (g, p, req) => (req.purpose === "adewale" ? [req.options.slice().sort((a, b) => ((b.def.ai && b.def.ai.priority) || 5) + b.def.mv * 0.5 - ((a.def.ai && a.def.ai.priority) || 5) - a.def.mv * 0.5)[0]] : null) }
+    ai: {
+      priority: 7,
+      // the deck's tutor picks first (MK.DECK_TUTORS: Ramses, Interceptor...), else the best Assassin
+      cards: (g, p, req) => {
+        if (req.purpose !== "adewale") return null;
+        const own = MK.DECK_TUTORS && MK.DECK_TUTORS[p.deckId];
+        const pick = own && own(g, p, req.options.filter(c => !c.def.types.includes("Land")));
+        return [pick || req.options.slice().sort((a, b) => ((b.def.ai && b.def.ai.priority) || 5) + b.def.mv * 0.5 - ((a.def.ai && a.def.ai.priority) || 5) - a.def.mv * 0.5)[0]];
+      }
+    }
   });
   D({
     name: "Achilles Davenport", cost: "{2}{U}{B}", type: "Legendary Creature — Human Assassin", pt: "3/3",
@@ -313,9 +322,12 @@
     },
     ai: { tutor: true, priority: 7 }
   });
-  /* The bots' tutor pick for this deck: a land when short, then the engine pieces it lacks. */
+  /* The bots' tutor pick: the deck's own picks when it has them (MK.DECK_TUTORS: the Etrata lists),
+     else a land when short, then the engine pieces it lacks. */
   const WANT = ["Mari, the Killing Quill", "Black Widow, Deadly Hunter", "Ezio, Blade of Vengeance", "Achilles Davenport", "Ramses, Assassin Lord", "Rhystic Study", "Skullclamp", "Roshan, Hidden Magister", "Etrata, the Silencer"];
   function tutorPick(g, p) {
+    const own = MK.DECK_TUTORS && MK.DECK_TUTORS[p.deckId];
+    if (own) return own(g, p, p.library.slice());
     const lands = g.controlled(p, o => g.isLand(o)).length;
     if (lands < 3 && !p.hand.some(c => c.def.types.includes("Land"))) { const l = p.library.find(c => c.def.types.includes("Land") && !c.def.supertypes.includes("Basic")) || p.library.find(c => c.def.types.includes("Land")); if (l) return l; }
     const have = n => g.battlefield.some(o => o.controller === p && o.def.name === n) || p.hand.some(c => c.def.name === n);
