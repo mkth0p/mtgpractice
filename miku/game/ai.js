@@ -334,6 +334,10 @@
 
   /* ------------------------------------------------------------ the agent */
   const CASUAL = globalThis.__CASUAL || { life: 0.3, blockers: 0.3, lead: 8, spread: 6, home: 1, homeFrom: 1 };
+  /* The brain a deck registered for its bots (see runPlans), or null. */
+  function brainOf(p) { return (p && p.deckId && MK.BRAINS && MK.BRAINS[p.deckId]) || null; }
+  AI.brainOf = brainOf;
+
   AI.create = function (opts) {
     opts = opts || {};
     const skill = opts.skill == null ? 0.85 : opts.skill;
@@ -505,8 +509,21 @@
       return plus[0] || null;
     }
 
-    /* ---------------- deck plans: def.ai.plan(g, p, o, {window, actions}) returns an action or null */
+    /* ---------------- deck plans: def.ai.plan(g, p, o, {window, actions}) returns an action or null.
+       A deck can also register a brain for its bots, MK.BRAINS[deckId] = { plan, attack, choose }:
+       its plan runs before the cards' plans, its attack can declare the attack or keep creatures
+       home, and its choose answers questions before the cards' hints. */
     function runPlans(g, p, win, acts) {
+      const br = brainOf(p);
+      if (br && br.plan) {
+        let a = null;
+        try { a = br.plan(g, p, { window: win, actions: acts }); } catch (e) { if (g.warn) g.warn(e); a = null; }
+        if (a) {
+          const key = `brain:${a.type}:${a.card && a.card.id}:${a.idx}:${a.alt}`;
+          const n = mem.tried.get(key) || 0;
+          if (n < (a.maxTries || 2)) { mem.tried.set(key, n + 1); return a; }
+        }
+      }
       const seen = new Set();
       const holders = g.controlled(p).concat(p.hand, p.command);
       for (const o of holders) {
@@ -587,6 +604,14 @@
       resetTurn(g);
       const opps = g.opponents(p);
       if (!opps.length) return [];
+      // the deck's brain can declare the whole attack, or keep some creatures home
+      const br = brainOf(p);
+      if (br && br.attack) {
+        let r = null;
+        try { r = br.attack(g, p, candidates, targets); } catch (e) { if (g.warn) g.warn(e); r = null; }
+        if (r && r.decl) return r.decl;
+        if (r && r.home) candidates = candidates.filter(c => !r.home.includes(c));
+      }
       // who to hit: low life, weak defence, grudges, a bit of the leader
       const lead = leader(g, p);
       const scoreQ = q => {
@@ -882,6 +907,13 @@
       const pur = req.purpose;
       const src = req.src;
       const def = src && src.def;
+      // the deck's brain answers first (undefined: no opinion)
+      const br = brainOf(p);
+      if (br && br.choose) {
+        let r;
+        try { r = br.choose(g, p, req); } catch (e) { if (g.warn) g.warn(e); r = undefined; }
+        if (r !== undefined) return r;
+      }
       switch (req.type) {
         case "confirm": {
           if (pur === "demonstrate") return false;

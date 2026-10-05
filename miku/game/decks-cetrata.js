@@ -31,6 +31,9 @@
   const inHand = (p, name) => p.hand.some(c => c.def.name === name);
   /* The pilot of this list (or of another Etrata list): the deck's bot picks only apply to them. */
   const isOurs = p => !!p && (p.commanders || []).some(c => nameOf(c) === "Etrata, Deadly Fugitive");
+  /* This deck's bots run the brain at the end of this file instead of the cards' plans below. */
+  const DECK_ID = "corrupted-etrata";
+  const hasBrain = p => !!p && p.deckId === DECK_ID;
   /* Put a card from a hand back on top of its owner's library (Necropotence, Notion Thief). */
   function backOnTop(g, p, o) {
     if (!o || o.zone !== "hand" || !p.hand.includes(o)) return false;
@@ -51,7 +54,7 @@
   /* Low is cheap to sacrifice: tokens, face-down lands and other people's cards, then small creatures. */
   function fodderScore(g, o) {
     if (o.isToken) return g.power(o);
-    if (o.faceDown) return (o.cardDef.types.includes("Land") ? 1 : 4) + (o.owner !== o.controller ? 0 : 2);
+    if (o.faceDown) return COMBO_NAMES.has(o.cardDef.name) ? 40 : (o.cardDef.types.includes("Land") ? 1 : 4) + (o.owner !== o.controller ? 0 : 2);
     if (o.isCommander) return 50;
     if (COMBO_NAMES.has(o.def.name)) return 40;
     return 5 + (AI().value ? AI().value(g, o) : g.power(o));
@@ -107,8 +110,9 @@
     const filter = opts.filter || (() => true);
     let f = filter;
     if (p.agent && p.agent.bot && isOurs(p)) {
-      const pick = bestPiece(g, p, p.library.filter(o => filter(g, o)));
-      if (pick) f = (g2, o) => o === pick.c;
+      const cands = p.library.filter(o => filter(g, o));
+      const pick = hasBrain(p) ? botPiece(g, p, cands) : (bestPiece(g, p, cands) || {}).c;
+      if (pick) f = (g2, o) => o === pick;
     }
     return g.search(p, { filter: f, to: opts.to || "hand", prompt: opts.prompt, src, hidden: opts.hidden !== false, purpose: "tutor" });
   }
@@ -131,7 +135,7 @@
   const TRANSMUTE_NOTE = "Transmute is offered on the card in your hand only while you could cast a sorcery. You pick yourself as its \"target\"; that's only how the game knows the timing.";
   /* Bots transmute when it finds a piece of a line they hold half of (or the last piece). */
   const transmutePlan = (g, p, o, ctx) => {
-    if (!mainWin(ctx) || o.zone !== "hand") return null;
+    if (!mainWin(ctx) || o.zone !== "hand" || hasBrain(p)) return null;
     const act = ctx.actions.find(a => a.type === "channel" && a.card === o);
     if (!act) return null;
     const mv = o.def.mv;
@@ -144,7 +148,7 @@
      Attached to several of this deck's cards (lands, Mox Amber, the engines) so it runs whenever one
      of them is in hand or on the battlefield. */
   function deckPlan(g, p, o, ctx) {
-    if (!isOurs(p) || g.active !== p) return null;
+    if (!isOurs(p) || hasBrain(p) || g.active !== p) return null;
     // 1. the vampire loop is live: Duskmantle Guildmage's mill (after its life-loss ability) starts it
     if (mainWin(ctx) && lineState(g, p, LINES[0]).live) {
       const gm = bfObj(g, p, "Duskmantle Guildmage");
@@ -1367,6 +1371,279 @@
       else step(`Closest line: ${what}. All in, about ${l.mana} mana; you have ${r.state.manaNow}${l.colorShort ? ", but not the colors it needs" : ""}. ${l.steps[0] ? l.steps[0].text : ""}`, l.steps[0] ? l.steps[0].cards : []);
     }
   }
+
+  /* ================================================================ the brain (bots)
+     A bot piloting this deck runs this brain (MK.BRAINS, see ai.js) ahead of the cards' own hints.
+     In order: win when a line is live, stay alive (blockers, free removal, counters), develop, then
+     tutor and transmute with the mana that's left. The other Etrata decks keep the cards' hints. */
+  const BRAIN_MEM = new WeakMap();
+  function bmem(p) { let m = BRAIN_MEM.get(p); if (!m) { m = {}; BRAIN_MEM.set(p, m); } return m; }
+  const liveOpps = (g, p) => g.opponents(p).filter(q => !q.lost);
+  const valueOf = (g, o) => (AI().value ? AI().value(g, o) : g.power(o));
+  const threatOf = (g, o, p) => (AI().threat ? AI().threat(g, o, p) : g.power(o));
+  const castActs = (acts, name) => acts.filter(a => a.type === "cast" && a.card.def.name === name && !a.faceDown);
+  const endBeforeMine = (g, p, win) => win === "end" && g.nextPlayer(g.active) === p;
+
+  /* How hard the table can hit us: the power of each opponent's creatures that can attack (summoning
+     sick ones too: they'll be ready on that player's turn). high: one player can take half our life,
+     or the table all of it. */
+  function pressure(g, p) {
+    const pw = q => g.creatures(q).filter(c => !g.kw(c, "defender")).reduce((s, c) => s + Math.max(0, g.power(c)) * (g.kw(c, "double strike") ? 2 : 1), 0);
+    const each = liveOpps(g, p).map(pw);
+    const table = each.reduce((a, b) => a + b, 0), top = each.length ? Math.max(...each) : 0;
+    return { table, top, high: top * 2 >= p.life || table >= p.life, lethal: top >= p.life };
+  }
+  /* Our creatures that can block. */
+  const blockersOf = (g, p) => g.creatures(p).filter(c => !g.ch(c).cantBlock);
+  /* Opponents an attacker gets through to: nobody there can block it (menace needs two). */
+  function openTo(g, a, opps) {
+    return opps.filter(q => {
+      const n = g.creatures(q).filter(b => g.canBlock(b, a)).length;
+      return n === 0 || (g.kw(a, "menace") && n < 2);
+    });
+  }
+
+  /* ---------- tutoring: the bot's pick */
+  /* The vampire loop comes first: once it's live, one point of life loss kills the whole table. Then
+     a piece that completes another line, a sweeper when the table is about to kill us, and else
+     the coach's pick (bestPiece). */
+  const VAMP_ORDER = ["Bloodthirsty Conqueror", "Exquisite Blood", "Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond"];
+  function botPiece(g, p, cands) {
+    if (!cands.length) return null;
+    const b = bestPiece(g, p, cands);
+    if (b && b.c.def.types.includes("Land")) return b.c;   // short of lands
+    // three mana sources and no land to play: a land that makes both colors before a five-drop
+    const sources = g.battlefield.filter(o => o.controller === p && (g.isLand(o) || (o.def.mana && o.def.mana.length && !g.isCreature(o)))).length;
+    if (sources < 4 && !p.hand.some(c => c.def.types.includes("Land"))) {
+      const l = cands.filter(c => c.def.types.includes("Land")).sort((x, y) => landColors(g, p, y).size - landColors(g, p, x).size)[0];
+      if (l) return l;
+    }
+    // Bloodthirsty Conqueror before Exquisite Blood: the same mana, and a flying body that blocks and
+    // starts the loop with its own hit
+    const order = side => cands.filter(x => side.includes(x.def.name)).sort((x, y) => x.def.mv - y.def.mv || VAMP_ORDER.indexOf(x.def.name) - VAMP_ORDER.indexOf(y.def.name))[0];
+    const vs = lineState(g, p, LINES[0]);
+    if (!vs.live && vs.missing.length === 1) {
+      const c = order(vs.missing[0]);
+      if (c) return c;
+    }
+    if (b && b.rank === 3) return b.c;
+    if (!vs.live && vs.missing.length === 2) {
+      const c = order(LINES[0].sides[0]);
+      if (c) return c;
+    }
+    if (pressure(g, p).high && !p.hand.some(c => c.def.name === "Toxic Deluge" || c.def.name === "Cyclonic Rift")) {
+      const d = cands.find(c => c.def.name === "Toxic Deluge");
+      if (d) return d;
+    }
+    return b ? b.c : null;
+  }
+
+  /* ---------- winning */
+  /* Duskmantle Guildmage's two abilities in one go: {1}{U}{B} (cards put into their graveyards cost
+     them life), then {2}{U}{B} (mill two). With the vampire loop live that drains everyone; with
+     Mindcrank it kills the player it mills. Only when both can be paid. */
+  function guildmagePlan(g, p, acts) {
+    const gm = bfObj(g, p, "Duskmantle Guildmage");
+    if (!gm) return null;
+    const m = bmem(p);
+    const a0 = acts.find(a => a.type === "activate" && a.card === gm && a.idx === 0);
+    const a1 = acts.find(a => a.type === "activate" && a.card === gm && a.idx === 1);
+    if (m.gmTurn === g.turn && m.gm === gm) return a1 ? { type: "activate", card: gm, idx: 1, maxTries: 3 } : null;
+    const vamp = lineState(g, p, LINES[0]).live, crank = onBf(g, p, "Mindcrank") && !!guildVictim(g, p);
+    if ((!vamp && !crank) || !a0 || !a1) return null;
+    const both = MK.util.addCost(g.abilityCost(p, gm, a0.ab, 0), g.abilityCost(p, gm, a1.ab, 0));
+    if (!g.canPay(p, both, { for: "ability" })) return null;
+    m.gmTurn = g.turn; m.gm = gm;
+    return { type: "activate", card: gm, idx: 0, maxTries: 1 };
+  }
+  /* The opponent Guildmage mills: the one Mindcrank kills, else (vampire loop) anyone. */
+  const guildVictim = (g, p) => liveOpps(g, p).filter(q => q.life <= q.library.length + 2).sort((a, b) => a.life - b.life)[0] || null;
+  /* A creature whose hit wins: anything while the vampire loop is live, Virtus with Bloodletter. */
+  function winsOnHit(g, p, c) {
+    if (lineState(g, p, LINES[0]).live) return g.power(c) > 0;
+    return c.def.name === "Virtus the Veiled" && onBf(g, p, "Bloodletter of Aclazotz");
+  }
+  /* Rogue's Passage on a creature whose hit wins when nothing of ours gets through. */
+  function passagePlan(g, p, acts) {
+    const rp = acts.find(a => a.type === "activate" && a.card.def.name === "Rogue's Passage");
+    if (!rp) return null;
+    const opps = liveOpps(g, p);
+    const ready = g.creatures(p).filter(c => g.canAttack(c, p) && winsOnHit(g, p, c));
+    if (!ready.length || ready.some(c => openTo(g, c, opps).length)) return null;
+    bmem(p).passage = ready.sort((a, b) => valueOf(g, a) - valueOf(g, b))[0];
+    return { type: "activate", card: rp.card, idx: rp.idx, maxTries: 1 };
+  }
+  /* Attacks: when a hit wins, only the creatures that get through go; combo pieces stay home unless
+     they get through. Everything else is the default attack. */
+  const KEEP_HOME = new Set([...COMBO_NAMES, "Tetsuko Umezawa, Fugitive"]);
+  function attackPlan(g, p, cands, targets) {
+    const opps = targets.filter(t => g.isPlayer(t) && isOpp(g, p, t) && !t.lost);
+    if (!opps.length) return null;
+    const winners = cands.filter(a => winsOnHit(g, p, a) && openTo(g, a, opps).length);
+    if (winners.length) {
+      // Virtus takes half the life of whoever has the most; any other hit starts the loop on the weakest
+      const decl = winners.map(a => ({ attacker: a, target: openTo(g, a, opps).sort((x, y) => a.def.name === "Virtus the Veiled" ? y.life - x.life : x.life - y.life)[0] }));
+      return { decl };
+    }
+    const home = cands.filter(a => KEEP_HOME.has(nameOf(a)) && !a.faceDown && !openTo(g, a, opps).length);
+    return home.length ? { home } : null;
+  }
+
+  /* ---------- staying alive */
+  /* How badly an opponent's spell on the stack hurts us. */
+  function spellHurts(g, p, item) {
+    const d = item.o.def, ai = d.ai || {};
+    let s = d.mv * 0.5;
+    if (ai.wipe) s += 8;
+    if (ai.finisher) s += 6;
+    if (ai.tutor) s += 2;
+    if (ai.threat) s += ai.threat;
+    const hit = (item.targets || []).filter(t => t && !g.isPlayer(t) && t.controller === p && t.zone === "battlefield");
+    if (hit.length) s += 3 + Math.max(...hit.map(t => (COMBO_NAMES.has(nameOf(t)) || t.isCommander ? 8 : valueOf(g, t) * 0.5)));
+    return s;
+  }
+  /* Fierce Guardianship (free while our commander is out) on a dangerous noncreature spell. */
+  function counterPlan(g, p, acts) {
+    const top = g.stack[g.stack.length - 1];
+    if (!top || top.kind !== "spell" || top.p === p || top.o.def.types.includes("Creature")) return null;
+    const fg = castActs(acts, "Fierce Guardianship").sort((a, b) => (b.alt || 0) - (a.alt || 0))[0];
+    if (!fg || spellHurts(g, p, top) < (fg.alt ? 6 : 9)) return null;
+    return { type: "cast", card: fg.card, alt: fg.alt, targets: [top], maxTries: 1 };
+  }
+  /* Attackers coming at us: Deadly Rollick (free while our commander is out) on the biggest one,
+     Infernal Grasp when the hit is big. */
+  function defendPlan(g, p, acts) {
+    const c = g.combat;
+    if (!c || c.attacker === p) return null;
+    const atMe = c.attackers.filter(a => a.zone === "battlefield" && a.combat && g.defenderOf(a.combat.attacking) === p && !(a.combat.blockedBy || []).length);
+    if (!atMe.length) return null;
+    const dmg = atMe.reduce((s, a) => s + Math.max(0, g.power(a)) * (g.kw(a, "double strike") ? 2 : 1), 0);
+    const big = atMe.slice().sort((a, b) => g.power(b) - g.power(a))[0];
+    const cmd = big.isCommander && (p.cmdDmg[big.id] || 0) + g.power(big) >= 15;
+    const roll = castActs(acts, "Deadly Rollick").sort((a, b) => (b.alt || 0) - (a.alt || 0))[0];
+    if (roll && (g.power(big) >= 4 || dmg * 2 >= p.life || cmd) && (roll.alt || dmg * 2 >= p.life)) return { type: "cast", card: roll.card, alt: roll.alt, targets: [big], maxTries: 1 };
+    const grasp = castActs(acts, "Infernal Grasp")[0];
+    if (grasp && (dmg * 2 >= p.life || dmg >= 10 || cmd) && g.power(big) >= 3) return { type: "cast", card: grasp.card, targets: [big], maxTries: 1 };
+    return null;
+  }
+  /* The end of the turn before ours: overload Cyclonic Rift on a big table, exile a big threat with
+     a free Deadly Rollick. */
+  function endPlan(g, p, acts) {
+    const rift = acts.find(a => a.type === "cast" && a.card.def.name === "Cyclonic Rift" && a.alt === 1);
+    if (rift) {
+      const theirs = g.battlefield.filter(o => o.controller !== p && !g.isLand(o));
+      const val = theirs.reduce((s, o) => s + valueOf(g, o), 0);
+      if (val >= 30 || (pressure(g, p).high && val >= 15)) return { type: "cast", card: rift.card, alt: 1, targets: [null], maxTries: 1 };
+    }
+    const roll = castActs(acts, "Deadly Rollick").find(a => a.alt);
+    if (roll) {
+      const t = g.battlefield.filter(o => o.controller !== p && g.isCreature(o) && g.canTarget(p, o)).sort((a, b) => threatOf(g, b, p) - threatOf(g, a, p))[0];
+      if (t && threatOf(g, t, p) >= 8) return { type: "cast", card: roll.card, alt: roll.alt, targets: [t], maxTries: 1 };
+    }
+    return null;
+  }
+  /* How good a creature is at holding the ground. */
+  function blockScore(g, c) {
+    const d = c.def, pt = d.pt || [0, 0];
+    if (d.cantBlock || d.name === "Wormfang Manta" || d.name === "Brine Elemental" || d.name === "Vesuvan Shapeshifter" || d.name === "Changeling Outcast") return -1;
+    return pt[1] + pt[0] * 0.5 + (d.keywords.includes("deathtouch") ? 4 : 0) + (d.keywords.includes("flying") ? 1 : 0) + (d.keywords.includes("defender") ? 1 : 0);
+  }
+  /* No blocker while the table has attackers (or two few under pressure): a creature first. */
+  function blockerFirst(g, p, acts, pr) {
+    const have = blockersOf(g, p).length;
+    const need = pr.high ? 2 : pr.top > 0 ? 1 : 0;
+    if (have >= need) return null;
+    const list = acts.filter(a => a.type === "cast" && !a.faceDown && !a.alt && a.card.def.types.includes("Creature") && blockScore(g, a.card) > 2)
+      .sort((a, b) => blockScore(g, b.card) - blockScore(g, a.card));
+    return list.length ? { type: "cast", card: list[0].card, maxTries: 1 } : null;
+  }
+
+  /* ---------- developing */
+  /* Transmute: in the first main phase for the piece that completes a line, else in the second main
+     phase with the mana that's left. Drift of Phantasms stays a blocker under pressure. */
+  function transmuteNow(g, p, acts, win, pr) {
+    for (const a of acts) {
+      if (a.type !== "channel" || !TRANSMUTERS[a.card.def.name] || a.card.zone !== "hand") continue;
+      if (a.card.def.name === "Drift of Phantasms" && pr.high && blockersOf(g, p).length < 2) continue;
+      const mv = a.card.def.mv;
+      const pool = p.library.filter(c => c.def.mv === mv);
+      const c = botPiece(g, p, pool);
+      if (!c) continue;
+      const b = bestPiece(g, p, [c]);
+      const rank = b ? b.rank : 0;
+      if (rank >= 3 || (win === "main2" && rank >= 1)) return { type: "channel", card: a.card, maxTries: 1 };
+    }
+    return null;
+  }
+  /* Opposition Agent and Notion Thief: flashed in at the end of a turn when the mana is up, but a
+     bot that taps out never gets there, so they come down in the second main phase. */
+  function flashNow(g, p, acts) {
+    for (const n of ["Opposition Agent", "Notion Thief"]) {
+      const a = castActs(acts, n)[0];
+      if (a) return { type: "cast", card: a.card, maxTries: 1 };
+    }
+    return null;
+  }
+  /* Diabolic Intent with something cheap to sacrifice (a token, a cloaked land), for a piece of a line. */
+  function intentPlan(g, p, acts) {
+    const a = castActs(acts, "Diabolic Intent")[0];
+    if (!a || !g.creatures(p).some(o => fodderScore(g, o) <= 4)) return null;
+    const c = botPiece(g, p, p.library.slice());
+    const b = c && bestPiece(g, p, [c]);
+    return b && b.rank >= 2 ? { type: "cast", card: a.card, maxTries: 1 } : null;
+  }
+  /* The vampire loop: the missing side the moment its partner is on the battlefield, or both sides
+     this turn when the mana is there (the creature first, so the loop is live before combat). */
+  function vampireCast(g, p, acts) {
+    const vs = lineState(g, p, LINES[0]);
+    if (vs.live) return null;
+    const sideActs = side => acts.filter(a => a.type === "cast" && !a.faceDown && side.includes(a.card.def.name) && a.card.zone === "hand").sort((a, b) => a.card.def.mv - b.card.def.mv);
+    const live = LINES[0].sides.map(side => side.some(n => onBf(g, p, n)));
+    for (let i = 0; i < 2; i++) if (live[1 - i] && !live[i]) { const a = sideActs(LINES[0].sides[i])[0]; if (a) return { type: "cast", card: a.card, alt: a.alt, maxTries: 1 }; }
+    if (live[0] || live[1]) return null;
+    const loss = sideActs(LINES[0].sides[0])[0], gain = sideActs(LINES[0].sides[1])[0];
+    if (!loss || !gain) return null;
+    const both = MK.util.addCost(g.spellCost(p, loss.card, {}), g.spellCost(p, gain.card, {}));
+    if (!g.canPay(p, both)) return null;
+    const first = gain.card.def.types.includes("Creature") ? gain : loss;
+    return { type: "cast", card: first.card, alt: first.alt, maxTries: 1 };
+  }
+  function mainPlan(g, p, acts, win) {
+    const pr = pressure(g, p);
+    return guildmagePlan(g, p, acts)
+      || vampireCast(g, p, acts)
+      || (win === "main1" ? passagePlan(g, p, acts) : null)
+      || (win === "main1" ? blockerFirst(g, p, acts, pr) : null)
+      || transmuteNow(g, p, acts, win, pr)
+      || (win === "main2" ? flashNow(g, p, acts) : null)
+      || intentPlan(g, p, acts);
+  }
+
+  /* ---------- the brain */
+  function brainPlan(g, p, ctx) {
+    const win = ctx.window, acts = ctx.actions || [];
+    if (win === "stack") return counterPlan(g, p, acts);
+    if (win === "attackers" || win === "combat") return defendPlan(g, p, acts);
+    if (win === "end") return guildmagePlan(g, p, acts) || (endBeforeMine(g, p, win) ? endPlan(g, p, acts) : null);
+    if ((win === "main1" || win === "main2") && g.active === p) return mainPlan(g, p, acts, win);
+    return null;
+  }
+  function brainChoose(g, p, req) {
+    if (req.type === "cards" && req.purpose === "tutor" && req.options.length > 1) {
+      const c = botPiece(g, p, req.options);
+      return c ? [c] : undefined;
+    }
+    if (req.type === "target" && req.purpose === "sacrifice") {
+      const opts = req.options.filter(o => !g.isPlayer(o));
+      return opts.length ? opts.slice().sort((a, b) => fodderScore(g, a) - fodderScore(g, b))[0] : undefined;
+    }
+    if (req.type === "target" && req.purpose === "help" && req.src && req.src.def.name === "Rogue's Passage") {
+      const c = bmem(p).passage;
+      return c && req.options.includes(c) ? c : undefined;
+    }
+    return undefined;
+  }
+  (MK.BRAINS = MK.BRAINS || {})[DECK_ID] = { plan: brainPlan, attack: attackPlan, choose: brainChoose, tutor: botPiece };
 
   /* ================================================================ the deck */
   const B = n => Array(n).fill("Swamp"), I = n => Array(n).fill("Island");

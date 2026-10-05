@@ -306,7 +306,9 @@
     spell: {
       do: async (g, ctx) => {
         const p = ctx.p;
-        const pick = p.agent && p.agent.bot ? tutorPick(g, p) : null;
+        // a deck with its own brain (ai.js) picks for itself
+        const br = MK.AI && MK.AI.brainOf ? MK.AI.brainOf(p) : null;
+        const pick = p.agent && p.agent.bot ? (br && br.tutor ? br.tutor(g, p, p.library.slice()) : tutorPick(g, p)) : null;
         await g.search(p, { filter: pick ? (g2, o) => o === pick : () => true, to: "top", prompt: "Imperial Seal: search for a card to put on top", src: ctx.o, hidden: true, purpose: "tutor" });
         g.loseLife(p, 2, ctx.o);
       }
