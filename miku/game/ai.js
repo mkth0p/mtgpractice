@@ -781,10 +781,19 @@
        leader, spread their attacks and keep a blocker home. */
     function attack(g, p, ctx) {
       if (g.opts && g.opts.legacyAttackSort) return attackOld(g, p, ctx);
-      const { candidates, targets } = ctx;
+      let { candidates } = ctx;
+      const { targets } = ctx;
       resetTurn(g);
       const opps = g.opponents(p).filter(q => targets.includes(q));
       if (!opps.length) return [];
+      // the deck's brain can declare the whole attack, or keep some creatures home
+      const br = deckBrain(p);
+      if (br && br.attack) {
+        let r = null;
+        try { r = br.attack(g, p, candidates, targets); } catch (e) { if (g.warn) g.warn(e); r = null; }
+        if (r && r.decl) return r.decl;
+        if (r && r.home) candidates = candidates.filter(c => !r.home.includes(c));
+      }
       const tm = threatModel(g, p);
       // a runaway leader: well over a fair share of the opponents' chances to win
       const runaway = opps.length >= 2 && tm.top && tm.rel.get(tm.top) >= 1.8;
@@ -798,6 +807,8 @@
       const infectPower = power(g, candidates.filter(c => g.kw(c, "infect")));
       const alphaAny = opps.some(q => atkPower - blockersOf(g, q).length * (atkPower / Math.max(1, candidates.length)) >= q.life || (infectPower > 0 && q.poison + infectPower >= 10));
       const keepBack = [];
+      // the brain's pieces stay out of an attack that doesn't kill ("always": even one that does)
+      if (br && br.keepHome) for (const c of candidates) { const k = br.keepHome(g, p, c); if (k === "always" || (k && !alphaAny)) keepBack.push(c); }
       const homeOrder = () => candidates.filter(c => !g.kw(c, "vigilance") && g.power(c) < 10).sort((a, b) => ((g.toughness(b) + g.power(b)) - (g.toughness(a) + g.power(a))) || (a.id - b.id));
       if (casual && !alphaAny && !danger && candidates.length >= CASUAL.homeFrom) keepBack.push(...homeOrder().slice(0, CASUAL.home));
       if (danger && !alphaAny) {
