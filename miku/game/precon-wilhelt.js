@@ -300,6 +300,16 @@
     return null;
   }
 
+  /* Bot casting (engine 7): Wilhelt dies often, and from the third cast on (tax 4 or more) recasting
+     him ate the whole turn's mana while the hand overflowed and got discarded. He waits while two
+     other spells can be cast. Games recorded before engine 7 (legacyDecks) replay without this. */
+  function wilheltCastPlan(g, p, o) {
+    if (g.opts && g.opts.legacyDecks) return undefined;
+    if (o.def.name !== WILHELT || o.zone !== "command" || g.commanderTax(p, o) < 4) return undefined;
+    const others = p.hand.filter(c => !c.def.types.includes("Land") && c.def.mv >= 2 && g.castOptions(p, c).length);
+    return others.length >= 2 ? false : undefined;
+  }
+
   D({
     name: WILHELT, cost: "{2}{U}{B}", type: "Legendary Creature — Zombie Warrior", pt: "3/3",
     text: "Whenever another Zombie you control dies, if it didn't have decayed, create a 2/2 black Zombie creature token with decayed. (It can't block. When it attacks, sacrifice it at end of combat.)\nAt the beginning of your end step, you may sacrifice a Zombie. If you do, draw a card.",
@@ -325,7 +335,8 @@
     ai: {
       priority: 8,
       target: targetHook((g, p, req) => (req.purpose === "wilheltEnd" ? endSacPick(g, p, req.options) : undefined)),
-      plan: wilheltPlan
+      plan: wilheltPlan,
+      castPlan: wilheltCastPlan
     }
   });
 

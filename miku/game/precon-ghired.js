@@ -158,6 +158,31 @@
     return made[0] || null;
   }
 
+  /* Bot attack (engine 7): Ghired's populate is the deck's engine, but the casual keep-a-blocker-home
+     rule keeps the biggest creature home, and that is nearly always Ghired, so he hardly ever
+     attacked. He goes in when there is a token to copy, no untapped blocker of that player would
+     kill him, and the table can't kill us next turn. Games recorded before engine 7 (legacyDecks)
+     replay without this. */
+  function ghiredAttack(g, p, ctx) {
+    if (g.opts && g.opts.legacyDecks) return null;
+    const { candidates, targets, decl } = ctx;
+    const gh = candidates.find(c => c.def.name === GHIRED);
+    if (!gh || decl.some(d => d.attacker === gh) || !creatureTokens(g, p).length) return null;
+    const opps = g.opponents(p);
+    const threatIn = Math.max(0, ...opps.map(q => g.creatures(q).filter(c => !g.kw(c, "defender")).reduce((s, c) => s + Math.max(0, g.power(c)), 0)));
+    if (p.life <= threatIn + 2) return null;
+    const fight = AIX().fight;
+    if (!fight) return null;
+    const safe = q => !g.creatures(q).some(b => !b.tapped && g.canBlock(b, gh) && fight(g, gh, b).aDies);
+    const players = targets.filter(t => g.isPlayer(t) && t !== p && safe(t));
+    if (!players.length) return null;
+    // with the rest of the attack: where most of it goes, else the player with the least life
+    const count = new Map();
+    for (const d of decl) { const q = g.defenderOf(d.target); count.set(q, (count.get(q) || 0) + 1); }
+    const pick = players.slice().sort((a, b) => ((count.get(b) || 0) - (count.get(a) || 0)) || (a.life - b.life) || (a.idx - b.idx))[0];
+    return decl.concat([{ attacker: gh, target: pick }]);
+  }
+
   D({
     name: GHIRED, cost: "{2}{R}{G}{W}", type: "Legendary Creature — Human Shaman", pt: "4/5",
     text: "When Ghired, Conclave Exile enters, create a 4/4 green Rhino Warrior creature token.\nWhenever Ghired attacks, populate. The token enters tapped and attacking. (To populate, create a token that's a copy of a creature token you control.)",
@@ -166,7 +191,7 @@
       { on: "enters", self: true, do: (g, s, ev, { p }) => g.createToken(p, TK.rhinoWarrior) },
       { on: "attacks", self: true, do: async (g, s, ev, { p }) => { await populateAttacking(g, p, s, ev.target); } }
     ].concat(bookkeeping),
-    ai: { priority: 8, target: populateHint }
+    ai: { priority: 8, target: populateHint, attackPlan: ghiredAttack }
   });
 
   /* ================================================================ creatures */
@@ -690,6 +715,8 @@
     }
   });
 
+  /* Engine 7: one Rhino Warrior is worth copying for four mana (it waited for two before). */
+  const harvestBar = g => (g.opts && g.opts.legacyDecks ? 12 : 6.5);
   D({
     name: "Second Harvest", cost: "{2}{G}{G}", type: "Instant",
     text: "For each token you control, create a token that's a copy of that permanent.",
@@ -707,8 +734,8 @@
     // the copies can't attack this turn: after combat, or at the end of the turn before ours
     ai: {
       priority: 6,
-      cast: (g, p, o, { window }) => { const v = tokenValue(g, p); return window !== "main1" && v >= 12 && !crowded(g, p, 40) ? 16 + v * 0.1 : false; },
-      plan: (g, p, o, ctx) => (o.zone === "hand" && endBeforeMe(g, p, ctx) && tokenValue(g, p) >= 12 && !crowded(g, p, 40) && castable(ctx, o) ? { type: "cast", card: o, maxTries: 1 } : null)
+      cast: (g, p, o, { window }) => { const v = tokenValue(g, p); return window !== "main1" && v >= harvestBar(g) && !crowded(g, p, 40) ? 16 + v * 0.1 : false; },
+      plan: (g, p, o, ctx) => (o.zone === "hand" && endBeforeMe(g, p, ctx) && tokenValue(g, p) >= harvestBar(g) && !crowded(g, p, 40) && castable(ctx, o) ? { type: "cast", card: o, maxTries: 1 } : null)
     }
   });
 
@@ -923,8 +950,23 @@
         if (n > 0) g.createToken(ctx.p, horrorToken(n));
       }
     },
-    ai: { wipe: true, priority: 5 }
+    ai: {
+      wipe: true, priority: 5,
+      // engine 7: the generic wipe test left out the Horror it makes, so the bot hardly cast it
+      cast: (g, p) => (g.opts && g.opts.legacyDecks ? undefined : rebirthWorth(g, p) >= 8 ? 24 : false)
+    }
   });
+  /* What Phyrexian Rebirth gains: their creatures that die, less ours, plus the X/X Horror. */
+  function rebirthWorth(g, p) {
+    let theirs = 0, mine = 0, n = 0;
+    for (const c of g.battlefield) {
+      if (!g.isCreature(c) || g.kw(c, "indestructible")) continue;
+      n++;
+      if (c.controller === p) mine += valueOf(g, c); else theirs += valueOf(g, c);
+    }
+    if (theirs < 10) return 0;
+    return theirs - mine + n * 1.2;
+  }
 
   /* ================================================================ artifacts */
   const vatCard = s => { const l = s.state && s.state.vat; return l && l.card.zone === "exile" && l.card.zc === l.zc ? l.card : null; };

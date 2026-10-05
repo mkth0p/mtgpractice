@@ -13,7 +13,7 @@
 (function (root) {
   "use strict";
   const MK = root.MK = root.MK || {};
-  MK.ENGINE_VERSION = 6;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
+  MK.ENGINE_VERSION = 7;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
                            // 4: the bots gang-block, chump only where it saves life, pick lands for the colors their hand needs, and counter combo pieces
                            //    and judge the table's threats per attacker; deck brains steer the bots of your decks
                            // 5: priority windows in upkeep, draw, beginning of combat, each combat damage step and end of combat; the end
@@ -22,6 +22,9 @@
                            //    and the Etrata bots expect double blocks and run their own block plan (legacyEtrata)
                            // 6: the bots gang up on a runaway leader: removal and counterspells aim at the most dangerous player, a runaway
                            //    is called sooner and the whole team swings at it, and a weak seat isn't finished off while the leader runs away
+                           // 7: the precon bots Ghired and Lathril attack with their commander, Ghired values Phyrexian Rebirth's Horror
+                           //    and copies a lone Rhino with Second Harvest, and Wilhelt waits to recast himself while two spells
+                           //    are castable (games recorded before 7 replay without these: legacyDecks)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",

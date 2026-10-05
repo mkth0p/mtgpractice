@@ -155,6 +155,34 @@
      (Mana Elves tapped to pay for it don't count, so leave room for them when lands run short.) */
   const enablesDrain = (g, p, n, mv) => n > 0 && n >= drainGap(g, p) + Math.max(0, mv - untappedLands(g, p));
 
+  /* Bot attack (engine 7): each hit of Lathril's makes Elf Warriors toward the drain, but the casual
+     keep-a-blocker-home rule keeps the biggest creature home, and early on that is Lathril. She goes
+     in at a player whose untapped blockers can't double-block her to death (menace), while the
+     table can't kill us next turn. Games recorded before engine 7 (legacyDecks) replay without this. */
+  function lathrilAttack(g, p, ctx) {
+    if (g.opts && g.opts.legacyDecks) return null;
+    const { candidates, targets, decl } = ctx;
+    const l = candidates.find(c => c.def.name === LATHRIL);
+    if (!l || decl.some(d => d.attacker === l)) return null;
+    const opps = g.opponents(p);
+    const threatIn = Math.max(0, ...opps.map(q => g.creatures(q).filter(c => !g.kw(c, "defender")).reduce((s, c) => s + Math.max(0, g.power(c)), 0)));
+    if (p.life <= threatIn + 2) return null;
+    const need = Math.max(1, g.lethalDamageLeft(l));
+    const safe = q => {
+      const bl = g.creatures(q).filter(b => !b.tapped && g.canBlock(b, l));
+      if (bl.length < 2) return true;
+      if (bl.some(b => g.kw(b, "deathtouch") && g.power(b) > 0)) return false;
+      const top2 = bl.map(b => Math.max(0, g.power(b))).sort((a, b) => b - a).slice(0, 2);
+      return top2[0] + top2[1] < need;
+    };
+    const players = targets.filter(t => g.isPlayer(t) && t !== p && safe(t));
+    if (!players.length) return null;
+    const count = new Map();
+    for (const d of decl) { const q = g.defenderOf(d.target); count.set(q, (count.get(q) || 0) + 1); }
+    const pick = players.slice().sort((a, b) => ((count.get(b) || 0) - (count.get(a) || 0)) || (a.life - b.life) || (a.idx - b.idx))[0];
+    return decl.concat([{ attacker: l, target: pick }]);
+  }
+
   D({
     name: LATHRIL, cost: "{2}{B}{G}", type: "Legendary Creature — Elf Noble", pt: "2/3",
     keywords: ["menace"],
@@ -175,7 +203,7 @@
       // 10 from each opponent is always worth it: use it the first time it's ready
       ai: { first: true, use: (g, p) => g.opponents(p).length > 0 }
     }],
-    ai: { priority: 8, threat: 3 }
+    ai: { priority: 8, threat: 3, attackPlan: lathrilAttack }
   });
 
   /* ================================================================ mana Elves */
