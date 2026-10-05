@@ -162,4 +162,4 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | 26 | holdboard | A2 with "don't overextend": non-engine creatures wait in hand once four are out | 34.5% ±1.1 | 18.2% ±0.9 | skA2-0 | +0.1 ±0.7 | −0.3 ±0.5 | no effect; off |
 | 27 | v1-blitz | version 1 (`lists/v1-blitz.txt`): Yuriko-template Assassins + the Ramses kill + Bracket 4 shell, 31 lands | 31.9% ±1.0 | 18.5% ±0.9 | skA2-0 | −2.4 ±1.4 | −0.0 ±1.2 | avg win round 9.0 / 8.1; telemetry in `v1-blitz-*` |
 | 28 | v2-snowball | version 2 (`lists/v2-snowball.txt`): type-changers, Etrata copies, team evasion, anthems, Vein Ripper closer, 32 lands | 34.1% ±1.1 | 18.2% ±0.9 | skA2-0 | −0.2 ±1.5 | −0.3 ±1.2 | avg win round 9.3 / 8.2 |
-| 29 | v3-tempo | version 3 (`lists/v3-tempo.txt`): ninjutsu + free interaction, 30 lands | (running when the session ended; see `xp/xp.log`) | | skA2-0 | | | |
+| 29 | v3-tempo | version 3 (`lists/v3-tempo.txt`): ninjutsu + free interaction, 30 lands | 26.5% ±1.0 | 18.7% ±0.9 | skA2-0 | -7.9 ±1.4 | +0.2 ±1.2 | avg win round 9.1 / 8.3 |
