@@ -439,6 +439,14 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
   { const { g, a, b } = table(); const H = MK.HEIST_HOOKS; a.deckId = "etrata-heist-aggro"; a.agent.bot = true; put(g, a, "Bloodletter of Aclazotz"); const bt = hand(g, a, "Blood Tribute"); await g.settle();
     check("Blood Tribute: with Bloodletter out it's a kill, cast at once", H.halfSpellCast(g, a, bt, { window: "main1" }) === 60); }
 
+
+  // recursion: Reanimate takes Ramses from any graveyard; Patriarch's Bidding brings the Assassins back
+  { const { g, a, b } = table(); lands(g, a, 1, "Swamp"); const ram = g.newObj(MK.get("Ramses, Assassin Lord"), b, "graveyard"); b.graveyard.push(ram); const re = hand(g, a, "Reanimate"); await g.cast(a, re, { targets: [ram] }); await g.settle();
+    check("Reanimate: Ramses from an opponent's graveyard, 4 life", ram.zone === "battlefield" && ram.controller === a && a.life === 36, { zone: ram.zone, life: a.life }); }
+  { const { g, a, b } = table(); lands(g, a, 5, "Swamp"); for (const n of ["Hired Poisoner", "Virtus the Veiled", "Llanowar Elves"]) { const c = g.newObj(MK.get(n), a, "graveyard"); a.graveyard.push(c); } const elf = g.newObj(MK.get("Llanowar Elves"), b, "graveyard"); b.graveyard.push(elf);
+    const pb = hand(g, a, "Patriarch's Bidding"); await g.cast(a, pb); await g.settle();
+    check("Patriarch's Bidding: our Assassins return; the opponent chose Elf, so both Elves return too", named(g, a, "Hired Poisoner").length === 1 && named(g, a, "Virtus the Veiled").length === 1 && named(g, a, "Llanowar Elves").length === 1 && elf.zone === "battlefield", { elf: elf.zone }); }
+
   // the engine rules: "triggers an additional time" stays with its creature type, anyColor, castEntry
   { const { g, a } = table(); const rt = put(g, a, "Roaming Throne"); await g.settle();
     check("triggerExtra: a non-Assassin's trigger isn't doubled", (() => { const n = g.staticsOf(rt).find(st => st.triggerExtra).triggerExtra(g, rt, { src: put(g, a, "Llanowar Elves"), controller: a }); return n === 0; })()); }

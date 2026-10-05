@@ -1116,6 +1116,46 @@
   };
   H.flareSac = (g, p, req) => req.options.filter(c => c.controller === p && c.owner === p && !c.isCommander && c.def.name !== "Ramses, Assassin Lord").sort((a, b) => valueOf(g, a) - valueOf(g, b))[0];
 
+
+  /* ---------------- recursion: Ramses comes back */
+  const REANIMATE_WANT = ["Ramses, Assassin Lord", "Bloodletter of Aclazotz", "Shredder, Shadow Master", "Vein Ripper", "Massacre Wurm", "Roaming Throne", "Achilles Davenport", "Interceptor, Shadow's Hound", "Roshan, Hidden Magister", "Unstoppable Slasher", "Virtus the Veiled"];
+  const reanimateScore = (g, p, c) => { const i = REANIMATE_WANT.indexOf(c.def.name); return (i >= 0 ? 100 - i * 5 : 0) + c.def.mv * 2 + ((c.def.ai && c.def.ai.threat) || 0) * 3 - (c.owner !== p ? 1 : 0); };
+  D({
+    name: "Reanimate", cost: "{B}", type: "Sorcery",
+    text: "Put target creature card from a graveyard onto the battlefield under your control. You lose life equal to that card's mana value.",
+    spell: {
+      targets: [{ kind: "card", purpose: "reanimate", prompt: "Reanimate: a creature card from a graveyard", from: (g, p) => g.players.flatMap(q => q.graveyard.filter(c => c.def.types.includes("Creature"))) }],
+      do: (g, ctx) => { const c = ctx.targets[0], p = ctx.p; if (!c || !ctx.legal[0] || c.zone !== "graveyard") return; g.putOntoBattlefield([c], p); g.loseLife(p, c.def.mv, ctx.o); }
+    },
+    ai: {
+      priority: 7,
+      cast: (g, p, o, ctx) => { if (!mainWin(ctx.window)) return false; const best = g.players.flatMap(q => q.graveyard.filter(c => c.def.types.includes("Creature"))).sort((a, b) => reanimateScore(g, p, b) - reanimateScore(g, p, a))[0]; return best && reanimateScore(g, p, best) >= 60 && p.life > best.def.mv + 10 ? 30 : false; },
+      target: (g, p, req) => (req.purpose === "reanimate" ? req.options.slice().sort((a, b) => reanimateScore(g, p, b) - reanimateScore(g, p, a))[0] : undefined)
+    }
+  });
+  D({
+    name: "Patriarch's Bidding", cost: "{3}{B}{B}", type: "Sorcery",
+    text: "Each player chooses a creature type. Each player returns all creature cards of a type chosen this way from their graveyard to the battlefield.",
+    note: "You choose Assassin; each opponent chooses the type that returns the most of their own creature cards.",
+    spell: {
+      do: (g, ctx) => {
+        const p = ctx.p, types = new Set(["Assassin"]);
+        for (const q of g.opponents(p)) {
+          const count = {};
+          for (const c of q.graveyard) if (c.def.types.includes("Creature")) for (const t of (c.def.changeling ? ["Assassin"] : c.def.subtypes)) count[t] = (count[t] || 0) + 1;
+          const best = Object.entries(count).sort((a, b) => b[1] - a[1])[0];
+          if (best) types.add(best[0]);
+        }
+        for (const q of g.players) {
+          if (q.lost) continue;
+          const back = q.graveyard.filter(c => c.def.types.includes("Creature") && (c.def.changeling || c.def.subtypes.some(t => types.has(t))));
+          if (back.length) { g.putOntoBattlefield(back, q); log(g, `${q.name} returns ${back.map(c => c.def.name).join(", ")} (Patriarch's Bidding).`, q, back.map(c => c.def.name)); }
+        }
+      }
+    },
+    ai: { priority: 6, cast: (g, p, o, ctx) => { if (!mainWin(ctx.window)) return false; const mine = p.graveyard.filter(c => c.def.types.includes("Creature") && (c.def.changeling || c.def.subtypes.includes("Assassin"))); const v = mine.reduce((t, c) => t + c.def.mv + ((c.def.ai && c.def.ai.priority) || 5) * 0.3, 0); return mine.length >= 3 || mine.some(c => c.def.name === "Ramses, Assassin Lord") ? 20 + v : false; } }
+  });
+
   /* ================================================================ equipment and artifacts */
   D({
     name: "Quietus Spike", cost: "{3}", type: "Artifact — Equipment", equip: "{3}",
