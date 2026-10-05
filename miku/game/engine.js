@@ -149,6 +149,16 @@
     return def;
   };
   /* A token copy of a card, "except" some characteristics (eternalize, Lazotep Quarry, Esika's copies). */
+  /* A definition laid over an object's own that changes it without being a copy effect ("it's a
+     black Zombie in addition to its other colors and types"). Copy effects skip it and read the
+     definition beneath (706.2): MK.overlay(d, base) registers d, MK.copiable(o) is what a copy of o copies. */
+  const OVERLAID = new WeakMap();
+  MK.overlay = function (d, base) { OVERLAID.set(d, base); return d; };
+  MK.copiable = function (o) {
+    let d = o.copyDef || o.def;
+    while (OVERLAID.has(d)) d = OVERLAID.get(d);
+    return d;
+  };
   MK.derive = function (def, over) {
     const d = Object.create(def);
     Object.assign(d, over || {});
@@ -970,7 +980,7 @@
     /* Token copy of an object's copiable values (not counters, damage or tapped state). */
     copyToken(p, source, opts) {
       opts = opts || {};
-      const base = source.copyDef || source.def;
+      const base = MK.copiable(source);
       const def = opts.except ? MK.derive(base, opts.except) : base;
       const n = opts.count == null ? 1 : opts.count;
       const list = [];

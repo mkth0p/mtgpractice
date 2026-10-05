@@ -724,7 +724,7 @@
       do: (g, ctx) => {
         const groups = new Map();
         for (const t of g.controlled(ctx.p, o => o.isToken)) {
-          const key = t.copyDef || t.def;
+          const key = MK.copiable(t);
           const e = groups.get(key);
           if (e) e.n++; else groups.set(key, { src: t, n: 1 });
         }

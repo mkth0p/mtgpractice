@@ -617,7 +617,7 @@
         else if (mode === 1) g.draw(p, 1);
         else {
           const t = await g.chooseTarget(p, trig({ kind: "creature", you: true, purpose: "copy", prompt: "Silent Hallcreeper becomes a copy of", filter: (g2, c) => c !== s && !c.faceDown }), s);
-          if (t && s.zone === "battlefield") { s.def = t.copyDef || t.def; g.ts++; g.bump(); log(g, `Silent Hallcreeper becomes a copy of ${t.def.name}.`, p, [t.def.name]); }
+          if (t && s.zone === "battlefield") { s.def = MK.copiable(t); g.ts++; g.bump(); log(g, `Silent Hallcreeper becomes a copy of ${t.def.name}.`, p, [t.def.name]); }
         }
       }
     }],
@@ -882,7 +882,7 @@
       if (!opts.length) return;
       const pick = await g.ask(p, { type: "target", prompt: "Spark Double: enter as a copy of", options: opts, optional: true, purpose: "sparkCopy", src: o });
       if (!pick || !opts.includes(pick)) return;
-      const base = pick.copyDef || pick.def;
+      const base = MK.copiable(pick);
       o.def = MK.derive(base, { supertypes: base.supertypes.filter(t => t !== "Legendary"), legendary: false });
       eo.counters = g.isPlaneswalker(pick) ? { loyalty: 1 } : { p1: 1 };
       g.ts++;

@@ -332,6 +332,18 @@ function armed(g, q) { put(g, q, "Plains"); hand(g, q, "Swords to Plowshares"); 
     g.damage(cmd, b, 3);
     check("commander damage counts combat damage only", b.cmdDmg[cmd.id] === g.power(cmd), b.cmdDmg); }
 
+  // ---------------------------------------------------------------- copies skip non-copy overlays
+  /* Liliana returns a Dragon "as a black Zombie in addition to its other types"; Miirym copies it.
+     That Zombie overlay isn't a copiable value (706.2): the token is a plain Goldspan Dragon. The
+     overlay's type line used to be a getter, and Miirym's "except" assigning type threw. */
+  { const { g, a } = table(); put(g, a, "Miirym, Sentinel Wyrm"); const lil = put(g, a, "Liliana, Death's Majesty", { loyalty: 5 });
+    const gd = g.newObj(MK.get("Goldspan Dragon"), a, "graveyard"); a.graveyard.push(gd); await g.settle();
+    let err = null;
+    try { await g.activate(a, lil, lil.def.abilities.findIndex(ab => ab.loyalty === -3), { targets: [gd] }); await g.settle(); } catch (e) { err = String(e && e.message || e); }
+    const tok = g.battlefield.find(o => o.isToken && o.def.name === "Goldspan Dragon");
+    check("Miirym copies a Dragon Liliana returned as a Zombie without an engine error", !err && gd.zone === "battlefield" && !!tok, { err, zone: gd.zone });
+    check("the returned Dragon is a black Zombie; Miirym's token copy of it is neither", g.hasSub(gd, "Zombie") && gd.def.colors.includes("B") && !!tok && !g.hasSub(tok, "Zombie") && !tok.def.colors.includes("B") && !/Zombie/.test(tok.def.type), tok && { type: tok.def.type, colors: tok.def.colors }); }
+
   // ---------------------------------------------------------------- bot games stay clean
   { let errs = 0, done = 0;
     for (let seed = 1; seed <= 6; seed++) {

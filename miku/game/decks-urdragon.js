@@ -421,7 +421,7 @@
       {
         on: "enters", when: (g, s, ev) => ev.o !== s && !ev.o.isToken && ev.o.controller === s.controller && g.hasSub(ev.o, "Dragon"),
         do: (g, s, ev, { p }) => {
-          const base = ev.o.copyDef || ev.o.def;
+          const base = MK.copiable(ev.o);
           g.copyToken(p, ev.o, { except: { legendary: false, supertypes: base.supertypes.filter(x => x !== "Legendary"), type: String(base.type).replace(/^Legendary /, "") } });
         }
       }

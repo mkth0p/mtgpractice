@@ -387,7 +387,7 @@
      creature (Brine Elemental) and it can pay the morph cost {1}{U} this turn. */
   const vesDown = (g, p, o) => !!o && o.def.triggers.some(t => t.on === "turnedFaceUp" && t.self) && g.canPay(p, pc("{1}{U}"), { for: "special" });
   function becomeCopy(g, s, pick) {
-    const base = pick.copyDef || pick.def;
+    const base = MK.copiable(pick);
     const ai = Object.assign({}, base.ai || {});
     const prev = ai.confirm;
     ai.confirm = (g2, p, req) => (req.purpose === "vesuvanDown" ? vesDown(g2, p, req.src) : prev ? prev(g2, p, req) : true);

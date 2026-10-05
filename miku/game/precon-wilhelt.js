@@ -154,7 +154,7 @@
     if (decayed) gate("cantBlock", true);
     d.triggers = base.triggers.concat(decayed ? DECAY_TRIGGERS : [], [RESTORE]);
     ZOMBIFIED.set(o, { zc, decayed, base });
-    o.def = d;
+    o.def = MK.overlay(d, base);
     g.ts++; g.bump();
   }
   /* Did the creature that just died have decayed? (Wilhelt looks back in time.) */

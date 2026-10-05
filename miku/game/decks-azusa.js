@@ -644,7 +644,7 @@
     do: (g, s, ctx) => {
       const t = ctx.targets[0];
       if (!t || !ctx.legal[0] || s.zone !== "battlefield") return;
-      const base = t.copyDef || t.def;
+      const base = MK.copiable(t);
       s.def = MK.derive(base, { abilities: base.abilities.filter(a => !a.stage).concat([STAGE_AB]) });
       g.ts++; g.bump();
       log(g, `Thespian's Stage becomes a copy of ${base.name}.`, ctx.p, [base.name]);
