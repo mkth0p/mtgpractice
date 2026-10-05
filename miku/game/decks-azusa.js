@@ -31,6 +31,10 @@
     abilities: [{ label: "Gain 3 life", cost: "{2}", tap: true, sacSelf: true, do: (g, s, ctx) => g.gainLife(ctx.p, 3, s), ai: { use: (g, p, o, ctx) => endBeforeMe(g, p, ctx) && p.life < 25 } }]
   });
 
+  /* The other bots' threat judgement counts Azusa's lands at a quarter of their usual weight: three a
+     turn put her far ahead on lands while she's behind on what wins (ai.js playerThreat). */
+  MK.THREAT_LANDS = Object.assign(MK.THREAT_LANDS || {}, { azusa: 0.25 });
+
   /* ---------- the combo, for the bots */
   const has = (g, p, n) => g.controlled(p, o => o.def.name === n).length > 0;
   const inHand = (p, n) => p.hand.some(c => c.def.name === n);

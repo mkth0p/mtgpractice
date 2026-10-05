@@ -13,7 +13,7 @@
 (function (root) {
   "use strict";
   const MK = root.MK = root.MK || {};
-  MK.ENGINE_VERSION = 9;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
+  MK.ENGINE_VERSION = 10;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
                            // 4: the bots gang-block, chump only where it saves life, pick lands for the colors their hand needs, and counter combo pieces
                            //    and judge the table's threats per attacker; deck brains steer the bots of your decks
                            // 5: priority windows in upkeep, draw, beginning of combat, each combat damage step and end of combat; the end
@@ -33,6 +33,8 @@
                            //    triggers, Liliana's and Elspeth's minus, Blast Zone) and answer it with protection that stops that kind
                            //    of wipe: indestructible doesn't stop -X/-X or bounce, hexproof stops no wipe (games recorded before 9
                            //    replay without: legacyWipes)
+                           // 10: the bots' threat judgement counts Azusa's lands at a quarter weight: three land drops a turn made her
+                           //    read as the table's leader while she was behind (games recorded before 10 replay without: legacyAzusa)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",

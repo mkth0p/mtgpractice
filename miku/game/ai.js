@@ -256,7 +256,10 @@
       }
     }
     const others = g.players.filter(x => x !== q && !x.lost);
-    let t = Math.min(lands, 10) * 0.09 + Math.min(val, 60) * 0.026 + Math.min(atk, 60) * 0.013 + Math.min(eva, 60) * 0.013 + Math.min(q.hand.length, 10) * 0.06 + Math.min(q.life, 60) * 0.014;
+    // a deck that plays lands as its spells (MK.THREAT_LANDS[deck id]: Azusa's three a turn) gets that
+    // much of the land weight: its land count runs far ahead of its threats (before engine 10, legacyAzusa: all of it)
+    const lw = !(g.opts && g.opts.legacyAzusa) && MK.THREAT_LANDS && q.deckId && MK.THREAT_LANDS[q.deckId] != null ? MK.THREAT_LANDS[q.deckId] : 1;
+    let t = Math.min(lands, 10) * 0.09 * lw + Math.min(val, 60) * 0.026 + Math.min(atk, 60) * 0.013 + Math.min(eva, 60) * 0.013 + Math.min(q.hand.length, 10) * 0.06 + Math.min(q.life, 60) * 0.014;
     if (others.length) {
       const minLife = Math.max(1, Math.min(...others.map(x => x.life)));
       const minPoison = Math.max(1, Math.min(...others.map(x => 10 - x.poison)));
