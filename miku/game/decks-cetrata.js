@@ -921,6 +921,182 @@
     ai: { plan: deckPlan, cards: (g, p, req) => { if (req.purpose !== "takenuma") return null; const b = bestPiece(g, p, req.options); return [b ? b.c : req.options.slice().sort((a, c) => c.def.mv - a.def.mv)[0]]; } }
   });
 
+  /* ================================================================ upgrade candidates
+     Cards tried as upgrades (etrata-deck/underused-tech/FINDINGS.md). The deck list below says which
+     ones are in; the rest stay defined so the sim can test them (tools/sim/run.js --cut). */
+  const defendingCombat = (g, p) => !!g.combat && g.combat.attacker !== p;
+  const attackersAt = (g, p) => (g.combat ? g.combat.attackers.filter(a => a.zone === "battlefield" && a.combat && g.defenderOf(a.combat.attacking) === p) : []);
+  D({
+    name: "Silumgar Assassin", cost: "{1}{B}", type: "Creature — Human Assassin", pt: "2/1",
+    morph: "{2}{B}", megamorph: true,
+    text: "Creatures with power greater than Silumgar Assassin's power can't block it.\nMegamorph {2}{B} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)\nWhen Silumgar Assassin is turned face up, destroy target creature with power 3 or less an opponent controls.",
+    canBeBlockedBy: (g, a, b) => g.power(b) <= g.power(a),
+    triggers: [{
+      on: "turnedFaceUp", self: true,
+      do: async (g, s, ev, { p }) => {
+        const t = await g.chooseTarget(p, trig({ kind: "creature", purpose: "harm", prompt: "Silumgar Assassin: destroy target creature with power 3 or less an opponent controls", filter: (g2, o, pl) => o.controller !== pl && g2.power(o) <= 3 }), s);
+        if (t && t.zone === "battlefield" && g.power(t) <= 3) g.destroy(t, s);
+      }
+    }],
+    // the bots flip it to kill an attacker coming at them, or a real threat in their main phase
+    faceUpAi: {
+      use: (g, p, o, ctx) => {
+        const ok = c => c.controller !== p && g.power(c) <= 3;
+        if (ctx.window === "combat" && defendingCombat(g, p)) return attackersAt(g, p).some(a => ok(a) && !a.combat.wasBlocked && g.power(a) >= 2);
+        if (mainWin(ctx)) return g.battlefield.some(c => g.isCreature(c) && ok(c) && AI().threat && AI().threat(g, c, p) >= 4);
+        return false;
+      }
+    },
+    ai: { priority: 6, morph: (g, p) => (manaNow(g, p) >= 3 ? 9 : -1), cast: (g, p) => (manaNow(g, p) >= 3 ? false : undefined) }
+  });
+  D({
+    name: "Stratus Dancer", cost: "{1}{U}", type: "Creature — Djinn Monk", pt: "2/1",
+    keywords: ["flying"], morph: "{1}{U}", megamorph: true,
+    text: "Flying\nMegamorph {1}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)\nWhen Stratus Dancer is turned face up, counter target instant or sorcery spell.",
+    triggers: [{
+      on: "turnedFaceUp", self: true,
+      do: async (g, s, ev, { p }) => {
+        const isIS = item => item.kind === "spell" && !item.faceDown && (item.o.def.types.includes("Instant") || item.o.def.types.includes("Sorcery"));
+        const it = await g.chooseTarget(p, trig({ kind: "spell", purpose: "counter", prompt: "Stratus Dancer: counter target instant or sorcery spell", filter: (g2, item) => isIS(item) }), s);
+        if (it && g.stack.includes(it) && isIS(it)) g.counterSpell(it, s);
+      }
+    }],
+    faceUpAi: {
+      inStack: true,
+      use: (g, p, o, ctx) => {
+        const t = g.stack[g.stack.length - 1];
+        if (ctx.window !== "stack" || !t || t.p === p || t.kind !== "spell" || t.faceDown) return false;
+        const d = t.o.def, ai = d.ai || {};
+        if (!(d.types.includes("Instant") || d.types.includes("Sorcery"))) return false;
+        return !!(ai.wipe || ai.finisher || ai.combo || (ai.removal && t.targets.some(x => x && !g.isPlayer(x) && x.controller === p)) || d.mv >= 5);
+      }
+    },
+    ai: { priority: 6, morph: (g, p) => (manaNow(g, p) >= 3 ? 9 : -1), cast: (g, p) => (manaNow(g, p) >= 3 ? false : undefined) }
+  });
+  D({
+    name: "Kadena's Silencer", cost: "{1}{U}", type: "Creature — Naga Wizard", pt: "2/1",
+    morph: "{1}{U}", megamorph: true,
+    text: "When Kadena's Silencer is turned face up, counter all abilities your opponents control.\nMegamorph {1}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)",
+    triggers: [{
+      on: "turnedFaceUp", self: true,
+      do: (g, s, ev, { p }) => {
+        const list = g.stack.filter(it => (it.kind === "ability" || it.kind === "trigger") && it.p !== p && it.p && g.opponents(p).includes(it.p));
+        for (const it of list) g.counterSpell(it, s);
+        log(g, list.length ? `Kadena's Silencer counters ${list.length} abilit${list.length === 1 ? "y" : "ies"}.` : "Kadena's Silencer finds no ability to counter.", p, ["Kadena's Silencer"]);
+      }
+    }],
+    faceUpAi: {
+      inStack: true,
+      use: (g, p, o, ctx) => {
+        if (ctx.window !== "ability") return false;
+        const t = g.stack[g.stack.length - 1];
+        if (!t || t.p === p || !g.opponents(p).includes(t.p)) return false;
+        const harm = (t.targets || []).some(x => x && !g.isPlayer(x) && !x.kind && x.controller === p);
+        return harm || g.stack.filter(it => (it.kind === "ability" || it.kind === "trigger") && g.opponents(p).includes(it.p)).length >= 3;
+      }
+    },
+    ai: { priority: 6, morph: (g, p) => (manaNow(g, p) >= 3 ? 9 : -1), cast: (g, p) => (manaNow(g, p) >= 3 ? false : undefined) }
+  });
+  D({
+    name: "Thousand Winds", cost: "{4}{U}{U}", type: "Creature — Elemental", pt: "5/6",
+    keywords: ["flying"], morph: "{5}{U}{U}",
+    text: "Flying\nMorph {5}{U}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen Thousand Winds is turned face up, return all other tapped creatures to their owners' hands.",
+    triggers: [{
+      on: "turnedFaceUp", self: true,
+      do: (g, s, ev, { p }) => {
+        const list = g.battlefield.filter(o => o !== s && o.tapped && g.isCreature(o));
+        for (const o of list) g.bounce(o);
+        log(g, `Thousand Winds returns ${list.length} tapped creature${list.length === 1 ? "" : "s"}.`, p, ["Thousand Winds"]);
+      }
+    }],
+    // after blocks, when the attackers coming at us are worth more than what we'd lose
+    faceUpAi: {
+      use: (g, p, o, ctx) => {
+        if (ctx.window !== "combat" || !defendingCombat(g, p)) return false;
+        const theirs = attackersAt(g, p).filter(a => a.tapped);
+        const mineTapped = g.battlefield.filter(c => c !== o && c.tapped && g.isCreature(c) && c.controller === p);
+        return theirs.length >= 3 && theirs.length > mineTapped.length + 1;
+      }
+    },
+    ai: { priority: 5, morph: (g, p) => (manaNow(g, p) >= 3 ? 8 : -1), cast: (g, p) => (manaNow(g, p) >= 3 ? false : undefined) }
+  });
+  D({
+    name: "Hooded Blightfang", cost: "{2}{B}", type: "Creature — Snake", pt: "1/4",
+    keywords: ["deathtouch"],
+    text: "Deathtouch\nWhenever a creature you control with deathtouch attacks, each opponent loses 1 life and you gain 1 life.\nWhenever a creature you control with deathtouch deals damage to a planeswalker, destroy that planeswalker.",
+    triggers: [{
+      on: "attacks", when: (g, s, ev) => ev.o.controller === s.controller && g.kw(ev.o, "deathtouch"),
+      do: (g, s, ev, { p }) => { for (const q of g.opponents(p)) g.loseLife(q, 1, s); g.gainLife(p, 1, s); }
+    }, {
+      on: "damage", when: (g, s, ev) => !!ev.src && ev.src.controller === s.controller && g.isCreature(ev.src) && g.kw(ev.src, "deathtouch") && !!ev.target && !g.isPlayer(ev.target) && ev.target.zone === "battlefield" && g.isPlaneswalker(ev.target),
+      do: (g, s, ev) => { if (ev.target.zone === "battlefield") g.destroy(ev.target, s); }
+    }],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Gifted Aetherborn", cost: "{B}{B}", type: "Creature — Aetherborn Vampire", pt: "2/3",
+    keywords: ["deathtouch", "lifelink"], text: "Deathtouch, lifelink",
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Royal Assassin", cost: "{1}{B}{B}", type: "Creature — Human Assassin", pt: "1/1",
+    text: "{T}: Destroy target tapped creature.",
+    abilities: [{
+      label: "Destroy a tapped creature", tap: true,
+      targets: [{ kind: "creature", purpose: "harm", prompt: "Destroy target tapped creature", filter: (g, o) => o.tapped }],
+      do: (g, s, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0] && t.zone === "battlefield" && t.tapped) g.destroy(t, s); },
+      ai: {
+        use: (g, p, o, ctx) => {
+          const big = c => c.controller !== p && c.tapped && g.isCreature(c) && (g.power(c) >= 3 || (AI().threat && AI().threat(g, c, p) >= 5));
+          if (ctx.window === "combat" && defendingCombat(g, p)) return attackersAt(g, p).some(big);
+          if (ctx.window === "end") return g.battlefield.some(big);
+          return false;
+        }
+      }
+    }],
+    ai: { priority: 5, target: (g, p, req) => (req.purpose === "harm" && req.src && req.src.def.name === "Royal Assassin" ? req.options.filter(o => o && o.controller !== p).sort((a, b) => g.power(b) - g.power(a))[0] : undefined) }
+  });
+  D({
+    name: "Memory Lapse", cost: "{1}{U}", type: "Instant",
+    text: "Counter target spell. If that spell is countered this way, put it on top of its owner's library instead of into that player's graveyard.",
+    spell: {
+      targets: [{ kind: "spell", purpose: "counter", prompt: "Counter target spell" }],
+      do: (g, ctx) => {
+        const it = ctx.targets[0];
+        if (!ctx.legal[0] || !it) return;
+        const card = it.o, copy = it.isCopy;
+        if (!g.counterSpell(it, ctx.o) || copy || card.isCommander) return;
+        if (card.zone === "graveyard") {
+          const q = card.owner;
+          g.removeFromZone(card); card.zone = "library"; q.library.unshift(card); g.bump();
+          log(g, `${card.def.name} goes on top of ${q.name}'s library.`, ctx.p, [card.def.name]);
+        }
+      }
+    },
+    ai: { counter: true }
+  });
+  D({
+    name: "Snuff Out", cost: "{3}{B}", type: "Instant",
+    text: "If you control a Swamp, you may pay 4 life rather than pay this spell's mana cost.\nDestroy target nonblack creature. It can't be regenerated.",
+    altCosts: [{ label: "Pay 4 life (you control a Swamp)", cost: "", payLife: 4, condition: (g, p) => p.life > 8 && g.battlefield.some(o => o.controller === p && g.isLand(o) && g.hasSub(o, "Swamp")) }],
+    spell: { targets: [{ kind: "creature", purpose: "harm", prompt: "Destroy target nonblack creature", filter: (g, o) => !g.colorsOf(o).has("B") }], do: (g, ctx) => { if (ctx.legal[0]) g.destroy(ctx.targets[0], ctx.o, { noRegen: true }); } },
+    ai: { removal: true, minThreat: 4 }
+  });
+  /* Mutavault has every creature type while animated: it makes itself an Assassin (makesAssassins). */
+  const vaultUp = (g, s) => !!(s.state.animated && s.state.animated.turn === g.turn);
+  D({
+    name: "Mutavault", type: "Land",
+    text: "{T}: Add {C}.\n{1}: Until end of turn, Mutavault becomes a 2/2 creature with all creature types. It's still a land.",
+    note: "While animated it counts as an Assassin and a Vampire (the engine names the types this deck checks).",
+    mana: [{ tap: true, produce: "C" }],
+    makesAssassins: (g, s, o) => o === s && vaultUp(g, s),
+    abilities: [{
+      label: "Becomes a 2/2 creature", cost: "{1}", noSelfMana: true,
+      do: (g, s) => { s.state.animated = { turn: g.turn, pt: [2, 2], subtypes: ["Shapeshifter", "Assassin", "Vampire"], colors: [] }; g.bump(); log(g, "Mutavault becomes a 2/2 creature with all creature types.", s.controller, ["Mutavault"]); },
+      ai: { use: (g, p, o, ctx) => ctx.window === "main1" && g.active === p && !o.sick && !o.tapped && !vaultUp(g, o) && g.turn >= 6 && manaNow(g, p) >= 4 }
+    }]
+  });
+
   /* ================================================================ the coach
      tips(g, p): what to look for right now, most urgent first ({ level, title, text, cards }). */
   const GENERAL_TUTORS = ["Demonic Tutor", "Vampiric Tutor", "Imperial Seal", "Grim Tutor", "Diabolic Intent", "Beseech the Mirror", "Scheming Symmetry", "Lim-Dûl's Vault"];
@@ -1553,9 +1729,12 @@
     const have = blockersOf(g, p).length;
     const need = pr.high ? 2 : pr.top > 0 ? 1 : 0;
     if (have >= need) return null;
-    const list = acts.filter(a => a.type === "cast" && !a.faceDown && !a.alt && a.card.def.types.includes("Creature") && blockScore(g, a.card) > 2)
-      .sort((a, b) => blockScore(g, b.card) - blockScore(g, a.card));
-    return list.length ? { type: "cast", card: list[0].card, maxTries: 1 } : null;
+    // a morph creature whose hint says so goes down face down: a 2/2 blocker that holds its flip
+    const morphOk = a => { const ai = a.card.def.ai || {}; return !!ai.morph && ai.morph(g, p, a.card) > 0; };
+    const score = a => (a.faceDown ? 3.5 : blockScore(g, a.card));
+    const list = acts.filter(a => a.type === "cast" && !a.alt && a.card.def.types.includes("Creature") && blockScore(g, a.card) >= 0 && (a.faceDown ? morphOk(a) : !morphOk(a) && blockScore(g, a.card) > 2))
+      .sort((a, b) => score(b) - score(a));
+    return list.length ? { type: "cast", card: list[0].card, faceDown: !!list[0].faceDown, maxTries: 1 } : null;
   }
 
   /* ---------- developing */

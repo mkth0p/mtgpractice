@@ -189,8 +189,10 @@
     const creature = card.types.includes("Creature");
     const upAi = card.faceUpAi || { use: (g, p, o, ctx) => AIfaceUp(g, p, o, ctx) };
     // turning a face-down permanent face up is a special action: no stack, any time you have priority
-    if (creature && card.cost) abilities.push({ label: "Turn face up", cost: card.cost, special: true, faceUp: true, do: (g, src) => g.turnFaceUp(src), ai: upAi });
-    if (card.morph) abilities.push({ label: "Turn face up (morph)", cost: card.morph, special: true, faceUp: true, do: (g, src) => g.turnFaceUp(src), ai: upAi });
+    // a manifested or cloaked creature card turns up for its mana cost; one cast face down by morph only for its morph cost
+    if (creature && card.cost && kind !== "morph") abilities.push({ label: "Turn face up", cost: card.cost, special: true, faceUp: true, do: (g, src) => g.turnFaceUp(src), ai: upAi });
+    // megamorph: turning it up for its megamorph cost also puts a +1/+1 counter on it
+    if (card.morph) abilities.push({ label: card.megamorph ? "Turn face up (megamorph)" : "Turn face up (morph)", cost: card.morph, special: true, faceUp: true, do: (g, src) => { if (g.turnFaceUp(src) && card.megamorph) g.addCounters(src, "p1", 1); }, ai: upAi });
     const def = normalize({
       name: MK.FACE_DOWN_NAME, types: ["Creature"], subtypes: [], pt: [2, 2], colors: [], faceDownOf: card, faceKind: kind,
       keywords: kind === "cloak" ? ["ward"] : [],
