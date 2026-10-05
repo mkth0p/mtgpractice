@@ -155,3 +155,8 @@ Tutor orders (HEIST_TUTOR), each paired against skA7: `tp-ramsesonly` = Ramses o
 | cutA2-RamsesAssassinLord | Ramses, Assassin Lord → Swamp | 20.3% | -14 ±1 | 12.9% | -5.6 ±0.8 | -19.6 |
 
 What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3), Sol Ring, Demonic Tutor, Imperial Seal and Vampiric Tutor, every card in the list is worth about as much as a basic land (within ±1.5 points). The deck is a Ramses-and-Bloodletter kill with a filler shell; the shell's exact cards barely matter, consistency and resilience do.
+
+| # | Run | List / change | B2 win | B4 win | Paired vs | Δ B2 | Δ B4 | Note |
+|---|---|---|---|---|---|---|---|---|
+| 25 | mull2 | A2 with the Bracket 4 mulligan (keep: cheap evasive body + Etrata by turn 3, or fast mana + a threat, or a turn 1–2 engine; interaction-only hands shipped) | 34.6% ±1.1 | 19.8% ±0.9 | skA2-0 | +0.2 ±1.0 | +1.3 ±0.8 | kept as the default |
+| 26 | holdboard | A2 with "don't overextend": non-engine creatures wait in hand once four are out | 34.5% ±1.1 | 18.2% ±0.9 | skA2-0 | +0.1 ±0.7 | −0.3 ±0.5 | no effect; off |

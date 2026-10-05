@@ -1669,7 +1669,7 @@
     return false;
   }
   function heistMulligan(g, p, { hand, mulls }) {
-    if (ON.has("mull2")) return b4Mulligan(g, p, { hand, mulls });
+    if (!ON.has("mull1")) return b4Mulligan(g, p, { hand, mulls });   // the Bracket 4 mulligan is the default (+1.3 vs B4); HEIST_ON=mull1 restores the first one
     const lands = hand.filter(o => o.def.types.includes("Land")).length;
     const cheap = hand.filter(o => !o.def.types.includes("Land") && o.def.mv <= 2).length;
     const rocks = hand.filter(o => !o.def.types.includes("Land") && o.def.ai && o.def.ai.ramp && o.def.mv <= 2).length;
