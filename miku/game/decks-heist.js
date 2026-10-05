@@ -895,6 +895,145 @@
     ai: { removal: true, minThreat: 5 }
   });
 
+
+  /* ---------------- Dimir Bracket 4 staples the Yuriko and Etrata lists share */
+  D({
+    name: "Mana Drain", cost: "{U}{U}", type: "Instant",
+    text: "Counter target spell. At the beginning of your next main phase, add an amount of {C} equal to that spell's mana value.",
+    note: "The mana arrives at the start of your next precombat main phase and stays until the end of that phase.",
+    spell: {
+      targets: [{ kind: "spell", purpose: "counter", prompt: "Counter target spell", filter: (g, item, p) => item.p !== p }],
+      do: (g, ctx) => {
+        const it = ctx.targets[0], p = ctx.p;
+        if (!ctx.legal[0] || !it || !g.stack.includes(it)) return;
+        const mv = it.o ? g.mvOf(it.o) : 0;
+        if (!g.counterSpell(it, ctx.o) || mv <= 0) return;
+        g.delayed.push({ at: "precombatMain", once: true, player: p, controller: p, src: ctx.o, do: g2 => { p.pool.C += mv; g2.bump(); log(g2, `${p.name} adds ${"{C}".repeat(mv)} (Mana Drain).`, p, ["Mana Drain"]); } });
+      }
+    },
+    ai: { counter: true }
+  });
+  D({
+    name: "Dismember", cost: "{1}{B/P}{B/P}", type: "Instant",
+    text: "({B/P} can be paid with either {B} or 2 life.)\nTarget creature gets -5/-5 until end of turn.",
+    spell: { targets: [{ kind: "creature", purpose: "harm", prompt: "-5/-5 until end of turn" }], do: (g, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0] && t.zone === "battlefield") g.pump(t, -5, -5); } },
+    ai: { removal: true, minThreat: 5 }
+  });
+  D({
+    name: "Flare of Malice", cost: "{2}{B}{B}", type: "Instant",
+    text: "You may sacrifice a nontoken black creature rather than pay this spell's mana cost.\nEach opponent sacrifices a creature or planeswalker with the greatest mana value among creatures and planeswalkers they control.",
+    altCosts: [{ label: "Sacrifice a nontoken black creature", cost: "", sacPermanent: { filter: (g, c) => !c.isToken && g.isCreature(c) && g.colorsOf(c).has("B"), prompt: "Flare of Malice: sacrifice a nontoken black creature" } }],
+    spell: {
+      do: async (g, ctx) => {
+        for (const q of g.opponents(ctx.p)) {
+          const cands = g.battlefield.filter(o => o.controller === q && (g.isCreature(o) || g.isPlaneswalker(o)));
+          if (!cands.length) continue;
+          const top = Math.max(...cands.map(o => g.mvOf(o))), pool = cands.filter(o => g.mvOf(o) === top);
+          const pick = pool.length > 1 ? await g.ask(q, { type: "target", prompt: "Flare of Malice: sacrifice a creature or planeswalker with the greatest mana value", options: pool, purpose: "sacrifice", src: ctx.o }) : pool[0];
+          const c = pool.includes(pick) ? pick : pool[0];
+          if (c.zone === "battlefield") g.sacrifice(c);
+        }
+      }
+    },
+    ai: { priority: 5, removal: true, minThreat: 6, instantEnd: true, target: (g, p, req) => (req.purpose === "altSac" && H.flareSac ? H.flareSac(g, p, req) : undefined) }
+  });
+  D({
+    name: "Submerge", cost: "{4}{U}", type: "Instant",
+    text: "If an opponent controls a Forest and you control an Island, you may cast this spell without paying its mana cost.\nPut target creature on top of its owner's library.",
+    altCosts: [{ label: "Free (an opponent controls a Forest, you an Island)", cost: "", condition: (g, p) => g.battlefield.some(o => o.controller === p && g.isLand(o) && o.def.subtypes.includes("Island")) && g.opponents(p).some(q => g.battlefield.some(o => o.controller === q && g.isLand(o) && o.def.subtypes.includes("Forest"))) }],
+    spell: { targets: [{ kind: "creature", purpose: "harm", prompt: "Put on top of its owner's library" }], do: (g, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0] && t.zone === "battlefield") g.tuck(t, false); } },
+    ai: { removal: true, minThreat: 5 }
+  });
+  D({
+    name: "Mental Misstep", cost: "{U/P}", type: "Instant",
+    text: "({U/P} can be paid with either {U} or 2 life.)\nCounter target spell with mana value 1.",
+    spell: { targets: [{ kind: "spell", purpose: "counter", prompt: "Counter target spell with mana value 1", filter: (g, item, p) => item.p !== p && !!item.o && g.mvOf(item.o) === 1 }], do: (g, ctx) => { const it = ctx.targets[0]; if (ctx.legal[0] && it && g.stack.includes(it)) g.counterSpell(it, ctx.o); } },
+    ai: { counter: true }
+  });
+  D({
+    name: "Thousand-Faced Shadow", cost: "{U}", type: "Creature — Human Ninja", pt: "1/1", keywords: ["flying"],
+    text: "Ninjutsu {2}{U}{U} ({2}{U}{U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)\nFlying\nWhen this creature enters from your hand, if it's attacking, create a token that's a copy of another target attacking creature. The token enters tapped and attacking.",
+    note: ninjaNote, channel: ninjutsu("Thousand-Faced Shadow", "{2}{U}{U}"),
+    triggers: [{
+      on: "enters", self: true, when: (g, s, ev) => !!s.combat && !!s.combat.attacking,
+      do: async (g, s, ev, { p }) => {
+        const t = await g.chooseTarget(p, trig({ kind: "creature", you: true, other: true, purpose: "copy", prompt: "Thousand-Faced Shadow: copy another attacking creature", filter: (g2, c) => c !== s && !!c.combat && !!c.combat.attacking }), s);
+        if (t && t.zone === "battlefield" && t.combat) g.copyToken(p, t, { tapped: true, attacking: t.combat.attacking });
+      }
+    }],
+    ai: ninjaAi({ priority: 6, target: (g, p, req) => (req.purpose === "copy" ? req.options.slice().sort((a, b) => valueOf(g, b) - valueOf(g, a))[0] : req.purpose === "ninjutsu" ? ninjaBait(g, p, req.options) || undefined : undefined) })
+  });
+  D({
+    name: "Prosperous Thief", cost: "{2}{U}", type: "Creature — Human Ninja", pt: "3/2",
+    text: "Ninjutsu {1}{U} ({1}{U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)\nWhenever one or more Ninja or Rogue creatures you control deal combat damage to a player, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")",
+    note: ninjaNote, channel: ninjutsu("Prosperous Thief", "{1}{U}"),
+    triggers: [{ on: "combatDamageStep", when: (g, s, ev) => ev.hits.some(h => h.controller === s.controller && h.src.zone === "battlefield" && (g.hasSub(h.src, "Ninja") || g.hasSub(h.src, "Rogue"))), do: (g, s, ev, { p }) => { g.createToken(p, T.treasure); } }],
+    ai: ninjaAi({ priority: 6 })
+  });
+  D({
+    name: "Mistblade Shinobi", cost: "{2}{U}", type: "Creature — Human Ninja", pt: "1/1",
+    text: "Ninjutsu {U} ({U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)\nWhenever this creature deals combat damage to a player, you may return target creature that player controls to its owner's hand.",
+    note: ninjaNote, channel: ninjutsu("Mistblade Shinobi", "{U}"),
+    triggers: [{ on: "combatDamagePlayer", when: (g, s, ev) => ev.src === s, do: async (g, s, ev, { p }) => { const q = ev.p; const t = await g.chooseTarget(p, trig({ kind: "creature", purpose: "harm", optional: true, prompt: "Mistblade Shinobi: return a creature that player controls", filter: (g2, c) => c.controller === q }), s); if (t && t.zone === "battlefield") g.bounce(t); } }],
+    ai: ninjaAi({ priority: 6 })
+  });
+  D({
+    name: "Silver-Fur Master", cost: "{U}{B}", type: "Creature — Rat Ninja", pt: "2/2",
+    text: "Ninjutsu {U}{B} ({U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)\nNinjutsu abilities you activate cost {1} less to activate.\nOther Ninja and Rogue creatures you control get +1/+1.",
+    note: ninjaNote + " The {1} discount on other ninjutsu costs isn't applied.",
+    channel: ninjutsu("Silver-Fur Master", "{U}{B}"),
+    statics: [{ applies: (g, s, o) => o !== s && mine(s, o) && g.isCreature(o) && (g.hasSub(o, "Ninja") || g.hasSub(o, "Rogue")), pt: [1, 1] }],
+    ai: ninjaAi({ priority: 7 })
+  });
+  D({
+    name: "Faerie Seer", cost: "{U}", type: "Creature — Faerie Wizard", pt: "1/1", keywords: ["flying"],
+    text: "Flying\nWhen this creature enters, scry 2. (Look at the top two cards of your library, then put any number of them on the bottom and the rest on top in any order.)",
+    triggers: [{ on: "enters", self: true, do: (g, s, ev, { p }) => g.scry(p, 2, s) }],
+    ai: { priority: 6 }
+  });
+  D({ name: "Ornithopter", cost: "{0}", type: "Artifact Creature — Thopter", pt: "0/2", keywords: ["flying"], text: "Flying", ai: { priority: 5 } });
+  D({
+    name: "Spectral Sailor", cost: "{U}", type: "Creature — Spirit Pirate", pt: "1/1", keywords: ["flash", "flying"],
+    text: "Flash (You may cast this spell any time you could cast an instant.)\nFlying\n{3}{U}: Draw a card.",
+    abilities: [{ label: "Draw a card", cost: "{3}{U}", do: (g, src, ctx) => g.draw(ctx.p, 1), ai: { use: (g, p, o, ctx) => ctx.window === "end" && g.nextPlayer(ctx.turnOf) === p && manaNow(g, p) >= 4 && p.hand.length < 6 } }],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Siren Stormtamer", cost: "{U}", type: "Creature — Siren Pirate Wizard", pt: "1/1", keywords: ["flying"],
+    text: "Flying\n{U}, Sacrifice this creature: Counter target spell or ability that targets you or a creature you control.",
+    abilities: [{
+      label: "Counter a spell or ability targeting you or your creature", cost: "{U}", sacSelf: true,
+      targets: [{ kind: "spell", orAbility: true, purpose: "counter", prompt: "Counter target spell or ability that targets you or a creature you control", filter: (g, item, p) => item.p !== p && (item.targets || []).some(t => t === p || (t && !g.isPlayer(t) && t.controller === p && g.isCreature(t))) }],
+      do: (g, src, ctx) => { const it = ctx.targets[0]; if (ctx.legal[0] && it && g.stack.includes(it)) g.counterSpell(it, src); },
+      ai: { inStack: true, use: (g, p, o, ctx) => (ctx.window === "stack" || ctx.window === "ability") && !!H.stormtamerUse && H.stormtamerUse(g, p, o, ctx) }
+    }],
+    ai: { priority: 6, target: (g, p, req) => (req.purpose === "counter" ? req.options.find(it => it.p !== p) : undefined) }
+  });
+  const FELL_MIRE = MK.define({ name: "Fell Mire", type: "Land", cost: "", text: "As this land enters, you may pay 3 life. If you don't, it enters tapped.\n{T}: Add {B}.", note: "You pay the 3 life when you have more than 12.", etbTapped: (g, o) => { if (!o || o.id === -1) return false; const p = o.controller; if (p && p.life > 12 && g.payLife(p, 3)) { log(g, `${p.name} pays 3 life so Fell Mire enters untapped.`, p, ["Fell Mire"]); return false; } return true; }, mana: [{ tap: true, produce: "B" }] });
+  D({
+    name: "Fell the Profane // Fell Mire", cost: "{2}{B}{B}", type: "Instant",
+    text: "Fell the Profane: Destroy target creature or planeswalker.\n//\nFell Mire (land): As this land enters, you may pay 3 life. If you don't, it enters tapped. {T}: Add {B}.",
+    note: "A modal double-faced card: play it as the land Fell Mire from your hand instead of casting it.",
+    mdfcLand: FELL_MIRE,
+    spell: { targets: [{ kind: "creatureOrPlaneswalker", purpose: "harm", prompt: "Destroy target creature or planeswalker" }], do: (g, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0] && t.zone === "battlefield") g.destroy(t, ctx.o); } },
+    ai: { removal: true, minThreat: 5 }
+  });
+  const SOPORIFIC = MK.define({ name: "Soporific Springs", type: "Land", cost: "", text: "As this land enters, you may pay 3 life. If you don't, it enters tapped.\n{T}: Add {U}.", note: "You pay the 3 life when you have more than 12.", etbTapped: (g, o) => { if (!o || o.id === -1) return false; const p = o.controller; if (p && p.life > 12 && g.payLife(p, 3)) { log(g, `${p.name} pays 3 life so Soporific Springs enters untapped.`, p, ["Soporific Springs"]); return false; } return true; }, mana: [{ tap: true, produce: "U" }] });
+  D({
+    name: "Sink into Stupor // Soporific Springs", cost: "{1}{U}{U}", type: "Instant",
+    text: "Sink into Stupor: Return target spell or nonland permanent an opponent controls to its owner's hand.\n//\nSoporific Springs (land): As this land enters, you may pay 3 life. If you don't, it enters tapped. {T}: Add {U}.",
+    note: "A modal double-faced card: play it as the land Soporific Springs from your hand instead of casting it. As a spell it only targets permanents here (not spells on the stack).",
+    mdfcLand: SOPORIFIC,
+    spell: { targets: [{ kind: "nonland", opp: true, purpose: "harm", prompt: "Return target nonland permanent an opponent controls to its owner's hand" }], do: (g, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0] && t.zone === "battlefield") g.bounce(t); } },
+    ai: { removal: true, minThreat: 6 }
+  });
+  D({
+    name: "Cunning Evasion", cost: "{1}{U}", type: "Enchantment",
+    text: "Whenever a creature you control becomes blocked, you may return it to its owner's hand.",
+    triggers: [{ on: "blocked", when: (g, s, ev) => !!ev.o && ev.o.controller === s.controller, optional: "Cunning Evasion: return the blocked creature to its owner's hand?", do: (g, s, ev) => { if (ev.o.zone === "battlefield") g.bounce(ev.o); } }],
+    ai: { priority: 5, confirm: (g, p, req) => { const a = req.ev && req.ev.o; return !!a && !a.isToken && a.owner === p && !a.faceDown && (a.combat && a.combat.blockedBy || []).some(b => AI().fight(g, a, b).aDies); } }
+  });
+
   /* ================================================================ equipment and artifacts */
   D({
     name: "Quietus Spike", cost: "{3}", type: "Artifact — Equipment", equip: "{3}",

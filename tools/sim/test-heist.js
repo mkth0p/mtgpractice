@@ -389,6 +389,40 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
     await g.cast(a, fod, { alt: 1 }); await g.settle();
     check("Force of Despair: kills what entered this turn, not the old creature", fresh.zone === "graveyard" && old.zone === "battlefield", { fresh: fresh.zone, old: old.zone }); }
 
+
+  // Mana Drain, Dismember, Flare of Malice, Mental Misstep, Thousand-Faced Shadow, Siren Stormtamer, the MDFC lands
+  { const { g, a, b } = table(); lands(g, a, 2, "Island"); lands(g, b, 4, "Swamp"); const md = hand(g, a, "Mana Drain"); const big = hand(g, b, "Thieving Amalgam"); await g.settle();
+    a.agent.respond = (g2, p, ctx) => { const act = (ctx.actions || []).find(x => x.card === md); return act && ctx.top && ctx.top.o === big ? { type: "cast", card: md, targets: [ctx.top] } : null; };
+    g.activeIdx = 1; lands(g, b, 3, "Swamp"); await g.cast(b, big); await g.settle();
+    check("Mana Drain: counters the spell", big.zone === "graveyard" && md.zone === "graveyard");
+    g.activeIdx = 0; g.phase = "main1"; g.emit("precombatMain", { p: a }); g.runDelayed("precombatMain", a); await g.settle();
+    check("Mana Drain: {C} for the spell's mana value in our next main phase", a.pool.C === 7, a.pool); }
+  { const { g, a, b } = table(); lands(g, a, 1, "Swamp"); const big = put(g, b, "Thieving Amalgam"); const dm = hand(g, a, "Dismember"); await g.cast(a, dm, { targets: [big] }); await g.settle();
+    check("Dismember: paid with life, -5/-5", a.life === 36 && g.power(big) === 1, [a.life, g.power(big)]); }
+  { const { g, a, b, c } = table(); const hp = put(g, a, "Hired Poisoner"); const e1 = put(g, b, "Llanowar Elves"), big = put(g, b, "Thieving Amalgam"), ce = put(g, c, "Llanowar Elves"); const fm = hand(g, a, "Flare of Malice"); await g.settle();
+    a.agent.choose = (g2, p, req) => (req.purpose === "altSac" ? hp : MK.AI.create({ skill: 1 }).choose(g2, p, req));
+    await g.cast(a, fm, { alt: 1 }); await g.settle();
+    check("Flare of Malice: free by sacrificing a black creature; each opponent loses their biggest", hp.zone === "graveyard" && big.zone === "graveyard" && e1.zone === "battlefield" && ce.zone === "graveyard"); }
+  { const { g, a, b } = table(); const mm = hand(g, a, "Mental Misstep"); lands(g, b, 1, "Forest"); const elf = hand(g, b, "Llanowar Elves"); await g.settle();
+    a.agent.respond = (g2, p, ctx) => { const act = (ctx.actions || []).find(x => x.card === mm); return act && ctx.top && ctx.top.o === elf ? { type: "cast", card: mm, targets: [ctx.top] } : null; };
+    g.activeIdx = 1; await g.cast(b, elf); await g.settle();
+    check("Mental Misstep: counters a one-drop for 2 life", elf.zone === "graveyard" && a.life === 38, { elf: elf.zone, life: a.life }); }
+  { const { g, a, b } = table(); lands(g, a, 4, "Island"); const hp = put(g, a, "Hired Poisoner"); const oc = put(g, a, "Changeling Outcast"); const tfs = hand(g, a, "Thousand-Faced Shadow"); await g.settle();
+    a.agent.attack = () => [{ attacker: hp, target: b }, { attacker: oc, target: b }];
+    a.agent.choose = (g2, p, req) => (req.purpose === "ninjutsu" ? hp : req.purpose === "copy" ? oc : MK.AI.create({ skill: 1 }).choose(g2, p, req));
+    const ow = g.trickWindow.bind(g); let done = false;
+    g.trickWindow = async (p, w) => { if (!w && !done) { done = true; await g.channel(a, tfs, {}); } return ow(p, w); };
+    await g.doCombat(a); await g.settle();
+    check("Thousand-Faced Shadow: ninjutsu in, copy another attacker, 1+1+1 damage", tfs.zone === "battlefield" && b.life === 37 && g.battlefield.some(o => o.isToken && o.def.name === "Changeling Outcast"), { life: b.life, z: tfs.zone }); }
+  { const { g, a, b } = table(); lands(g, a, 1, "Island"); const ss = put(g, a, "Siren Stormtamer"); const ram = put(g, a, "Ramses, Assassin Lord"); lands(g, b, 2, "Swamp"); const gr = hand(g, b, "Infernal Grasp"); await g.settle();
+    a.agent.respond = (g2, p, ctx) => { const act = (ctx.actions || []).find(x => x.type === "activate" && x.card === ss); return act && ctx.top && ctx.top.o === gr ? { type: "activate", card: ss, idx: act.idx } : null; };
+    g.activeIdx = 1; await g.cast(b, gr, { targets: [ram] }); await g.settle();
+    check("Siren Stormtamer: sacrificed to counter removal on our creature", ram.zone === "battlefield" && ss.zone === "graveyard" && gr.zone === "graveyard", { ram: ram.zone, ss: ss.zone }); }
+  { const { g, a } = table(); const fp = hand(g, a, "Fell the Profane // Fell Mire"); const acts = g.legalActions(a);
+    check("Fell the Profane: playable as a land (Fell Mire)", acts.some(x => x.type === "land" && x.card === fp && x.back));
+    await g.playLand(a, fp, true); await g.settle();
+    check("Fell Mire: enters untapped for 3 life", fp.zone === "battlefield" && !fp.tapped && a.life === 37 && g.isLand(fp), { tapped: fp.tapped, life: a.life }); }
+
   // the engine rules: "triggers an additional time" stays with its creature type, anyColor, castEntry
   { const { g, a } = table(); const rt = put(g, a, "Roaming Throne"); await g.settle();
     check("triggerExtra: a non-Assassin's trigger isn't doubled", (() => { const n = g.staticsOf(rt).find(st => st.triggerExtra).triggerExtra(g, rt, { src: put(g, a, "Llanowar Elves"), controller: a }); return n === 0; })()); }

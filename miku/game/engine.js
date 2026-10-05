@@ -1576,8 +1576,9 @@
         const takeU = (k) => { const i = u.indexOf(k); if (i >= 0) { u.splice(i, 1); return true; } return false; };
         for (const k of [...COLORS, "C"]) { while (need2[k] > 0) { if (!takeU(k)) return -1; need2[k]--; } }
         for (const h of need.hyb) { if (!h.some(k => takeU(k))) return -1; }
-        let lifePaid = 0;
-        for (const k of need.phy) { if (!takeU(k)) lifePaid += 2; }
+        // Phyrexian symbols: mana when it's spare after the generic part, else 2 life each
+        let lifePaid = 0, spare = u.length - need.g - extraGeneric;
+        for (const k of need.phy) { if (spare > 0 && takeU(k)) spare--; else lifePaid += 2; }
         if (lifePaid && lifePaid >= lifeOK) return -1;
         const left = u.length - need.g - extraGeneric;
         if (left < 0) return -1;
@@ -1764,7 +1765,9 @@
         const order = h.slice().sort((a, b) => (pool[b] - want(b)) - (pool[a] - want(a)));
         if (!order.some(k => take(k))) return false;
       }
-      for (const k of cost.phy || []) if (!take(k)) { if (!this.payLife(p, 2)) return false; }
+      // Phyrexian symbols: mana only when it's spare after the generic part, else 2 life each
+      let spare = Object.values(pool).reduce((a, b) => a + b, 0) - (cost.g || 0);
+      for (const k of cost.phy || []) { if (spare > 0 && take(k)) spare--; else if (!this.payLife(p, 2)) return false; }
       // generic: colorless first, then whichever color we have the most spare of
       for (let i = 0; i < (cost.g || 0); i++) {
         if (take("C")) continue;
@@ -3040,6 +3043,7 @@
       this.bump();
       for (const o of this.battlefield.slice()) if (o.controller === p && o.def.saga) { o.counters.lore = (o.counters.lore || 0) + 1; this.sagaChapter(o); }
       this.emit("precombatMain", { p });
+      this.runDelayed("precombatMain", p);
       await this.settle();
       if (this.over || p.lost) return this.endTurnEarly(p);
       const res = await this.mainPhase(p);
