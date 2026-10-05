@@ -196,15 +196,15 @@
       solution: ["Rogue's Passage ({4}, {T}): Virtus can't be blocked this turn.", "Attack any opponent with Virtus (an Assassin).", "They lose half their life, doubled by Bloodletter: all of it. They lose the game, and Ramses wins it for you."],
       lesson: "With Ramses out, every single-player kill is a win if an Assassin attacked that player. Plan evasion around his +1/+1.",
       check: won, script: [{ main: "Rogue's Passage: ", target: "Virtus the Veiled" }, { attack: [["Virtus the Veiled", "Kaalia"]] }] },
-    { id: "brine", title: "Nobody untaps", level: 2, rating: 1350, skill: "etrata",
-      goal: "Make every opponent skip their next untap step.",
-      me: { board: [ETRATA, "Training Grounds"], faceDown: [{ name: "Brine Elemental", kind: "morph" }, { name: "Vesuvan Shapeshifter", kind: "morph" }], hand: [], lands: ["Island", "Swamp", "Island"] },
-      opps: [{ commander: "Talrand, Sky Summoner", life: 34, board: [] }, { commander: "Krenko, Mob Boss", life: 30, board: [] }, { commander: "Ghalta, Primal Hunger", life: 38, board: [] }],
-      hints: ["Brine Elemental's morph cost is {5}{U}{U}. You have three lands.", "Etrata gives your face-down creatures a way to turn face up. What does Training Grounds do to it?"],
-      solution: ["Use the ability Etrata gives your face-down Brine Elemental: {2}{U}{B}, reduced to {U}{B} by Training Grounds.", "Brine turns face up: each opponent skips their next untap step."],
-      lesson: "Training Grounds cuts {2} from creatures' activated abilities (never below one mana): Etrata's flip becomes {U}{B}. Vesuvan's own {1}{U} morph flip is a special action, so Training Grounds doesn't touch it.",
-      check: (g, me) => g.players.filter(q => q !== me && !q.lost).every(q => g.controlled(q, o => g.isLand(o)).length > 0 && g.controlled(q, o => g.isLand(o)).every(o => o.skipUntap)),
-      script: [{ main: "Face-down Brine Elemental: " }] },
+    { id: "silumgar", title: "The blocker that bites", level: 2, rating: 1350, skill: "etrata",
+      goal: "Destroy Lathril's Llanowar Elves without casting a spell.",
+      me: { board: [ETRATA], faceDown: [{ name: "Silumgar Assassin", kind: "morph" }], hand: [], lands: ["Island", "Swamp", "Swamp"] },
+      opps: [{ commander: "Lathril, Blade of the Elves", life: 34, board: ["Llanowar Elves"] }, { commander: "Krenko, Mob Boss", life: 30, board: [] }, { commander: "Ghalta, Primal Hunger", life: 38, board: [] }],
+      hints: ["Your face-down creature is Silumgar Assassin. Etrata's flip costs {2}{U}{B}, and you have three lands.", "Megamorph {2}{B}: turn it face up for that cost. What happens when Silumgar Assassin is turned face up?"],
+      solution: ["Turn Silumgar Assassin face up for its megamorph cost {2}{B}. It's a special action: nobody can respond.", "Its trigger destroys target creature with power 3 or less an opponent controls: the Elves. It also gets a +1/+1 counter."],
+      lesson: "A face-down morph is a 2/2 blocker that holds its flip. Turning it up for its own (mega)morph cost can't be responded to, and it works on any player's turn. Etrata's flip uses the stack and gives no +1/+1 counter.",
+      check: (g, me) => g.players.some(q => /Lathril/.test(q.name) && !g.controlled(q, o => o.def.name === "Llanowar Elves").length),
+      script: [{ main: "Face-down Silumgar Assassin: ", target: "Llanowar Elves" }] },
     { id: "manta", title: "One more turn", level: 4, rating: 1700, skill: "lines",
       goal: "Set up an extra turn after this one.",
       me: { board: [ETRATA, "Scroll of Fate", "Crystal Shard"], hand: ["Wormfang Manta"], lands: ["Island", "Island", "Swamp", "Swamp", "Underground River"] },
@@ -214,15 +214,14 @@
       lesson: "The Manta must be face up when it leaves, or it has no ability to trigger. Five mana makes one extra turn; Training Grounds makes it three.",
       check: (g, me) => (g.extraTurns || []).some(e => e.p === me) || g.logs.some(e => /extra turn after this one/.test(e.text) && e.p === me),
       script: [{ main: "Scroll of Fate: ", choose: "Wormfang Manta" }, { main: "Face-down Wormfang Manta: " }, { main: "Crystal Shard: ", target: "Wormfang Manta", confirm: false }] },
-    { id: "hitlist", title: "The third hit", level: 4, rating: 1750, skill: "rules",
-      goal: "Knock Ghired out of the game this turn.",
-      me: { board: [ETRATA, "Mari, the Killing Quill", "Etrata, the Silencer"], hand: ["Toxic Deluge"], lands: ["Island", "Swamp", "Swamp", "Swamp"] },
-      opps: [{ commander: "Ghired, Conclave Exile", life: 30, board: ["Llanowar Elves"], exileHits: ["Serra Angel", "Cemetery Reaper"] }, { commander: "Kaalia of the Vast", life: 34, board: [] }, { commander: "Isperia, Supreme Judge", life: 36, board: [] }],
-      hints: ["Ghired already owns two exiled cards with hit counters. The Silencer's hit adds a third.", "The Silencer's trigger exiles a creature that player controls. What if they have none?", "Mari also offers to remove a hit counter when an Assassin connects. Should you?"],
-      solution: ["Don't cast Toxic Deluge: the Silencer needs a creature to exile.", "Attack Ghired with Etrata, the Silencer (it can't be blocked).", "Say no to Mari's offer to remove a hit counter. The Silencer exiles Llanowar Elves with a hit counter: three, and Ghired loses."],
-      lesson: "Three exiled cards with hit counters, checked on the Silencer's trigger. Leave them a creature to exile, and don't spend hit counters on Mari's card draw that turn.",
-      check: (g, me) => g.players.some(q => /Ghired/.test(q.name) && q.lost),
-      script: [{ attack: [["Etrata, the Silencer", "Ghired"]], confirm: false }] },
+    { id: "starscape", title: "One point is enough", level: 3, rating: 1500, skill: "lines",
+      goal: "Win the game this turn.",
+      me: { board: [ETRATA, "Exquisite Blood", "Starscape Cleric"], hand: [], lands: ["Island", "Swamp", "Swamp"] },
+      opps: [{ commander: "Ghired, Conclave Exile", life: 31, board: ["Llanowar Elves"] }, { commander: "Kaalia of the Vast", life: 34, board: [] }, { commander: "Isperia, Supreme Judge", life: 36, board: [] }],
+      hints: ["Exquisite Blood: whenever an opponent loses life, you gain that much life. Starscape Cleric: whenever you gain life, each opponent loses 1 life.", "Starscape Cleric has flying, and nobody has a flying blocker. What happens after its first point of damage?"],
+      solution: ["Attack with Starscape Cleric (flying). Its 2 damage makes an opponent lose life.", "Exquisite Blood gains you that life, Starscape Cleric drains each opponent 1, Exquisite Blood gains you 1 for each of them, and so on until the table is dead."],
+      lesson: "Any life loss starts the loop once a drain (Exquisite Blood, Bloodthirsty Conqueror) and a payoff (Blight-Priest, Vito, Sanguine Bond, Enduring Tenacity, Starscape Cleric) are both out.",
+      check: won, script: [{ attack: [["Starscape Cleric", "Ghired"]] }] },
     { id: "tutor", title: "Find the payoff", level: 3, rating: 1450, skill: "tutor",
       goal: "Win the game this turn.",
       me: { board: [ETRATA, "Exquisite Blood", "Changeling Outcast"], hand: ["Demonic Tutor"], lands: ["Island", "Swamp", "Swamp", "Swamp", "Watery Grave"], library: ["Sanguine Bond", "Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Mindcrank", "Bloodthirsty Conqueror", "Necropotence", "Rhystic Study", "Swamp", "Island"] },
@@ -297,7 +296,7 @@
      same model over random hands (tools/sim/mull-values.js writes MULL below), with the free first
      mulligan and the London bottom. */
   const GF_LINES = [
-    { key: "vampire", sides: [["Exquisite Blood", "Bloodthirsty Conqueror"], ["Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond"]], finish: 0 },
+    { key: "vampire", sides: [["Exquisite Blood", "Bloodthirsty Conqueror"], ["Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond", "Enduring Tenacity", "Starscape Cleric"]], finish: 0 },
     { key: "mindcrank", sides: [["Mindcrank"], ["Duskmantle Guildmage"]], finish: 7 },
     { key: "doubletap", sides: [["Bloodletter of Aclazotz"], ["Virtus the Veiled"]], finish: 0, wait: "Virtus the Veiled" },
     { key: "brine", sides: [["Brine Elemental"], ["Vesuvan Shapeshifter"]], finish: 4, etrata: true, faceDown: true },
@@ -306,7 +305,7 @@
   const GF_ROCKS = { "Sol Ring": [1, 2], "Arcane Signet": [2, 1], "Talisman of Dominance": [2, 1], "Dimir Signet": [2, 1], "Fellwar Stone": [2, 1], "Mind Stone": [2, 1], "Mox Amber": [0, 1] };
   const GF_TOP = { "Vampiric Tutor": 1, "Imperial Seal": 1, "Scheming Symmetry": 1, "Lim-Dûl's Vault": 2 };
   const GF_HAND = { "Demonic Tutor": 2, "Grim Tutor": 3, "Diabolic Intent": 2, "Beseech the Mirror": 4 };
-  const GF_TRANS = { "Dizzy Spell": 1, "Shred Memory": 2, "Muddle the Mixture": 2, "Drift of Phantasms": 3, "Dimir House Guard": 4 };
+  const GF_TRANS = { "Shred Memory": 2, "Muddle the Mixture": 2, "Drift of Phantasms": 3, "Dimir House Guard": 4 };
   const GF_DRAW = { "Rhystic Study": [3, 1, 99], "Necropotence": [3, 2, 99], "Mystic Remora": [1, 1, 3], "Black Market Connections": [3, 1, 99] };
   const GF_CANTRIP = { "Brainstorm": [1, 1], "Ponder": [1, 1], "Night's Whisper": [2, 2] };
   let GF_DECK = null;
@@ -535,7 +534,7 @@
     return null;
   }
   /* Tutor Target: one tutor in hand, four candidates; the right one makes a line soonest. */
-  const DRILL_TUTORS = ["Demonic Tutor", "Grim Tutor", "Shred Memory", "Muddle the Mixture", "Drift of Phantasms", "Dimir House Guard", "Dizzy Spell"];
+  const DRILL_TUTORS = ["Demonic Tutor", "Grim Tutor", "Shred Memory", "Muddle the Mixture", "Drift of Phantasms", "Dimir House Guard"];
   function tutorTarget(seed) {
     const ai = A();
     for (let tries = 0; tries < 40; tries++) {
@@ -579,13 +578,13 @@
     }
     return null;
   }
-  const TUTORS_ALL = { "Demonic Tutor": { any: true }, "Grim Tutor": { any: true }, "Shred Memory": { mv: 2 }, "Muddle the Mixture": { mv: 2 }, "Drift of Phantasms": { mv: 3 }, "Dimir House Guard": { mv: 4 }, "Dizzy Spell": { mv: 1 } };
+  const TUTORS_ALL = { "Demonic Tutor": { any: true }, "Grim Tutor": { any: true }, "Shred Memory": { mv: 2 }, "Muddle the Mixture": { mv: 2 }, "Drift of Phantasms": { mv: 3 }, "Dimir House Guard": { mv: 4 } };
 
   /* Clock Math: numbers that decide games, generated fresh each time. */
   function clockMath(seed) {
     const rnd = rngFrom(seed * 13 + 5);
     const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
-    const kinds = ["virtus", "virtusOff", "crank", "flip", "tax", "hits", "court", "rally"];
+    const kinds = ["virtus", "virtusOff", "crank", "flip", "tax", "fang", "court", "rally"];
     const k = kinds[seed % kinds.length];
     const opts4 = (right, xs) => { const set = [right]; for (const x of xs) if (!set.includes(x) && x >= 0) set.push(x); while (set.length < 4) { const y = right + ri(1, 6) * (rnd() < 0.5 ? -1 : 1); if (y >= 0 && !set.includes(y)) set.push(y); } const o = set.slice(0, 4).sort((a, b) => a - b); return { options: o.map(String), answer: [o.indexOf(right)] }; };
     if (k === "virtus") {
@@ -609,7 +608,7 @@
       const tg = rnd() < 0.6;
       const right = tg ? 4 : 7;
       const o = opts4(right, tg ? [7, 5, 3] : [4, 8, 6]);
-      return { kind: "math", seed, q: `Etrata is out${tg ? " with Training Grounds" : ""}. How much mana to flip your face-down Brine Elemental with Etrata's ability AND activate Duskmantle Guildmage's {1}{U}{B} this turn?`, ...o, explain: tg ? "Training Grounds takes {2} off creatures' activated abilities, never below one mana: Etrata's flip {2}{U}{B} becomes {U}{B} and the Guildmage's {1}{U}{B} becomes {U}{B}. 2 + 2 = 4." : "Etrata's flip is {2}{U}{B} (4) and the Guildmage's ability is {1}{U}{B} (3): 7. Training Grounds would make it 4.", cards: ["Training Grounds", "Etrata, Deadly Fugitive"] };
+      return { kind: "math", seed, q: `Etrata is out${tg ? " with Training Grounds" : ""}. How much mana to flip your face-down Wormfang Manta with Etrata's ability AND activate Duskmantle Guildmage's {1}{U}{B} this turn?`, ...o, explain: tg ? "Training Grounds takes {2} off creatures' activated abilities, never below one mana: Etrata's flip {2}{U}{B} becomes {U}{B} and the Guildmage's {1}{U}{B} becomes {U}{B}. 2 + 2 = 4." : "Etrata's flip is {2}{U}{B} (4) and the Guildmage's ability is {1}{U}{B} (3): 7. Training Grounds would make it 4.", cards: ["Training Grounds", "Etrata, Deadly Fugitive"] };
     }
     if (k === "tax") {
       const n = ri(1, 4);
@@ -617,10 +616,11 @@
       const o = opts4(right, [3 + n, 3 + 2 * (n - 1), 3 + 2 * (n + 1)]);
       return { kind: "math", seed, q: `Etrata has been cast from the command zone ${n} time${n > 1 ? "s" : ""} before. What does she cost now?`, ...o, explain: `{1}{U}{B} plus {2} for each earlier cast from the command zone: 3 + ${2 * n} = ${right}.`, cards: ["Etrata, Deadly Fugitive"] };
     }
-    if (k === "hits") {
-      const have = ri(0, 2), creatures = ri(0, 2);
-      const out = creatures > 0 && have >= 2;
-      return { kind: "math", seed, q: `An opponent owns ${have} exiled card${have === 1 ? "" : "s"} with hit counters and controls ${creatures} creature${creatures === 1 ? "" : "s"}. Etrata, the Silencer connects with them. Are they out of the game?`, options: ["Yes", "No"], answer: [out ? 0 : 1], explain: creatures === 0 ? "The Silencer's trigger exiles a creature that player controls. They have none, so no hit counter is added: nothing happens." : `It exiles one of their creatures with a hit counter: ${have + 1} in total. They lose at three${out ? ": they're out." : ", so not yet."}`, cards: ["Etrata, the Silencer"] };
+    if (k === "fang") {
+      const n = ri(1, 3), opps = ri(2, 3);
+      const right = n * opps;
+      const o = opts4(right, [n, opps, n + opps]);
+      return { kind: "math", seed, q: `Hooded Blightfang is out (no Exquisite Blood). You attack ${opps} opponents with ${n} creature${n > 1 ? "s" : ""} that ${n > 1 ? "have" : "has"} deathtouch. How much life do your opponents lose in total from Blightfang's triggers?`, ...o, explain: `Each deathtouch attacker triggers Blightfang once: each opponent loses 1 and you gain 1. ${n} trigger${n > 1 ? "s" : ""} × ${opps} opponents = ${right}. With Exquisite Blood out, the first point starts the loop instead.`, cards: ["Hooded Blightfang", "Etrata, Deadly Fugitive", "Vampire of the Dire Moon"] };
     }
     if (k === "court") {
       const opps = ri(2, 3), loss = ri(1, 4);

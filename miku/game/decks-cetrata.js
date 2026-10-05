@@ -1,4 +1,4 @@
-/* Corrupted Etrata: the Bracket 4 list "Etrata's Shadow Market v2" (Etrata, Deadly Fugitive), a Dimir
+/* Corrupted Etrata: the Bracket 4 list "Etrata's Shadow Market" (v3, Etrata, Deadly Fugitive), a Dimir
    deck of theft and odd two-card combos. A player can pilot it from the Corrupted Etrata site, and the
    Etrata site offers it too (alsoOn).
    The cards no other file defines are here; the rest come from cards-etrata.js (Etrata, Mindcrank,
@@ -7,9 +7,10 @@
    Card text follows the printed Oracle text. Where the engine simplifies a card, its `note` says how.
    The engine has no draw or search replacement and no "spend mana as though it were any type", so
    the cards that need those work through triggers instead (see each note).
-   Win lines that work here: the vampire loop, Mindcrank + Duskmantle Guildmage, Bloodletter + Virtus,
-   the Brine Elemental untap lock (with Vesuvan Shapeshifter), Mari + Etrata, the Silencer, Ramses,
-   and the Wormfang Manta turn loop (manifest it with Scroll of Fate, flip it, bounce it). */
+   Win lines in the v3 list: the vampire loop, Mindcrank + Duskmantle Guildmage, Bloodletter + Virtus
+   and the Wormfang Manta turn loop (manifest it with Scroll of Fate, flip it, bounce it). The v2 lines
+   (the Brine Elemental lock, Mari + Etrata, the Silencer) keep their cards and code here; they drop out
+   of the plan when their pieces aren't in the list. */
 (function (root) {
   "use strict";
   const MK = root.MK, D = MK.defineOnce, T = MK.T;
@@ -65,7 +66,7 @@
      The bots tutor toward these. A line is "live" when one card of each side is on our battlefield,
      "one away" when only one side is missing (counting the hand). */
   const LOSS = ["Exquisite Blood", "Bloodthirsty Conqueror"];                              // opponent loses life: you gain it
-  const GAIN = ["Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond"];   // you gain life: opponents lose it
+  const GAIN = ["Marauding Blight-Priest", "Vito, Thorn of the Dusk Rose", "Sanguine Bond", "Enduring Tenacity", "Starscape Cleric", "Defiant Bloodlord"];   // you gain life: opponents lose it
   const LINES = [
     { key: "vampire", title: "Vampire loop", sides: [LOSS, GAIN] },
     { key: "mindcrank", title: "Mindcrank + Duskmantle Guildmage", sides: [["Mindcrank"], ["Duskmantle Guildmage"]] },
@@ -1868,9 +1869,9 @@
   /* ================================================================ the deck */
   const B = n => Array(n).fill("Swamp"), I = n => Array(n).fill("Island");
   const LIST = [
-    // win lines and their pieces
-    "Mari, the Killing Quill", "Etrata, the Silencer", "Ramses, Assassin Lord", "Duskmantle Guildmage", "Mindcrank",
-    "Scroll of Fate", "Wormfang Manta", "Crystal Shard", "Training Grounds", "Brine Elemental", "Vesuvan Shapeshifter",
+    // win lines and their pieces (v3, 2026-10-05: the Brine lock and the hit list are out, see etrata-deck/underused-tech)
+    "Enduring Tenacity", "Starscape Cleric", "Vampire of the Dire Moon", "Hooded Blightfang", "Silumgar Assassin",
+    "Ramses, Assassin Lord", "Duskmantle Guildmage", "Mindcrank", "Scroll of Fate", "Wormfang Manta", "Crystal Shard", "Training Grounds",
     "Bloodthirsty Conqueror", "Bloodletter of Aclazotz", "Roshan, Hidden Magister", "Leyline of Transformation",
     "Vito, Thorn of the Dusk Rose", "Changeling Outcast", "Marauding Blight-Priest", "Exquisite Blood", "Sanguine Bond",
     "Virtus the Veiled", "Tetsuko Umezawa, Fugitive", "Toxic Deluge",
@@ -1879,7 +1880,7 @@
     "Windfall", "Praetor's Grasp", "Rhystic Study", "Necropotence", "Mystic Remora", "Brainstorm", "Ponder", "Night's Whisper",
     // tutors
     "Demonic Tutor", "Vampiric Tutor", "Imperial Seal", "Grim Tutor", "Diabolic Intent", "Beseech the Mirror", "Lim-Dûl's Vault",
-    "Scheming Symmetry", "Wishclaw Talisman", "Tribute Mage", "Dizzy Spell", "Shred Memory", "Muddle the Mixture", "Drift of Phantasms", "Dimir House Guard",
+    "Scheming Symmetry", "Wishclaw Talisman", "Tribute Mage", "Shred Memory", "Muddle the Mixture", "Drift of Phantasms", "Dimir House Guard",
     // interaction
     "Counterspell", "Swan Song", "An Offer You Can't Refuse", "Fierce Guardianship", "Deadly Rollick", "Infernal Grasp", "Cyclonic Rift",
     // mana
@@ -1890,14 +1891,22 @@
     "Path of Ancestry", "Secluded Courtyard"
   ].concat(I(8), B(8));
 
+  /* Lines whose pieces left the list (the Brine lock and the hit list in v3) drop out of the plan, the
+     coach and the bots' tutoring. Their cards stay defined above. */
+  for (let i = LINES.length - 1; i >= 0; i--) if (!LINES[i].sides.every(side => side.some(n => LIST.includes(n)))) LINES.splice(i, 1);
+  for (let i = PLAN_LINES.length - 1; i >= 0; i--) if (!PLAN_LINES[i].sides.every(side => side.some(n => LIST.includes(n)))) PLAN_LINES.splice(i, 1);
+  const V3_ADDS = ["Enduring Tenacity", "Starscape Cleric", "Vampire of the Dire Moon", "Hooded Blightfang", "Silumgar Assassin"];
+  const V3_CUTS = ["Mari, the Killing Quill", "Etrata, the Silencer", "Brine Elemental", "Vesuvan Shapeshifter", "Dizzy Spell"];
   MK.CETRATA_DECK = {
     id: "corrupted-etrata", hero: "corrupted-etrata", alsoOn: ["etrata"], variant: "corrupted-etrata",
     label: "Corrupted Etrata", name: "Corrupted Etrata", title: "Etrata, Deadly Fugitive",
     commander: "Etrata, Deadly Fugitive", identity: ["U", "B"], bracket: 4, aggression: 0.6,
     style: "Dimir theft and odd combos",
-    blurb: "Bracket 4 Etrata: steal cards with cloaks, Gonti and Thief of Sanity while tutoring for two-card wins (the vampire loop, Mindcrank + Guildmage, Bloodletter + Virtus, the Brine Elemental untap lock). Coach tips show which piece is missing.",
-    watch: ["Exquisite Blood", "Bloodthirsty Conqueror", "Mindcrank", "Bloodletter of Aclazotz", "Brine Elemental", "Ramses, Assassin Lord", "Opposition Agent", "Notion Thief"],
+    blurb: "Bracket 4 Etrata: steal cards with cloaks, Gonti and Thief of Sanity while tutoring for two-card wins (the vampire loop, Mindcrank + Guildmage, Bloodletter + Virtus, the Wormfang Manta turns), with cheap deathtouch blockers for the early turns. Coach tips show which piece is missing.",
+    watch: ["Exquisite Blood", "Bloodthirsty Conqueror", "Mindcrank", "Bloodletter of Aclazotz", "Enduring Tenacity", "Ramses, Assassin Lord", "Opposition Agent", "Notion Thief"],
     list: LIST,
+    // games recorded before engine 5 replay with the v2 list
+    legacyList: { before: 5, list: LIST.filter(n => !V3_ADDS.includes(n)).concat(V3_CUTS) },
     coach: { tips: coachTips, companion, plan, checklist: "corrupted-etrata", companionBlurb: "guides you through each stage of the game: the mulligan, getting Etrata out, which line to assemble, going off, and what to counter on their turns. It stops the game when it has advice." }
   };
   MK.CETRATA_LINES = LINES;
