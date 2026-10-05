@@ -277,6 +277,61 @@ const opps = (g, a) => g.players.filter(q => q !== a);
     check(`planner: Mindcrank with ${label} is ${want}`, !!l && l.when === want, l && { when: l.when, cost: l.cost, colorShort: l.colorShort });
   }
 
+  // Upgrade candidates (etrata-deck/underused-tech): morphs, Mutavault, Memory Lapse and friends
+  // a creature cast face down by morph turns up only for its morph cost; megamorph adds a +1/+1 counter
+  { const { g, a, b } = table(); lands(g, a, 6); const sil = hand(g, a, "Silumgar Assassin"); const vic = put(g, b, "Marauding Blight-Priest"); await g.settle();
+    await g.cast(a, sil, { faceDown: true }); await g.settle();
+    const ups = g.abilitiesOf(sil).filter(x => x.ab.faceUp);
+    check("morph: a morph-cast creature has no mana-cost flip", ups.length === 1 && /megamorph/.test(ups[0].ab.label), ups.map(x => x.ab.label));
+    await g.activate(a, sil, ups[0].i, {}); await g.settle();
+    check("Silumgar Assassin: flipped, it destroys a power-3-or-less creature", !sil.faceDown && vic.zone === "graveyard", vic.zone);
+    check("megamorph: Silumgar Assassin gets a +1/+1 counter", (sil.counters.p1 || 0) === 1 && g.power(sil) === 3, sil.counters); }
+  { const { g, a } = table(); const br = hand(g, a, "Brine Elemental"); g.putFaceDown(a, [br], { kind: "manifest" }); await g.settle();
+    check("morph: a manifested morph card turns up for its mana cost or its morph cost", g.abilitiesOf(br).filter(x => x.ab.faceUp).length === 2); }
+  // Stratus Dancer counters an instant or sorcery when it turns face up
+  { const { g, a, b } = table(); lands(g, a, 2); lands(g, b, 3); const sd = hand(g, a, "Stratus Dancer"); g.putFaceDown(a, [sd], { kind: "morph" }); await g.settle();
+    const nw = hand(g, b, "Night's Whisper");
+    const up = g.abilitiesOf(sd).find(x => x.ab.faceUp);
+    a.agent.respond = (g2, q, ctx) => (ctx.window === "stack" && sd.faceDown ? { type: "activate", card: sd, idx: up.i } : null);
+    g.activeIdx = 1; const n0 = b.hand.length; await g.cast(b, nw, {}); await g.settle();
+    check("Stratus Dancer: flipped in response, it counters the sorcery", !sd.faceDown && nw.zone === "graveyard" && b.hand.length === n0 - 1, { up: !sd.faceDown, zone: nw.zone }); }
+  // Kadena's Silencer counters the abilities opponents control on the stack
+  { const { g, a, b } = table(); lands(g, a, 2); const ks = hand(g, a, "Kadena's Silencer"); g.putFaceDown(a, [ks], { kind: "morph" }); await g.settle();
+    const it = { kind: "trigger", p: b, o: put(g, b, "Forest"), name: "a trigger", targets: [], id: ++g.ts };
+    g.stack.push(it);
+    await g.activate(a, ks, g.abilitiesOf(ks).find(x => x.ab.faceUp).i, {}); await g.settle();
+    check("Kadena's Silencer: the opponent's trigger is countered", !g.stack.includes(it) && it.countered); }
+  // Thousand Winds returns all other tapped creatures
+  { const { g, a, b } = table(); lands(g, a, 7); const tw = hand(g, a, "Thousand Winds"); g.putFaceDown(a, [tw], { kind: "morph" }); await g.settle();
+    const t1 = put(g, b, "Marauding Blight-Priest"), t2 = put(g, b, "Gifted Aetherborn"), un = put(g, b, "Hooded Blightfang"); t1.tapped = t2.tapped = true;
+    await g.activate(a, tw, g.abilitiesOf(tw).find(x => x.ab.faceUp).i, {}); await g.settle();
+    check("Thousand Winds: tapped creatures go back, untapped ones stay", t1.zone === "hand" && t2.zone === "hand" && un.zone === "battlefield"); }
+  // Hooded Blightfang: a deathtouch attacker drains each opponent
+  { const { g, a, b, c } = table(); put(g, a, "Hooded Blightfang"); const et = put(g, a, "Etrata, Deadly Fugitive"); await g.settle();
+    const l = b.life, lc = c.life, la = a.life; await attack(g, a, [{ attacker: et, target: b }]);
+    check("Hooded Blightfang: Etrata attacking drains every opponent 1", c.life === lc - 1 && a.life === la + 1 && b.life <= l - 1, { b: b.life, c: c.life, a: a.life }); }
+  // Royal Assassin destroys a tapped creature
+  { const { g, a, b } = table(); const ra = put(g, a, "Royal Assassin"); const t = put(g, b, "Marauding Blight-Priest"); t.tapped = true; await g.settle();
+    await g.activate(a, ra, 0, { targets: [t] }); await g.settle();
+    check("Royal Assassin destroys a tapped creature", t.zone === "graveyard"); }
+  // Memory Lapse puts the countered spell on top of its owner's library
+  { const { g, a, b } = table(); lands(g, a, 2); lands(g, b, 3); const ml = hand(g, a, "Memory Lapse"); const nw = hand(g, b, "Night's Whisper");
+    a.agent.respond = (g2, q, ctx) => (ctx.window === "stack" && ml.zone === "hand" ? { type: "cast", card: ml, targets: [g2.stack[g2.stack.length - 1]] } : null);
+    g.activeIdx = 1; await g.cast(b, nw, {}); await g.settle();
+    check("Memory Lapse: the countered spell is on top of its owner's library", b.library[0] === nw && nw.zone === "library", nw.zone); }
+  // Snuff Out: pay 4 life with a Swamp out
+  { const { g, a, b } = table(); put(g, a, "Swamp"); const so = hand(g, a, "Snuff Out"); put(g, b, "Tetsuko Umezawa, Fugitive"); await g.settle();
+    check("Snuff Out: free with a Swamp, for 4 life", g.castOptions(a, so).some(w => w.alt));
+    const vamp = put(g, b, "Gifted Aetherborn");
+    check("Snuff Out: can't target a black creature", !g.targetOptions(a, so.def.spell.targets[0], so).includes(vamp)); }
+  // Mutavault: animated, it is an Assassin, so its combat damage makes Etrata cloak
+  { const { g, a, b } = table(); put(g, a, "Island"); const mv = put(g, a, "Mutavault"); put(g, a, "Etrata, Deadly Fugitive"); await g.settle();
+    await g.activate(a, mv, 0, {}); await g.settle();
+    check("Mutavault: a 2/2 Assassin creature until end of turn", g.isCreature(mv) && g.power(mv) === 2 && MK.isAssassin(g, mv));
+    const n = g.battlefield.filter(o => o.controller === a && o.faceDown).length;
+    await attack(g, a, [{ attacker: mv, target: b }]);
+    check("Mutavault: its combat damage makes Etrata cloak", g.battlefield.filter(o => o.controller === a && o.faceDown).length === n + 1); }
+
   // Bot games: no engine errors, the deck wins some
   { let errors = 0, wins = 0;
     const opp = MK.BOT_DECKS.filter(d => d.bracket === 4 && d.id !== deck.id);
