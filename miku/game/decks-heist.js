@@ -612,6 +612,289 @@
     ai: { priority: 5 }
   });
 
+
+  /* ================================================================ typal payoffs (Assassins) and closers
+     Everything that names a creature type chooses Assassin. The creature types a permanent has, read from the card
+     and the type-changing statics (never from the full characteristics, so it's safe inside another static). */
+  function typesLite(g, o) {
+    const out = new Set(o.def.subtypes);
+    let all = !!o.def.changeling;
+    if (o.zone !== "battlefield") return { set: out, all };
+    for (const src of g.staticSources()) for (const st of g.staticsOf(src)) {
+      if (!st.subtypes && !st.allTypes) continue;
+      let ok = false;
+      try { ok = !st.applies || st.applies(g, src, o); } catch (e) { ok = false; }
+      if (!ok) continue;
+      if (st.allTypes) all = true;
+      if (st.subtypes) { const v = typeof st.subtypes === "function" ? st.subtypes(g, src, o) : st.subtypes; if (v) v.forEach(t => out.add(t)); }
+    }
+    return { set: out, all };
+  }
+  function shareTypeLite(a, b) {
+    if (a.all) return b.all || b.set.size > 0;
+    if (b.all) return a.set.size > 0;
+    for (const t of a.set) if (b.set.has(t)) return true;
+    return false;
+  }
+  /* The creature spell is an Assassin: on the card, by changeling, or by a type changer on our battlefield ("the same is
+     true for creature spells you control"). */
+  const assassinSpell = (g, card, p) => !!card && card.def.types.includes("Creature") && (card.def.changeling || card.def.subtypes.includes("Assassin") || g.battlefield.some(o => o.controller === p && (o.def.makesAssassins && o.def.name !== "Roaming Throne" || o.def.name === "Maskwood Nexus")));
+  D({
+    name: "Coat of Arms", cost: "{5}", type: "Artifact",
+    text: "Each creature gets +1/+1 for each other creature on the battlefield that shares at least one creature type with it. (For example, if two Goblin Warriors and a Goblin Shaman are on the battlefield, each gets +2/+2.)",
+    statics: [{
+      applies: (g, s, o) => g.isCreature(o),
+      pt: (g, s, o) => {
+        if (!s.__coat || s.__coat.v !== g.v) {
+          const cre = g.battlefield.filter(c => g.isCreature(c)), types = new Map(cre.map(c => [c.id, typesLite(g, c)])), counts = new Map();
+          for (const c of cre) { let n = 0; for (const d of cre) if (d !== c && shareTypeLite(types.get(c.id), types.get(d.id))) n++; counts.set(c.id, n); }
+          s.__coat = { v: g.v, counts };
+        }
+        const n = s.__coat.counts.get(o.id) || 0;
+        return [n, n];
+      }
+    }],
+    ai: { priority: 7, threat: 4, cast: (g, p, o, ctx) => (H.coatCast ? H.coatCast(g, p, o, ctx) : undefined) }
+  });
+  D({
+    name: "Obelisk of Urd", cost: "{6}", type: "Artifact", keywords: ["convoke"],
+    text: "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)\nAs this artifact enters, choose a creature type.\nCreatures you control of the chosen type get +2/+2.",
+    note: "The chosen type is always Assassin.",
+    etbState: () => ({ chosenType: "Assassin" }),
+    statics: [{ applies: (g, s, o) => mine(s, o) && g.isCreature(o) && isAssassin(g, o), pt: [2, 2] }],
+    ai: { priority: 7, minCreatures: 3 }
+  });
+  D({
+    name: "Kindred Dominance", cost: "{5}{B}{B}", type: "Sorcery",
+    text: "Choose a creature type. Destroy all creatures that aren't of the chosen type.",
+    note: "The chosen type is always Assassin.",
+    spell: { do: (g, ctx) => { const hit = g.battlefield.filter(o => g.isCreature(o) && !isAssassin(g, o)); g.destroyAll(hit, ctx.o); log(g, `Kindred Dominance (Assassin): ${hit.length} creature${hit.length === 1 ? "" : "s"} destroyed.`, ctx.p, ["Kindred Dominance"]); } },
+    ai: { priority: 6, wipe: true, spares: o => !!o.def.changeling || o.def.subtypes.includes("Assassin"), cast: (g, p, o, ctx) => (H.dominanceCast ? H.dominanceCast(g, p, o, ctx) : undefined) }
+  });
+  D({
+    name: "Vanquisher's Banner", cost: "{5}", type: "Artifact",
+    text: "As this artifact enters, choose a creature type.\nCreatures you control of the chosen type get +1/+1.\nWhenever you cast a creature spell of the chosen type, draw a card.",
+    note: "The chosen type is always Assassin.",
+    etbState: () => ({ chosenType: "Assassin" }),
+    statics: [{ applies: (g, s, o) => mine(s, o) && g.isCreature(o) && isAssassin(g, o), pt: [1, 1] }],
+    triggers: [{ on: "cast", when: (g, s, ev) => ev.p === s.controller && !(ev.item && (ev.item.isCopy || ev.item.faceDown)) && assassinSpell(g, ev.o, ev.p), do: (g, s, ev, { p }) => g.draw(p, 1) }],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Door of Destinies", cost: "{4}", type: "Artifact",
+    text: "As this artifact enters, choose a creature type.\nWhenever you cast a spell of the chosen type, put a charge counter on this artifact.\nCreatures you control of the chosen type get +1/+1 for each charge counter on this artifact.",
+    note: "The chosen type is always Assassin.",
+    etbState: () => ({ chosenType: "Assassin" }),
+    statics: [{ applies: (g, s, o) => mine(s, o) && g.isCreature(o) && isAssassin(g, o), pt: (g, s) => [s.counters.charge || 0, s.counters.charge || 0] }],
+    triggers: [{ on: "cast", when: (g, s, ev) => ev.p === s.controller && !(ev.item && (ev.item.isCopy || ev.item.faceDown)) && assassinSpell(g, ev.o, ev.p), do: (g, s) => { if (s.zone === "battlefield") g.addCounters(s, "charge", 1, s); } }],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Icon of Ancestry", cost: "{3}", type: "Artifact",
+    text: "As this artifact enters, choose a creature type.\nCreatures you control of the chosen type get +1/+1.\n{3}, {T}: Look at the top three cards of your library. You may reveal a creature card of the chosen type from among them and put it into your hand. Put the rest on the bottom of your library in a random order.",
+    note: "The chosen type is always Assassin.",
+    etbState: () => ({ chosenType: "Assassin" }),
+    statics: [{ applies: (g, s, o) => mine(s, o) && g.isCreature(o) && isAssassin(g, o), pt: [1, 1] }],
+    abilities: [{
+      label: "Look at the top three for an Assassin", cost: "{3}", tap: true,
+      do: async (g, src, ctx) => {
+        const p = ctx.p, top = p.library.slice(0, 3);
+        if (!top.length) return;
+        const ok = top.filter(c => assassinSpell(g, c, p));
+        let pick = null;
+        if (ok.length) { const a = await g.ask(p, { type: "cards", prompt: "Icon of Ancestry: reveal an Assassin creature card and put it into your hand", options: ok, min: 0, max: 1, purpose: "iconPick", src }); pick = (a || [])[0] || null; }
+        if (pick) g.moveTo(pick, "hand");
+        for (const c of g.shuffleArr(top.filter(c => c !== pick))) if (c.zone === "library") { g.removeFromZone(c); p.library.push(c); }
+        log(g, pick ? `${p.name} reveals ${pick.def.name} (Icon of Ancestry).` : `${p.name} finds no Assassin (Icon of Ancestry).`, p, pick ? [pick.def.name] : []);
+      },
+      ai: { use: (g, p, o, ctx) => (ctx.window === "main2" || (ctx.window === "end" && g.nextPlayer(ctx.turnOf) === p)) && manaNow(g, p) >= 3 }
+    }],
+    ai: { priority: 6, cards: (g, p, req) => (req.purpose === "iconPick" ? [req.options.slice().sort((a, b) => ((b.def.ai && b.def.ai.priority) || 5) - ((a.def.ai && a.def.ai.priority) || 5))[0]] : null) }
+  });
+  D({
+    name: "Adaptive Automaton", cost: "{3}", type: "Artifact Creature — Construct", pt: "2/2",
+    text: "As this creature enters, choose a creature type.\nThis creature is the chosen type in addition to its other types.\nOther creatures you control of the chosen type get +1/+1.",
+    note: "The chosen type is always Assassin.",
+    etbState: () => ({ chosenType: "Assassin" }),
+    makesAssassins: (g, s, o) => o === s,
+    statics: [{ applies: (g, s, o) => o === s, subtypes: ["Assassin"] }, { applies: (g, s, o) => o !== s && mine(s, o) && g.isCreature(o) && isAssassin(g, o), pt: [1, 1] }],
+    ai: { priority: 6 }
+  });
+  /* altars: a mana ability with a sacrifice cost can't be used by the automatic payment, so it adds to the pool (the
+     mana stays until the end of the step) and a brain plan spends it */
+  const altar = (name, text, add) => D({
+    name, cost: "{3}", type: "Artifact", text,
+    abilities: [{
+      label: "Sacrifice a creature: add mana", manaAbility: true,
+      sacCost: { filter: (g, c, src) => c.controller === src.controller && g.isCreature(c), prompt: `${name}: sacrifice a creature` },
+      do: (g, src, ctx) => { add(g, ctx); g.bump(); },
+      ai: { use: (g, p, o, ctx) => (H.altarUse ? H.altarUse(g, p, o, ctx) : false) }
+    }],
+    ai: { priority: 5 }
+  });
+  altar("Ashnod's Altar", "Sacrifice a creature: Add {C}{C}.", (g, ctx) => { ctx.p.pool.C += 2; });
+  altar("Phyrexian Altar", "Sacrifice a creature: Add one mana of any color.", (g, ctx) => { ctx.p.pool.B += 1; });
+  MK.defs.get("Phyrexian Altar").note = "The mana is always black.";
+  D({
+    name: "Blood Tribute", cost: "{4}{B}{B}", type: "Sorcery",
+    text: "Kicker—Tap an untapped Vampire you control. (You may tap a Vampire you control in addition to any other costs as you cast this spell.)\nTarget opponent loses half their life, rounded up. If this spell was kicked, you gain life equal to the life lost this way.",
+    note: "It's kicked whenever you control an untapped Vampire (Etrata is one): the Vampire is tapped as it resolves.",
+    spell: {
+      targets: [{ kind: "opponent", purpose: "harm", prompt: "Target opponent loses half their life" }],
+      do: (g, ctx) => {
+        const q = ctx.targets[0], p = ctx.p;
+        if (!q || !ctx.legal[0] || q.lost) return;
+        const vamp = g.creatures(p).find(c => !c.tapped && g.hasSub(c, "Vampire"));
+        const n = Math.ceil(q.life / 2);
+        g.loseLife(q, n, ctx.o);
+        if (vamp) { g.tap(vamp); g.gainLife(p, n, ctx.o); }
+      }
+    },
+    ai: { priority: 6, cast: (g, p, o, ctx) => (H.halfSpellCast ? H.halfSpellCast(g, p, o, ctx) : undefined), target: (g, p, req) => (H.halfSpellTarget ? H.halfSpellTarget(g, p, req) : undefined) }
+  });
+  D({
+    name: "Rush of Dread", cost: "{3}{B}{B}", type: "Sorcery", kicker: "{1}",
+    text: "Spree (Choose one or more additional costs.)\n+ {1} — Target opponent sacrifices half the creatures they control of their choice, rounded up.\n+ {2} — Target opponent discards half the cards in their hand, rounded up.\n+ {2} — Target opponent loses half their life, rounded up.",
+    note: "Only two of the spree modes are offered: the life mode is always chosen ({1}{B}{B} plus {2}), and the kicker is the sacrifice mode (+{1}). The discard mode isn't offered.",
+    spell: {
+      targets: [{ kind: "opponent", purpose: "harm", prompt: "Target opponent loses half their life" }],
+      do: async (g, ctx) => {
+        const q = ctx.targets[0], p = ctx.p;
+        if (!q || !ctx.legal[0] || q.lost) return;
+        if (ctx.kicked) {
+          const cre = g.creatures(q), n = Math.ceil(cre.length / 2);
+          if (n) { const pick = await g.ask(q, { type: "cards", prompt: `Rush of Dread: sacrifice ${n} creature${n > 1 ? "s" : ""}`, options: cre, min: n, max: n, purpose: "sacrifice", src: ctx.o }); for (const c of (pick || []).slice(0, n)) if (c.zone === "battlefield") g.sacrifice(c); }
+        }
+        g.loseLife(q, Math.ceil(q.life / 2), ctx.o);
+        void p;
+      }
+    },
+    ai: { priority: 6, cast: (g, p, o, ctx) => (H.halfSpellCast ? H.halfSpellCast(g, p, o, ctx) : undefined), target: (g, p, req) => (H.halfSpellTarget ? H.halfSpellTarget(g, p, req) : undefined), confirm: () => true }
+  });
+  D({
+    name: "Hatred", cost: "{3}{B}{B}", type: "Instant",
+    text: "As an additional cost to cast this spell, pay X life.\nTarget creature gets +X/+0 until end of turn.",
+    note: "X is chosen as it resolves (not as an additional cost).",
+    spell: {
+      targets: [{ kind: "creature", purpose: "help", prompt: "Hatred: +X/+0" }],
+      do: async (g, ctx) => {
+        const t = ctx.targets[0], p = ctx.p;
+        if (!t || !ctx.legal[0] || t.zone !== "battlefield") return;
+        const max = Math.max(0, p.life - 1);
+        const want = H.hatredX ? H.hatredX(g, p, t) : max;
+        const x = Math.max(0, Math.min(max, (await g.ask(p, { type: "number", prompt: "Hatred: pay how much life (X)?", min: 0, max, purpose: "hatredX", src: ctx.o, want })) | 0));
+        if (x > 0 && g.payLife(p, x)) g.pump(t, x, 0);
+      }
+    },
+    ai: { priority: 4, trick: (g, p, o) => (H.hatredTrick ? H.hatredTrick(g, p, o) : false), target: (g, p, req) => (H.hatredTarget ? H.hatredTarget(g, p, req) : undefined) }
+  });
+  D({
+    name: "Archfiend of Despair", cost: "{6}{B}{B}", type: "Creature — Demon", pt: "6/6", keywords: ["flying"],
+    text: "Flying\nYour opponents can't gain life.\nAt the beginning of each end step, each opponent loses life equal to the life that player lost this turn. (Damage causes loss of life.)",
+    statics: [{ cantGainLife: (g, s, pl) => isOpp(g, s.controller, pl) }],
+    triggers: [{ on: "endStep", do: (g, s, ev, { p }) => { for (const q of g.opponents(p)) { const n = q.lifeLostThisTurn || 0; if (n > 0) g.loseLife(q, n, s); } } }],
+    ai: { priority: 6, threat: 4 }
+  });
+  D({
+    name: "Dark Confidant", cost: "{1}{B}", type: "Creature — Human Wizard", pt: "2/1",
+    text: "At the beginning of your upkeep, reveal the top card of your library and put that card into your hand. You lose life equal to its mana value.",
+    triggers: [{ on: "upkeep", when: (g, s, ev) => ev.p === s.controller, do: (g, s, ev, { p }) => { const c = p.library[0]; if (!c) return; g.moveTo(c, "hand"); log(g, `${p.name} reveals ${c.def.name} (Dark Confidant).`, p, [c.def.name]); if (c.def.mv > 0) g.loseLife(p, c.def.mv, s); } }],
+    ai: { priority: 7, draw: true }
+  });
+  D({
+    name: "Cabal Ritual", cost: "{1}{B}", type: "Instant",
+    text: "Add {B}{B}{B}.\nThreshold — Add {B}{B}{B}{B}{B} instead if there are seven or more cards in your graveyard.",
+    note: "The mana stays until the end of the step or phase.",
+    spell: { do: (g, ctx) => { const n = ctx.p.graveyard.length >= 7 ? 5 : 3; ctx.p.pool.B += n; g.bump(); log(g, `${ctx.p.name} adds ${"{B}".repeat(n)}.`, ctx.p, ["Cabal Ritual"]); } },
+    ai: {
+      cast: (g, p, o, { window }) => {
+        if (window !== "main1") return false;
+        const have = manaNow(g, p), gain = (p.graveyard.length >= 7 ? 5 : 3) - 2;
+        const big = p.hand.some(c => c !== o && !c.def.types.includes("Land") && c.def.mv > have && c.def.mv <= have + gain && !g.castOptions(p, c).length && (c.def.colors.length === 0 || c.def.colors.includes("B")));
+        return big ? 40 : false;
+      }
+    }
+  });
+  D({
+    name: "Massacre Wurm", cost: "{3}{B}{B}{B}", type: "Creature — Phyrexian Wurm", pt: "6/5",
+    text: "When this creature enters, creatures your opponents control get -2/-2 until end of turn.\nWhenever a creature an opponent controls dies, that player loses 2 life.",
+    triggers: [
+      { on: "enters", self: true, do: (g, s, ev, { p }) => { const list = g.battlefield.filter(o => g.isCreature(o) && isOpp(g, p, o.controller)); if (list.length) g.pump(list, -2, -2); } },
+      { on: "dies", when: (g, s, ev) => !!ev.lki && isOpp(g, s.controller, ev.lki.controller), do: (g, s, ev) => { const q = ev.lki.controller; if (q && !q.lost) g.loseLife(q, 2, s); } }
+    ],
+    ai: { priority: 7, threat: 4 }
+  });
+  D({
+    name: "Mithril Coat", cost: "{3}", type: "Legendary Artifact — Equipment", equip: "{3}", keywords: ["flash", "indestructible"],
+    text: "Flash\nIndestructible\nWhen Mithril Coat enters, attach it to target legendary creature you control.\nEquipped creature has indestructible.\nEquip {3}",
+    triggers: [{ on: "enters", self: true, do: async (g, s, ev, { p }) => { const t = await g.chooseTarget(p, trig({ kind: "creature", you: true, purpose: "equip", prompt: "Mithril Coat: attach to a legendary creature", filter: (g2, c) => c.def.legendary }), s); if (t && t.zone === "battlefield" && s.zone === "battlefield") { s.attachedTo = t; g.bump(); } } }],
+    statics: [{ applies: (g, s, o) => s.attachedTo === o, kw: ["indestructible"] }],
+    ai: { priority: 6, protection: true, equipTarget: (g, p, opts) => (H.coatTarget ? H.coatTarget(g, p, opts) : undefined), target: (g, p, req) => (req.purpose === "equip" && H.coatTarget ? H.coatTarget(g, p, req.options) : undefined) }
+  });
+  /* ninjas */
+  D({
+    name: "Ninja of the Deep Hours", cost: "{3}{U}", type: "Creature — Human Ninja", pt: "2/2",
+    text: "Ninjutsu {1}{U} ({1}{U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)\nWhenever this creature deals combat damage to a player, you may draw a card.",
+    note: ninjaNote, channel: ninjutsu("Ninja of the Deep Hours", "{1}{U}"),
+    triggers: [{ on: "combatDamagePlayer", when: (g, s, ev) => ev.src === s, do: (g, s, ev, { p }) => g.draw(p, 1) }],
+    ai: ninjaAi({ priority: 6 })
+  });
+  D({
+    name: "Ingenious Infiltrator", cost: "{2}{U}{B}", type: "Creature — Vedalken Ninja", pt: "2/3",
+    text: "Ninjutsu {U}{B} ({U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)\nWhenever a Ninja you control deals combat damage to a player, draw a card.",
+    note: ninjaNote, channel: ninjutsu("Ingenious Infiltrator", "{U}{B}"),
+    triggers: [{ on: "combatDamagePlayer", when: (g, s, ev) => !!ev.src && mine(s, ev.src) && g.hasSub(ev.src, "Ninja"), do: (g, s, ev, { p }) => g.draw(p, 1) }],
+    ai: ninjaAi({ priority: 7 })
+  });
+  D({
+    name: "Moon-Circuit Hacker", cost: "{1}{U}", type: "Enchantment Creature — Human Ninja", pt: "2/1",
+    text: "Ninjutsu {U} ({U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)\nWhenever this creature deals combat damage to a player, you may draw a card. If you do, discard a card unless this creature entered this turn.",
+    note: ninjaNote, channel: ninjutsu("Moon-Circuit Hacker", "{U}"),
+    triggers: [{
+      on: "combatDamagePlayer", when: (g, s, ev) => ev.src === s,
+      do: async (g, s, ev, { p }) => {
+        g.draw(p, 1);
+        if (s.enteredTurn === g.turn || !p.hand.length) return;
+        const pick = await g.ask(p, { type: "cards", prompt: "Moon-Circuit Hacker: discard a card", options: p.hand.slice(), min: 1, max: 1, purpose: "discard", src: s });
+        g.discard(p, (pick || []).find(x => p.hand.includes(x)) || p.hand[p.hand.length - 1]);
+      }
+    }],
+    ai: ninjaAi({ priority: 6 })
+  });
+  /* free interaction */
+  D({
+    name: "Flare of Denial", cost: "{1}{U}{U}", type: "Instant",
+    text: "You may sacrifice a nontoken blue creature rather than pay this spell's mana cost.\nCounter target spell.",
+    altCosts: [{ label: "Sacrifice a nontoken blue creature", cost: "", sacPermanent: { filter: (g, c) => !c.isToken && g.isCreature(c) && g.colorsOf(c).has("U"), prompt: "Flare of Denial: sacrifice a nontoken blue creature" } }],
+    spell: { targets: [{ kind: "spell", purpose: "counter", prompt: "Counter target spell", filter: (g, item, p) => item.p !== p }], do: (g, ctx) => { const it = ctx.targets[0]; if (ctx.legal[0] && it && g.stack.includes(it)) g.counterSpell(it, ctx.o); } },
+    ai: { counter: true, target: (g, p, req) => (req.purpose === "altSac" && H.flareSac ? H.flareSac(g, p, req) : undefined) }
+  });
+  D({
+    name: "Snapback", cost: "{1}{U}", type: "Instant",
+    text: "You may exile a blue card from your hand rather than pay this spell's mana cost.\nReturn target creature to its owner's hand.",
+    altCosts: [{ label: "Exile a blue card from your hand", cost: "", exileFromHand: { filter: (g, c) => c.def.colors.includes("U"), prompt: "Snapback: exile a blue card from your hand" } }],
+    spell: { targets: [{ kind: "creature", purpose: "fadingHope", prompt: "Return to its owner's hand" }], do: (g, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0] && t.zone === "battlefield") g.bounce(t); } },
+    ai: { priority: 4, protection: true, target: (g, p, req) => (req.purpose === "fadingHope" && H.fadingTarget ? H.fadingTarget(g, p, req) : undefined) }
+  });
+  D({
+    name: "Force of Despair", cost: "{1}{B}{B}", type: "Instant",
+    text: "If it's not your turn, you may exile a black card from your hand rather than pay this spell's mana cost.\nDestroy all creatures that entered the battlefield this turn.",
+    altCosts: [{ label: "Exile a black card from your hand", cost: "", condition: (g, p) => g.active !== p, exileFromHand: { filter: (g, c) => c.def.colors.includes("B"), prompt: "Force of Despair: exile a black card from your hand" } }],
+    spell: { do: (g, ctx) => { const hit = g.battlefield.filter(o => g.isCreature(o) && o.enteredTurn === g.turn); g.destroyAll(hit, ctx.o); } },
+    ai: { priority: 4, cast: () => false, plan: (g, p, o, ctx) => (H.despairPlan ? H.despairPlan(g, p, o, ctx) : null) }
+  });
+  D({
+    name: "Baleful Mastery", cost: "{3}{B}", type: "Instant",
+    text: "You may pay {1}{B} rather than pay this spell's mana cost.\nIf the {1}{B} cost was paid, an opponent draws a card.\nExile target creature or planeswalker.",
+    note: "The opponent who draws is the target's controller (or the first opponent).",
+    altCosts: [{ label: "Pay {1}{B}: an opponent draws", cost: "{1}{B}" }],
+    spell: {
+      targets: [{ kind: "creatureOrPlaneswalker", purpose: "harm", prompt: "Exile target creature or planeswalker" }],
+      do: (g, ctx) => { const t = ctx.targets[0]; if (!t || !ctx.legal[0] || t.zone !== "battlefield") return; const q = t.controller !== ctx.p ? t.controller : g.opponents(ctx.p)[0]; g.exile(t, ctx.o); if (ctx.item && ctx.item.alt === 1 && q && !q.lost) g.draw(q, 1); }
+    },
+    ai: { removal: true, minThreat: 5 }
+  });
+
   /* ================================================================ equipment and artifacts */
   D({
     name: "Quietus Spike", cost: "{3}", type: "Artifact — Equipment", equip: "{3}",

@@ -317,6 +317,78 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
     await g.activate(a, py, g.abilitiesOf(py)[0].i, {}); await g.settle();
     check("Pyre of Heroes: a mana value 3 Assassin finds a mana value 4 Assassin (not a Pirate)", ram.zone === "battlefield" && vt.zone === "graveyard" && offered && !offered.includes("Hostage Taker"), offered); }
 
+
+  // Coat of Arms: each creature +1/+1 per other creature sharing a type; type-changers count; opponents' typal boards too
+  { const { g, a, b } = table(); put(g, a, "Coat of Arms"); put(g, a, "Leyline of Transformation"); const hp = put(g, a, "Hired Poisoner"); const elf = put(g, a, "Llanowar Elves"); const oc = put(g, a, "Changeling Outcast");
+    const e1 = put(g, b, "Llanowar Elves"), e2 = put(g, b, "Llanowar Elves"); await g.settle();
+    check("Coat of Arms: Poisoner +2 (two other Assassins), our Elf +4 (Assassins and Elves), the changeling +4 (everything)", g.power(hp) === 3 && g.power(elf) === 5 && g.power(oc) === 5, [g.power(hp), g.power(elf), g.power(oc)]);
+    check("Coat of Arms: the opponent's Elves get +3 (the other Elf, our Elf, the changeling)", g.power(e1) === 4 && g.power(e2) === 4, [g.power(e1), g.power(e2)]); }
+  // Obelisk of Urd, Vanquisher's Banner, Door of Destinies, Icon of Ancestry, Adaptive Automaton
+  { const { g, a } = table(); lands(g, a, 6); const hp = put(g, a, "Hired Poisoner"); put(g, a, "Obelisk of Urd"); put(g, a, "Vanquisher's Banner"); const door = put(g, a, "Door of Destinies"); put(g, a, "Icon of Ancestry"); put(g, a, "Adaptive Automaton"); await g.settle();
+    check("typal anthems: Obelisk +2, Banner +1, Icon +1, Automaton +1 on an Assassin", g.power(hp) === 6, g.power(hp));
+    const h0 = a.hand.length; const ai2 = hand(g, a, "Assassin Initiate"); await g.cast(a, ai2); await g.settle();
+    check("Vanquisher's Banner draws and Door of Destinies charges on an Assassin spell", a.hand.length === h0 + 1 && (door.counters.charge || 0) === 1 && g.power(hp) === 7, { hand: a.hand.length - h0, charge: door.counters.charge, pw: g.power(hp) }); }
+  // Kindred Dominance: destroys everything that isn't an Assassin (Leyline keeps ours)
+  { const { g, a, b } = table(); lands(g, a, 7, "Swamp"); put(g, a, "Leyline of Transformation"); const elf = put(g, a, "Llanowar Elves"); const theirs = put(g, b, "Llanowar Elves"); const kd = hand(g, a, "Kindred Dominance"); await g.cast(a, kd); await g.settle();
+    check("Kindred Dominance: their creature dies, our type-changed one lives", theirs.zone === "graveyard" && elf.zone === "battlefield"); }
+  // altars, Blood Tribute, Rush of Dread, Hatred, Archfiend, Dark Confidant, Cabal Ritual, Massacre Wurm, Mithril Coat
+  { const { g, a } = table(); const alt = put(g, a, "Ashnod's Altar"); put(g, a, "Hired Poisoner"); await g.settle();
+    a.agent.choose = (g2, p, req) => (req.purpose === "sacrifice" ? req.options[0] : MK.AI.create({ skill: 1 }).choose(g2, p, req));
+    await g.activate(a, alt, g.abilitiesOf(alt)[0].i, {}); await g.settle();
+    check("Ashnod's Altar: sacrifice a creature for {C}{C}", a.pool.C === 2 && g.creatures(a).length === 0, a.pool); }
+  { const { g, a, b } = table(); lands(g, a, 6, "Swamp"); const et = put(g, a, "Etrata, Deadly Fugitive"); const bt = hand(g, a, "Blood Tribute"); await g.cast(a, bt, { targets: [b] }); await g.settle();
+    check("Blood Tribute: half their life, and the Vampire taps to gain it", b.life === 20 && a.life === 60 && et.tapped, [b.life, a.life, et.tapped]); }
+  { const { g, a, b } = table(); lands(g, a, 6, "Swamp"); put(g, b, "Llanowar Elves"); put(g, b, "Llanowar Elves"); const rd = hand(g, a, "Rush of Dread"); await g.cast(a, rd, { targets: [b], kicked: true }); await g.settle();
+    check("Rush of Dread (kicked): half their creatures and half their life", g.creatures(b).length === 1 && b.life === 20, [g.creatures(b).length, b.life]); }
+  { const { g, a, b } = table(); lands(g, a, 5, "Swamp"); const oc = put(g, a, "Changeling Outcast"); await g.settle();
+    a.agent.choose = (g2, p, req) => (req.purpose === "hatredX" ? 19 : MK.AI.create({ skill: 1 }).choose(g2, p, req));
+    const ht = hand(g, a, "Hatred"); await g.cast(a, ht, { targets: [oc] }); await g.settle();
+    check("Hatred: pay 19 life for +19/+0", a.life === 21 && g.power(oc) === 20, [a.life, g.power(oc)]);
+    await attack(g, a, [{ attacker: oc, target: b }]);
+    check("Hatred: a 20-power unblockable hit", b.life === 20, b.life); }
+  { const { g, a, b } = table(); put(g, a, "Archfiend of Despair"); const hp = put(g, a, "Hired Poisoner"); await g.settle();
+    await attack(g, a, [{ attacker: hp, target: b }]);
+    g.gainLife(b, 5);
+    check("Archfiend of Despair: opponents can't gain life", b.life === 39, b.life);
+    g.emit("endStep", { p: a }); await g.settle();
+    check("Archfiend of Despair: at the end step they lose it again", b.life === 38, b.life); }
+  { const { g, a } = table(); put(g, a, "Dark Confidant"); const top = lib(g, a, "Ramses, Assassin Lord"); await g.settle();
+    g.emit("upkeep", { p: a }); await g.settle();
+    check("Dark Confidant: the top card to hand, life lost for its mana value", top.zone === "hand" && a.life === 36, { zone: top.zone, life: a.life }); }
+  { const { g, a } = table(); lands(g, a, 2, "Swamp"); for (let i = 0; i < 7; i++) { const c = g.newObj(MK.get("Island"), a, "graveyard"); a.graveyard.push(c); } const cr = hand(g, a, "Cabal Ritual"); await g.cast(a, cr); await g.settle();
+    check("Cabal Ritual: five black mana with threshold", a.pool.B === 5, a.pool.B); }
+  { const { g, a, b } = table(); const e1 = put(g, b, "Llanowar Elves"); const big = put(g, b, "Thieving Amalgam"); put(g, a, "Massacre Wurm"); await g.settle();
+    check("Massacre Wurm: -2/-2 kills the Elf, the 6/7 lives; the owner loses 2", e1.zone === "graveyard" && big.zone === "battlefield" && b.life === 38, { e1: e1.zone, life: b.life }); }
+  { const { g, a } = table(); lands(g, a, 3); const ram = put(g, a, "Ramses, Assassin Lord"); const mc = hand(g, a, "Mithril Coat"); await g.cast(a, mc); await g.settle();
+    check("Mithril Coat: attaches to a legendary creature, indestructible", mc.attachedTo === ram && g.kw(ram, "indestructible"));
+    g.destroy(ram);
+    check("Mithril Coat: the creature survives destruction", ram.zone === "battlefield"); }
+  // ninjas: Ingenious Infiltrator draws for every Ninja hit; Moon-Circuit Hacker loots unless it entered this turn
+  { const { g, a, b } = table(); lands(g, a, 4); const hp = put(g, a, "Hired Poisoner"); const inf = hand(g, a, "Ingenious Infiltrator"); await g.settle();
+    a.agent.attack = () => [{ attacker: hp, target: b }];
+    const ow = g.trickWindow.bind(g); let done = false; const h0 = a.hand.length;
+    g.trickWindow = async (p, w) => { if (!w && !done) { done = true; await g.channel(a, inf, {}); } return ow(p, w); };
+    await g.doCombat(a); await g.settle();
+    check("Ingenious Infiltrator: ninjutsu, then its own hit draws", inf.zone === "battlefield" && hp.zone === "hand" && a.hand.length === h0 + 1, { inf: inf.zone, hand: a.hand.length - h0 }); }
+  // free interaction: Flare of Denial sacrificing a blue creature; Snapback pitching a blue card; Force of Despair on an opponent's turn
+  { const { g, a, b } = table(); const sl = put(g, a, "Slither Blade"); const fd = hand(g, a, "Flare of Denial"); await g.settle();
+    lands(g, b, 2, "Forest"); const elf = hand(g, b, "Llanowar Elves");
+    a.agent.choose = (g2, p, req) => (req.purpose === "altSac" ? sl : MK.AI.create({ skill: 1 }).choose(g2, p, req));
+    let offered = null;
+    a.agent.respond = (g2, p, ctx) => { const act = (ctx.actions || []).find(x => x.card === fd && x.alt); if (ctx.top && ctx.top.o === elf) offered = !!act; return act && ctx.top && ctx.top.o === elf ? { type: "cast", card: fd, alt: act.alt, targets: [ctx.top] } : null; };
+    g.activeIdx = 1; await g.cast(b, elf); await g.settle();
+    check("Flare of Denial: the free way is offered with a nontoken blue creature", offered === true, offered);
+    check("Flare of Denial: counters for free, the blue creature is sacrificed", elf.zone === "graveyard" && sl.zone === "graveyard" && fd.zone === "graveyard", { elf: elf.zone, sl: sl.zone }); }
+  { const { g, a, b } = table(); const elf = put(g, b, "Llanowar Elves"); const sb = hand(g, a, "Snapback"); const blue = hand(g, a, "Counterspell"); await g.settle();
+    a.agent.choose = (g2, p, req) => (req.purpose === "altExile" ? blue : MK.AI.create({ skill: 1 }).choose(g2, p, req));
+    await g.cast(a, sb, { alt: 1, targets: [elf] }); await g.settle();
+    check("Snapback: free by exiling a blue card", elf.zone === "hand" && blue.zone === "exile"); }
+  { const { g, a, b } = table(); const old = put(g, b, "Llanowar Elves"); old.enteredTurn = 0; g.turn = 5; g.activeIdx = 1; const fresh = put(g, b, "Thieving Amalgam"); const fod = hand(g, a, "Force of Despair"); const blk = hand(g, a, "Hired Poisoner"); await g.settle();
+    a.agent.choose = (g2, p, req) => (req.purpose === "altExile" ? blk : MK.AI.create({ skill: 1 }).choose(g2, p, req));
+    check("Force of Despair: free on an opponent's turn", g.castOptions(a, fod).some(w => w.alt));
+    await g.cast(a, fod, { alt: 1 }); await g.settle();
+    check("Force of Despair: kills what entered this turn, not the old creature", fresh.zone === "graveyard" && old.zone === "battlefield", { fresh: fresh.zone, old: old.zone }); }
+
   // the engine rules: "triggers an additional time" stays with its creature type, anyColor, castEntry
   { const { g, a } = table(); const rt = put(g, a, "Roaming Throne"); await g.settle();
     check("triggerExtra: a non-Assassin's trigger isn't doubled", (() => { const n = g.staticsOf(rt).find(st => st.triggerExtra).triggerExtra(g, rt, { src: put(g, a, "Llanowar Elves"), controller: a }); return n === 0; })()); }

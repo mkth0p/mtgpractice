@@ -944,6 +944,7 @@
       o.sick = true; o.damage = 0; o.state = {}; o.counters = {}; o.combat = null; o.gone = false;
       // "paid" or "free" when it entered by resolving as a spell, null when it was put onto the battlefield (Satoru)
       o.castEntry = opts.cast || null;
+      o.enteredTurn = this.turn;
       o.ts = ++this.ts;
       const d = o.def;
       let tapped = !!opts.tapped;
@@ -1908,6 +1909,7 @@
         if (alt.condition && !alt.condition(this, p, o)) return;
         if (alt.payLife && p.life <= alt.payLife) return;
         if (alt.exileFromHand && !p.hand.some(c => c !== o && alt.exileFromHand.filter(this, c))) return;
+        if (alt.sacPermanent && !this.battlefield.some(c => c.controller === p && alt.sacPermanent.filter(this, c, p))) return;
         const base = this.spellCost(p, o, { alt: i + 1 });
         if (!this.canPay(p, base, { spell: o })) return;
         ways.push({ door: null, alt: i + 1, xMax: 0, xCount: 0, cost: base, convoke: false, label: alt.label || "Alternative cost" });
@@ -1959,7 +1961,7 @@
       // pay
       const cost = this.spellCost(p, o, { x: item.x, door: item.door, kicked: item.kicked, alt: item.alt });
       const fromZone = o.zone;
-      let altExile = null;
+      let altExile = null, altSac = null;
       if (item.alt) {
         const alt = d.altCosts[item.alt - 1];
         if (alt.exileFromHand) {
@@ -1968,12 +1970,19 @@
           if (!pick) return false;
           altExile = pick;
         }
+        if (alt.sacPermanent) {
+          const opts = this.battlefield.filter(c => c.controller === p && alt.sacPermanent.filter(this, c, p));
+          const pick = await this.ask(p, { type: "target", prompt: alt.sacPermanent.prompt || "Sacrifice a permanent", options: opts, purpose: "altSac", src: o });
+          if (!pick || !opts.includes(pick)) return false;
+          altSac = pick;
+        }
       }
       if (!this.pay(p, cost, { convoke: way.convoke, spell: o })) { this.log(`${p.name} can't pay for ${d.name}.`, { p }); return false; }
       if (item.alt) {
         const alt = d.altCosts[item.alt - 1];
         if (alt.payLife) this.payLife(p, alt.payLife);
         if (altExile) this.moveTo(altExile, "exile");
+        if (altSac && altSac.zone === "battlefield") this.sacrifice(altSac);
       }
       if (o.isCommander && fromZone === "command") p.cmdCasts[o.id] = (p.cmdCasts[o.id] || 0) + 1;
       if (fromZone === "graveyard" && d.flashback) item.exileAfter = true;

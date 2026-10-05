@@ -72,8 +72,17 @@ module.exports = function install(MK, opts) {
     if (type === "enters" && ev && ev.o && this.__tele && this.__tele.hero && ev.p === this.__tele.hero && ev.o.owner === this.__tele.hero && !ev.o.isToken && !ev.o.faceDown && !this.isLand(ev.o)) { const f = this.__tele.first || (this.__tele.first = {}); if (f[ev.o.def.name] == null) f[ev.o.def.name] = this.round; }
     if (type === "turnedFaceUp" && ev && ev.o && this.__tele && ev.p === this.__tele.hero && ev.o.owner !== this.__tele.hero) this.__tele.faceUpStolen++;
     // the hero's key permanents leaving the battlefield (Ramses, Etrata): round and where to
+    if (type === "leaves" && ev && ev.lki && this.__tele && this.__tele.hero && ev.lki.controller === this.__tele.hero && ev.lki.creature && ev.to !== "hand") { const k = this.active === this.__tele.hero ? "lostMyTurn" : "lostTheirTurn"; this.__tele[k] = (this.__tele[k] || 0) + 1; }
     if (type === "leaves" && ev && ev.lki && this.__tele && this.__tele.hero && ev.lki.controller === this.__tele.hero && /^(Ramses, Assassin Lord|Etrata, Deadly Fugitive|Bloodletter of Aclazotz)$/.test(ev.lki.name)) (this.__tele.left || (this.__tele.left = [])).push([this.round, ev.lki.name, ev.to]);
     return oe.apply(this, arguments);
+  };
+  // opponents' mass removal that resolved (spells the bots know as wipes), and the hero's creatures that left the battlefield
+  const WIPE = /Toxic Deluge|Cyclonic Rift|Evacuation|Aetherize|Aetherspouts|Wrath of God|Hour of Reckoning|Phyrexian Rebirth|Time Wipe|Cleansing Nova|Crux of Fate|Austere Command|Zombie Apocalypse|Blasphemous Act|Earthquake|Eyeblight Massacre|Vandalblast|Kindred Dominance|Massacre Wurm|Reiver Demon|Dread Cacodemon|Damnation|Day of Judgment|Black Sun's Zenith|Languish|Ritual of Soot/;
+  const ort = G.resolveTop;
+  G.resolveTop = async function () {
+    const g = this, s = st(g), top = g.stack[g.stack.length - 1];
+    if (s.hero && top && top.kind === "spell" && top.p !== s.hero && !top.countered && top.o && top.o.def && (WIPE.test(top.o.def.name) || (top.o.def.ai && top.o.def.ai.wipe)) && !(top.o.def.name === "Cyclonic Rift" && top.alt !== 1)) s.wipes = (s.wipes || 0) + 1;
+    return ort.apply(this, arguments);
   };
   const oc = G.cloakTop;
   G.cloakTop = function (p, from, src) { const s = st(this); if (s.hero && p === s.hero && src && src.def && src.def.name === ET && from && from !== p) s.etrataSteals++; return oc.apply(this, arguments); };
@@ -118,7 +127,7 @@ module.exports = function install(MK, opts) {
     if (h) rows.push({
       seed: g.seed, win: g.winner === h, rounds: g.round, casts: h.stats.cast[h.commanders[0] ? h.commanders[0].def.name : ""] || 0,
       steals: s.steals, etrataSteals: s.etrataSteals, flips: s.flips, stolenFlips: s.stolenFlips, freeCasts: s.freeCasts, faceUpStolen: s.faceUpStolen,
-      dmg: s.dmg, cmdDmg: s.cmdDmg, outs: s.outs, altWin: s.altWin || null, heroLost: h.lost ? h.lostReason : null, trace: s.trace || [], first: s.first || {}, cast: Object.assign({}, h.stats.cast), found: s.found || [], left: s.left || [], end: (() => { const g2 = g; return { oppLife: g2.players.filter(q => q !== h).map(q => q.lost ? 0 : q.life), heroLife: h.life }; })()
+      dmg: s.dmg, cmdDmg: s.cmdDmg, outs: s.outs, altWin: s.altWin || null, heroLost: h.lost ? h.lostReason : null, trace: s.trace || [], first: s.first || {}, cast: Object.assign({}, h.stats.cast), found: s.found || [], left: s.left || [], wipes: s.wipes || 0, lostMyTurn: s.lostMyTurn || 0, lostTheirTurn: s.lostTheirTurn || 0, end: (() => { const g2 = g; return { oppLife: g2.players.filter(q => q !== h).map(q => q.lost ? 0 : q.life), heroLife: h.life }; })()
     });
     return r;
   };
