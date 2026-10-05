@@ -265,6 +265,12 @@ function armed(g, q) { put(g, q, "Plains"); hand(g, q, "Swords to Plowshares"); 
     const evs = []; const emit = g.emit.bind(g); g.emit = (t, ev) => { evs.push(t); return emit(t, ev); };
     await g.doCombat(a);
     check("with nothing to attack, beginning and end of combat still happen", evs.includes("beginCombat") && evs.includes("endCombat") && !g.combat, evs); }
+  { const { g, a } = table({ human: true }); put(g, a, "Soul Warden"); await g.settle();
+    const evs = []; const emit = g.emit.bind(g); g.emit = (t, ev) => { evs.push(t); return emit(t, ev); };
+    let asked = 0; a.agent.attack = () => { asked++; return []; };
+    a.agent.main = (g2) => ({ type: "pass", skipCombat: g2.phase === "main1" });
+    g.turn = 0; await g.takeTurn(a);
+    check("\"End the turn\" in main 1 still has a combat phase (beginning of combat triggers), with no attack", evs.includes("beginCombat") && evs.includes("endCombat") && asked === 0, { evs: evs.filter(e => /Combat/.test(e)), asked }); }
 
   // ---------------------------------------------------------------- combat damage
   async function fight(opts) {

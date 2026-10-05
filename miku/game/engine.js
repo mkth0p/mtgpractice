@@ -2481,7 +2481,7 @@
       for (const a of c.attackers) if (a.combat) a.combat.blockedBy = a.combat.blockedBy.filter(b => b !== o);
       o.combat = null;
     }
-    async doCombat(p) {
+    async doCombat(p, opts) {
       this.combat = { attacker: p, attackers: [], blocks: [] };
       this.phase = "combat";
       this.bump();
@@ -2493,7 +2493,7 @@
       if (this.over || !this.combat) return;
       // declare attackers
       const candidates = this.creatures(p).filter(o => this.canAttack(o, p));
-      if (!candidates.length) { if (this.opts.legacySteps) { this.combat = null; return; } return this.endCombat(p, true); }
+      if (!candidates.length || (opts && opts.noAttack)) { if (this.opts.legacySteps) { this.combat = null; return; } return this.endCombat(p, true); }
       this.phase = "attackers";
       this.bump();
       let decl = await p.agent.attack(this, p, { candidates, targets: this.attackTargets(p) });
@@ -2968,7 +2968,10 @@
       if (this.over || p.lost) return this.endTurnEarly(p);
       // combat
       this.emptyPools();
+      // "End the turn" in the first main phase still goes through the combat phase, with no attackers,
+      // so "at the beginning of combat" triggers happen (records before engine 5 skipped it)
       if (!res || !res.skipCombat) await this.doCombat(p);
+      else if (!this.opts.legacySteps) await this.doCombat(p, { noAttack: true });
       if (this.over || p.lost) return this.endTurnEarly(p);
       // additional combat phases (and main phases) added this turn
       for (let k = 0; k < 10 && this.extraCombats.length; k++) {
