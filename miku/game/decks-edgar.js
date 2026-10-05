@@ -1164,7 +1164,7 @@
     text: "If you control a commander, you may cast this spell without paying its mana cost.\nExile target creature.",
     altCosts: [{ label: "Free (you control a commander)", cost: "", condition: (g, p) => commanderOut(g, p) }],
     spell: { targets: [{ kind: "creature", purpose: "harm", prompt: "Exile" }], do: (g, ctx) => { if (ctx.legal[0]) g.exile(ctx.targets[0], ctx.o); } },
-    ai: { never: true }   // cast by Edgar's plan, for free when it can
+    ai: { never: true, brain: "edgar", otherwise: { removal: true, minThreat: 5 } }   // cast by Edgar's plan, for free when it can
   });
 
   D({
@@ -1172,7 +1172,7 @@
     text: "If you control a commander, you may cast this spell without paying its mana cost.\nCreatures you control gain indestructible until end of turn.",
     altCosts: [{ label: "Free (you control a commander)", cost: "", condition: (g, p) => commanderOut(g, p) }],
     spell: { do: (g, ctx) => { g.grant(g.creatures(ctx.p), ["indestructible"]); g.log(`Creatures ${ctx.p.name} controls gain indestructible until end of turn.`, { p: ctx.p }); } },
-    ai: { never: true }   // cast by Edgar's plan in response to a board wipe
+    ai: { never: true, brain: "edgar", otherwise: { protection: true, protects: (g, q, top) => !!(top.o && top.o.def.ai && top.o.def.ai.wipe) } }   // cast by Edgar's plan in response to a board wipe
   });
 
   D({

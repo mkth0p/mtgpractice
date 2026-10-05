@@ -146,6 +146,7 @@ async function runOne(seed, seats) {
   };
   g = new MK.Game({ seed, players, strict: STRICT, maxTurns: MAXTURNS, ui });
   g.activeIdx = FIRST === "random" ? g.rand(players.length) : (+FIRST || 0) % players.length;
+  g.players.forEach((p, i) => { p.deckId = seats[i].id; });
   for (const p of g.players) p.startCards = p.library.length + p.command.length;
   const origWarn = g.warn.bind(g);
   g.warn = (err, o) => { errors.push(`${o && o.def ? o.def.name : "?"}: ${err && err.stack ? err.stack.split("\n").slice(0, 3).join(" | ") : err}`); if (STRICT) throw err; };
