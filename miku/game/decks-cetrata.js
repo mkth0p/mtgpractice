@@ -1082,6 +1082,47 @@
     spell: { targets: [{ kind: "creature", purpose: "harm", prompt: "Destroy target nonblack creature", filter: (g, o) => !g.colorsOf(o).has("B") }], do: (g, ctx) => { if (ctx.legal[0]) g.destroy(ctx.targets[0], ctx.o, { noRegen: true }); } },
     ai: { removal: true, minThreat: 4 }
   });
+  /* More payoffs for the vampire loop: "whenever you gain life, an opponent loses life". */
+  const drainOnGain = (each) => ({
+    on: "gainLife", when: (g, s, ev) => ev.p === s.controller,
+    do: async (g, s, ev, { p }) => {
+      if (each) { for (const q of g.opponents(p)) g.loseLife(q, 1, s); return; }
+      const t = await g.chooseTarget(p, trig({ kind: "opponent", purpose: "harm", prompt: `${s.def.name}: target opponent loses ${ev.amount} life` }), s);
+      if (t) g.loseLife(t, ev.amount, s);
+    }
+  });
+  D({
+    name: "Enduring Tenacity", cost: "{2}{B}{B}", type: "Enchantment Creature — Snake Glimmer", pt: "4/3",
+    text: "Whenever you gain life, target opponent loses that much life.\nWhen Enduring Tenacity dies, if it was a creature, return it to the battlefield under its owner's control. It's an enchantment. (It's not a creature.)",
+    notCreatureUnless: (g, o) => !o.state.enduring,
+    triggers: [drainOnGain(false), {
+      on: "dies", self: true, intervening: (g, s, ev) => !(ev.lki && ev.lki.wasEnduring),
+      do: (g, s, ev) => {
+        const o = ev.o;
+        if (!o || o.zone !== "graveyard") return;
+        g.putOntoBattlefield([o], o.owner);
+        if (o.zone === "battlefield") { o.state.enduring = true; g.bump(); log(g, "Enduring Tenacity returns as an enchantment.", o.owner, ["Enduring Tenacity"]); }
+      }
+    }],
+    ai: { priority: 7 }
+  });
+  const starscapeTrig = drainOnGain(true);
+  T.cetrataStarscape = MK.tokenDef({ key: "cetrata-starscape", name: "Starscape Cleric", pt: [1, 1], colors: "B", subtypes: ["Bat", "Cleric"], keywords: ["flying"], cantBlock: true, text: "Flying\nThis creature can't block.\nWhenever you gain life, each opponent loses 1 life.", triggers: [starscapeTrig] });
+  D({
+    name: "Starscape Cleric", cost: "{1}{B}", type: "Creature — Bat Cleric", pt: "2/1",
+    keywords: ["flying"], kicker: "{2}{B}", cantBlock: true,
+    text: "Offspring {2}{B} (You may pay an additional {2}{B} as you cast this spell. If you do, when this creature enters, create a 1/1 token copy of it.)\nFlying\nThis creature can't block.\nWhenever you gain life, each opponent loses 1 life.",
+    note: "Offspring is paid like kicker; the 1/1 copy is made as it resolves.",
+    onResolve: (g, p, o, item) => { if (item && item.kicked && o.zone === "battlefield") g.createToken(p, T.cetrataStarscape); },
+    triggers: [starscapeTrig],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Defiant Bloodlord", cost: "{5}{B}{B}", type: "Creature — Vampire", pt: "4/5",
+    keywords: ["flying"], text: "Flying\nWhenever you gain life, target opponent loses that much life.",
+    triggers: [drainOnGain(false)],
+    ai: { priority: 6 }
+  });
   /* Mutavault has every creature type while animated: it makes itself an Assassin (makesAssassins). */
   const vaultUp = (g, s) => !!(s.state.animated && s.state.animated.turn === g.turn);
   D({
