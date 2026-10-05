@@ -1,0 +1,21 @@
+# Decisions (Etrata heist aggro research)
+Choices made while working unattended, with the reason for each. Newest at the bottom.
+
+## Setup
+1. **Branch.** I cloned `mkth0p/mtgpractice` into an empty folder, checked out `claude/project-thread-i7fwb2` (the prompt's starting branch) and branched `etrata-heist-aggro-research` from it. `main`, the existing decks' lists and the site files (`app.js`, `sw.js`) are untouched.
+2. **Deck constant name.** The prompt suggests `MK.ETRATA_AGGRO_DECK`, but that name already belongs to the site's "Etrata aggro (stage 1)" deck (`decks-etrata4.js`). Reusing it would overwrite a live deck. The new deck is `MK.ETRATA_HEIST_DECK` with id `etrata-heist-aggro`, in the new file `miku/game/decks-heist.js`. Bench with `HERO=etrata-heist-aggro DECK_CONST=ETRATA_HEIST_DECK HERO_NAME="Etrata Heist"`.
+3. **Hero only, not a bot.** The deck is pushed to `MK.HERO_DECKS` (so `run.js --decks etrata-heist-aggro` finds it) but not to `MK.BOT_DECKS`. Adding it to the bot pool would change which decks `random4` deals, and every earlier Bracket 4 number would stop being comparable.
+4. **Site untouched.** `decks-heist.js` isn't added to the site's file lists (`app.js` `GAME_FILES`, `sw.js`), so the live site doesn't load it. The sim (`run.js`, `wrap.js`, the tests) loads every `decks-*.js` by itself.
+5. **Bench standard.** `PROCS=18` (this Mac's core count), 112 games per process, so 2,016 games per field and comparison. The opponents a game gets depend on its process's first seed (`run.js` seat picker), so paired comparisons only pair runs with the same PROCS and N. Confirmations use 18 × 280 = 5,040 games.
+6. **Prices.** Scryfall's API rate-limited this session (429) after the first named lookups, partly because a research subagent was also using it. I switched to Scryfall's daily bulk file (`default_cards`, 2026-10-05) and built `scryfall/ub-index.json` from it (every Commander-legal card within blue-black identity). A card's price is the cheapest nonfoil paper printing's `prices.usd` (TCGplayer market price, as Scryfall reports it). The source URL is that printing's Scryfall page and its TCGplayer product page. The index and `cards.json` are rebuilt by the scripts and kept out of git (15 MB).
+7. **Oracle text and rulings** come from the same bulk files (`default_cards` and `rulings`). `node scryfall/card.js --rulings "Name"` prints both.
+
+## Engine
+8. **New rules, all generic, used only by the new cards.** Intimidate, wither (and deathtouch through -1/-1 counters), statics that remove a keyword (`loseKw`), "can't gain life" as a static, "triggers an additional time" (`triggerExtra`), a combat-phase counter, whether a permanent entered by being cast with mana (`castEntry`), "mana of any type can be spent" (`playable.anyColor`), Forsaken Monument's extra {C}, prowl (`p.prowl`), and the damage each player took this turn. A replay of the 2,016-game v3 precon bench gave the same winner, length and spell count in every game, so no existing deck plays differently.
+9. **One old engine bug fixed.** When a player lost the game with a spell they didn't own on the stack (Etrata B4 casting a stolen Toxic Deluge), the card vanished, which broke run.js's card-count check. Rule 800.4a says it's exiled, so now it goes to its owner's exile.
+10. **Cards already in the engine.** The prompt lists They Came from the Pipes, Glitch Interpreter and Spark Double as missing; they were already defined in `cards-etrata.js`, so I used those definitions.
+11. **Monarch isn't in the engine.** Keeper of Keys, Court of Locthwain and Garland, Royal Kidnapper need it. They wait until a list shows a need for them.
+
+## Bot brain
+12. **Etrata's existing hooks stay on for the new deck.** These are `cards-etrata.js`'s blocks, Boots/Greaves on the key piece, and the unblockable-for-a-kill plan. The deck id is added to that brain's deck set, and the heist brain (`MK.DECK_BRAINS["etrata-heist-aggro"]`) runs first and declares the whole attack.
+13. **Two gated hooks in `cards-etrata.js`.** Etrata's flip hint asks the deck brain first (`flipUse`), and her combat-flip plan steps aside for a brain with `ownFlips`. Only the heist brain sets either, so the other Etrata decks play exactly as before.

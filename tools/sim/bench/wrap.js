@@ -5,6 +5,8 @@
    - LIST_FILE=path replaces the hero list with a whole decklist ("1 Card Name" lines, commander excluded).
    - DECK_CONST=CETRATA_DECK picks which MK.*_DECK object is the hero (default CETRATA_DECK).
    - NO_COMMANDER=1 stops the hero from ever casting its commander from the command zone.
+   - TELE_OUT=file.json records per-game telemetry for the hero (tele.js: steals, flips, where the damage came from,
+     how each opponent went out).
    Then hands the remaining argv to run.js. */
 const path = require("path"), fs = require("fs");
 const repo = path.resolve(__dirname, "../../..");
@@ -34,4 +36,5 @@ if (process.env.NO_COMMANDER) {
   const G = MK.Game.prototype, orig = G.castZones;
   G.castZones = function (p) { const z = orig.call(this, p); return p.commanders.some(c => c.def.name === deck.commander) ? z.filter(o => !o.isCommander || o.zone !== "command") : z; };
 }
+if (process.env.TELE_OUT) require("./tele.js")(MK, { heroId: process.env.TELE_HERO || deck.id, out: process.env.TELE_OUT });
 require(path.join(repo, "tools/sim/run.js"));

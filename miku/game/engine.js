@@ -366,6 +366,7 @@
       for (const o of this.battlefield) if (o.def.statics.length || o.def.levels || this.roomStatics(o).length) out.push(o);
       this._ss = out; this._ssv = this.v;
       this._grantsMana = out.some(o => o.def.statics.some(st => st.grantMana));
+      this._trigExtra = out.some(o => o.def.statics.some(st => st.triggerExtra));
       return out;
     }
     roomStatics(o) {
@@ -458,7 +459,9 @@
           const c = o.counters;
           p += (c.p1 || 0) - (c.m1 || 0); t += (c.p1 || 0) - (c.m1 || 0);
           // modifications from statics and effects
+          let lose = null;
           for (const { st, s } of effs) {
+            if (st.loseKw) { const v = typeof st.loseKw === "function" ? st.loseKw(this, s, o) : st.loseKw; if (v) (lose = lose || []).push(...v); }
             if (st.pt) { const v = typeof st.pt === "function" ? st.pt(this, s, o) : st.pt; if (v) { modP += v[0]; modT += v[1]; } }
             if (st.kw) { const v = typeof st.kw === "function" ? st.kw(this, s, o) : st.kw; if (v) v.forEach(k => kws.add(k)); }
             if (st.cantBlock) cantBlock = true;
@@ -476,6 +479,7 @@
             if (e.prot) { prot = prot || new Set(); e.prot.forEach(k => prot.add(k)); }
           }
           if (o.state.selfKw) o.state.selfKw.forEach(k => kws.add(k));
+          if (lose) lose.forEach(k => kws.delete(k));
         }
         p += modP; t += modT;
         if (!creature && !d.pt && !(o.state.animated)) { p = 0; t = 0; }
@@ -622,6 +626,17 @@
       if (ev.lki && ev.o && ev.o.zone !== "battlefield" && !ev.lki.faceDown) scan(ev.o, ev.lki);
       if (ev.batch) for (const b of ev.batch) if (b.o !== ev.o && b.o.zone !== "battlefield" && !(b.lki && b.lki.faceDown)) scanBatch(this, b, type, ev, found);
       if (!found.length) return;
+      // "that ability triggers an additional time" (Roaming Throne): statics with triggerExtra(g, source, entry) -> n
+      if ((this.staticSources(), this._trigExtra)) {
+        const more = [];
+        for (const f of found) {
+          more.push(f);
+          let n = 0;
+          for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.triggerExtra) { try { n += st.triggerExtra(this, s, f) || 0; } catch (err) { this.warn(err, s); } }
+          for (let k = 0; k < n; k++) more.push(Object.assign({}, f));
+        }
+        found.length = 0; found.push(...more);
+      }
       // APNAP: the active player's triggers go on the stack first, so they resolve last.
       const order = this.orderFrom(this.active);
       found.sort((a, b) => order.indexOf(b.controller) - order.indexOf(a.controller));
@@ -926,6 +941,8 @@
       }
       o.controller = controller || o.owner;
       o.sick = true; o.damage = 0; o.state = {}; o.counters = {}; o.combat = null; o.gone = false;
+      // "paid" or "free" when it entered by resolving as a spell, null when it was put onto the battlefield (Satoru)
+      o.castEntry = opts.cast || null;
       o.ts = ++this.ts;
       const d = o.def;
       let tapped = !!opts.tapped;
@@ -1222,6 +1239,7 @@
       // "you gain twice that much life instead" (Boon Reflection)
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.lifeGainTimes && s.controller === p) n *= st.lifeGainTimes;
       if (this.cantGainLife && this.cantGainLife(p)) return 0;
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantGainLife && st.cantGainLife(this, s, p)) return 0;   // Grievous Wound
       p.life += n; p.gained += n; p.stats.gained += n;
       this.log(`${p.name} gains ${n} life${src && src.def && !src.emblem ? " (" + src.def.name + ")" : ""}.`, { p, kind: "life", n });
       this.anim("life", { p, delta: n, src });
@@ -1260,6 +1278,9 @@
         if (opts.combat && srcObj && srcObj.isCommander) target.cmdDmg[srcObj.id] = (target.cmdDmg[srcObj.id] || 0) + n;
         // freerunning: combat damage to a player this turn with an Assassin or a commander
         if (opts.combat && srcObj && ctrl && (srcObj.isCommander || this.hasSub(srcObj, "Assassin"))) ctrl.freerun = this.turn;
+        // prowl: combat damage to a player this turn with a Rogue (Notorious Throng); damage each player took this turn
+        if (opts.combat && srcObj && ctrl && this.hasSub(srcObj, "Rogue")) ctrl.prowl = this.turn;
+        target.damageTakenThisTurn = (target.damageTakenThisTurn || 0) + n;
         if (ctrl) { ctrl.dealt += n; ctrl.stats.dmg += n; }
         this.emit("damage", { src: srcObj, target, amount: n, combat: !!opts.combat, toPlayer: true });
         if (!infect) this.emit("loseLife", { p: target, amount: n, fromDamage: true });
@@ -1268,8 +1289,10 @@
         if (target.zone !== "battlefield") return 0;
         if (this.isPlaneswalker(target) && !this.isCreature(target)) {
           target.counters.loyalty = Math.max(0, (target.counters.loyalty || 0) - n);
-        } else if (infect) {
+        } else if (infect || (srcObj && srcObj.zone === "battlefield" && this.kw(srcObj, "wither"))) {
+          // infect and wither: -1/-1 counters; with deathtouch any of it is lethal
           target.counters.m1 = (target.counters.m1 || 0) + n;
+          if (srcObj && this.kw(srcObj, "deathtouch")) target.dtKill = true;
         } else {
           target.damage += n;
           if (srcObj && this.kw(srcObj, "deathtouch")) target.dtDamage = true;
@@ -1429,7 +1452,8 @@
       const vorinclex = this.battlefield.some(o => o.controller === p && o.def.doublesLandMana);
       // statics that stop mana abilities (Linvala, Grand Abolisher) or add to them (Badgermole Cub)
       const stops = [], bonus = [];
-      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) { if (st.cantActivate) stops.push([s, st]); if (st.creatureManaBonus) bonus.push([s, st]); }
+      let cBonus = false;   // Forsaken Monument: tapping a permanent for {C} adds one more {C}
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) { if (st.cantActivate) stops.push([s, st]); if (st.creatureManaBonus) bonus.push([s, st]); if (st.colorlessTapBonus && s.controller === p) cBonus = true; }
       for (const o of this.battlefield) {
         if (o.controller !== p || ex.has(o.id)) continue;
         const abs = this.manaAbilities(o);
@@ -1446,7 +1470,7 @@
           if (ab.spellOnly && !(spell && (forWhat || "spell") === "spell" && ab.spellOnly(this, spell, o))) continue;
           const prod = typeof ab.produce === "function" ? ab.produce(this, o) : ab.produce;
           if (!prod) continue;
-          for (const units of this.expandProduce(prod, p)) options.push({ units, ab, cost: ab.cost ? parseCost(ab.cost) : null, tapCreature: ab.tapCreature || 0 });
+          for (const units of this.expandProduce(prod, p)) options.push({ units: cBonus && ab.tap && units.includes("C") ? units.concat("C") : units, ab, cost: ab.cost ? parseCost(ab.cost) : null, tapCreature: ab.tapCreature || 0 });
         }
         if (!options.length) continue;
         if (bonus.length && this.isCreature(o)) {
@@ -1813,6 +1837,8 @@
       if (o.zone === "graveyard" && d.flashback) base = parseCost(d.flashback);
       if (ch.alt && d.altCosts) base = parseCost(d.altCosts[ch.alt - 1].cost || "");
       const c = cloneCost(base);
+      // "mana of any type can be spent to cast it" (Hostage Taker, Predators' Hour): its colored symbols take any mana
+      if (o.zone === "exile" && o.playable && o.playable.anyColor && o.playable.by === p) { c.g += COLORS.reduce((t, k) => t + c[k], 0) + c.C + c.hyb.length + c.phy.length; for (const k of COLORS) c[k] = 0; c.C = 0; c.hyb = []; c.phy = []; }
       if (c.x) { c.g += (ch.x || 0) * c.x; }
       c.g += this.commanderTax(p, o);
       if (ch.kicked && d.kicker) { const k = parseCost(d.kicker); Object.assign(c, addCost(c, k)); }
@@ -2074,7 +2100,7 @@
       if (this.isPermanentCard(o) && !item.isCopy) {
         o.zone = "new";
         if (d.aura && item.targets[0]) o.attachedTo = item.targets[0];
-        const eo = { x: item.x, door: item.door };
+        const eo = { x: item.x, door: item.door, cast: item.free ? "free" : "paid" };
         // "as this enters" choices (Spark Double's copy); they can change what enters
         if (d.asEnters && !item.faceDown) { try { await d.asEnters(this, p, o, item, eo); } catch (e) { this.warn(e, o); } }
         this.enterMany([{ o, controller: p, opts: eo }]);
@@ -2496,6 +2522,8 @@
       if (this.kw(a, "flying") && !this.kw(b, "flying") && !this.kw(b, "reach")) return false;
       if (this.kw(a, "shadow") && !this.kw(b, "shadow")) return false;
       if (this.kw(a, "fear") && !this.isArtifact(b) && !this.colorsOf(b).has("B")) return false;
+      // intimidate: only artifact creatures and creatures that share a color with it (a colorless one: artifacts only)
+      if (this.kw(a, "intimidate") && !this.isArtifact(b) && ![...this.colorsOf(a)].some(k => this.colorsOf(b).has(k))) return false;
       if (a.def.canBeBlockedBy && !a.def.canBeBlockedBy(this, a, b)) return false;
       if (this.kw(a, "mountainwalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Mountain"))) return false;
       if (this.kw(a, "islandwalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Island"))) return false;
@@ -2512,6 +2540,8 @@
       o.combat = null;
     }
     async doCombat(p, opts) {
+      // which combat phase of the turn this is (Genji Glove: "if it's the first combat phase of the turn")
+      this.combatN = (this.combatTurn === this.turn ? this.combatN || 0 : 0) + 1; this.combatTurn = this.turn;
       this.combat = { attacker: p, attackers: [], blocks: [] };
       this.phase = "combat";
       this.bump();
@@ -2789,7 +2819,7 @@
           if (this.isCreature(o)) {
             const t = this.toughness(o);
             if (t <= 0) { dead.push(o); continue; }
-            if ((o.damage >= t || (o.dtDamage && o.damage > 0)) && !this.kw(o, "indestructible")) {
+            if ((o.damage >= t || (o.dtDamage && o.damage > 0) || o.dtKill) && !this.kw(o, "indestructible")) {
               if (this.useRegen(o)) { changed = true; continue; }
               dead.push(o); continue;
             }
@@ -2827,6 +2857,8 @@
       for (const o of this.battlefield) if (o.attachedTo && o.attachedTo.zone !== "battlefield" && !o.def.aura) o.attachedTo = null;
       const orphans = this.battlefield.filter(o => o.def.aura && o.attachedTo && o.attachedTo.zone !== "battlefield");
       if (orphans.length) this.toGraveyardFromBattlefield(orphans, "sba");
+      // objects they control on the stack leave too; a card someone else owns is exiled (800.4a)
+      for (const it of this.stack) if (it.p === p && it.kind === "spell" && !it.isCopy && it.o && it.o.owner !== p && !it.o.owner.lost && it.o.zone === "stack") { it.o.zone = "exile"; it.o.def = it.o.cardDef || it.o.def; it.o.faceDown = null; it.o.owner.exile.push(it.o); }
       this.stack = this.stack.filter(it => it.p !== p);
       this.bump();
       this.emit("playerLost", { p });
@@ -2940,7 +2972,7 @@
       this.turn++;
       p.turnsTaken++;
       this.extraCombats = [];
-      for (const q of this.players) { q.gained = 0; q.lifeLostThisTurn = 0; q.spellsCast = 0; q.ncCast = 0; q.attackedBy = []; q.drawnThisTurn = []; }
+      for (const q of this.players) { q.gained = 0; q.lifeLostThisTurn = 0; q.damageTakenThisTurn = 0; q.spellsCast = 0; q.ncCast = 0; q.attackedBy = []; q.drawnThisTurn = []; }
       // "until your next turn" protection ends (Teferi's Protection, The One Ring)
       if (p.shield || p.lifeLock) { p.shield = null; p.lifeLock = null; this.log(`${p.name}'s protection ends.`, { p }); }
       this.diedThisTurn = 0;
@@ -3055,7 +3087,7 @@
       await this.settle();
     }
     cleanupEffects() {
-      for (const o of this.battlefield) { o.damage = 0; o.dtDamage = false; }
+      for (const o of this.battlefield) { o.damage = 0; o.dtDamage = false; o.dtKill = false; }
       if (this.castBans.length) this.castBans = [];
       if (this.tempTriggers.length) { this.tempTriggers = []; this.ts++; }
       this.effects = this.effects.filter(e => e.until !== "eot" && e.until !== "eoc");
