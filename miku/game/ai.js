@@ -1288,7 +1288,8 @@
         const b = cheapest(a);
         if (b && value(g, b) < 2 && !b.isCommander) take(b, a);
       }
-      return blocks;
+      // the deck's own say (ai.blockPlan), as in the classic blocks
+      return deckHook(g, q, "blockPlan", { attackers: incoming, blocks, skill, smart: true }) || blocks;
     }
 
     /* ---------------- responding */
