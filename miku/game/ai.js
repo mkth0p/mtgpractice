@@ -193,9 +193,6 @@
     if (req && req.purpose === "tutor") s += comboBonus(g, p, o);
     return s;
   }
-  /* A tutor to hand: a card that costs more than we can pay next turn waits in the hand, so it
-     loses value with every missing mana; ramp is worth more while we're short; lands while we
-     have too few. A finisher or a combo piece the deck marks (`ai.tutorBonus`) comes first. */
   /* Combo pieces (MK.COMBOS, registered by the deck files): a tutor fetches the card that
      completes a combo first, then a piece of a combo that's half there, then any kill piece. */
   function comboBonus(g, p, o) {
@@ -223,6 +220,9 @@
     return ai.brain && ai.otherwise && p && p.deckId && p.deckId !== ai.brain ? Object.assign({ target: ai.target }, ai.otherwise) : ai;
   }
   AI.hintOf = hintOf;
+  /* A tutor to hand: a card that costs more than we can pay next turn waits in the hand, so it
+     loses value with every missing mana; ramp is worth more while we're short; lands while we
+     have too few. A finisher or a combo piece the deck marks (`ai.tutorBonus`) comes first. */
   function tutorScore(g, p, o, req) {
     const d = o.def, ai = d.ai || {};
     const sources = g.battlefield.filter(x => x.controller === p && (g.isLand(x) || (x.def.mana && x.def.mana.length))).length;
