@@ -100,6 +100,93 @@
   function isInstant(g, p, o) { return g.isInstantSpeed(p, o); }
   function lethalFor(g, o) { return Math.max(1, g.lethalDamageLeft(o)); }
 
+  /* ---------------- mass removal on the stack (engine 9)
+     What a spell, trigger or ability on the stack will do to many permanents at once: its kind
+     (destroy, damage, minus for -X/-X, exile, bounce) and which permanents it hits. Before engine 9
+     only spells flagged ai.wipe were seen as wipes, so protection never answered Toxic Deluge, Reiver
+     Demon's trigger or a planeswalker's ultimate. Keyed by name, so it doesn't matter which deck file
+     defined the card first (MK.defineOnce). Each entry: on ("spell", a trigger's event, or the start of
+     an ability's label), kind, hit(g, o, top) for a permanent o. */
+  const cre = (g, o) => g.isCreature(o);
+  const notCaster = (o, top) => o.controller !== top.p;
+  const dmgKills = n => (g, o) => cre(g, o) && !g.kw(o, "indestructible") && g.lethalDamageLeft(o) <= n;
+  const MASS = {
+    "Wrath of God": [{ on: "spell", kind: "destroy", hit: cre }],
+    "Hour of Reckoning": [{ on: "spell", kind: "destroy", hit: (g, o) => cre(g, o) && !o.isToken }],
+    "Phyrexian Rebirth": [{ on: "spell", kind: "destroy", hit: cre }],
+    "Time Wipe": [{ on: "spell", kind: "destroy", hit: cre }],
+    "Cleansing Nova": [{ on: "spell", mode: 0, kind: "destroy", hit: cre }, { on: "spell", mode: 1, kind: "destroy", hit: (g, o) => g.isArtifact(o) || g.isEnchantment(o) }],
+    "Crux of Fate": [{ on: "spell", mode: 0, kind: "destroy", hit: (g, o) => cre(g, o) && !g.hasSub(o, "Dragon") }, { on: "spell", mode: 1, kind: "destroy", hit: (g, o) => cre(g, o) && g.hasSub(o, "Dragon") }],
+    "Austere Command": [{ on: "spell", kind: "destroy", hit: (g, o, top) => austereHit(g, o, top.austere || []) }],
+    "Zombie Apocalypse": [{ on: "spell", kind: "destroy", hit: (g, o) => cre(g, o) && g.hasSub(o, "Human") }],
+    "Blasphemous Act": [{ on: "spell", kind: "damage", hit: dmgKills(13) }],
+    "Earthquake": [{ on: "spell", kind: "damage", hit: (g, o, top) => !g.kw(o, "flying") && dmgKills(top.x || 0)(g, o) }],
+    "Toxic Deluge": [{ on: "spell", kind: "minus", hit: cre }],
+    "Eyeblight Massacre": [{ on: "spell", kind: "minus", hit: (g, o) => cre(g, o) && !g.hasSub(o, "Elf") && g.toughness(o) <= 2 }],
+    "Evacuation": [{ on: "spell", kind: "bounce", hit: cre }],
+    "Aetherize": [{ on: "spell", kind: "bounce", hit: (g, o) => cre(g, o) && !!(o.combat && o.combat.attacking) }],
+    "Aetherspouts": [{ on: "spell", kind: "bounce", hit: (g, o) => cre(g, o) && !!(o.combat && o.combat.attacking) }],
+    "Cyclonic Rift": [{ on: "spell", alt: 1, kind: "bounce", hit: (g, o, top) => !g.isLand(o) && notCaster(o, top) }],
+    "Vandalblast": [{ on: "spell", alt: 1, kind: "destroy", hit: (g, o, top) => g.isArtifact(o) && notCaster(o, top) }],
+    "Reiver Demon": [{ on: "enters", kind: "destroy", hit: (g, o) => cre(g, o) && !g.isArtifact(o) && !g.colorsOf(o).has("B") }],
+    "Dread Cacodemon": [{ on: "enters", kind: "destroy", hit: (g, o, top) => cre(g, o) && notCaster(o, top) }],
+    "Bane of Progress": [{ on: "enters", kind: "destroy", hit: (g, o) => g.isArtifact(o) || g.isEnchantment(o) }],
+    "Angel of the Dire Hour": [{ on: "enters", kind: "exile", hit: (g, o) => cre(g, o) && !!(o.combat && o.combat.attacking) }],
+    "Thundermaw Hellkite": [{ on: "enters", kind: "damage", hit: (g, o, top) => g.kw(o, "flying") && notCaster(o, top) && dmgKills(1)(g, o) }],
+    "Balefire Dragon": [{ on: "combatDamagePlayer", kind: "damage", hit: (g, o, top) => { const ev = top.trig && top.trig.ev || {}; return o.controller === ev.p && dmgKills(ev.amount || 0)(g, o); } }],
+    "Liliana, Death's Majesty": [{ on: "−7", kind: "destroy", hit: (g, o) => cre(g, o) && !g.hasSub(o, "Zombie") }],
+    "Elspeth, Sun's Champion": [{ on: "−3", kind: "destroy", hit: (g, o) => cre(g, o) && g.power(o) >= 4 }],
+    "Blast Zone": [{ on: "Destroy each", kind: "destroy", hit: (g, o, top) => !g.isLand(o) && g.mvOf(o) === ((top.o.counters && top.o.counters.charge) || 0) }]
+  };
+  // Austere Command's chosen modes (precon-kaalia.js AUSTERE), stored on the stack item as it's cast
+  function austereHit(g, o, ids) {
+    return (ids.includes("artifacts") && g.isArtifact(o)) || (ids.includes("enchantments") && g.isEnchantment(o)) ||
+      (ids.includes("small") && cre(g, o) && g.mvOf(o) <= 3) || (ids.includes("big") && cre(g, o) && g.mvOf(o) >= 4);
+  }
+  /* The permanents of q that the stack item top would take away at once, or null when it isn't
+     mass removal (or hits nothing of q's). { kind, hit: [permanents], value } */
+  function massHarm(g, q, top) {
+    if (!top || !top.o || !top.o.def || top.faceDown) return null;
+    const d = top.o.def, ai = d.ai || {};
+    const entries = MASS[d.name];
+    let e = null;
+    if (entries) {
+      e = entries.find(x => {
+        if (top.kind === "spell") return x.on === "spell" && (x.mode == null || x.mode === top.mode) && (x.alt == null || x.alt === top.alt);
+        if (top.kind === "trigger") return x.on === (top.trig && top.trig.tr && top.trig.tr.on);
+        if (top.kind === "ability") return !!(top.ab && top.ab.label) && top.ab.label.startsWith(x.on);
+        return false;
+      }) || null;
+    }
+    // any other spell flagged as a wipe (or mass removal): its creatures, minus what it spares
+    if (!e && top.kind === "spell" && (ai.wipe || ai.massRemoval)) {
+      const txt = d.text || "";
+      const kind = /get -/i.test(txt) ? "minus" : /damage to each/i.test(txt) ? "damage" : /exile all/i.test(txt) ? "exile" : /return all/i.test(txt) ? "bounce" : "destroy";
+      e = { kind, hit: (g2, o) => cre(g2, o) && !(ai.spares && ai.spares(o)) };
+    }
+    if (!e) return null;
+    const hit = g.battlefield.filter(o => o.controller === q && e.hit(g, o, top));
+    if (!hit.length) return null;
+    return { kind: e.kind, hit, value: hit.reduce((s, o) => s + value(g, o) + (o.isCommander ? 4 : 0), 0) };
+  }
+  AI.massHarm = massHarm;
+  AI.newWipes = g => !(g && g.opts && g.opts.legacyWipes);
+  /* What a protection spell saves from (engine 9): indestructible stops destroy and damage, phasing
+     stops everything, hexproof alone stops no wipe. A card not listed here (or without ai.shields)
+     is trusted against anything, as before. */
+  const SHIELDS = {
+    "Heroic Intervention": ["destroy", "damage"], "Rootborn Defenses": ["destroy", "damage"],
+    "Grand Crescendo": ["destroy", "damage"], "Flawless Maneuver": ["destroy", "damage"],
+    "Supernatural Stamina": ["destroy", "damage", "minus"],
+    "Teferi's Protection": ["destroy", "damage", "minus", "exile", "bounce"], "March of Swirling Mist": ["destroy", "damage", "minus", "exile", "bounce"],
+    "Veil of Summer": [], "Snakeskin Veil": []
+  };
+  function shields(p, o, kind) {
+    const h = hintOf(p, o);
+    const s = h.shields || SHIELDS[o.def.name];
+    return !s || s.includes(kind);
+  }
+
   /* The table leader by the old rough score (board, life, hand). Only games recorded before
      engine 3 still use it, through the old attack code, so their replays match. */
   function leaderOld(g, p) {
@@ -1426,6 +1513,8 @@
         const top = ctx.top;
         if (!top || !isOppSpell(g, q, top)) return null;
         let danger = spellDanger(g, q, top);
+        // engine 9: mass removal not flagged ai.wipe (Toxic Deluge, Evacuation) is as dangerous as a wipe
+        if (AI.newWipes(g) && !(top.o.def.ai || {}).wipe && massHarm(g, q, top)) danger += 8;
         // counterspells
         const counters = acts.filter(a => a.type === "cast" && hintOf(q, a.card).counter && counterFits(g, q, a, top));
         // a hand full of counterspells spends them on smaller threats too
@@ -1445,11 +1534,16 @@
           if (u) { noteTry(a, win); return Object.assign({ type: "activate", card: a.card, idx: a.idx }, u); }
         }
         // protection against a wipe or removal on our best creature
-        const hurts = (top.o.def.ai && top.o.def.ai.wipe) || (top.o.def.ai && top.o.def.ai.removal && top.targets.some(t => t && !g.isPlayer(t) && t.controller === q && value(g, t) >= 6));
+        // engine 9: a wipe is whatever massHarm reads off the spell (Toxic Deluge too), it must hit
+        // enough of ours, and the protection must stop that kind of wipe (indestructible doesn't stop -X/-X)
+        const mass = AI.newWipes(g) ? massHarm(g, q, top) : null;
+        const targeted = top.o.def.ai && top.o.def.ai.removal && top.targets.some(t => t && !g.isPlayer(t) && t.controller === q && value(g, t) >= 6);
+        const hurts = AI.newWipes(g) ? (mass || targeted) : ((top.o.def.ai && top.o.def.ai.wipe) || targeted);
         if (hurts) {
-          const prot = acts.filter(a => { const h = a.type === "cast" && hintOf(q, a.card); return h && h.protection && (!h.protects || h.protects(g, q, top)); });
+          const prot = acts.filter(a => { const h = a.type === "cast" && hintOf(q, a.card); return h && h.protection && (!mass || shields(q, a.card, mass.kind)) && (!h.protects || h.protects(g, q, top)); });
           const cmdHit = top.targets.some(t => t && !g.isPlayer(t) && t.controller === q && t.isCommander);
-          if (prot.length && (boardValue(g, q) >= 12 || cmdHit)) {
+          const worth = mass ? mass.value >= 10 || mass.hit.some(o => o.isCommander) : boardValue(g, q) >= 12 || cmdHit;
+          if (prot.length && worth) {
             const c = prot[0];
             if (attempts(c, win) < 1) { noteTry(c, win); const out = { type: "cast", card: c.card, alt: c.alt }; if (c.xCount) out.x = chooseX(g, q, c.card, c.xMax); return out; }
           }
@@ -1466,8 +1560,23 @@
           const u = abilityUse(g, q, a, win, ctx.turnOf);
           if (u) { noteTry(a, win); return Object.assign({ type: "activate", card: a.card, idx: a.idx }, u); }
         }
+        // engine 9: protection against a trigger or ability that wipes our board (Reiver Demon,
+        // Dread Cacodemon, Liliana's ultimate, Blast Zone)
+        if (AI.newWipes(g)) {
+          const mass = massHarm(g, q, top);
+          if (mass && (mass.value >= 10 || mass.hit.some(o => o.isCommander))) {
+            const prot = acts.filter(a => { const h = a.type === "cast" && hintOf(q, a.card); return h && h.protection && shields(q, a.card, mass.kind) && (!h.protects || h.protects(g, q, top)); });
+            const c = prot[0];
+            if (c && attempts(c, win) < 1) {
+              noteTry(c, win);
+              const out = { type: "cast", card: c.card, alt: c.alt };
+              if (c.xCount) out.x = chooseX(g, q, c.card, c.xMax);
+              return out;
+            }
+          }
+        }
         // protection when the ability would destroy, exile or bounce our best creature
-        const harm = top.kind === "ability" && (top.ab.targets || []).some(sp => sp.purpose === "harm");
+        const harm =top.kind === "ability" && (top.ab.targets || []).some(sp => sp.purpose === "harm");
         const hit = harm && top.targets.some(t => t && !g.isPlayer(t) && !t.kind && t.controller === q && (value(g, t) >= 6 || t.isCommander));
         if (!hit) return null;
         const prot = acts.filter(a => { const h = a.type === "cast" && hintOf(q, a.card); return h && h.protection && (!h.protects || h.protects(g, q, top)); });
