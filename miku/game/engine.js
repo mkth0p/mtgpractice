@@ -469,6 +469,7 @@
             if (st.allTypes) allTypes = true;
             if (st.unblockable) unblockable = true;
             if (st.subtypes) { const v = typeof st.subtypes === "function" ? st.subtypes(this, s, o) : st.subtypes; if (v) v.forEach(x => subtypes.add(x)); }
+            if (st.prot) { prot = prot || new Set(); st.prot.forEach(k => prot.add(k)); }   // protection from colors (Akroma's Memorial)
           }
           for (const e of this.effects) {
             if (!this.affects(e, o)) continue;
@@ -1271,6 +1272,8 @@
       const ctrl = srcObj ? srcObj.controller : (src && src.controller) || null;
       if (this.isPlayer(target) && (target.shield || target.lifeLock)) { this.log(`Damage to ${target.name} is prevented.`, { p: target }); return 0; }
       if (!this.isPlayer(target) && srcObj && this.protectedFrom(target, srcObj)) { this.log(`${target.def.name} has protection: the damage is prevented.`, { cards: [target.def.name] }); return 0; }
+      // "prevent all combat damage that would be dealt to attacking creatures you control" (Dolmen Gate)
+      if (opts.combat && !this.isPlayer(target) && target.combat && target.combat.attacking) for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.preventCombatDamageTo && st.preventCombatDamageTo(this, s, target)) return 0;
       if (this.isPlayer(target)) {
         if (target.lost) return 0;
         if (infect) { target.poison += n; this.anim("poison", { p: target, n }); }
@@ -1325,7 +1328,7 @@
       return k;
     }
     counterEach(p, kind, n, src) { for (const o of this.creatures(p)) this.addCounters(o, kind, n, src); }
-    tap(o) { if (o && !o.tapped) { o.tapped = true; this.bump(); this.anim("tap", { o }); } }
+    tap(o) { if (o && !o.tapped) { o.tapped = true; this.bump(); this.anim("tap", { o }); if (this.listening("becomesTapped")) this.emit("becomesTapped", { o, p: o.controller }); } }
     untap(o) { if (o && o.tapped) { o.tapped = false; this.bump(); this.anim("untap", { o }); } }
     /* Until-end-of-turn effect on a fixed set of objects (rule 611.2c) or a live filter. */
     addEffect(e) {
@@ -2568,9 +2571,10 @@
         if (d) d.target = must; else decl.push({ attacker: o, target: must });
       }
       if (!decl.length) { if (this.opts.legacySteps) { this.combat = null; this.phase = "main2"; this.bump(); return; } return this.endCombat(p, true); }
+      const tappedNow = [];
       for (const d of decl) {
         const a = d.attacker;
-        if (!this.kw(a, "vigilance")) a.tapped = true;
+        if (!this.kw(a, "vigilance") && !a.tapped) { a.tapped = true; tappedNow.push(a); }
         a.combat = { attacking: d.target, blockedBy: [], wasBlocked: false, declared: true };
         this.combat.attackers.push(a);
         // who attacked whom this turn, and with what (Ramses, Assassin Lord)
@@ -2582,6 +2586,8 @@
       for (const d of decl) { const k = this.nameOf(d.target); byTarget.set(k, (byTarget.get(k) || 0) + 1); }
       this.log(`${p.name} attacks with ${decl.length} creature${decl.length > 1 ? "s" : ""}: ${[...byTarget].map(([k, n]) => `${n} at ${k}`).join(", ")}.`, { p, kind: "attack", cards: decl.map(d => d.attacker.def.name) });
       this.anim("attack", { p, decl });
+      // "whenever this creature becomes tapped" (Haunted One)
+      if (this.listening("becomesTapped")) for (const a of tappedNow) this.emit("becomesTapped", { o: a, p });
       this.emit("attack", { p, attackers: decl.map(d => d.attacker) });
       for (const d of decl) this.emit("attacks", { o: d.attacker, target: d.target, p });
       await this.settle();

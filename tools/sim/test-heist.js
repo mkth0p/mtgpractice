@@ -269,6 +269,38 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
     const stolen = g.controlled(a, o => o.faceDown).length;
     check("Auton Soldier: three hits, and four Etratas (her, the Soldier, two myriad tokens) cloak for each", stolen === 12 && !g.battlefield.some(o => o.isToken && o.def.name === "Etrata, Deadly Fugitive"), stolen); }
 
+
+  // Dolmen Gate: our attackers take no combat damage
+  { const { g, a, b } = table(); put(g, a, "Dolmen Gate"); const hp = put(g, a, "Hired Poisoner"); const blk = put(g, b, "Thieving Amalgam"); await g.settle();
+    b.agent.block = () => [{ blocker: blk, attacker: hp }];
+    await attack(g, a, [{ attacker: hp, target: b }]);
+    check("Dolmen Gate: the blocked attacker survives, its deathtouch kills the blocker", hp.zone === "battlefield" && blk.zone === "graveyard", { hp: hp.zone, blk: blk.zone }); }
+
+  // Haunted One: Etrata attacking pumps every creature that shares a type with her, and gives undying
+  { const { g, a, b } = table(); put(g, a, "Haunted One"); const et = put(g, a, "Etrata, Deadly Fugitive"); et.isCommander = true; const hp = put(g, a, "Hired Poisoner"); const elf = put(g, a, "Llanowar Elves"); await g.settle();
+    a.agent.attack = () => [{ attacker: et, target: b }];
+    let mid = null; const ow = g.trickWindow.bind(g);
+    g.trickWindow = async (p, w) => { if (!w && !mid) mid = [g.power(et), g.power(hp), g.power(elf)]; return ow(p, w); };
+    await g.doCombat(a); await g.settle();
+    check("Haunted One: Etrata and the Assassin get +2/+0, the Elf doesn't", !!mid && mid[0] === 3 && mid[1] === 3 && mid[2] === 1, mid);
+    g.destroy(hp); await g.settle();
+    check("Haunted One: undying brings the Assassin back with a +1/+1 counter", hp.zone === "battlefield" && hp.counters.p1 === 1, { zone: hp.zone, c: hp.counters }); }
+
+  // Sword Coast Sailor: Etrata can't be blocked attacking the player with the most life
+  { const { g, a, b, c } = table(); put(g, a, "Sword Coast Sailor"); const et = put(g, a, "Etrata, Deadly Fugitive"); et.isCommander = true; c.life = 30; await g.settle();
+    a.agent.attack = () => [{ attacker: et, target: b }];
+    let ub = null; const ow = g.trickWindow.bind(g);
+    g.trickWindow = async (p, w) => { if (w === "attackers" && ub == null) ub = g.ch(et).unblockable; return ow(p, w); };
+    await g.doCombat(a); await g.settle();
+    check("Sword Coast Sailor: unblockable against the highest life total", ub === true, ub); }
+
+  // Reverse the Polarity (creatures can't be blocked) and Akroma's Memorial (protection from black)
+  { const { g, a, b } = table(); lands(g, a, 3, "Island"); const hp = put(g, a, "Hired Poisoner"); const blk = put(g, b, "Llanowar Elves"); const rp = hand(g, a, "Reverse the Polarity"); await g.settle();
+    await g.cast(a, rp, { mode: 1 }); await g.settle();
+    check("Reverse the Polarity: creatures can't be blocked this turn", !g.canBlock(blk, hp));
+    put(g, a, "Akroma's Memorial"); const bk = put(g, b, "Hired Poisoner"); await g.settle();
+    check("Akroma's Memorial: flying, first strike, haste and protection from black", g.kw(hp, "first strike") && g.kw(hp, "haste") && g.protectedFrom(hp, bk)); }
+
   // the engine rules: "triggers an additional time" stays with its creature type, anyColor, castEntry
   { const { g, a } = table(); const rt = put(g, a, "Roaming Throne"); await g.settle();
     check("triggerExtra: a non-Assassin's trigger isn't doubled", (() => { const n = g.staticsOf(rt).find(st => st.triggerExtra).triggerExtra(g, rt, { src: put(g, a, "Llanowar Elves"), controller: a }); return n === 0; })()); }

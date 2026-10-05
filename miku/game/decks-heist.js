@@ -399,6 +399,146 @@
     }
   });
 
+
+  /* ---------------- cheap evasive bodies (Rogues and friends; type-changers make them Assassins) */
+  const unblockable = { applies: (g, s, o) => o === s, unblockable: true };
+  D({ name: "Slither Blade", cost: "{U}", type: "Creature — Snake Rogue", pt: "1/2", text: "This creature can't be blocked.", statics: [unblockable], ai: { priority: 6 } });
+  D({ name: "Triton Shorestalker", cost: "{U}", type: "Creature — Merfolk Rogue", pt: "1/1", text: "This creature can't be blocked.", statics: [unblockable], ai: { priority: 6 } });
+  D({ name: "Invisible Stalker", cost: "{1}{U}", type: "Creature — Human Rogue", pt: "1/1", keywords: ["hexproof"], text: "Hexproof (This creature can't be the target of spells or abilities your opponents control.)\nThis creature can't be blocked.", statics: [unblockable], ai: { priority: 6 } });
+  D({
+    name: "Gray Harbor Merfolk", cost: "{1}{U}", type: "Creature — Merfolk Rogue", pt: "0/3",
+    text: "This creature can't be blocked.\nThis creature gets +2/+0 as long as you control a commander that's a creature or planeswalker.",
+    statics: [unblockable, { applies: (g, s, o) => o === s && g.battlefield.some(c => c.controller === s.controller && c.isCommander && (g.isCreature(c) || g.isPlaneswalker(c))), pt: [2, 0] }],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Shoreline Looter", cost: "{1}{U}", type: "Creature — Rat Rogue", pt: "1/1",
+    text: "This creature can't be blocked.\nThreshold — Whenever this creature deals combat damage to a player, draw a card. Then discard a card unless there are seven or more cards in your graveyard.",
+    statics: [unblockable],
+    triggers: [{
+      on: "combatDamagePlayer", when: (g, s, ev) => ev.src === s,
+      do: async (g, s, ev, { p }) => {
+        g.draw(p, 1);
+        if (p.graveyard.length >= 7 || !p.hand.length) return;
+        const pick = await g.ask(p, { type: "cards", prompt: "Shoreline Looter: discard a card", options: p.hand.slice(), min: 1, max: 1, purpose: "discard", src: s });
+        g.discard(p, (pick || []).find(x => p.hand.includes(x)) || p.hand[p.hand.length - 1]);
+      }
+    }],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Looter il-Kor", cost: "{1}{U}", type: "Creature — Kor Rogue", pt: "1/1", keywords: ["shadow"],
+    text: "Shadow (This creature can block or be blocked by only creatures with shadow.)\nWhenever this creature deals damage to an opponent, draw a card, then discard a card.",
+    triggers: [{
+      on: "damage", when: (g, s, ev) => ev.src === s && !!ev.toPlayer && isOpp(g, s.controller, ev.target),
+      do: async (g, s, ev, { p }) => {
+        g.draw(p, 1);
+        if (!p.hand.length) return;
+        const pick = await g.ask(p, { type: "cards", prompt: "Looter il-Kor: discard a card", options: p.hand.slice(), min: 1, max: 1, purpose: "discard", src: s });
+        g.discard(p, (pick || []).find(x => p.hand.includes(x)) || p.hand[p.hand.length - 1]);
+      }
+    }],
+    ai: { priority: 6 }
+  });
+  D({ name: "Prickly Boggart", cost: "{B}", type: "Creature — Goblin Rogue", pt: "1/1", keywords: ["fear"], text: "Fear (This creature can't be blocked except by artifact creatures and/or black creatures.)", ai: { priority: 5 } });
+  D({
+    name: "Vampire Cutthroat", cost: "{B}", type: "Creature — Vampire Rogue", pt: "1/1", keywords: ["skulk", "lifelink"],
+    text: "Skulk (This creature can't be blocked by creatures with greater power.)\nLifelink (Damage dealt by this creature also causes you to gain that much life.)",
+    canBeBlockedBy: (g, a, b) => g.power(b) <= g.power(a),
+    ai: { priority: 6 }
+  });
+  D({ name: "Nightshade Stinger", cost: "{B}", type: "Creature — Faerie Rogue", pt: "1/1", keywords: ["flying"], cantBlock: true, text: "Flying\nThis creature can't block.", ai: { priority: 5 } });
+  D({
+    name: "Network Disruptor", cost: "{U}", type: "Artifact Creature — Moonfolk Rogue", pt: "1/1", keywords: ["flying"],
+    text: "Flying\nWhen this creature enters, tap target permanent.",
+    triggers: [{ on: "enters", self: true, do: async (g, s, ev, { p }) => { const t = await g.chooseTarget(p, trig({ kind: "permanent", purpose: "harm", prompt: "Network Disruptor: tap target permanent", filter: (g2, o) => !o.tapped && o.controller !== p }), s); if (t && t.zone === "battlefield") g.tap(t); } }],
+    ai: { priority: 5 }
+  });
+  D({
+    name: "Sygg, River Cutthroat", cost: "{U/B}{U/B}", type: "Legendary Creature — Merfolk Rogue", pt: "1/3",
+    text: "At the beginning of each end step, if an opponent lost 3 or more life this turn, you may draw a card. (Damage causes loss of life.)",
+    triggers: [{ on: "endStep", intervening: (g, s) => g.opponents(s.controller).some(q => (q.lifeLostThisTurn || 0) >= 3), do: (g, s, ev, { p }) => g.draw(p, 1) }],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Ruthless Ripper", cost: "{B}", type: "Creature — Human Assassin", pt: "1/1", keywords: ["deathtouch"],
+    text: "Deathtouch\nMorph—Reveal a black card in your hand. (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, target player loses 2 life.",
+    note: "Casting it face down isn't offered (its morph cost is revealing a card, which the game can't pay); it's a one-mana deathtouch Assassin here. A cloaked or manifested Ripper still turns up for {B}.",
+    triggers: [{ on: "turnedFaceUp", self: true, do: async (g, s, ev, { p }) => { const q = await g.chooseTarget(p, trig({ kind: "player", purpose: "harm", prompt: "Ruthless Ripper: target player loses 2 life" }), s); if (q && !q.lost) g.loseLife(q, 2, s); } }],
+    ai: { priority: 6 }
+  });
+
+
+  /* ---------------- combat helpers from the public lists */
+  D({
+    name: "Dolmen Gate", cost: "{2}", type: "Artifact",
+    text: "Prevent all combat damage that would be dealt to attacking creatures you control.",
+    statics: [{ preventCombatDamageTo: (g, s, t) => t.controller === s.controller }],
+    ai: { priority: 7 }
+  });
+  /* two creatures share a creature type (every type for changelings and Maskwood Nexus; none face down) */
+  function shareType(g, x, y) {
+    const X = g.ch(x), Y = g.ch(y);
+    if (X.allTypes) return Y.allTypes || Y.subtypes.size > 0;
+    if (Y.allTypes) return X.subtypes.size > 0;
+    for (const t of X.subtypes) if (Y.subtypes.has(t)) return true;
+    return false;
+  }
+  D({
+    name: "Haunted One", cost: "{2}{B}", type: "Legendary Enchantment — Background",
+    text: "Commander creatures you own have \"Whenever this creature becomes tapped, it and other creatures you control that share a creature type with it each get +2/+0 and gain undying until end of turn.\" (When a creature with undying dies, if it had no +1/+1 counters on it, return it to the battlefield under its owner's control with a +1/+1 counter on it.)",
+    note: "A Background in the 99: it works as written, on your commander. The commander's ability is written as a trigger of Haunted One.",
+    triggers: [{
+      on: "becomesTapped", when: (g, s, ev) => !!ev.o && ev.o.isCommander && ev.o.owner === s.controller && ev.o.controller === s.controller && g.isCreature(ev.o),
+      do: (g, s, ev, { p }) => {
+        const c = ev.o;
+        if (c.zone !== "battlefield") return;
+        const list = g.creatures(p).filter(o => o === c || shareType(g, c, o));
+        g.pump(list, 2, 0, ["undying"]);
+        const ids = new Map(list.map(o => [o.id, o.zc]));
+        const entry = { controller: p, def: { name: "Haunted One", triggers: [{
+          on: "dies", when: (g2, e, ev2) => g2.tempTriggers.includes(e) && ids.get(ev2.o.id) === ev2.o.zc - 1 && !(ev2.lki && ev2.lki.counters && ev2.lki.counters.p1 > 0),
+          do: (g2, e, ev2) => {
+            const o = ev2.o;
+            if (o.zone !== "graveyard" || o.isToken || o.owner.lost) return;
+            g2.putOntoBattlefield([o], o.owner, { counters: { p1: 1 } });
+            log(g2, `${o.def.name} returns with a +1/+1 counter (undying).`, o.owner, [o.def.name]);
+          }
+        }] } };
+        g.tempTriggers.push(entry); g.ts++;
+        log(g, `${list.length} creature${list.length > 1 ? "s" : ""} sharing a type with ${c.def.name} get +2/+0 and undying (Haunted One).`, p, [s.def.name]);
+      }
+    }],
+    ai: { priority: 7 }
+  });
+  D({
+    name: "Sword Coast Sailor", cost: "{1}{U}", type: "Legendary Enchantment — Background",
+    text: "Commander creatures you own have \"Whenever this creature attacks a player, if no opponent has more life than that player, this creature can't be blocked this turn.\"",
+    note: "The commander's ability is written as a trigger of Sword Coast Sailor.",
+    triggers: [{
+      on: "attacks", when: (g, s, ev) => !!ev.o && ev.o.isCommander && ev.o.owner === s.controller && ev.o.controller === s.controller && g.isPlayer(ev.target),
+      intervening: (g, s, ev) => !g.opponents(s.controller).some(q => q.life > ev.target.life),
+      do: (g, s, ev) => { if (ev.o.zone === "battlefield") g.addEffect({ objs: [ev.o], unblockable: true }); }
+    }],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Reverse the Polarity", cost: "{1}{U}{U}", type: "Instant",
+    text: "Choose one —\n• Counter all other spells.\n• Switch each creature's power and toughness until end of turn.\n• Creatures can't be blocked this turn.",
+    note: "Switching power and toughness isn't offered (the bots never chose it).",
+    modes: [
+      { label: "Counter all other spells", do: (g, ctx) => { for (const it of g.stack.slice()) if (it !== ctx.item && it.kind === "spell") g.counterSpell(it, ctx.o); } },
+      { label: "Creatures can't be blocked this turn", do: (g, ctx) => { g.addEffect({ filter: (g2, o) => g2.isCreature(o), unblockable: true }); log(g, "Creatures can't be blocked this turn.", ctx.p, ["Reverse the Polarity"]); } }
+    ],
+    ai: { priority: 5, cast: () => false, mode: (g, p) => (g.active === p ? 1 : 0) }
+  });
+  D({
+    name: "Akroma's Memorial", cost: "{7}", type: "Legendary Artifact",
+    text: "Creatures you control have flying, first strike, vigilance, trample, haste, and protection from black and from red.",
+    statics: [{ applies: (g, s, o) => mine(s, o) && g.isCreature(o), kw: ["flying", "first strike", "vigilance", "trample", "haste"], prot: ["B", "R"] }],
+    ai: { priority: 7 }
+  });
+
   /* ================================================================ equipment and artifacts */
   D({
     name: "Quietus Spike", cost: "{3}", type: "Artifact — Equipment", equip: "{3}",
@@ -860,7 +1000,7 @@
     }
     const have = n => g.battlefield.some(o => o.controller === p && !o.faceDown && o.def.name === n) || p.hand.some(c => c.def.name === n);
     const enabled = g.battlefield.some(o => o.controller === p && (o.def.makesAssassins && o.def.name !== "Roaming Throne" || o.def.name === "Maskwood Nexus")) || p.hand.some(c => c.def.makesAssassins && c.def.name !== "Roaming Throne" || c.def.name === "Maskwood Nexus");
-    if (H.kitTutor !== false) for (const n of kitWant(g, p)) { const c = cands.find(x => x.def.name === n); if (c) return c; }
+    if (H.kitTutor) for (const n of kitWant(g, p)) { const c = cands.find(x => x.def.name === n); if (c) return c; }
     for (const n of TUTOR_WANT) {
       if (have(n)) continue;
       if (enabled && ["Maskwood Nexus", "Leyline of Transformation", "Arcane Adaptation", "Roshan, Hidden Magister"].includes(n)) continue;
@@ -980,10 +1120,22 @@
     }
     return null;
   }
+  /* Reverse the Polarity: everything unblockable when that makes this attack a kill (with Ramses, a win). */
+  function polarityPlan(g, p, acts) {
+    const a = acts.find(x => x.type === "cast" && x.card.def.name === "Reverse the Polarity");
+    if (!a) return null;
+    const able = g.creatures(p).filter(c => g.canAttack(c, p) && g.power(c) > 0);
+    if (!able.length) return null;
+    const opps = liveOpps(g, p);
+    if (opps.some(q => outcome(g, p, q, able).kill)) return null;
+    const all = new Set(able);
+    return opps.some(q => outcome(g, p, q, able, all).kill) ? { type: "cast", card: a.card, mode: 1, maxTries: 1 } : null;
+  }
   function heistPlan(g, p, ctx) {
     const win = ctx.window, acts = ctx.actions || [];
     if (!brainOn(p)) return null;
     if (win === "combat" && g.active === p && g.phase === "damage") return combatFlips(g, p, acts);
+    if ((win === "main1" || win === "beginCombat") && g.active === p) { const r = polarityPlan(g, p, acts); if (r) return r; }
     if (win === "main1" && g.active === p) { const a = precombat(g, p, acts) || (H.flipFirst ? flipPlan(g, p, acts, win) : null) || evasionPlan(g, p, acts) || transmutePlan(g, p, acts); if (a) return a; }
     if (win === "main2" && g.active === p && H.flipFirst) { const a = flipPlan(g, p, acts, win); if (a) return a; }
     if (win === "main2" || win === "end") { const f = flickerPlan(g, p, acts, win); if (f) return f; }
