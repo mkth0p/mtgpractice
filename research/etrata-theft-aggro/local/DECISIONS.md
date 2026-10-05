@@ -31,3 +31,9 @@ Choices made while working unattended, with the reason for each. Newest at the b
 
 ## Direction change (2026-10-05, 21:20)
 21. **Stop the card-by-card search; research the strategy first.** The user said the single-creature sweeps were the wrong approach: the question is the best overall way to play this deck as a high Bracket 4 aggro deck. From here: research how Bracket 4 is defined, built and played, how aggro succeeds in four-player games, and how real Etrata pilots win; then build whole versions from those principles and bench them. The running cut sweep of A2 is left to finish in the background (its results stay in `xp.log` as reference) but it no longer drives the design.
+
+## The versions (2026-10-05, 22:00)
+22. **Three whole versions instead of swaps.** From the research: v1 "blitz" (the Yuriko tempo template with Assassins and the Ramses kill), v2 "snowball" (the Fugitives primer plan: type-changers, Etrata copies, team evasion, typal anthems, Vein Ripper closer), v3 "tempo" (ninjutsu and free interaction). Lands 30–32, fast mana 7–8, tutors 6–8, interaction 8–14 with most of it free, as the Bracket 4 sources describe. See `STRATEGY.md` §5.
+23. **The Bracket 4 mulligan is the default** (+1.3 vs the Bracket 4 field, +0.2 vs precons, 2,016 paired games each). The "don't overextend" rule measured ±0.2 and stays off: the bots' losses to wipes aren't about dumping the hand; they're about having nothing that survives.
+24. **Mana Vault is out of the versions.** Replacing it with a basic land measured +0.8 / +0.2 in A (the bot taps it once and never pays to untap it), so it's a worse rock than it looks in bot games; Mox Amber (free with Etrata out) takes its slot.
+25. **Vein Ripper + Ashnod's Altar only in v2.** It's a non-combat closer, which the user doesn't want as the main plan; it's in the primer's Bracket 4 list, so v2 tests it and the telemetry reports how much of v2's wins it takes.
