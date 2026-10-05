@@ -39,7 +39,7 @@ const opps = (g, a) => g.players.filter(q => q !== a);
   check("deck: every card is defined", deck.list.every(n => MK.defs.has(n)), deck.list.filter(n => !MK.defs.has(n)));
   const singles = deck.list.filter(n => !/^(Island|Swamp)$/.test(n));
   check("deck: singleton", new Set(singles).size === singles.length);
-  check("deck: 8 Island + 8 Swamp", deck.list.filter(n => n === "Island").length === 8 && deck.list.filter(n => n === "Swamp").length === 8);
+  check("deck: 8 Island + 9 Swamp", deck.list.filter(n => n === "Island").length === 8 && deck.list.filter(n => n === "Swamp").length === 9);
   check("deck: a hero deck offered on the Etrata site too", MK.HERO_DECKS.includes(deck) && deck.alsoOn.includes("etrata") && deck.hero === "corrupted-etrata");
   check("deck: identity fits", deck.list.every(n => MK.get(n).colors.every(k => k === "U" || k === "B")));
   check("checklist exists under the coach's key", (globalThis.MK_CHECKLISTS[deck.coach.checklist] || []).length >= 6);

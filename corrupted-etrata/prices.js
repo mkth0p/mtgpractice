@@ -2,7 +2,6 @@
    in US dollars (TCGplayer via Archidekt, or MTGGoldfish). Generated from the research table (prices.csv).
    base: the card is also in the Etrata deck (../etrata/), so you may own it already. */
 window.CETRATA_PRICES = {"date":"2026-10-05","currency":"USD","cards":[{"name":"Etrata, Deadly Fugitive","qty":1,"usd":0.49,"printing":"Ravnica: Murders at Karlov Manor #200","url":"https://www.mtggoldfish.com/price/ravnica-murders-at-karlov-manor/200/etrata-deadly-fugitive","gc":false,"base":true},
-{"name":"Ramses, Assassin Lord","qty":1,"usd":2.45,"printing":"Dominaria United Commander #39 (as labeled by MTGGoldfish)","url":"https://www.mtggoldfish.com/price/dominaria-united-commander/39/ramses-assassin-lord","gc":false,"base":true},
 {"name":"Duskmantle Guildmage","qty":1,"usd":0.74,"printing":"Gatecrash #158","url":"https://www.mtggoldfish.com/price/gatecrash/158/duskmantle-guildmage","gc":false,"base":true},
 {"name":"Mindcrank","qty":1,"usd":11,"printing":"New Phyrexia #144 (Iconic Masters #220 also $11)","url":"https://www.mtggoldfish.com/price/New+Phyrexia/Mindcrank","gc":false,"base":true},
 {"name":"Culling the Weak","qty":1,"usd":7.02,"printing":"Mystery Booster 2 (mb2) #40","url":"https://archidekt.com/api/cards/v2/?name=Culling+the+Weak","gc":false},
@@ -13,8 +12,6 @@ window.CETRATA_PRICES = {"date":"2026-10-05","currency":"USD","cards":[{"name":"
 {"name":"Bloodthirsty Conqueror","qty":1,"usd":34.31,"printing":"Foundations Promos (PFDN 58p); FDN #58 $34.80; MTGGoldfish FDN #58 $36.26","url":"https://archidekt.com/api/cards/v2/?name=Bloodthirsty+Conqueror","gc":false},
 {"name":"Necropotence","qty":1,"usd":37,"printing":"Eternal Masters #98","url":"https://www.mtggoldfish.com/price/masters-edition-ii/107/necropotence","gc":true},
 {"name":"Bloodletter of Aclazotz","qty":1,"usd":34.41,"printing":"LCI Promos (plci) #92p; regular LCI #92 = 36.12","url":"https://archidekt.com/api/cards/v2/?name=Bloodletter+of+Aclazotz","gc":false},
-{"name":"Roshan, Hidden Magister","qty":1,"usd":0.29,"printing":"Assassin's Creed #32 (from verify.csv)","url":"https://www.mtggoldfish.com/price/assassins-creed/32/roshan-hidden-magister","gc":false,"base":true},
-{"name":"Leyline of Transformation","qty":1,"usd":0.75,"printing":"Duskmourn: House of Horror #63 (from verify.csv)","url":"https://www.mtggoldfish.com/price/duskmourn-house-of-horror/63/leyline-of-transformation","gc":false,"base":true},
 {"name":"Vito, Thorn of the Dusk Rose","qty":1,"usd":10.26,"printing":"Foundations Jumpstart (J25)","url":"https://archidekt.com/api/cards/v2/?name=Vito%2C+Thorn+of+the+Dusk+Rose","gc":false},
 {"name":"Imperial Seal","qty":1,"usd":180,"printing":"Double Masters 2022 #79","url":"https://www.mtggoldfish.com/price/Portal+Three+Kingdoms/Imperial+Seal","gc":true},
 {"name":"Changeling Outcast","qty":1,"usd":1.5,"printing":"Modern Horizons #82","url":"https://www.mtggoldfish.com/price/Modern+Horizons/Changeling+Outcast","gc":false,"base":true},
@@ -23,7 +20,6 @@ window.CETRATA_PRICES = {"date":"2026-10-05","currency":"USD","cards":[{"name":"
 {"name":"Shred Memory","qty":1,"usd":0.85,"printing":"Ravnica: City of Guilds #105 (only printing)","url":"https://archidekt.com/api/cards/v2/?name=Shred%20Memory","gc":false},
 {"name":"Beseech the Mirror","qty":1,"usd":21.21,"printing":"Wilds of Eldraine #82","url":"https://archidekt.com/api/cards/v2/?name=Beseech%20the%20Mirror","gc":false},
 {"name":"Wishclaw Talisman","qty":1,"usd":1.92,"printing":"Mystery Booster 2 (MB2)","url":"https://archidekt.com/api/cards/v2/?name=Wishclaw+Talisman","gc":false},
-{"name":"Gonti, Night Minister","qty":1,"usd":0.79,"printing":"Aetherdrift #87 (MTGGoldfish search $0.99)","url":"https://archidekt.com/api/cards/v2/?name=Gonti,%20Night%20Minister","gc":false},
 {"name":"Exquisite Blood","qty":1,"usd":37.67,"printing":"The Lost Caverns of Ixalan Commander; MTGGoldfish AVR #102 $38.09","url":"https://archidekt.com/api/cards/v2/?name=Exquisite+Blood","gc":false},
 {"name":"Thief of Sanity","qty":1,"usd":0.6,"printing":"Ravnica: Clue Edition #212 (Guilds of Ravnica #205 $0.75)","url":"https://www.mtggoldfish.com/price/Guilds+of+Ravnica/Thief+of+Sanity","gc":false},
 {"name":"Black Market Connections","qty":1,"usd":9.02,"printing":"Marvel Super Heroes Commander #155","url":"https://archidekt.com/api/cards/v2/?name=Black%20Market%20Connections","gc":false},
@@ -53,7 +49,6 @@ window.CETRATA_PRICES = {"date":"2026-10-05","currency":"USD","cards":[{"name":"
 {"name":"An Offer You Can't Refuse","qty":1,"usd":3.27,"printing":"Final Fantasy Commander #267","url":"https://www.mtggoldfish.com/price/Streets+of+New+Capenna/An+Offer+You+Cant+Refuse","gc":false,"base":true},
 {"name":"Fierce Guardianship","qty":1,"usd":66,"printing":"Commander 2020 #35","url":"https://www.mtggoldfish.com/price/commander-2020/35/fierce-guardianship","gc":true},
 {"name":"Deadly Rollick","qty":1,"usd":28,"printing":"Commander Masters #147","url":"https://www.mtggoldfish.com/price/commander-2020/42/deadly-rollick","gc":false},
-{"name":"Infernal Grasp","qty":1,"usd":0.33,"printing":"Edge of Eternities Commander #84","url":"https://www.mtggoldfish.com/price/Innistrad+Midnight+Hunt/Infernal+Grasp","gc":false,"base":true},
 {"name":"Cyclonic Rift","qty":1,"usd":36,"printing":"Commander Masters","url":"https://www.mtggoldfish.com/price/Return+to+Ravnica/Cyclonic+Rift","gc":true},
 {"name":"Toxic Deluge","qty":1,"usd":5.26,"printing":"Secrets of Strixhaven Commander #120","url":"https://www.mtggoldfish.com/price/Commander+2013+Edition/Toxic+Deluge","gc":false,"base":true},
 {"name":"Mox Amber","qty":1,"usd":87.12,"printing":"Brothers' War Retro Artifacts (brr) #35; Dominaria #224 = 87.71","url":"https://archidekt.com/api/cards/v2/?name=Mox+Amber","gc":false},
@@ -78,6 +73,10 @@ window.CETRATA_PRICES = {"date":"2026-10-05","currency":"USD","cards":[{"name":"
 {"name":"Rogue's Passage","qty":1,"usd":0.44,"printing":"Magic Origins #250","url":"https://www.mtggoldfish.com/price/return-to-ravnica/245/rogues-passage","gc":false,"base":true},
 {"name":"Path of Ancestry","qty":1,"usd":0.24,"printing":"Reality Fracture Commander #77 (Starter Commander Decks / Aetherdrift Commander also $0.24)","url":"https://archidekt.com/api/cards/v2/?name=Path%20of%20Ancestry","gc":false,"base":true},
 {"name":"Secluded Courtyard","qty":1,"usd":0.32,"printing":"Marvel Super Heroes Commander #265","url":"https://archidekt.com/api/cards/v2/?name=Secluded%20Courtyard","gc":false},
+{"name":"Choked Estuary","qty":1,"usd":null,"printing":"in the Etrata deck; not priced (the price lookup didn't go through)","url":"","gc":false,"base":true},
+{"name":"Darkwater Catacombs","qty":1,"usd":null,"printing":"in the Etrata deck; not priced (the price lookup didn't go through)","url":"","gc":false,"base":true},
+{"name":"Tainted Isle","qty":1,"usd":null,"printing":"in the Etrata deck; not priced (the price lookup didn't go through)","url":"","gc":false,"base":true},
+{"name":"River of Tears","qty":1,"usd":null,"printing":"in the Etrata deck; not priced (the price lookup didn't go through)","url":"","gc":false,"base":true},
 {"name":"Scheming Symmetry","qty":1,"usd":8.47,"printing":"Secret Lair Drop (Pancoast & Okumura art); cheapest M20 $8.63","url":"https://archidekt.com/api/cards/v2/?name=Scheming+Symmetry","gc":false},
 {"name":"Night's Whisper","qty":1,"usd":0.35,"printing":"Marvel Super Heroes Commander #158","url":"https://www.mtggoldfish.com/price/fifth-dawn/55/nights-whisper","gc":false,"base":true},
 {"name":"Enduring Tenacity","qty":1,"usd":15.99,"printing":"Duskmourn: House of Horror (Card Kingdom NM)","url":"https://www.cardkingdom.com/catalog/search?search=header&filter%5Bname%5D=Enduring+Tenacity","gc":false},
@@ -86,4 +85,4 @@ window.CETRATA_PRICES = {"date":"2026-10-05","currency":"USD","cards":[{"name":"
 {"name":"Hooded Blightfang","qty":1,"usd":1.3,"printing":"Core Set 2021 #104","url":"https://www.mtggoldfish.com/price/core-set-2021/104/hooded-blightfang","gc":false},
 {"name":"Silumgar Assassin","qty":1,"usd":0.36,"printing":"Dragons of Tarkir","url":"https://www.mtggoldfish.com/price/Dragons+of+Tarkir/Silumgar+Assassin","gc":false},
 {"name":"Island","qty":8,"usd":null,"printing":"basic","url":"","gc":false,"base":true},
-{"name":"Swamp","qty":8,"usd":null,"printing":"basic","url":"","gc":false,"base":true}]};
+{"name":"Swamp","qty":9,"usd":null,"printing":"basic","url":"","gc":false,"base":true}]};
