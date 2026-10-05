@@ -343,20 +343,6 @@ window.CETRATA_WIKI = {
   ],
   combos: []
  },
- "Fallen Shinobi": {
-  rating: 3,
-  when: "Turns 3-6, in combat",
-  tags: ["ninjutsu", "theft", "free spells"],
-  rulings: [
-   { q: "Can I play a land with it?", a: "Yes, if you still have a land play available this turn." },
-   { q: "Do I pay additional costs?", a: "Yes. You skip the mana cost but pay additional costs, and X is 0." },
-   { q: "What happens to cards I don't play?", a: "They stay exiled for good. You can only play them this turn." }
-  ],
-  tips: [
-   "Ninjutsu is activated from your hand, so it ignores counterspells for creature spells."
-  ],
-  combos: []
- },
  "Opposition Agent": {
   rating: 4,
   when: "Instant speed, in response to a search",
@@ -397,17 +383,6 @@ window.CETRATA_WIKI = {
   ],
   combos: ["Notion Thief"]
  },
- "Praetor's Grasp": {
-  rating: 3,
-  when: "Turns 3-5",
-  tags: ["theft", "tutor", "sorcery"],
-  rulings: [
-   { q: "Can I take a land and play it?", a: "Yes. You may play it, using your land play." },
-   { q: "Can I spend mana of any color on it?", a: "No. Unlike Thief of Sanity (mana of any type) or Opposition Agent (mana of any color), it gives no mana help: you pay the card's real colors." }
-  ],
-  tips: [],
-  combos: []
- },
  "Black Market Connections": {
   rating: 4,
   when: "Turn 3",
@@ -443,6 +418,20 @@ window.CETRATA_WIKI = {
   ],
   tips: [
    "After <i-c>Vampiric Tutor</i-c> or <i-c>Imperial Seal</i-c>, pay 1 life to take the card off the top."
+  ],
+  combos: []
+ },
+ "Phyrexian Arena": {
+  rating: 3,
+  when: "Turns 2-4",
+  tags: ["enchantment", "card draw", "new in v3"],
+  rulings: [
+   { q: "Does it work with Necropotence?", a: "Yes. Necropotence skips your draw step, but Arena draws at the beginning of your upkeep, which is a different step." },
+   { q: "Does its life loss start the vampire loop?", a: "No. You lose the life. <i-c>Exquisite Blood</i-c> and <i-c>Bloodthirsty Conqueror</i-c> only trigger when an opponent loses life." }
+  ],
+  tips: [
+   "After <i-c>Vampiric Tutor</i-c> or <i-c>Imperial Seal</i-c>, Arena draws the card in your upkeep, before your draw step.",
+   "<i-c>Drift of Phantasms</i-c> can transmute for it."
   ],
   combos: []
  },
@@ -714,6 +703,21 @@ window.CETRATA_WIKI = {
   ],
   tips: [
    "Cast it overloaded at the end of the turn before yours, so opponents have to spend their turn replaying what you bounced."
+  ],
+  combos: []
+ },
+ "Aetherize": {
+  rating: 3,
+  when: "An opponent's combat, after attackers are declared",
+  tags: ["instant", "bounce", "fog", "new in v3"],
+  rulings: [
+   { q: "What happens to attacking tokens?", a: "They go to their owner's hand and then cease to exist." },
+   { q: "What about an attacking commander?", a: "Its owner may put it into the command zone instead of their hand. Either way it's out of combat and must be cast again." },
+   { q: "Does it hit creatures attacking someone else?", a: "Yes. It returns every attacking creature, whoever they're attacking." }
+  ],
+  tips: [
+   "Wait until attackers are declared, then cast it. Before that, nothing is attacking yet.",
+   "<i-c>Dimir House Guard</i-c> can transmute for it."
   ],
   combos: []
  },
@@ -1019,6 +1023,20 @@ window.CETRATA_WIKI = {
   ],
   combos: []
  },
+ "Mutavault": {
+  rating: 3,
+  when: "Turns 3+, as an extra attacker",
+  tags: ["land", "creature land", "assassin", "new in v3"],
+  rulings: [
+   { q: "Does it trigger Etrata?", a: "Yes. While animated, it has all creature types, so it's an Assassin. When it deals combat damage to an opponent, Etrata cloaks the top card of that player's library." },
+   { q: "It's a Vampire too. Does that matter?", a: "Hardly. The vampire loop cares about life gained and lost, not creature types." },
+   { q: "Can it attack the turn I play it?", a: "No. It's a creature that hasn't been under your control since the start of the turn, so it has summoning sickness." }
+  ],
+  tips: [
+   "Animate it before combat and attack the player with the best library, like any Assassin."
+  ],
+  combos: []
+ },
  "Island": {
   rating: 2,
   when: "Any turn",
@@ -1047,8 +1065,8 @@ window.CETRATA_GLOSSARY = [
  { term: "Transmute", html: "Pay the transmute cost and discard the card from your hand: search your library for a card with the same mana value, reveal it and put it into your hand. Only as a sorcery. It's an ability, not a spell, so Counterspell can't stop it. This deck has four: <i-c>Shred Memory</i-c> and <i-c>Muddle the Mixture</i-c> (2), <i-c>Drift of Phantasms</i-c> (3) and <i-c>Dimir House Guard</i-c> (4).", cards: ["Shred Memory", "Muddle the Mixture", "Drift of Phantasms", "Dimir House Guard"] },
  { term: "Changeling", html: "The card is every creature type, in every zone. <i-c>Changeling Outcast</i-c> and <i-c>Black Market Connections</i-c>'s Mercenary tokens are Assassins and Vampires, so they trigger Etrata.", cards: ["Changeling Outcast", "Black Market Connections"] },
  { term: "Deathtouch", html: "Any damage this creature deals to a creature is enough to destroy it. Etrata, Virtus, Bloodthirsty Conqueror, <i-c>Vampire of the Dire Moon</i-c> and <i-c>Hooded Blightfang</i-c> have it, and with the Blightfang out each of them drains the table when it attacks.", cards: ["Etrata, Deadly Fugitive", "Virtus the Veiled", "Bloodthirsty Conqueror", "Vampire of the Dire Moon", "Hooded Blightfang"] },
- { term: "Assassin", html: "A creature type. Etrata cloaks a card whenever an Assassin you control hits an opponent. Your Assassins: Etrata, <i-c>Virtus the Veiled</i-c>, a face-up <i-c>Silumgar Assassin</i-c>, <i-c>Changeling Outcast</i-c> and <i-c>Black Market Connections</i-c>' Mercenary tokens. Face-down creatures and cloaks have no types.", cards: ["Etrata, Deadly Fugitive", "Virtus the Veiled", "Silumgar Assassin", "Changeling Outcast", "Black Market Connections"] },
- { term: "Ninjutsu", html: "Pay the cost and return an unblocked attacker you control to your hand: put this card onto the battlefield tapped and attacking. <i-c>Fallen Shinobi</i-c> swaps in for <i-c>Changeling Outcast</i-c>.", cards: ["Fallen Shinobi", "Changeling Outcast"] },
+ { term: "Assassin", html: "A creature type. Etrata cloaks a card whenever an Assassin you control hits an opponent. Your Assassins: Etrata, <i-c>Virtus the Veiled</i-c>, a face-up <i-c>Silumgar Assassin</i-c>, <i-c>Changeling Outcast</i-c>, an animated <i-c>Mutavault</i-c> and <i-c>Black Market Connections</i-c>' Mercenary tokens. Face-down creatures and cloaks have no types.", cards: ["Etrata, Deadly Fugitive", "Virtus the Veiled", "Silumgar Assassin", "Changeling Outcast", "Mutavault", "Black Market Connections"] },
+ { term: "Creature land", html: "A land that can become a creature until end of turn. <i-c>Mutavault</i-c> becomes a 2/2 with all creature types for {1}, so it's an Assassin and cloaks a card with Etrata when it connects. It's still a land, so it can't attack the turn you play it.", cards: ["Mutavault", "Etrata, Deadly Fugitive"] },
  { term: "Bargain", html: "An optional extra cost: sacrifice an artifact, enchantment or token as you cast the spell. Bargained <i-c>Beseech the Mirror</i-c> lets you cast the card it finds for free if its mana value is 4 or less. Treasures are perfect fodder.", cards: ["Beseech the Mirror", "Black Market Connections", "Mind Stone"] },
  { term: "Channel", html: "An ability you activate from your hand by paying the cost and discarding the card. It isn't a spell. <i-c>Otawara, Soaring City</i-c> and <i-c>Takenuma, Abandoned Mire</i-c> cost {1} less for each legendary creature you control.", cards: ["Otawara, Soaring City", "Takenuma, Abandoned Mire"] },
  { term: "Flash", html: "You can cast the card any time you could cast an instant. <i-c>Opposition Agent</i-c> and <i-c>Notion Thief</i-c> are best flashed in right before an opponent searches or draws.", cards: ["Opposition Agent", "Notion Thief"] },
@@ -1076,13 +1094,12 @@ window.CETRATA_CUTS = [
  { name: "Expropriate", why: "Nine mana, or Scroll of Fate plus Etrata to cast it free. Either way it's slower than the two-card vampire court loop that replaced it." },
  { name: "Mindslaver", why: "Six mana plus four to activate for one stolen turn. It doesn't win by itself, and the list wants every slot to win or find a win." },
  { name: "Thieving Amalgam", why: "A seven-drop that manifests opponents' cards one upkeep at a time. Fun theft, but far too slow for turn 6 to 7 wins." },
- { name: "Silent-Blade Oni", why: "A seven-mana Ninja whose ninjutsu still costs six. Fallen Shinobi does the free-spell job for four." },
+ { name: "Silent-Blade Oni", why: "A seven-mana Ninja whose ninjutsu still costs six. Far too slow for turn 6 to 7 wins." },
  { name: "Hostage Taker", why: "Strong but fair: it steals one creature or artifact. The slot went to a combo piece." },
  { name: "Gonti, Lord of Luxury", why: "One stolen card when it enters. Cut in v1 for speed." },
  { name: "Tinybones, the Pickpocket", why: "A one-drop that only steals from graveyards. Changeling Outcast is the better cheap attacker for Etrata." },
  { name: "Kheru Spellsnatcher", why: "Flipping it to counter and steal a spell is great fun but situational. It's on the weird-extras list if you want it back." },
  { name: "Whispering Madness", why: "A four-mana Windfall. Windfall costs three and does the same job with Notion Thief." },
- { name: "Phyrexian Arena", why: "One extra card a turn. Necropotence digs as deep as you need in the same three mana." },
  { name: "Bloodchief Ascension", why: "It combos with Mindcrank but needs three turns of quest counters. Duskmantle Guildmage does it right away." },
  { name: "Arcane Adaptation", why: "A type enabler. The loops don't need creature types, and v3 cut the other type enablers too." },
  { name: "Mischievous Sneakling", why: "A 2/2 flash changeling with no other text. Changeling Outcast costs one and can't be blocked." },
@@ -1093,11 +1110,13 @@ window.CETRATA_CUTS = [
  { name: "Gonti, Night Minister", why: "Cut in v3's second round: slow slot; a land did more in bot games (about 1.9 points better swapped for a basic)." },
  { name: "Leyline of Transformation", why: "Cut in v3's second round: slow slot; a land did more in bot games (about 1.9 points better swapped for a basic)." },
  { name: "Roshan, Hidden Magister", why: "Cut in v3's second round: slow slot; a land did more in bot games (about 1.3 points better swapped for a basic)." },
- { name: "Infernal Grasp", why: "Cut in v3's second round: slow slot; a land did more in bot games (about 1.3 points better swapped for a basic). Deadly Rollick and Silumgar Assassin still kill creatures." }
+ { name: "Infernal Grasp", why: "Cut in v3's second round: slow slot; a land did more in bot games (about 1.3 points better swapped for a basic). Deadly Rollick and Silumgar Assassin still kill creatures." },
+ { name: "Praetor's Grasp", why: "Cut in v3's third round: a weak slot in bot games against both fields; cutting it for a land gained about 1 to 2.5 points. Opposition Agent and Thief of Sanity still take cards from libraries." },
+ { name: "Fallen Shinobi", why: "Cut in v3's third round: a weak slot in bot games against both fields; cutting it for a land gained about 1 to 2.5 points. Etrata's cloaks and Thief of Sanity still steal in combat." }
 ];
 
 window.CETRATA_FAQ = [
- { q: "What changed in v3?", a: "Five cuts: Brine Elemental, Vesuvan Shapeshifter, Etrata, the Silencer, Mari, the Killing Quill and Dizzy Spell, which drops the Brine lock and the hit list. Five adds: <i-c>Enduring Tenacity</i-c> and <i-c>Starscape Cleric</i-c> (two more vampire loop payoffs) and <i-c>Vampire of the Dire Moon</i-c>, <i-c>Hooded Blightfang</i-c> and <i-c>Silumgar Assassin</i-c> (cheap blockers). A second round then cut Ramses, Assassin Lord, Gonti, Night Minister, Leyline of Transformation, Roshan, Hidden Magister and Infernal Grasp for five lands: <i-c>Choked Estuary</i-c>, <i-c>Darkwater Catacombs</i-c>, <i-c>Tainted Isle</i-c>, <i-c>River of Tears</i-c> and a ninth <i-c>Swamp</i-c>, for 36 lands. Bot games showed the deck was short on mana: that swap alone took precon games from about 60% to 66.6% (2,400 games) and Bracket 4 games from 31.3% to 39.1% (1,000 games). Overall, v3 wins about 66.6% against precons (v2: 49.7%) and 39.1% against Bracket 4 decks (v2: 24.8%)." },
+ { q: "What changed in v3?", a: "Five cuts: Brine Elemental, Vesuvan Shapeshifter, Etrata, the Silencer, Mari, the Killing Quill and Dizzy Spell, which drops the Brine lock and the hit list. Five adds: <i-c>Enduring Tenacity</i-c> and <i-c>Starscape Cleric</i-c> (two more vampire loop payoffs) and <i-c>Vampire of the Dire Moon</i-c>, <i-c>Hooded Blightfang</i-c> and <i-c>Silumgar Assassin</i-c> (cheap blockers). A second round then cut Ramses, Assassin Lord, Gonti, Night Minister, Leyline of Transformation, Roshan, Hidden Magister and Infernal Grasp for five lands: <i-c>Choked Estuary</i-c>, <i-c>Darkwater Catacombs</i-c>, <i-c>Tainted Isle</i-c>, <i-c>River of Tears</i-c> and a ninth <i-c>Swamp</i-c>, for 36 lands. Bot games showed the deck was short on mana: that swap alone took precon games from about 60% to 66.6% (2,400 games) and Bracket 4 games from 31.3% to 39.1% (1,000 games). A third round cut Praetor's Grasp, Fallen Shinobi and an <i-c>Island</i-c> for <i-c>Phyrexian Arena</i-c>, <i-c>Aetherize</i-c> and <i-c>Mutavault</i-c>, still 36 lands with Mutavault as one of them. Both cuts were weak slots against both fields, and in new paired runs the package took precon games from 66.6% to about 69.2% (2,400 games) and Bracket 4 games from 41.1% to 43.2% (1,000 games). Overall, v3 wins about 69% against precons (v2: 49.7%) and 43% against Bracket 4 decks (v2: 24.8%)." },
  { q: "How does this deck win?", a: "With one of four combo lines: the vampire court loop (<i-c>Exquisite Blood</i-c> or <i-c>Bloodthirsty Conqueror</i-c> with any of five payoffs: <i-c>Marauding Blight-Priest</i-c>, <i-c>Starscape Cleric</i-c>, <i-c>Vito, Thorn of the Dusk Rose</i-c>, <i-c>Sanguine Bond</i-c> or <i-c>Enduring Tenacity</i-c>), <i-c>Mindcrank</i-c> + <i-c>Duskmantle Guildmage</i-c>, the double tap (<i-c>Bloodletter of Aclazotz</i-c> + <i-c>Virtus the Veiled</i-c>) and infinite turns (<i-c>Scroll of Fate</i-c> + <i-c>Wormfang Manta</i-c> + <i-c>Crystal Shard</i-c>). The vampire loop and the tutors carry the deck, cheap deathtouch blockers keep you alive until then, and Etrata steals cards along the way." },
  { q: "What do I tell the table before the game?", a: "That it's a Bracket 4 deck with nine Game Changers, many tutors, two-card infinite combos and an infinite extra turns loop. Say it often wins around turns 6 to 8 and steals cards from their libraries. It has no Thassa's Oracle and no Mana Vault." },
  { q: "Which line should I go for first?", a: "The one you're closest to. Two-card lines come first: Mindcrank + Guildmage (cheapest, works on an opponent's turn) and the vampire court loop (ten possible pairs). The Manta turns are next, since Etrata makes the flip cheap. The double tap is two cards too, but it kills only the player Virtus hits, so go for it when that player is the threat or the rest of the table is already low." },
@@ -1111,6 +1130,6 @@ window.CETRATA_FAQ = [
  { q: "What hand should I keep?", a: "Two or three lands plus a rock, and either a combo piece, a tutor or a strong draw engine like <i-c>Necropotence</i-c> or <i-c>Rhystic Study</i-c>. With 36 lands, most sevens have enough mana; ship the ones that don't. Mulligan hands with one land and no rocks, or with lots of mana and nothing to do." },
  { q: "What hurts this deck most?", a: "Graveyard hate like Rest in Peace stops Mindcrank's loop. 'Players can't gain life' effects stop the vampire court. Cursed Totem stops Etrata's flip and the Guildmage. Drannith Magistrate stops you casting stolen cards from exile. Enchantment removal hits Exquisite Blood and Sanguine Bond. Fight them with <i-c>Cyclonic Rift</i-c>, <i-c>Otawara, Soaring City</i-c>, <i-c>Deadly Rollick</i-c> and your counters, or switch to a line they don't stop." },
  { q: "Which creatures does Tetsuko make unblockable?", a: "Any creature you control with power or toughness 1 or less as blockers are declared: Etrata (1/4), <i-c>Virtus the Veiled</i-c>, <i-c>Vito, Thorn of the Dusk Rose</i-c>, <i-c>Vampire of the Dire Moon</i-c>, <i-c>Hooded Blightfang</i-c>, <i-c>Starscape Cleric</i-c>, a face-up <i-c>Silumgar Assassin</i-c> without its counter, and the 6/1 <i-c>Wormfang Manta</i-c>. Face-down 2/2s and a megamorphed Silumgar Assassin (3/2) don't qualify. <i-c>Changeling Outcast</i-c> is unblockable anyway." },
- { q: "How much does it cost?", a: "About $1,116, or around 950€, using the cheapest legal regular printing of each card. The biggest are Imperial Seal ($180), Mox Amber ($87), Fierce Guardianship ($66), Rhystic Study ($64) and Demonic Tutor ($63). Check Cardmarket before buying." },
+ { q: "How much does it cost?", a: "About $1,099, or around 930€, using the cheapest legal regular printing of each card. That leaves out seven cards whose price lookup didn't go through: Phyrexian Arena, Aetherize, Mutavault and four lands from the Etrata deck (Choked Estuary, Darkwater Catacombs, Tainted Isle and River of Tears). The biggest are Imperial Seal ($180), Mox Amber ($87), Fierce Guardianship ($66), Rhystic Study ($64) and Demonic Tutor ($63). Check Cardmarket before buying." },
  { q: "How fast is it?", a: "In an 8,000-game simulation against opponents who answer 30% of combo attempts, it won by turn 6 in 25% of games, by turn 7 in 40% and by turn 8 in 52%. Against no answers, 32%, 50% and 64%. The sim ignores stolen cards and most combat damage, so real games can be faster." }
 ];

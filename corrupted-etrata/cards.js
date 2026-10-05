@@ -25,7 +25,7 @@ window.CETRATA_CARDS = [
    "Tetsuko Umezawa, Fugitive",
    "Fierce Guardianship"
   ],
-  "warn": "Cloaks are 2/2s with no creature types, so they never trigger her. Her cloaks come from real Assassins: herself, Virtus the Veiled, a face-up Silumgar Assassin, Changeling Outcast and Black Market Connections' tokens."
+  "warn": "Cloaks are 2/2s with no creature types, so they never trigger her. Her cloaks come from real Assassins: herself, Virtus the Veiled, a face-up Silumgar Assassin, Changeling Outcast, an animated Mutavault and Black Market Connections' tokens."
  },
  {
   "name": "Exquisite Blood",
@@ -457,7 +457,7 @@ window.CETRATA_CARDS = [
    "Silumgar Assassin",
    "Vito, Thorn of the Dusk Rose"
   ],
-  "warn": "It doesn't reduce morph costs, turning up for a mana cost, transmute, ninjutsu, or artifact abilities like Crystal Shard."
+  "warn": "It doesn't reduce morph costs, turning up for a mana cost, transmute, or artifact abilities like Crystal Shard."
  },
  {
   "name": "Mindcrank",
@@ -520,12 +520,12 @@ window.CETRATA_CARDS = [
    "utility"
   ],
   "why": "A one-mana unblockable creature that is every type, so it's an Assassin and a Vampire. It cloaks a card with Etrata every turn and starts the Mindcrank and vampire loops with a single point of damage.",
-  "how": "Play it on turn 1 or 2 and attack every turn. With a drain and a payoff out, its 1 damage starts the vampire loop. It's also a clean ninjutsu enabler for Fallen Shinobi.",
+  "how": "Play it on turn 1 or 2 and attack every turn. With a drain and a payoff out, its 1 damage starts the vampire loop.",
   "syn": [
    "Etrata, Deadly Fugitive",
-   "Fallen Shinobi",
    "Mindcrank",
-   "Exquisite Blood"
+   "Exquisite Blood",
+   "Mutavault"
   ],
   "warn": "It can't block, so don't count it as defense."
  },
@@ -550,27 +550,6 @@ window.CETRATA_CARDS = [
    "Drift of Phantasms"
   ],
   "warn": "It's a 2/2 flier, so any flying blocker or removal stops it. It isn't an Assassin, so its hits don't trigger Etrata."
- },
- {
-  "name": "Fallen Shinobi",
-  "qty": 1,
-  "cost": "{3}{U}{B}",
-  "mv": 5,
-  "type": "Creature — Zombie Ninja",
-  "cat": "Creature",
-  "pt": "5/4",
-  "text": "Ninjutsu {2}{U}{B} ({2}{U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)\nWhenever Fallen Shinobi deals combat damage to a player, that player exiles the top two cards of their library. Until end of turn, you may play those cards without paying their mana costs.",
-  "roles": [
-   "steal"
-  ],
-  "why": "When it deals combat damage to a player, they exile the top two cards of their library and you may play them free this turn. Two free cards from an opponent's deck per hit.",
-  "how": "Ninjutsu it in for {2}{U}{B} by returning an unblocked Changeling Outcast, then recast the Outcast. Free cards from the top of their library can include their best spells.",
-  "syn": [
-   "Changeling Outcast",
-   "Etrata, Deadly Fugitive",
-   "Rogue's Passage"
-  ],
-  "warn": "Returning an Assassin for ninjutsu loses that Assassin's Etrata trigger this combat. Training Grounds doesn't reduce ninjutsu: the card is in your hand."
  },
  {
   "name": "Opposition Agent",
@@ -643,27 +622,6 @@ window.CETRATA_CARDS = [
   "warn": "Without Notion Thief it refills the opponents too. Don't give a combo player a fresh hand."
  },
  {
-  "name": "Praetor's Grasp",
-  "qty": 1,
-  "cost": "{1}{B}{B}",
-  "mv": 3,
-  "type": "Sorcery",
-  "cat": "Sorcery",
-  "pt": "",
-  "text": "Search target opponent's library for a card and exile it face down. Then that player shuffles. You may look at and play that card for as long as it remains exiled.",
-  "roles": [
-   "steal",
-   "tutor"
-  ],
-  "why": "Search an opponent's library for any card, exile it face down, and you may play it as long as it's exiled. You take their best answer or their win condition.",
-  "how": "Cast it when you know what's in their deck. Take a card that wins for you, or the combo piece they're closest to. Drift of Phantasms can transmute for it.",
-  "syn": [
-   "Drift of Phantasms",
-   "Opposition Agent"
-  ],
-  "warn": "You must pay the card's real cost in its colors. Don't take an off-color card you can't cast."
- },
- {
   "name": "Black Market Connections",
   "qty": 1,
   "cost": "{2}{B}",
@@ -729,6 +687,29 @@ window.CETRATA_CARDS = [
    "Exquisite Blood"
   ],
   "warn": "You skip your draw step, and the cards only arrive at your end step, so you can't use them that turn."
+ },
+ {
+  "name": "Phyrexian Arena",
+  "qty": 1,
+  "cost": "{1}{B}{B}",
+  "mv": 3,
+  "type": "Enchantment",
+  "cat": "Enchantment",
+  "pt": "",
+  "text": "At the beginning of your upkeep, you draw a card and you lose 1 life.",
+  "roles": [
+   "draw"
+  ],
+  "why": "An extra card every turn for 1 life, with no more mana to spend. Added in v3's third round: in bot games the slower theft spells did less than a steady extra card.",
+  "how": "Cast it on turn 2 or 3 off a rock or Dark Ritual. Drift of Phantasms can transmute for it. With Vampiric Tutor or Imperial Seal, the card you put on top arrives in your upkeep, before your draw step.",
+  "syn": [
+   "Necropotence",
+   "Vampiric Tutor",
+   "Imperial Seal",
+   "Drift of Phantasms",
+   "Dark Ritual"
+  ],
+  "warn": "You lose the life, not an opponent, so it never starts the vampire loop: Exquisite Blood and Bloodthirsty Conqueror only see opponents losing life. Count it with Necropotence and the painlands."
  },
  {
   "name": "Mystic Remora",
@@ -1109,7 +1090,7 @@ window.CETRATA_CARDS = [
   "roles": [
    "tutor"
   ],
-  "why": "Transmute for {1}{B}{B} to find any card with mana value 4: Bloodletter, Enduring Tenacity, Notion Thief, Beseech the Mirror or Deadly Rollick. Cast, it's a 2/3 with fear that regenerates by sacrificing a creature.",
+  "why": "Transmute for {1}{B}{B} to find any card with mana value 4: Bloodletter, Enduring Tenacity, Notion Thief, Beseech the Mirror, Deadly Rollick or Aetherize. Cast, it's a 2/3 with fear that regenerates by sacrificing a creature.",
   "how": "Transmute it for Bloodletter on the turn before the double tap, or for Enduring Tenacity when you have a drain. As a creature, it protects itself by sacrificing a cloak.",
   "syn": [
    "Bloodletter of Aclazotz",
@@ -1240,6 +1221,27 @@ window.CETRATA_CARDS = [
    "Wormfang Manta",
    "Muddle the Mixture"
   ]
+ },
+ {
+  "name": "Aetherize",
+  "qty": 1,
+  "cost": "{3}{U}",
+  "mv": 4,
+  "type": "Instant",
+  "cat": "Instant",
+  "pt": "",
+  "text": "Return all attacking creatures to their owner's hand.",
+  "roles": [
+   "removal"
+  ],
+  "why": "Every attacking creature goes back to its owner's hand, and tokens that leave the battlefield cease to exist. A one-card answer to a big attack from a Bracket 4 aggro deck or a token deck. Added in v3's third round.",
+  "how": "Hold {3}{U} on an opponent's turn and cast it after attackers are declared, ideally when they've swung most of their board at you. Dimir House Guard can transmute for it.",
+  "syn": [
+   "Dimir House Guard",
+   "Counterspell",
+   "Cyclonic Rift"
+  ],
+  "warn": "It hits every attacking creature, so don't cast it on your own turn while you're attacking. It only answers creatures that are already attacking: it doesn't stop a combo."
  },
  {
   "name": "Sol Ring",
@@ -1694,7 +1696,7 @@ window.CETRATA_CARDS = [
    "Virtus the Veiled",
    "Bloodletter of Aclazotz",
    "Tetsuko Umezawa, Fugitive",
-   "Fallen Shinobi"
+   "Mutavault"
   ],
   "warn": "It makes only colorless mana."
  },
@@ -1824,8 +1826,30 @@ window.CETRATA_CARDS = [
   ]
  },
  {
+  "name": "Mutavault",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "pt": "",
+  "text": "{T}: Add {C}.\n{1}: Until end of turn, Mutavault becomes a 2/2 creature with all creature types. It's still a land.",
+  "roles": [
+   "land",
+   "utility"
+  ],
+  "why": "A land that taps for {C} and for {1} becomes a 2/2 with all creature types until end of turn. As a creature it's an Assassin, so when it deals combat damage to an opponent, Etrata cloaks a card. Added in v3's third round, as one of the 36 lands.",
+  "how": "Animate it in your first main phase or beginning of combat and attack a player with no good blockers. On opponents' turns, animate it to block in a pinch. It can't attack the turn you play it.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Changeling Outcast",
+   "Rogue's Passage"
+  ],
+  "warn": "It makes only colorless mana, and it's not legendary, so it doesn't turn on Mox Amber. Animated, it's a creature: creature removal and wraths hit it."
+ },
+ {
   "name": "Island",
-  "qty": 8,
+  "qty": 7,
   "cost": "",
   "mv": 0,
   "type": "Basic Land — Island",
@@ -1835,7 +1859,7 @@ window.CETRATA_CARDS = [
   "roles": [
    "land"
   ],
-  "why": "Eight basic Islands. They turn on Sunken Hollow, Drowned Catacomb and Gloomlake Verge, let Choked Estuary enter untapped, and survive nonbasic land hate.",
+  "why": "Seven basic Islands. They turn on Sunken Hollow, Drowned Catacomb and Gloomlake Verge, let Choked Estuary enter untapped, and survive nonbasic land hate.",
   "how": "Fetch one with Polluted Delta when you need {U} and expect land hate.",
   "syn": [
    "Polluted Delta",

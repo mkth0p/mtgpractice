@@ -15,8 +15,8 @@ window.CETRATA_GUIDE = [
       { t: "cards", names: ["Etrata, Deadly Fugitive", "Exquisite Blood", "Mindcrank", "Silumgar Assassin"], caption: "The commander, two of the four engines, and the face-down blocker that holds removal." },
       { t: "h", text: "The plan in four beats" },
       { t: "steps", items: [
-        { title: "Set up", html: "Rocks, <i-c>Mox Amber</i-c> and card draw on turns 1 to 3. <i-c>Rhystic Study</i-c>, <i-c>Mystic Remora</i-c> and <i-c>Necropotence</i-c> fill your hand." },
-        { title: "Steal", html: "Etrata, <i-c>Thief of Sanity</i-c>, <i-c>Fallen Shinobi</i-c> and <i-c>Opposition Agent</i-c> take cards from the other players. You play their best spells against them." },
+        { title: "Set up", html: "Rocks, <i-c>Mox Amber</i-c> and card draw on turns 1 to 3. <i-c>Rhystic Study</i-c>, <i-c>Mystic Remora</i-c>, <i-c>Phyrexian Arena</i-c> and <i-c>Necropotence</i-c> fill your hand." },
+        { title: "Steal", html: "Etrata, <i-c>Thief of Sanity</i-c>, <i-c>Opposition Agent</i-c> and <i-c>Notion Thief</i-c> take cards from the other players. You play their best spells against them." },
         { title: "Tutor", html: "Fourteen tutors, four of them transmute cards. Most combos need two cards, so one tutor plus one piece is often enough." },
         { title: "Win", html: "Usually on turn 6 to 8. Four different lines, so one piece of hate rarely stops all of them. Cheap deathtouch blockers keep you alive until then." }
       ] },
@@ -27,7 +27,7 @@ window.CETRATA_GUIDE = [
         "<b>3. The double tap.</b> <i-c>Bloodletter of Aclazotz</i-c> plus <i-c>Virtus the Veiled</i-c> kills a player in one hit. <i-c>Tetsuko Umezawa, Fugitive</i-c> makes the 1/1 Virtus unblockable.",
         "<b>4. Infinite turns.</b> <i-c>Scroll of Fate</i-c>, <i-c>Wormfang Manta</i-c> and <i-c>Crystal Shard</i-c>, with Etrata flipping the Manta for four."
       ] },
-      { t: "p", html: "This is the v3 list. It cut the two slowest lines, the Brine lock and the hit list, for two more vampire payoffs and three cheap blockers: <i-c>Vampire of the Dire Moon</i-c>, <i-c>Hooded Blightfang</i-c> and <i-c>Silumgar Assassin</i-c>. A second round cut five slow spells (Ramses, Assassin Lord, Gonti, Night Minister, Leyline of Transformation, Roshan, Hidden Magister and Infernal Grasp) for five lands, because bot games showed the deck was short on mana. Against precons, v3 now wins about 66.6% of paired bot games, up from 49.7% for v2; against Bracket 4 decks, 39.1%, up from 24.8%." },
+      { t: "p", html: "This is the v3 list. It cut the two slowest lines, the Brine lock and the hit list, for two more vampire payoffs and three cheap blockers: <i-c>Vampire of the Dire Moon</i-c>, <i-c>Hooded Blightfang</i-c> and <i-c>Silumgar Assassin</i-c>. A second round cut five slow spells (Ramses, Assassin Lord, Gonti, Night Minister, Leyline of Transformation, Roshan, Hidden Magister and Infernal Grasp) for five lands, because bot games showed the deck was short on mana. A third round swapped Praetor's Grasp, Fallen Shinobi and an Island for <i-c>Phyrexian Arena</i-c>, <i-c>Aetherize</i-c> and <i-c>Mutavault</i-c>. Against precons, v3 now wins about 69% of paired bot games, up from 49.7% for v2; against Bracket 4 decks, about 43%, up from 24.8%." },
       { t: "widget", id: "comboFinder" },
       { t: "h", text: "How fast it is" },
       { t: "p", html: "The write-up's simulator played 8,000 games for each setting. It doesn't count stolen cards or most combat damage, so treat these as a floor." },
@@ -45,7 +45,7 @@ window.CETRATA_GUIDE = [
         "It's less fun if you want a single clean combo. This deck wins many small ways, and you pick the line each game."
       ] },
       { t: "callout", tone: "key", title: "Tell the table first", html: "Bracket 4 with 9 Game Changers, two-card infinite combos and infinite turns. Say all of that before you shuffle. The last chapter has a script." },
-      { t: "callout", tone: "tip", title: "Cost", html: "About $1,116, or roughly 950€. The big cards are <i-c>Imperial Seal</i-c> ($180) and <i-c>Mox Amber</i-c> ($87). Or proxy it: 45 cards, 17 basics included, carry over from the current Etrata deck, and the other 55 can be proxies. The Shop's \"Proxy it\" section lists them. The buy list is in the mana chapter." }
+      { t: "callout", tone: "tip", title: "Cost", html: "About $1,099, or roughly 930€, not counting seven cards still without a price (Phyrexian Arena, Aetherize, Mutavault and four lands). The big cards are <i-c>Imperial Seal</i-c> ($180) and <i-c>Mox Amber</i-c> ($87). Or proxy it: 44 cards, 16 basics included, carry over from the current Etrata deck, and the other 56 can be proxies. The Shop's \"Proxy it\" section lists them. The buy list is in the mana chapter." }
     ]
   },
   {
@@ -344,7 +344,7 @@ window.CETRATA_GUIDE = [
         ["<i-c>Dimir House Guard</i-c>", "{1}{B}{B}", "4", "<i-c>Bloodletter of Aclazotz</i-c>, <i-c>Enduring Tenacity</i-c>, <i-c>Notion Thief</i-c>, <i-c>Beseech the Mirror</i-c>, <i-c>Deadly Rollick</i-c>"]
       ] },
       { t: "callout", tone: "key", title: "Every transmute card can find a tutor", html: "Shred Memory and Muddle find Demonic Tutor. Drift finds Grim Tutor. House Guard finds Beseech the Mirror. When the piece you need isn't on your transmute's row, chain into a tutor that is open." },
-      { t: "callout", tone: "warn", title: "Out of transmute range", html: "Mana value 5 or more: <i-c>Exquisite Blood</i-c>, <i-c>Bloodthirsty Conqueror</i-c>, <i-c>Sanguine Bond</i-c>, <i-c>Fallen Shinobi</i-c>, <i-c>Wormfang Manta</i-c>. Mana value 1 has no transmute card either: <i-c>Vampire of the Dire Moon</i-c>, <i-c>Training Grounds</i-c>, <i-c>Changeling Outcast</i-c>. Spend open tutors on these, and transmutes on the rest." },
+      { t: "callout", tone: "warn", title: "Out of transmute range", html: "Mana value 5 or more: <i-c>Exquisite Blood</i-c>, <i-c>Bloodthirsty Conqueror</i-c>, <i-c>Sanguine Bond</i-c>, <i-c>Wormfang Manta</i-c>. Mana value 1 has no transmute card either: <i-c>Vampire of the Dire Moon</i-c>, <i-c>Training Grounds</i-c>, <i-c>Changeling Outcast</i-c>. Spend open tutors on these, and transmutes on the rest." },
       { t: "widget", id: "tutorMap" },
       { t: "h", text: "Black-market tutors" },
       { t: "p", html: "Two of your tutors give an opponent a tutor too. Use them on purpose." },
@@ -369,15 +369,13 @@ window.CETRATA_GUIDE = [
     title: "The black market: stealing",
     kicker: "Theft",
     minutes: 7,
-    summary: "Etrata's cloaks, Thief of Sanity, Fallen Shinobi, Opposition Agent, Praetor's Grasp, Notion Thief with Windfall, and Black Market Connections.",
+    summary: "Etrata's cloaks, Thief of Sanity, Opposition Agent, Notion Thief with Windfall, and Black Market Connections.",
     blocks: [
       { t: "p", html: "Half the fun of this deck is playing other people's cards. Stealing also pays for itself: every stolen card is card advantage, and it comes out of an opponent's deck." },
       { t: "table", head: ["Card", "What you take", "When"], rows: [
         ["<i-c>Etrata, Deadly Fugitive</i-c>", "Their top card, cloaked on your side", "Each Assassin that deals them combat damage"],
         ["<i-c>Thief of Sanity</i-c>", "One of their top three, exiled. The other two go to their graveyard.", "When it deals them combat damage"],
-        ["<i-c>Fallen Shinobi</i-c>", "Their top two, exiled. Play them free this turn.", "When it deals them combat damage"],
         ["<i-c>Opposition Agent</i-c>", "Whatever they search for", "Each time they search their library"],
-        ["<i-c>Praetor's Grasp</i-c>", "Any card in their library", "Once, for {1}{B}{B}"],
         ["<i-c>Notion Thief</i-c>", "Their extra draws", "Every draw except the first in their draw step"]
       ] },
       { t: "h", text: "Cloaks" },
@@ -387,13 +385,12 @@ window.CETRATA_GUIDE = [
         "A cloaked instant or sorcery is exiled and cast for free, using their own removal or tutor against them.",
         "A cloak is also a 2/2 with ward {2}: a blocker, sacrifice fodder for <i-c>Culling the Weak</i-c> and <i-c>Diabolic Intent</i-c>."
       ] },
-      { t: "callout", tone: "tip", title: "Paying for stolen cards", html: "<i-c>Thief of Sanity</i-c> lets you spend mana as though it were any type, and <i-c>Opposition Agent</i-c> as though it were any color, so off-color cards they take are castable. <i-c>Praetor's Grasp</i-c> doesn't: you need the card's real colors. <i-c>Fallen Shinobi</i-c> plays its cards free." },
-      { t: "h", text: "Thief of Sanity and Fallen Shinobi" },
+      { t: "callout", tone: "tip", title: "Paying for stolen cards", html: "<i-c>Thief of Sanity</i-c> lets you spend mana as though it were any type, and <i-c>Opposition Agent</i-c> as though it were any color, so off-color cards they take are castable. Cloaked instants and sorceries that Etrata flips are cast free." },
+      { t: "h", text: "Thief of Sanity and the Assassins" },
       { t: "list", items: [
         "<i-c>Thief of Sanity</i-c> is a 2/2 flier for {1}{U}{B}. You may cast the card it takes for as long as it stays exiled, with any type of mana.",
-        "<i-c>Fallen Shinobi</i-c> has ninjutsu {2}{U}{B}: return an unblocked attacker to hand and put Shinobi onto the battlefield tapped and attacking.",
-        "<i-c>Changeling Outcast</i-c> can't be blocked, so it's a reliable ninjutsu target. You give up Etrata's trigger for the Outcast that turn.",
-        "Shinobi's cards must be played this turn. Lands still need your land drop. Pick the best spells first."
+        "It isn't an Assassin, so its hits don't cloak. Pair it with Assassins that connect: <i-c>Changeling Outcast</i-c> can't be blocked, and <i-c>Mutavault</i-c> becomes a 2/2 with all creature types for {1}.",
+        "Mutavault is a land, so it can't attack the turn you play it. Animate it before combat and send it at the player with the best library."
       ] },
       { t: "h", text: "Opposition Agent" },
       { t: "p", html: "Flash, {2}{B}. You control opponents while they search their libraries. Each card they find is exiled, and you may play it, spending mana as if it were any color." },
@@ -409,7 +406,7 @@ window.CETRATA_GUIDE = [
       { t: "callout", tone: "tip", title: "With the Guildmage active", html: "Windfall also puts every opponent's hand into their graveyard. If <i-c>Duskmantle Guildmage</i-c> is active and <i-c>Mindcrank</i-c> is out, that's the Mindcrank table kill." },
       { t: "h", text: "Black Market Connections" },
       { t: "p", html: "At the beginning of your first main phase, choose one or more: a Treasure for 1 life, a card for 2 life, a 3/2 changeling Shapeshifter for 3 life. Pick what the turn needs. The token is an Assassin, a Rogue and a Mercenary, so its hits trigger Etrata." },
-      { t: "callout", tone: "warn", title: "Watch your life", html: "<i-c>Necropotence</i-c>, <i-c>Black Market Connections</i-c>, the fetchland, shocklands and the tutors all cost life. Count it every turn. <i-c>Exquisite Blood</i-c> and <i-c>Bloodthirsty Conqueror</i-c> give some back." }
+      { t: "callout", tone: "warn", title: "Watch your life", html: "<i-c>Necropotence</i-c>, <i-c>Phyrexian Arena</i-c>, <i-c>Black Market Connections</i-c>, the fetchland, shocklands and the tutors all cost life. Count it every turn. <i-c>Exquisite Blood</i-c> and <i-c>Bloodthirsty Conqueror</i-c> give some back." }
     ]
   },
   {
@@ -420,7 +417,7 @@ window.CETRATA_GUIDE = [
     summary: "The 36 lands, the rocks, Mox Amber's legends, what to keep, and the buy list.",
     blocks: [
       { t: "h", text: "The mana" },
-      { t: "p", html: "36 lands, seven rocks and two rituals. Etrata costs {1}{U}{B}, and many combo turns need both colors, so fixing matters more than raw speed. v3 went from 31 to 36 lands after bot games showed the deck stalling on mana: five slow spells out, five lands in, and the win rate went up against both precons and Bracket 4 decks." },
+      { t: "p", html: "36 lands, seven rocks and two rituals. Etrata costs {1}{U}{B}, and many combo turns need both colors, so fixing matters more than raw speed. v3 went from 31 to 36 lands after bot games showed the deck stalling on mana: five slow spells out, five lands in, and the win rate went up against both precons and Bracket 4 decks. The third round swapped an Island for <i-c>Mutavault</i-c>, so it's still 36 lands, 16 of them basics." },
       { t: "cards", names: ["Sol Ring", "Mox Amber", "Arcane Signet", "Talisman of Dominance", "Dimir Signet", "Fellwar Stone", "Mind Stone"], caption: "The rocks." },
       { t: "table", head: ["Rock", "Cost", "Notes"], rows: [
         ["<i-c>Sol Ring</i-c>", "{1}", "{C}{C}"],
@@ -453,6 +450,7 @@ window.CETRATA_GUIDE = [
         ["<i-c>Tainted Isle</i-c>", "Always for {C}. {U} or {B} only if you control a Swamp."],
         ["<i-c>River of Tears</i-c>", "Always. {U}, or {B} on a turn you played a land."],
         ["<i-c>Darkwater Catacombs</i-c>", "Always, but it needs {1} from another source to make {U}{B}."],
+        ["<i-c>Mutavault</i-c>", "Always. Only {C}, but {1} turns it into a 2/2 Assassin until end of turn."],
         ["<i-c>Undercity Sewers</i-c>", "Never. Surveil 1 when it enters."],
         ["<i-c>Underground River</i-c>", "Always. Colored mana costs 1 damage."],
         ["<i-c>Path of Ancestry</i-c>", "Never. Scry 1 when its mana casts a Vampire or Assassin creature."],
@@ -461,6 +459,7 @@ window.CETRATA_GUIDE = [
       { t: "list", items: [
         "<i-c>Otawara, Soaring City</i-c> and <i-c>Takenuma, Abandoned Mire</i-c>: lands that channel into bounce or regrowth. Each legendary creature you control makes the channel {1} cheaper.",
         "<i-c>Rogue's Passage</i-c>: {4}, {T}: a creature can't be blocked. Gets Virtus, the Manta or a cloak through.",
+        "<i-c>Mutavault</i-c>: {1} makes it a 2/2 with all creature types until end of turn. It's an Assassin then, so its hits cloak with Etrata. It isn't legendary, so it doesn't turn on Mox Amber.",
         "<i-c>Secluded Courtyard</i-c>: name a creature type as it enters. Its colored mana only casts creatures of that type or pays abilities of creatures of that type. Assassin or Vampire are the usual picks.",
         "<i-c>Command Tower</i-c>: {U} or {B}."
       ] },
@@ -472,13 +471,13 @@ window.CETRATA_GUIDE = [
         "<b>Keep.</b> <i-c>Polluted Delta</i-c>, <i-c>Island</i-c>, <i-c>Sol Ring</i-c>, <i-c>Mox Amber</i-c>, <i-c>Changeling Outcast</i-c>, <i-c>Demonic Tutor</i-c>, <i-c>Counterspell</i-c>. Fast, and the Outcast starts cloaking on turn 3.",
         "<b>Keep.</b> <i-c>Darkslick Shores</i-c>, <i-c>Swamp</i-c>, <i-c>Gloomlake Verge</i-c>, <i-c>Choked Estuary</i-c>, <i-c>Thief of Sanity</i-c>, <i-c>Mindcrank</i-c>, <i-c>Ponder</i-c>. Four lands with both colors, half a combo, and Ponder to dig. Play the Estuary while the Swamp is still in hand to reveal.",
         "<b>Keep.</b> <i-c>Swamp</i-c>, <i-c>Island</i-c>, <i-c>Watery Grave</i-c>, <i-c>Vampire of the Dire Moon</i-c>, <i-c>Silumgar Assassin</i-c>, <i-c>Marauding Blight-Priest</i-c>, <i-c>Vampiric Tutor</i-c>. A turn-1 blocker, a face-down Assassin on turn 3, a payoff, and a tutor for the drain.",
-        "<b>Ship.</b> <i-c>Island</i-c>, <i-c>Wormfang Manta</i-c>, <i-c>Fallen Shinobi</i-c>, <i-c>Sanguine Bond</i-c>, <i-c>Bloodthirsty Conqueror</i-c>, <i-c>Toxic Deluge</i-c>, <i-c>Counterspell</i-c>. One land and a pile of five-plus drops.",
+        "<b>Ship.</b> <i-c>Island</i-c>, <i-c>Wormfang Manta</i-c>, <i-c>Aetherize</i-c>, <i-c>Sanguine Bond</i-c>, <i-c>Bloodthirsty Conqueror</i-c>, <i-c>Toxic Deluge</i-c>, <i-c>Counterspell</i-c>. One land and a hand of expensive cards.",
         "<b>Ship.</b> Six lands and <i-c>Brainstorm</i-c>. Nothing to do, and no engine."
       ] },
       { t: "callout", tone: "tip", title: "Necropotence in the opener", html: "<i-c>Necropotence</i-c> costs {B}{B}{B}. With <i-c>Dark Ritual</i-c> it can come down on turn 1. It skips your draw step, and every card costs 1 life. Count your life against the fetch, shocks and tutors before you take ten." },
       { t: "h", text: "Buying the deck" },
-      { t: "p", html: "About $1,116 at TCGplayer prices, around 950€. The biggest cards: <i-c>Imperial Seal</i-c> $180, <i-c>Mox Amber</i-c> $87, <i-c>Fierce Guardianship</i-c> $66, <i-c>Rhystic Study</i-c> $64, <i-c>Demonic Tutor</i-c> $63, <i-c>Vampiric Tutor</i-c> $57. Check Cardmarket before you buy." },
-      { t: "p", html: "To try it first, proxy it. 45 cards, 17 basics included, carry over from the current Etrata deck. The other 55 can be proxies. The Shop's \"Proxy it\" section has the list." },
+      { t: "p", html: "About $1,099 at TCGplayer prices, around 930€. Seven cards had no price when it was looked up and aren't counted: <i-c>Phyrexian Arena</i-c>, <i-c>Aetherize</i-c>, <i-c>Mutavault</i-c>, <i-c>Choked Estuary</i-c>, <i-c>Darkwater Catacombs</i-c>, <i-c>Tainted Isle</i-c> and <i-c>River of Tears</i-c>. The biggest cards: <i-c>Imperial Seal</i-c> $180, <i-c>Mox Amber</i-c> $87, <i-c>Fierce Guardianship</i-c> $66, <i-c>Rhystic Study</i-c> $64, <i-c>Demonic Tutor</i-c> $63, <i-c>Vampiric Tutor</i-c> $57. Check Cardmarket before you buy." },
+      { t: "p", html: "To try it first, proxy it. 44 cards, 16 basics included, carry over from the current Etrata deck. The other 56 can be proxies. The Shop's \"Proxy it\" section has the list." },
       { t: "widget", id: "buyList" }
     ]
   },
@@ -508,12 +507,12 @@ window.CETRATA_GUIDE = [
       ] },
       { t: "h", text: "Every turn" },
       { t: "steps", items: [
-        { title: "Upkeep", html: "Pay or skip <i-c>Mystic Remora</i-c>'s upkeep. Look at your cloaks and face-down creatures." },
+        { title: "Upkeep", html: "<i-c>Phyrexian Arena</i-c> draws you a card for 1 life. Pay or skip <i-c>Mystic Remora</i-c>'s upkeep. Look at your cloaks and face-down creatures." },
         { title: "Draw step", html: "Skipped with <i-c>Necropotence</i-c> out. Pay for Necro cards in your second main phase instead. They reach your hand at your end step." },
         { title: "First main phase", html: "<i-c>Black Market Connections</i-c> triggers here. Cast Assassin enablers and Etrata before combat, not after." },
-        { title: "Combat", html: "Attack with Assassins that can connect. Each one cloaks. Thief of Sanity and Shinobi steal on damage." },
+        { title: "Combat", html: "Attack with Assassins that can connect. Each one cloaks; animate <i-c>Mutavault</i-c> for {1} first to add one. Thief of Sanity steals on damage." },
         { title: "Second main phase", html: "Flip cloaks, cast what you stole, set up the next turn. Keep counter mana open if a combo piece is on the battlefield." },
-        { title: "Their turns", html: "Keep {2}{B} up for a face-down <i-c>Silumgar Assassin</i-c>. Instant tutors at the last end step before yours. Flash in <i-c>Opposition Agent</i-c> or <i-c>Notion Thief</i-c> when they tutor or wheel." }
+        { title: "Their turns", html: "Keep {2}{B} up for a face-down <i-c>Silumgar Assassin</i-c>. Instant tutors at the last end step before yours. Flash in <i-c>Opposition Agent</i-c> or <i-c>Notion Thief</i-c> when they tutor or wheel. Hold {3}{U} for <i-c>Aetherize</i-c> when a big attack is coming." }
       ] },
       { t: "widget", id: "playChecklist" },
       { t: "h", text: "Sequencing traps" },
@@ -535,7 +534,7 @@ window.CETRATA_GUIDE = [
     minutes: 6,
     summary: "The counterspells, the free spells, the removal, and how to keep your pieces alive on the combo turn.",
     blocks: [
-      { t: "cards", names: ["Fierce Guardianship", "Deadly Rollick", "Counterspell", "Swan Song", "An Offer You Can't Refuse"], caption: "Two are free while Etrata is out." },
+      { t: "cards", names: ["Fierce Guardianship", "Deadly Rollick", "Counterspell", "Swan Song", "An Offer You Can't Refuse", "Aetherize"], caption: "Two are free while Etrata is out." },
       { t: "table", head: ["Card", "Answers", "Notes"], rows: [
         ["<i-c>Fierce Guardianship</i-c>", "A noncreature spell", "Free if you control your commander. Otherwise {2}{U}."],
         ["<i-c>Deadly Rollick</i-c>", "A creature, exiled", "Free if you control your commander. Otherwise {3}{B}."],
@@ -545,6 +544,7 @@ window.CETRATA_GUIDE = [
         ["<i-c>Muddle the Mixture</i-c>", "An instant or sorcery", "Or transmute it for a mana value 2 piece."],
         ["<i-c>Silumgar Assassin</i-c>", "A creature with power 3 or less, destroyed", "Cast it face down for {3}, flip it for {2}{B} any time. Nobody can respond to the flip itself."],
         ["<i-c>Cyclonic Rift</i-c>", "A nonland permanent you don't control", "Overload for {6}{U}: every nonland permanent you don't control. Your stolen cloaks stay."],
+        ["<i-c>Aetherize</i-c>", "Every attacking creature, returned to its owner's hand", "{3}{U}, instant. Cast it after attackers are declared. Attacking tokens cease to exist."],
         ["<i-c>Toxic Deluge</i-c>", "Creatures, all of them", "Pick X with care. Etrata and <i-c>Hooded Blightfang</i-c> survive X of 3 or less. <i-c>Enduring Tenacity</i-c> comes back as an enchantment."],
         ["<i-c>Otawara, Soaring City</i-c>", "An artifact, creature, enchantment or planeswalker, bounced", "A land that's also an answer."],
         ["<i-c>Shred Memory</i-c>", "Up to four cards from one graveyard", "Stops a reanimation or flashback plan."]
@@ -563,7 +563,6 @@ window.CETRATA_GUIDE = [
       { t: "list", items: [
         "<i-c>Opposition Agent</i-c> in response to a tutor takes the piece.",
         "<i-c>Notion Thief</i-c> stops wheels and draw engines from helping them.",
-        "<i-c>Praetor's Grasp</i-c> can take their key combo piece out of their library before they find it.",
         "A face-down <i-c>Silumgar Assassin</i-c> kills a small combo creature at instant speed, and nobody can respond to the flip."
       ] }
     ]
@@ -584,7 +583,7 @@ window.CETRATA_GUIDE = [
       ] },
       { t: "widget", id: "comboFinder" },
       { t: "h", text: "How the simulator's games ended" },
-      { t: "p", html: "These shares come from the v2 simulator, before the v3 cuts. In paired bot games, v3 won about 66.6% against precons (2,400 games; v2: 49.7%) and 39.1% against Bracket 4 decks (1,000 games; v2: 24.8%). The vampire loop and the tutors carried the deck, the first cuts were its weakest slots, and the second round's five slow spells did more as lands." },
+      { t: "p", html: "These shares come from the v2 simulator, before the v3 cuts. In paired bot games, v3 won about 69% against precons (2,400 games; v2: 49.7%) and 43% against Bracket 4 decks (1,000 games; v2: 24.8%). The vampire loop and the tutors carried the deck, the first cuts were its weakest slots, the second round's five slow spells did more as lands, and the third round traded two weak theft spells for card draw, a fog and a creature land." },
       { t: "table", head: ["Line", "Share of v2 wins, with answers"], rows: [
         ["Mindcrank and the Guildmage", "42%"],
         ["The vampire court", "23%"],
@@ -606,7 +605,7 @@ window.CETRATA_GUIDE = [
       { t: "table", head: ["Opponents", "What to do"], rows: [
         ["Fast combo", "Hold <i-c>Opposition Agent</i-c>, <i-c>Fierce Guardianship</i-c> and <i-c>Counterspell</i-c>. Race with the two-card lines. Kill the combo player first with the Guildmage."],
         ["Counterspell-heavy blue", "Hide pieces face down. Bait with a draw engine. Turning a card face up isn't casting it, so counterspells can't stop a flip. They can still answer the face-down creature."],
-        ["Creature aggro", "Etrata and <i-c>Hooded Blightfang</i-c> are 1/4 deathtouch blockers, <i-c>Vampire of the Dire Moon</i-c> blocks from turn 1, and a face-down <i-c>Silumgar Assassin</i-c> kills an attacker. <i-c>Toxic Deluge</i-c> resets the board. The vampire drains gain you life."],
+        ["Creature aggro", "Etrata and <i-c>Hooded Blightfang</i-c> are 1/4 deathtouch blockers, <i-c>Vampire of the Dire Moon</i-c> blocks from turn 1, and a face-down <i-c>Silumgar Assassin</i-c> kills an attacker. <i-c>Aetherize</i-c> sends a whole attack back to hand, and tokens in it are gone for good. <i-c>Toxic Deluge</i-c> resets the board. The vampire drains gain you life."],
         ["Removal-heavy midrange", "Lean on the enchantment lines: <i-c>Exquisite Blood</i-c>, <i-c>Sanguine Bond</i-c>. Keep Etrata back as a blocker."],
         ["Stax and tax", "Your combos are cheap, and your blockers cost one to three mana. Stay defended while their tax pieces slow everyone down, then win with a two-card line."]
       ] },
@@ -618,7 +617,7 @@ window.CETRATA_GUIDE = [
     title: "Rules corner",
     kicker: "Tricky interactions",
     minutes: 7,
-    summary: "The rulings that come up with this deck: manifest, flips, megamorph, Enduring Tenacity, Bloodletter, Virtus, Tetsuko, the new lands, Wishclaw and more.",
+    summary: "The rulings that come up with this deck: manifest, flips, megamorph, Enduring Tenacity, Bloodletter, Virtus, Tetsuko, the new lands, Mutavault, Aetherize, Wishclaw and more.",
     blocks: [
       { t: "qa", items: [
         { q: "I manifest Wormfang Manta with Scroll of Fate. Do I skip my next turn?", a: "No. It enters as a face-down 2/2 with no abilities, so its enters trigger doesn't exist when it enters." },
@@ -634,6 +633,9 @@ window.CETRATA_GUIDE = [
         { q: "Tetsuko is out. Can a megamorphed Silumgar Assassin be blocked?", a: "Yes, by creatures with power 3 or less. With its +1/+1 counter it's a 3/2, out of Tetsuko's range (power or toughness 1 or less). Its own text still stops creatures with greater power than it from blocking it." },
         { q: "Does River of Tears make {B} on an opponent's turn?", a: "No. You can only play lands on your own turn, so on theirs it makes {U}. On your turn, play your land first and it makes {B}." },
         { q: "Can Polluted Delta fetch Choked Estuary or Tainted Isle?", a: "No. Neither has a land type. The Delta finds basics, <i-c>Watery Grave</i-c>, <i-c>Sunken Hollow</i-c> and <i-c>Undercity Sewers</i-c>, and those Swamps do turn on <i-c>Tainted Isle</i-c>." },
+        { q: "Does an animated Mutavault trigger Etrata?", a: "Yes. It has all creature types, so it's an Assassin. When it deals combat damage to an opponent, Etrata cloaks their top card. It's a Vampire too, but the vampire loop counts life, not creature types." },
+        { q: "Does Phyrexian Arena start the vampire loop?", a: "No. You lose the life, and <i-c>Exquisite Blood</i-c> and <i-c>Bloodthirsty Conqueror</i-c> only trigger when an opponent loses life." },
+        { q: "An opponent attacks with tokens and I cast Aetherize. What happens?", a: "Every attacking creature returns to its owner's hand. Tokens cease to exist once they leave the battlefield, so they don't come back." },
         { q: "I use Wishclaw Talisman. What happens next?", a: "You search for any card. Then an opponent gains control of the Talisman. They can activate it only during their own turn, and then it passes to one of their opponents." },
         { q: "Can I use Wishclaw on an opponent's turn?", a: "No. It says activate only during your turn." },
         { q: "Opposition Agent is out and an opponent uses Wishclaw. Who picks?", a: "You do. You control them while they search. The card they find is exiled, and you may play it." },
@@ -673,9 +675,10 @@ window.CETRATA_GUIDE = [
       { t: "callout", tone: "tip", title: "If the table is softer", html: "Leave the Manta loop in the sideboard, or play the theft game only: Etrata and the thieves, no combo tutoring. Or play another deck. A good game for everyone beats a fast win." },
       { t: "h", text: "Weird extras" },
       { t: "p", html: "The write-up lists swaps if you want even stranger games: Phyrexian Dreadnought manifested by the Scroll and flipped for four (turning face up isn't entering, so you never sacrifice anything), Kheru Spellsnatcher, Expropriate cast free off the Scroll and Etrata, Unstoppable Slasher as a second halver, Grim Hireling, Psychic Frog and Ransom Note." },
-      { t: "p", html: "Cut from v1 for speed: Expropriate, Mindslaver, Thieving Amalgam, Silent-Blade Oni, Hostage Taker, Gonti, Lord of Luxury, Tinybones, Kheru Spellsnatcher, Whispering Madness, Phyrexian Arena, Bloodchief Ascension, Arcane Adaptation, Mischievous Sneakling, Unstoppable Slasher, Dimir Aqueduct and Exotic Orchard." },
+      { t: "p", html: "Cut from v1 for speed: Expropriate, Mindslaver, Thieving Amalgam, Silent-Blade Oni, Hostage Taker, Gonti, Lord of Luxury, Tinybones, Kheru Spellsnatcher, Whispering Madness, Phyrexian Arena (back in v3's third round), Bloodchief Ascension, Arcane Adaptation, Mischievous Sneakling, Unstoppable Slasher, Dimir Aqueduct and Exotic Orchard." },
       { t: "p", html: "Cut from v2 after 2,400 bot games, where they measured as the weakest slots: Brine Elemental, Vesuvan Shapeshifter, Etrata, the Silencer, Mari, the Killing Quill and Dizzy Spell. That removed the two slowest lines, the Brine lock and the hit list." },
-      { t: "p", html: "Cut in v3's second round, for lands: Ramses, Assassin Lord, Gonti, Night Minister, Leyline of Transformation, Roshan, Hidden Magister and Infernal Grasp. Each measured slightly better swapped for a basic land than kept. Together, the five lands took the win rate from about 60% to 66.6% against precons and from 31.3% to 39.1% against Bracket 4 decks." }
+      { t: "p", html: "Cut in v3's second round, for lands: Ramses, Assassin Lord, Gonti, Night Minister, Leyline of Transformation, Roshan, Hidden Magister and Infernal Grasp. Each measured slightly better swapped for a basic land than kept. Together, the five lands took the win rate from about 60% to 66.6% against precons and from 31.3% to 39.1% against Bracket 4 decks." },
+      { t: "p", html: "Cut in v3's third round: Praetor's Grasp and Fallen Shinobi, plus one Island. Both were weak slots in bot games against both fields; cutting either for a land gained about 1 to 2.5 points. <i-c>Phyrexian Arena</i-c>, <i-c>Aetherize</i-c> and <i-c>Mutavault</i-c> took their places, and the package gained 1.5 points against precons (66.6% to about 69.2%, 2,400 games) and 2.1 against Bracket 4 decks (41.1% to 43.2%, 1,000 games)." }
     ]
   }
 ];

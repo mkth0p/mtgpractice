@@ -183,12 +183,12 @@ window.CETRATA_TRAIN_DATA = {
       principle: "Give Wishclaw to the player who gains least from a tutor."
     },
     {
-      context: "Round 6. You cast <i-c>Praetor's Grasp</i-c>. One opponent is a known combo deck one piece short, one is at 9 life, one is the biggest board.",
-      q: "Whose library do you search?",
-      options: ["The combo player's", "The player at 9 life", "The biggest board's"],
+      context: "Round 6. Etrata is out and you animate <i-c>Mutavault</i-c> for {1}: a 2/2 with all creature types. One opponent is a known combo deck one piece short with no untapped creatures, one is at 9 life behind two untapped 3/3s, one is the biggest board, all untapped.",
+      q: "Who does Mutavault attack?",
+      options: ["The combo player", "The player at 9 life", "The biggest board"],
       answer: 0,
-      explain: "You get to play the card you take, and the combo player loses the piece: taking their win condition hurts them and helps you. The other two libraries only help you.",
-      principle: "Theft that also removes a key card counts twice."
+      explain: "Mutavault is an Assassin, so a hit makes Etrata cloak the top card of that player's library: the combo player loses the next card they would draw, maybe the missing piece, and you get to use it. The other two can block and kill a 2/2, and 2 damage doesn't finish the player at 9.",
+      principle: "Send your Assassins at the open player whose next card matters most."
     },
     {
       context: "Round 4. You have Etrata, a face-down <i-c>Silumgar Assassin</i-c> and {2}{B} open. Opponents' creatures: a 6/6 attacking you, a 3/1 commander that draws its controller a card whenever it deals combat damage, and a 1/1 mana elf.",
