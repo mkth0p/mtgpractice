@@ -63,3 +63,14 @@ All three keep Etrata as the engine (Assassins connect, every hit cloaks) and Ra
 - **v3-tempo** (30 lands, 14 interaction spells of which 10 free or cheap): the Yuriko list with Etrata's trigger. Nine ninjas (Ingenious Infiltrator, Ninja of the Deep Hours, Moon-Circuit Hacker, Prosperous Thief, Mistblade Shinobi, Thousand-Faced Shadow, Silver-Fur Master, Fallen Shinobi, Orochi) re-use eleven 0–2 mana evasive bodies; Leyline and Arcane Adaptation make them Assassins; the same kill kit and copies; Force of Despair, Flare of Malice, Flare of Denial, Mana Drain and the Forces as the free interaction.
 
 Each is benched against both fields (2,016 games each, paired with skA2-0), then the best is hill-climbed by packages, confirmed with 5,040 games, and checked with NO_COMMANDER=1 and the telemetry.
+
+## 6. What the first round of versions showed (2026-10-06)
+Paired 2,016-game benches against the A2 skeleton (34.4% / 18.5%): v1 blitz 31.9% / 18.5%, v2 snowball 34.1% / 18.2%, v3 tempo 26.5% / 18.7%, v4 deathtouch-drain 27.7% / 18.4%. No shell beats the skeleton; the ninja shell is clearly worse against precons (ninjutsu bounces the cheap Assassins that are the steal engine) and the drain engine rarely assembles (6.4 life a game).
+
+The diagnostics on v2 (`firstseen.js`, `castrate.js`, `trace.js`) say why every version lands in the same place:
+- **Ramses is cast in 45% of games; the deck wins 52% of those and 19% of the rest.** Even perfect access to him caps the deck near 50%, so a second kill that doesn't need him is required, and his games have to convert more often.
+- **In lost games the board never develops**: 3 creatures and 7 power from round 7 onward (5.7 creatures and 15 power in won games), while the hero loses 5–6 creatures a game on opponents' turns and faces 0.7 wipes. Hand size stays at 3.8 cards: the deck has cards but they're 5–7 mana closers it never reaches (Coat of Arms is cast in 5% of games, Obelisk 17%, Kindred Dominance and Vein Ripper rarely).
+- **The cheap instant-speed kill is never used**: Hatred was cast in 2% of v1's games because the bot taps out in the first main phase; with Ramses out, Hatred on any unblocked Assassin is a kill from 40 life. Reverse the Polarity (54% wins when cast) and Eldrazi Monument (49%) are the cards that correlate most with winning when they land.
+- Counters correlate with losing (Mana Drain 22% wins when cast, Force of Will 27%): they're cast from behind, mostly on opponents' commanders, and don't stop the wipes that decide the games.
+
+Changes being measured from this: hold mana in main phase one when a Hatred or Blood Tribute kill is live; keep the last counter for a wipe or for removal on Ramses/Etrata; Training Grounds so the stolen cards get flipped; and a version built around the cards that convert a board (Eldrazi Monument, Reverse the Polarity, Coat of Arms) rather than around more 1/1s.
