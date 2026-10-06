@@ -183,3 +183,7 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | 29 | v3-tempo | version 3 (`lists/v3-tempo.txt`): ninjutsu + free interaction, 30 lands | 26.5% ±1.0 | 18.7% ±0.9 | skA2-0 | -7.9 ±1.4 | +0.2 ±1.2 | avg win round 9.1 / 8.3 |
 | 30 | v4-drain | version 4 (`lists/v4-drain.txt`): deathtouch Assassins + Mari + Hooded Blightfang, Pulse Tracker/Conquistador/Syphoner, Within Range, Dolmen Gate, type-changers, 31 lands | 27.7% ±1.0 | 18.4% ±0.9 | skA2-0 | −6.7 ±1.4 | −0.1 ±1.2 | the drain engine only takes 6.4 life a game; it needs Blightfang + Mari + bodies, which rarely all land |
 | 31 | v4-defend2 | v4 with blockers kept home against the whole table's crack-back (HEIST_ON=defend2) | 27.9% ±1.0 | 18.8% ±0.9 | v4-drain | +0.2 ±0.3 | +0.4 ±0.3 | nothing; off |
+| 32 | v1-hatred | v1 with mana held in main phase one when a Hatred kill is live | 31.1% ±1.0 | 17.9% ±0.9 | v1-blitz | −0.8 ±0.3 | −0.5 ±0.2 | Hatred still cast in only 3% of games; holding mana costs tempo; opt-in (HEIST_ON=hatredHold) |
+| 33 | v2-savecounter | v2 with the last counter saved for a wipe or removal on Ramses/Etrata | 35.1% ±1.1 | 18.2% ±0.9 | v2-snowball | +1.0 ±0.7 | +0.0 ±0.5 | default from here; later v2 runs pair against this one |
+| 34 | v2-tg | v2: Cover of Darkness → Training Grounds | 35.0% ±1.1 | 18.0% ±0.9 | v2-snowball | +0.8 ±0.5 | −0.2 ±0.4 | kept (the pilots' 79% card) |
+| 35 | v2-tg-flipfirst | the same with flips before casting | 33.5% ±1.1 | 17.1% ±0.8 | v2-snowball | −0.6 ±0.8 | −1.1 ±0.6 | flipping first is worse again |

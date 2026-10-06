@@ -456,6 +456,14 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
     // Pulse Tracker is a Rogue, so Mari gives it deathtouch too: Blightfang drains for both attackers
     check("attack drains: b loses 1 (Tracker) + 2 (Within Range) + 2 (Blightfang) + 2 damage; c and d lose 3; we gain 2", b.life === 33 && c.life === 37 && d.life === 37 && a.life === 42, [b.life, c.life, d.life, a.life]); }
 
+
+  // Teferi's Veil: attackers phase out at end of combat and come back at our untap
+  { const { g, a, b } = table(); put(g, a, "Teferi's Veil"); const hp = put(g, a, "Hired Poisoner"); const home = put(g, a, "Changeling Outcast"); await g.settle();
+    await attack(g, a, [{ attacker: hp, target: b }]);
+    check("Teferi's Veil: the attacker is phased out, the creature that stayed home isn't", hp.zone === "phased" && g.phased.includes(hp) && home.zone === "battlefield", { hp: hp.zone, home: home.zone });
+    g.phaseIn(a);
+    check("Teferi's Veil: it phases in at our untap", hp.zone === "battlefield", hp.zone); }
+
   // the engine rules: "triggers an additional time" stays with its creature type, anyColor, castEntry
   { const { g, a } = table(); const rt = put(g, a, "Roaming Throne"); await g.settle();
     check("triggerExtra: a non-Assassin's trigger isn't doubled", (() => { const n = g.staticsOf(rt).find(st => st.triggerExtra).triggerExtra(g, rt, { src: put(g, a, "Llanowar Elves"), controller: a }); return n === 0; })()); }

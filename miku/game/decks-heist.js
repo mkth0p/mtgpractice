@@ -1185,6 +1185,18 @@
     ai: { priority: 7 }
   });
 
+
+  D({
+    name: "Teferi's Veil", cost: "{1}{U}", type: "Enchantment",
+    text: "Whenever a creature you control attacks, it phases out at end of combat. (While it's phased out, it's treated as though it doesn't exist. It phases in before you untap during your next untap step.)",
+    note: "Written as one trigger at the end of combat: every creature of yours that attacked phases out.",
+    triggers: [{
+      on: "endCombat", when: (g, s, ev) => ev.p === s.controller && !ev.noAttack,
+      do: (g, s, ev, { p }) => { const list = g.creatures(p).filter(c => c.combat && c.combat.attacking); if (list.length) g.phaseOut(list); }
+    }],
+    ai: { priority: 7 }
+  });
+
   /* ================================================================ equipment and artifacts */
   D({
     name: "Quietus Spike", cost: "{3}", type: "Artifact — Equipment", equip: "{3}",
@@ -1847,7 +1859,7 @@
   /* HEIST_ON=saveCounter: with one counter in hand, it waits for a wipe, for removal aimed at Ramses or Etrata, or for
      a spell that wins; creature spells (opponents' commanders) are let through. With two or more, the generic rule. */
   function counterPolicy(g, p, ctx) {
-    if (!ON.has("saveCounter") || ctx.window !== "stack") return null;
+    if (OFF.has("saveCounter") || ctx.window !== "stack") return null;   // +1.0 vs precons on v2: the default
     const top = ctx.top || g.stack[g.stack.length - 1];
     if (!top || top.kind !== "spell" || top.p === p) return null;
     const held = p.hand.filter(c => c.def.ai && c.def.ai.counter).length;
@@ -1939,7 +1951,7 @@
     return 0;
   }
   function castHold(g, p, o, ctx) {
-    if (ON.has("hatredHold") || !OFF.has("hatredHold")) {
+    if (ON.has("hatredHold")) {   // measured −0.8 / −0.5 on v1: opt-in
       const need = ctx.window === "main1" && g.active === p && o.zone === "hand" && !/^(Hatred|Blood Tribute|Rush of Dread)$/.test(o.def.name) ? killSpellLive(g, p) : 0;
       if (need && manaNow(g, p) - o.def.mv < need && !(o.def.types.includes("Land"))) return false;
     }
@@ -1953,7 +1965,18 @@
     if (g.round >= 9 || p.hand.length <= 1) return undefined;
     return false;
   }
+  /* HEIST_ON=etrataBoots: Boots and Greaves go on Etrata first (the pilots' turn-2 Greaves so she swings on turn 3);
+     Ramses takes them once he's out. */
+  function bootsTarget(g, p, req) {
+    if (!ON.has("etrataBoots") || req.purpose !== "equip" || !req.src || !/^(Swiftfoot Boots|Lightning Greaves)$/.test(req.src.def.name)) return undefined;
+    const bare = c => !(g.kw(c, "hexproof") || g.kw(c, "shroud")) || (req.src.attachedTo === c);
+    const ram = req.options.find(c => c.controller === p && c.def.name === "Ramses, Assassin Lord" && bare(c) && req.src.attachedTo !== c);
+    if (ram) return ram;
+    const et = req.options.find(c => c.controller === p && c.isCommander && bare(c) && req.src.attachedTo !== c);
+    return et || undefined;
+  }
   function heistChoose(g, p, req) {
+    { const b = bootsTarget(g, p, req); if (b) return b; }
     if (req.type === "number" && req.purpose === "hatredX") return Math.max(req.min, Math.min(req.max, H.hatredX(g, p)));
     if (req.type === "target" && req.purpose === "sacrifice" && req.src && /Altar$/.test(req.src.def.name)) { const f = fodder(g, p).find(c => req.options.includes(c)); if (f) return f; }
     if (req.type === "target" && req.src && req.src.def.name === "Vein Ripper" && req.options.some(x => g.isPlayer(x))) { const q = mem(p).drainAt || mem(p).mark; if (q && req.options.includes(q)) return q; const qs = req.options.filter(x => g.isPlayer(x) && x !== p); if (qs.length) return qs.sort((a, b) => a.life - b.life)[0]; }
