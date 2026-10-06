@@ -580,7 +580,7 @@
         log(g, `${p.name} exiles the rest of their library without finding ${name}.`, p, []);
       }
     },
-    ai: { priority: 7, tutor: true, option: (g, p, req) => (req.purpose === "consultName" && req.want ? (req.options.find(o => o.label === req.want) || req.options[0]).id : undefined), cast: (g, p) => (H.consultName && H.consultName(g, p) ? 30 : false) }
+    ai: { priority: 7, tutor: true, option: (g, p, req) => (req.purpose === "consultName" && req.want ? (req.options.find(o => o.label === req.want) || req.options[0]).id : undefined), cast: (g, p) => (H.consultName && p.library.length >= (ON.has("consult30") ? 30 : 0) && H.consultName(g, p) ? 30 : false) }
   });
   D({
     name: "Fleshwrither", cost: "{2}{B}{B}", type: "Creature — Horror", pt: "3/3",
