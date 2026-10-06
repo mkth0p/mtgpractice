@@ -1987,7 +1987,24 @@
     if (!able.length || !E.predictBlocks) return false;
     return liveOpps(g, p).some(q => able.some(a => !E.predictBlocks(g, q, [a]).has(a))) ? undefined : false;
   }
+  /* HEIST_ON=greavesFirst: Ramses isn't cast naked early. With Greaves or Boots in hand he waits until both can be cast
+     this turn (the equipment goes first, the Etrata brain equips him the same turn); before round 8 with no
+     protection in hand or on the battlefield and no counter up, he waits a turn. */
+  function greavesFirst(g, p, o, ctx) {
+    if (!ON.has("greavesFirst") || o.zone !== "hand" || o.def.name !== "Ramses, Assassin Lord" || !mainWin(ctx.window) || g.active !== p) return undefined;
+    const prot = p.hand.filter(c => /^(Lightning Greaves|Swiftfoot Boots)$/.test(c.def.name));
+    const out = g.controlled(p, x => /^(Lightning Greaves|Swiftfoot Boots)$/.test(x.def.name)).length > 0;
+    const mana = manaNow(g, p), counter = p.hand.some(c => c.def.ai && c.def.ai.counter && (c.def.altCosts || []).length) || (p.hand.some(c => c.def.ai && c.def.ai.counter) && mana >= 4 + 2);
+    if (out || g.round >= 8) return undefined;
+    if (prot.length) {
+      const eq = prot[0], need = 4 + eq.def.mv + (eq.def.name === "Swiftfoot Boots" ? 1 : 0);
+      if (mana >= need) { if (g.controlled(p, x => x === eq).length === 0 && ctx.actions && !p.hand.includes(eq)) return undefined; return eq.zone === "hand" ? false : undefined; }
+      return false;
+    }
+    return counter ? undefined : false;
+  }
   function castHold(g, p, o, ctx) {
+    { const r = greavesFirst(g, p, o, ctx); if (r !== undefined) return r; }
     { const r = etrataLate(g, p, o, ctx); if (r !== undefined) return r; }
     if (ON.has("hatredHold")) {   // measured −0.8 / −0.5 on v1: opt-in
       const need = ctx.window === "main1" && g.active === p && o.zone === "hand" && !/^(Hatred|Blood Tribute|Rush of Dread)$/.test(o.def.name) ? killSpellLive(g, p) : 0;
@@ -2047,6 +2064,8 @@
   if (ON.has("flipFirst")) H.flipFirst = true;
   // research switches: HEIST_OFF="attack,mulligan,plan,flips,choose" (environment, Node only) turns parts of this brain off
   const OFF = new Set(String((typeof process !== "undefined" && process.env && process.env.HEIST_OFF) || "").split(",").filter(Boolean));
+  // Greaves/Boots cast before Ramses when both are in hand (their generic score is low)
+  for (const n of ["Lightning Greaves", "Swiftfoot Boots"]) { const d = MK.defs.get(n); if (d && d.ai && !d.ai.__heist) { const prev = d.ai.cast; d.ai.cast = (g, p, o, ctx) => (ON.has("greavesFirst") && p.deckId === DECK_ID && p.hand.some(c => c.def.name === "Ramses, Assassin Lord") && mainWin(ctx.window) ? 40 : prev ? prev(g, p, o, ctx) : undefined); d.ai.__heist = true; } }
   (MK.DECK_BRAINS = MK.DECK_BRAINS || {})[DECK_ID] = Object.assign({
     plan: OFF.has("plan") ? null : heistPlan,
     attack: OFF.has("attack") ? null : (g, p, cands, targets) => (brainOn(p) ? heistAttack(g, p, cands, targets) : null),
