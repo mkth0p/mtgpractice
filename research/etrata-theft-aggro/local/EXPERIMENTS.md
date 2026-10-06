@@ -322,3 +322,20 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | pk5-aristo3 | Island → Zulaport Cutthroat; Swamp → Blood Artist; Swamp → Bastion of Remembrance | 40.9% | -2.1 ±1.5 | 22.8% | -3.4 ±1.3 | -5.5 |
 
 | 63 | v2e-vamp-confirm | the closer list with Zulaport Cutthroat, Blood Artist, Bastion of Remembrance (`lists/v2e-vamp.txt`), 5,040 games per field | 48.0% ±0.7 | 26.5% ±0.6 | v2d-vamp-confirm | +0.9 ±0.6 | −0.3 ±0.5 | the 2,016-game +2.1 regressed to noise; 38% / 18% of its games won without Ramses, the same as without the three; not adopted |
+| 64 | pk6-* (the snowball axis, engine-ready cards) | on the closer list (`v2d-vamp`, 38 lands), each in place of basic lands: Cryptic Coat + Scroll of Fate, Reconnaissance Mission + Coastal Piracy, Bident of Thassa, Wound Reflection, Fireshrieker, Cover of Darkness, Training Grounds (and with eager flips), Etrata the Silencer, Kindred Dominance, Levitation | | | pk3-vamp38 | | | nothing beats a basic land by more than noise: Kindred Dominance +1.0 / +0.3, Levitation +0.6 / −0.1, the rest 0 to −1.9; eager flips with Training Grounds −2.2 / −1.2 (third time); the games without Ramses stay at 34–38% |
+
+### Round 6: the snowball axis on the closer list (2,016 paired games per field vs pk3-vamp38)
+| Run | Swap | B2 win | Δ B2 | B4 win | Δ B4 | Δ sum |
+|---|---|---|---|---|---|---|
+| pk6-dominance | Swamp → Kindred Dominance | 48.6% | +1 ±0.6 | 27.5% | +0.3 ±0.5 | 1.3 |
+| pk6-levitation | Island → Levitation | 48.2% | +0.6 ±0.6 | 27% | -0.1 ±0.5 | 0.5 |
+| pk6-bident | Island → Bident of Thassa | 47.6% | +0 ±0.5 | 27.1% | +0 ±0.5 | 0.0 |
+| pk6-dstrike | Island → Fireshrieker | 47.6% | +0 ±0.5 | 26.5% | -0.6 ±0.5 | -0.6 |
+| pk6-cover | Swamp → Cover of Darkness | 47.7% | +0.1 ±0.6 | 26.2% | -0.9 ±0.5 | -0.8 |
+| pk6-tg | Island → Training Grounds | 47.1% | -0.5 ±0.5 | 26.6% | -0.5 ±0.5 | -1.0 |
+| pk6-wound | Swamp → Wound Reflection | 47.3% | -0.3 ±0.6 | 26.1% | -1 ±0.4 | -1.3 |
+| pk6-draw | Island → Reconnaissance Mission; Island → Coastal Piracy | 47.6% | +0 ±0.8 | 25.7% | -1.4 ±0.6 | -1.4 |
+| pk6-silencer | Swamp → Etrata, the Silencer | 47.4% | -0.1 ±0.7 | 25.6% | -1.5 ±0.5 | -1.6 |
+| pk6-tg-flipfirst | Island → Training Grounds | 45.3% | -2.2 ±0.9 | 25.9% | -1.2 ±0.6 | -3.4 |
+| pk6-coat | Island → Cryptic Coat; Island → Scroll of Fate | 45.8% | -1.7 ±0.8 | 25.2% | -1.9 ±0.7 | -3.6 |
+
