@@ -192,3 +192,6 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | 38 | v2-veil-tg | v2: Cover → Teferi's Veil, Thieving Amalgam → Training Grounds | 35.0% ±1.1 | 18.3% ±0.9 | v2-savecounter | −0.1 ±0.6 | +0.1 ±0.5 | Amalgam is worth keeping over Training Grounds in this list |
 | 39 | v2-34lands | v2: Reno and Rude, Brotherhood Spy → Island, Swamp (34 lands) | 35.3% ±1.1 | 18.2% ±0.9 | v2-savecounter | +0.1 ±0.8 | −0.0 ±0.6 | land count isn't the issue; 32 stays |
 | 40 | v2-etratalate | v2 with Etrata cast only when an Assassin can connect that turn (or Boots/Greaves out, or round 6) | 34.9% ±1.1 | 19.2% ±0.9 | v2-savecounter | −0.2 ±1.1 | +1.0 ±0.9 | default from here (the pilots' rule) |
+| 41 | v2b-tutors | v2b: Orochi, Vela, Kindred Dominance, Archetype → Demonic Consultation, Dimir House Guard, Fleshwrither, Lim-Dûl's Vault | 35.0% ±1.1 | 18.9% ±0.9 | v2-veil | −1.1 ±0.9 | +0.5 ±0.7 | Ramses lands in 61% of games (was 52%) and still wins 50% of them; the games without him got worse (12%) |
+| 42 | v2b-lowcurve | v2b: the six 6–7 drops → Hullcarver, Basim, Desmond, Brainstorm, Preordain, Demonic Consultation | 36.6% ±1.1 | 20.5% ±0.9 | v2-veil | +0.4 ±1.1 | +2.1 ±0.9 | avg win round 8.9 / 7.8; the fast list is better against the Bracket 4 bots |
+| 43 | v2b-both | both packages | 34.6% ±1.1 | 20.1% ±0.9 | v2-veil | −1.5 ±1.1 | +1.7 ±1.0 | |

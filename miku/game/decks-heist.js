@@ -1713,6 +1713,15 @@
     const have = n => g.battlefield.some(o => o.controller === p && !o.faceDown && o.def.name === n) || p.hand.some(c => c.def.name === n);
     const enabled = g.battlefield.some(o => o.controller === p && (o.def.makesAssassins && o.def.name !== "Roaming Throne" || o.def.name === "Maskwood Nexus")) || p.hand.some(c => c.def.makesAssassins && c.def.name !== "Roaming Throne" || c.def.name === "Maskwood Nexus");
     if (H.kitTutor) for (const n of kitWant(g, p)) { const c = cands.find(x => x.def.name === n); if (c) return c; }
+    // HEIST_ON=protectTutor: Ramses is out and bare (no hexproof or shroud): protection before anything else.
+    // When he lands early and stays, the deck wins about 80% of the time; he's removed in most of the losses.
+    if (ON.has("protectTutor")) {
+      const ram = g.battlefield.find(o => o.controller === p && !o.faceDown && o.def.name === "Ramses, Assassin Lord");
+      if (ram && !g.kw(ram, "hexproof") && !g.kw(ram, "shroud") && !g.battlefield.some(e => e.attachedTo === ram && /^(Swiftfoot Boots|Lightning Greaves|Whispersilk Cloak)$/.test(e.def.name))) {
+        const onBoard = g.controlled(p, o => /^(Swiftfoot Boots|Lightning Greaves|Whispersilk Cloak)$/.test(o.def.name)).length;
+        if (!onBoard) for (const n of ["Lightning Greaves", "Swiftfoot Boots", "Whispersilk Cloak", "Darksteel Plate"]) { const c = cands.find(x => x.def.name === n); if (c) return c; }
+      }
+    }
     // the vampire loop (hybrid lists only): half of it out, the other half first
     const VAMP = [["Exquisite Blood"], ["Sanguine Bond", "Bloodthirsty Conqueror", "Vito, Thorn of the Dusk Rose", "Marauding Blight-Priest"]];
     const side = i => VAMP[i].some(have);
