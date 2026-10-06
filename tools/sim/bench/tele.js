@@ -73,7 +73,7 @@ module.exports = function install(MK, opts) {
     if (type === "turnedFaceUp" && ev && ev.o && this.__tele && ev.p === this.__tele.hero && ev.o.owner !== this.__tele.hero) this.__tele.faceUpStolen++;
     // the hero's key permanents leaving the battlefield (Ramses, Etrata): round and where to
     if (type === "leaves" && ev && ev.lki && this.__tele && this.__tele.hero && ev.lki.controller === this.__tele.hero && ev.lki.creature && ev.to !== "hand") { const k = this.active === this.__tele.hero ? "lostMyTurn" : "lostTheirTurn"; this.__tele[k] = (this.__tele[k] || 0) + 1; }
-    if (type === "leaves" && ev && ev.lki && this.__tele && this.__tele.hero && ev.lki.controller === this.__tele.hero && /^(Ramses, Assassin Lord|Etrata, Deadly Fugitive|Bloodletter of Aclazotz)$/.test(ev.lki.name)) (this.__tele.left || (this.__tele.left = [])).push([this.round, ev.lki.name, ev.to]);
+    if (type === "leaves" && ev && ev.lki && this.__tele && this.__tele.hero && ev.lki.controller === this.__tele.hero && /^(Ramses, Assassin Lord|Etrata, Deadly Fugitive|Bloodletter of Aclazotz)$/.test(ev.lki.name)) { const top = this.stack[this.stack.length - 1]; const how = this.combat && this.phase === "damage" ? "combat" : (top && top.p && top.p !== this.__tele.hero ? "their spell/ability" : this.resolving ? "trigger" : "other"); (this.__tele.left || (this.__tele.left = [])).push([this.round, ev.lki.name, ev.to, how, this.active === this.__tele.hero ? "my turn" : "their turn"]); }
     return oe.apply(this, arguments);
   };
   // opponents' mass removal that resolved (spells the bots know as wipes), and the hero's creatures that left the battlefield

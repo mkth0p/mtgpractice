@@ -1950,7 +1950,20 @@
     if (bt && onBf(g, p, "Bloodletter of Aclazotz") && mana >= bt.def.mv + 2) return bt.def.mv + 2;
     return 0;
   }
+  /* HEIST_ON=etrataLate: Etrata leaves the command zone only when an Assassin can connect this turn (her trigger works
+     the turn she's cast), or when Boots/Greaves are out, or from round 6. The pilots: "cast her only when an
+     Assassin can connect that turn", she is kill-on-sight. */
+  function etrataLate(g, p, o, ctx) {
+    if (!ON.has("etrataLate") || !o.isCommander || o.zone !== "command" || o.def.name !== "Etrata, Deadly Fugitive") return undefined;
+    if (g.round >= 6 || g.controlled(p, x => /^(Swiftfoot Boots|Lightning Greaves)$/.test(x.def.name)).length) return undefined;
+    if (ctx.window !== "main1") return false;
+    const E = EB();
+    const able = g.creatures(p).filter(c => g.canAttack(c, p) && g.power(c) > 0 && isAssassin(g, c));
+    if (!able.length || !E.predictBlocks) return false;
+    return liveOpps(g, p).some(q => able.some(a => !E.predictBlocks(g, q, [a]).has(a))) ? undefined : false;
+  }
   function castHold(g, p, o, ctx) {
+    { const r = etrataLate(g, p, o, ctx); if (r !== undefined) return r; }
     if (ON.has("hatredHold")) {   // measured −0.8 / −0.5 on v1: opt-in
       const need = ctx.window === "main1" && g.active === p && o.zone === "hand" && !/^(Hatred|Blood Tribute|Rush of Dread)$/.test(o.def.name) ? killSpellLive(g, p) : 0;
       if (need && manaNow(g, p) - o.def.mv < need && !(o.def.types.includes("Land"))) return false;
