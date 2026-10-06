@@ -1478,3 +1478,57 @@ A build around 'whenever this attacks, each opponent loses 1 life' bodies, Mari 
 > When this enchantment enters, create two 1/1 red Warrior creature tokens.
 > Whenever you attack, each opponent loses life equal to the number of creatures attacking them.
 
+## Ramses redundancy: reanimation Auras and non-legendary copies (round 4, 2026-10-06)
+
+Asked for a deck less dependent on Ramses: a second Ramses the legend rule doesn't take, and ways to bring him back that stay on the battlefield.
+
+### Animate Dead
+- {1}{B} · Enchantment — Aura · not a Game Changer · Commander: legal
+- Price: $7.05 (Secrets of Strixhaven Commander (SOC 207)): https://scryfall.com/card/soc/207/animate-dead · https://www.tcgplayer.com/product/687375
+- Engine: defined in `decks-heist.js` (simplified: The creature card is targeted on cast and returns as the Aura enters; the Aura then enchants that creature (the "if it's on the battlefield" clause and the text change aren't modeled separately).)
+- Why: two-mana reanimation of Ramses (or an opponent's bomb) that stays; the Aura leaving sacrifices the creature
+
+> Enchant creature card in a graveyard
+> When this Aura enters, if it's on the battlefield, it loses "enchant creature card in a graveyard" and gains "enchant creature put onto the battlefield with this Aura." Return enchanted creature card to the battlefield under your control and attach this Aura to it. When this Aura leaves the battlefield, that creature's controller sacrifices it.
+> Enchanted creature gets -1/-0.
+
+- Ruling (2016-06-08): If the creature put onto the battlefield has protection from black—or if the creature can't legally be enchanted by Animate Dead for another reason—Animate Dead won't be able to attach to it. It will be put into the graveyard as a state-based action, causing its delayed triggered ability to trigger. When the trigger resolves, if the creature's still on the battlefield, its controller will sacrifice it.
+- Ruling (2016-06-08): Animate Dead is an Aura, albeit with an unusual enchant ability. You target a creature card in a graveyard when you cast it. It enters the battlefield attached to that card. Then it returns that card to the battlefield, and attaches itself to the card again (since the card is a new object on the battlefield). Animate Dead itself never moves into a graveyard during this process.
+- Ruling (2016-06-08): If Animate Dead isn't on the battlefield as its triggered ability resolves, none of its effects happen. The creature card won't be returned to the battlefield.
+
+### Necromancy
+- {2}{B} · Enchantment · not a Game Changer · Commander: legal
+- Price: $19.51 (Murders at Karlov Manor Commander (MKC 131)): https://scryfall.com/card/mkc/131/necromancy · https://www.tcgplayer.com/product/535786
+- Engine: defined in `decks-heist.js` (simplified: As Animate Dead. Cast on another player's turn or outside a main phase, Necromancy is sacrificed at the beginning of the next end step (the cleanup step isn't modeled; a main-phase cast with spells on the stack counts as sorcery speed). The bots cast it at sorcery speed.)
+- Why: three-mana reanimation with flash, the same way
+
+> You may cast this spell as though it had flash. If you cast it any time a sorcery couldn't have been cast, the controller of the permanent it becomes sacrifices it at the beginning of the next cleanup step.
+> When this enchantment enters, if it's on the battlefield, it becomes an Aura with "enchant creature put onto the battlefield with Necromancy." Put target creature card from a graveyard onto the battlefield under your control and attach this enchantment to it. When this enchantment leaves the battlefield, that creature's controller sacrifices it.
+
+- Ruling (2004-10-04): When putting a card onto the battlefield that requires a definition for its value or some other choice, you do what is needed to define the value or make the choice.
+- Ruling (2004-10-04): The bringing of the creature onto the battlefield and then putting Necromancy on it is all done as part of the resolution.
+- Ruling (2005-08-01): Necromancy enters as an enchantment and then becomes an Enchant Creature Aura as a triggered ability upon entering. It follows all the rules for Auras from then on.
+
+### Helm of the Host
+- {4} · Legendary Artifact — Equipment · not a Game Changer · Commander: legal
+- Price: $5.13 (Marvel Super Heroes Commander (MSC 200)): https://scryfall.com/card/msc/200/helm-of-the-host · https://www.tcgplayer.com/product/698213
+- Engine: defined in `decks-heist.js`
+- Why: a non-legendary token copy of the equipped creature every combat: a new Ramses (or Etrata) each turn, with haste
+
+> At the beginning of combat on your turn, create a token that's a copy of equipped creature, except the token isn't legendary. That token gains haste.
+> Equip {5}
+
+- Ruling (2018-04-27): Any enters-the-battlefield abilities of the copied creature will trigger when the token enters the battlefield. Any "as [this creature] enters the battlefield" or "[this creature] enters the battlefield with" abilities of the chosen creature will also work.
+- Ruling (2018-04-27): If the equipped creature leaves the battlefield before the triggered ability of Helm of the Host resolves, or if there is no equipped creature, no token is created. However, if Helm of the Host leaves the battlefield while its triggered ability is on the stack, a token will be created of the creature it last equipped. If that creature has also left the battlefield, its last known information is used to determine what the token looks like.
+- Ruling (2018-04-27): If the copied creature has {X} in its mana cost, X is considered to be 0.
+
+### Irenicus's Vile Duplication
+- {3}{U} · Sorcery · not a Game Changer · Commander: legal
+- Price: $10.29 (The List (PLST CLB-78)): https://scryfall.com/card/plst/CLB-78/irenicuss-vile-duplication · https://www.tcgplayer.com/product/581340
+- Engine: defined in `decks-heist.js`
+- Why: a flying, non-legendary token copy of Ramses or Etrata
+
+> Create a token that's a copy of target creature you control, except the token has flying and it isn't legendary.
+
+- Ruling (2022-06-10): Irenicus's Vile Duplication has received an update to its Oracle text to clarify that the token still has flying even if the creature it's copying isn't legendary.
+

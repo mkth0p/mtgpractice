@@ -570,5 +570,27 @@
     "whenever you attack, each opponent loses life equal to the number of creatures attacking them; two 1/1 tokens on entry"
    ]
   ]
+ },
+ {
+  "title": "Ramses redundancy: reanimation Auras and non-legendary copies (round 4, 2026-10-06)",
+  "why": "Asked for a deck less dependent on Ramses: a second Ramses the legend rule doesn't take, and ways to bring him back that stay on the battlefield.",
+  "cards": [
+   [
+    "Animate Dead",
+    "two-mana reanimation of Ramses (or an opponent's bomb) that stays; the Aura leaving sacrifices the creature"
+   ],
+   [
+    "Necromancy",
+    "three-mana reanimation with flash, the same way"
+   ],
+   [
+    "Helm of the Host",
+    "a non-legendary token copy of the equipped creature every combat: a new Ramses (or Etrata) each turn, with haste"
+   ],
+   [
+    "Irenicus's Vile Duplication",
+    "a flying, non-legendary token copy of Ramses or Etrata"
+   ]
+  ]
  }
 ]

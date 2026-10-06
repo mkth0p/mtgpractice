@@ -1100,6 +1100,7 @@
   };
   /* Whispersilk Cloak: shroud for the piece removal goes after, unblockable for the attacker that matters; Ramses first */
   H.cloakTarget = (g, p, opts) => { for (const n of ["Ramses, Assassin Lord", "Etrata, Deadly Fugitive", "Bloodletter of Aclazotz"]) { const c = opts.find(x => x.controller === p && x.def.name === n && !g.kw(x, "shroud") && !g.kw(x, "hexproof")); if (c) return c; } return opts.filter(c => c.controller === p).sort((a, b) => valueOf(g, b) - valueOf(g, a))[0]; };
+  H.helmTarget = (g, p, opts) => { for (const n of ["Ramses, Assassin Lord", "Etrata, Deadly Fugitive", "Bloodletter of Aclazotz"]) { const c = opts.find(x => x.controller === p && x.def.name === n && !x.isToken); if (c) return c; } return opts.filter(c => c.controller === p && !c.faceDown && !c.isToken).sort((a, b) => valueOf(g, b) - valueOf(g, a))[0]; };
   H.coatTarget = (g, p, opts) => { for (const n of ["Ramses, Assassin Lord", "Etrata, Deadly Fugitive", "Bloodletter of Aclazotz"]) { const c = opts.find(x => x.controller === p && x.def.name === n); if (c) return c; } return opts.filter(c => c.controller === p && c.def.legendary).sort((a, b) => valueOf(g, b) - valueOf(g, a))[0]; };
   /* Force of Despair at the end of an opponent's turn (or on the stack) when what entered this turn is worth it */
   H.despairPlan = (g, p, o, ctx) => {
@@ -1133,6 +1134,71 @@
       priority: 7,
       cast: (g, p, o, ctx) => { if (!mainWin(ctx.window)) return false; const best = g.players.flatMap(q => q.graveyard.filter(c => c.def.types.includes("Creature"))).sort((a, b) => reanimateScore(g, p, b) - reanimateScore(g, p, a))[0]; return best && reanimateScore(g, p, best) >= 60 && p.life > best.def.mv + 10 ? 30 : false; },
       target: (g, p, req) => (req.purpose === "reanimate" ? req.options.slice().sort((a, b) => reanimateScore(g, p, b) - reanimateScore(g, p, a))[0] : undefined)
+    }
+  });
+  /* Reanimation that stays: the Auras. The creature card is targeted when the Aura is cast, returns as the Aura enters
+     (so a state-based check never sees the Aura attached to a graveyard card), the Aura stays attached to it, and the
+     creature is sacrificed when the Aura leaves. */
+  const animated = new WeakMap();
+  const GY_CREATURES = (g, p) => g.players.flatMap(q => q.graveyard.filter(c => c.def.types.includes("Creature")));
+  const reanimAi = (score) => ({
+    priority: 7,
+    cast: (g, p, o, ctx) => { if (!mainWin(ctx.window)) return false; const best = GY_CREATURES(g, p).sort((a, b) => reanimateScore(g, p, b) - reanimateScore(g, p, a))[0]; return best && reanimateScore(g, p, best) >= 60 ? score : false; },
+    target: (g, p, req) => (req.purpose === "reanimate" ? req.options.slice().sort((a, b) => reanimateScore(g, p, b) - reanimateScore(g, p, a))[0] : undefined)
+  });
+  function animate(g, p, o, item) {
+    const c = item && item.targets && item.targets[0];
+    if (!c || c.zone !== "graveyard") { o.attachedTo = null; return null; }
+    const made = g.putOntoBattlefield([c], p)[0];
+    if (!made || made.zone !== "battlefield") { o.attachedTo = null; return null; }
+    o.attachedTo = made; animated.set(o, made);
+    log(g, `${made.def.name} returns to the battlefield under ${p.name}'s control (${o.def.name}).`, p, [o.def.name, made.def.name]);
+    return made;
+  }
+  const animateLeaves = { on: "leaves", self: true, do: (g, s) => { const c = animated.get(s); animated.delete(s); if (c && c.zone === "battlefield") { log(g, `${c.def.name} is sacrificed (${s.def.name} left the battlefield).`, c.controller, [c.def.name]); g.sacrifice(c); } } };
+  D({
+    name: "Animate Dead", cost: "{1}{B}", type: "Enchantment — Aura", aura: true,
+    text: "Enchant creature card in a graveyard\nWhen this Aura enters, if it's on the battlefield, it loses \"enchant creature card in a graveyard\" and gains \"enchant creature put onto the battlefield with this Aura.\" Return enchanted creature card to the battlefield under your control and attach this Aura to it. When this Aura leaves the battlefield, that creature's controller sacrifices it.\nEnchanted creature gets -1/-0.",
+    note: "The creature card is targeted on cast and returns as the Aura enters; the Aura then enchants that creature (the \"if it's on the battlefield\" clause and the text change aren't modeled separately).",
+    targets: [{ kind: "card", purpose: "reanimate", prompt: "Animate Dead: a creature card in a graveyard", from: GY_CREATURES }],
+    canCast: (g, p) => GY_CREATURES(g, p).length > 0,
+    asEnters: async (g, p, o, item) => { animate(g, p, o, item); },
+    statics: [{ applies: (g, s, o) => s.attachedTo === o, pt: [-1, 0] }],
+    triggers: [animateLeaves],
+    ai: reanimAi(30)
+  });
+  D({
+    name: "Necromancy", cost: "{2}{B}", type: "Enchantment", aura: true, keywords: ["flash"],
+    text: "You may cast this spell as though it had flash. If you cast it any time a sorcery couldn't have been cast, the controller of the permanent it becomes sacrifices it at the beginning of the next cleanup step.\nWhen this enchantment enters, if it's on the battlefield, it becomes an Aura with \"enchant creature put onto the battlefield with Necromancy.\" Put target creature card from a graveyard onto the battlefield under your control and attach this enchantment to it. When this enchantment leaves the battlefield, that creature's controller sacrifices it.",
+    note: "As Animate Dead. Cast on another player's turn or outside a main phase, Necromancy is sacrificed at the beginning of the next end step (the cleanup step isn't modeled; a main-phase cast with spells on the stack counts as sorcery speed). The bots cast it at sorcery speed.",
+    targets: [{ kind: "card", purpose: "reanimate", prompt: "Necromancy: a creature card in a graveyard", from: GY_CREATURES }],
+    canCast: (g, p) => GY_CREATURES(g, p).length > 0,
+    asEnters: async (g, p, o, item) => {
+      const made = animate(g, p, o, item);
+      if (made && (g.active !== p || !/^main/.test(g.phase))) g.delayed.push({ at: "endStep", once: true, do: g2 => { if (o.zone === "battlefield") { log(g2, `Necromancy is sacrificed (it was cast at instant speed).`, p, ["Necromancy"]); g2.sacrifice(o); } } });
+    },
+    triggers: [animateLeaves],
+    ai: reanimAi(29)
+  });
+  /* Copies that aren't legendary: a second Ramses or Etrata that the legend rule doesn't take. */
+  const unlegend = base => ({ supertypes: base.supertypes.filter(t => t !== "Legendary"), legendary: false });
+  D({
+    name: "Helm of the Host", cost: "{4}", type: "Legendary Artifact — Equipment", equip: "{5}",
+    text: "At the beginning of combat on your turn, create a token that's a copy of equipped creature, except the token isn't legendary. That token gains haste.\nEquip {5}",
+    triggers: [{ on: "beginCombat", when: (g, s, ev) => ev.p === s.controller && !!s.attachedTo && s.attachedTo.zone === "battlefield" && g.isCreature(s.attachedTo), do: (g, s, ev, { p }) => { const t = s.attachedTo; g.copyToken(p, t, { except: unlegend(MK.copiable(t)), haste: true }); } }],
+    ai: { priority: 6, equipTarget: (g, p, opts) => (H.helmTarget ? H.helmTarget(g, p, opts) : undefined) }
+  });
+  D({
+    name: "Irenicus's Vile Duplication", cost: "{3}{U}", type: "Sorcery",
+    text: "Create a token that's a copy of target creature you control, except the token has flying and it isn't legendary.",
+    spell: {
+      targets: [{ kind: "creature", you: true, purpose: "dupCopy", prompt: "Irenicus's Vile Duplication: copy a creature you control" }],
+      do: (g, ctx) => { const t = ctx.targets[0]; if (!t || !ctx.legal[0] || t.zone !== "battlefield") return; const base = MK.copiable(t); g.copyToken(ctx.p, t, { except: Object.assign(unlegend(base), { keywords: (base.keywords || []).concat("flying") }) }); }
+    },
+    ai: {
+      priority: 6,
+      cast: (g, p, o, ctx) => { if (!mainWin(ctx.window)) return false; const t = H.copyTarget ? H.copyTarget(g, p, { options: g.creatures(p) }) : null; return t && (/^(Ramses, Assassin Lord|Etrata, Deadly Fugitive)$/.test(t.def.name) || valueOf(g, t) >= 7) ? 28 : false; },
+      target: (g, p, req) => (req.purpose === "dupCopy" && H.copyTarget ? H.copyTarget(g, p, req) : undefined)
     }
   });
   D({
@@ -1726,6 +1792,9 @@
     const VAMP = [["Exquisite Blood"], ["Sanguine Bond", "Bloodthirsty Conqueror", "Vito, Thorn of the Dusk Rose", "Marauding Blight-Priest"]];
     const side = i => VAMP[i].some(have);
     if (side(0) !== side(1)) { const need = VAMP[side(0) ? 1 : 0]; const c = cands.find(x => need.includes(x.def.name)); if (c) return c; }
+    // Ramses in a graveyard, not on the battlefield, no way back in hand: a reanimation spell first
+    const REANIM = ["Reanimate", "Animate Dead", "Necromancy"];
+    if (g.players.some(q => q.graveyard.some(c => c.def.name === "Ramses, Assassin Lord")) && !g.battlefield.some(o => o.controller === p && !o.faceDown && o.def.name === "Ramses, Assassin Lord") && !p.hand.some(c => REANIM.includes(c.def.name))) { const c = cands.find(x => REANIM.includes(x.def.name)); if (c) return c; }
     for (const n of TUTOR_WANT) {
       if (have(n)) continue;
       if (enabled && ["Maskwood Nexus", "Leyline of Transformation", "Arcane Adaptation", "Roshan, Hidden Magister"].includes(n)) continue;

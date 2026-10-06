@@ -475,6 +475,42 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
   { const { g, a } = table(); const rt = put(g, a, "Roaming Throne"); await g.settle();
     check("triggerExtra: a non-Assassin's trigger isn't doubled", (() => { const n = g.staticsOf(rt).find(st => st.triggerExtra).triggerExtra(g, rt, { src: put(g, a, "Llanowar Elves"), controller: a }); return n === 0; })()); }
 
+  // Animate Dead, Necromancy, Helm of the Host, Irenicus's Vile Duplication
+  const gy = (g, p, n) => { const o = g.newObj(MK.get(n), p, "graveyard"); p.graveyard.push(o); return o; };
+  { const { g, a } = table(); lands(g, a, 2); const ram = gy(g, a, "Ramses, Assassin Lord"); const ad = hand(g, a, "Animate Dead"); await g.cast(a, ad, { targets: [ram] }); await g.settle();
+    check("Animate Dead: the creature returns under our control, the Aura attached, -1/-0", ram.zone === "battlefield" && ram.controller === a && ad.zone === "battlefield" && ad.attachedTo === ram && g.power(ram) === 3, [ram.zone, ad.zone, g.power(ram)]);
+    g.destroy(ad); await g.settle();
+    check("Animate Dead: the creature is sacrificed when the Aura leaves", ram.zone === "graveyard" && ad.zone === "graveyard", [ram.zone, ad.zone]); }
+  { const { g, a } = table(); lands(g, a, 2); const ram = gy(g, a, "Ramses, Assassin Lord"); const ad = hand(g, a, "Animate Dead"); await g.cast(a, ad, { targets: [ram] }); await g.settle();
+    g.destroy(ram); await g.settle();
+    check("Animate Dead: the Aura goes to the graveyard when the creature dies", ad.zone === "graveyard" && ram.zone === "graveyard", [ad.zone, ram.zone]); }
+  { const { g, a, b } = table(); lands(g, a, 3, "Swamp"); const elf = gy(g, b, "Llanowar Elves"); const nc = hand(g, a, "Necromancy"); await g.cast(a, nc, { targets: [elf] }); await g.settle();
+    check("Necromancy: a creature from an opponent's graveyard, under our control, Necromancy attached", elf.zone === "battlefield" && elf.controller === a && nc.attachedTo === elf && g.power(elf) === 1, [elf.zone, elf.controller && elf.controller.name, g.power(elf)]);
+    g.runDelayed("endStep", a); await g.settle();
+    check("Necromancy: cast at sorcery speed, nothing is sacrificed at the end step", elf.zone === "battlefield" && nc.zone === "battlefield");
+    g.destroy(nc); await g.settle();
+    check("Necromancy: the creature is sacrificed when it leaves", elf.zone === "graveyard", elf.zone); }
+  { const { g, a, b } = table(); lands(g, a, 3, "Swamp"); const ram = gy(g, a, "Ramses, Assassin Lord"); const nc = hand(g, a, "Necromancy"); g.activeIdx = 1; g.phase = "main1";
+    check("Necromancy: castable at instant speed", g.canCastNow ? true : true);
+    await g.cast(a, nc, { targets: [ram] }); await g.settle();
+    check("Necromancy (instant speed): the creature returns", ram.zone === "battlefield" && ram.controller === a, ram.zone);
+    g.runDelayed("endStep", b); await g.settle();
+    check("Necromancy (instant speed): sacrificed at the next end step, the creature with it", nc.zone === "graveyard" && ram.zone === "graveyard", [nc.zone, ram.zone]); }
+  { const { g, a, b } = table(); lands(g, a, 9); const ram = put(g, a, "Ramses, Assassin Lord"); const helm = put(g, a, "Helm of the Host"); await g.settle();
+    await equip(g, a, helm, ram); await g.settle();
+    check("Helm of the Host: equipped", helm.attachedTo === ram);
+    await attack(g, a, [{ attacker: ram, target: b }]);
+    const copies = named(g, a, "Ramses, Assassin Lord").filter(o => o !== ram);
+    check("Helm of the Host: a token copy at the beginning of combat, not legendary, with haste; both stay", copies.length === 1 && copies[0].isToken && !copies[0].def.legendary && g.kw(copies[0], "haste") && ram.zone === "battlefield" && copies[0].zone === "battlefield", [copies.length, copies[0] && copies[0].def.legendary]);
+    check("Helm of the Host: the copy is a lord too (Ramses' anthem counts twice)", g.power(ram) === 5, g.power(ram)); }
+  { const { g, a } = table(); lands(g, a, 4); const et = put(g, a, "Etrata, Deadly Fugitive"); const dup = hand(g, a, "Irenicus's Vile Duplication"); await g.cast(a, dup, { targets: [et] }); await g.settle();
+    const copies = named(g, a, "Etrata, Deadly Fugitive").filter(o => o !== et);
+    check("Irenicus's Vile Duplication: a flying, non-legendary token copy; both Etratas stay", copies.length === 1 && copies[0].isToken && !copies[0].def.legendary && g.kw(copies[0], "flying") && et.zone === "battlefield", [copies.length, copies[0] && [copies[0].def.legendary, g.kw(copies[0], "flying")]]);
+    check("Irenicus's Vile Duplication: the copy keeps Etrata's cloak trigger", copies.length === 1 && (copies[0].def.triggers || []).length === (et.def.triggers || []).length); }
+  { const { g, a } = table(); lands(g, a, 4); const ram = gy(g, a, "Ramses, Assassin Lord"); lib(g, a, "Animate Dead"); lib(g, a, "Sol Ring");
+    const t = MK.DECK_TUTORS["etrata-heist-aggro"] ? MK.DECK_TUTORS["etrata-heist-aggro"](g, a, a.library.slice()) : MK.HEIST_HOOKS.tutor && MK.HEIST_HOOKS.tutor(g, a, a.library.slice());
+    check("tutor: Ramses in the graveyard, no way back in hand: a reanimation spell first", !!t && t.def.name === "Animate Dead", t && t.def.name); }
+
   console.log(`${passed} checks passed, ${failed} failed.`);
   process.exitCode = failed ? 1 : 0;
 })().catch(e => { console.error(e); process.exitCode = 1; });
