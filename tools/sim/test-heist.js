@@ -447,6 +447,14 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
     const pb = hand(g, a, "Patriarch's Bidding"); await g.cast(a, pb); await g.settle();
     check("Patriarch's Bidding: our Assassins return; the opponent chose Elf, so both Elves return too", named(g, a, "Hired Poisoner").length === 1 && named(g, a, "Virtus the Veiled").length === 1 && named(g, a, "Llanowar Elves").length === 1 && elf.zone === "battlefield", { elf: elf.zone }); }
 
+
+  // attack-trigger drain: Pulse Tracker, Within Range, and Hooded Blightfang with Mari making a changeling deathtouch
+  { const { g, a, b, c, d } = table(); const pt = put(g, a, "Pulse Tracker"); put(g, a, "Within Range"); const oc = put(g, a, "Changeling Outcast"); put(g, a, "Mari, the Killing Quill"); put(g, a, "Hooded Blightfang"); await g.settle();
+    check("Mari: the changeling Assassin has deathtouch", g.kw(oc, "deathtouch"));
+    await attack(g, a, [{ attacker: pt, target: b }, { attacker: oc, target: b }]);
+    // Pulse Tracker: each opponent 1; Within Range: b loses 2 (two attackers at b); Blightfang: the Outcast's attack drains each opponent 1 (Pulse Tracker has no deathtouch); damage: 1 + 1 to b
+    check("attack drains: b loses 1+2+1 and 2 damage, c and d lose 2 each, we gain 1", b.life === 34 && c.life === 38 && d.life === 38 && a.life === 41, [b.life, c.life, d.life, a.life]); }
+
   // the engine rules: "triggers an additional time" stays with its creature type, anyColor, castEntry
   { const { g, a } = table(); const rt = put(g, a, "Roaming Throne"); await g.settle();
     check("triggerExtra: a non-Assassin's trigger isn't doubled", (() => { const n = g.staticsOf(rt).find(st => st.triggerExtra).triggerExtra(g, rt, { src: put(g, a, "Llanowar Elves"), controller: a }); return n === 0; })()); }

@@ -1652,7 +1652,7 @@
   };
 
   /* ---------------- tutors and mulligans */
-  const TUTOR_WANT0 = ["Ramses, Assassin Lord", "Bloodletter of Aclazotz", "Quietus Spike", "Unstoppable Slasher", "Virtus the Veiled", "Roaming Throne", "Interceptor, Shadow's Hound",
+  const TUTOR_WANT0 = ["Ramses, Assassin Lord", "Hooded Blightfang", "Bloodletter of Aclazotz", "Mari, the Killing Quill", "Dolmen Gate", "Quietus Spike", "Unstoppable Slasher", "Virtus the Veiled", "Roaming Throne", "Interceptor, Shadow's Hound",
     "Shredder, Shadow Master", "Genji Glove", "Achilles Davenport", "Roshan, Hidden Magister", "Leyline of Transformation", "Arcane Adaptation", "Maskwood Nexus", "Kindred Discovery", "Ezio, Blade of Vengeance", "Black Widow, Deadly Hunter", "Rhystic Study"];
   // research switch: HEIST_TUTOR="Card A|Card B|..." replaces the tutor order
   const TUTOR_WANT = (typeof process !== "undefined" && process.env && process.env.HEIST_TUTOR) ? process.env.HEIST_TUTOR.split("|") : TUTOR_WANT0;
