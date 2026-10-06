@@ -467,8 +467,8 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
 
   // Whispersilk Cloak and Darksteel Plate on Ramses
   { const { g, a } = table(); lands(g, a, 4); const ram = put(g, a, "Ramses, Assassin Lord"); const wc = put(g, a, "Whispersilk Cloak"); const dp = put(g, a, "Darksteel Plate"); await g.settle();
-    await equip(g, a, wc, ram); await g.settle(); await equip(g, a, dp, ram); await g.settle();
-    check("Whispersilk Cloak: shroud and unblockable", g.kw(ram, "shroud") && g.ch(ram).unblockable && !g.canTarget(a, ram));
+    await equip(g, a, dp, ram); await g.settle(); await equip(g, a, wc, ram); await g.settle();
+    check("Whispersilk Cloak: shroud (even against our own equip) and unblockable", g.kw(ram, "shroud") && g.ch(ram).unblockable && !g.canTarget(a, ram));
     g.destroy(ram); check("Darksteel Plate: indestructible", ram.zone === "battlefield"); }
 
   // the engine rules: "triggers an additional time" stays with its creature type, anyColor, castEntry
