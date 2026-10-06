@@ -187,3 +187,6 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | 33 | v2-savecounter | v2 with the last counter saved for a wipe or removal on Ramses/Etrata | 35.1% ±1.1 | 18.2% ±0.9 | v2-snowball | +1.0 ±0.7 | +0.0 ±0.5 | default from here; later v2 runs pair against this one |
 | 34 | v2-tg | v2: Cover of Darkness → Training Grounds | 35.0% ±1.1 | 18.0% ±0.9 | v2-snowball | +0.8 ±0.5 | −0.2 ±0.4 | kept (the pilots' 79% card) |
 | 35 | v2-tg-flipfirst | the same with flips before casting | 33.5% ±1.1 | 17.1% ±0.8 | v2-snowball | −0.6 ±0.8 | −1.1 ±0.6 | flipping first is worse again |
+| 36 | v2-veil | v2: Cover of Darkness → Teferi's Veil (attackers phase out until our untap) | 36.1% ±1.1 | 18.4% ±0.9 | v2-savecounter | +1.0 ±0.5 | +0.2 ±0.4 | creatures lost on opponents' turns 5.3 → 4.8; kept |
+| 37 | v2-etrataboots | v2 with Boots/Greaves on Etrata before Ramses (HEIST_ON=etrataBoots) | 35.1% ±1.1 | 18.1% ±0.9 | v2-savecounter | −0.0 ±0.1 | −0.1 ±0.1 | no difference; off |
+| 38 | v2-veil-tg | v2: Cover → Teferi's Veil, Thieving Amalgam → Training Grounds | 35.0% ±1.1 | 18.3% ±0.9 | v2-savecounter | −0.1 ±0.6 | +0.1 ±0.5 | Amalgam is worth keeping over Training Grounds in this list |
