@@ -1088,15 +1088,23 @@
     return false;
   };
   H.halfSpellTarget = (g, p, req) => { const q = mem(p).halfAt; return q && req.options.includes(q) ? q : req.options.slice().sort((a, b) => b.life - a.life)[0]; };
-  /* Vein Ripper and an altar: sacrifice bodies to drain 2 each, when that kills an opponent (the mark first) */
-  const fodder = (g, p) => g.creatures(p).filter(c => !c.isCommander && !["Ramses, Assassin Lord", "Vein Ripper", "Bloodletter of Aclazotz"].includes(c.def.name)).sort((a, b) => sacScore(g, p, a) - sacScore(g, p, b));
+  /* Death drains and an altar: sacrifice bodies (the stolen 2/2s first) when the drains kill an opponent (the mark first).
+     Vein Ripper drains 2 and Blood Artist / Falkenrath Noble 1 from one target; Zulaport Cutthroat and Bastion of
+     Remembrance drain 1 from each opponent. Bloodletter's doubling isn't counted (the plan fires a little late, never early). */
+  const DRAIN_TARGETED = { "Vein Ripper": 2, "Blood Artist": 1, "Falkenrath Noble": 1 }, DRAIN_EACH = { "Zulaport Cutthroat": 1, "Bastion of Remembrance": 1 };
+  const DRAIN_PIECES = Object.keys(DRAIN_TARGETED).concat(Object.keys(DRAIN_EACH));
+  const drainPerDeath = (g, p) => g.battlefield.filter(o => o.controller === p && !o.faceDown).reduce((t, o) => t + (DRAIN_TARGETED[o.def.name] || 0) + (DRAIN_EACH[o.def.name] || 0), 0);
+  const fodder = (g, p) => g.creatures(p).filter(c => !c.isCommander && !["Ramses, Assassin Lord", "Bloodletter of Aclazotz"].includes(c.def.name) && !DRAIN_PIECES.includes(c.def.name)).sort((a, b) => sacScore(g, p, a) - sacScore(g, p, b));
+  H.drainPerDeath = drainPerDeath;
   H.altarUse = (g, p, o, ctx) => {
-    if (!mainWin(ctx.window) || !onBf(g, p, "Vein Ripper")) return false;
-    const n = fodder(g, p).length, opps = liveOpps(g, p).filter(q => q.life <= 2 * n);
+    if (!mainWin(ctx.window)) return false;
+    const per = drainPerDeath(g, p);
+    if (!per) return false;
+    const n = fodder(g, p).length, opps = liveOpps(g, p).filter(q => q.life <= per * n);
     if (!opps.length) return false;
     const q = opps.includes(mem(p).mark) ? mem(p).mark : opps.sort((a, b) => a.life - b.life)[0];
     mem(p).drainAt = q;
-    return { repeat: Math.ceil(q.life / 2) };
+    return { repeat: Math.ceil(q.life / per) };
   };
   /* Whispersilk Cloak: shroud for the piece removal goes after, unblockable for the attacker that matters; Ramses first */
   H.cloakTarget = (g, p, opts) => { for (const n of ["Ramses, Assassin Lord", "Etrata, Deadly Fugitive", "Bloodletter of Aclazotz"]) { const c = opts.find(x => x.controller === p && x.def.name === n && !g.kw(x, "shroud") && !g.kw(x, "hexproof")); if (c) return c; } return opts.filter(c => c.controller === p).sort((a, b) => valueOf(g, b) - valueOf(g, a))[0]; };
@@ -2103,7 +2111,7 @@
     { const b = bootsTarget(g, p, req); if (b) return b; }
     if (req.type === "number" && req.purpose === "hatredX") return Math.max(req.min, Math.min(req.max, H.hatredX(g, p)));
     if (req.type === "target" && req.purpose === "sacrifice" && req.src && /Altar$/.test(req.src.def.name)) { const f = fodder(g, p).find(c => req.options.includes(c)); if (f) return f; }
-    if (req.type === "target" && req.src && req.src.def.name === "Vein Ripper" && req.options.some(x => g.isPlayer(x))) { const q = mem(p).drainAt || mem(p).mark; if (q && req.options.includes(q)) return q; const qs = req.options.filter(x => g.isPlayer(x) && x !== p); if (qs.length) return qs.sort((a, b) => a.life - b.life)[0]; }
+    if (req.type === "target" && req.src && /^(Vein Ripper|Blood Artist|Falkenrath Noble)$/.test(req.src.def.name) && req.options.some(x => g.isPlayer(x))) { const q = mem(p).drainAt || mem(p).mark; if (q && req.options.includes(q)) return q; const qs = req.options.filter(x => g.isPlayer(x) && x !== p); if (qs.length) return qs.sort((a, b) => a.life - b.life)[0]; }
     if (req.type === "target" && req.purpose === "sacrifice" && req.src && req.src.def.name === "Pyre of Heroes") { const f = H.pyrePick(g, p); if (f && req.options.includes(f)) return f; }
     if (req.type === "target" && (req.purpose === "sparkCopy" || req.purpose === "autonCopy" || req.purpose === "sakashimaCopy")) { const t = H.copyTarget(g, p, req); if (t && req.options.includes(t)) return t; }
     // the creature an evasion source was used for

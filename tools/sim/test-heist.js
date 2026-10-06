@@ -511,6 +511,15 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
     const t = MK.DECK_TUTORS["etrata-heist-aggro"] ? MK.DECK_TUTORS["etrata-heist-aggro"](g, a, a.library.slice()) : MK.HEIST_HOOKS.tutor && MK.HEIST_HOOKS.tutor(g, a, a.library.slice());
     check("tutor: Ramses in the graveyard, no way back in hand: a reanimation spell first", !!t && t.def.name === "Animate Dead", t && t.def.name); }
 
+  // the altar plan with aristocrat drains: Zulaport out, three bodies, an opponent at 3 -> sacrifice three; at 40 -> nothing
+  { const { g, a, b } = table(); const alt = put(g, a, "Ashnod's Altar"); put(g, a, "Zulaport Cutthroat"); put(g, a, "Changeling Outcast"); put(g, a, "Slither Blade"); put(g, a, "Hired Poisoner"); await g.settle();
+    check("altar plan: drain per death counts Zulaport", MK.HEIST_HOOKS.drainPerDeath(g, a) === 1);
+    check("altar plan: no kill, no sacrifice", MK.HEIST_HOOKS.altarUse(g, a, alt, { window: "main1" }) === false);
+    b.life = 3; const r = MK.HEIST_HOOKS.altarUse(g, a, alt, { window: "main1" });
+    check("altar plan: the opponent at 3 dies to three sacrifices", !!r && r.repeat === 3, r);
+    put(g, a, "Blood Artist"); await g.settle(); b.life = 6; const r2 = MK.HEIST_HOOKS.altarUse(g, a, alt, { window: "main1" });
+    check("altar plan: Blood Artist adds one per death (6 life, 2 per death, three bodies)", MK.HEIST_HOOKS.drainPerDeath(g, a) === 2 && !!r2 && r2.repeat === 3, r2); }
+
   console.log(`${passed} checks passed, ${failed} failed.`);
   process.exitCode = failed ? 1 : 0;
 })().catch(e => { console.error(e); process.exitCode = 1; });
