@@ -351,3 +351,4 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | pk7-mirror-rite | Island → Mirror Box; Island → Rite of Replication | 46.7% | -0.9 ±0.8 | 25.1% | -2 ±0.7 | -2.9 |
 | pk7-all5 | Island → Mirror Box; Island → Sakashima of a Thousand Faces; Island → Rite of Replication; Swamp → Blade of Selves; Swamp → Strionic Resonator | 44.1% | -3.4 ±1.1 | 23.6% | -3.5 ±0.9 | -6.9 |
 
+| 66 | vamp-dominance-confirm | **the closer list with Kindred Dominance for a Swamp (`lists/v2f-vamp.txt`), 5,040 games per field** | **47.9% ±0.7** | **27.5% ±0.6** | v2d-vamp-confirm | **+0.8 ±0.4** | **+0.7 ±0.3** | the one card of rounds 6–7 that beats a basic land, on both fields, confirmed; adopted into the recommended list (avg win round 9.0 / 8.0) |

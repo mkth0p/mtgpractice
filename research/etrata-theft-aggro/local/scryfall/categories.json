@@ -592,5 +592,31 @@
     "a flying, non-legendary token copy of Ramses or Etrata"
    ]
   ]
+ },
+ {
+  "title": "The snowball axis for a Bracket 4 table (rounds 6–7, 2026-10-06): copies that stack, myriad, a trigger copier",
+  "why": "Asked to make the face-down army scale: more cloaks per hit and copies of Etrata that the legend rule doesn't take. All measured at or below a basic land on the closer list (EXPERIMENTS #64–65); Kindred Dominance (already listed) was the one card that beat a land.",
+  "cards": [
+   [
+    "Mirror Box",
+    "the legend rule off for our permanents, +1/+1 to legends and per same-name creature"
+   ],
+   [
+    "Sakashima of a Thousand Faces",
+    "enters as a second Etrata or Ramses and switches the legend rule off while it stays"
+   ],
+   [
+    "Rite of Replication",
+    "one copy, or five when kicked: five Ramses make every Assassin a 9/9"
+   ],
+   [
+    "Blade of Selves",
+    "myriad: the equipped Assassin attacks all three players, three cloaks from one attack"
+   ],
+   [
+    "Strionic Resonator",
+    "copies Etrata's cloak trigger or a halver's trigger from the stack for two mana"
+   ]
+  ]
  }
 ]

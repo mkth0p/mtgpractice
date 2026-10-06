@@ -1532,3 +1532,73 @@ Asked for a deck less dependent on Ramses: a second Ramses the legend rule doesn
 
 - Ruling (2022-06-10): Irenicus's Vile Duplication has received an update to its Oracle text to clarify that the token still has flying even if the creature it's copying isn't legendary.
 
+## The snowball axis for a Bracket 4 table (rounds 6–7, 2026-10-06): copies that stack, myriad, a trigger copier
+
+Asked to make the face-down army scale: more cloaks per hit and copies of Etrata that the legend rule doesn't take. All measured at or below a basic land on the closer list (EXPERIMENTS #64–65); Kindred Dominance (already listed) was the one card that beat a land.
+
+### Mirror Box
+- {3} · Artifact · not a Game Changer · Commander: legal
+- Price: $4.13 (Kamigawa: Neon Dynasty (NEO 250)): https://scryfall.com/card/neo/250/mirror-box · https://www.tcgplayer.com/product/262174
+- Engine: defined in `decks-heist.js`
+- Why: the legend rule off for our permanents, +1/+1 to legends and per same-name creature
+
+> The "legend rule" doesn't apply to permanents you control.
+> Each legendary creature you control gets +1/+1.
+> Each nontoken creature you control gets +1/+1 for each other creature you control with the same name as that creature.
+
+- Ruling (2022-02-18): The “legend rule” is the rule that states that if a player controls two or more legendary permanents with the same name, that player chooses one of them, and the rest are put into their owners' graveyards.
+- Ruling (2022-02-18): If you control more than one legendary permanent with the same name and the “legend rule” begins applying again (perhaps because Mirror Box leaves the battlefield), you'll immediately have to comply with the rule and put all but one of those permanents into the graveyard.
+- Ruling (2022-02-18): A face-down creature has no name, so it doesn't have the same name as anything else.
+
+### Sakashima of a Thousand Faces
+- {3}{U} · Legendary Creature — Human Rogue · 3/1 · not a Game Changer · Commander: legal
+- Price: $17.42 (Avatar: The Last Airbender Eternal (TLE 18)): https://scryfall.com/card/tle/18/sakashima-of-a-thousand-faces · https://www.tcgplayer.com/product/662418
+- Engine: defined in `decks-heist.js`
+- Why: enters as a second Etrata or Ramses and switches the legend rule off while it stays
+
+> You may have Sakashima enter as a copy of another creature you control, except it has Sakashima's other abilities.
+> The "legend rule" doesn't apply to permanents you control.
+> Partner (You can have two commanders if both have partner.)
+
+- Ruling (2020-11-10): Sakashima of a Thousand Faces copies exactly what was printed on the original creature (unless that creature is copying something else or is a token; see below), except that it also has Sakashima's other abilities. It doesn't copy whether that creature is tapped or untapped, whether it has any counters on it or any Auras and Equipment attached to it, or any non-copy effects that have changed its power, toughness, types, color, or so on. Most notably, if it copies a creature that's not normally a creature, it won't be a creature.
+- Ruling (2020-11-10): If the chosen creature has {X} in its mana cost, X is considered to be 0.
+- Ruling (2020-11-10): If another creature becomes a copy of Sakashima, that creature also has Sakashima's other abilities.
+
+### Rite of Replication
+- {2}{U}{U} · Sorcery · not a Game Changer · Commander: legal
+- Price: $0.26 (Final Fantasy Commander (FIC 270)): https://scryfall.com/card/fic/270/rite-of-replication · https://www.tcgplayer.com/product/631198
+- Engine: defined in `decks-heist.js`
+- Why: one copy, or five when kicked: five Ramses make every Assassin a 9/9
+
+> Kicker {5} (You may pay an additional {5} as you cast this spell.)
+> Create a token that's a copy of target creature. If this spell was kicked, create five of those tokens instead.
+
+- Ruling (2024-11-08): If a spell's kicker cost was paid, the spell is "kicked."
+- Ruling (2024-11-08): The kicker ability doesn't let you pay a kicker cost more than once.
+- Ruling (2024-11-08): If a card or token enters as a copy of a permanent, the new permanent isn't kicked, even if the original was.
+
+### Blade of Selves
+- {2} · Artifact — Equipment · not a Game Changer · Commander: legal
+- Price: $3.24 (Commander Anthology Volume II (CM2 174)): https://scryfall.com/card/cm2/174/blade-of-selves · https://www.tcgplayer.com/product/166736
+- Engine: defined in `decks-heist.js` (simplified: The copies always attack the player (never a planeswalker) and are always made.)
+- Why: myriad: the equipped Assassin attacks all three players, three cloaks from one attack
+
+> Equipped creature has myriad. (Whenever it attacks, for each opponent other than defending player, you may create a token copy that's tapped and attacking that player or a planeswalker they control. Exile the tokens at end of combat.)
+> Equip {4}
+
+- Ruling (2015-11-04): Each token copies exactly what was printed on the original creature and nothing else. It doesn't copy whether that creature is tapped or untapped, whether it has any counters on it or Auras and Equipment attached to it, or any non-copy effects that have changed its power, toughness, types, color, and so on.
+- Ruling (2015-11-04): If the defending player is your only opponent, no tokens are put onto the battlefield.
+- Ruling (2015-11-04): If myriad creates more than one token for any given player (due to an effect such as the one Doubling Season creates), you may choose separately for each token whether it's attacking the player or a planeswalker they control.
+
+### Strionic Resonator
+- {2} · Artifact · not a Game Changer · Commander: legal
+- Price: $6.33 (Commander 2019 (C19 224)): https://scryfall.com/card/c19/224/strionic-resonator · https://www.tcgplayer.com/product/196447
+- Engine: defined in `decks-heist.js` (simplified: The copy keeps the original's targets.)
+- Why: copies Etrata's cloak trigger or a halver's trigger from the stack for two mana
+
+> {2}, {T}: Copy target triggered ability you control. You may choose new targets for the copy. (A triggered ability uses the words "when," "whenever," or "at.")
+
+- Ruling (2018-03-16): Strionic Resonator targets a triggered ability that has triggered and is on the stack and creates another instance of that ability on the stack. It doesn't cause any object to gain an ability.
+- Ruling (2018-03-16): If a triggered ability is linked to a second ability, copies of that triggered ability are also linked to that second ability. If the second ability refers to "the exiled card," it refers to all cards exiled by the triggered ability and the copy. For example, if Fiend Hunter's enters-the-battlefield ability is copied and two creatures are exiled, they both return when Fiend Hunter leaves the battlefield.
+- Ruling (2018-03-16): Triggered abilities use the word "when," "whenever," or "at." They're often written as "[Trigger condition], [effect]."
+
