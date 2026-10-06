@@ -73,7 +73,7 @@ module.exports = function install(MK, opts) {
     if (type === "turnedFaceUp" && ev && ev.o && this.__tele && ev.p === this.__tele.hero && ev.o.owner !== this.__tele.hero) this.__tele.faceUpStolen++;
     // the hero's key permanents leaving the battlefield (Ramses, Etrata): round and where to
     if (type === "leaves" && ev && ev.lki && this.__tele && this.__tele.hero && ev.lki.controller === this.__tele.hero && ev.lki.creature && ev.to !== "hand") { const k = this.active === this.__tele.hero ? "lostMyTurn" : "lostTheirTurn"; this.__tele[k] = (this.__tele[k] || 0) + 1; }
-    if (type === "leaves" && ev && ev.lki && this.__tele && this.__tele.hero && ev.lki.controller === this.__tele.hero && /^(Ramses, Assassin Lord|Etrata, Deadly Fugitive|Bloodletter of Aclazotz)$/.test(ev.lki.name)) { const top = this.stack[this.stack.length - 1]; const how = this.combat && this.phase === "damage" ? "combat" : (top && top.p && top.p !== this.__tele.hero ? "their spell/ability" : this.resolving ? "trigger" : "other"); (this.__tele.left || (this.__tele.left = [])).push([this.round, ev.lki.name, ev.to, how, this.active === this.__tele.hero ? "my turn" : "their turn"]); }
+    if (type === "leaves" && ev && ev.lki && this.__tele && this.__tele.hero && ev.lki.controller === this.__tele.hero && /^(Ramses, Assassin Lord|Etrata, Deadly Fugitive|Bloodletter of Aclazotz)$/.test(ev.lki.name)) { const top = this.stack[this.stack.length - 1]; const how = this.combat && this.phase === "damage" ? "combat" : (top && top.p && top.p !== this.__tele.hero ? "their spell/ability" : this.resolving ? "trigger" : "other"); const ls = this.__lastSpell && this.__lastSpell.turn === this.turn && this.__lastSpell.p !== this.__tele.hero ? this.__lastSpell.name : null; (this.__tele.left || (this.__tele.left = [])).push([this.round, ev.lki.name, ev.to, how, this.active === this.__tele.hero ? "my turn" : "their turn", ls]); }
     return oe.apply(this, arguments);
   };
   // opponents' mass removal that resolved (spells the bots know as wipes), and the hero's creatures that left the battlefield
@@ -81,6 +81,7 @@ module.exports = function install(MK, opts) {
   const ort = G.resolveTop;
   G.resolveTop = async function () {
     const g = this, s = st(g), top = g.stack[g.stack.length - 1];
+    if (top && top.kind === "spell" && top.o && top.o.def && !top.countered) g.__lastSpell = { name: top.o.def.name, p: top.p, turn: g.turn };
     if (s.hero && top && top.kind === "spell" && top.p !== s.hero && !top.countered && top.o && top.o.def && (WIPE.test(top.o.def.name) || (top.o.def.ai && top.o.def.ai.wipe)) && !(top.o.def.name === "Cyclonic Rift" && top.alt !== 1)) s.wipes = (s.wipes || 0) + 1;
     return ort.apply(this, arguments);
   };
