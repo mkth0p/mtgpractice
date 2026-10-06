@@ -1156,6 +1156,35 @@
     ai: { priority: 6, cast: (g, p, o, ctx) => { if (!mainWin(ctx.window)) return false; const mine = p.graveyard.filter(c => c.def.types.includes("Creature") && (c.def.changeling || c.def.subtypes.includes("Assassin"))); const v = mine.reduce((t, c) => t + c.def.mv + ((c.def.ai && c.def.ai.priority) || 5) * 0.3, 0); return mine.length >= 3 || mine.some(c => c.def.name === "Ramses, Assassin Lord") ? 20 + v : false; } }
   });
 
+
+  /* ---------------- attack triggers: life loss that doesn't need to connect */
+  const attackDrain = (each, gain) => ({ on: "attacks", when: (g, s, ev) => ev.o === s, do: (g, s, ev, { p }) => { for (const q of g.opponents(p)) g.loseLife(q, each, s); if (gain) g.gainLife(p, gain, s); } });
+  D({ name: "Pulse Tracker", cost: "{B}", type: "Creature — Vampire Rogue", pt: "1/1", text: "Whenever this creature attacks, each opponent loses 1 life.", triggers: [attackDrain(1, 0)], ai: { priority: 6 } });
+  D({ name: "Vicious Conquistador", cost: "{B}", type: "Creature — Vampire Soldier", pt: "1/2", text: "Whenever this creature attacks, each opponent loses 1 life.", triggers: [attackDrain(1, 0)], ai: { priority: 6 } });
+  D({ name: "Sanguine Syphoner", cost: "{1}{B}", type: "Creature — Vampire Warlock", pt: "1/3", text: "Whenever this creature attacks, each opponent loses 1 life and you gain 1 life.", triggers: [attackDrain(1, 1)], ai: { priority: 6 } });
+  D({
+    name: "Postmortem Professor", cost: "{1}{B}", type: "Creature — Zombie Warlock", pt: "2/2", cantBlock: true,
+    text: "This creature can't block.\nWhenever this creature attacks, each opponent loses 1 life and you gain 1 life.\n{1}{B}, Exile an instant or sorcery card from your graveyard: Return this card from your graveyard to the battlefield.",
+    note: "The graveyard ability isn't offered.",
+    triggers: [attackDrain(1, 1)], ai: { priority: 6 }
+  });
+  D({
+    name: "Agate-Blade Assassin", cost: "{1}{B}", type: "Creature — Lizard Assassin", pt: "1/3",
+    text: "Whenever this creature attacks, defending player loses 1 life and you gain 1 life.",
+    triggers: [{ on: "attacks", when: (g, s, ev) => ev.o === s, do: (g, s, ev, { p }) => { const q = g.defenderOf(ev.target); if (q && !q.lost) g.loseLife(q, 1, s); g.gainLife(p, 1, s); } }],
+    ai: { priority: 6 }
+  });
+  T.warriorR = MK.tokenDef({ key: "warrior-r1", name: "Warrior", pt: [1, 1], colors: "R", subtypes: ["Warrior"] });
+  D({
+    name: "Within Range", cost: "{3}{B}", type: "Enchantment",
+    text: "When this enchantment enters, create two 1/1 red Warrior creature tokens.\nWhenever you attack, each opponent loses life equal to the number of creatures attacking them.",
+    triggers: [
+      { on: "enters", self: true, do: (g, s, ev, { p }) => { g.createToken(p, T.warriorR, { count: 2 }); } },
+      { on: "attack", when: (g, s, ev) => ev.p === s.controller, do: (g, s, ev, { p }) => { for (const q of g.opponents(p)) { const n = (ev.attackers || []).filter(a => a.combat && g.defenderOf(a.combat.attacking) === q).length; if (n > 0) g.loseLife(q, n, s); } } }
+    ],
+    ai: { priority: 7 }
+  });
+
   /* ================================================================ equipment and artifacts */
   D({
     name: "Quietus Spike", cost: "{3}", type: "Artifact — Equipment", equip: "{3}",
@@ -1420,7 +1449,9 @@
   function outcome(g, p, q, attackers, evade, bonus) {
     const blocked = EB().predictBlocks(g, q, attackers, evade);
     const through = attackers.filter(a => !blocked.has(a));
-    const life = lifeAfter(g, p, q, through, bonus);
+    // attack triggers happen whether or not the attacker is blocked
+    const drain = attackers.reduce((t, a) => { const d = attackDrainOf(g, p, a); return t + d.each + d.one; }, 0);
+    const life = lifeAfter(g, p, q, through, bonus) - drain;
     return { blocked, through, life, dmg: q.life - life, kill: life <= 0 };
   }
   MK.HEIST_MODEL = { lifeAfter, outcome, halvesOnHit };
@@ -1444,9 +1475,24 @@
     m.mark = best;
     return best;
   }
+  /* Life the table loses when this creature attacks, before any damage: Hooded Blightfang (deathtouch attackers), the
+     Vampires that drain on attack, Agate-Blade Assassin, Within Range; doubled by Bloodletter. */
+  function attackDrainOf(g, p, a) {
+    let each = 0, one = 0;
+    const d = a.faceDown ? null : a.def;
+    if (d) {
+      if (/^(Pulse Tracker|Vicious Conquistador|Sanguine Syphoner|Postmortem Professor)$/.test(d.name)) each += 1;
+      if (d.name === "Agate-Blade Assassin") one += 1;
+      if (d.name === "Infectious Horror") each += 2;
+    }
+    if (g.kw(a, "deathtouch")) each += g.battlefield.filter(o => o.controller === p && o.def.name === "Hooded Blightfang").length;
+    one += g.battlefield.filter(o => o.controller === p && o.def.name === "Within Range").length;
+    const bl = onBf(g, p, "Bloodletter of Aclazotz") ? 2 : 1;
+    return { each: each * bl, one: one * bl, total: (each * liveOpps(g, p).length + one) * bl };
+  }
   /* What a hit with this attacker brings besides its damage (Etrata's steal, card draw, halving). */
   function hitValue(g, p, a, q) {
-    let v = hitOf(g, a);
+    let v = hitOf(g, a) + attackDrainOf(g, p, a).total;
     if (isAssassin(g, a) && onBf(g, p, "Etrata, Deadly Fugitive")) v += 3 * (g.battlefield.filter(o => o.controller === p && o.def.name === "Roaming Throne").length + 1);
     if (halver(g, a) && q) v += Math.ceil(q.life / 2) * 0.8;
     if (AI().hitTriggerValue) v += AI().hitTriggerValue(g, p, a, q || liveOpps(g, p)[0]) * 0.3;
@@ -1507,8 +1553,11 @@
         decl.push({ attacker: a, target: t, a });
         continue;
       }
-      // blocked anywhere: a junk body (a cloaked land, a token) that would only trade still goes at the mark
-      if (pushJunk(g, p, a) && mark) decl.push({ attacker: a, target: mark, a });
+      // blocked anywhere: a junk body (a cloaked land, a token) that would only trade still goes at the mark, and so
+      // does a creature whose attack trigger drains more than the body is worth (Blightfang's deathtouch attackers:
+      // whatever blocks them dies too)
+      const dr = attackDrainOf(g, p, a).total;
+      if ((pushJunk(g, p, a) || (dr >= 2 && (g.kw(a, "deathtouch") || dr >= valueOf(g, a) * 0.6))) && mark) decl.push({ attacker: a, target: mark, a });
     }
     // 3. Etrata herself: only where no untapped blocker can kill her (her own hint), and never as a chump
     // 4. keep blockers home when the table can hit us hard

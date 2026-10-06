@@ -102,9 +102,21 @@ Tutor orders (HEIST_TUTOR), each paired against skA7: `tp-ramsesonly` = Ramses o
 | 23 | hy-vamp | A2 with the vampire loop: Hullcarver, Assassin Initiate, Poison-Blade Mentor, Aven Heartstabber → Exquisite Blood, Sanguine Bond, Bloodthirsty Conqueror, Vito; tutors finish the loop when half is out | 38.2% ±1.1 | 19.2% ±0.9 | skA2-0 | +3.9 ±0.9 | +0.7 ±0.7 | drain is the last kill in 28% of B2 wins |
 | 24 | skA2-nocmd | A2 with NO_COMMANDER=1 | 22.9% ±0.9 | 14.3% ±0.8 | skA2-0 | −11.5 ±1.3 | −4.2 ±1.1 | Etrata's worth in A2 |
 
-### Cut sweep on A2 (each card replaced by a basic land; positive = the deck is better without it; 2,016 games per field, paired against skA2-0)
+### Cut sweep on A2 (each card replaced by a basic land; positive = the deck is better without it; 2,016 games per field, paired against skA2-0; complete, 65 cards)
 | Run | Swap | B2 win | Δ B2 | B4 win | Δ B4 | Δ sum |
 |---|---|---|---|---|---|---|
+| cutA2-GofortheThroat | Go for the Throat → Swamp | 36% | +1.6 ±1 | 20.8% | +2.3 ±0.9 | 3.9 |
+| cutA2-AvenHeartstabber | Aven Heartstabber → Swamp | 36.2% | +1.8 ±1 | 20.1% | +1.6 ±0.9 | 3.4 |
+| cutA2-GixYawgmothPraetor | Gix, Yawgmoth Praetor → Swamp | 35.4% | +1 ±1.1 | 20.6% | +2.1 ±0.9 | 3.1 |
+| cutA2-Skullclamp | Skullclamp → Island | 35.3% | +0.9 ±1 | 20.6% | +2.1 ±0.8 | 3.0 |
+| cutA2-FadingHope | Fading Hope → Island | 35.5% | +1.1 ±1 | 20.2% | +1.7 ±0.9 | 2.8 |
+| cutA2-RooftopBypass | Rooftop Bypass → Swamp | 35.3% | +0.9 ±1 | 20.2% | +1.7 ±0.9 | 2.6 |
+| cutA2-Brainstorm | Brainstorm → Island | 35.1% | +0.7 ±1 | 20.4% | +1.9 ±0.9 | 2.6 |
+| cutA2-MaskwoodNexus | Maskwood Nexus → Island | 34.9% | +0.5 ±1 | 20.4% | +1.9 ±0.9 | 2.4 |
+| cutA2-DarkRitual | Dark Ritual → Swamp | 34.5% | +0.1 ±1 | 20.4% | +1.9 ±0.9 | 2.0 |
+| cutA2-ThievingAmalgam | Thieving Amalgam → Swamp | 34.1% | -0.2 ±1 | 20.7% | +2.2 ±0.9 | 2.0 |
+| cutA2-Preordain | Preordain → Island | 34.5% | +0.1 ±1 | 20.1% | +1.6 ±0.9 | 1.7 |
+| cutA2-TrainingGrounds | Training Grounds → Island | 34.9% | +0.5 ±1 | 19.7% | +1.2 ±0.8 | 1.7 |
 | cutA2-HiredPoisoner | Hired Poisoner → Swamp | 35.6% | +1.2 ±0.6 | 18.9% | +0.4 ±0.5 | 1.6 |
 | cutA2-TetsukoUmezawaFugi | Tetsuko Umezawa, Fugitive → Island | 35.2% | +0.8 ±0.5 | 19.3% | +0.8 ±0.4 | 1.6 |
 | cutA2-RenoandRude | Reno and Rude → Swamp | 35.5% | +1.1 ±0.6 | 19% | +0.5 ±0.5 | 1.6 |
@@ -115,15 +127,19 @@ Tutor orders (HEIST_TUTOR), each paired against skA7: `tp-ramsesonly` = Ramses o
 | cutA2-ThrillKillAssassin | Thrill-Kill Assassin → Swamp | 35.1% | +0.7 ±0.6 | 19.2% | +0.7 ±0.5 | 1.4 |
 | cutA2-RoamingThrone | Roaming Throne → Island | 34.9% | +0.5 ±0.6 | 19.4% | +0.9 ±0.5 | 1.4 |
 | cutA2-SparkDouble | Spark Double → Island | 35.6% | +1.2 ±0.6 | 18.8% | +0.2 ±0.4 | 1.4 |
+| cutA2-InfernalGrasp | Infernal Grasp → Swamp | 35.4% | +1 ±0.6 | 18.9% | +0.4 ±0.4 | 1.4 |
 | cutA2-ShadowMysteriousAs | Shadow, Mysterious Assassin → Swamp | 35% | +0.6 ±0.5 | 19.2% | +0.7 ±0.4 | 1.3 |
+| cutA2-AnOfferYouCantRefu | An Offer You Can't Refuse → Island | 34.3% | -0.1 ±1.1 | 19.9% | +1.4 ±0.8 | 1.3 |
 | cutA2-QuietusSpike | Quietus Spike → Island | 34.6% | +0.2 ±0.5 | 19.5% | +1 ±0.4 | 1.2 |
 | cutA2-LeylineofTransform | Leyline of Transformation → Island | 35% | +0.6 ±0.6 | 19.1% | +0.6 ±0.4 | 1.2 |
+| cutA2-ChromeMox | Chrome Mox → Island | 34.2% | -0.1 ±1 | 19.8% | +1.3 ±0.9 | 1.2 |
 | cutA2-MassacreGirlKnownK | Massacre Girl, Known Killer → Swamp | 35.1% | +0.7 ±0.5 | 18.9% | +0.4 ±0.4 | 1.1 |
 | cutA2-SwiftfootBoots | Swiftfoot Boots → Island | 35.4% | +1 ±0.5 | 18.7% | +0.1 ±0.4 | 1.1 |
 | cutA2-LightningGreaves | Lightning Greaves → Island | 34.9% | +0.5 ±0.6 | 19.1% | +0.6 ±0.4 | 1.1 |
 | cutA2-ForceofWill | Force of Will → Island | 35% | +0.6 ±0.6 | 19% | +0.5 ±0.4 | 1.1 |
 | cutA2-SwanSong | Swan Song → Island | 35.4% | +1 ±0.6 | 18.7% | +0.1 ±0.4 | 1.1 |
 | cutA2-InterceptorShadows | Interceptor, Shadow's Hound → Swamp | 34.7% | +0.3 ±0.5 | 19.2% | +0.7 ±0.4 | 1.0 |
+| cutA2-BasimIbnIshaq | Basim Ibn Ishaq → Swamp | 34.3% | +0 ±1.1 | 19.5% | +1 ±0.9 | 1.0 |
 | cutA2-GrievousWound | Grievous Wound → Swamp | 34.7% | +0.3 ±0.6 | 19.1% | +0.6 ±0.4 | 0.9 |
 | cutA2-BlackWidowDeadlyHu | Black Widow, Deadly Hunter → Swamp | 34.8% | +0.4 ±0.6 | 18.9% | +0.4 ±0.4 | 0.8 |
 | cutA2-BrotherhoodSpy | Brotherhood Spy → Island | 35% | +0.6 ±0.6 | 18.7% | +0.1 ±0.4 | 0.7 |
@@ -135,7 +151,9 @@ Tutor orders (HEIST_TUTOR), each paired against skA7: `tp-ramsesonly` = Ramses o
 | cutA2-MischievousSneakli | Mischievous Sneakling → Island | 34.5% | +0.1 ±0.5 | 18.8% | +0.3 ±0.4 | 0.4 |
 | cutA2-SatorutheInfiltrat | Satoru, the Infiltrator → Swamp | 34.6% | +0.2 ±0.6 | 18.8% | +0.2 ±0.4 | 0.4 |
 | cutA2-AchillesDavenport | Achilles Davenport → Swamp | 34.8% | +0.4 ±0.6 | 18.6% | +0 ±0.4 | 0.4 |
+| cutA2-DeadlyRollick | Deadly Rollick → Swamp | 34.5% | +0.1 ±0.6 | 18.8% | +0.3 ±0.4 | 0.4 |
 | cutA2-FierceGuardianship | Fierce Guardianship → Island | 34.2% | -0.1 ±0.6 | 18.9% | +0.4 ±0.4 | 0.3 |
+| cutA2-CyclonicRift | Cyclonic Rift → Island | 34.4% | +0 ±0.6 | 18.8% | +0.3 ±0.5 | 0.3 |
 | cutA2-EzioBladeofVengean | Ezio, Blade of Vengeance → Swamp | 34.9% | +0.5 ±0.5 | 18.1% | -0.4 ±0.4 | 0.1 |
 | cutA2-Counterspell | Counterspell → Island | 33.9% | -0.4 ±0.5 | 19% | +0.5 ±0.4 | 0.1 |
 | cutA2-ShredderShadowMast | Shredder, Shadow Master → Swamp | 34.5% | +0.1 ±0.6 | 18.4% | -0.1 ±0.4 | 0.0 |
