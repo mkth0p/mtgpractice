@@ -751,8 +751,11 @@
        them (they choose; the bots keep the newest) and puts the rest into the graveyard. */
     async legendRule() {
       let groups = null;
+      // "The legend rule doesn't apply to permanents you control" (Mirror Box, Sakashima of a Thousand Faces)
+      const off = new Set();
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.noLegendRule) off.add(s.controller);
       for (const o of this.battlefield) {
-        if (!o.def.legendary) continue;
+        if (!o.def.legendary || off.has(o.controller)) continue;
         const key = o.controller.id + "|" + o.def.name;
         groups = groups || new Map();
         if (!groups.has(key)) groups.set(key, []);
@@ -832,8 +835,8 @@
       const kind = spec.kind || "creature";
       const out = [];
       if (kind === "spell") {
-        // "target spell" means spells; `orAbility` lets a spec take abilities too (Willbender)
-        for (const it of this.stack) if (it !== spec.self && (it.kind === "spell" || (spec.orAbility && it.kind === "ability")) && (!spec.filter || spec.filter(this, it, p, src))) out.push(it);
+        // "target spell" means spells; `orAbility` lets a spec take activated and triggered abilities too (Willbender, Strionic Resonator)
+        for (const it of this.stack) if (it !== spec.self && (it.kind === "spell" || (spec.orAbility && (it.kind === "ability" || it.kind === "trigger"))) && (!spec.filter || spec.filter(this, it, p, src))) out.push(it);
         return out;
       }
       if (kind === "card") return (spec.from ? spec.from(this, p, src) : []).filter(o => !spec.filter || spec.filter(this, o, p, src));

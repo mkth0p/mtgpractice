@@ -1109,6 +1109,18 @@
   /* Whispersilk Cloak: shroud for the piece removal goes after, unblockable for the attacker that matters; Ramses first */
   H.cloakTarget = (g, p, opts) => { for (const n of ["Ramses, Assassin Lord", "Etrata, Deadly Fugitive", "Bloodletter of Aclazotz"]) { const c = opts.find(x => x.controller === p && x.def.name === n && !g.kw(x, "shroud") && !g.kw(x, "hexproof")); if (c) return c; } return opts.filter(c => c.controller === p).sort((a, b) => valueOf(g, b) - valueOf(g, a))[0]; };
   H.helmTarget = (g, p, opts) => { for (const n of ["Ramses, Assassin Lord", "Etrata, Deadly Fugitive", "Bloodletter of Aclazotz"]) { const c = opts.find(x => x.controller === p && x.def.name === n && !x.isToken); if (c) return c; } return opts.filter(c => c.controller === p && !c.faceDown && !c.isToken).sort((a, b) => valueOf(g, b) - valueOf(g, a))[0]; };
+  /* Blade of Selves: on Etrata when the legend rule is off for us (three Etratas attack), else on the best non-legendary Assassin that connects */
+  H.bladeTarget = (g, p, opts) => {
+    const mine = opts.filter(c => c.controller === p);
+    if (legendOff(g, p)) { const et = mine.find(c => c.def.name === "Etrata, Deadly Fugitive"); if (et) return et; }
+    const ok = mine.filter(c => !c.def.legendary && !c.isToken);
+    return ok.sort((a, b) => (isAssassin(g, b) * 4 + evasive(g, b) * 3 + g.power(b)) - (isAssassin(g, a) * 4 + evasive(g, a) * 3 + g.power(a)))[0];
+  };
+  /* Strionic Resonator: copy Etrata's cloak trigger or a halver's trigger when it's on top of the stack */
+  const RESONATE = /^(Etrata, Deadly Fugitive|Quietus Spike|Virtus the Veiled|Unstoppable Slasher|Scytheclaw|Shredder, Shadow Master|Thieving Amalgam)$/;
+  const resonatable = (g, p, it) => it && it.kind === "trigger" && it.p === p && !it.isCopy && it.o && it.o.def && RESONATE.test(it.o.def.name) && it.trig && it.trig.tr && (it.trig.tr.on === "combatDamagePlayer" || it.trig.tr.on === "upkeep");
+  H.resonatorUse = (g, p, o, ctx) => resonatable(g, p, g.stack[g.stack.length - 1]);
+  H.resonatorPick = (g, p, req) => req.options.filter(it => resonatable(g, p, it)).pop() || req.options[0];
   H.coatTarget = (g, p, opts) => { for (const n of ["Ramses, Assassin Lord", "Etrata, Deadly Fugitive", "Bloodletter of Aclazotz"]) { const c = opts.find(x => x.controller === p && x.def.name === n); if (c) return c; } return opts.filter(c => c.controller === p && c.def.legendary).sort((a, b) => valueOf(g, b) - valueOf(g, a))[0]; };
   /* Force of Despair at the end of an opponent's turn (or on the stack) when what entered this turn is worth it */
   H.despairPlan = (g, p, o, ctx) => {
@@ -1208,6 +1220,68 @@
       cast: (g, p, o, ctx) => { if (!mainWin(ctx.window)) return false; const t = H.copyTarget ? H.copyTarget(g, p, { options: g.creatures(p) }) : null; return t && (/^(Ramses, Assassin Lord|Etrata, Deadly Fugitive)$/.test(t.def.name) || valueOf(g, t) >= 7) ? 28 : false; },
       target: (g, p, req) => (req.purpose === "dupCopy" && H.copyTarget ? H.copyTarget(g, p, req) : undefined)
     }
+  });
+  /* The snowball axis, round 7: the legend rule switched off (Mirror Box, Sakashima of a Thousand Faces) so that copies
+     of Etrata and Ramses stack, Rite of Replication, myriad (Blade of Selves) and a trigger copier (Strionic Resonator). */
+  const NO_LEGEND = { noLegendRule: true, applies: () => false };
+  const legendOff = (g, p) => g.staticSources().some(s => s.controller === p && g.staticsOf(s).some(st => st.noLegendRule));
+  H.legendOff = legendOff;
+  D({
+    name: "Mirror Box", cost: "{3}", type: "Artifact",
+    text: "The \"legend rule\" doesn't apply to permanents you control.\nEach legendary creature you control gets +1/+1.\nEach nontoken creature you control gets +1/+1 for each other creature you control with the same name.",
+    statics: [NO_LEGEND,
+      { applies: (g, s, o) => o.controller === s.controller && g.isCreature(o) && !!o.def.legendary, pt: [1, 1] },
+      { applies: (g, s, o) => o.controller === s.controller && g.isCreature(o) && !o.isToken, pt: (g, s, o) => { const n = g.battlefield.filter(c => c !== o && c.controller === o.controller && g.isCreature(c) && c.def.name === o.def.name).length; return [n, n]; } }],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Sakashima of a Thousand Faces", cost: "{3}{U}", type: "Legendary Creature — Human Rogue", pt: "3/1",
+    text: "You may have Sakashima enter as a copy of another creature you control, except it has Sakashima's other abilities.\nThe \"legend rule\" doesn't apply to permanents you control.",
+    statics: [NO_LEGEND],
+    asEnters: async (g, p, o, item, eo) => {
+      const opts = g.battlefield.filter(c => c !== o && c.controller === p && g.isCreature(c) && !c.faceDown);
+      if (!opts.length) return;
+      const pick = await g.ask(p, { type: "target", prompt: "Sakashima of a Thousand Faces: enter as a copy of", options: opts, optional: true, purpose: "sakashimaCopy", src: o });
+      if (!pick || !opts.includes(pick)) return;
+      const base = MK.copiable(pick);
+      o.def = MK.derive(base, { statics: (base.statics || []).concat([NO_LEGEND]) });
+      g.ts++;
+      log(g, `Sakashima of a Thousand Faces enters as a copy of ${base.name}.`, p, [base.name]);
+    },
+    ai: { priority: 7, hold: (g, p) => !g.creatures(p).some(c => !c.faceDown && /^(Etrata, Deadly Fugitive|Ramses, Assassin Lord)$/.test(c.def.name)), target: (g, p, req) => (req.purpose === "sakashimaCopy" && H.copyTarget ? H.copyTarget(g, p, req) : undefined) }
+  });
+  const riteTarget = (g, p) => {
+    const ok = c => !c.faceDown && (c.controller !== p || !c.def.legendary || legendOff(g, p));
+    if (legendOff(g, p)) { const t = H.copyTarget ? H.copyTarget(g, p, { options: g.creatures(p).filter(ok) }) : null; if (t && /^(Ramses, Assassin Lord|Etrata, Deadly Fugitive)$/.test(t.def.name)) return t; }
+    return g.creatures().filter(ok).sort((a, b) => valueOf(g, b) - valueOf(g, a)).find(c => valueOf(g, c) >= 6) || null;
+  };
+  D({
+    name: "Rite of Replication", cost: "{2}{U}{U}", type: "Sorcery", kicker: "{5}",
+    text: "Kicker {5} (You may pay an additional {5} as you cast this spell.)\nCreate a token that's a copy of target creature. If this spell was kicked, create five of those tokens instead.",
+    spell: {
+      targets: [{ kind: "creature", purpose: "riteCopy", prompt: "Rite of Replication: copy a creature" }],
+      do: (g, ctx) => { const t = ctx.targets[0]; if (!t || !ctx.legal[0] || t.zone !== "battlefield") return; g.copyToken(ctx.p, t, { count: ctx.kicked ? 5 : 1 }); }
+    },
+    ai: { priority: 6, confirm: () => true, cast: (g, p, o, ctx) => { if (!mainWin(ctx.window)) return false; const t = riteTarget(g, p); return t ? (t.controller === p && legendOff(g, p) ? 32 : 24) : false; }, target: (g, p, req) => (req.purpose === "riteCopy" ? (riteTarget(g, p) && req.options.includes(riteTarget(g, p)) ? riteTarget(g, p) : req.options.slice().sort((a, b) => valueOf(g, b) - valueOf(g, a))[0]) : undefined) }
+  });
+  D({
+    name: "Blade of Selves", cost: "{2}", type: "Artifact — Equipment", equip: "{4}",
+    text: "Equipped creature has myriad. (Whenever it attacks, for each opponent other than defending player, you may create a token copy that's tapped and attacking that player or a planeswalker they control. Exile the tokens at end of combat.)\nEquip {4}",
+    note: "The copies always attack the player (never a planeswalker) and are always made.",
+    triggers: [{ on: "attacks", when: (g, s, ev) => !!ev.o && ev.o === s.attachedTo, do: (g, s, ev, { p }) => { for (const q of g.opponents(p)) if (!q.lost && q !== ev.target) g.copyToken(p, ev.o, { tapped: true, attacking: q, exileEoc: true }); } }],
+    ai: { priority: 6, equipTarget: (g, p, opts) => (H.bladeTarget ? H.bladeTarget(g, p, opts) : undefined) }
+  });
+  D({
+    name: "Strionic Resonator", cost: "{2}", type: "Artifact",
+    text: "{2}, {T}: Copy target triggered ability you control. You may choose new targets for the copy. (A triggered ability uses the words \"when,\" \"whenever,\" or \"at.\")",
+    note: "The copy keeps the original's targets.",
+    abilities: [{
+      label: "Copy a triggered ability", cost: "{2}", tap: true,
+      targets: [{ kind: "spell", orAbility: true, purpose: "resonate", prompt: "Strionic Resonator: copy a triggered ability you control", filter: (g, item, p) => item.kind === "trigger" && item.p === p }],
+      do: (g, src, ctx) => { const it = ctx.targets[0]; if (!ctx.legal[0] || !it || !g.stack.includes(it) || it.kind !== "trigger") return; g.stack.push({ kind: "trigger", o: it.o, p: it.p, trig: it.trig, targets: (it.targets || []).slice(), id: "t" + (++g.itemSeq), name: `${it.name} (copy)`, isCopy: true }); log(g, `${src.controller.name} copies ${it.name} (Strionic Resonator).`, src.controller, [src.def.name]); g.bump(); },
+      ai: { inStack: true, use: (g, p, o, ctx) => (ctx.window === "stack" || ctx.window === "ability") && !!H.resonatorUse && H.resonatorUse(g, p, o, ctx) }
+    }],
+    ai: { priority: 5, target: (g, p, req) => (req.purpose === "resonate" && H.resonatorPick ? H.resonatorPick(g, p, req) : undefined) }
   });
   D({
     name: "Patriarch's Bidding", cost: "{3}{B}{B}", type: "Sorcery",

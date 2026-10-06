@@ -520,6 +520,38 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
     put(g, a, "Blood Artist"); await g.settle(); b.life = 6; const r2 = MK.HEIST_HOOKS.altarUse(g, a, alt, { window: "main1" });
     check("altar plan: Blood Artist adds one per death (6 life, 2 per death, three bodies)", MK.HEIST_HOOKS.drainPerDeath(g, a) === 2 && !!r2 && r2.repeat === 3, r2); }
 
+  // Mirror Box, Sakashima of a Thousand Faces, Rite of Replication, Blade of Selves, Strionic Resonator
+  { const { g, a } = table(); put(g, a, "Mirror Box"); const e1 = put(g, a, "Etrata, Deadly Fugitive"); const e2 = put(g, a, "Etrata, Deadly Fugitive"); await g.settle(); await g.legendRule();
+    check("Mirror Box: the legend rule doesn't apply, both Etratas stay", e1.zone === "battlefield" && e2.zone === "battlefield", [e1.zone, e2.zone]);
+    check("Mirror Box: +1/+1 for legendary and +1/+1 per other creature with the same name", g.power(e1) === 3 && g.toughness(e1) === 6, [g.power(e1), g.toughness(e1)]); }
+  { const { g, a } = table(); const e1 = put(g, a, "Etrata, Deadly Fugitive"); const e2 = put(g, a, "Etrata, Deadly Fugitive"); await g.settle(); await g.legendRule();
+    check("legend rule still applies without the box", (e1.zone === "battlefield") !== (e2.zone === "battlefield"), [e1.zone, e2.zone]); }
+  { const { g, a } = table(); lands(g, a, 4); const et = put(g, a, "Etrata, Deadly Fugitive"); const sk = hand(g, a, "Sakashima of a Thousand Faces"); await g.cast(a, sk); await g.settle(); await g.legendRule();
+    check("Sakashima of a Thousand Faces: enters as a second Etrata and both stay", sk.def.name === "Etrata, Deadly Fugitive" && sk.zone === "battlefield" && et.zone === "battlefield" && g.staticsOf(sk).some(st => st.noLegendRule), [sk.def.name, sk.zone, et.zone]); }
+  { const { g, a } = table(); lands(g, a, 9); put(g, a, "Mirror Box"); const ram = put(g, a, "Ramses, Assassin Lord"); const rr = hand(g, a, "Rite of Replication"); await g.cast(a, rr, { targets: [ram], kicked: true }); await g.settle(); await g.legendRule();
+    check("Rite of Replication (kicked) with the legend rule off: six Ramses", named(g, a, "Ramses, Assassin Lord").length === 6, named(g, a, "Ramses, Assassin Lord").length);
+    check("six lords: Ramses is a 9/9 (five other lords, Mirror Box +1 legendary, +5 same name)", g.power(ram) === 4 + 5 + 1 + 5, g.power(ram)); }
+  { const { g, a } = table(); lands(g, a, 4); const oc = put(g, a, "Changeling Outcast"); const rr = hand(g, a, "Rite of Replication"); await g.cast(a, rr, { targets: [oc] }); await g.settle();
+    check("Rite of Replication (unkicked): one copy of a non-legendary creature", named(g, a, "Changeling Outcast").length === 2); }
+  { const { g, a, b, c, d } = table(); lands(g, a, 6); put(g, a, "Etrata, Deadly Fugitive"); const oc = put(g, a, "Changeling Outcast"); const bl = put(g, a, "Blade of Selves"); await g.settle();
+    await equip(g, a, bl, oc); await g.settle();
+    check("Blade of Selves: equipped on the Outcast", bl.attachedTo === oc);
+    await attack(g, a, [{ attacker: oc, target: b }]);
+    check("Blade of Selves: myriad hit all three players", b.life === 39 && c.life === 39 && d.life === 39, [b.life, c.life, d.life]);
+    check("Blade of Selves: the copies are exiled at end of combat", named(g, a, "Changeling Outcast").length === 1, named(g, a, "Changeling Outcast").length);
+    check("Blade of Selves + Etrata: three cloaks from one attack", g.creatures(a).filter(o => o.faceDown).length === 3, g.creatures(a).filter(o => o.faceDown).length); }
+  { const { g, a, b } = table(); lands(g, a, 2); const et = put(g, a, "Etrata, Deadly Fugitive"); const oc = put(g, a, "Changeling Outcast"); const sr = put(g, a, "Strionic Resonator"); await g.settle();
+    const item = { kind: "trigger", o: et, p: a, trig: { src: et, tr: et.def.triggers[0], ev: { src: oc, p: b }, controller: a }, targets: [], id: "t-test", name: "Etrata, Deadly Fugitive (trigger)" };
+    g.stack.push(item);
+    check("Strionic Resonator: the brain copies Etrata's cloak trigger on the stack", MK.HEIST_HOOKS.resonatorUse(g, a, sr, { window: "stack" }) === true);
+    const ok = await g.activate(a, sr, g.abilitiesOf(sr).find(x => x.key !== "equip").i, { targets: [item] }); check("Strionic Resonator: the ability targets a trigger on the stack", ok === true, ok); await g.resolveDown(0);
+    check("Strionic Resonator: two cloaks from one hit", g.creatures(a).filter(o => o.faceDown).length === 2 && sr.tapped, [g.creatures(a).filter(o => o.faceDown).length, sr.tapped]); }
+  { const { g, a } = table(); put(g, a, "Etrata, Deadly Fugitive"); const oc = put(g, a, "Changeling Outcast"); put(g, a, "Hired Poisoner"); await g.settle();
+    const t = MK.HEIST_HOOKS.bladeTarget(g, a, g.creatures(a));
+    check("Blade of Selves target: a non-legendary evasive Assassin, not Etrata", t === oc, t && t.def.name);
+    put(g, a, "Mirror Box"); await g.settle();
+    check("Blade of Selves target: Etrata once the legend rule is off", MK.HEIST_HOOKS.bladeTarget(g, a, g.creatures(a)).def.name === "Etrata, Deadly Fugitive"); }
+
   console.log(`${passed} checks passed, ${failed} failed.`);
   process.exitCode = failed ? 1 : 0;
 })().catch(e => { console.error(e); process.exitCode = 1; });
