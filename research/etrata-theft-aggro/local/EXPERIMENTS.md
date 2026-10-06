@@ -288,3 +288,13 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | pk2-evasion | Kindred Discovery → Levitation; Swiftfoot Boots → Archetype of Imagination; Mana Drain → Training Grounds; Interceptor, Shadow's Hound → Swamp | 39.2% | +2.6 ±0.9 | 23.4% | +2 ±0.7 | 4.6 |
 | pk2-reach | Kindred Discovery → Hatred; Swiftfoot Boots → Blood Tribute; Mana Drain → Exsanguinate; Interceptor, Shadow's Hound → Rush of Dread | 37.5% | +0.9 ±0.8 | 22.3% | +0.9 ±0.6 | 1.8 |
 
+| 56 | pk3-* (on the 38-land list) | `lists/v2d.txt` = v2c with the six cuts → basics (38 lands); four more cuts for lands (42), the recursion and evasion ideas in those four slots, and the closer list with the same six cuts (`lists/v2d-vamp.txt`) | | | pk2-cuts6 / v2c-vamp | | | 42 lands +0.2 / −0.2 (the mana is saturated at 38); recursion at 38 lands +1.7 / −0.8, evasion +0.9 / −1.9 (nothing); **the closer list with the cuts 47.6% / 27.1%** (+5.2 / +3.8), winning 37% of its games without Ramses |
+
+### Round 3 on the 38-land list (2,016 paired games per field; the first three vs pk2-cuts6, the last vs v2c-vamp)
+| Run | Swap | B2 win | Δ B2 | B4 win | Δ B4 | Δ sum |
+|---|---|---|---|---|---|---|
+| pk3-vamp38 |  | 47.6% | +5.2 ±1.5 | 27.1% | +3.8 ±1.3 | 9.0 |
+| pk3-recur38 | Force of Will → Patriarch's Bidding; Cyclonic Rift → Kindred Dominance; Force of Negation → Shredder, Shadow Master; Mystic Remora → Auton Soldier | 44.7% | +1.7 ±1.5 | 25.4% | -0.8 ±1.3 | 0.9 |
+| pk3-lands42 | Force of Will → Island; Cyclonic Rift → Island; Force of Negation → Swamp; Mystic Remora → Swamp | 43.2% | +0.2 ±1.5 | 26% | -0.2 ±1.3 | 0.0 |
+| pk3-evasion38 | Force of Will → Levitation; Cyclonic Rift → Archetype of Imagination; Force of Negation → Training Grounds; Mystic Remora → Thieving Amalgam | 43.9% | +0.9 ±1.5 | 24.4% | -1.9 ±1.3 | -1.0 |
+
