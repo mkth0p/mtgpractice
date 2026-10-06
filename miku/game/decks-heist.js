@@ -1062,7 +1062,7 @@
       const q = a.combat.attacking;
       if (q.lost) continue;
       const through = c.attackers.filter(x => x.controller === p && x.combat && !x.combat.wasBlocked && x.combat.attacking === q);
-      const keep = ramses && through.some(x => isAssassin(g, x)) ? 1 : 6;
+      const keep = ramses && through.some(x => isAssassin(g, x)) ? 1 : 8;
       let lo = 1, hi = p.life - keep;
       if (hi < lo || lifeAfter(g, p, q, through, x => (x === a ? hi : 0)) > 0) continue;
       while (lo < hi) { const mid = (lo + hi) >> 1; if (lifeAfter(g, p, q, through, x => (x === a ? mid : 0)) <= 0) hi = mid; else lo = mid + 1; }
@@ -1844,9 +1844,29 @@
     const all = new Set(able);
     return opps.some(q => outcome(g, p, q, able, all).kill) ? { type: "cast", card: a.card, mode: 1, maxTries: 1 } : null;
   }
+  /* HEIST_ON=saveCounter: with one counter in hand, it waits for a wipe, for removal aimed at Ramses or Etrata, or for
+     a spell that wins; creature spells (opponents' commanders) are let through. With two or more, the generic rule. */
+  function counterPolicy(g, p, ctx) {
+    if (!ON.has("saveCounter") || ctx.window !== "stack") return null;
+    const top = ctx.top || g.stack[g.stack.length - 1];
+    if (!top || top.kind !== "spell" || top.p === p) return null;
+    const held = p.hand.filter(c => c.def.ai && c.def.ai.counter).length;
+    if (held >= 2) return null;
+    const d = top.o.def, ai = d.ai || {};
+    const mass = AI().massHarm ? AI().massHarm(g, p, top) : null;
+    const key = (top.targets || []).some(t => t && !g.isPlayer(t) && t.controller === p && (t.isCommander || KEY.has(t.def.name)));
+    const must = !!mass || key || ai.finisher || (AI().comboThreat && AI().comboThreat(g, top.p) >= 10);
+    if (must) {
+      const c = (ctx.actions || []).filter(a => a.type === "cast" && a.card.def.ai && a.card.def.ai.counter && g.legalTarget(p, (a.card.def.spell && a.card.def.spell.targets || [{ kind: "spell" }])[0], top, a.card)).sort((a, b) => (b.alt || 0) - (a.alt || 0) || a.card.def.mv - b.card.def.mv)[0];
+      return c ? { type: "cast", card: c.card, alt: c.alt, targets: [top], maxTries: 1 } : null;
+    }
+    mem(p).noCounterItem = top.id;
+    return { type: "pass" };
+  }
   function heistPlan(g, p, ctx) {
     const win = ctx.window, acts = ctx.actions || [];
     if (!brainOn(p)) return null;
+    if (win === "stack") { const r = counterPolicy(g, p, ctx); if (r) return r; }
     if (win === "combat" && g.active === p && g.phase === "damage") return combatFlips(g, p, acts);
     if ((win === "main1" || win === "beginCombat") && g.active === p) { const r = polarityPlan(g, p, acts); if (r) return r; }
     if (win === "main1" && g.active === p) { const a = precombat(g, p, acts) || (H.flipFirst ? flipPlan(g, p, acts, win) : null) || evasionPlan(g, p, acts) || transmutePlan(g, p, acts); if (a) return a; }
@@ -1898,7 +1918,31 @@
     if (liveOpps(g, p).some(q => outcome(g, p, q, able).kill)) return undefined;
     return false;
   }
+  /* Hatred (and Blood Tribute with Bloodletter): when the kill is live this turn, main-phase-one casts that would use
+     the mana wait, so the spell can be cast after blockers (Hatred) or after the attack (Blood Tribute). */
+  function killSpellLive(g, p) {
+    if (!brainOn(p) || g.active !== p) return 0;
+    const mana = manaNow(g, p);
+    const hat = p.hand.find(c => c.def.name === "Hatred");
+    if (hat && mana >= 5) {
+      const ramses = onBf(g, p, "Ramses, Assassin Lord");
+      const able = g.creatures(p).filter(c => g.canAttack(c, p) && g.power(c) > 0 && (evasive(g, c) || g.ch(c).unblockable));
+      for (const q of liveOpps(g, p)) for (const a of able) {
+        const open = !g.creatures(q).some(b => !b.tapped && g.canBlock(b, a));
+        if (!open) continue;
+        const keep = ramses && isAssassin(g, a) ? 1 : 8, x = p.life - keep;
+        if (x >= 1 && lifeAfter(g, p, q, [a], c => (c === a ? x : 0)) <= 0) return 5;
+      }
+    }
+    const bt = p.hand.find(c => c.def.name === "Blood Tribute" || c.def.name === "Rush of Dread");
+    if (bt && onBf(g, p, "Bloodletter of Aclazotz") && mana >= bt.def.mv + 2) return bt.def.mv + 2;
+    return 0;
+  }
   function castHold(g, p, o, ctx) {
+    if (ON.has("hatredHold") || !OFF.has("hatredHold")) {
+      const need = ctx.window === "main1" && g.active === p && o.zone === "hand" && !/^(Hatred|Blood Tribute|Rush of Dread)$/.test(o.def.name) ? killSpellLive(g, p) : 0;
+      if (need && manaNow(g, p) - o.def.mv < need && !(o.def.types.includes("Land"))) return false;
+    }
     const hb = holdBoard(g, p, o, ctx);
     if (hb !== undefined) return hb;
     if (!ON.has("holdRamses") || o.def.name !== "Ramses, Assassin Lord" || o.zone !== "hand") return undefined;
