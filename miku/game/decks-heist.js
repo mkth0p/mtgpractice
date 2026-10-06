@@ -1561,8 +1561,12 @@
     }
     // 3. Etrata herself: only where no untapped blocker can kill her (her own hint), and never as a chump
     // 4. keep blockers home when the table can hit us hard
-    const threatIn = Math.max(0, ...opps.map(q => g.creatures(q).filter(c => !g.kw(c, "defender")).reduce((s, c) => s + hitOf(g, c), 0)));
-    if (p.life <= threatIn * 1.1 + 3) {
+    const powerOf = q => g.creatures(q).filter(c => !g.kw(c, "defender")).reduce((s, c) => s + hitOf(g, c), 0);
+    const threatIn = Math.max(0, ...opps.map(powerOf));
+    // HEIST_ON=defend2: the whole table's crack-back counts, not only the biggest opponent's
+    const total = opps.reduce((t, q) => t + powerOf(q), 0);
+    const danger = ON.has("defend2") ? p.life <= total * 0.6 + 4 : p.life <= threatIn * 1.1 + 3;
+    if (danger) {
       const need = Math.max(1, Math.ceil(opps.reduce((n, q) => n + g.creatures(q).length, 0) / 4));
       let homeN = g.creatures(p).filter(c => !decl.some(d => d.attacker === c) && !c.tapped && !g.ch(c).cantBlock).length;
       const pull = decl.filter(d => !g.kw(d.attacker, "vigilance") && !g.ch(d.attacker).cantBlock).sort((x, y) => (blockWorth(g, y.attacker) - hitValue(g, p, y.attacker, y.target) * 0.4) - (blockWorth(g, x.attacker) - hitValue(g, p, x.attacker, x.target) * 0.4));

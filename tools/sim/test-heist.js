@@ -453,7 +453,8 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
     check("Mari: the changeling Assassin has deathtouch", g.kw(oc, "deathtouch"));
     await attack(g, a, [{ attacker: pt, target: b }, { attacker: oc, target: b }]);
     // Pulse Tracker: each opponent 1; Within Range: b loses 2 (two attackers at b); Blightfang: the Outcast's attack drains each opponent 1 (Pulse Tracker has no deathtouch); damage: 1 + 1 to b
-    check("attack drains: b loses 1+2+1 and 2 damage, c and d lose 2 each, we gain 1", b.life === 34 && c.life === 38 && d.life === 38 && a.life === 41, [b.life, c.life, d.life, a.life]); }
+    // Pulse Tracker is a Rogue, so Mari gives it deathtouch too: Blightfang drains for both attackers
+    check("attack drains: b loses 1 (Tracker) + 2 (Within Range) + 2 (Blightfang) + 2 damage; c and d lose 3; we gain 2", b.life === 33 && c.life === 37 && d.life === 37 && a.life === 42, [b.life, c.life, d.life, a.life]); }
 
   // the engine rules: "triggers an additional time" stays with its creature type, anyColor, castEntry
   { const { g, a } = table(); const rt = put(g, a, "Roaming Throne"); await g.settle();
