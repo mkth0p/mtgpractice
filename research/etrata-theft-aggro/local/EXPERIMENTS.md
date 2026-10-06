@@ -205,3 +205,75 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | 51 | v1b-blitz | `lists/v1b-blitz.txt`: v1-blitz with Esper Sentinel (white, illegal) → Faerie Seer | 31.4% ±1.0 | 19.0% ±0.9 | v2c-base | −5.2 ±1.5 | −2.4 ±1.2 | |
 | 52 | v1b-confirm | **confirmation of v1b, 5,040 games per field** | **31.1% ±0.7** | **18.9% ±0.6** | v2c-confirm | −4.9 ±0.9 | −2.1 ±0.8 | avg win round 9.0 / 8.1; 5.4 cards stolen a game; kills: combat 66%, on-hit 24%, drain 9% |
 | 53 | v2c-vamp-confirm | **confirmation of v2c-vamp, 5,040 games per field** | **41.8% ±0.7** | **23.3% ±0.6** | v2c-confirm | +5.8 ±0.9 | +2.4 ±0.8 | avg win round 9.1 / 7.9; kills vs precons: combat 44%, drain 37%, on-hit 7%, other players 12%; the last kill: Ramses' win 50%, drain 30%, combat 15% |
+| 54 | cut2c-* (cut sweep of v2c) | each of the 66 nonland cards of `lists/v2c.txt` replaced by a basic land (table below) | | | v2c-base | | | best cuts: Kindred Discovery +2.2 / +0.2 (it decks the deck), Swiftfoot Boots +1.6 / +0.8, Mana Drain +1.4 / +0.8, Interceptor +1.1 / +0.7, Obelisk of Urd +1.3 / +0.5, Ghostly Flicker +1.4 / +0.3; clearest keeps: Bloodletter −4.4 / −2.8, Demonic Tutor −2.2 / −0.6, Sol Ring −0.7 / −1.5, Slither Blade −0.7 / −1.3, Eldrazi Monument −1.0 / −0.8, Pyre of Heroes −0.3 / −1.4 |
+
+### Cut sweep of the finalist v2c (each card → a basic land; 2,016 paired games per field vs v2c-base; positive = better without the card)
+| Run | Swap | B2 win | Δ B2 | B4 win | Δ B4 | Δ sum |
+|---|---|---|---|---|---|---|
+| cut2c-KindredDiscovery | Kindred Discovery → Island | 38.8% | +2.2 ±0.5 | 21.6% | +0.2 ±0.4 | 2.4 |
+| cut2c-SwiftfootBoots | Swiftfoot Boots → Island | 38.2% | +1.6 ±0.6 | 22.2% | +0.8 ±0.5 | 2.4 |
+| cut2c-ManaDrain | Mana Drain → Island | 38% | +1.4 ±0.5 | 22.2% | +0.8 ±0.4 | 2.2 |
+| cut2c-InterceptorShadowsHo | Interceptor, Shadow's Hound → Swamp | 37.7% | +1.1 ±0.6 | 22.1% | +0.7 ±0.5 | 1.8 |
+| cut2c-ObeliskofUrd | Obelisk of Urd → Island | 37.9% | +1.3 ±0.6 | 21.9% | +0.5 ±0.4 | 1.8 |
+| cut2c-GhostlyFlicker | Ghostly Flicker → Island | 38% | +1.4 ±0.5 | 21.7% | +0.3 ±0.4 | 1.7 |
+| cut2c-ForceofWill | Force of Will → Island | 37.5% | +0.9 ±0.5 | 22% | +0.6 ±0.4 | 1.5 |
+| cut2c-CyclonicRift | Cyclonic Rift → Island | 37.6% | +1 ±0.6 | 21.9% | +0.5 ±0.5 | 1.5 |
+| cut2c-MysticRemora | Mystic Remora → Island | 37.9% | +1.3 ±0.6 | 21.5% | +0.1 ±0.5 | 1.4 |
+| cut2c-ForceofNegation | Force of Negation → Island | 37.4% | +0.8 ±0.5 | 22% | +0.6 ±0.5 | 1.4 |
+| cut2c-SnuffOut | Snuff Out → Swamp | 36.9% | +0.2 ±0.6 | 22.6% | +1.2 ±0.5 | 1.4 |
+| cut2c-QuietusSpike | Quietus Spike → Island | 37% | +0.3 ±0.6 | 22.4% | +1 ±0.5 | 1.3 |
+| cut2c-RoshanHiddenMagister | Roshan, Hidden Magister → Swamp | 37.4% | +0.7 ±0.6 | 22% | +0.6 ±0.4 | 1.3 |
+| cut2c-SparkDouble | Spark Double → Island | 37.4% | +0.8 ±0.5 | 21.7% | +0.3 ±0.4 | 1.1 |
+| cut2c-Skullclamp | Skullclamp → Island | 37.3% | +0.7 ±0.6 | 21.8% | +0.4 ±0.4 | 1.1 |
+| cut2c-DarkConfidant | Dark Confidant → Swamp | 37.4% | +0.8 ±0.6 | 21.5% | +0.1 ±0.5 | 0.9 |
+| cut2c-LeylineofTransformat | Leyline of Transformation → Island | 37.1% | +0.4 ±0.6 | 21.9% | +0.5 ±0.4 | 0.9 |
+| cut2c-DiabolicIntent | Diabolic Intent → Swamp | 37.5% | +0.8 ±0.6 | 21.4% | +0 ±0.4 | 0.8 |
+| cut2c-CoatofArms | Coat of Arms → Island | 37.4% | +0.7 ±0.6 | 21.5% | +0.1 ±0.4 | 0.8 |
+| cut2c-SakashimatheImpostor | Sakashima the Impostor → Island | 36.8% | +0.2 ±0.6 | 21.9% | +0.5 ±0.5 | 0.7 |
+| cut2c-LightningGreaves | Lightning Greaves → Island | 37% | +0.3 ±0.5 | 21.8% | +0.4 ±0.4 | 0.7 |
+| cut2c-LotusPetal | Lotus Petal → Island | 37% | +0.3 ±0.5 | 21.8% | +0.4 ±0.5 | 0.7 |
+| cut2c-RhysticStudy | Rhystic Study → Island | 37.4% | +0.7 ±0.6 | 21.3% | +0 ±0.5 | 0.7 |
+| cut2c-Reanimate | Reanimate → Swamp | 37.4% | +0.8 ±0.6 | 21.2% | -0.2 ±0.5 | 0.6 |
+| cut2c-AshnodsAltar | Ashnod's Altar → Island | 37.5% | +0.9 ±0.5 | 21% | -0.4 ±0.4 | 0.5 |
+| cut2c-ArcaneSignet | Arcane Signet → Island | 37.3% | +0.6 ±0.5 | 21.3% | -0.1 ±0.5 | 0.5 |
+| cut2c-TalismanofDominance | Talisman of Dominance → Island | 37.4% | +0.8 ±0.6 | 21% | -0.3 ±0.5 | 0.5 |
+| cut2c-HiredPoisoner | Hired Poisoner → Swamp | 36% | -0.6 ±0.6 | 22.4% | +1 ±0.5 | 0.4 |
+| cut2c-RoamingThrone | Roaming Throne → Island | 36% | -0.6 ±0.6 | 22.4% | +1 ±0.5 | 0.4 |
+| cut2c-DemonicConsultation | Demonic Consultation → Swamp | 36.8% | +0.2 ±0.6 | 21.5% | +0.1 ±0.6 | 0.3 |
+| cut2c-GrimTutor | Grim Tutor → Swamp | 37% | +0.4 ±0.6 | 21.2% | -0.1 ±0.5 | 0.3 |
+| cut2c-SwanSong | Swan Song → Island | 37.5% | +0.8 ±0.5 | 20.9% | -0.5 ±0.4 | 0.3 |
+| cut2c-RenoandRude | Reno and Rude → Swamp | 36.6% | +0 ±0.6 | 21.7% | +0.3 ±0.5 | 0.3 |
+| cut2c-MaritheKillingQuill | Mari, the Killing Quill → Swamp | 36.6% | +0 ±0.6 | 21.7% | +0.3 ±0.5 | 0.3 |
+| cut2c-AchillesDavenport | Achilles Davenport → Swamp | 37.5% | +0.9 ±0.6 | 20.7% | -0.7 ±0.4 | 0.2 |
+| cut2c-VirtustheVeiled | Virtus the Veiled → Swamp | 36.5% | -0.1 ±0.6 | 21.7% | +0.3 ±0.5 | 0.2 |
+| cut2c-TetsukoUmezawaFugiti | Tetsuko Umezawa, Fugitive → Island | 37.2% | +0.6 ±0.6 | 21% | -0.4 ±0.5 | 0.2 |
+| cut2c-ArcaneAdaptation | Arcane Adaptation → Island | 36.8% | +0.1 ±0.6 | 21.3% | +0 ±0.5 | 0.1 |
+| cut2c-Preordain | Preordain → Island | 36.8% | +0.1 ±0.6 | 21.2% | -0.1 ±0.5 | 0.0 |
+| cut2c-TeferisVeil | Teferi's Veil → Island | 36.9% | +0.2 ±0.5 | 21% | -0.3 ±0.4 | -0.1 |
+| cut2c-FierceGuardianship | Fierce Guardianship → Island | 36.1% | -0.5 ±0.5 | 21.8% | +0.4 ±0.4 | -0.1 |
+| cut2c-SatorutheInfiltrator | Satoru, the Infiltrator → Swamp | 36.6% | +0 ±0.6 | 21.3% | -0.1 ±0.5 | -0.1 |
+| cut2c-TheyCamefromthePipes | They Came from the Pipes → Island | 36.4% | -0.2 ±0.6 | 21.5% | +0.1 ±0.4 | -0.1 |
+| cut2c-MaskwoodNexus | Maskwood Nexus → Island | 35.9% | -0.7 ±0.6 | 21.9% | +0.5 ±0.4 | -0.2 |
+| cut2c-ChangelingOutcast | Changeling Outcast → Swamp | 36.7% | +0 ±0.6 | 21.1% | -0.3 ±0.5 | -0.3 |
+| cut2c-Brainstorm | Brainstorm → Island | 36.3% | -0.3 ±0.6 | 21.3% | +0 ±0.5 | -0.3 |
+| cut2c-ChromeMox | Chrome Mox → Island | 36.4% | -0.2 ±0.6 | 21.2% | -0.1 ±0.5 | -0.3 |
+| cut2c-BrotherhoodSpy | Brotherhood Spy → Island | 36.9% | +0.2 ±0.6 | 20.7% | -0.6 ±0.5 | -0.4 |
+| cut2c-VeinRipper | Vein Ripper → Swamp | 35.3% | -1.3 ±0.5 | 22.3% | +0.9 ±0.5 | -0.4 |
+| cut2c-DesmondMiles | Desmond Miles → Swamp | 36.1% | -0.5 ±0.6 | 21.5% | +0.1 ±0.4 | -0.4 |
+| cut2c-ReversethePolarity | Reverse the Polarity → Island | 36.1% | -0.5 ±0.5 | 21.1% | -0.2 ±0.4 | -0.7 |
+| cut2c-DeadlyRollick | Deadly Rollick → Swamp | 36.5% | -0.1 ±0.6 | 20.7% | -0.6 ±0.5 | -0.7 |
+| cut2c-ImperialSeal | Imperial Seal → Swamp | 35.8% | -0.8 ±0.7 | 21.5% | +0.1 ±0.5 | -0.7 |
+| cut2c-MothdustChangeling | Mothdust Changeling → Island | 35.8% | -0.8 ±0.6 | 21.3% | +0 ±0.5 | -0.8 |
+| cut2c-BasimIbnIshaq | Basim Ibn Ishaq → Swamp | 35.8% | -0.8 ±0.6 | 21.4% | +0 ±0.5 | -0.8 |
+| cut2c-DarkRitual | Dark Ritual → Swamp | 36.7% | +0 ±0.6 | 20.6% | -0.8 ±0.5 | -0.8 |
+| cut2c-Hullcarver | Hullcarver → Swamp | 36.5% | -0.1 ±0.6 | 20.6% | -0.8 ±0.5 | -0.9 |
+| cut2c-VampiricTutor | Vampiric Tutor → Swamp | 35.6% | -1 ±0.6 | 21.3% | +0 ±0.5 | -1.0 |
+| cut2c-MoxAmber | Mox Amber → Island | 35.9% | -0.7 ±0.5 | 20.9% | -0.4 ±0.4 | -1.1 |
+| cut2c-UnstoppableSlasher | Unstoppable Slasher → Swamp | 36% | -0.6 ±0.6 | 20.6% | -0.7 ±0.5 | -1.3 |
+| cut2c-PyreofHeroes | Pyre of Heroes → Island | 36.3% | -0.3 ±0.6 | 19.9% | -1.4 ±0.5 | -1.7 |
+| cut2c-EldraziMonument | Eldrazi Monument → Island | 35.6% | -1 ±0.5 | 20.5% | -0.8 ±0.4 | -1.8 |
+| cut2c-SlitherBlade | Slither Blade → Island | 35.9% | -0.7 ±0.6 | 20% | -1.3 ±0.5 | -2.0 |
+| cut2c-SolRing | Sol Ring → Island | 35.9% | -0.7 ±0.6 | 19.9% | -1.5 ±0.5 | -2.2 |
+| cut2c-DemonicTutor | Demonic Tutor → Swamp | 34.4% | -2.2 ±0.6 | 20.8% | -0.6 ±0.5 | -2.8 |
+| cut2c-BloodletterofAclazot | Bloodletter of Aclazotz → Swamp | 32.2% | -4.4 ±0.8 | 18.6% | -2.8 ±0.6 | -7.2 |
+
