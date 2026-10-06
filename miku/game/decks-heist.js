@@ -1098,6 +1098,8 @@
     mem(p).drainAt = q;
     return { repeat: Math.ceil(q.life / 2) };
   };
+  /* Whispersilk Cloak: shroud for the piece removal goes after, unblockable for the attacker that matters; Ramses first */
+  H.cloakTarget = (g, p, opts) => { for (const n of ["Ramses, Assassin Lord", "Etrata, Deadly Fugitive", "Bloodletter of Aclazotz"]) { const c = opts.find(x => x.controller === p && x.def.name === n && !g.kw(x, "shroud") && !g.kw(x, "hexproof")); if (c) return c; } return opts.filter(c => c.controller === p).sort((a, b) => valueOf(g, b) - valueOf(g, a))[0]; };
   H.coatTarget = (g, p, opts) => { for (const n of ["Ramses, Assassin Lord", "Etrata, Deadly Fugitive", "Bloodletter of Aclazotz"]) { const c = opts.find(x => x.controller === p && x.def.name === n); if (c) return c; } return opts.filter(c => c.controller === p && c.def.legendary).sort((a, b) => valueOf(g, b) - valueOf(g, a))[0]; };
   /* Force of Despair at the end of an opponent's turn (or on the stack) when what entered this turn is worth it */
   H.despairPlan = (g, p, o, ctx) => {
@@ -1195,6 +1197,20 @@
       do: (g, s, ev, { p }) => { const list = g.creatures(p).filter(c => c.combat && c.combat.attacking); if (list.length) g.phaseOut(list); }
     }],
     ai: { priority: 7 }
+  });
+
+
+  D({
+    name: "Whispersilk Cloak", cost: "{3}", type: "Artifact — Equipment", equip: "{2}",
+    text: "Equipped creature can't be blocked and has shroud. (It can't be the target of spells or abilities.)\nEquip {2}",
+    statics: [{ applies: (g, s, o) => s.attachedTo === o, unblockable: true, kw: ["shroud"] }],
+    ai: { priority: 6, equipTarget: (g, p, opts) => (H.cloakTarget ? H.cloakTarget(g, p, opts) : undefined) }
+  });
+  D({
+    name: "Darksteel Plate", cost: "{3}", type: "Artifact — Equipment", equip: "{2}", keywords: ["indestructible"],
+    text: "Indestructible\nEquipped creature has indestructible.\nEquip {2}",
+    statics: [{ applies: (g, s, o) => s.attachedTo === o, kw: ["indestructible"] }],
+    ai: { priority: 6, equipTarget: (g, p, opts) => (H.coatTarget ? H.coatTarget(g, p, opts) : undefined) }
   });
 
   /* ================================================================ equipment and artifacts */
@@ -1954,7 +1970,7 @@
      the turn she's cast), or when Boots/Greaves are out, or from round 6. The pilots: "cast her only when an
      Assassin can connect that turn", she is kill-on-sight. */
   function etrataLate(g, p, o, ctx) {
-    if (!ON.has("etrataLate") || !o.isCommander || o.zone !== "command" || o.def.name !== "Etrata, Deadly Fugitive") return undefined;
+    if (OFF.has("etrataLate") || !o.isCommander || o.zone !== "command" || o.def.name !== "Etrata, Deadly Fugitive") return undefined;
     if (g.round >= 6 || g.controlled(p, x => /^(Swiftfoot Boots|Lightning Greaves)$/.test(x.def.name)).length) return undefined;
     if (ctx.window !== "main1") return false;
     const E = EB();

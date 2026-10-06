@@ -464,6 +464,13 @@ const named = (g, p, n) => g.battlefield.filter(o => o.controller === p && o.def
     g.phaseIn(a);
     check("Teferi's Veil: it phases in at our untap", hp.zone === "battlefield", hp.zone); }
 
+
+  // Whispersilk Cloak and Darksteel Plate on Ramses
+  { const { g, a } = table(); lands(g, a, 4); const ram = put(g, a, "Ramses, Assassin Lord"); const wc = put(g, a, "Whispersilk Cloak"); const dp = put(g, a, "Darksteel Plate"); await g.settle();
+    await equip(g, a, wc, ram); await g.settle(); await equip(g, a, dp, ram); await g.settle();
+    check("Whispersilk Cloak: shroud and unblockable", g.kw(ram, "shroud") && g.ch(ram).unblockable && !g.canTarget(a, ram));
+    g.destroy(ram); check("Darksteel Plate: indestructible", ram.zone === "battlefield"); }
+
   // the engine rules: "triggers an additional time" stays with its creature type, anyColor, castEntry
   { const { g, a } = table(); const rt = put(g, a, "Roaming Throne"); await g.settle();
     check("triggerExtra: a non-Assassin's trigger isn't doubled", (() => { const n = g.staticsOf(rt).find(st => st.triggerExtra).triggerExtra(g, rt, { src: put(g, a, "Llanowar Elves"), controller: a }); return n === 0; })()); }
