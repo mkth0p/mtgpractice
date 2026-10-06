@@ -1,4 +1,4 @@
-# Etrata heist aggro: card research (generated 2026-10-05)
+# Etrata heist aggro: card research (generated 2026-10-06)
 
 Every card below was checked against Scryfall's bulk data of 2026-10-05 (`default_cards` and `rulings`, read offline by `local/scryfall/bulk-index.js`):
 - **Oracle text** is copied from that data, character for character.
@@ -637,7 +637,7 @@ Stolen 2/2s and 1/1 Assassins need to connect.
 ### Teferi's Veil
 - {1}{U} · Enchantment · not a Game Changer · Commander: legal
 - Price: $1.06 (Weatherlight (WTH 53)): https://scryfall.com/card/wth/53/teferis-veil · https://www.tcgplayer.com/product/6110
-- Engine: not in the engine
+- Engine: defined in `decks-heist.js` (simplified: Written as one trigger at the end of combat: every creature of yours that attacked phases out.)
 - Why: attackers phase out after combat (not built: they couldn't block)
 
 > Whenever a creature you control attacks, it phases out at end of combat. (While it's phased out, it's treated as though it doesn't exist. It phases in before you untap during your next untap step.)
@@ -839,4 +839,642 @@ The trace shows the deck too slow on turns 1 to 3.
 
 - Ruling (2018-03-16): If a creature can't attack for any reason (such as being tapped or having come under that player's control that turn), then it doesn't attack. If there's a cost associated with having a creature attack, the player isn't forced to pay that cost, so it doesn't have to attack in that case either.
 - Ruling (2018-03-16): The controller of each attacking creature still chooses which player or planeswalker that creature attacks.
+
+## Typal anthems, lords and copies (the Assassins and the stolen 2/2s grow together)
+
+The pilots' snowball plan: with a type-changer out, every face-down 2/2 is an Assassin, so one anthem lifts the whole stolen army; the copies make a second Etrata (another cloak per hit) or a second Ramses.
+
+### Coat of Arms
+- {5} · Artifact · not a Game Changer · Commander: legal
+- Price: $12.24 (Secret Lair Drop (SLD 2682)): https://scryfall.com/card/sld/2682/coat-of-arms · https://www.tcgplayer.com/product/704936
+- Engine: defined in `decks-heist.js`
+- Why: every creature grows for each other creature sharing a type: with Maskwood Nexus or Arcane Adaptation out the whole board shares Assassin
+
+> Each creature gets +1/+1 for each other creature on the battlefield that shares at least one creature type with it. (For example, if two Goblin Warriors and a Goblin Shaman are on the battlefield, each gets +2/+2.)
+
+- Ruling (2004-10-04): If you have a creature with more than one creature type, count all creatures which have either creature type.
+- Ruling (2004-10-04): If a creature has more than one creature type, and one of those types matches the creature you are calculating for, then count that creature. Only one type needs to match in order to get counted.
+- Ruling (2009-10-01): Sharing multiple creature types doesn't give an additional bonus. Coat of Arms counts creatures, not creature types.
+
+### Obelisk of Urd
+- {6} · Artifact · not a Game Changer · Commander: legal
+- Price: $2.79 (Zendikar Rising Commander (ZNC 115)): https://scryfall.com/card/znc/115/obelisk-of-urd · https://www.tcgplayer.com/product/222383
+- Engine: defined in `decks-heist.js` (simplified: The chosen type is always Assassin.)
+- Why: convoke anthem for the chosen type; the Assassins tap to cast it the turn after they land
+
+> Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)
+> As this artifact enters, choose a creature type.
+> Creatures you control of the chosen type get +2/+2.
+
+- Ruling (2014-07-18): The choice of creature type is made as Obelisk of Urd enters the battlefield. Players can't respond to this choice. The bonus starts applying immediately.
+- Ruling (2014-07-18): You must choose an existing creature type.
+- Ruling (2024-01-12): When calculating a spell's total cost, include any alternative costs, additional costs, or anything else that increases or reduces the cost to cast the spell. Convoke applies after the total cost is calculated. Convoke doesn't change a spell's mana cost or mana value.
+
+### Kindred Dominance
+- {5}{B}{B} · Sorcery · not a Game Changer · Commander: legal
+- Price: $5.15 (Marvel Super Heroes Commander (MSC 156)): https://scryfall.com/card/msc/156/kindred-dominance · https://www.tcgplayer.com/product/698010
+- Engine: defined in `decks-heist.js` (simplified: The chosen type is always Assassin.)
+- Why: a one-sided wipe that spares the chosen type (Assassin, with the type-changers covering the stolen cards)
+
+> Choose a creature type. Destroy all creatures that aren't of the chosen type.
+
+- Ruling (2017-08-25): You can't choose multiple creature types, such as "Cat Warrior." A Cat Warrior is both a Cat and a Warrior. It's affected by anything that affects either type and unaffected by things that affect non-Cat or non-Warrior creatures.
+- Ruling (2017-08-25): Once Kindred Dominance begins to resolve, no players may take other actions until it's done. Notably, players can't try to save their creatures after you've chosen a creature type.
+- Ruling (2017-08-25): You must choose an existing creature type, such as Vampire or Cat. Card types such as "artifact" can't be chosen.
+
+### Vanquisher's Banner
+- {5} · Artifact · not a Game Changer · Commander: legal
+- Price: $1.86 (Foundations Commander (FDC 294)): https://scryfall.com/card/fdc/294/vanquishers-banner · https://www.tcgplayer.com/product/719226
+- Engine: defined in `decks-heist.js` (simplified: The chosen type is always Assassin.)
+- Why: anthem plus a card per Assassin cast
+
+> As this artifact enters, choose a creature type.
+> Creatures you control of the chosen type get +1/+1.
+> Whenever you cast a creature spell of the chosen type, draw a card.
+
+- Ruling (2017-09-29): The last ability of Vanquisher's Banner resolves before the spell that caused it to trigger. The ability will resolve even if the creature spell is countered.
+- Ruling (2017-09-29): The choice of creature type is made as Vanquisher's Banner enters the battlefield. Players can't respond to this choice. The bonus starts applying immediately.
+- Ruling (2021-03-19): To choose a creature type, you must choose an existing creature type, such as Fungus or Sliver. You can't choose multiple creature types, such as Fungus Sliver. Card types such as artifact can't be chosen, nor can subtypes that aren't creature types, such as Jace, Vehicle, or Treasure.
+
+### Door of Destinies
+- {4} · Artifact · not a Game Changer · Commander: legal
+- Price: $2.42 (Marvel Super Heroes Commander (MSC 198)): https://scryfall.com/card/msc/198/door-of-destinies · https://www.tcgplayer.com/product/697414
+- Engine: defined in `decks-heist.js` (simplified: The chosen type is always Assassin.)
+- Why: an anthem that grows with every Assassin spell
+
+> As this artifact enters, choose a creature type.
+> Whenever you cast a spell of the chosen type, put a charge counter on this artifact.
+> Creatures you control of the chosen type get +1/+1 for each charge counter on this artifact.
+
+- Ruling (2008-04-01): If you cast a creature spell of the chosen type, Door of Destinies will get a charge counter before the creature enters. The creature will enter with the additional boost to its power and toughness.
+- Ruling (2013-07-01): Creature types, such as Human or Sliver, appear after the dash on the type line of creatures. Notably, artifact is not a creature type. A creature may have more than one creature type, such as Goblin Warrior. Such a creature would benefit from Door of Destinies if the chosen creature type was Goblin or Warrior.
+
+### Icon of Ancestry
+- {3} · Artifact · not a Game Changer · Commander: legal
+- Price: $0.34 (The Lost Caverns of Ixalan Commander (LCC 305)): https://scryfall.com/card/lcc/305/icon-of-ancestry · https://www.tcgplayer.com/product/525777
+- Engine: defined in `decks-heist.js` (simplified: The chosen type is always Assassin.)
+- Why: cheap typal anthem that also digs for Assassins
+
+> As this artifact enters, choose a creature type.
+> Creatures you control of the chosen type get +1/+1.
+> {3}, {T}: Look at the top three cards of your library. You may reveal a creature card of the chosen type from among them and put it into your hand. Put the rest on the bottom of your library in a random order.
+
+- Ruling (2019-07-12): You must choose an existing creature type, such as Vampire or Warrior. Card types (such as artifact) and supertypes (such as legendary) can't be chosen.
+
+### Adaptive Automaton
+- {3} · Artifact Creature — Construct · 2/2 · not a Game Changer · Commander: legal
+- Price: $1.29 (Magic 2012 (M12 201)): https://scryfall.com/card/m12/201/adaptive-automaton · https://www.tcgplayer.com/product/47677
+- Engine: defined in `decks-heist.js` (simplified: The chosen type is always Assassin.)
+- Why: a 3-mana lord for Assassins
+
+> As this creature enters, choose a creature type.
+> This creature is the chosen type in addition to its other types.
+> Other creatures you control of the chosen type get +1/+1.
+
+- Ruling (2024-11-08): Even though Adaptive Automaton is a Construct, other Construct creatures you control won't get +1/+1 unless you chose Construct as Adaptive Automaton entered the battlefield.
+- Ruling (2024-11-08): The choice of creature type is made as Adaptive Automaton enters. Players can't take any actions between the time the choice is made and the time the appropriate creatures begin to get +1/+1.
+- Ruling (2024-11-08): You must choose an existing creature type, such as Human or Warrior. Card types such as artifact and supertypes such as legendary can't be chosen.
+
+### Sakashima the Impostor
+- {2}{U}{U} · Legendary Creature — Human Rogue · 3/1 · not a Game Changer · Commander: legal
+- Price: $13.82 (The List (PLST SOK-53)): https://scryfall.com/card/plst/SOK-53/sakashima-the-impostor · https://www.tcgplayer.com/product/204143
+- Engine: defined in `decks-heist.js` (simplified: The return-to-hand ability isn't offered to the bots.)
+- Why: a copy of Etrata or Ramses that keeps its own name, so the legend rule doesn't take it
+
+> You may have Sakashima the Impostor enter as a copy of any creature on the battlefield, except its name is Sakashima the Impostor, it's legendary in addition to its other types, and it has "{2}{U}{U}: Return Sakashima the Impostor to its owner's hand at the beginning of the next end step."
+
+- Ruling (2005-06-01): If there is no creature on the battlefield or if you don't choose a creature as Sakashima enters, Sakashima remains a 3/1 Human Rogue.
+- Ruling (2005-06-01): Sakashima must be on the battlefield at the end of turn in order to return to hand. If Sakashima leaves the battlefield after the ability is activated but before the at-end-of-turn ability resolves, the ability does nothing.
+- Ruling (2005-06-01): Sakashima doesn't get the return to hand ability unless a creature is copied as Sakashima enters. Sakashima can't copy itself because the choice is made as part of the event that puts it onto the battlefield, and whatever will be copied must already be on the battlefield.
+
+## Closers from the Bracket 4 research (one-shot kills and life halving)
+
+The research's answer to 'fifteen damage a game': turn one unblocked Assassin into a kill through Ramses.
+
+### Hatred
+- {3}{B}{B} · Instant · not a Game Changer · Commander: legal
+- Price: $24.63 (World Championship Decks 1999 (WC99 js64sb)): https://scryfall.com/card/wc99/js64sb/hatred · https://www.tcgplayer.com/product/164931
+- Engine: defined in `decks-heist.js` (simplified: X is chosen as it resolves (not as an additional cost).)
+- Why: pay X life for +X/+0 at instant speed: one unblocked Assassin becomes a kill, and Ramses turns the kill into the game
+
+> As an additional cost to cast this spell, pay X life.
+> Target creature gets +X/+0 until end of turn.
+
+- Ruling (2004-10-04): The life payment is part of the cost to cast Hatred, so it is lost if this spell is countered.
+
+### Blood Tribute
+- {4}{B}{B} · Sorcery · not a Game Changer · Commander: legal
+- Price: $4.87 (Commander 2017 (C17 100)): https://scryfall.com/card/c17/100/blood-tribute · https://www.tcgplayer.com/product/139906
+- Engine: defined in `decks-heist.js` (simplified: It's kicked whenever you control an untapped Vampire (Etrata is one): the Vampire is tapped as it resolves.)
+- Why: halves a player's life at sorcery speed (the deck's Vampires can tap to gain it)
+
+> Kicker—Tap an untapped Vampire you control. (You may tap a Vampire you control in addition to any other costs as you cast this spell.)
+> Target opponent loses half their life, rounded up. If this spell was kicked, you gain life equal to the life lost this way.
+
+- Ruling (2009-10-01): You can tap a creature that hasn't been under your control since your most recent turn began to pay the kicker cost.
+- Ruling (2024-11-08): To determine a spell's total cost, start with the mana cost (or an alternative cost if another card's effect allows you to pay one instead), add any cost increases (such as kicker), then apply any cost reductions. The spell's mana value remains unchanged, no matter what the total cost to cast it was.
+- Ruling (2024-11-08): If you put a permanent with a kicker ability onto the battlefield without casting it, you can't kick it.
+
+### Rush of Dread
+- {1}{B}{B} · Sorcery · not a Game Changer · Commander: legal
+- Price: $0.38 (Outlaws of Thunder Junction (OTJ 104)): https://scryfall.com/card/otj/104/rush-of-dread · https://www.tcgplayer.com/product/544692
+- Engine: defined in `decks-heist.js` (simplified: Only two of the spree modes are offered: the life mode is always chosen ({1}{B}{B} plus {2}), and the kicker is the sacrifice mode (+{1}). The discard mode isn't offered.)
+- Why: modal: half of a player's life, half their creatures, half their hand
+
+> Spree (Choose one or more additional costs.)
+> + {1} — Target opponent sacrifices half the creatures they control of their choice, rounded up.
+> + {2} — Target opponent discards half the cards in their hand, rounded up.
+> + {2} — Target opponent loses half their life, rounded up.
+
+- Ruling (2024-04-12): You choose the modes as you cast the spell with spree. Once modes are chosen, they can’t be changed.
+- Ruling (2024-04-12): You can’t choose the same mode more than once.
+- Ruling (2024-04-12): Like the effects of all modal spells, Rush of Dread’s effects happen in order. If the first two modes target different opponents, the opponent targeted by the second mode will see what the first opponent sacrificed before choosing what to discard.
+
+### Archfiend of Despair
+- {6}{B}{B} · Creature — Demon · 6/6 · not a Game Changer · Commander: legal
+- Price: $2.70 (Reality Fracture Commander (FRC 46)): https://scryfall.com/card/frc/46/archfiend-of-despair · https://www.tcgplayer.com/product/717814
+- Engine: defined in `decks-heist.js`
+- Why: at end of turn each opponent loses what they lost this turn again
+
+> Flying
+> Your opponents can't gain life.
+> At the beginning of each end step, each opponent loses life equal to the life that player lost this turn. (Damage causes loss of life.)
+
+- Ruling (2018-06-08): Archfiend of Despair's last ability counts only how much life was lost. It doesn't care whether a player also gained life.
+- Ruling (2018-06-08): The amount of life to lose is determined only as Archfiend of Despair's triggered ability resolves. For example, if you control two of them and an opponent lost 3 life earlier in the turn, the first ability to resolve would have that player lose 3 life, and the second would have that player lose 6 life.
+- Ruling (2018-06-08): In a Two-Headed Giant game, damage and life loss happen to each player individually. If each player on a team is dealt 2 damage, each of those players loses 2 life and the team's life total goes down by 4. When Archfiend of Despair's ability resolves, each of those players again loses 2 life and the team's life total goes down again by 4; they don't each lose 4 life.
+
+### Massacre Wurm
+- {3}{B}{B}{B} · Creature — Phyrexian Wurm · 6/5 · not a Game Changer · Commander: legal
+- Price: $2.00 (Foundations (FDN 754)): https://scryfall.com/card/fdn/754/massacre-wurm · https://www.tcgplayer.com/product/695538
+- Engine: defined in `decks-heist.js`
+- Why: a one-sided sweeper that drains two per creature; the 1/1 and 2/2 Assassins are ours, so it spares them
+
+> When this creature enters, creatures your opponents control get -2/-2 until end of turn.
+> Whenever a creature an opponent controls dies, that player loses 2 life.
+
+- Ruling (2020-06-23): Massacre Wurm's triggered ability triggers if a creature an opponent controls dies for any reason, including from its first ability reducing its toughness to 0, as long as Massacre Wurm remains on the battlefield.
+- Ruling (2020-06-23): Massacre Wurm's first ability affects only creatures your opponents control at the time it resolves. Creatures they begin to control later in the turn won't get -2/-2.
+- Ruling (2020-06-23): If your life total is brought to 0 or less at the same time that a creature an opponent controls is dealt lethal damage, you lose the game before Massacre Wurm's last ability goes on the stack.
+
+## Bracket 4 shell: card flow, fast mana and Ramses tutors
+
+From `../sources/bracket4-deckbuilding.md`: the optimized decks run 5–11 tutors and 2–11 fast mana; Ramses is the card the deck tutors for, so every tutor that finds a 4-drop creature was tested.
+
+### Dark Confidant
+- {1}{B} · Creature — Human Wizard · 2/1 · not a Game Changer · Commander: legal
+- Price: $3.39 (Final Fantasy (FIN 94)): https://scryfall.com/card/fin/94/dark-confidant · https://www.tcgplayer.com/product/630935
+- Engine: defined in `decks-heist.js`
+- Why: 2-mana card flow in a deck whose average mana value is about two
+
+> At the beginning of your upkeep, reveal the top card of your library and put that card into your hand. You lose life equal to its mana value.
+
+- Ruling (2020-08-07): If a card in a player's library has {X} in its mana cost, X is considered to be 0.
+- Ruling (2025-06-06): If a card in a player's library has {X} in its mana cost, X is 0 for the purpose of determining its mana value.
+
+### Cabal Ritual
+- {1}{B} · Instant · not a Game Changer · Commander: legal
+- Price: $14.61 (Secret Lair Drop (SLD 2199)): https://scryfall.com/card/sld/2199/cabal-ritual · https://www.tcgplayer.com/product/658390
+- Engine: defined in `decks-heist.js` (simplified: The mana stays until the end of the step or phase.)
+- Why: fast mana for a turn 3 Ramses
+
+> Add {B}{B}{B}.
+> Threshold — Add {B}{B}{B}{B}{B} instead if there are seven or more cards in your graveyard.
+
+### Demonic Consultation
+- {B} · Instant · not a Game Changer · Commander: legal
+- Price: $7.36 (Mystery Booster 2 (MB2 181)): https://scryfall.com/card/mb2/181/demonic-consultation · https://www.tcgplayer.com/product/563085
+- Engine: defined in `decks-heist.js` (simplified: You choose among the names of the cards in your library (the bots pick their tutor target; they don't know the order).)
+- Why: a one-mana instant tutor for Ramses (it exiles the top six cards and more; the deck accepts that for the access)
+
+> Choose a card name. Exile the top six cards of your library, then reveal cards from the top of your library until you reveal a card with the chosen name. Put that card into your hand and exile all other cards revealed this way.
+
+- Ruling (2004-10-04): There is no way to make this card affect your opponent. It affects "you", and "you" means the controller of the spell. It has no targets.
+- Ruling (2004-10-04): You must name a card that actually exists in the game of Magic.
+- Ruling (2008-10-01): You don't name a card until Demonic Consultation resolves.
+
+### Fleshwrither
+- {2}{B}{B} · Creature — Horror · 3/3 · not a Game Changer · Commander: legal
+- Price: $3.01 (Future Sight (FUT 84)): https://scryfall.com/card/fut/84/fleshwrither · https://www.tcgplayer.com/product/14886
+- Engine: defined in `decks-heist.js`
+- Why: transfigure: sacrifice it to put a creature with the same mana value onto the battlefield, Ramses is a 4-drop
+
+> Transfigure {1}{B}{B} ({1}{B}{B}, Sacrifice this creature: Search your library for a creature card with the same mana value as this creature, put that card onto the battlefield, then shuffle. Transfigure only as a sorcery.)
+
+- Ruling (2007-05-01): Transfigure is similar to Transmute, though it can be activated only if the permanent with Transfigure is on the battlefield, and it can fetch only a creature.
+
+### Pyre of Heroes
+- {2} · Artifact · not a Game Changer · Commander: legal
+- Price: $1.79 (Kaldheim (KHM 241)): https://scryfall.com/card/khm/241/pyre-of-heroes · https://www.tcgplayer.com/product/229212
+- Engine: defined in `decks-heist.js` (simplified: The sacrificed creature's types and mana value are read as it's sacrificed, as the ability is activated.)
+- Why: sacrifice a 3-mana Assassin to put Ramses (a 4-mana Assassin) onto the battlefield
+
+> {2}, {T}, Sacrifice a creature: Search your library for a creature card that shares a creature type with the sacrificed creature and has mana value equal to 1 plus that creature's mana value. Put that card onto the battlefield, then shuffle. Activate only as a sorcery.
+
+- Ruling (2021-02-05): Once you announce that you're activating the activated ability, no player may take actions until the ability has been paid for. Notably, opponents can't try to remove one of your creatures to stop you from sacrificing it.
+- Ruling (2021-02-05): Use the creature types and mana value of the creature you sacrificed as it existed on the battlefield to determine what creature card you can find. Notably, if you sacrifice a creature that's a double-faced permanent with its back face up, you'll use the characteristics of the back face, not the front face.
+- Ruling (2021-02-05): If a permanent or a card in a library has {X} in its mana cost, X is considered to be 0.
+
+### Mana Drain
+- {U}{U} · Instant · not a Game Changer · Commander: legal
+- Price: $51.90 (Commander Legends (CMR 80)): https://scryfall.com/card/cmr/80/mana-drain · https://www.tcgplayer.com/product/227008
+- Engine: defined in `decks-heist.js` (simplified: The mana arrives at the start of your next precombat main phase and stays until the end of that phase.)
+- Why: a Game Changer counter that pays for the next turn's Ramses
+
+> Counter target spell. At the beginning of your next main phase, add an amount of {C} equal to that spell's mana value.
+
+- Ruling (2020-11-10): Mana Drain's delayed triggered ability will usually trigger at the beginning of your precombat main phase. However, if you cast Mana Drain during your precombat main phase or during your combat phase, its delayed triggered ability will trigger at the beginning of that turn's postcombat main phase.
+- Ruling (2020-11-10): If the target spell is an illegal target by the time Mana Drain tries to resolve, Mana Drain doesn't resolve. You don't add mana at the beginning of your next main phase. If the target is legal but not countered (most likely because an effect says that the spell can't be countered), you do add mana.
+
+## Free and cheap interaction (the Bracket 4 count: 5–11 free counters, interaction without losing tempo)
+
+The research's rule: interaction that costs no mana on the opponent's turn is what lets an aggro deck keep developing; the counters are saved for the wipe (DECISIONS #26).
+
+### Flare of Denial
+- {1}{U}{U} · Instant · not a Game Changer · Commander: legal
+- Price: $3.48 (Modern Horizons 3 (MH3 62)): https://scryfall.com/card/mh3/62/flare-of-denial · https://www.tcgplayer.com/product/548596
+- Engine: defined in `decks-heist.js`
+- Why: a free counter by sacrificing a nontoken blue creature
+
+> You may sacrifice a nontoken blue creature rather than pay this spell's mana cost.
+> Counter target spell.
+
+### Flare of Malice
+- {2}{B}{B} · Instant · not a Game Changer · Commander: legal
+- Price: $3.24 (Modern Horizons 3 (MH3 95)): https://scryfall.com/card/mh3/95/flare-of-malice · https://www.tcgplayer.com/product/552274
+- Engine: defined in `decks-heist.js`
+- Why: free by sacrificing a nontoken black creature: each opponent sacrifices their highest-mana-value creature or planeswalker
+
+> You may sacrifice a nontoken black creature rather than pay this spell's mana cost.
+> Each opponent sacrifices a creature or planeswalker with the greatest mana value among creatures and planeswalkers they control.
+
+- Ruling (2024-06-07): Starting with the next opponent in turn order (or, if you cast Flare of Malice on an opponent's turn, starting with the opponent whose turn it is) and proceeding in turn order, each opponent chooses a creature or planeswalker with the greatest mana value among creatures and planeswalkers they control to sacrifice. Then those permanents are sacrificed at the same time.
+- Ruling (2024-06-07): If an opponent has multiple creatures and/or planeswalkers tied for the greatest mana value, that player chooses which one to sacrifice.
+
+### Force of Despair
+- {1}{B}{B} · Instant · not a Game Changer · Commander: legal
+- Price: $6.74 (Modern Horizons (MH1 92)): https://scryfall.com/card/mh1/92/force-of-despair · https://www.tcgplayer.com/product/190880
+- Engine: defined in `decks-heist.js`
+- Why: a free answer to a creature that entered this turn, on the opponent's turn
+
+> If it's not your turn, you may exile a black card from your hand rather than pay this spell's mana cost.
+> Destroy all creatures that entered this turn.
+
+- Ruling (2019-06-14): Force of Despair destroys all permanents that entered the battlefield this turn and are currently creatures. It doesn’t matter whether they were creatures as they entered the battlefield.
+
+### Snapback
+- {1}{U} · Instant · not a Game Changer · Commander: legal
+- Price: $0.41 (Time Spiral Remastered (TSR 87)): https://scryfall.com/card/tsr/87/snapback · https://www.tcgplayer.com/product/233897
+- Engine: defined in `decks-heist.js`
+- Why: free bounce by exiling a blue card: saves Etrata or Ramses from removal
+
+> You may exile a blue card from your hand rather than pay this spell's mana cost.
+> Return target creature to its owner's hand.
+
+- Ruling (2021-03-19): To determine the total cost of a spell, start with the mana cost or alternative cost you're paying (such as the alternative cost of Snapback), add any cost increases, then apply any cost reductions. The mana value of the spell is determined by only its mana cost, no matter what the total cost to cast that spell was.
+
+### Fading Hope
+- {U} · Instant · not a Game Changer · Commander: legal
+- Price: $0.26 (Foundations Jumpstart (J25 310)): https://scryfall.com/card/j25/310/fading-hope · https://www.tcgplayer.com/product/590531
+- Engine: defined in `decks-heist.js`
+- Why: one-mana bounce: Etrata returns to hand without the commander tax
+
+> Return target creature to its owner's hand. If its mana value was 3 or less, scry 1. (Look at the top card of your library. You may put that card on the bottom.)
+
+### Baleful Mastery
+- {3}{B} · Instant · not a Game Changer · Commander: legal
+- Price: $2.05 (Strixhaven: School of Mages Promos (PSTX 64p)): https://scryfall.com/card/pstx/64p/baleful-mastery · https://www.tcgplayer.com/product/237403
+- Engine: defined in `decks-heist.js` (simplified: The opponent who draws is the target's controller (or the first opponent).)
+- Why: two-mana exile removal if an opponent draws a card, four mana otherwise
+
+> You may pay {1}{B} rather than pay this spell's mana cost.
+> If the {1}{B} cost was paid, an opponent draws a card.
+> Exile target creature or planeswalker.
+
+- Ruling (2021-04-16):  If you copy a "Mastery" spell and the alternative cost was paid, the copy will resolve as though the cost was paid.
+- Ruling (2021-04-16):  The mana value of a spell on the stack is determined by its mana cost, not any alternative costs you used to pay for it.
+- Ruling (2021-04-16):  In a multiplayer game, you choose which opponent takes the prescribed action as the spell resolves.
+
+### Dismember
+- {1}{B/P}{B/P} · Instant · not a Game Changer · Commander: legal
+- Price: $2.45 (New Phyrexia (NPH 57)): https://scryfall.com/card/nph/57/dismember · https://www.tcgplayer.com/product/39509
+- Engine: defined in `decks-heist.js`
+- Why: one mana and four life for −5/−5
+
+> ({B/P} can be paid with either {B} or 2 life.)
+> Target creature gets -5/-5 until end of turn.
+
+- Ruling (2024-06-07): A Phyrexian mana symbol contributes 1 toward the mana value of a card, even if life is paid for it. Specifically, Dismember's mana value is always 3.
+
+### Submerge
+- {4}{U} · Instant · not a Game Changer · Commander: legal
+- Price: $3.53 (The List (PLST NEM-48)): https://scryfall.com/card/plst/NEM-48/submerge · https://www.tcgplayer.com/product/582671
+- Engine: defined in `decks-heist.js`
+- Why: free against a Forest and Island player
+
+> If an opponent controls a Forest and you control an Island, you may cast this spell without paying its mana cost.
+> Put target creature on top of its owner's library.
+
+### Mental Misstep
+- {U/P} · Instant · not a Game Changer · Commander: legal
+- Price: $5.87 (Mystery Booster 2 (MB2 30)): https://scryfall.com/card/mb2/30/mental-misstep · https://www.tcgplayer.com/product/563199
+- Engine: defined in `decks-heist.js`
+- Why: a free counter for the one-mana spells the Bracket 4 field runs
+
+> ({U/P} can be paid with either {U} or 2 life.)
+> Counter target spell with mana value 1.
+
+- Ruling (2011-06-01): Each Phyrexian mana symbol in a spell's mana cost contributes 1 to that spell's mana value. For example, Mental Misstep's mana value is 1, regardless of how its cost was paid.
+- Ruling (2011-06-01): To calculate the mana value of a card with Phyrexian mana symbols in its cost, count each Phyrexian mana symbol as 1.
+- Ruling (2011-06-01): If a spell has {X} in its mana cost, X is considered to be the value chosen for it while that spell is on the stack.
+
+## Ninjutsu and the Yuriko template (v3 'tempo')
+
+From `../sources/bracket4-piloting-and-aggro.md`: the only Dimir aggro shell that holds its own at high power is Yuriko's: 0–2 mana evasive bodies, ninjutsu swapping a connected body for a payoff, free interaction. Tested as version 3 (26.5% vs precons).
+
+### Ninja of the Deep Hours
+- {3}{U} · Creature — Human Ninja · 2/2 · not a Game Changer · Commander: legal
+- Price: $1.44 (Commander 2015 (C15 99)): https://scryfall.com/card/c15/99/ninja-of-the-deep-hours · https://www.tcgplayer.com/product/108000
+- Engine: defined in `decks-heist.js` (simplified: Ninjutsu is offered on the card in your hand after blockers are declared. The card is discarded to pay for it and comes back from your graveyard tapped and attacking.)
+- Why: ninjutsu: the connected Assassin returns to hand and a card is drawn
+
+> Ninjutsu {1}{U} ({1}{U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)
+> Whenever this creature deals combat damage to a player, you may draw a card.
+
+- Ruling (2021-03-19): The ninjutsu ability can be activated during the declare blockers step, combat damage step, or end of combat step. If you wait until after the declare blockers step, because all combat damage is dealt at once, the Ninja won't normally deal combat damage.
+- Ruling (2021-03-19): Although the Ninja is attacking, it was never declared as an attacking creature (for purposes of abilities that trigger whenever a creature attacks, for example).
+- Ruling (2021-03-19): The creature put onto the battlefield with ninjutsu enters the battlefield attacking the same player or planeswalker that the returned creature was attacking. This is a rule specific to ninjutsu.
+
+### Ingenious Infiltrator
+- {2}{U}{B} · Creature — Vedalken Ninja · 2/3 · not a Game Changer · Commander: legal
+- Price: $2.11 (Modern Horizons (MH1 204)): https://scryfall.com/card/mh1/204/ingenious-infiltrator · https://www.tcgplayer.com/product/191068
+- Engine: defined in `decks-heist.js` (simplified: Ninjutsu is offered on the card in your hand after blockers are declared. The card is discarded to pay for it and comes back from your graveyard tapped and attacking.)
+- Why: ninjutsu with a card per Ninja hit
+
+> Ninjutsu {U}{B} ({U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)
+> Whenever a Ninja you control deals combat damage to a player, draw a card.
+
+- Ruling (2019-06-14): If Ingenious Infiltrator is dealt lethal combat damage at the same time a Ninja you control deals combat damage to a player, its ability triggers.
+- Ruling (2019-06-14): Although the Ninja is attacking, it was never declared as an attacking creature (for purposes of abilities that trigger whenever a creature attacks, for example).
+- Ruling (2019-06-14): As you activate a ninjutsu ability, you reveal the Ninja card in your hand and return the attacking creature. The Ninja isn’t put onto the battlefield until the ability resolves. If it leaves your hand before then, it won’t enter the battlefield at all.
+
+### Moon-Circuit Hacker
+- {1}{U} · Enchantment Creature — Human Ninja · 2/1 · not a Game Changer · Commander: legal
+- Price: $0.20 (The List (PLST NEO-67)): https://scryfall.com/card/plst/NEO-67/moon-circuit-hacker · https://www.tcgplayer.com/product/581598
+- Engine: defined in `decks-heist.js` (simplified: Ninjutsu is offered on the card in your hand after blockers are declared. The card is discarded to pay for it and comes back from your graveyard tapped and attacking.)
+- Why: a 2-mana ninjutsu draw
+
+> Ninjutsu {U} ({U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)
+> Whenever this creature deals combat damage to a player, you may draw a card. If you do, discard a card unless this creature entered this turn.
+
+- Ruling (2022-02-18): The ninjutsu ability can be activated during the declare blockers step, combat damage step, or end of combat step. In most cases (see below), if you wait until the combatdamage step or end of combat step, it will be after combat damage has been dealt, so the Ninja won't deal combat damage.
+- Ruling (2022-02-18): If a creature in combat has first strike or double strike, you can activate the ninjutsu ability during the first-strike combat damage step. The Ninja will deal combat damage during the regular combat damage step, even if it has first strike.
+- Ruling (2022-02-18): Although the Ninja is attacking, it was never declared as an attacking creature (for purposes of abilities that trigger whenever a creature attacks, for example).
+
+### Thousand-Faced Shadow
+- {U} · Creature — Human Ninja · 1/1 · not a Game Changer · Commander: legal
+- Price: $1.42 (Kamigawa: Neon Dynasty (NEO 86)): https://scryfall.com/card/neo/86/thousand-faced-shadow · https://www.tcgplayer.com/product/262130
+- Engine: defined in `decks-heist.js` (simplified: Ninjutsu is offered on the card in your hand after blockers are declared. The card is discarded to pay for it and comes back from your graveyard tapped and attacking.)
+- Why: ninjutsu copy of an attacking creature (Etrata attacking makes a second cloak)
+
+> Ninjutsu {2}{U}{U} ({2}{U}{U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)
+> Flying
+> When this creature enters from your hand, if it's attacking, create a token that's a copy of another target attacking creature. The token enters tapped and attacking.
+
+- Ruling (2022-02-18): As you activate a ninjutsu ability, you reveal the Ninja card in your hand and return the attacking creature. The Ninja card stays revealed and isn't put onto the battlefield until the ability resolves. If it leaves your hand before then, it won't enter the battlefield at all.
+- Ruling (2022-02-18): Although the token is attacking, it was never declared as an attacking creature (for purposes of abilities that trigger whenever a creature attacks, for example).
+- Ruling (2022-02-18): The ninjutsu ability can be activated during the declare blockers step, combat damage step, or end of combat step. In most cases (see below), if you wait until the combatdamage step or end of combat step, it will be after combat damage has been dealt, so the Ninja won't deal combat damage.
+
+### Prosperous Thief
+- {2}{U} · Creature — Human Ninja · 3/2 · not a Game Changer · Commander: legal
+- Price: $0.19 (Foundations Jumpstart (J25 346)): https://scryfall.com/card/j25/346/prosperous-thief · https://www.tcgplayer.com/product/595049
+- Engine: defined in `decks-heist.js` (simplified: Ninjutsu is offered on the card in your hand after blockers are declared. The card is discarded to pay for it and comes back from your graveyard tapped and attacking.)
+- Why: ninjutsu Treasure maker
+
+> Ninjutsu {1}{U} ({1}{U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)
+> Whenever one or more Ninja or Rogue creatures you control deal combat damage to a player, create a Treasure token. (It's an artifact with "{T}, Sacrifice this token: Add one mana of any color.")
+
+- Ruling (2022-02-18): Although the Ninja is attacking, it was never declared as an attacking creature (for purposes of abilities that trigger whenever a creature attacks, for example).
+- Ruling (2022-02-18): The ninjutsu ability can be activated only after blockers have been declared. Before then, attacking creatures are neither blocked nor unblocked.
+- Ruling (2022-02-18): If a creature in combat has first strike or double strike, you can activate the ninjutsu ability during the first-strike combat damage step. The Ninja will deal combat damage during the regular combat damage step, even if it has first strike.
+
+### Mistblade Shinobi
+- {2}{U} · Creature — Human Ninja · 1/1 · not a Game Changer · Commander: legal
+- Price: $0.63 (The List (PLST PCA-20)): https://scryfall.com/card/plst/PCA-20/mistblade-shinobi · https://www.tcgplayer.com/product/581561
+- Engine: defined in `decks-heist.js` (simplified: Ninjutsu is offered on the card in your hand after blockers are declared. The card is discarded to pay for it and comes back from your graveyard tapped and attacking.)
+- Why: ninjutsu bounce on hit
+
+> Ninjutsu {U} ({U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)
+> Whenever this creature deals combat damage to a player, you may return target creature that player controls to its owner's hand.
+
+### Silver-Fur Master
+- {U}{B} · Creature — Rat Ninja · 2/2 · not a Game Changer · Commander: legal
+- Price: $0.32 (Kamigawa: Neon Dynasty (NEO 353)): https://scryfall.com/card/neo/353/silver-fur-master · https://www.tcgplayer.com/product/262049
+- Engine: defined in `decks-heist.js` (simplified: Ninjutsu is offered on the card in your hand after blockers are declared. The card is discarded to pay for it and comes back from your graveyard tapped and attacking. The {1} discount on other ninjutsu costs isn't applied.)
+- Why: Ninja and Rogue anthem that discounts ninjutsu
+
+> Ninjutsu {U}{B} ({U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)
+> Ninjutsu abilities you activate cost {1} less to activate.
+> Other Ninja and Rogue creatures you control get +1/+1.
+
+- Ruling (2022-02-18): The ninjutsu ability can be activated only after blockers have been declared. Before then, attacking creatures are neither blocked nor unblocked.
+- Ruling (2022-02-18): The creature with ninjutsu enters the battlefield attacking the same player or planeswalker that the returned creature was attacking. This is a rule specific to ninjutsu; in other cases, when a creature is put onto the battlefield attacking, that creature's controller chooses which player or planeswalker it's attacking.
+- Ruling (2022-02-18): The ninjutsu ability can be activated during the declare blockers step, combat damage step, or end of combat step. In most cases (see below), if you wait until the combatdamage step or end of combat step, it will be after combat damage has been dealt, so the Ninja won't deal combat damage.
+
+### Faerie Seer
+- {U} · Creature — Faerie Wizard · 1/1 · not a Game Changer · Commander: legal
+- Price: $0.35 (The List (PLST MH1-51)): https://scryfall.com/card/plst/MH1-51/faerie-seer · https://www.tcgplayer.com/product/581292
+- Engine: defined in `decks-heist.js`
+- Why: 1-mana flyer: scry 2 and a ninjutsu enabler
+
+> Flying
+> When this creature enters, scry 2. (Look at the top two cards of your library, then put any number of them on the bottom and the rest on top in any order.)
+
+### Ornithopter
+- {0} · Artifact Creature — Thopter · 0/2 · not a Game Changer · Commander: legal
+- Price: $0.31 (Dominaria Remastered (DMR 386)): https://scryfall.com/card/dmr/386/ornithopter · https://www.tcgplayer.com/product/457189
+- Engine: defined in `decks-heist.js`
+- Why: 0-mana flyer to ninjutsu through
+
+> Flying
+
+### Spectral Sailor
+- {U} · Creature — Spirit Pirate · 1/1 · not a Game Changer · Commander: legal
+- Price: $0.11 (The List (PLST M20-76)): https://scryfall.com/card/plst/M20-76/spectral-sailor · https://www.tcgplayer.com/product/582635
+- Engine: defined in `decks-heist.js`
+- Why: 1-mana flash flyer that draws late
+
+> Flash (You may cast this spell any time you could cast an instant.)
+> Flying
+> {3}{U}: Draw a card.
+
+### Siren Stormtamer
+- {U} · Creature — Siren Pirate Wizard · 1/1 · not a Game Changer · Commander: legal
+- Price: $0.33 (The List (PLST XLN-79)): https://scryfall.com/card/plst/XLN-79/siren-stormtamer · https://www.tcgplayer.com/product/582615
+- Engine: defined in `decks-heist.js`
+- Why: 1-mana flyer that protects Etrata from a targeted spell
+
+> Flying
+> {U}, Sacrifice this creature: Counter target spell or ability that targets you or a creature you control.
+
+- Ruling (2020-11-10): Siren Stormtamer's activated ability can target a spell or ability that has multiple targets, as long as at least one of those targets is you or a creature you control.
+- Ruling (2020-11-10): If the creature you control targeted by the target spell or ability leaves the battlefield, that spell or ability is no longer a legal target for Siren Stormtamer's ability. On the other hand, if that targeted creature becomes an illegal target for the target spell but remains on the battlefield under your control, the target spell or ability is still a legal target for Siren Stormtamer's ability.
+
+### Fell the Profane // Fell Mire
+- {2}{B}{B} · Instant // Land · not a Game Changer · Commander: legal
+- Price: $5.09 (Modern Horizons 3 (MH3 244)): https://scryfall.com/card/mh3/244/fell-the-profane-fell-mire · https://www.tcgplayer.com/product/552580
+- Engine: defined in `decks-heist.js` (simplified: A modal double-faced card: play it as the land Fell Mire from your hand instead of casting it.)
+- Why: removal that is a land when the hand needs one
+
+> Fell the Profane: Destroy target creature or planeswalker.
+> //
+> Fell Mire: As this land enters, you may pay 3 life. If you don't, it enters tapped.
+> {T}: Add {B}.
+
+- Ruling (2024-06-07): A modal double-faced card can't be transformed or be put onto the battlefield transformed. Ignore any instruction to transform a modal double-faced card or to put one onto the battlefield transformed.
+- Ruling (2024-06-07): If an effect allows you to play a specific modal double-faced card, you may cast it as a spell or play it as a land, as determined by which face you choose to play. If an effect allows you to cast (rather than "play") a specific modal double-faced card, you can't play it as a land.
+- Ruling (2024-06-07): The mana value of a modal double-faced card is based on the characteristics of the face that's being considered. On the stack or the battlefield, consider whichever face is up. In all other zones, consider only the front face. This is different than how the mana value of a transforming double-faced card is determined.
+
+### Sink into Stupor // Soporific Springs
+- {1}{U}{U} · Instant // Land · not a Game Changer · Commander: legal
+- Price: $8.71 (Modern Horizons 3 (MH3 241)): https://scryfall.com/card/mh3/241/sink-into-stupor-soporific-springs · https://www.tcgplayer.com/product/552582
+- Engine: defined in `decks-heist.js` (simplified: A modal double-faced card: play it as the land Soporific Springs from your hand instead of casting it. As a spell it only targets permanents here (not spells on the stack).)
+- Why: bounce that is a land when the hand needs one
+
+> Sink into Stupor: Return target spell or nonland permanent an opponent controls to its owner's hand.
+> //
+> Soporific Springs: As this land enters, you may pay 3 life. If you don't, it enters tapped.
+> {T}: Add {U}.
+
+- Ruling (2024-06-07): If an effect allows you to play a land or cast a spell from among a group of cards, you may play or cast a modal double-faced card with any face that fits the criteria of that effect. For example, if an effect allows you to play lands from your graveyard, you can play Garden of Freyalise, but you can't cast Disciple of Freyalise.
+- Ruling (2024-06-07): If an effect allows you to put a card with particular characteristics onto the battlefield without instructing you to play or cast it, you consider only the characteristics of a modal double-faced card's front face to see if that card qualifies. If it does, it enters the battlefield with its front face up. For example, if an effect allows you to put a creature card from your graveyard onto the battlefield, you can put Disciple of Freyalise onto the battlefield. However, an effect that lets you return a land card from your graveyard to your hand won't let you return Garden of Freyalise to your hand, as that card has only its front face's characteristics while in the graveyard.
+- Ruling (2024-06-07): The mana value of a modal double-faced card is based on the characteristics of the face that's being considered. On the stack or the battlefield, consider whichever face is up. In all other zones, consider only the front face. This is different than how the mana value of a transforming double-faced card is determined.
+
+### Cunning Evasion
+- {1}{U} · Enchantment · not a Game Changer · Commander: legal
+- Price: $0.37 (Modern Horizons (MH1 45)): https://scryfall.com/card/mh1/45/cunning-evasion · https://www.tcgplayer.com/product/191725
+- Engine: defined in `decks-heist.js`
+- Why: a blocked attacker returns to hand instead of dying
+
+> Whenever a creature you control becomes blocked, you may return it to its owner's hand.
+
+- Ruling (2019-06-14): You return the attacking creature to its owner’s hand before the combat damage step. A creature returned this way neither deals nor is dealt combat damage.
+
+## Protection and recursion for Ramses (the second-round loss analysis)
+
+Ramses was removed in about a third of the games he landed in (STRATEGY.md §9); these were the research's answers. Measured: the equipment package cost 2.3 points vs precons (#44), tutoring for protection changed nothing (#45).
+
+### Whispersilk Cloak
+- {3} · Artifact — Equipment · not a Game Changer · Commander: legal
+- Price: $2.26 (Marvel Super Heroes Commander (MSC 225)): https://scryfall.com/card/msc/225/whispersilk-cloak · https://www.tcgplayer.com/product/698219
+- Engine: defined in `decks-heist.js`
+- Why: shroud and unblockable: removal can't target him and he connects
+
+> Equipped creature can't be blocked and has shroud. (It can't be the target of spells or abilities.)
+> Equip {2}
+
+### Darksteel Plate
+- {3} · Artifact — Equipment · not a Game Changer · Commander: legal
+- Price: $3.18 (Final Fantasy Commander (FIC 342)): https://scryfall.com/card/fic/342/darksteel-plate · https://www.tcgplayer.com/product/631209
+- Engine: defined in `decks-heist.js`
+- Why: indestructible through the destroy wipes (Wrath, Cleansing Nova, Phyrexian Rebirth)
+
+> Indestructible
+> Equipped creature has indestructible.
+> Equip {2}
+
+### Mithril Coat
+- {3} · Legendary Artifact — Equipment · not a Game Changer · Commander: legal
+- Price: $27.87 (The Lord of the Rings: Tales of Middle-earth (LTR 245)): https://scryfall.com/card/ltr/245/mithril-coat · https://www.tcgplayer.com/product/499456
+- Engine: defined in `decks-heist.js`
+- Why: flash indestructible that attaches itself to a legendary creature (Ramses, Etrata) when it enters
+
+> Flash
+> Indestructible
+> When Mithril Coat enters, attach it to target legendary creature you control.
+> Equipped creature has indestructible.
+> Equip {3}
+
+- Ruling (2023-06-16): Attaching an Equipment with its enters-the-battlefield triggered ability isn't the same as using its equip ability. You don't pay mana for the attachment, and the timing restrictions for equip abilities don't apply.
+- Ruling (2023-06-16): Mithril Coat doesn't enter the battlefield attached to a creature. Instead, the Equipment enters the battlefield and then a triggered ability attaches it to a creature. You may cast Mithril Coat even if you don't control any creatures.
+- Ruling (2023-06-16): If the target creature becomes an illegal target, the Equipment remains on the battlefield unattached.
+
+### Reanimate
+- {B} · Sorcery · not a Game Changer · Commander: legal
+- Price: $6.61 (Final Fantasy Commander (FIC 282)): https://scryfall.com/card/fic/282/reanimate · https://www.tcgplayer.com/product/631573
+- Engine: defined in `decks-heist.js`
+- Why: Ramses back for one mana after a wipe
+
+> Put target creature card from a graveyard onto the battlefield under your control. You lose life equal to that card's mana value.
+
+- Ruling (2025-09-19): The amount of life you lose is determined by the mana value of the card in your graveyard, not the creature once it's on the battlefield.
+- Ruling (2025-09-19): If any abilities trigger on the creature entering the battlefield, those abilities resolve after you lose life. If losing life results in you losing the game, those abilities won't resolve.
+- Ruling (2025-09-19): In a multiplayer game, if a player leaves the game, all cards that player owns leave as well. If you leave the game, the creature you control from Reanimate is exiled.
+
+### Patriarch's Bidding
+- {3}{B}{B} · Sorcery · not a Game Changer · Commander: legal
+- Price: $3.63 (World Championship Decks 2003 (WC03 pk161sb)): https://scryfall.com/card/wc03/pk161sb/patriarchs-bidding · https://www.tcgplayer.com/product/174152
+- Engine: defined in `decks-heist.js` (simplified: You choose Assassin; each opponent chooses the type that returns the most of their own creature cards.)
+- Why: every Assassin back after a wipe
+
+> Each player chooses a creature type. Each player returns all creature cards of a type chosen this way from their graveyard to the battlefield.
+
+- Ruling (2021-06-18): You must choose a creature type, such as Elf or Shaman. You can't choose other card types such as artifact or supertypes such as legendary.
+- Ruling (2021-06-18): The player whose turn it is chooses a creature type first, followed by each other player in turn order. Then, all creature cards that have one or more of the chosen types are returned to the battlefield at the same time.
+- Ruling (2021-06-18): Any player may choose a creature type that's already been chosen. Doing so won't affect which creature cards are returned to the battlefield.
+
+## Attack drains (version 4, deathtouch Assassins that drain on attack)
+
+A build around 'whenever this attacks, each opponent loses 1 life' bodies, Mari and Hooded Blightfang; it took 6.4 life a game and won 27.7% vs precons, so it was dropped (#30).
+
+### Pulse Tracker
+- {B} · Creature — Vampire Rogue · 1/1 · not a Game Changer · Commander: legal
+- Price: $0.13 (Foundations (FDN 612)): https://scryfall.com/card/fdn/612/pulse-tracker · https://www.tcgplayer.com/product/591015
+- Engine: defined in `decks-heist.js`
+- Why: 1-mana Rogue: each opponent loses 1 on attack
+
+> Whenever this creature attacks, each opponent loses 1 life.
+
+### Vicious Conquistador
+- {B} · Creature — Vampire Soldier · 1/2 · not a Game Changer · Commander: legal
+- Price: $0.33 (Foundations Jumpstart (J25 507)): https://scryfall.com/card/j25/507/vicious-conquistador · https://www.tcgplayer.com/product/590665
+- Engine: defined in `decks-heist.js`
+- Why: 1-mana Vampire: each opponent loses 1 on attack
+
+> Whenever this creature attacks, each opponent loses 1 life.
+
+### Sanguine Syphoner
+- {1}{B} · Creature — Vampire Warlock · 1/3 · not a Game Changer · Commander: legal
+- Price: $0.24 (Foundations (FDN 68)): https://scryfall.com/card/fdn/68/sanguine-syphoner · https://www.tcgplayer.com/product/591666
+- Engine: defined in `decks-heist.js`
+- Why: drains on attack
+
+> Whenever this creature attacks, each opponent loses 1 life and you gain 1 life.
+
+### Postmortem Professor
+- {1}{B} · Creature — Zombie Warlock · 2/2 · not a Game Changer · Commander: legal
+- Price: $0.24 (Secrets of Strixhaven (SOS 93)): https://scryfall.com/card/sos/93/postmortem-professor · https://www.tcgplayer.com/product/689105
+- Engine: defined in `decks-heist.js` (simplified: The graveyard ability isn't offered.)
+- Why: 2-mana attack drain that can't block and comes back from the graveyard
+
+> This creature can't block.
+> Whenever this creature attacks, each opponent loses 1 life and you gain 1 life.
+> {1}{B}, Exile an instant or sorcery card from your graveyard: Return this card from your graveyard to the battlefield.
+
+### Agate-Blade Assassin
+- {1}{B} · Creature — Lizard Assassin · 1/3 · not a Game Changer · Commander: legal
+- Price: $0.22 (Bloomburrow (BLB 82)): https://scryfall.com/card/blb/82/agate-blade-assassin · https://www.tcgplayer.com/product/559647
+- Engine: defined in `decks-heist.js`
+- Why: 2-mana Assassin that drains the defending player on attack
+
+> Whenever this creature attacks, defending player loses 1 life and you gain 1 life.
+
+### Within Range
+- {3}{B} · Enchantment · not a Game Changer · Commander: legal
+- Price: $0.37 (Tarkir: Dragonstorm Commander (TDC 32)): https://scryfall.com/card/tdc/32/within-range · https://www.tcgplayer.com/product/624300
+- Engine: defined in `decks-heist.js`
+- Why: whenever you attack, each opponent loses life equal to the number of creatures attacking them; two 1/1 tokens on entry
+
+> When this enchantment enters, create two 1/1 red Warrior creature tokens.
+> Whenever you attack, each opponent loses life equal to the number of creatures attacking them.
 

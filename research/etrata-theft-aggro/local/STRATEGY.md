@@ -93,3 +93,24 @@ So once Ramses is out the deck wins about half its games whatever else it holds,
 
 ## 9. Ramses that stays wins (v2b, 2,016 games vs precons)
 Of the 505 games where Ramses entered by round 6, only 59 were lost with him still on the battlefield: the deck wins about 80% of the games in which he lands early and survives, and most of its losses with him are the games where he is removed (he leaves in 36% of the games he reaches, almost always to removal or a wrath on an opponent's turn). More tutors raised the share of games with Ramses from 52% to 61% without raising the win rate (experiment 41), so access is no longer the bottleneck; **keeping him on the battlefield is**. The levers: hexproof or shroud equipment (Lightning Greaves, Swiftfoot Boots, Whispersilk Cloak), indestructible against destroy effects (Darksteel Plate), the counter saved for removal on him (default now), recursion (Reanimate, Patriarch's Bidding), copies (Spark Double, Sakashima), and a tutor rule that fetches protection the moment he is out and bare.
+
+## 10. Where the ceiling is, and why (2026-10-06, after 47 experiments)
+Three numbers describe every version of this deck in the bot games:
+- **With Ramses on the battlefield the deck wins about half its games; without him, a tenth to a fifth.** That has held for every list from the first skeleton to v2c (51% / 10–19%). The win rate is therefore about 0.5 × P(Ramses lands and stays) + 0.15 × P(he doesn't).
+- **He lands in 52–62% of games and is removed in about a third of those**, mostly by the precons' wraths on their own turns (Cleansing Nova, Time Wipe, Phyrexian Rebirth, Wrath of God, Austere Command, Hour of Reckoning). When he lands by round 6 and stays, the deck wins about 80%.
+- **Everything else is a point.** Each piloting rule from the research (mulligan, counter held for the wipe, Etrata when an Assassin connects, Teferi's Veil, the low curve) added 0.2–2 points; no card other than Ramses, Bloodletter, Sol Ring and the three cheapest tutors measured outside ±1.5 of a basic land.
+
+The levers tried on the three numbers and what they gave:
+| Lever | What was tried | Result |
+|---|---|---|
+| P(lands) | +4 Ramses tutors (#41) | presence 52% → 61%, wins unchanged: the extra tutors are dead once he's out |
+| P(lands) | Pyre of Heroes, Fleshwrither, Dimir House Guard, Demonic Consultation (#ra-*) | +0.6 to +2.3 vs precons; Pyre and Consultation kept |
+| P(stays) | Greaves/Boots first, Ramses held until protected (#47) | −3.8 / −4.8: a turn of tempo costs more than the removal saves |
+| P(stays) | Whispersilk Cloak, Darksteel Plate, Patriarch's Bidding (#44, #45) | −2.3 / +0.6; tutoring for them: nothing |
+| P(stays) | the last counter saved for the wipe (#33) | +1.0 |
+| P(stays) | Teferi's Veil (#36), Eldrazi Monument (sweep 2) | +1.0, +1.9 |
+| win without him | kill kit (halvers + Bloodletter) tutored (#12, pk-kit) | −4.7 / −8.5: the kit doesn't convert without the "you win" |
+| win without him | the vampire loop (#23, v2c-vamp) | +3.9 vs precons: the one package that lifts the no-Ramses games, and it's a non-combat closer |
+| speed | the low curve (#42) | +2.1 vs Bracket 4 |
+
+So the honest ceiling of a combat-only Etrata deck in this engine is about 37% against the precon bots and about 21% against the Bracket 4 bots, with the average winning round at 8.8 / 7.8, and the one thing that moves it further is a non-combat closer. The reasons are structural rather than card choices: the deck's creatures are 1/1s and 2/2s facing three opponents' blockers and wraths, its kill depends on one 4-mana legendary creature surviving a turn cycle, and the stolen cards are 2/2s until mana is spent on them. The pilots' placement of aggro Etrata ("high Bracket 3 at best") matches.
