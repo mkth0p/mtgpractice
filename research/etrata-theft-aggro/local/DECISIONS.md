@@ -37,3 +37,10 @@ Choices made while working unattended, with the reason for each. Newest at the b
 23. **The Bracket 4 mulligan is the default** (+1.3 vs the Bracket 4 field, +0.2 vs precons, 2,016 paired games each). The "don't overextend" rule measured ±0.2 and stays off: the bots' losses to wipes aren't about dumping the hand; they're about having nothing that survives.
 24. **Mana Vault is out of the versions.** Replacing it with a basic land measured +0.8 / +0.2 in A (the bot taps it once and never pays to untap it), so it's a worse rock than it looks in bot games; Mox Amber (free with Etrata out) takes its slot.
 25. **Vein Ripper + Ashnod's Altar only in v2.** It's a non-combat closer, which the user doesn't want as the main plan; it's in the primer's Bracket 4 list, so v2 tests it and the telemetry reports how much of v2's wins it takes.
+
+## Second round (2026-10-06)
+26. **Keep the last counter for the wipe.** Measured +1.0 vs precons on v2 (2,016 paired games) and matches the pilots' rule ("letting them kill single plays is superior to being shields-down"). Default on (`HEIST_OFF=saveCounter` turns it off).
+27. **Hatred's mana isn't held.** Holding five mana in main phase one when a Hatred kill was live cost 0.8 points and Hatred was still cast in 3% of games (the kill needs Ramses out, an unblocked Assassin, five mana and the card at once). Opt-in only.
+28. **Training Grounds is in** (+0.8 vs precons, −0.2 vs B4): the pilots' 79% card, and it's what makes the stolen cards usable; flipping before casting stays off (−0.6 / −1.1 again).
+29. **v4 (deathtouch attack-drain) is dropped**: 27.7% vs precons; the engine (Blightfang + Mari + bodies) rarely assembles and the drain took 6.4 life a game. The "defend against the whole table's crack-back" rule did nothing (+0.2 / +0.4).
+30. **Teferi's Veil, Greaves-on-Etrata-first and "cast Etrata when an Assassin connects" are measured next**, all from the pilots' loss analysis (Etrata leaves the battlefield 1.34 times a game in v2, mostly in rounds 3–8; wipes decide the precon losses).
