@@ -312,3 +312,12 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | pk4-all4 | Island → Animate Dead; Island → Necromancy; Swamp → Helm of the Host; Swamp → Irenicus's Vile Duplication | 41.4% | -1.6 ±1.5 | 22.4% | -3.9 ±1.3 | -5.5 |
 | pk4-helm | Island → Helm of the Host; Swamp → Irenicus's Vile Duplication | 40.8% | -2.2 ±1.5 | 22.6% | -3.6 ±1.3 | -5.8 |
 
+| 62 | pk5-* (aristocrat drains) | Zulaport Cutthroat, Blood Artist, Bastion of Remembrance (and Falkenrath Noble) in place of basic lands: the stolen 2/2s die to Ashnod's Altar and drain the table (the altar plan now counts every death drain, `H.drainPerDeath`) | | | pk2-cuts6 / pk3-vamp38 | | | pure list: three cards −2.1 / −3.4, four cards −0.7 / −3.3, the games without Ramses unchanged at 17–18% (drain rises to 13–17% of the kills, the total doesn't); **closer list +2.1 ±0.9 / +0.0 ±0.8 (49.7% / 27.1%)**, 40% of its precon games won without Ramses: the drains feed the loop |
+
+### Round 5: aristocrat drains in place of basic lands (2,016 paired games per field)
+| Run | Swap | B2 win | Δ B2 | B4 win | Δ B4 | Δ sum |
+|---|---|---|---|---|---|---|
+| pk5-vamp-aristo3 | Island → Zulaport Cutthroat; Swamp → Blood Artist; Swamp → Bastion of Remembrance | 49.7% | +2.1 ±0.9 | 27.1% | +0 ±0.8 | 2.1 |
+| pk5-aristo4 | Island → Zulaport Cutthroat; Island → Blood Artist; Swamp → Bastion of Remembrance; Swamp → Falkenrath Noble | 42.3% | -0.7 ±1.5 | 22.9% | -3.3 ±1.3 | -4.0 |
+| pk5-aristo3 | Island → Zulaport Cutthroat; Swamp → Blood Artist; Swamp → Bastion of Remembrance | 40.9% | -2.1 ±1.5 | 22.8% | -3.4 ±1.3 | -5.5 |
+
