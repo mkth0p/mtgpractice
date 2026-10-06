@@ -2076,7 +2076,7 @@
         }
       }
     }
-    nameOf(t) { if (!t) return "nothing"; if (this.isPlayer(t)) return t.name; if (t.kind === "spell") return t.name; return t.def.name; }
+    nameOf(t) { if (!t) return "nothing"; if (this.isPlayer(t)) return t.name; if (t.kind === "spell" || t.kind === "ability" || t.kind === "trigger") return t.name; return t.def ? t.def.name : "?"; }
 
     /* Everyone gets a chance to respond, in turn order after the caster. Resolves the stack. */
     async priorityRound(caster, item) {
