@@ -277,3 +277,14 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | cut2c-DemonicTutor | Demonic Tutor → Swamp | 34.4% | -2.2 ±0.6 | 20.8% | -0.6 ±0.5 | -2.8 |
 | cut2c-BloodletterofAclazot | Bloodletter of Aclazotz → Swamp | 32.2% | -4.4 ±0.8 | 18.6% | -2.8 ±0.6 | -7.2 |
 
+| 55 | pk2-* (packages on the freed slots) | v2c with the sweep's cuts spent on Ramses-independence ideas (table below); every package measured with telemetry for the win rate with and without Ramses | | | v2c-base | | | **the basics win**: six cuts → six basic lands +6.4 / +4.9 (43.0% / 26.2%, avg win round 8.7 / 7.8); Ramses lands in 67% of games (62%) and the games without him go 14% → 17%; recursion package +4.6 / +3.1 (without Ramses 19%); copies +3.1 / +2.6; evasion +2.6 / +2.0; one-shot reach +0.9 / +0.9. For comparison the closer list wins 31% of its games without Ramses (the loop), the pure list 14% |
+
+### Packages on the finalist's freed slots (2,016 paired games per field vs v2c-base)
+| Run | Swap | B2 win | Δ B2 | B4 win | Δ B4 | Δ sum |
+|---|---|---|---|---|---|---|
+| pk2-cuts6 | Kindred Discovery → Island; Swiftfoot Boots → Island; Mana Drain → Island; Interceptor, Shadow's Hound → Swamp; Obelisk of Urd → Swamp; Ghostly Flicker → Swamp | 43% | +6.4 ±1.1 | 26.2% | +4.9 ±0.9 | 11.3 |
+| pk2-recur | Kindred Discovery → Patriarch's Bidding; Swiftfoot Boots → Kindred Dominance; Mana Drain → Shredder, Shadow Master; Interceptor, Shadow's Hound → Swamp | 41.2% | +4.6 ±0.9 | 24.5% | +3.1 ±0.7 | 7.7 |
+| pk2-copies | Kindred Discovery → Auton Soldier; Swiftfoot Boots → Thieving Amalgam; Mana Drain → Vela the Night-Clad; Interceptor, Shadow's Hound → Swamp | 39.7% | +3.1 ±0.9 | 24% | +2.6 ±0.7 | 5.7 |
+| pk2-evasion | Kindred Discovery → Levitation; Swiftfoot Boots → Archetype of Imagination; Mana Drain → Training Grounds; Interceptor, Shadow's Hound → Swamp | 39.2% | +2.6 ±0.9 | 23.4% | +2 ±0.7 | 4.6 |
+| pk2-reach | Kindred Discovery → Hatred; Swiftfoot Boots → Blood Tribute; Mana Drain → Exsanguinate; Interceptor, Shadow's Hound → Rush of Dread | 37.5% | +0.9 ±0.8 | 22.3% | +0.9 ±0.6 | 1.8 |
+
