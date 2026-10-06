@@ -321,3 +321,4 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | pk5-aristo4 | Island → Zulaport Cutthroat; Island → Blood Artist; Swamp → Bastion of Remembrance; Swamp → Falkenrath Noble | 42.3% | -0.7 ±1.5 | 22.9% | -3.3 ±1.3 | -4.0 |
 | pk5-aristo3 | Island → Zulaport Cutthroat; Swamp → Blood Artist; Swamp → Bastion of Remembrance | 40.9% | -2.1 ±1.5 | 22.8% | -3.4 ±1.3 | -5.5 |
 
+| 63 | v2e-vamp-confirm | the closer list with Zulaport Cutthroat, Blood Artist, Bastion of Remembrance (`lists/v2e-vamp.txt`), 5,040 games per field | 48.0% ±0.7 | 26.5% ±0.6 | v2d-vamp-confirm | +0.9 ±0.6 | −0.3 ±0.5 | the 2,016-game +2.1 regressed to noise; 38% / 18% of its games won without Ramses, the same as without the three; not adopted |
