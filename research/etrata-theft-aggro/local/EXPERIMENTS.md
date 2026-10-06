@@ -302,3 +302,13 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | 58 | v2d-nocmd | v2d with NO_COMMANDER=1, 5,040 games per field | 23.7% ±0.6 | 16.6% ±0.5 | v2d-confirm | **−16.7 ±0.8** | **−7.0 ±0.7** | Etrata's contribution to the recommended list |
 | 59 | v2d-vamp-confirm | **confirmation of v2d-vamp (the closer list with the six cuts), 5,040 games per field** | **47.0% ±0.7** | **26.9% ±0.6** | v2c-vamp-confirm | +5.3 ±0.9 | +3.6 ±0.8 | +6.6 ±0.9 / +3.3 ±0.8 over v2d-confirm; wins 38% / 18% of its games without Ramses; kills vs precons: combat 54%, drain 37%, on-hit 10%; avg win round 8.8 / 7.9 |
 | 60 | v2d-consult30 | v2d with Demonic Consultation held while the library has fewer than 30 cards (HEIST_ON=consult30) | 41.8% ±1.1 | 23.7% ±0.9 | pk2-cuts6 | −1.2 ±1.5 | −2.6 ±1.3 | the library losses didn't move (72 vs 61 of 2,016): the decking comes from the draw engines, and the held Consultation costs Ramses access; opt-in only |
+| 61 | pk4-* (the four new cards) | Animate Dead, Necromancy, Helm of the Host and Irenicus's Vile Duplication implemented (tests in `test-heist.js`, the tutors fetch a reanimation spell when Ramses is in a graveyard, Helm and the Duplication copy Ramses first, Etrata second) and benched in place of basic lands of the 38-land lists (table below) | | | pk2-cuts6 / pk3-vamp38 | | | all below the lands they replaced: reanimation pair −0.4 / −3.4, copy pair −2.2 / −3.6, all four −1.6 / −3.9, all four in the closer list −0.7 / −2.5; the win rate without Ramses stays at 16–18% (pure) and 36% (closer); the cards are live too rarely: Animate Dead cast in 9% of games, Necromancy 12%, Helm 12% (round 7.5 on average), the Duplication 16% |
+
+### Round 4: the four new cards in place of basic lands (2,016 paired games per field)
+| Run | Swap | B2 win | Δ B2 | B4 win | Δ B4 | Δ sum |
+|---|---|---|---|---|---|---|
+| pk4-vamp-all4 | Island → Animate Dead; Island → Necromancy; Swamp → Helm of the Host; Swamp → Irenicus's Vile Duplication | 46.8% | -0.7 ±1 | 24.6% | -2.5 ±0.8 | -3.2 |
+| pk4-reanim | Island → Animate Dead; Swamp → Necromancy | 42.6% | -0.4 ±1.5 | 22.9% | -3.4 ±1.3 | -3.8 |
+| pk4-all4 | Island → Animate Dead; Island → Necromancy; Swamp → Helm of the Host; Swamp → Irenicus's Vile Duplication | 41.4% | -1.6 ±1.5 | 22.4% | -3.9 ±1.3 | -5.5 |
+| pk4-helm | Island → Helm of the Host; Swamp → Irenicus's Vile Duplication | 40.8% | -2.2 ±1.5 | 22.6% | -3.6 ±1.3 | -5.8 |
+
