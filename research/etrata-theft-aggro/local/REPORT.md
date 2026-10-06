@@ -1,31 +1,100 @@
 # Etrata, Deadly Fugitive as a Bracket 4 theft-aggro deck: report
 
-_Draft in progress (2026-10-06). The numbers sections are filled in from `EXPERIMENTS.md` once the finalist is confirmed with 5,040 games; everything below the research summary is being written as the benches finish._
+2026-10-06. Every number below comes from a logged bench run (`EXPERIMENTS.md`, raw lines in `xp/xp.log`); every choice is in `DECISIONS.md`; the design reasoning is in `STRATEGY.md`. Win rates are for the hero seat in four-player games against three opponents drawn at random from the engine's Bracket 2 precons ("precons") or its Bracket 4 bot decks ("Bracket 4"), with paired seeds; ± is one standard error.
 
-## What was asked, and the short answer
-The goal was an Etrata deck whose identity is cheap Assassins that connect early, each hit stealing a card through Etrata's cloak, with the stolen cards becoming more attackers, built and piloted the way a high Bracket 4 deck is; targets of at least 50% against three Bracket 2 precons and an average winning round below 8.4, with Etrata clearly mattering.
+## The short answer
 
-The research (official bracket definitions, Bracket 4 deckbuilding and piloting guides, 30 public Etrata lists, the two Bracket 4 Etrata primers, about 80 Reddit threads) and about 120,000 bot games say:
-- **Bracket 4 means "lethal, consistent, and fast"**: fast mana, tutors, free interaction, draw engines, and a compact win with redundant routes, in games expected to last at least four turns. Combat still decides most casual games (55% of all Commander games end in combat, 6% in combo), but every Bracket 4 Etrata list ends with a non-combat line (altar + Vein Ripper, Thassa's Oracle, Bolas's Citadel), and the pilots' honest placement for *aggro* Etrata is "high Bracket 3 at best".
-- **Real pilots play the cloak snowball**, not Assassin beatdown: cheap evasive Assassins, Etrata on turn 3 attacking at once, then copies of Etrata and a type-changer so every stolen 2/2 cloaks again, closed by the swarm, by decking the player you hit, or by altar + Vein Ripper. Ramses, Assassin Lord is "a bonus".
-- **In the bot games, Ramses is the deck.** With him on the battlefield the deck wins about half its games whatever else it holds (Ramses alone 51%, with Bloodletter and a halver 51%); without him 10–19%. He lands in about half the games. The deck's win rate is, to a first approximation, 0.52 × P(Ramses lands) + 0.19 × P(he doesn't), so the levers are tutor density and card flow, protection and recursion for him, and surviving the precons' wraths (56% of losses against precons had a wipe resolve against the deck; Etrata herself leaves the battlefield 1.3 times a game, mostly to removal on opponents' turns).
-- **No combat-only build reached 50% against the precon bots.** The best measured lists sit at 35–36% (2,016 games each, ±1.1), against 68% for the current drain-combo list. Each piloting rule or package from the research adds about a point; the structural ceiling comes from a deck of 1/1s and 2/2s against three opponents' wraths and blockers. The honest result is reported below with what was tried.
+| List | vs 3 precons | vs 3 Bracket 4 bots | avg winning round (precons / B4) | price (USD) | Game Changers |
+|---|---|---|---|---|---|
+| **Recommended: heist snowball** (`decklist-heist-snowball.txt`) | **36.0% ±0.7** (5,040 games) | **21.0% ±0.6** (5,040) | 8.9 / 7.9 | $1,300.08 | 9 |
+| the same deck without its commander (`NO_COMMANDER`) | 23.2% ±0.6 (5,040) | 15.5% ±0.5 (5,040) | 9.3 / 8.1 | | |
+| Alternative 1: heist closer (`decklist-heist-closer.txt`) | 41.8% ±0.7 (5,040) | 23.3% ±0.6 (5,040) | 9.1 / 7.9 | $1,380.35 | 9 |
+| Alternative 2: heist blitz (`decklist-heist-blitz.txt`) | 31.1% ±0.7 (5,040) | 18.9% ±0.6 (5,040) | 9.0 / 8.1 | $1,347.28 | 9 |
+| reference: the site's existing Etrata Bracket 4 aggro list | 25.4% ±1.0 (2,016) | 14.7% ±1.0 (1,260) | 9.4 / 8.7 | | |
+| reference: the site's drain-combo Etrata list | 68.0% ±1.0 (2,016) | 41.7% ±1.4 (1,260) | 8.2 / 7.3 | | |
 
-## The recommended list and the alternatives
-_To be filled from the confirmation runs._
+**The targets were not reached by any combat-only build.** The goal was at least 50% against the precons with an average winning round under 8.4. The best combat-only list reaches 36% against the precons (21% against Bracket 4) and wins on round 8.9 on average against the precons (7.9 against Bracket 4, which is under the target). About 120,000 bot games over 53 logged experiments went into this; the ceiling is structural (see "Why it stops at 36%"), not a matter of a few card choices. The one thing that lifts it is a non-combat closer: the same deck with the Exquisite Blood and Sanguine Bond loop wins 42%, but then 37% of its kills are the loop rather than an attack. Following the instruction to keep the aggro identity, the recommendation is the pure list; the closer list is given in full so the choice is yours.
 
-## How to pilot it (the rules the research and the bot games agree on)
-1. **Mulligan is the default.** Keep a hand that does something by turn 3: two or more lands with blue and black, a 1–2 mana evasive Assassin (Changeling Outcast is the best one-drop), and Etrata castable on turn 3 with an Assassin ready to hit that turn; or fast mana plus a real threat; or a turn 1–2 engine (Rhystic Study, Mystic Remora) with the lands for it. Interaction alone, or draw without development, is not a keep. (Bot games: +1.3 against the Bracket 4 field.)
-2. **Etrata comes down when an Assassin connects that turn**, because her trigger works the turn she's cast and she is kill-on-sight; Greaves or Boots on her as soon as you can, Fading Hope or Snapback to save her (she returns to hand without tax). (Bot games: +1.0 against Bracket 4.)
-3. **Tutor for Ramses first**, then protection for him; copies of Etrata and the type-changer next. Ramses right before combat, with a counter up if you can. (Bot games: tutoring anything else first costs 8–11 points.)
-4. **Save the last counter for the wrath**, and for removal aimed at Ramses or Etrata; let single creatures and commanders resolve. (Bot games: +1.0.)
-5. **Teferi's Veil makes the army phase out through everyone else's turn**: attack with everything that gets through, and the wraths miss. Eldrazi Monument does the same job against destroy effects. (Bot games: +1.0.)
-6. **Pick one player and kill them.** With Ramses out, one death is the game; the mark is whoever the board kills soonest, every attacker that gets through goes at them, and the rest hit whoever is open (each Assassin hit is still a card). Without Ramses, spread the hits (a player who leaves takes their stolen cards with them).
-7. **Flip rarely**: a stolen card is turned up only when it beats the 2/2 it is (a big creature, a free artifact or enchantment), after your own spells, never before combat; Training Grounds makes the flips affordable. Stolen instants and sorceries are cast through Etrata's exile clause at the moment they matter.
-8. **Don't be the first to go for it in a pod with counters**; present the kill when it's real (the attack commits everything only when the model says the player dies), and otherwise send only what connects.
+**Etrata matters.** Removing the commander from the recommended list costs 12.8 ±0.8 points against the precons and 5.5 ±0.7 against Bracket 4 (5,040 paired games each). The deck steals 7.0 cards a game, 6.8 of them through Etrata's cloak; its wins average 9.1 steals, its losses 5.9.
 
-## What didn't work, with numbers
-_To be filled from `EXPERIMENTS.md`._
+## How the recommended deck plays
 
-## Sources
-`../sources/bracket4-deckbuilding.md`, `../sources/bracket4-piloting-and-aggro.md`, `../sources/etrata-strategy.md`, `../sources/public-lists.md`, `../sources/heist-research.md` (exact Oracle text, prices and URLs for every new card), and the earlier `../sources/*.md`. Every bench is in `EXPERIMENTS.md` with its raw line in `xp/xp.log`; every choice is in `DECISIONS.md`; the design reasoning is in `STRATEGY.md`.
+It is the real pilots' "cloak snowball" on a Bracket 4 shell, with Ramses, Assassin Lord as the kill (the three Bracket 4 primers and the 30 public lists agree on both; `../sources/etrata-strategy.md`, `../sources/public-lists.md`):
+
+1. **Turns 1–2: cheap evasive Assassins.** Eleven connectors cost one or two mana: Changeling Outcast, Hired Poisoner, Slither Blade, Mothdust Changeling, Hullcarver, Tetsuko Umezawa (power or toughness 1 can't be blocked, which covers most of the team), Satoru (a card for every creature that enters without being cast, which is every cloaked card), Brotherhood Spy, Reno and Rude, Basim Ibn Ishaq, Desmond Miles. Eight pieces of fast mana (Sol Ring, Mox Amber, Chrome Mox, Lotus Petal, Dark Ritual, Arcane Signet, Talisman of Dominance, Ancient Tomb) put two of them down on turn one or Etrata on turn two.
+2. **Etrata when an Assassin connects.** Her trigger works the turn she's cast, so she comes down the turn an Assassin is already getting through. Each hit cloaks the top card of that player's library: a face-down 2/2 under our control that attacks next turn.
+3. **The snowball.** A type-changer (Leyline of Transformation, Arcane Adaptation, Maskwood Nexus, Roshan) makes every face-down 2/2 an Assassin, so each of them cloaks again when it connects, Ramses and Achilles give them +1/+1 each, Coat of Arms and Obelisk of Urd grow the pile, They Came from the Pipes and Kindred Discovery draw a card per face-down creature or Assassin. Spark Double and Sakashima copy Etrata (two cloaks per hit) or Ramses (a second lord and a second "you win"). Roaming Throne doubles the Assassin triggers. Ghostly Flicker turns two stolen cards face up for three mana, or saves Etrata and Ramses from a removal spell.
+4. **The kill: Ramses.** "Whenever a player loses the game, if they were attacked this turn by an Assassin you controlled, you win the game." Seven ways to find him (Demonic Tutor, Vampiric Tutor, Imperial Seal, Grim Tutor, Diabolic Intent, Demonic Consultation, Pyre of Heroes) and Reanimate to bring him back. With him out, the deck focuses one player: Virtus the Veiled, Unstoppable Slasher and Quietus Spike halve that player's life when they connect, Bloodletter of Aclazotz doubles every loss, Mari gives the team deathtouch, Interceptor gives it menace. One death is the game: in the confirmation run Ramses' trigger was the last kill in 74% of the wins against the precons and 65% against Bracket 4.
+5. **Getting through and surviving.** Eldrazi Monument (flying, indestructible), Reverse the Polarity (creatures can't be blocked, or a counter for everything else on the stack), Rogue's Passage; Teferi's Veil phases the attackers out until our untap step, so the wraths on the other players' turns miss them; Swiftfoot Boots and Lightning Greaves for Ramses and Etrata. Eight pieces of interaction, five of them free or one mana: Force of Will, Fierce Guardianship, Force of Negation, Mana Drain, Swan Song, Deadly Rollick, Snuff Out, Cyclonic Rift. Card flow from Rhystic Study, Mystic Remora, Dark Confidant, Skullclamp, Brainstorm, Preordain.
+6. **A small closer.** Vein Ripper and Ashnod's Altar: sacrificing the stolen 2/2s drains 2 each. It ends 2% of the wins and makes 6% of the kills, so the deck still wins by attacking.
+
+32 lands: 22 duals, fetches and utility lands (Rogue's Passage, Cavern of Souls, Mutavault, Brotherhood Headquarters, Secluded Courtyard, Path of Ancestry, Ancient Tomb) and ten basics. The full list with prices and store pages is `prices-heist-snowball.csv`.
+
+### How its wins happen (telemetry of the 5,040-game confirmation, precons / Bracket 4)
+- Opponents it eliminates: 0.84 / 0.50 per game; by combat damage 82% / 84%, by the halvers' and Bloodletter's on-hit triggers 13% / 12%, by drain 6% / 3%.
+- The last kill of a won game: Ramses' trigger 74% / 65%, combat 17% / 25%, on-hit 7% / 7%, drain 2% / 2%.
+- Ramses lands in 61% / 39% of games. With him the deck wins 50% / 42%; without him 14% / 8%. He is removed in 35% / 23% of the games he lands in (the deck then wins 21% / 25%); when he stays, it wins 66% / 47%.
+- Life taken from the three opponents per game: 44 / 28 (combat 36 / 24, on-hit 7 / 4, drain 2 / 1).
+- Etrata is cast 1.9 / 1.4 times a game and leaves the battlefield 1.1 / 0.6 times, three quarters of those on an opponent's turn.
+- The deck faces 0.65 / 0.25 opposing board wipes a game and loses 4.6 / 1.8 creatures a game on opponents' turns against 2.0 / 0.9 on its own.
+- Against the precons 27% of the wins come by round 7 and 48% by round 8; against Bracket 4, 44% by round 7 and 69% by round 8.
+- When it loses against the precons, it dies to damage in 93% of the losses and decks itself in 6% (Demonic Consultation plus the draw engines); against Bracket 4, 7% of the losses are opponents' alternative wins and 2% poison.
+
+## How to pilot it (the rules the research and the bot games agree on; each was measured)
+1. **Mulligan is the default.** Keep a hand that does something by turn 3: two or more lands with blue and black, a 1–2 mana evasive Assassin (Changeling Outcast is the best one-drop), and Etrata castable on turn 3 with an Assassin ready to hit that turn; or fast mana plus a real threat; or a turn 1–2 engine (Rhystic Study, Mystic Remora) with the lands for it. Interaction alone, or draw without development, is not a keep. (+1.3 against the Bracket 4 field, +0.2 against the precons.)
+2. **Etrata comes down when an Assassin connects that turn**, because her trigger works the turn she's cast and she is kill-on-sight; Greaves or Boots on her as soon as you can. (+1.0 against Bracket 4.)
+3. **Tutor for Ramses first**, then copies of him and of Etrata, then the type-changer. Ramses right before combat, with a counter up if you can. (Tutoring anything else first costs 8–11 points; putting Interceptor first costs 7.9.)
+4. **Don't wait to protect him.** Holding Ramses until Greaves or Boots can go on him the same turn costs 3.8 / 4.8 points: he lands in fewer games and a turn later, and a turn of his anthem and pressure is worth more than the third of his games in which he's removed.
+5. **Save the last counter for the wrath**, and for removal aimed at Ramses or Etrata; let single creatures and commanders resolve. (+1.0.)
+6. **Attack with everything that gets through once Teferi's Veil is out**: the attackers phase out through everyone else's turn and the wraths miss them. Eldrazi Monument does the same job against destroy effects. (+1.0 and +1.9.)
+7. **Pick one player and kill them.** With Ramses out, one death is the game: the mark is whoever the board kills soonest, every attacker that gets through goes at them, and the rest hit whoever is open (each Assassin hit is still a card). Without Ramses, spread the hits; a player who leaves takes their stolen cards with them. (The marking attack brain is worth 3.1 / 1.6 over the generic one.)
+8. **Flip rarely.** A stolen card is turned up only when it beats the 2/2 it is (a big creature, a free artifact or enchantment), after your own spells, never before combat. Stolen instants and sorceries are cast through Etrata's exile clause at the moment they matter. (Flipping first costs 1.7 / 0.7.)
+9. **Don't hold mana for Hatred-style one-shots** and don't hold the board back for the crack-back; neither measured anything (−0.8 / −0.5 and +0.2 / +0.4).
+
+## The two alternatives
+
+**Heist closer** (`decklist-heist-closer.txt`, `prices-heist-closer.csv`, $1,380.35): the recommended list with Hullcarver, Desmond Miles, Skullclamp and Maskwood Nexus replaced by Exquisite Blood, Sanguine Bond, Bloodthirsty Conqueror and Vito, Thorn of the Dusk Rose. Any two of the four make a loop (each life gain drains, each drain gains), the tutors complete it once half is out, and Vein Ripper and Bloodletter feed it. 41.8% ±0.7 against the precons and 23.3% ±0.6 against Bracket 4 (+5.8 ±0.9 and +2.4 ±0.8 over the recommended list, 5,040 paired games each). It still steals 6.4 cards a game and Ramses still ends half its wins, but 37% of its kills against the precons (28% against Bracket 4) are the loop, and 30% of its wins end on a drain. It is the strongest list in this report; it is not the recommendation because the deck was asked to win by attacking and stealing.
+
+**Heist blitz** (`decklist-heist-blitz.txt`, `prices-heist-blitz.csv`, $1,347.28): the Yuriko tempo template applied to Assassins (the cheapest evasive bodies, 31 lands, the most free interaction, the Ramses kill with Hatred as a one-shot). 31.1% ±0.7 and 18.9% ±0.6 (−4.9 / −2.1). It is the list closest to how the Bracket 4 sources describe a fast deck (median winning round 8 on both fields) and the one to prefer if your table's games are over by turn 7, but it steals less (5.4 cards a game) and its board is thinner against the precons' blockers. Its first version contained Esper Sentinel, a white card; the blitz list here has Faerie Seer in that slot and was re-benched.
+
+A six-card variant of the recommended list with the 6–7 mana typal top end (Orochi Soul-Reaver, Vela the Night-Clad, Kindred Dominance, Archetype of Imagination, Auton Soldier, Thieving Amalgam instead of Hullcarver, Basim, Desmond, Brainstorm, Preordain, Demonic Consultation; `lists/v2b.txt`) measured 36.1% / 18.4%: the same against the precons, 2–3 points worse against Bracket 4, and slower (winning round 9.3 / 8.2). The low curve is the better deck.
+
+## Why it stops at 36% (and what would move it)
+
+Three numbers describe every version that was built, from the first skeleton to the finalist:
+- With Ramses on the battlefield the deck wins about half its games; without him, a tenth to a fifth. The win rate is close to 0.5 × P(Ramses lands and stays) + 0.15 × P(he doesn't).
+- He lands in 52–62% of games against the precons and is removed in about a third of those, mostly by wraths on their owners' turns (Cleansing Nova, Time Wipe, Phyrexian Rebirth, Wrath of God, Austere Command, Hour of Reckoning in the telemetry). Landing by round 6 and staying is worth about 80%.
+- Everything else is a point. In the cut sweep of the skeleton (65 cards each replaced by a basic land, 2,016 games per field) only Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3), Sol Ring (−2.4 / −1.4) and the three cheapest tutors measured outside ±1.5 of a basic land.
+
+The levers were all tried (STRATEGY.md §10 has the table): more Ramses tutors raise his presence from 52% to 61% without raising wins (the tutors are dead once he's out); protection equipment, protection tutoring and holding him until he's protected all cost points; the kill kit tutored first costs 6–8 points; the ninjutsu tempo version and the deathtouch attack-drain version are 7–9 points worse. A deck of 1/1s and 2/2s whose kill depends on one four-mana legend surviving a turn cycle against three opponents' blockers and wraths tops out here; the pilots' own placement of aggro Etrata ("high Bracket 3 at best", with the Bracket 4 lists ending on an altar, an Oracle or a Citadel) says the same. What moves it is a non-combat closer: the loop adds 5.8 points at once.
+
+## What didn't work, with numbers (2,016 paired games per field unless noted; Δ precons / Δ Bracket 4)
+- Tutoring the "kill kit" (halvers and Bloodletter) before Ramses: −6.2 / −2.3; building the deck around it with seven tutors: −4.7 / −1.7.
+- Generic tutor targets instead of Ramses first: −10.9 / −4.5; Interceptor first: −7.9 / −3.6.
+- Flipping stolen creatures before casting the deck's own spells: −1.7 / −0.7, and again −0.6 / −1.1 on the snowball list.
+- Holding Ramses in hand until his attack is lethal: −1.2 / −0.8. Casting Greaves or Boots first and holding him until protected: −3.8 / −4.8.
+- Four extra Ramses tutors: −1.1 / +0.5 (his presence 52% → 61%, the games without him 12%).
+- Whispersilk Cloak, Darksteel Plate and Patriarch's Bidding for the closers: −2.3 / +0.6; tutoring for protection when he's out and bare: −0.4 / −0.1.
+- The ninjutsu tempo version: −7.9 / +0.2 (26.5%). The deathtouch attack-drain version: −6.7 / −0.1 (27.7%; the drains took 6.4 life a game). The all-unblockable skeleton: −2.9 / −1.5.
+- Extra turns and Genji Glove: −1.8 / −0.9. Dolmen Gate, Haunted One and Arcane Adaptation as a package: −1.8 / −0.2.
+- Holding five mana for a Hatred kill: −0.8 / −0.5 (Hatred was cast in 3% of games either way). Keeping blockers home against the table's crack-back: +0.2 / +0.4. Not overextending into wraths: +0.1 / −0.3. Boots on Etrata before Ramses: −0.0 / −0.1. 34 lands instead of 32: +0.1 / −0.0. Mana Vault: −0.8 / −0.2 (the bots never pay to untap it).
+- What helped, for the record: the evasion package (Eldrazi Monument, Archetype of Imagination, Levitation) +1.7 / +1.1; Reverse the Polarity with Eldrazi Monument +2.9 / +0.3; Pyre of Heroes +1.8 / +0.5; Demonic Consultation +0.6 / +0.8; the Bracket 4 mulligan +0.2 / +1.3; the last counter saved +1.0 / 0.0; Teferi's Veil +1.0 / +0.2; Etrata cast when an Assassin connects −0.2 / +1.0; the low curve +0.4 / +2.1; the marking attack brain +3.1 / +1.6; the vampire loop +5.8 / +2.4.
+
+## What to be skeptical about
+- **These are bot games.** The opponents are the engine's precon and Bracket 4 bots, piloted by the engine's AI; the hero is piloted by a brain written for this deck. Humans at a Bracket 4 table kill Ramses faster and hold up more interaction, so the real win rate is lower than 36%, not higher. The ordering of the lists and the piloting rules are what transfers.
+- **The engine simplifies some cards.** Every new card carries its exact Oracle text; where the implementation is simplified, the card's `note` field says how (`miku/game/decks-heist.js`; the same notes are in `../sources/heist-research.md`).
+- **Prices** are Scryfall's `prices.usd` for each card's cheapest nonfoil paper printing in the bulk data of 2026-10-05 (the TCGplayer market price as Scryfall reports it), not read from the store pages themselves; each CSV row carries that printing's Scryfall page and TCGplayer product page so the number can be checked. Totals: $1,300.08 / $1,380.35 / $1,347.28, all under the $1,500 cap. Every card is Commander-legal with a blue-black identity (checked against the index; the engine itself doesn't check identity, which is how a white card got into the first blitz list).
+- **Paired seeds**: every Δ is between runs that saw the same shuffles and the same opponents; two runs with different game counts can't be paired, so the confirmation runs are compared with each other.
+- **The 50% target** against the precons is not met and would not be met by more card tuning: the structural analysis above and 53 experiments say so. The closer list is the honest way past it.
+
+## Files
+- `decklist-heist-snowball.txt`, `prices-heist-snowball.csv` (recommended); `decklist-heist-closer.txt`, `prices-heist-closer.csv`; `decklist-heist-blitz.txt`, `prices-heist-blitz.csv`. 100 cards each including the commander.
+- `EXPERIMENTS.md` (53 runs and the sweep tables), `DECISIONS.md` (39 decisions), `STRATEGY.md` (the research-derived design rules and the ceiling analysis), `NEXT.md`, `xp/xp.log` (raw results), `lists/` (every version benched).
+- `../sources/bracket4-deckbuilding.md`, `../sources/bracket4-piloting-and-aggro.md`, `../sources/etrata-strategy.md`, `../sources/public-lists.md`, `../sources/heist-research.md` (125 cards: exact Oracle text, legality, Game Changer flag, cheapest printing with Scryfall and TCGplayer pages, engine status), and the earlier `../sources/*.md`.
+- Engine: `miku/game/decks-heist.js` (112 new cards and the heist brain, deck id `etrata-heist-aggro`, `MK.ETRATA_HEIST_DECK`), engine rules added in `miku/game/engine.js` (intimidate, wither, Phyrexian mana, protection, extra triggers, prowl, becomes-tapped triggers, cast-entry info, sacrifice costs), `tools/sim/test-heist.js` (123 checks). Bench tools: `tools/sim/bench/xp.sh`, `tele.js`, `telesum.js`, `trace.js`, `castrate.js`, `firstseen.js`.
+
+## Reproduce
+```bash
+source research/etrata-theft-aggro/local/xp/env.sh && LIST_FILE=research/etrata-theft-aggro/local/lists/v2c.txt N=280 TELE=1 tools/sim/bench/xp.sh v2c-confirm v2c-confirm
+```
+(`N=280` × 18 processes = 5,040 games per field; `NO_COMMANDER=1` for the commander check; `node tools/sim/bench/telesum.js tools/sim/bench/out v2c-confirm-b2` for the telemetry.)
