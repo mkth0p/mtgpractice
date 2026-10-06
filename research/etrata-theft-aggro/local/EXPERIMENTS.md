@@ -339,3 +339,15 @@ What it says: apart from Ramses (−14 / −5.6), Bloodletter (−2.9 / −2.3),
 | pk6-tg-flipfirst | Island → Training Grounds | 45.3% | -2.2 ±0.9 | 25.9% | -1.2 ±0.6 | -3.4 |
 | pk6-coat | Island → Cryptic Coat; Island → Scroll of Fate | 45.8% | -1.7 ±0.8 | 25.2% | -1.9 ±0.7 | -3.6 |
 
+| 65 | pk7-* (copies that stack, myriad, a trigger copier) | on the closer list, in place of basic lands: Mirror Box, Sakashima of a Thousand Faces, Rite of Replication (kicked: five copies), Blade of Selves (myriad), Strionic Resonator (copies Etrata's cloak trigger or a halver's trigger), singly, in pairs and all five (table below) | | | pk3-vamp38 | | | none beats a basic land: Blade of Selves 0.0 / −0.8, Strionic Resonator 0.0 / −0.8, Mirror Box 0.0 / −0.9, Sakashima + Rite −1.1 / −1.6, Mirror Box + Rite −0.9 / −2.0, all five −3.4 / −3.3; the games without Ramses stay at 33–37% |
+
+### Round 7: copies that stack, myriad and a trigger copier, on the closer list (2,016 paired games per field vs pk3-vamp38)
+| Run | Swap | B2 win | Δ B2 | B4 win | Δ B4 | Δ sum |
+|---|---|---|---|---|---|---|
+| pk7-blade | Island → Blade of Selves | 47.6% | +0 ±0.5 | 26.3% | -0.8 ±0.5 | -0.8 |
+| pk7-resonator | Island → Strionic Resonator | 47.5% | +0 ±0.5 | 26.3% | -0.8 ±0.5 | -0.8 |
+| pk7-mirror | Island → Mirror Box | 47.5% | +0 ±0.5 | 26.2% | -0.9 ±0.5 | -0.9 |
+| pk7-saka-rite | Island → Sakashima of a Thousand Faces; Island → Rite of Replication | 46.4% | -1.1 ±0.8 | 25.5% | -1.6 ±0.7 | -2.7 |
+| pk7-mirror-rite | Island → Mirror Box; Island → Rite of Replication | 46.7% | -0.9 ±0.8 | 25.1% | -2 ±0.7 | -2.9 |
+| pk7-all5 | Island → Mirror Box; Island → Sakashima of a Thousand Faces; Island → Rite of Replication; Swamp → Blade of Selves; Swamp → Strionic Resonator | 44.1% | -3.4 ±1.1 | 23.6% | -3.5 ±0.9 | -6.9 |
+
