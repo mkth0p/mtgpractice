@@ -1,4 +1,6 @@
-/* Generated card data for the Corrupted Etrata deck wiki. Rules text from the Forge card database. */
+/* Card data for the Corrupted Etrata deck wiki: the Etrata heist closer (research/etrata-theft-aggro/local/decklist-heist-closer.txt).
+   Rules text from Scryfall's Oracle text (research/etrata-theft-aggro/sources/heist-research.md), else the game engine's card text.
+   Numbers quoted in why/how come from the research's bot games. */
 window.CETRATA_CARDS = [
  {
   "name": "Etrata, Deadly Fugitive",
@@ -7,505 +9,26 @@ window.CETRATA_CARDS = [
   "mv": 3,
   "type": "Legendary Creature — Vampire Assassin",
   "cat": "Creature",
-  "pt": "1/4",
+  "pt": [
+   1,
+   4
+  ],
   "text": "Deathtouch\nFace-down creatures you control have \"{2}{U}{B}: Turn this creature face up. If you can't, exile it, then you may cast the exiled card without paying its mana cost.\"\nWhenever an Assassin you control deals combat damage to an opponent, cloak the top card of that player's library.",
   "roles": [
-   "cmd",
-   "facedown",
-   "steal"
+   "cmd"
   ],
-  "why": "The engine of the deck. She gives every face-down creature you control \"{2}{U}{B}: turn this face up\", which turns Wormfang Manta from a 7-mana flip into a 4-mana one, flips a face-down Silumgar Assassin at instant speed and lets you cast face-down instants and sorceries for free. Every time an Assassin you control deals combat damage to an opponent, she also cloaks the top card of that player's library for you.",
-  "how": "Cast her on turn 2 or 3 off a rock. Keep her home as a 1/4 deathtouch blocker unless Tetsuko Umezawa makes her unblockable. While she's on the battlefield, Fierce Guardianship and Deadly Rollick are free.",
+  "why": "The engine of the heist. Every time an Assassin you control deals combat damage to an opponent, she cloaks the top card of that player's library: a face-down 2/2 with ward {2} that attacks for you next turn. She also gives your face-down creatures {2}{U}{B}: turn face up, or exile a stolen instant or sorcery and cast it free. In the bot games, removing her costs 16.7 points against the precons and 7.0 against Bracket 4, and the deck steals 7.3 / 5.1 cards a game.",
+  "how": "Cast her in your first main phase on a turn when an Assassin is already getting through: her trigger works the turn she's cast, and she's kill-on-sight, so she shouldn't sit around first (rule 2, +1.0 against Bracket 4 in the bot games). Put <i-c>Lightning Greaves</i-c> on her as soon as you can.",
   "syn": [
-   "Silumgar Assassin",
-   "Wormfang Manta",
-   "Scroll of Fate",
-   "Training Grounds",
    "Changeling Outcast",
    "Tetsuko Umezawa, Fugitive",
-   "Fierce Guardianship"
+   "Leyline of Transformation",
+   "Roshan, Hidden Magister",
+   "Spark Double",
+   "Roaming Throne",
+   "Lightning Greaves"
   ],
-  "warn": "Cloaks are 2/2s with no creature types, so they never trigger her. Her cloaks come from real Assassins: herself, Virtus the Veiled, a face-up Silumgar Assassin, Changeling Outcast, an animated Mutavault and Black Market Connections' tokens."
- },
- {
-  "name": "Exquisite Blood",
-  "qty": 1,
-  "cost": "{4}{B}",
-  "mv": 5,
-  "type": "Enchantment",
-  "cat": "Enchantment",
-  "pt": "",
-  "text": "Whenever an opponent loses life, you gain that much life.",
-  "roles": [
-   "combo"
-  ],
-  "why": "The main drain of the vampire court loop. Whenever an opponent loses life, you gain that much, and any of the five payoffs (Marauding Blight-Priest, Starscape Cleric, Vito, Sanguine Bond, Enduring Tenacity) turns every gain into more life loss. Any pair of them loops until every opponent is dead.",
-  "how": "Find it with Demonic Tutor, Vampiric Tutor, Imperial Seal or Grim Tutor when a payoff is already on the battlefield. Cast it with counter backup, then start the loop: an attack, a Mindcrank trigger, or an opponent cracking a fetch land or paying for a shock land.",
-  "syn": [
-   "Marauding Blight-Priest",
-   "Vito, Thorn of the Dusk Rose",
-   "Sanguine Bond",
-   "Starscape Cleric",
-   "Enduring Tenacity",
-   "Bloodletter of Aclazotz",
-   "Changeling Outcast",
-   "Demonic Tutor"
-  ],
-  "warn": "It's a five-mana enchantment with no transmute tutor at its mana value. Enchantment removal or a bounce in response to the first trigger stops the loop."
- },
- {
-  "name": "Bloodthirsty Conqueror",
-  "qty": 1,
-  "cost": "{3}{B}{B}",
-  "mv": 5,
-  "type": "Creature — Vampire Knight",
-  "cat": "Creature",
-  "pt": "5/5",
-  "text": "Flying, deathtouch\nWhenever an opponent loses life, you gain that much life. (Damage causes loss of life.)",
-  "roles": [
-   "combo"
-  ],
-  "why": "A second Exquisite Blood on a 5/5 flying deathtouch body: whenever an opponent loses life, you gain that much. With Blight-Priest, Starscape Cleric, Vito, Sanguine Bond or Enduring Tenacity it's the same infinite loop. When the loop isn't ready, it's still a big flying attacker.",
-  "how": "Tutor for it when your opponents run enchantment removal, or when you want a threat that also ends the game. Cast it the turn before a payoff, or after one with protection up, and attack to start the loop.",
-  "syn": [
-   "Marauding Blight-Priest",
-   "Starscape Cleric",
-   "Enduring Tenacity",
-   "Vito, Thorn of the Dusk Rose",
-   "Sanguine Bond",
-   "Bloodletter of Aclazotz",
-   "Exquisite Blood"
-  ],
-  "warn": "It's a creature, so creature removal and wipes hit it. Toxic Deluge for X 5 or more kills your own Conqueror."
- },
- {
-  "name": "Marauding Blight-Priest",
-  "qty": 1,
-  "cost": "{2}{B}",
-  "mv": 3,
-  "type": "Creature — Vampire Cleric",
-  "cat": "Creature",
-  "pt": "3/2",
-  "text": "Whenever you gain life, each opponent loses 1 life.",
-  "roles": [
-   "combo"
-  ],
-  "why": "A three-mana payoff few people play: whenever you gain life, each opponent loses 1. With Exquisite Blood or Bloodthirsty Conqueror, that loss gains you life again, so it drains the whole table at once. It's the best payoff because it hits every opponent and doesn't target.",
-  "how": "Transmute Drift of Phantasms for it, or tutor for it. Cast it a turn early so the drain is the last piece, since a 3-drop draws less attention. Vito's lifelink activation or an attack then starts the loop.",
-  "syn": [
-   "Exquisite Blood",
-   "Bloodthirsty Conqueror",
-   "Drift of Phantasms",
-   "Vito, Thorn of the Dusk Rose",
-   "Bloodletter of Aclazotz"
-  ],
-  "warn": "A 3/2 dies to almost anything. Don't attack with it into open blockers before the loop is ready."
- },
- {
-  "name": "Vito, Thorn of the Dusk Rose",
-  "qty": 1,
-  "cost": "{2}{B}",
-  "mv": 3,
-  "type": "Legendary Creature — Vampire Cleric",
-  "cat": "Creature",
-  "pt": "1/3",
-  "text": "Whenever you gain life, target opponent loses that much life.\n{3}{B}{B}: Creatures you control gain lifelink until end of turn.",
-  "roles": [
-   "combo"
-  ],
-  "why": "Whenever you gain life, target opponent loses that much. With Exquisite Blood or Bloodthirsty Conqueror that's an infinite loop. His {3}{B}{B} ability gives your creatures lifelink, which starts the loop by itself in combat.",
-  "how": "Find him with Drift of Phantasms or a tutor and cast him early: a 1/3 for three gets little attention. He has 1 power, so Tetsuko Umezawa makes him unblockable.",
-  "syn": [
-   "Exquisite Blood",
-   "Bloodthirsty Conqueror",
-   "Tetsuko Umezawa, Fugitive",
-   "Drift of Phantasms",
-   "Marauding Blight-Priest"
-  ],
-  "warn": "His trigger targets one opponent at a time. A hexproof player can't be chosen, so use Blight-Priest against them."
- },
- {
-  "name": "Sanguine Bond",
-  "qty": 1,
-  "cost": "{3}{B}{B}",
-  "mv": 5,
-  "type": "Enchantment",
-  "cat": "Enchantment",
-  "pt": "",
-  "text": "Whenever you gain life, target opponent loses that much life.",
-  "roles": [
-   "combo"
-  ],
-  "why": "A payoff for the vampire court loop: whenever you gain life, target opponent loses that much. With Exquisite Blood or Bloodthirsty Conqueror it kills the table one player at a time. It's an enchantment, so it survives creature wipes that kill Vito, Blight-Priest and Starscape Cleric.",
-  "how": "Tutor for it when the drain is on the battlefield and creature removal is the problem. Cast it with counter backup, then start the loop with any opponent losing life.",
-  "syn": [
-   "Exquisite Blood",
-   "Bloodthirsty Conqueror",
-   "Bloodletter of Aclazotz",
-   "Demonic Tutor",
-   "Enduring Tenacity"
-  ],
-  "warn": "At five mana it's the slowest payoff. Prefer Blight-Priest or Vito when you can get either."
- },
- {
-  "name": "Enduring Tenacity",
-  "qty": 1,
-  "cost": "{2}{B}{B}",
-  "mv": 4,
-  "type": "Enchantment Creature — Snake Glimmer",
-  "cat": "Creature",
-  "pt": "4/3",
-  "text": "Whenever you gain life, target opponent loses that much life.\nWhen Enduring Tenacity dies, if it was a creature, return it to the battlefield under its owner's control. It's an enchantment. (It's not a creature.)",
-  "roles": [
-   "combo"
-  ],
-  "why": "A fourth payoff for the vampire court loop that's hard to get rid of: whenever you gain life, target opponent loses that much, so with Exquisite Blood or Bloodthirsty Conqueror it loops like Sanguine Bond. When it dies as a creature it comes back as an enchantment, so creature removal and Toxic Deluge only make it safer.",
-  "how": "Transmute Dimir House Guard for it, or cast it free with a bargained Beseech the Mirror. Cast it as a 4/3 blocker on turn 4. If they kill it, it returns as a plain enchantment that still does the loop.",
-  "syn": [
-   "Exquisite Blood",
-   "Bloodthirsty Conqueror",
-   "Dimir House Guard",
-   "Beseech the Mirror",
-   "Culling the Weak",
-   "Toxic Deluge"
-  ],
-  "warn": "It comes back only once: in its enchantment form it isn't a creature, so it can't die again, but enchantment removal, exile or a bounce gets rid of it for good. Like Vito, its trigger targets one opponent."
- },
- {
-  "name": "Starscape Cleric",
-  "qty": 1,
-  "cost": "{1}{B}",
-  "mv": 2,
-  "type": "Creature — Bat Cleric",
-  "cat": "Creature",
-  "pt": "2/1",
-  "text": "Offspring {2}{B} (You may pay an additional {2}{B} as you cast this spell. If you do, when this creature enters, create a 1/1 token copy of it.)\nFlying\nThis creature can't block.\nWhenever you gain life, each opponent loses 1 life.",
-  "roles": [
-   "combo"
-  ],
-  "why": "A two-mana Marauding Blight-Priest: whenever you gain life, each opponent loses 1. With Exquisite Blood or Bloodthirsty Conqueror it drains the whole table, and it's the cheapest loop payoff in the deck.",
-  "how": "Cast it on turn 2 and attack in the air, or pay the offspring cost later for a second copy that keeps the loop alive if one dies. Transmute Shred Memory or Muddle the Mixture for it when you need the payoff.",
-  "syn": [
-   "Exquisite Blood",
-   "Bloodthirsty Conqueror",
-   "Marauding Blight-Priest",
-   "Shred Memory",
-   "Muddle the Mixture",
-   "Tetsuko Umezawa, Fugitive"
-  ],
-  "warn": "It can't block, so it isn't one of your defenders. A 2/1 dies to every ping and to Toxic Deluge for X=1."
- },
- {
-  "name": "Bloodletter of Aclazotz",
-  "qty": 1,
-  "cost": "{1}{B}{B}{B}",
-  "mv": 4,
-  "type": "Creature — Vampire Demon",
-  "cat": "Creature",
-  "pt": "2/4",
-  "text": "Flying\nIf an opponent would lose life during your turn, they lose twice that much life instead. (Damage causes loss of life.)",
-  "roles": [
-   "combo"
-  ],
-  "why": "If an opponent would lose life during your turn, they lose twice that much. With Virtus the Veiled, 'lose half your life, rounded up' becomes 'lose all of it'. It also doubles combat damage, Mindcrank's mill count and every drain on your turn.",
-  "how": "Transmute Dimir House Guard for it, or cast it free with a bargained Beseech the Mirror. Cast it before combat on the turn Virtus or another evasive Assassin can connect. A 2/4 flier is also a fine blocker.",
-  "syn": [
-   "Virtus the Veiled",
-   "Tetsuko Umezawa, Fugitive",
-   "Rogue's Passage",
-   "Mindcrank",
-   "Exquisite Blood",
-   "Dimir House Guard"
-  ],
-  "warn": "It only works during your turn. On opponents' turns their life loss is normal."
- },
- {
-  "name": "Virtus the Veiled",
-  "qty": 1,
-  "cost": "{2}{B}",
-  "mv": 3,
-  "type": "Legendary Creature — Azra Assassin",
-  "cat": "Creature",
-  "pt": "1/1",
-  "text": "Partner with Gorm the Great (When this creature enters, target player may put Gorm into their hand from their library, then shuffle.)\nDeathtouch\nWhenever Virtus the Veiled deals combat damage to a player, that player loses half their life, rounded up.",
-  "roles": [
-   "combo"
-  ],
-  "why": "A 1/1 deathtouch Assassin: when it deals combat damage to a player, they lose half their life, rounded up. With Bloodletter of Aclazotz out on your turn that's all of it, so one hit kills that player.",
-  "how": "Find it with Drift of Phantasms or a tutor. Cast it early as a deathtouch blocker, then attack on the turn Bloodletter is out. As a 1/1 it's unblockable with Tetsuko; without Tetsuko, use Rogue's Passage.",
-  "syn": [
-   "Bloodletter of Aclazotz",
-   "Tetsuko Umezawa, Fugitive",
-   "Rogue's Passage",
-   "Drift of Phantasms",
-   "Mindcrank"
-  ],
-  "warn": "Its Partner with Gorm the Great does nothing here; when it enters, nobody has Gorm to find. It kills one player, not the table: the other opponents still need another line."
- },
- {
-  "name": "Tetsuko Umezawa, Fugitive",
-  "qty": 1,
-  "cost": "{1}{U}",
-  "mv": 2,
-  "type": "Legendary Creature — Human Rogue",
-  "cat": "Creature",
-  "pt": "1/3",
-  "text": "Creatures you control with power or toughness 1 or less can't be blocked.",
-  "roles": [
-   "utility"
-  ],
-  "why": "Creatures you control with power or toughness 1 or less can't be blocked. That covers Etrata (1/4), Virtus, Vito, Tetsuko herself, Vampire of the Dire Moon, Hooded Blightfang, Starscape Cleric, an unflipped Silumgar Assassin (2/1) and the 6/1 Wormfang Manta. It's the deck's cheapest evasion and turns every small Assassin into a reliable cloak trigger.",
-  "how": "Transmute Shred Memory or Muddle the Mixture for her, or just cast her on turn 2. On Manta turns, the 6/1 Manta attacks unblocked.",
-  "syn": [
-   "Etrata, Deadly Fugitive",
-   "Virtus the Veiled",
-   "Vito, Thorn of the Dusk Rose",
-   "Vampire of the Dire Moon",
-   "Hooded Blightfang",
-   "Wormfang Manta",
-   "Shred Memory",
-   "Muddle the Mixture"
-  ],
-  "warn": "It checks power and toughness as blockers are declared. Face-down creatures and cloaks are 2/2s, so they don't qualify, and a megamorphed Silumgar Assassin (3/2) doesn't either."
- },
- {
-  "name": "Vampire of the Dire Moon",
-  "qty": 1,
-  "cost": "{B}",
-  "mv": 1,
-  "type": "Creature — Vampire",
-  "cat": "Creature",
-  "pt": "1/1",
-  "text": "Deathtouch\nLifelink",
-  "roles": [
-   "utility",
-   "combo"
-  ],
-  "why": "A turn-1 deathtouch blocker that keeps big attackers off you while you set up. Its lifelink starts the vampire loop when a drain and a payoff are out, and its deathtouch attack triggers Hooded Blightfang.",
-  "how": "Play it on turn 1 and leave it home. With Tetsuko out it's unblockable, so on the kill turn it attacks, gains you life and starts the loop.",
-  "syn": [
-   "Hooded Blightfang",
-   "Tetsuko Umezawa, Fugitive",
-   "Exquisite Blood",
-   "Marauding Blight-Priest",
-   "Starscape Cleric"
-  ],
-  "warn": "It's a 1/1, so any ping or Toxic Deluge for X=1 kills it. It's a Vampire, not an Assassin, so it doesn't trigger Etrata's cloak."
- },
- {
-  "name": "Hooded Blightfang",
-  "qty": 1,
-  "cost": "{2}{B}",
-  "mv": 3,
-  "type": "Creature — Snake",
-  "cat": "Creature",
-  "pt": "1/4",
-  "text": "Deathtouch\nWhenever a creature you control with deathtouch attacks, each opponent loses 1 life and you gain 1 life.\nWhenever a creature you control with deathtouch deals damage to a planeswalker, destroy that planeswalker.",
-  "roles": [
-   "utility",
-   "combo"
-  ],
-  "why": "A 1/4 deathtouch wall that also drains. Etrata, Virtus, Bloodthirsty Conqueror, Vampire of the Dire Moon and the Blightfang itself have deathtouch, so every attack with one makes each opponent lose 1 and you gain 1. With a drain and a payoff out, that one attack starts the loop.",
-  "how": "Transmute Drift of Phantasms for it or cast it on turn 3 and keep it back as a blocker. On the kill turn, attack with any deathtouch creature: the trigger happens on attack, before blockers, so it doesn't even need to connect.",
-  "syn": [
-   "Exquisite Blood",
-   "Bloodthirsty Conqueror",
-   "Vampire of the Dire Moon",
-   "Etrata, Deadly Fugitive",
-   "Virtus the Veiled",
-   "Drift of Phantasms"
-  ],
-  "warn": "Face-down creatures and cloaks have no abilities, so they don't trigger it. It's not an Assassin, so it doesn't trigger Etrata."
- },
- {
-  "name": "Silumgar Assassin",
-  "qty": 1,
-  "cost": "{1}{B}",
-  "mv": 2,
-  "type": "Creature — Human Assassin",
-  "cat": "Creature",
-  "pt": "2/1",
-  "text": "Creatures with power greater than Silumgar Assassin's power can't block it.\nMegamorph {2}{B} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)\nWhen Silumgar Assassin is turned face up, destroy target creature with power 3 or less an opponent controls.",
-  "roles": [
-   "facedown",
-   "removal"
-  ],
-  "why": "Cast face down for {3}, it's a 2/2 blocker that holds removal: turn it face up for {2}{B} at any time and destroy an opponent's creature with power 3 or less. Turning face up by megamorph is a special action, so nobody can respond to the flip itself. Face up it's an Assassin, so its hits cloak with Etrata.",
-  "how": "Cast it face down on turn 3 instead of tapping out for a sorcery-speed play. Flip it when an opponent's attacker or key creature shows up. Etrata's {2}{U}{B} flip also works ({U}{B} with Training Grounds), but only the megamorph flip gives the +1/+1 counter.",
-  "syn": [
-   "Etrata, Deadly Fugitive",
-   "Training Grounds",
-   "Tetsuko Umezawa, Fugitive",
-   "Deadly Rollick"
-  ],
-  "warn": "The destroy trigger targets, so it can't hit hexproof creatures. With its +1/+1 counter it's a 3/2, so Tetsuko no longer makes it unblockable."
- },
- {
-  "name": "Toxic Deluge",
-  "qty": 1,
-  "cost": "{2}{B}",
-  "mv": 3,
-  "type": "Sorcery",
-  "cat": "Sorcery",
-  "pt": "",
-  "text": "As an additional cost to cast this spell, pay X life.\nAll creatures get -X/-X until end of turn.",
-  "roles": [
-   "removal",
-   "combo"
-  ],
-  "why": "Pay X life, all creatures get -X/-X. It resets a board that's racing you, and it's the deck's only sweeper, so it buys the turns the vampire loop and the Manta loop need.",
-  "how": "Pick the smallest X that kills what matters. X=3 keeps Etrata (1/4) and Hooded Blightfang (1/4) alive. Enduring Tenacity dies at X=3 or more and comes back as an enchantment, so the wipe costs you nothing there.",
-  "syn": [
-   "Enduring Tenacity",
-   "Hooded Blightfang",
-   "Etrata, Deadly Fugitive",
-   "Drift of Phantasms"
-  ],
-  "warn": "Face-down creatures are 2/2s, so X=2 kills your cloaks and a face-down Silumgar Assassin. Vampire of the Dire Moon and Starscape Cleric die at X=1."
- },
- {
-  "name": "Scroll of Fate",
-  "qty": 1,
-  "cost": "{3}",
-  "mv": 3,
-  "type": "Artifact",
-  "cat": "Artifact",
-  "pt": "",
-  "text": "{T}: Manifest a card from your hand. (Put that card onto the battlefield face down as a 2/2 creature. Turn it face up any time for its mana cost if it's a creature card.)",
-  "roles": [
-   "facedown",
-   "combo"
-  ],
-  "why": "Tap: manifest a card from your hand. Manifesting Wormfang Manta puts it in face down, so its 'skip your next turn' never triggers, then Etrata flips it for four. It also hides counterspells for Etrata to cast free.",
-  "how": "Find it with Drift of Phantasms. On a Manta turn: tap Scroll to manifest the Manta, flip it with Etrata, then bounce it with Crystal Shard for an extra turn. Scroll untaps for the next one.",
-  "syn": [
-   "Wormfang Manta",
-   "Crystal Shard",
-   "Etrata, Deadly Fugitive",
-   "Training Grounds",
-   "Drift of Phantasms"
-  ]
- },
- {
-  "name": "Wormfang Manta",
-  "qty": 1,
-  "cost": "{5}{U}{U}",
-  "mv": 7,
-  "type": "Creature — Nightmare Fish Beast",
-  "cat": "Creature",
-  "pt": "6/1",
-  "text": "Flying\nWhen Wormfang Manta enters, you skip your next turn.\nWhen Wormfang Manta leaves the battlefield, you take an extra turn after this one.",
-  "roles": [
-   "combo",
-   "facedown"
-  ],
-  "why": "When it leaves the battlefield, you take an extra turn. Manifested with Scroll of Fate, its 'skip your next turn' enters trigger never happens, and Etrata flips it for four. Crystal Shard then bounces it, for an extra turn every turn.",
-  "how": "Never cast it normally. Manifest it with Scroll, flip it with Etrata, attack (Tetsuko makes a 6/1 unblockable), then bounce it with Crystal Shard or Otawara. Repeat each extra turn for 5 mana, or 3 with Training Grounds.",
-  "syn": [
-   "Scroll of Fate",
-   "Crystal Shard",
-   "Etrata, Deadly Fugitive",
-   "Training Grounds",
-   "Tetsuko Umezawa, Fugitive",
-   "Otawara, Soaring City"
-  ],
-  "warn": "Cast normally it makes you skip your next turn, which cancels the extra turn. If it leaves while still face down, there's no extra turn."
- },
- {
-  "name": "Crystal Shard",
-  "qty": 1,
-  "cost": "{3}",
-  "mv": 3,
-  "type": "Artifact",
-  "cat": "Artifact",
-  "pt": "",
-  "text": "{3}, {T} or {U}, {T}: Return target creature to its owner's hand unless its controller pays {1}.",
-  "roles": [
-   "combo",
-   "utility"
-  ],
-  "why": "{U}, {T}: return a creature to its owner's hand unless its controller pays {1}. You control the face-up Wormfang Manta, so you choose not to pay, and you take an extra turn. It untaps every turn, so the Manta loop needs only one Shard.",
-  "how": "Find it with Drift of Phantasms. On Manta turns, bounce the Manta after combat. On other turns, bounce an opponent's blocker or a creature with an enters trigger they want to reuse at a bad time.",
-  "syn": [
-   "Wormfang Manta",
-   "Scroll of Fate",
-   "Etrata, Deadly Fugitive",
-   "Drift of Phantasms",
-   "Training Grounds"
-  ],
-  "warn": "Training Grounds doesn't reduce it: it's an artifact's ability, not a creature's. Opponents can pay {1} to keep their creature."
- },
- {
-  "name": "Training Grounds",
-  "qty": 1,
-  "cost": "{U}",
-  "mv": 1,
-  "type": "Enchantment",
-  "cat": "Enchantment",
-  "pt": "",
-  "text": "Activated abilities of creatures you control cost {2} less to activate. This effect can't reduce the mana in that cost to less than one mana.",
-  "roles": [
-   "utility",
-   "combo"
-  ],
-  "why": "Activated abilities of your creatures cost up to {2} less. Etrata's flip drops to {U}{B} and Duskmantle Guildmage's drain to {U}{B}. The Manta loop and the Silumgar Assassin flip get much cheaper.",
-  "how": "Find it with Vampiric Tutor or Imperial Seal, or cast it on turn 1 or 2. With it out, the Manta loop is {U}{B} for the flip and {U} for Shard, 3 mana a turn.",
-  "syn": [
-   "Etrata, Deadly Fugitive",
-   "Duskmantle Guildmage",
-   "Wormfang Manta",
-   "Silumgar Assassin",
-   "Vito, Thorn of the Dusk Rose"
-  ],
-  "warn": "It doesn't reduce morph costs, turning up for a mana cost, transmute, or artifact abilities like Crystal Shard."
- },
- {
-  "name": "Mindcrank",
-  "qty": 1,
-  "cost": "{2}",
-  "mv": 2,
-  "type": "Artifact",
-  "cat": "Artifact",
-  "pt": "",
-  "text": "Whenever an opponent loses life, that player mills that many cards. (Damage dealt by sources without infect causes loss of life.)",
-  "roles": [
-   "combo"
-  ],
-  "why": "Whenever an opponent loses life, they mill that many cards. With Duskmantle Guildmage's first ability active, each milled card costs them 1 life, and the loop runs until they're dead. It's the deck's most common win.",
-  "how": "Cast it early: alone it looks harmless. Find it with Tribute Mage, Shred Memory, Muddle the Mixture or Wishclaw Talisman. On the kill turn, resolve the Guildmage's drain and start the loop with any life loss.",
-  "syn": [
-   "Duskmantle Guildmage",
-   "Tribute Mage",
-   "Shred Memory",
-   "Muddle the Mixture",
-   "Bloodletter of Aclazotz",
-   "Thief of Sanity"
-  ],
-  "warn": "Rest in Peace or Leyline of the Void stops the loop: the cards never reach the graveyard. An empty library stops it too."
- },
- {
-  "name": "Duskmantle Guildmage",
-  "qty": 1,
-  "cost": "{U}{B}",
-  "mv": 2,
-  "type": "Creature — Human Wizard",
-  "cat": "Creature",
-  "pt": "2/2",
-  "text": "{1}{U}{B}: Whenever a card is put into an opponent's graveyard from anywhere this turn, that player loses 1 life.\n{2}{U}{B}: Target player mills two cards.",
-  "roles": [
-   "combo"
-  ],
-  "why": "Its {1}{U}{B} ability makes each opponent lose 1 life whenever a card goes to their graveyard this turn. With Mindcrank, each loss mills, and each mill loses more life. It's two cheap cards that kill a whole table.",
-  "how": "Activate it on an opponent's turn when they cast a spell: the spell going to their graveyard starts the loop. On your turn, start it with combat damage, its {2}{U}{B} mill, or by sacrificing a stolen cloak to Culling the Weak.",
-  "syn": [
-   "Mindcrank",
-   "Training Grounds",
-   "Culling the Weak",
-   "Changeling Outcast",
-   "Thief of Sanity",
-   "Shred Memory"
-  ],
-  "warn": "The first ability doesn't start the loop by itself. It needs a card to go to an opponent's graveyard after it resolves."
+  "warn": "A face-down creature has no creature types, so a stolen 2/2 only cloaks again once <i-c>Leyline of Transformation</i-c>, <i-c>Arcane Adaptation</i-c> or <i-c>Roshan, Hidden Magister</i-c> makes it an Assassin."
  },
  {
   "name": "Changeling Outcast",
@@ -514,221 +37,556 @@ window.CETRATA_CARDS = [
   "mv": 1,
   "type": "Creature — Shapeshifter",
   "cat": "Creature",
-  "pt": "1/1",
+  "pt": [
+   1,
+   1
+  ],
   "text": "Changeling (This card is every creature type.)\nChangeling Outcast can't block and can't be blocked.",
   "roles": [
-   "utility"
+   "assassin"
   ],
-  "why": "A one-mana unblockable creature that is every type, so it's an Assassin and a Vampire. It cloaks a card with Etrata every turn and starts the Mindcrank and vampire loops with a single point of damage.",
-  "how": "Play it on turn 1 or 2 and attack every turn. With a drain and a payoff out, its 1 damage starts the vampire loop.",
+  "why": "The best one-drop in the deck. Changeling makes it every creature type, so it's an Assassin for Etrata and Ramses, and it can't be blocked whatever its size. Every turn it connects is a cloak once Etrata is out.",
+  "how": "Play it on turn 1 and attack every turn. With Ramses out it's a 2/2 unblockable Assassin that marks your target player for his win.",
   "syn": [
    "Etrata, Deadly Fugitive",
-   "Mindcrank",
-   "Exquisite Blood",
-   "Mutavault"
+   "Ramses, Assassin Lord",
+   "Achilles Davenport",
+   "Coat of Arms",
+   "Kindred Dominance",
+   "Pyre of Heroes"
   ],
-  "warn": "It can't block, so don't count it as defense."
+  "warn": "It can't block, so it never helps you defend. That's fine: it's there to hit."
  },
  {
-  "name": "Thief of Sanity",
+  "name": "Hired Poisoner",
   "qty": 1,
-  "cost": "{1}{U}{B}",
-  "mv": 3,
-  "type": "Creature — Specter",
+  "cost": "{B}",
+  "mv": 1,
+  "type": "Creature — Human Assassin",
   "cat": "Creature",
-  "pt": "2/2",
-  "text": "Flying\nWhenever Thief of Sanity deals combat damage to a player, look at the top three cards of that player's library, exile one of them face down, then put the rest into their graveyard. You may look at and cast that card for as long as it remains exiled, and you may spend mana as though it were mana of any type to cast that spell.",
-  "roles": [
-   "steal"
+  "pt": [
+   1,
+   1
   ],
-  "why": "A 2/2 flier: when it hits, you look at the top three cards of that player's library, exile one to cast later and put the other two into their graveyard. You get the best card of three every turn.",
-  "how": "Find it with Drift of Phantasms or cast it on turn 3. Attack the player with the most dangerous deck. With Guildmage's drain active, the two cards it bins also start the Mindcrank loop.",
+  "text": "Deathtouch",
+  "roles": [
+   "assassin"
+  ],
+  "why": "A one-mana deathtouch Assassin. With <i-c>Tetsuko Umezawa, Fugitive</i-c> out it can't be blocked, and without her nobody wants to block it with anything good. It's early pressure and, after Etrata, a cloak per hit.",
+  "how": "Play it turn 1 and attack. Keep attacking; it's a deathtouch blocker only when you have nothing better to do with it.",
   "syn": [
-   "Duskmantle Guildmage",
-   "Mindcrank",
    "Tetsuko Umezawa, Fugitive",
-   "Drift of Phantasms"
-  ],
-  "warn": "It's a 2/2 flier, so any flying blocker or removal stops it. It isn't an Assassin, so its hits don't trigger Etrata."
- },
- {
-  "name": "Opposition Agent",
-  "qty": 1,
-  "cost": "{2}{B}",
-  "mv": 3,
-  "type": "Creature — Human Rogue",
-  "cat": "Creature",
-  "pt": "3/2",
-  "text": "Flash\nYou control your opponents while they're searching their libraries.\nWhile an opponent is searching their library, they exile each card they find. You may play those cards for as long as they remain exiled, and you may spend mana as though it were mana of any color to cast them.",
-  "roles": [
-   "steal",
-   "removal"
-  ],
-  "gc": true,
-  "why": "Flash. You control your opponents while they search their libraries, and every card they find is exiled for you to play. Their tutors and fetch lands become yours. With Wishclaw Talisman or Scheming Symmetry, the tutor you hand an opponent ends up working for you.",
-  "how": "Flash it in when an opponent casts a tutor or cracks a fetch land, or at the end of a turn before you hand someone Wishclaw. Hold it for the tutor that matters, not the first fetch land.",
-  "syn": [
-   "Wishclaw Talisman",
-   "Scheming Symmetry",
-   "Drift of Phantasms",
-   "Fierce Guardianship"
-  ],
-  "warn": "It doesn't stop the search. It only controls it, and the card is exiled for you to play."
- },
- {
-  "name": "Notion Thief",
-  "qty": 1,
-  "cost": "{2}{U}{B}",
-  "mv": 4,
-  "type": "Creature — Human Rogue",
-  "cat": "Creature",
-  "pt": "3/1",
-  "text": "Flash\nIf an opponent would draw a card except the first one they draw in each of their draw steps, instead that player skips that draw and you draw a card.",
-  "roles": [
-   "steal",
-   "draw"
-  ],
-  "gc": true,
-  "why": "Flash. If an opponent would draw a card except the first one in their draw step, they skip that draw and you draw instead. With Windfall, the whole table discards and you draw every card they would have drawn.",
-  "how": "Flash it in at the end of the turn before your Windfall, or in response to an opponent's draw spell. Then cast Windfall: you draw your own new hand plus all of theirs.",
-  "syn": [
-   "Windfall",
-   "Necropotence",
-   "Rhystic Study",
-   "Dimir House Guard",
-   "Mystic Remora"
-  ],
-  "warn": "Opponents' normal draw step still works. It only steals extra draws."
- },
- {
-  "name": "Windfall",
-  "qty": 1,
-  "cost": "{2}{U}",
-  "mv": 3,
-  "type": "Sorcery",
-  "cat": "Sorcery",
-  "pt": "",
-  "text": "Each player discards their hand, then draws cards equal to the greatest number of cards a player discarded this way.",
-  "roles": [
-   "draw"
-  ],
-  "why": "Each player discards their hand, then draws as many cards as the biggest hand discarded. With Notion Thief out, opponents draw nothing and you draw everything.",
-  "how": "Cast it when Notion Thief is out, or when your hand is small and the table's hands are big. With Necropotence out, your discarded cards are exiled.",
-  "syn": [
-   "Notion Thief",
-   "Necropotence",
-   "Drift of Phantasms"
-  ],
-  "warn": "Without Notion Thief it refills the opponents too. Don't give a combo player a fresh hand."
- },
- {
-  "name": "Black Market Connections",
-  "qty": 1,
-  "cost": "{2}{B}",
-  "mv": 3,
-  "type": "Enchantment",
-  "cat": "Enchantment",
-  "pt": "",
-  "text": "At the beginning of your first main phase, choose one or more —\n• Sell Contraband — Create a Treasure token. You lose 1 life.\n• Buy Information — Draw a card. You lose 2 life.\n• Hire a Mercenary — Create a 3/2 colorless Shapeshifter creature token with changeling. You lose 3 life.",
-  "roles": [
-   "draw",
-   "ramp"
-  ],
-  "why": "Each first main phase, choose one or more: a Treasure for 1 life, a card for 2 life, or a 3/2 changeling Mercenary for 3 life. The Mercenary is an Assassin, so it triggers Etrata.",
-  "how": "Find it with Drift of Phantasms. Early, take the card and the Treasure. Late, add a Mercenary when you need another Assassin to attack.",
-  "syn": [
    "Etrata, Deadly Fugitive",
-   "Beseech the Mirror",
-   "Exquisite Blood"
+   "Mari, the Killing Quill",
+   "Pyre of Heroes",
+   "Kindred Dominance"
   ],
-  "warn": "The life adds up. Watch your total with Necropotence and painlands."
+  "warn": "Ramses, Achilles, Coat of Arms and Eldrazi Monument make it a 2/2, and then Tetsuko no longer covers it."
  },
  {
-  "name": "Rhystic Study",
-  "qty": 1,
-  "cost": "{2}{U}",
-  "mv": 3,
-  "type": "Enchantment",
-  "cat": "Enchantment",
-  "pt": "",
-  "text": "Whenever an opponent casts a spell, you may draw a card unless that player pays {1}.",
-  "roles": [
-   "draw"
-  ],
-  "gc": true,
-  "why": "Whenever an opponent casts a spell, you may draw a card unless they pay {1}. Either you draw a lot or the table slows down.",
-  "how": "Cast it on turn 2 or 3. Remind the table of the tax on each spell. Drift of Phantasms can transmute for it.",
-  "syn": [
-   "Mystic Remora",
-   "Notion Thief",
-   "Drift of Phantasms"
-  ]
- },
- {
-  "name": "Necropotence",
-  "qty": 1,
-  "cost": "{B}{B}{B}",
-  "mv": 3,
-  "type": "Enchantment",
-  "cat": "Enchantment",
-  "pt": "",
-  "text": "Skip your draw step.\nWhenever you discard a card, exile that card from your graveyard.\nPay 1 life: Exile the top card of your library face down. Put that card into your hand at the beginning of your next end step.",
-  "roles": [
-   "draw"
-  ],
-  "gc": true,
-  "why": "Pay 1 life: exile your top card face down, and it goes to your hand at your next end step. It turns your 40 life into as many cards as you need to assemble a combo. Exquisite Blood and Bloodthirsty Conqueror refill the life later.",
-  "how": "Cast it on turn 1 or 2 off Dark Ritual if you can. Pay life before your end step begins to dig for the missing piece: the cards arrive as it starts. Keep 10 or more life for safety.",
-  "syn": [
-   "Dark Ritual",
-   "Windfall",
-   "Vampiric Tutor",
-   "Imperial Seal",
-   "Exquisite Blood"
-  ],
-  "warn": "You skip your draw step, and the cards only arrive at your end step, so you can't use them that turn."
- },
- {
-  "name": "Phyrexian Arena",
-  "qty": 1,
-  "cost": "{1}{B}{B}",
-  "mv": 3,
-  "type": "Enchantment",
-  "cat": "Enchantment",
-  "pt": "",
-  "text": "At the beginning of your upkeep, you draw a card and you lose 1 life.",
-  "roles": [
-   "draw"
-  ],
-  "why": "An extra card every turn for 1 life, with no more mana to spend. Added in v3's third round: in bot games the slower theft spells did less than a steady extra card.",
-  "how": "Cast it on turn 2 or 3 off a rock or Dark Ritual. Drift of Phantasms can transmute for it. With Vampiric Tutor or Imperial Seal, the card you put on top arrives in your upkeep, before your draw step.",
-  "syn": [
-   "Necropotence",
-   "Vampiric Tutor",
-   "Imperial Seal",
-   "Drift of Phantasms",
-   "Dark Ritual"
-  ],
-  "warn": "You lose the life, not an opponent, so it never starts the vampire loop: Exquisite Blood and Bloodthirsty Conqueror only see opponents losing life. Count it with Necropotence and the painlands."
- },
- {
-  "name": "Mystic Remora",
+  "name": "Slither Blade",
   "qty": 1,
   "cost": "{U}",
   "mv": 1,
-  "type": "Enchantment",
-  "cat": "Enchantment",
-  "pt": "",
-  "text": "Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)\nWhenever an opponent casts a noncreature spell, you may draw a card unless that player pays {4}.",
+  "type": "Creature — Snake Rogue",
+  "cat": "Creature",
+  "pt": [
+   1,
+   2
+  ],
+  "text": "This creature can't be blocked.",
+  "roles": [
+   "assassin"
+  ],
+  "why": "A one-mana creature that can't be blocked, ever. It's a Snake Rogue, not an Assassin, so it cloaks for Etrata only once a type-changer is out; before that it's two damage a turn of pressure. In the cut sweep of an earlier version, replacing it with a basic land cost 0.7 / 1.3 points (bot games).",
+  "how": "Play it turn 1 and attack every turn. Once <i-c>Leyline of Transformation</i-c>, <i-c>Arcane Adaptation</i-c> or <i-c>Roshan, Hidden Magister</i-c> is out, it's one more Etrata trigger.",
+  "syn": [
+   "Leyline of Transformation",
+   "Arcane Adaptation",
+   "Roshan, Hidden Magister",
+   "Mari, the Killing Quill",
+   "Etrata, Deadly Fugitive"
+  ],
+  "warn": "Without a type-changer its attack doesn't count for Ramses' win either: the player must have been attacked by an Assassin."
+ },
+ {
+  "name": "Mothdust Changeling",
+  "qty": 1,
+  "cost": "{U}",
+  "mv": 1,
+  "type": "Creature — Shapeshifter",
+  "cat": "Creature",
+  "pt": [
+   1,
+   1
+  ],
+  "text": "Changeling (This card is every creature type.)\nTap an untapped creature you control: This creature gains flying until end of turn.",
+  "roles": [
+   "assassin"
+  ],
+  "why": "A one-mana changeling, so an Assassin for Etrata and Ramses. Tap any other untapped creature you control and it flies until end of turn, which gets it past most ground blockers. New cloaks can't attack the turn they arrive, so they're free to pay that cost.",
+  "how": "Play it turn 1. On your turn, tap a creature that isn't attacking (a summoning-sick cloak is ideal) in your main phase or at the beginning of combat, then attack in the air.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord",
+   "Satoru, the Infiltrator",
+   "Coat of Arms",
+   "Kindred Dominance"
+  ],
+  "warn": "Give it flying before blockers are declared. Afterwards it does nothing."
+ },
+ {
+  "name": "Tetsuko Umezawa, Fugitive",
+  "qty": 1,
+  "cost": "{1}{U}",
+  "mv": 2,
+  "type": "Legendary Creature — Human Rogue",
+  "cat": "Creature",
+  "pt": [
+   1,
+   3
+  ],
+  "text": "Creatures you control with power or toughness 1 or less can't be blocked.",
+  "roles": [
+   "assassin",
+   "evasion"
+  ],
+  "why": "Creatures you control with power or toughness 1 or less can't be blocked. That covers Etrata (1/4), Virtus, Hired Poisoner, Mothdust Changeling, Slither Blade and Brotherhood Spy before any pump. Early, she's what turns the one-drops into a cloak every turn.",
+  "how": "Cast her on turn 2, or turn 1 off fast mana, before Etrata. Etrata herself then attacks unblockable for her own trigger.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Virtus the Veiled",
+   "Hired Poisoner",
+   "Mothdust Changeling",
+   "Brotherhood Spy",
+   "Quietus Spike"
+  ],
+  "warn": "Every +1/+1 in the deck turns her off for the 1/1s: Ramses, Achilles Davenport, Coat of Arms and Eldrazi Monument. A 1/4 like Etrata stays covered by her toughness until a pump takes it to 2/5."
+ },
+ {
+  "name": "Satoru, the Infiltrator",
+  "qty": 1,
+  "cost": "{U}{B}",
+  "mv": 2,
+  "type": "Legendary Creature — Human Ninja Rogue",
+  "cat": "Creature",
+  "pt": [
+   2,
+   3
+  ],
+  "text": "Menace\nWhenever Satoru and/or one or more other nontoken creatures you control enter, if none of them were cast or no mana was spent to cast them, draw a card.",
+  "roles": [
+   "assassin",
+   "draw"
+  ],
+  "why": "Whenever nontoken creatures you control enter without being cast, you draw a card. Every cloak from Etrata enters that way, so each stolen card is also a card in hand. A 2/3 menace body for two keeps attacking too.",
+  "how": "Cast him on turn 2 alongside or before Etrata. With <i-c>They Came from the Pipes</i-c> out each cloak draws two.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "They Came from the Pipes",
+   "Reanimate",
+   "Leyline of Transformation",
+   "Mari, the Killing Quill"
+  ],
+  "warn": "Turning a cloak face up isn't entering, so flips draw nothing. He's a Ninja Rogue, not an Assassin, unless a type-changer is out."
+ },
+ {
+  "name": "Brotherhood Spy",
+  "qty": 1,
+  "cost": "{1}{U}",
+  "mv": 2,
+  "type": "Creature — Human Assassin",
+  "cat": "Creature",
+  "pt": [
+   1,
+   3
+  ],
+  "text": "At the beginning of combat on your turn, if you control a legendary Assassin, this creature gets +1/+0 until end of turn and can't be blocked this turn.",
+  "roles": [
+   "assassin"
+  ],
+  "why": "A two-mana Assassin that turns itself unblockable. At the beginning of combat on your turn, if you control a legendary Assassin, it gets +1/+0 and can't be blocked this turn. Etrata, Ramses, Virtus, Mari, Reno and Rude, Basim, Achilles and Roshan all switch it on.",
+  "how": "Play it on turn 2 next to a legendary Assassin, or the turn before Etrata. It attacks for 2 every turn after that.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Basim Ibn Ishaq",
+   "Reno and Rude",
+   "Ramses, Assassin Lord",
+   "Sakashima the Impostor"
+  ],
+  "warn": "No legendary Assassin at the beginning of combat means no evasion that turn. Changelings and face-down creatures aren't legendary."
+ },
+ {
+  "name": "Reno and Rude",
+  "qty": 1,
+  "cost": "{1}{B}",
+  "mv": 2,
+  "type": "Legendary Creature — Human Assassin",
+  "cat": "Creature",
+  "pt": [
+   2,
+   1
+  ],
+  "text": "Menace\nWhenever Reno and Rude deals combat damage to a player, exile the top card of that player's library. Then you may sacrifice another creature or artifact. If you do, you may play the exiled card this turn, and mana of any type can be spent to cast it.",
+  "roles": [
+   "assassin"
+  ],
+  "why": "A two-mana legendary Assassin with menace that steals twice. When it deals combat damage to a player, it exiles the top card of their library, and if you sacrifice another creature or artifact you may play that card this turn with any mana. With Etrata out, the same hit also cloaks a card.",
+  "how": "Play it on turn 2. Sacrifice a stolen 2/2 that can't attack yet, a used Treasure from <i-c>Mari, the Killing Quill</i-c> or a spare rock when the exiled card is worth it.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Brotherhood Spy",
+   "Mari, the Killing Quill",
+   "Vein Ripper",
+   "Ashnod's Altar"
+  ],
+  "warn": "You follow the card's normal timing: a sorcery or creature waits for your second main phase, and a land needs your land drop."
+ },
+ {
+  "name": "Dark Confidant",
+  "qty": 1,
+  "cost": "{1}{B}",
+  "mv": 2,
+  "type": "Creature — Human Wizard",
+  "cat": "Creature",
+  "pt": [
+   2,
+   1
+  ],
+  "text": "At the beginning of your upkeep, reveal the top card of your library and put that card into your hand. You lose life equal to its mana value.",
   "roles": [
    "draw"
   ],
-  "why": "One mana: whenever an opponent casts a noncreature spell, you may draw unless they pay {4}. In the early turns it draws several cards per round.",
-  "how": "Cast it on turn 1 or 2. Pay its cumulative upkeep for two or three turns, then let it go.",
+  "why": "Two mana for an extra card every upkeep. The deck's spells are cheap, so the life cost is usually 0 to 2 a turn. It's one of the card-flow pieces that keeps the one-drops coming.",
+  "how": "Cast it on turn 2 when you have no Assassin to play, or turn 1 off fast mana. Let it go once your life total matters more than cards.",
   "syn": [
-   "Rhystic Study"
+   "Changeling Outcast",
+   "Mystic Remora",
+   "Rhystic Study",
+   "Exquisite Blood",
+   "Bloodthirsty Conqueror"
   ],
-  "warn": "Cumulative upkeep grows each turn. Don't keep paying once it costs more than it draws."
+  "warn": "Revealing Vein Ripper costs 6 life and Force of Will 5. It's not an Assassin, so it doesn't cloak and dies to Kindred Dominance unless a type-changer is out."
+ },
+ {
+  "name": "Virtus the Veiled",
+  "qty": 1,
+  "cost": "{2}{B}",
+  "mv": 3,
+  "type": "Legendary Creature — Azra Assassin",
+  "cat": "Creature",
+  "pt": [
+   1,
+   1
+  ],
+  "text": "Partner with Gorm the Great (When this creature enters, target player may put Gorm into their hand from their library, then shuffle.)\nDeathtouch\nWhenever Virtus deals combat damage to a player, that player loses half their life, rounded up.",
+  "roles": [
+   "kill",
+   "assassin"
+  ],
+  "why": "A three-mana deathtouch Assassin that halves a player's life when it deals combat damage to them. With Ramses out, a halving hit on the marked player sets up the kill, and with <i-c>Bloodletter of Aclazotz</i-c> on your turn the half becomes all of it. As a 1/1, <i-c>Tetsuko Umezawa, Fugitive</i-c> makes it unblockable.",
+  "how": "Tutor for it after Ramses, not before (the bot games: kill kit first costs 6.2 points). Send it at the one player you're killing (rule 7).",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Bloodletter of Aclazotz",
+   "Tetsuko Umezawa, Fugitive",
+   "Quietus Spike",
+   "Roaming Throne",
+   "Eldrazi Monument"
+  ],
+  "warn": "Ramses makes it a 2/2, which turns Tetsuko off. Get it through with Eldrazi Monument, Reverse the Polarity or Rogue's Passage then."
+ },
+ {
+  "name": "Unstoppable Slasher",
+  "qty": 1,
+  "cost": "{2}{B}",
+  "mv": 3,
+  "type": "Creature — Zombie Assassin",
+  "cat": "Creature",
+  "pt": [
+   2,
+   3
+  ],
+  "text": "Deathtouch\nWhenever this creature deals combat damage to a player, they lose half their life, rounded up.\nWhen this creature dies, if it had no counters on it, return it to the battlefield tapped under its owner's control with two stun counters on it.",
+  "roles": [
+   "kill",
+   "assassin"
+  ],
+  "why": "The second halver: a 2/3 deathtouch Assassin that makes a player lose half their life, rounded up, when it deals combat damage to them. When it dies with no counters on it, it comes back tapped with two stun counters, so one removal spell doesn't end it.",
+  "how": "Tutor or cast it after Ramses and aim it at the marked player. With <i-c>Bloodletter of Aclazotz</i-c> on your turn, one hit takes their whole life.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Bloodletter of Aclazotz",
+   "Eldrazi Monument",
+   "Ashnod's Altar",
+   "Vein Ripper",
+   "Roaming Throne"
+  ],
+  "warn": "It has no evasion of its own. Spark Double's copy enters with a +1/+1 counter, so the copy won't come back."
+ },
+ {
+  "name": "Mari, the Killing Quill",
+  "qty": 1,
+  "cost": "{1}{B}{B}",
+  "mv": 3,
+  "type": "Legendary Creature — Vampire Assassin",
+  "cat": "Creature",
+  "pt": [
+   3,
+   2
+  ],
+  "text": "Whenever a creature an opponent controls dies, exile it with a hit counter on it.\nAssassins, Mercenaries, and Rogues you control have deathtouch and \"Whenever this creature deals combat damage to a player, you may remove a hit counter from a card that player owns in exile. If you do, draw a card and create two Treasure tokens.\"",
+  "roles": [
+   "kill"
+  ],
+  "why": "Your Assassins, Mercenaries and Rogues get deathtouch, so every block against you trades. Opposing creatures that die are exiled with hit counters, and each of your Assassins that connects can cash one of that player's in for a card and two Treasures. With a type-changer, the stolen 2/2s get all of it.",
+  "how": "Cast her or tutor her after Ramses. Attack with everything into the player you're killing; deathtouch makes blocking a bad trade for them.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Kindred Dominance",
+   "Roshan, Hidden Magister",
+   "Leyline of Transformation",
+   "Reno and Rude",
+   "Slither Blade"
+  ],
+  "warn": "Only creatures an opponent controls that die get a hit counter. Your stolen 2/2s dying go to their owner's graveyard without one, and tokens leave no card."
+ },
+ {
+  "name": "Ramses, Assassin Lord",
+  "qty": 1,
+  "cost": "{2}{U}{B}",
+  "mv": 4,
+  "type": "Legendary Creature — Human Assassin",
+  "cat": "Creature",
+  "pt": [
+   4,
+   4
+  ],
+  "text": "Deathtouch\nOther Assassins you control get +1/+1.\nWhenever a player loses the game, if they were attacked this turn by an Assassin you controlled, you win the game.",
+  "roles": [
+   "kill"
+  ],
+  "why": "The kill. Whenever a player loses the game, if an Assassin you controlled attacked them this turn, you win. So one death is the game, by any means: combat, a halver, Bloodletter or the drain loop. He also gives your other Assassins +1/+1. In the bot games he lands in 54% / 36% of games; with him the deck wins 56% / 44%, without him 38% / 18%, and cutting him cost 14 points in the cut sweep.",
+  "how": "Tutor for him first (rule 3; anything else first cost 8 to 11 points). Cast him in your first main phase right before combat, with a counter up if you can, and don't wait for protection (rule 4: holding him costs 3.8 / 4.8). Then pick one player and kill them (rule 7).",
+  "syn": [
+   "Bloodletter of Aclazotz",
+   "Virtus the Veiled",
+   "Unstoppable Slasher",
+   "Exquisite Blood",
+   "Sanguine Bond",
+   "Reanimate",
+   "Demonic Tutor"
+  ],
+  "warn": "His +1/+1 makes the 1/1 Assassins 2/2s and Tetsuko stops covering them. Have another way through (Eldrazi Monument, Reverse the Polarity) for the marked player."
+ },
+ {
+  "name": "Achilles Davenport",
+  "qty": 1,
+  "cost": "{2}{U}{B}",
+  "mv": 4,
+  "type": "Legendary Creature — Human Assassin",
+  "cat": "Creature",
+  "pt": [
+   3,
+   3
+  ],
+  "text": "Freerunning {U}{B} (You may cast this spell for its freerunning cost if you dealt combat damage to a player this turn with an Assassin or commander.)\nMenace\nOther Assassins you control get +1/+1.",
+  "roles": [
+   "snowball"
+  ],
+  "why": "The second Assassin lord: other Assassins get +1/+1, and he has menace. After an Assassin or Etrata deals combat damage, freerunning casts him for {U}{B}. With Ramses and a type-changer out, every stolen 2/2 is a 4/4.",
+  "how": "Attack with a cheap Assassin, then cast him for {U}{B} in your second main phase.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Leyline of Transformation",
+   "Roshan, Hidden Magister",
+   "Changeling Outcast",
+   "Brotherhood Headquarters"
+  ],
+  "warn": "His pump turns Tetsuko off for the 1/1s. He doesn't pump himself, and cloaks only get the bonus once a type-changer makes them Assassins."
+ },
+ {
+  "name": "Roshan, Hidden Magister",
+  "qty": 1,
+  "cost": "{3}{B}",
+  "mv": 4,
+  "type": "Legendary Creature — Human Assassin",
+  "cat": "Creature",
+  "pt": [
+   4,
+   4
+  ],
+  "text": "Other creatures you control are Assassins in addition to their other types. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.\nFace-down creatures you control have menace.\nWhenever a permanent you control is turned face up, you draw a card and you lose 1 life.",
+  "roles": [
+   "snowball"
+  ],
+  "why": "Three jobs on one four-drop. Your other creatures are Assassins, so every stolen 2/2 cloaks again when it connects and gets Ramses' bonus. Your face-down creatures have menace. And whenever a permanent you control turns face up, you draw a card and lose 1 life.",
+  "how": "Cast him before combat on a turn you have cloaks ready to attack. He's the best removal target on your board, so keep a counter up if you can.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord",
+   "Kindred Dominance",
+   "Mari, the Killing Quill",
+   "Roaming Throne",
+   "Pyre of Heroes"
+  ],
+  "warn": "Etrata's 'exile it, then cast it' branch for a stolen instant or sorcery never turns anything face up, so Roshan doesn't draw for it."
+ },
+ {
+  "name": "Roaming Throne",
+  "qty": 1,
+  "cost": "{4}",
+  "mv": 4,
+  "type": "Artifact Creature — Golem",
+  "cat": "Creature",
+  "pt": [
+   4,
+   4
+  ],
+  "text": "Ward {2}\nAs this creature enters, choose a creature type.\nThis creature is the chosen type in addition to its other types.\nIf a triggered ability of another creature you control of the chosen type triggers, it triggers an additional time.",
+  "roles": [
+   "snowball"
+  ],
+  "why": "Name Assassin and every triggered ability of your other Assassins triggers twice. Etrata cloaks two cards per hit, Virtus and Unstoppable Slasher halve twice, Vein Ripper drains twice. It's also a 4/4 Assassin with ward {2} that attacks.",
+  "how": "Cast it once Etrata is out and Assassins are connecting. Choose Assassin as it enters.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Virtus the Veiled",
+   "Unstoppable Slasher",
+   "Vein Ripper",
+   "Spark Double",
+   "Mari, the Killing Quill"
+  ],
+  "warn": "It doubles only triggers of creatures. <i-c>Quietus Spike</i-c>, <i-c>Exquisite Blood</i-c> and <i-c>Sanguine Bond</i-c> are the Equipment's and enchantments' own triggers and happen once."
+ },
+ {
+  "name": "Bloodletter of Aclazotz",
+  "qty": 1,
+  "cost": "{1}{B}{B}{B}",
+  "mv": 4,
+  "type": "Creature — Vampire Demon",
+  "cat": "Creature",
+  "pt": [
+   2,
+   4
+  ],
+  "text": "Flying\nIf an opponent would lose life during your turn, they lose twice that much life instead. (Damage causes loss of life.)",
+  "roles": [
+   "kill"
+  ],
+  "why": "If an opponent would lose life during your turn, they lose twice that much. A halver's hit (Virtus, Unstoppable Slasher, Quietus Spike) then takes all of a player's life, and with Ramses out that death wins the game. It also doubles every step of the drain loop. Cutting it cost 2.9 / 2.3 points in the skeleton's cut sweep, the clearest keep after Ramses (bot games).",
+  "how": "Tutor for it second, after Ramses. Cast it before combat on the turn a halver or the loop can reach the marked player.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Virtus the Veiled",
+   "Unstoppable Slasher",
+   "Quietus Spike",
+   "Exquisite Blood",
+   "Sanguine Bond"
+  ],
+  "warn": "It works only during your turn. A loop started on an opponent's turn isn't doubled, and it never doubles your own life loss."
+ },
+ {
+  "name": "Spark Double",
+  "qty": 1,
+  "cost": "{3}{U}",
+  "mv": 4,
+  "type": "Creature — Illusion",
+  "cat": "Creature",
+  "pt": [
+   0,
+   0
+  ],
+  "text": "You may have this creature enter as a copy of a creature or planeswalker you control, except it enters with an additional +1/+1 counter on it if it's a creature, it enters with an additional loyalty counter on it if it's a planeswalker, and it isn't legendary.",
+  "roles": [
+   "snowball"
+  ],
+  "why": "A non-legendary copy of one of your creatures, with an extra +1/+1 counter. On Ramses it's a second lord and a second 'you win'; on Etrata every Assassin hit cloaks twice. The legend rule doesn't touch it.",
+  "how": "Copy Ramses if he's out, otherwise Etrata: the bot copies Ramses first, and copying Etrata first measured 0.9 points worse.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Etrata, Deadly Fugitive",
+   "Roaming Throne",
+   "Sakashima the Impostor",
+   "Unstoppable Slasher"
+  ],
+  "warn": "It copies only creatures you control. A copy of a face-down 2/2 is a blank 2/2, so don't point it at a cloak."
+ },
+ {
+  "name": "Sakashima the Impostor",
+  "qty": 1,
+  "cost": "{2}{U}{U}",
+  "mv": 4,
+  "type": "Legendary Creature — Human Rogue",
+  "cat": "Creature",
+  "pt": [
+   3,
+   1
+  ],
+  "text": "You may have Sakashima the Impostor enter as a copy of any creature on the battlefield, except its name is Sakashima the Impostor, it's legendary in addition to its other types, and it has \"{2}{U}{U}: Return Sakashima the Impostor to its owner's hand at the beginning of the next end step.\"",
+  "roles": [
+   "snowball"
+  ],
+  "why": "A copy of any creature on the battlefield whose name stays Sakashima the Impostor, so the legend rule doesn't take it next to the original. Like Spark Double, it's a second Etrata (two cloaks per hit) or a second Ramses.",
+  "how": "Copy Ramses if he's out, otherwise Etrata. If neither is around, the best creature on anyone's board is fine.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord",
+   "Spark Double",
+   "Brotherhood Spy",
+   "Roaming Throne"
+  ],
+  "warn": "The copy isn't your commander, so it doesn't make Fierce Guardianship or Deadly Rollick free."
+ },
+ {
+  "name": "Preordain",
+  "qty": 1,
+  "cost": "{U}",
+  "mv": 1,
+  "type": "Sorcery",
+  "cat": "Sorcery",
+  "text": "Scry 2, then draw a card.",
+  "roles": [
+   "draw"
+  ],
+  "why": "One mana: scry 2, then draw. It digs a turn-one hand toward its second land, a cheap Assassin or a tutor, and it was added with Brainstorm when the low curve replaced the 6-7 drops (+0.4 / +2.1 in bot games).",
+  "how": "Cast it on turn 1 or 2 when the hand is missing a land or a one-drop. Late, use it after Vampiric Tutor or Imperial Seal only if you want to keep the tutored card on top and draw it now.",
+  "syn": [
+   "Brainstorm",
+   "Imperial Seal",
+   "Vampiric Tutor",
+   "Polluted Delta",
+   "Changeling Outcast"
+  ],
+  "warn": "It's a sorcery, so it can't dig at the end of an opponent's turn like Brainstorm."
+ },
+ {
+  "name": "Basim Ibn Ishaq",
+  "qty": 1,
+  "cost": "{U}{B}",
+  "mv": 2,
+  "type": "Legendary Creature — Human Assassin",
+  "cat": "Creature",
+  "pt": [
+   2,
+   2
+  ],
+  "text": "Whenever you cast a historic spell, draw a card. Basim Ibn Ishaq can't be blocked this turn. This ability triggers only once each turn. (Artifacts, legendaries, and Sagas are historic.)\nWhenever Basim Ibn Ishaq deals combat damage to a player, put a +1/+1 counter on it.",
+  "roles": [
+   "assassin",
+   "draw"
+  ],
+  "why": "A two-mana legendary Assassin. The first historic spell you cast each turn draws a card and makes Basim unblockable this turn. Each hit puts a +1/+1 counter on him, and with Etrata out it's also a cloak.",
+  "how": "Play him on turn 2. On your turn, cast a historic spell before combat (a rock, Lotus Petal, an Equipment or a legend) so he attacks unblockable.",
+  "syn": [
+   "Mox Amber",
+   "Lotus Petal",
+   "Lightning Greaves",
+   "Etrata, Deadly Fugitive",
+   "Brotherhood Spy",
+   "Roaming Throne"
+  ],
+  "warn": "The trigger happens only once each turn, including opponents' turns. A historic spell cast on someone else's turn uses it up for that turn but gives no evasion you can use."
  },
  {
   "name": "Brainstorm",
@@ -737,56 +595,425 @@ window.CETRATA_CARDS = [
   "mv": 1,
   "type": "Instant",
   "cat": "Instant",
-  "pt": "",
   "text": "Draw three cards, then put two cards from your hand on top of your library in any order.",
   "roles": [
    "draw"
   ],
-  "why": "Draw three, put two back. It finds a missing piece and hides cards on top for later.",
-  "how": "Use it after Vampiric Tutor or Imperial Seal to draw the card now. Hold it to put back cards you don't need.",
+  "why": "One mana at instant speed: draw three, put two back. It finds a land or an Assassin early, and late it draws a card Vampiric Tutor or Imperial Seal just put on top, so Ramses arrives this turn.",
+  "how": "Cast it at the end of an opponent's turn, or right after a tutor put Ramses on top. Crack a fetch land afterwards to shuffle away the two cards you put back.",
   "syn": [
    "Vampiric Tutor",
    "Imperial Seal",
-   "Polluted Delta"
-  ]
+   "Polluted Delta",
+   "Scalding Tarn",
+   "Marsh Flats",
+   "Force of Will"
+  ],
+  "warn": "Without a shuffle, the two cards you put back are your next two draws."
  },
  {
-  "name": "Ponder",
+  "name": "Demonic Consultation",
   "qty": 1,
-  "cost": "{U}",
+  "cost": "{B}",
+  "mv": 1,
+  "type": "Instant",
+  "cat": "Instant",
+  "text": "Choose a card name. Exile the top six cards of your library, then reveal cards from the top of your library until you reveal a card with the chosen name. Put that card into your hand and exile all other cards revealed this way.",
+  "roles": [
+   "tutor"
+  ],
+  "why": "A one-mana instant tutor for Ramses. Adding it measured +0.6 / +0.8 in bot games. The price is your library: it exiles six cards plus everything above the named one.",
+  "how": "Name Ramses, Assassin Lord when he is still in your library and no other tutor is in hand. Cast it at the end of an opponent's turn so you can cast him before combat.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Rhystic Study",
+   "Mystic Remora",
+   "Dark Confidant",
+   "Vampiric Tutor"
+  ],
+  "warn": "If the named card is among the six exiled first, or isn't in your library at all, you exile your whole library. In bot games 8% of the losses to precons were an empty library: Consultation plus the draw engines."
+ },
+ {
+  "name": "Vein Ripper",
+  "qty": 1,
+  "cost": "{3}{B}{B}{B}",
+  "mv": 6,
+  "type": "Creature — Vampire Assassin",
+  "cat": "Creature",
+  "pt": [
+   6,
+   5
+  ],
+  "text": "Flying\nWard—Sacrifice a creature.\nWhenever a creature dies, target opponent loses 2 life and you gain 2 life.",
+  "roles": [
+   "loop"
+  ],
+  "why": "Whenever any creature dies, target opponent loses 2 life and you gain 2. That's a starter for the drain loop on its own: the gain triggers <i-c>Sanguine Bond</i-c> or <i-c>Vito, Thorn of the Dusk Rose</i-c>, the loss triggers <i-c>Exquisite Blood</i-c> or <i-c>Bloodthirsty Conqueror</i-c>. With <i-c>Ashnod's Altar</i-c>, each stolen 2/2 is 2 life from a player and two mana.",
+  "how": "Cast it when you have six mana and a loop half out, or before a <i-c>Kindred Dominance</i-c>: every creature that dies drains 2.",
+  "syn": [
+   "Ashnod's Altar",
+   "Kindred Dominance",
+   "Sanguine Bond",
+   "Exquisite Blood",
+   "Bloodletter of Aclazotz",
+   "Roaming Throne"
+  ],
+  "warn": "It costs six. An opponent who wants to target it must sacrifice a creature or the spell or ability is countered, but wraths don't target."
+ },
+ {
+  "name": "Exquisite Blood",
+  "qty": 1,
+  "cost": "{4}{B}",
+  "mv": 5,
+  "type": "Enchantment",
+  "cat": "Enchantment",
+  "text": "Whenever an opponent loses life, you gain that much life.",
+  "roles": [
+   "loop"
+  ],
+  "why": "Half of the second kill. Whenever an opponent loses life, you gain that much, and Sanguine Bond or Vito turns every gain into more loss: the two loop until the table is dead. The loop added 6.6 / 3.3 points in bot games and wins 38% of the precon games in which Ramses never lands.",
+  "how": "Tutor for it when Sanguine Bond or Vito is already out. Cast it with a counter up, then start the loop: any Assassin hit, a Vein Ripper drain, an opponent paying life.",
+  "syn": [
+   "Sanguine Bond",
+   "Vito, Thorn of the Dusk Rose",
+   "Bloodletter of Aclazotz",
+   "Vein Ripper",
+   "Ashnod's Altar",
+   "Ramses, Assassin Lord"
+  ],
+  "warn": "It's a five-mana enchantment. Enchantment removal or a bounce in response to the first trigger stops the loop."
+ },
+ {
+  "name": "Sanguine Bond",
+  "qty": 1,
+  "cost": "{3}{B}{B}",
+  "mv": 5,
+  "type": "Enchantment",
+  "cat": "Enchantment",
+  "text": "Whenever you gain life, target opponent loses that much life.",
+  "roles": [
+   "loop"
+  ],
+  "why": "The other half of the loop: whenever you gain life, target opponent loses that much. With Exquisite Blood or Bloodthirsty Conqueror it kills the table one player at a time. As an enchantment it survives the creature wraths that kill Vito.",
+  "how": "Cast it when Exquisite Blood or Bloodthirsty Conqueror is out or about to be, ideally after combat on your turn. Point every trigger at the player you're killing until they're dead, then the next.",
+  "syn": [
+   "Exquisite Blood",
+   "Bloodthirsty Conqueror",
+   "Vein Ripper",
+   "Bloodletter of Aclazotz",
+   "Ramses, Assassin Lord"
+  ],
+  "warn": "At five mana it's slow. If Vito is easier to get out, take Vito."
+ },
+ {
+  "name": "Bloodthirsty Conqueror",
+  "qty": 1,
+  "cost": "{3}{B}{B}",
+  "mv": 5,
+  "type": "Creature — Vampire Knight",
+  "cat": "Creature",
+  "pt": [
+   5,
+   5
+  ],
+  "text": "Flying, deathtouch\nWhenever an opponent loses life, you gain that much life. (Damage causes loss of life.)",
+  "roles": [
+   "loop"
+  ],
+  "why": "Half of the second kill: whenever an opponent loses life, you gain that much. With <i-c>Sanguine Bond</i-c> or <i-c>Vito, Thorn of the Dusk Rose</i-c> out, every gain makes an opponent lose life again, and the loop kills the table. When the loop isn't ready it's a 5/5 flying deathtouch attacker.",
+  "how": "Tutor for it when the other half is already out, or cast it as a threat. Any life loss starts the loop, including its own combat damage.",
+  "syn": [
+   "Sanguine Bond",
+   "Vito, Thorn of the Dusk Rose",
+   "Exquisite Blood",
+   "Vein Ripper",
+   "Bloodletter of Aclazotz",
+   "Ramses, Assassin Lord"
+  ],
+  "warn": "It's a Vampire Knight, so Kindred Dominance naming Assassin kills it unless a type-changer is out. The loop is mandatory: if an opponent can't lose, the game is a draw."
+ },
+ {
+  "name": "Vito, Thorn of the Dusk Rose",
+  "qty": 1,
+  "cost": "{2}{B}",
+  "mv": 3,
+  "type": "Legendary Creature — Vampire Cleric",
+  "cat": "Creature",
+  "pt": [
+   1,
+   3
+  ],
+  "text": "Whenever you gain life, target opponent loses that much life.\n{3}{B}{B}: Creatures you control gain lifelink until end of turn.",
+  "roles": [
+   "loop"
+  ],
+  "why": "The other half of the loop: whenever you gain life, target opponent loses that much. With <i-c>Exquisite Blood</i-c> or <i-c>Bloodthirsty Conqueror</i-c> out, every loss gains and every gain drains, until the table is dead. It's the cheapest loop piece at three mana.",
+  "how": "Cast it early when you hold or can tutor the other half; it's a small 1/3 nobody prioritizes. With the loop not ready, {3}{B}{B} gives your team lifelink for one big drain turn.",
+  "syn": [
+   "Exquisite Blood",
+   "Bloodthirsty Conqueror",
+   "Vein Ripper",
+   "Bloodletter of Aclazotz",
+   "Ramses, Assassin Lord",
+   "Mox Amber"
+  ],
+  "warn": "It's a Vampire Cleric: Kindred Dominance naming Assassin kills it unless a type-changer is out."
+ },
+ {
+  "name": "Leyline of Transformation",
+  "qty": 1,
+  "cost": "{2}{U}{U}",
+  "mv": 4,
+  "type": "Enchantment",
+  "cat": "Enchantment",
+  "text": "If this card is in your opening hand, you may begin the game with it on the battlefield.\nAs this enchantment enters, choose a creature type.\nCreatures you control are the chosen type in addition to their other types. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.",
+  "roles": [
+   "snowball"
+  ],
+  "why": "Name Assassin: every creature you control is an Assassin, including the face-down 2/2s Etrata steals. Each stolen 2/2 that connects then cloaks again, Ramses pumps them, and Kindred Dominance spares them. Free if it's in your opening hand.",
+  "how": "Put it onto the battlefield before the game if it's in your opener. Otherwise cast it on turn 4 or later, once Etrata has stolen a couple of cards.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord",
+   "Kindred Dominance",
+   "Coat of Arms",
+   "Brotherhood Headquarters",
+   "Pyre of Heroes",
+   "Achilles Davenport"
+  ],
+  "warn": "Face-down creatures have no creature types: without this, Arcane Adaptation or Roshan, a stolen 2/2 never triggers Etrata."
+ },
+ {
+  "name": "Arcane Adaptation",
+  "qty": 1,
+  "cost": "{2}{U}",
+  "mv": 3,
+  "type": "Enchantment",
+  "cat": "Enchantment",
+  "text": "As this enchantment enters, choose a creature type.\nCreatures you control are the chosen type in addition to their other types. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.",
+  "roles": [
+   "snowball"
+  ],
+  "why": "A three-mana Leyline of Transformation: name Assassin and every creature you control is one, so each stolen 2/2 that connects cloaks again. It's the second type-changer, so the snowball survives one removal.",
+  "how": "Cast it on turn 3 or 4 when Etrata has stolen a card or is about to. Cast it before Kindred Dominance so your stolen 2/2s survive.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord",
+   "Kindred Dominance",
+   "Leyline of Transformation",
+   "Roshan, Hidden Magister",
+   "Pyre of Heroes"
+  ],
+  "warn": "It does nothing on its own. Without a cloak or a non-Assassin creature out, hold it for a counter or a threat."
+ },
+ {
+  "name": "Coat of Arms",
+  "qty": 1,
+  "cost": "{5}",
+  "mv": 5,
+  "type": "Artifact",
+  "cat": "Artifact",
+  "text": "Each creature gets +1/+1 for each other creature on the battlefield that shares at least one creature type with it. (For example, if two Goblin Warriors and a Goblin Shaman are on the battlefield, each gets +2/+2.)",
+  "roles": [
+   "snowball"
+  ],
+  "why": "Each creature gets +1/+1 for each other creature that shares a type with it. With a type-changer out your whole board is Assassins, so ten creatures make ten 11/11s. It's the overrun for a wide board of stolen 2/2s.",
+  "how": "Cast it only when your shared-type count clearly beats every opponent's, usually with Leyline or Arcane Adaptation and five or more creatures. Attack the same turn.",
+  "syn": [
+   "Leyline of Transformation",
+   "Arcane Adaptation",
+   "Roshan, Hidden Magister",
+   "Changeling Outcast",
+   "Mutavault",
+   "Eldrazi Monument"
+  ],
+  "warn": "It's symmetric. Opponents' tribal boards grow too, your Human Assassins share Human with their Humans, and changelings share with everything. The pump takes 1/1s out of Tetsuko's range."
+ },
+ {
+  "name": "Eldrazi Monument",
+  "qty": 1,
+  "cost": "{5}",
+  "mv": 5,
+  "type": "Artifact",
+  "cat": "Artifact",
+  "text": "Creatures you control get +1/+1 and have flying and indestructible.\nAt the beginning of your upkeep, sacrifice a creature. If you can't, sacrifice this artifact.",
+  "roles": [
+   "evasion",
+   "snowball"
+  ],
+  "why": "Creatures you control get +1/+1, flying and indestructible. The stolen 2/2s become flying 3/3s that survive destroy wraths, and every upkeep a dud you'd never flip pays the sacrifice. The evasion package it came with measured +1.7 / +1.1, and with Reverse the Polarity +2.9 / +0.3 in bot games.",
+  "how": "Cast it once you have a few stolen 2/2s, then attack with everything. Each upkeep, sacrifice the worst face-down card.",
+  "syn": [
+   "Teferi's Veil",
+   "Reverse the Polarity",
+   "Ashnod's Altar",
+   "Vein Ripper",
+   "Coat of Arms",
+   "Ramses, Assassin Lord"
+  ],
+  "warn": "Indestructible doesn't stop exile, bounce, sacrifice or -X/-X. The +1/+1 takes 1/1s out of Tetsuko's range, but they fly instead."
+ },
+ {
+  "name": "Teferi's Veil",
+  "qty": 1,
+  "cost": "{1}{U}",
+  "mv": 2,
+  "type": "Enchantment",
+  "cat": "Enchantment",
+  "text": "Whenever a creature you control attacks, it phases out at end of combat. (While it's phased out, it's treated as though it doesn't exist. It phases in before you untap during your next untap step.)",
+  "roles": [
+   "evasion"
+  ],
+  "why": "Whenever a creature you control attacks, it phases out at end of combat and comes back at your next untap step. The wraths cast on the other players' turns miss your whole attacking team, which is how this deck loses most of its boards. It measured +1.0 / +0.2 in bot games, and attacking with everything once it's out is one of the nine piloting rules.",
+  "how": "Cast it before you go all in, ideally on turn 2-4 for two mana. From then on attack with everything that gets through, Ramses and Etrata included.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Etrata, Deadly Fugitive",
+   "Eldrazi Monument",
+   "Kindred Dominance",
+   "Coat of Arms",
+   "Lightning Greaves"
+  ],
+  "warn": "Phased-out creatures can't block, and a phased-out Etrata doesn't count as a commander you control: Fierce Guardianship and Deadly Rollick aren't free on opponents' turns while she's away."
+ },
+ {
+  "name": "They Came from the Pipes",
+  "qty": 1,
+  "cost": "{4}{U}",
+  "mv": 5,
+  "type": "Enchantment",
+  "cat": "Enchantment",
+  "text": "When this enchantment enters, manifest dread twice. (To manifest dread, look at the top two cards of your library. Put one onto the battlefield face down as a 2/2 creature and the other into your graveyard. Turn it face up any time for its mana cost if it's a creature card.)\nWhenever a face-down creature you control enters, draw a card.",
+  "roles": [
+   "snowball",
+   "draw"
+  ],
+  "why": "Draws a card whenever a face-down creature enters under your control, so every Etrata cloak is a card. It enters with two face-down 2/2s of its own and draws for both.",
+  "how": "Cast it once Etrata is out and Assassins are connecting. On a quiet turn 5 its own two manifests are already two bodies and two cards.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Satoru, the Infiltrator",
+   "Reanimate",
+   "Leyline of Transformation",
+   "Ashnod's Altar"
+  ],
+  "warn": "More cards drawn means a thinner library: with Rhystic Study and Demonic Consultation it can deck you in long games."
+ },
+ {
+  "name": "Quietus Spike",
+  "qty": 1,
+  "cost": "{3}",
+  "mv": 3,
+  "type": "Artifact — Equipment",
+  "cat": "Artifact",
+  "text": "Equipped creature has deathtouch.\nWhenever equipped creature deals combat damage to a player, that player loses half their life, rounded up.\nEquip {3}",
+  "roles": [
+   "kill"
+  ],
+  "why": "Equipped creature has deathtouch, and when it deals combat damage to a player, that player loses half their life, rounded up. On an unblockable Assassin with Ramses out, it's a kill; with Bloodletter on your turn, the half is doubled into all of it.",
+  "how": "Equip it ({3}) to a creature that will connect: Changeling Outcast, Slither Blade or a Tetsuko-unblockable creature. Aim it at the one player you're killing.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Bloodletter of Aclazotz",
+   "Changeling Outcast",
+   "Slither Blade",
+   "Tetsuko Umezawa, Fugitive",
+   "Rogue's Passage",
+   "Virtus the Veiled"
+  ],
+  "warn": "Equipping is sorcery speed and costs {3}. It can't go on a creature that has shroud from Lightning Greaves."
+ },
+ {
+  "name": "Reverse the Polarity",
+  "qty": 1,
+  "cost": "{1}{U}{U}",
+  "mv": 3,
+  "type": "Instant",
+  "cat": "Instant",
+  "text": "Choose one —\n• Counter all other spells.\n• Switch each creature's power and toughness until end of turn.\n• Creatures can't be blocked this turn.",
+  "roles": [
+   "evasion",
+   "removal"
+  ],
+  "why": "An instant with two jobs. On your turn, 'creatures can't be blocked this turn' sends the whole board through for the Ramses kill or a lethal swing. On an opponent's turn, 'counter all other spells' stops a wrath and anything stacked on it. With Eldrazi Monument it measured +2.9 / +0.3 in bot games.",
+  "how": "Hold it for the kill turn and cast it in your beginning of combat step or before blockers are declared. If a wrath comes first, use the counter mode instead.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Eldrazi Monument",
+   "Coat of Arms",
+   "Quietus Spike",
+   "Bloodletter of Aclazotz",
+   "Virtus the Veiled"
+  ],
+  "warn": "The unblockable mode affects every creature, opponents' too, so cast it on your turn and before blockers. The counter mode also counters your own other spells on the stack."
+ },
+ {
+  "name": "Ashnod's Altar",
+  "qty": 1,
+  "cost": "{3}",
+  "mv": 3,
+  "type": "Artifact",
+  "cat": "Artifact",
+  "text": "Sacrifice a creature: Add {C}{C}.",
+  "roles": [
+   "loop",
+   "ramp"
+  ],
+  "why": "Sacrifice a creature: add {C}{C}. The stolen face-down 2/2s you won't flip become mana for Etrata's flips, Kindred Dominance or a tutor, and with Vein Ripper each one drains 2.",
+  "how": "Sacrifice duds for mana on your turn, or in response to removal and wraths so the creature isn't wasted. With Vein Ripper and a loop half out, every sacrifice is a drain that starts the loop.",
+  "syn": [
+   "Vein Ripper",
+   "Exquisite Blood",
+   "Sanguine Bond",
+   "Eldrazi Monument",
+   "Kindred Dominance",
+   "Etrata, Deadly Fugitive"
+  ],
+  "warn": "Don't sacrifice your Assassins before combat: each one that connects is another stolen card."
+ },
+ {
+  "name": "Lightning Greaves",
+  "qty": 1,
+  "cost": "{2}",
+  "mv": 2,
+  "type": "Artifact — Equipment",
+  "cat": "Artifact",
+  "text": "Equipped creature has haste and shroud.\nEquip {0}",
+  "roles": [
+   "evasion"
+  ],
+  "why": "Equip {0}: haste and shroud. It lets Etrata attack the turn she lands and keeps a single removal spell off her or Ramses. The piloting rule is Greaves on Etrata as soon as you can, but never hold Ramses back to wait for it.",
+  "how": "Cast it early, then move it for free to whatever matters most this turn: Etrata on the turn she comes down, Ramses the turn he does.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord",
+   "Bloodletter of Aclazotz",
+   "Virtus the Veiled",
+   "Quietus Spike"
+  ],
+  "warn": "Shroud stops your own targeting too: you can't equip Quietus Spike to it, aim Rogue's Passage at it or make it the target of anything. Holding Ramses until Greaves could go on him cost 3.8 / 4.8 points in bot games."
+ },
+ {
+  "name": "Reanimate",
+  "qty": 1,
+  "cost": "{B}",
   "mv": 1,
   "type": "Sorcery",
   "cat": "Sorcery",
-  "pt": "",
-  "text": "Look at the top three cards of your library, then put them back in any order. You may shuffle.\nDraw a card.",
+  "text": "Put target creature card from a graveyard onto the battlefield under your control. You lose life equal to that card's mana value.",
   "roles": [
-   "draw"
+   "tutor"
   ],
-  "why": "Look at the top three, reorder or shuffle, then draw. Cheap selection toward a combo piece.",
-  "how": "Cast it early when your hand has a gap. Shuffle if none of the three helps.",
+  "why": "One mana: Ramses, Assassin Lord back from the graveyard after a wrath, for 4 life. He's removed in 37% of the bot games he lands in against precons, so a cheap way back matters. It also takes a creature from any graveyard, including the opponents'.",
+  "how": "When Ramses has died, cast it on your turn before combat. With him safe, take the best creature in any graveyard: an opponent's bomb, or a stolen card that died and went home.",
   "syn": [
-   "Vampiric Tutor",
-   "Imperial Seal"
-  ]
- },
- {
-  "name": "Night's Whisper",
-  "qty": 1,
-  "cost": "{1}{B}",
-  "mv": 2,
-  "type": "Sorcery",
-  "cat": "Sorcery",
-  "pt": "",
-  "text": "You draw two cards and you lose 2 life.",
-  "roles": [
-   "draw"
+   "Ramses, Assassin Lord",
+   "They Came from the Pipes",
+   "Diabolic Intent",
+   "Bloodthirsty Conqueror",
+   "Demonic Tutor"
   ],
-  "why": "Two mana, two cards, two life.",
-  "how": "Cast it on turn 2 or 3 when there's nothing better, or late to refill.",
-  "syn": [
-   "Shred Memory",
-   "Muddle the Mixture"
-  ]
+  "warn": "You lose life equal to the card's mana value. Reanimating a big creature at low life can kill you."
  },
  {
   "name": "Demonic Tutor",
@@ -795,20 +1022,21 @@ window.CETRATA_CARDS = [
   "mv": 2,
   "type": "Sorcery",
   "cat": "Sorcery",
-  "pt": "",
   "text": "Search your library for a card, put that card into your hand, then shuffle.",
   "roles": [
    "tutor"
   ],
-  "gc": true,
-  "why": "Two mana: any card into your hand. Find the missing half of whichever combo you're closest to.",
-  "how": "Hold it until you know what's missing. With one half of a pair on the battlefield, it's often the last card you need.",
+  "why": "Two mana: any card into your hand. In this deck that card is Ramses, Assassin Lord first. In bot games tutoring anything else first cost 8 to 11 points, and the deck wins about half its games with Ramses out against a fifth without him.",
+  "how": "Get Ramses if he's still in your library. Once he's out, take the missing loop piece (Exquisite Blood or Sanguine Bond) or the kill kit: Bloodletter of Aclazotz, Quietus Spike, a halver.",
   "syn": [
+   "Ramses, Assassin Lord",
+   "Bloodletter of Aclazotz",
    "Exquisite Blood",
-   "Mindcrank",
-   "Wormfang Manta",
-   "Muddle the Mixture"
-  ]
+   "Sanguine Bond",
+   "Teferi's Veil",
+   "Quietus Spike"
+  ],
+  "warn": "If Ramses died, tutor for Reanimate instead of a second threat: one mana gets him back."
  },
  {
   "name": "Vampiric Tutor",
@@ -817,20 +1045,21 @@ window.CETRATA_CARDS = [
   "mv": 1,
   "type": "Instant",
   "cat": "Instant",
-  "pt": "",
   "text": "Search your library for a card, then shuffle and put that card on top. You lose 2 life.",
   "roles": [
    "tutor"
   ],
-  "gc": true,
-  "why": "One mana at instant speed: any card on top of your library for 2 life. Find a combo piece at the end of an opponent's turn and draw it next turn.",
-  "how": "Cast it at the end of the opponent's turn before yours. With Brainstorm or Necropotence, you get the card the same turn.",
+  "why": "One mana at instant speed: any card on top of your library for 2 life. Cast at the end of the turn before yours, it puts Ramses, Assassin Lord in your next draw; with Brainstorm it's in hand at once.",
+  "how": "End of the opponent's turn before yours: put Ramses on top, draw him, cast him before combat. Once he's out, find the loop half you're missing.",
   "syn": [
+   "Ramses, Assassin Lord",
    "Brainstorm",
-   "Necropotence",
-   "Exquisite Blood"
+   "Dark Confidant",
+   "Exquisite Blood",
+   "Sanguine Bond",
+   "Reanimate"
   ],
-  "warn": "The card is on top, not in your hand, so a shuffle or mill sets you back."
+  "warn": "The card is on top, not in hand: a shuffle (your own fetch land) or a mill sets you back, and Demonic Consultation after it would exile it."
  },
  {
   "name": "Imperial Seal",
@@ -839,21 +1068,20 @@ window.CETRATA_CARDS = [
   "mv": 1,
   "type": "Sorcery",
   "cat": "Sorcery",
-  "pt": "",
   "text": "Search your library for a card, then shuffle and put that card on top. You lose 2 life.",
   "roles": [
    "tutor"
   ],
-  "gc": true,
-  "why": "A one-mana sorcery Vampiric Tutor: any card on top of your library for 2 life. On turn 1 it sets up the exact game you want.",
-  "how": "Cast it early for the combo piece you lack, then draw it next turn. Brainstorm or Necropotence gets it the same turn.",
+  "why": "A sorcery Vampiric Tutor: one mana and 2 life for any card on top of your library. It's the third of the three cheapest tutors, which together measured 1.5 to 2.6 points in the bot sweep.",
+  "how": "On turns 1-3, put Ramses, Assassin Lord on top if he isn't in hand. If you want him this turn, follow it with Preordain or Brainstorm.",
   "syn": [
+   "Ramses, Assassin Lord",
+   "Preordain",
    "Brainstorm",
-   "Necropotence",
-   "Mindcrank",
-   "Training Grounds"
+   "Dark Ritual",
+   "Exquisite Blood"
   ],
-  "warn": "It's a sorcery, so opponents see it on top for a full turn cycle."
+  "warn": "It's a sorcery, so the table sees a card go on top for a full turn cycle and you can't respond to a removal spell with it."
  },
  {
   "name": "Grim Tutor",
@@ -862,19 +1090,18 @@ window.CETRATA_CARDS = [
   "mv": 3,
   "type": "Sorcery",
   "cat": "Sorcery",
-  "pt": "",
   "text": "Search your library for a card, put that card into your hand, then shuffle. You lose 3 life.",
   "roles": [
    "tutor"
   ],
-  "why": "Three mana: any card into your hand for 3 life. A fourth unrestricted tutor.",
-  "how": "Use it for Exquisite Blood, Sanguine Bond or Wormfang Manta, which no transmute card can find.",
+  "why": "Three mana and 3 life: any card into your hand. It's the fourth unrestricted Ramses tutor and the easiest way to find the second loop piece in the late game.",
+  "how": "Get Ramses, Assassin Lord if he's missing, else the loop half you lack. Dark Ritual casts it on turn 1.",
   "syn": [
+   "Ramses, Assassin Lord",
+   "Dark Ritual",
    "Exquisite Blood",
-   "Bloodthirsty Conqueror",
    "Sanguine Bond",
-   "Wormfang Manta",
-   "Drift of Phantasms"
+   "Bloodletter of Aclazotz"
   ]
  },
  {
@@ -884,364 +1111,44 @@ window.CETRATA_CARDS = [
   "mv": 2,
   "type": "Sorcery",
   "cat": "Sorcery",
-  "pt": "",
   "text": "As an additional cost to cast this spell, sacrifice a creature.\nSearch your library for a card, put that card into your hand, then shuffle.",
   "roles": [
    "tutor"
   ],
-  "why": "Sacrifice a creature: any card into your hand. Sacrifice a cloak you don't need, Changeling Outcast or a Mercenary token.",
-  "how": "Sacrifice a stolen cloak: it goes to its owner's graveyard. Sacrifice a face-up Wormfang Manta and you also take an extra turn.",
+  "why": "Two mana and a creature: any card into your hand. The creature is a stolen face-down 2/2 that's a dud, so the tutor costs you nothing real.",
+  "how": "Sacrifice a cloaked 2/2 you won't flip (it goes to its owner's graveyard) and take Ramses, Assassin Lord first. With Vein Ripper out, the sacrifice also drains 2.",
   "syn": [
-   "Wormfang Manta",
-   "Changeling Outcast",
-   "Black Market Connections",
-   "Duskmantle Guildmage"
+   "Ramses, Assassin Lord",
+   "Vein Ripper",
+   "Etrata, Deadly Fugitive",
+   "Exquisite Blood",
+   "Sanguine Bond"
   ],
-  "warn": "It needs a creature. Without one you can't cast it."
+  "warn": "You need a creature to cast it. Don't sacrifice a face-down card you might flip into a bomb."
  },
  {
-  "name": "Beseech the Mirror",
+  "name": "Pyre of Heroes",
   "qty": 1,
-  "cost": "{1}{B}{B}{B}",
-  "mv": 4,
-  "type": "Sorcery",
-  "cat": "Sorcery",
-  "pt": "",
-  "text": "Bargain (You may sacrifice an artifact, enchantment, or token as you cast this spell.)\nSearch your library for a card, exile it face down, then shuffle. If this spell was bargained, you may cast the exiled card without paying its mana cost if that spell's mana value is 4 or less. Put the exiled card into your hand if it wasn't cast this way.",
-  "roles": [
-   "tutor"
-  ],
-  "why": "Search for any card and exile it. If you bargained (sacrificed an artifact, enchantment or token), you may cast it free if its mana value is 4 or less. It fetches and casts Bloodletter, Enduring Tenacity, Notion Thief, Mindcrank, Guildmage, Blight-Priest or Starscape Cleric in one spell.",
-  "how": "Bargain a Treasure or a spent rock, then cast Bloodletter free on the kill turn. Without the free cast, the card goes to your hand like a Demonic Tutor.",
-  "syn": [
-   "Bloodletter of Aclazotz",
-   "Enduring Tenacity",
-   "Black Market Connections",
-   "Notion Thief",
-   "Mind Stone"
-  ],
-  "warn": "Exquisite Blood and Bloodthirsty Conqueror have mana value 5, too big for the free cast."
- },
- {
-  "name": "Lim-Dûl's Vault",
-  "qty": 1,
-  "cost": "{U}{B}",
-  "mv": 2,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "Look at the top five cards of your library. As many times as you choose, you may pay 1 life, put those cards on the bottom of your library in any order, then look at the top five cards of your library. Then shuffle and put the last cards you looked at this way on top in any order.",
-  "roles": [
-   "tutor"
-  ],
-  "why": "Look at the top five, and keep paying 1 life to look at the next five. Then put the five you chose on top in any order. An instant tutor that also sets up your next draws.",
-  "how": "Cast it at the end of an opponent's turn and dig for the missing piece. With Necropotence, you can draw those cards right away.",
-  "syn": [
-   "Necropotence",
-   "Brainstorm",
-   "Shred Memory"
-  ]
- },
- {
-  "name": "Scheming Symmetry",
-  "qty": 1,
-  "cost": "{B}",
-  "mv": 1,
-  "type": "Sorcery",
-  "cat": "Sorcery",
-  "pt": "",
-  "text": "Choose two target players. Each of them searches their library for a card, then shuffles and puts that card on top.",
-  "roles": [
-   "tutor"
-  ],
-  "why": "One mana: two target players each put any card from their library on top. You find a combo piece, and an opponent gets a tutor too.",
-  "how": "Pick the opponent least able to win with it. Better: target the opponent Opposition Agent is watching, and the card they find is exiled for you.",
-  "syn": [
-   "Opposition Agent",
-   "Brainstorm",
-   "Necropotence"
-  ],
-  "warn": "It helps an opponent. Never give it to a player close to winning."
- },
- {
-  "name": "Wishclaw Talisman",
-  "qty": 1,
-  "cost": "{1}{B}",
+  "cost": "{2}",
   "mv": 2,
   "type": "Artifact",
   "cat": "Artifact",
-  "pt": "",
-  "text": "Wishclaw Talisman enters with three wish counters on it.\n{1}, {T}, Remove a wish counter from Wishclaw Talisman: Search your library for a card, put it into your hand, then shuffle. An opponent gains control of Wishclaw Talisman. Activate only during your turn.",
+  "text": "{2}, {T}, Sacrifice a creature: Search your library for a creature card that shares a creature type with the sacrificed creature and has mana value equal to 1 plus that creature's mana value. Put that card onto the battlefield, then shuffle. Activate only as a sorcery.",
   "roles": [
    "tutor"
   ],
-  "why": "{1}, {T}: search for any card, then an opponent gains control of the Talisman. It's a tutor on your turn and a deal with the devil after.",
-  "how": "Use it on the turn you go off, so the opponent's turn doesn't matter. With Opposition Agent out, the opponent's search with it is yours to control.",
+  "why": "A repeatable tutor that puts the creature onto the battlefield. Sacrifice a 3-mana Assassin (Etrata, Virtus, Unstoppable Slasher, Mari) and Ramses, Assassin Lord enters at sorcery speed. Adding it measured +1.8 / +0.5 in bot games.",
+  "how": "Main phase one: {2}, tap, sacrifice the 3-drop, put Ramses onto the battlefield, then attack. Once he's out, climb the curve: a Vampire into Bloodletter, Bloodthirsty Conqueror into Vein Ripper.",
   "syn": [
-   "Opposition Agent",
-   "Tribute Mage",
-   "Mindcrank",
-   "Shred Memory"
-  ],
-  "warn": "Don't give it to a combo player who can win with one tutor."
- },
- {
-  "name": "Tribute Mage",
-  "qty": 1,
-  "cost": "{2}{U}",
-  "mv": 3,
-  "type": "Creature — Human Wizard",
-  "cat": "Creature",
-  "pt": "2/2",
-  "text": "When Tribute Mage enters, you may search your library for an artifact card with mana value 2, reveal that card, put it into your hand, then shuffle.",
-  "roles": [
-   "tutor"
-  ],
-  "why": "When it enters, you may search for an artifact with mana value 2. That's Mindcrank or Wishclaw Talisman, or a Signet when you need mana.",
-  "how": "Cast it on turn 3 for Mindcrank if you have Guildmage, or for Wishclaw on the combo turn.",
-  "syn": [
-   "Mindcrank",
-   "Wishclaw Talisman",
-   "Dimir Signet",
-   "Arcane Signet",
-   "Drift of Phantasms"
-  ]
- },
- {
-  "name": "Shred Memory",
-  "qty": 1,
-  "cost": "{1}{B}",
-  "mv": 2,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "Exile up to four target cards from a single graveyard.\nTransmute {1}{B}{B} ({1}{B}{B}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)",
-  "roles": [
-   "tutor",
-   "utility"
-  ],
-  "why": "Transmute for {1}{B}{B} to find any card with mana value 2: Mindcrank, Duskmantle Guildmage, Tetsuko, Starscape Cleric or Silumgar Assassin. Cast normally, it exiles up to four cards from one graveyard.",
-  "how": "Transmute it on turn 2 or 3 for the missing Mindcrank piece. Keep it as graveyard hate against reanimator decks.",
-  "syn": [
-   "Mindcrank",
-   "Duskmantle Guildmage",
-   "Tetsuko Umezawa, Fugitive",
-   "Demonic Tutor",
-   "Wishclaw Talisman",
-   "Starscape Cleric"
-  ]
- },
- {
-  "name": "Muddle the Mixture",
-  "qty": 1,
-  "cost": "{U}{U}",
-  "mv": 2,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "Counter target instant or sorcery spell.\nTransmute {1}{U}{U} ({1}{U}{U}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)",
-  "roles": [
-   "tutor",
-   "removal"
-  ],
-  "why": "Either a counterspell for an instant or sorcery, or a transmute for {1}{U}{U} to find a mana value 2 card: Mindcrank, Guildmage, Tetsuko, Starscape Cleric or Silumgar Assassin.",
-  "how": "Transmute it early for the missing combo piece. Later, hold {U}{U} to counter a wipe or a tutor.",
-  "syn": [
-   "Mindcrank",
-   "Duskmantle Guildmage",
-   "Tetsuko Umezawa, Fugitive",
-   "Counterspell",
-   "Demonic Tutor",
-   "Silumgar Assassin"
-  ]
- },
- {
-  "name": "Drift of Phantasms",
-  "qty": 1,
-  "cost": "{2}{U}",
-  "mv": 3,
-  "type": "Creature — Spirit",
-  "cat": "Creature",
-  "pt": "0/5",
-  "text": "Defender (This creature can't attack.)\nFlying\nTransmute {1}{U}{U} ({1}{U}{U}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)",
-  "roles": [
-   "tutor"
-  ],
-  "why": "Transmute for {1}{U}{U} to find any card with mana value 3: Scroll of Fate, Crystal Shard, Virtus, Vito, Blight-Priest, Hooded Blightfang or Toxic Deluge. Cast, it's a 0/5 flying wall.",
-  "how": "Transmute it for the piece of the line you're closest to. Cast it as a blocker against aggressive fliers.",
-  "syn": [
-   "Scroll of Fate",
-   "Crystal Shard",
-   "Marauding Blight-Priest",
-   "Vito, Thorn of the Dusk Rose",
+   "Ramses, Assassin Lord",
+   "Mari, the Killing Quill",
    "Virtus the Veiled",
-   "Hooded Blightfang"
-  ]
- },
- {
-  "name": "Dimir House Guard",
-  "qty": 1,
-  "cost": "{3}{B}",
-  "mv": 4,
-  "type": "Creature — Skeleton",
-  "cat": "Creature",
-  "pt": "2/3",
-  "text": "Fear (This creature can't be blocked except by artifact creatures and/or black creatures.)\nSacrifice a creature: Regenerate Dimir House Guard.\nTransmute {1}{B}{B} ({1}{B}{B}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)",
-  "roles": [
-   "tutor"
-  ],
-  "why": "Transmute for {1}{B}{B} to find any card with mana value 4: Bloodletter, Enduring Tenacity, Notion Thief, Beseech the Mirror, Deadly Rollick or Aetherize. Cast, it's a 2/3 with fear that regenerates by sacrificing a creature.",
-  "how": "Transmute it for Bloodletter on the turn before the double tap, or for Enduring Tenacity when you have a drain. As a creature, it protects itself by sacrificing a cloak.",
-  "syn": [
+   "Unstoppable Slasher",
    "Bloodletter of Aclazotz",
-   "Enduring Tenacity",
-   "Notion Thief",
-   "Beseech the Mirror"
-  ]
- },
- {
-  "name": "Counterspell",
-  "qty": 1,
-  "cost": "{U}{U}",
-  "mv": 2,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "Counter target spell.",
-  "roles": [
-   "removal"
+   "Leyline of Transformation",
+   "Arcane Adaptation"
   ],
-  "why": "Two mana, counter any spell. It protects the combo turn and stops an opponent's win.",
-  "how": "Keep {U}{U} up on the turn you go off, or when an opponent is about to win. Don't spend it on an average creature.",
-  "syn": [
-   "Scroll of Fate",
-   "Etrata, Deadly Fugitive",
-   "Muddle the Mixture"
-  ]
- },
- {
-  "name": "Swan Song",
-  "qty": 1,
-  "cost": "{U}",
-  "mv": 1,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "Counter target enchantment, instant, or sorcery spell. Its controller creates a 2/2 blue Bird creature token with flying.",
-  "roles": [
-   "removal"
-  ],
-  "why": "One mana: counter an enchantment, instant or sorcery. Most wipes, tutors and removal spells are covered. The opponent gets a 2/2 flying Bird.",
-  "how": "Hold it for a board wipe, a tutor or removal aimed at a combo piece.",
-  "syn": [
-   "Exquisite Blood",
-   "Mindcrank"
-  ],
-  "warn": "The 2/2 flier can block Thief of Sanity or Bloodletter."
- },
- {
-  "name": "An Offer You Can't Refuse",
-  "qty": 1,
-  "cost": "{U}",
-  "mv": 1,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "Counter target noncreature spell. Its controller creates two Treasure tokens. (They're artifacts with \"{T}, Sacrifice this token: Add one mana of any color.\")",
-  "roles": [
-   "removal"
-  ],
-  "why": "One mana to counter a noncreature spell. The opponent gets two Treasures, which matters early and hardly at all on the turn you win.",
-  "how": "Use it on the combo turn or against a game-ending spell. You can also counter your own unimportant spell for two Treasures.",
-  "syn": [
-   "Beseech the Mirror",
-   "Fierce Guardianship"
-  ],
-  "warn": "Two Treasures can speed an opponent up a lot in the early turns."
- },
- {
-  "name": "Fierce Guardianship",
-  "qty": 1,
-  "cost": "{2}{U}",
-  "mv": 3,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "If you control a commander, you may cast this spell without paying its mana cost.\nCounter target noncreature spell.",
-  "roles": [
-   "removal"
-  ],
-  "gc": true,
-  "why": "Counter a noncreature spell, free while you control your commander. It protects the combo turn without spending mana.",
-  "how": "Keep it for the wipe or removal spell aimed at your combo. Etrata has to be on the battlefield for the free cast.",
-  "syn": [
-   "Etrata, Deadly Fugitive",
-   "Deadly Rollick",
-   "Exquisite Blood"
-  ],
-  "warn": "Without Etrata on the battlefield, it costs {2}{U}."
- },
- {
-  "name": "Deadly Rollick",
-  "qty": 1,
-  "cost": "{3}{B}",
-  "mv": 4,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "If you control a commander, you may cast this spell without paying its mana cost.\nExile target creature.",
-  "roles": [
-   "removal"
-  ],
-  "why": "Exile any creature, free while you control your commander. It handles indestructible threats and blockers.",
-  "how": "Use it on a creature that stops your win: a flying blocker for Virtus, a hatebear, or an opponent's combo creature.",
-  "syn": [
-   "Etrata, Deadly Fugitive",
-   "Fierce Guardianship",
-   "Dimir House Guard"
-  ],
-  "warn": "Without Etrata on the battlefield, it costs {3}{B}."
- },
- {
-  "name": "Cyclonic Rift",
-  "qty": 1,
-  "cost": "{1}{U}",
-  "mv": 2,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "Return target nonland permanent you don't control to its owner's hand.\nOverload {6}{U} (You may cast this spell for its overload cost. If you do, change \"target\" in its text to \"each.\")",
-  "roles": [
-   "removal"
-  ],
-  "gc": true,
-  "why": "Two mana to bounce one nonland permanent, or seven to bounce everything opponents control at instant speed. Overloaded at the end of the turn before yours, it clears the way for your combo.",
-  "how": "Overload it at the end of the opponent's turn right before yours, then go off with the table empty. Single-target it to remove a stax piece.",
-  "syn": [
-   "Wormfang Manta",
-   "Muddle the Mixture"
-  ]
- },
- {
-  "name": "Aetherize",
-  "qty": 1,
-  "cost": "{3}{U}",
-  "mv": 4,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "Return all attacking creatures to their owner's hand.",
-  "roles": [
-   "removal"
-  ],
-  "why": "Every attacking creature goes back to its owner's hand, and tokens that leave the battlefield cease to exist. A one-card answer to a big attack from a Bracket 4 aggro deck or a token deck. Added in v3's third round.",
-  "how": "Hold {3}{U} on an opponent's turn and cast it after attackers are declared, ideally when they've swung most of their board at you. Dimir House Guard can transmute for it.",
-  "syn": [
-   "Dimir House Guard",
-   "Counterspell",
-   "Cyclonic Rift"
-  ],
-  "warn": "It hits every attacking creature, so don't cast it on your own turn while you're attacking. It only answers creatures that are already attacking: it doesn't stop a combo."
+  "warn": "The found creature must share a creature type with the sacrificed one and cost exactly 1 more. A face-down 2/2 has mana value 0 and no types, so without a type-changer it finds nothing."
  },
  {
   "name": "Sol Ring",
@@ -1250,19 +1157,20 @@ window.CETRATA_CARDS = [
   "mv": 1,
   "type": "Artifact",
   "cat": "Artifact",
-  "pt": "",
   "text": "{T}: Add {C}{C}.",
   "roles": [
    "ramp"
   ],
-  "why": "One mana for two colorless mana. It casts Etrata on turn 2 with a colored land or a Signet.",
-  "how": "Play it turn 1. Next turn, cast Etrata or Mindcrank plus Tetsuko.",
+  "why": "One mana for {C}{C}. In the bot cut sweep of the first skeleton it was one of the few cards clearly worth more than a basic land (−2.4 / −1.4 without it). It puts two Assassins down on turn 1 or Ramses down a turn early.",
+  "how": "Turn 1, always. Next turn it pays the generic part of Etrata or Ramses.",
   "syn": [
-   "Scroll of Fate",
-   "Crystal Shard",
-   "Mindcrank",
-   "Dimir Signet"
-  ]
+   "Ramses, Assassin Lord",
+   "Etrata, Deadly Fugitive",
+   "Darkwater Catacombs",
+   "Pyre of Heroes",
+   "Eldrazi Monument"
+  ],
+  "warn": "It makes only colorless mana: you still need {U}{B} from other sources for Etrata and Ramses."
  },
  {
   "name": "Mox Amber",
@@ -1271,20 +1179,79 @@ window.CETRATA_CARDS = [
   "mv": 0,
   "type": "Legendary Artifact",
   "cat": "Artifact",
-  "pt": "",
   "text": "{T}: Add one mana of any color among legendary creatures and planeswalkers you control.",
   "roles": [
    "ramp"
   ],
-  "why": "A free mana source when you control a legendary creature. Etrata, Tetsuko, Virtus and Vito are the legendary creatures, so it's usually on once Etrata is out.",
-  "how": "Play it alongside Etrata, or once a legend is down. Etrata makes it tap for {U} or {B}.",
+  "why": "Free: taps for any color among the legendary creatures and planeswalkers you control. The deck has twelve legendary creatures, Etrata and Ramses first, so it's usually on by turn 2-3.",
+  "how": "Play it when a legendary creature is out or about to be, often the same turn: cast a legend, then tap the Mox.",
   "syn": [
    "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord",
    "Tetsuko Umezawa, Fugitive",
-   "Vito, Thorn of the Dusk Rose",
-   "Virtus the Veiled"
+   "Basim Ibn Ishaq"
   ],
-  "warn": "With no legendary creature or planeswalker out, it makes nothing."
+  "warn": "With no legendary creature or planeswalker out, it makes nothing. Etrata in the command zone doesn't count."
+ },
+ {
+  "name": "Chrome Mox",
+  "qty": 1,
+  "cost": "{0}",
+  "mv": 0,
+  "type": "Artifact",
+  "cat": "Artifact",
+  "text": "Imprint — When Chrome Mox enters, you may exile a nonartifact, nonland card from your hand.\n{T}: Add one mana of any of the exiled card's colors.",
+  "roles": [
+   "ramp"
+  ],
+  "why": "Free: exile a nonartifact, nonland card from your hand and it taps for one of that card's colors forever. It trades a spare card for a turn of tempo.",
+  "how": "Imprint a blue or black card you won't need: a second counter, a late cantrip, an expensive spell in a fast hand.",
+  "syn": [
+   "Changeling Outcast",
+   "Sol Ring",
+   "Basim Ibn Ishaq"
+  ],
+  "warn": "It's card disadvantage. With no card worth exiling, it does nothing."
+ },
+ {
+  "name": "Lotus Petal",
+  "qty": 1,
+  "cost": "{0}",
+  "mv": 0,
+  "type": "Artifact",
+  "cat": "Artifact",
+  "text": "{T}, Sacrifice Lotus Petal: Add one mana of any color.",
+  "roles": [
+   "ramp"
+  ],
+  "why": "Free, one use: one mana of any color. It puts a one-drop and a two-drop down on turn 1 or Etrata out a turn early.",
+  "how": "Crack it when it unlocks a play this turn, not just because you can.",
+  "syn": [
+   "Changeling Outcast",
+   "Etrata, Deadly Fugitive",
+   "Basim Ibn Ishaq"
+  ],
+  "warn": "It's gone after one use."
+ },
+ {
+  "name": "Dark Ritual",
+  "qty": 1,
+  "cost": "{B}",
+  "mv": 1,
+  "type": "Instant",
+  "cat": "Instant",
+  "text": "Add {B}{B}{B}.",
+  "roles": [
+   "ramp"
+  ],
+  "why": "{B} becomes {B}{B}{B}. It casts Grim Tutor for Ramses on turn 1, or two black one-drops, or finishes a big turn.",
+  "how": "Use it only when it unlocks a play: Swamp, Dark Ritual, Grim Tutor is the best one.",
+  "syn": [
+   "Grim Tutor",
+   "Imperial Seal",
+   "Swamp"
+  ],
+  "warn": "It's card disadvantage. The mana empties at the end of the step or phase."
  },
  {
   "name": "Arcane Signet",
@@ -1293,17 +1260,16 @@ window.CETRATA_CARDS = [
   "mv": 2,
   "type": "Artifact",
   "cat": "Artifact",
-  "pt": "",
   "text": "{T}: Add one mana of any color in your commander's color identity.",
   "roles": [
    "ramp"
   ],
-  "why": "Two-mana rock that taps for {U} or {B}. It fixes and ramps into Etrata or a four-drop.",
-  "how": "Turn 2 play. Tribute Mage can find it if you have no other mana.",
+  "why": "Two mana: taps for {U} or {B}. It fixes and ramps into Etrata or Ramses.",
+  "how": "Turn 2 if you have nothing better; it's a three-drop on turn 2 and Ramses on turn 3.",
   "syn": [
-   "Tribute Mage",
-   "Shred Memory",
-   "Etrata, Deadly Fugitive"
+   "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord",
+   "Basim Ibn Ishaq"
   ]
  },
  {
@@ -1313,125 +1279,230 @@ window.CETRATA_CARDS = [
   "mv": 2,
   "type": "Artifact",
   "cat": "Artifact",
-  "pt": "",
   "text": "{T}: Add {C}.\n{T}: Add {U} or {B}. Talisman of Dominance deals 1 damage to you.",
   "roles": [
    "ramp"
   ],
-  "why": "Two-mana rock that makes {C}, or {U} or {B} for 1 damage to you. It fixes both of Etrata's colors.",
-  "how": "Turn 2 play. Use {C} for generic costs and take the damage only for colored mana.",
+  "why": "Two mana: {C}, or {U} or {B} for 1 damage to you. It fixes both of Etrata's colors.",
+  "how": "Turn 2. Tap it for colorless when that's enough, to save life.",
   "syn": [
-   "Tribute Mage",
    "Etrata, Deadly Fugitive",
-   "Muddle the Mixture"
+   "Ramses, Assassin Lord",
+   "Basim Ibn Ishaq"
   ]
  },
  {
-  "name": "Dimir Signet",
+  "name": "Force of Will",
   "qty": 1,
-  "cost": "{2}",
-  "mv": 2,
-  "type": "Artifact",
-  "cat": "Artifact",
-  "pt": "",
-  "text": "{1}, {T}: Add {U}{B}.",
+  "cost": "{3}{U}{U}",
+  "mv": 5,
+  "type": "Instant",
+  "cat": "Instant",
+  "text": "You may pay 1 life and exile a blue card from your hand rather than pay this spell's mana cost.\nCounter target spell.",
   "roles": [
-   "ramp"
+   "removal"
   ],
-  "why": "Pay {1} and tap for {U}{B}: both of Etrata's colors at once.",
-  "how": "Turn 2 play. On turn 3 it gives Etrata plus a one-drop from three lands.",
+  "why": "Counter any spell, free for 1 life and a blue card from your hand. It's the one free counter that also stops creature spells, so it can answer a wrath on your turn or the opponent's.",
+  "how": "Save the last counter for the wrath and for removal aimed at Ramses or Etrata (+1.0 in bot games); let single creatures and commanders resolve.",
   "syn": [
-   "Tribute Mage",
+   "Ramses, Assassin Lord",
    "Etrata, Deadly Fugitive",
-   "Training Grounds"
-  ]
+   "Teferi's Veil",
+   "Brainstorm",
+   "Fierce Guardianship"
+  ],
+  "warn": "In the bot cut sweep a land in its place measured +0.9 / +0.6; the research reads that as the bot's counter play, not the card. Pitching a card is card disadvantage: don't spend it on a Sol Ring."
  },
  {
-  "name": "Fellwar Stone",
+  "name": "Fierce Guardianship",
   "qty": 1,
-  "cost": "{2}",
-  "mv": 2,
-  "type": "Artifact",
-  "cat": "Artifact",
-  "pt": "",
-  "text": "{T}: Add one mana of any color that a land an opponent controls could produce.",
+  "cost": "{2}{U}",
+  "mv": 3,
+  "type": "Instant",
+  "cat": "Instant",
+  "text": "If you control a commander, you may cast this spell without paying its mana cost.\nCounter target noncreature spell.",
   "roles": [
-   "ramp"
+   "removal"
   ],
-  "why": "A two-mana rock that makes any color an opponent's land could make. At most tables that includes blue or black.",
-  "how": "Turn 2 play. Check what your opponents' lands produce first.",
+  "why": "Counter a noncreature spell, free while Etrata is on the battlefield. That covers the wraths and most removal aimed at Ramses.",
+  "how": "Keep Etrata out and this is a free answer to the wrath. Spend it on the spell that would end your board, not on the first threat.",
   "syn": [
-   "Tribute Mage",
-   "Etrata, Deadly Fugitive"
+   "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord",
+   "Teferi's Veil",
+   "Deadly Rollick"
   ],
-  "warn": "Against colorless or off-color mana bases it may only make {C}, or nothing."
+  "warn": "Without your commander on the battlefield (in the command zone, or phased out by Teferi's Veil) it costs {2}{U}."
  },
  {
-  "name": "Mind Stone",
+  "name": "Force of Negation",
   "qty": 1,
-  "cost": "{2}",
-  "mv": 2,
-  "type": "Artifact",
-  "cat": "Artifact",
-  "pt": "",
-  "text": "{T}: Add {C}.\n{1}, {T}, Sacrifice Mind Stone: Draw a card.",
+  "cost": "{1}{U}{U}",
+  "mv": 3,
+  "type": "Instant",
+  "cat": "Instant",
+  "text": "If it's not your turn, you may exile a blue card from your hand rather than pay this spell's mana cost.\nCounter target noncreature spell. If that spell is countered this way, exile it instead of putting it into its owner's graveyard.",
   "roles": [
-   "ramp",
+   "removal"
+  ],
+  "why": "Counter a noncreature spell and exile it; on an opponent's turn it's free by exiling a blue card. It stops the wrath on the turn wraths are cast.",
+  "how": "Hold it for a wrath or for removal on Ramses or Etrata on an opponent's turn. On your own turn it costs {1}{U}{U}.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Etrata, Deadly Fugitive",
+   "Teferi's Veil",
+   "Force of Will"
+  ],
+  "warn": "The free cost works only when it's not your turn. In the bot cut sweep a land in its place measured +0.8 / +0.6; the research reads that as the bot's counter play, not the card."
+ },
+ {
+  "name": "Swan Song",
+  "qty": 1,
+  "cost": "{U}",
+  "mv": 1,
+  "type": "Instant",
+  "cat": "Instant",
+  "text": "Counter target enchantment, instant, or sorcery spell. Its controller creates a 2/2 blue Bird creature token with flying.",
+  "roles": [
+   "removal"
+  ],
+  "why": "One mana: counter an enchantment, instant or sorcery. Most wraths, most removal on Ramses and most tutors are covered; the opponent gets a 2/2 flying Bird.",
+  "how": "Hold {U} for the wrath. The Bird is a small price for keeping the board.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Teferi's Veil",
+   "River of Tears"
+  ],
+  "warn": "The 2/2 flier can block your fliers and stolen 2/2s; it's no wall for Tetsuko's unblockables."
+ },
+ {
+  "name": "Deadly Rollick",
+  "qty": 1,
+  "cost": "{3}{B}",
+  "mv": 4,
+  "type": "Instant",
+  "cat": "Instant",
+  "text": "If you control a commander, you may cast this spell without paying its mana cost.\nExile target creature.",
+  "roles": [
+   "removal"
+  ],
+  "why": "Exile any creature, free while Etrata is on the battlefield. It removes the blocker that stops the Ramses kill or the creature that would break your board.",
+  "how": "Use it at instant speed on the creature that matters: a blocker on the player you're killing, or an indestructible threat.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord",
+   "Fierce Guardianship",
+   "Quietus Spike"
+  ],
+  "warn": "Without Etrata on the battlefield, or while Teferi's Veil has her phased out, it costs {3}{B}."
+ },
+ {
+  "name": "Snuff Out",
+  "qty": 1,
+  "cost": "{3}{B}",
+  "mv": 4,
+  "type": "Instant",
+  "cat": "Instant",
+  "text": "If you control a Swamp, you may pay 4 life rather than pay this spell's mana cost.\nDestroy target nonblack creature. It can't be regenerated.",
+  "roles": [
+   "removal"
+  ],
+  "why": "Destroy a nonblack creature, free for 4 life if you control a Swamp. A tempo-free answer to a blocker or a threat.",
+  "how": "Use it on the blocker or the attacker that matters, at instant speed, without tapping mana on your turn.",
+  "syn": [
+   "Swamp",
+   "Watery Grave",
+   "Ramses, Assassin Lord",
+   "Quietus Spike"
+  ],
+  "warn": "It can't hit black creatures. The 4 life is real against aggressive tables."
+ },
+ {
+  "name": "Cyclonic Rift",
+  "qty": 1,
+  "cost": "{1}{U}",
+  "mv": 2,
+  "type": "Instant",
+  "cat": "Instant",
+  "text": "Return target nonland permanent you don't control to its owner's hand.\nOverload {6}{U} (You may cast this spell for its overload cost. If you do, change \"target\" in its text to \"each.\")",
+  "roles": [
+   "removal"
+  ],
+  "why": "Two mana to bounce one nonland permanent, or seven at instant speed to bounce everything opponents control. Overloaded the turn before yours, it clears every blocker for the kill.",
+  "how": "Overload it at the end of the turn before yours, then attack the player you're killing into an empty board.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Quietus Spike",
+   "Coat of Arms",
+   "Ashnod's Altar"
+  ],
+  "warn": "In the bot cut sweep a land in its place measured +1.0 / +0.5, which the research reads as the bot's counter play, not the card. Overloaded, it costs seven mana."
+ },
+ {
+  "name": "Rhystic Study",
+  "qty": 1,
+  "cost": "{2}{U}",
+  "mv": 3,
+  "type": "Enchantment",
+  "cat": "Enchantment",
+  "text": "Whenever an opponent casts a spell, you may draw a card unless that player pays {1}.",
+  "roles": [
    "draw"
   ],
-  "why": "A two-mana rock you can cash in for a card when the mana is no longer needed.",
-  "how": "Turn 2 play. Late, pay {1}, tap and sacrifice it to draw.",
+  "why": "Whenever an opponent casts a spell, you may draw unless they pay {1}. Either you draw several cards a round or the table slows down, and both help a deck that wins by turn 8-9. A turn 1-2 engine with lands for it is a keepable hand under the mulligan rule.",
+  "how": "Cast it on turn 2 or 3. Later, cast it only if you have nothing that develops the board.",
   "syn": [
-   "Tribute Mage",
-   "Beseech the Mirror"
-  ]
+   "Mystic Remora",
+   "Dark Confidant",
+   "Satoru, the Infiltrator",
+   "Brainstorm",
+   "Demonic Consultation"
+  ],
+  "warn": "Draw engines thin the library fast. In bot games 8% of the losses to precons were an empty library, with Demonic Consultation and the draw engines."
  },
  {
-  "name": "Dark Ritual",
+  "name": "Mystic Remora",
   "qty": 1,
-  "cost": "{B}",
+  "cost": "{U}",
   "mv": 1,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "Add {B}{B}{B}.",
+  "type": "Enchantment",
+  "cat": "Enchantment",
+  "text": "Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)\nWhenever an opponent casts a noncreature spell, you may draw a card unless that player pays {4}.",
   "roles": [
-   "ramp"
+   "draw"
   ],
-  "why": "One black mana becomes {B}{B}{B}. It casts Etrata or a three-mana combo piece a turn early, or finishes a kill turn.",
-  "how": "On turn 2, Swamp, Island and Ritual cast Etrata with {B} left over. Later, use it for Necropotence on turn 1 or 2, or to add a combo piece and hold counter mana.",
+  "why": "One mana: whenever an opponent casts a noncreature spell, you may draw unless they pay {4}. On turns 1-3 it draws several cards a round while opponents set up.",
+  "how": "Cast it on turn 1. Pay the upkeep for two or three turns, then let it go.",
   "syn": [
-   "Necropotence",
-   "Bloodletter of Aclazotz",
-   "Grim Tutor",
-   "Beseech the Mirror",
-   "Culling the Weak"
+   "Rhystic Study",
+   "Dark Confidant",
+   "Demonic Consultation",
+   "Brainstorm"
   ],
-  "warn": "It's card disadvantage. Use it only when it unlocks an important play."
+  "warn": "Cumulative upkeep grows each turn. Don't keep paying once it costs more than it draws. In the bot cut sweep a land in its place measured +1.3 / +0.1."
  },
  {
-  "name": "Culling the Weak",
+  "name": "Ancient Tomb",
   "qty": 1,
-  "cost": "{B}",
-  "mv": 1,
-  "type": "Instant",
-  "cat": "Instant",
-  "pt": "",
-  "text": "As an additional cost to cast this spell, sacrifice a creature.\nAdd {B}{B}{B}{B}.",
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "text": "{T}: Add {C}{C}. Ancient Tomb deals 2 damage to you.",
   "roles": [
+   "land",
    "ramp"
   ],
-  "why": "Sacrifice a creature: add {B}{B}{B}{B}. Sacrifice a stolen cloak and the card goes to its owner's graveyard, which starts the Mindcrank loop with Guildmage active. Sacrifice a face-up Wormfang Manta and you get an extra turn too.",
-  "how": "Sacrificing Enduring Tenacity while it's a creature brings it back as an enchantment. Hold it for the turn it wins: casting Exquisite Blood out of nowhere, or turning a cloak into both mana and a loop starter. Early, sacrifice Changeling Outcast or a cloak you don't need for a fast Etrata plus a 2-drop.",
+  "why": "A land that taps for {C}{C} for 2 damage: the eighth fast-mana piece, next to seven nonland ones. With Sol Ring on turn 1 it makes five mana on turn 2.",
+  "how": "Play it on turn 1-2 when the extra mana casts something now. Late, tap it only when you need the second mana.",
   "syn": [
-   "Wormfang Manta",
-   "Duskmantle Guildmage",
-   "Mindcrank",
-   "Dark Ritual",
-   "Changeling Outcast",
-   "Enduring Tenacity"
+   "Sol Ring",
+   "Pyre of Heroes",
+   "Eldrazi Monument",
+   "Coat of Arms",
+   "Ramses, Assassin Lord"
   ],
-  "warn": "The sacrifice is part of the cost. If it's countered, the creature is still gone."
+  "warn": "Its mana is colorless and costs 2 life each tap; against aggressive tables that adds up."
  },
  {
   "name": "Command Tower",
@@ -1440,16 +1511,15 @@ window.CETRATA_CARDS = [
   "mv": 0,
   "type": "Land",
   "cat": "Land",
-  "pt": "",
   "text": "{T}: Add one mana of any color in your commander's color identity.",
   "roles": [
    "land"
   ],
   "why": "Taps for {U} or {B}, untapped, from turn 1.",
-  "how": "Play it early.",
+  "how": "Play it whenever you need both colors.",
   "syn": [
    "Etrata, Deadly Fugitive",
-   "Path of Ancestry"
+   "Ramses, Assassin Lord"
   ]
  },
  {
@@ -1459,153 +1529,18 @@ window.CETRATA_CARDS = [
   "mv": 0,
   "type": "Land — Island Swamp",
   "cat": "Land",
-  "pt": "",
   "text": "({T}: Add {U} or {B}.)\nAs Watery Grave enters, you may pay 2 life. If you don't, it enters tapped.",
   "roles": [
    "land"
   ],
-  "why": "An Island Swamp that enters untapped for 2 life. Polluted Delta fetches it.",
-  "how": "Fetch it with Polluted Delta. Pay the 2 life early when you need both colors on curve.",
+  "why": "An Island Swamp that enters untapped for 2 life. All three fetch lands find it, and it counts for every land that checks for an Island or a Swamp.",
+  "how": "Fetch it on turn 1 and pay the 2 life if you're casting something.",
   "syn": [
    "Polluted Delta",
-   "Gloomlake Verge",
-   "Drowned Catacomb"
-  ]
- },
- {
-  "name": "Drowned Catacomb",
-  "qty": 1,
-  "cost": "",
-  "mv": 0,
-  "type": "Land",
-  "cat": "Land",
-  "pt": "",
-  "text": "Drowned Catacomb enters tapped unless you control an Island or a Swamp.\n{T}: Add {U} or {B}.",
-  "roles": [
-   "land"
-  ],
-  "why": "Taps for {U} or {B}, untapped if you control an Island or a Swamp.",
-  "how": "Play it after a basic or a typed dual.",
-  "syn": [
-   "Watery Grave",
-   "Sunken Hollow",
-   "Undercity Sewers"
-  ]
- },
- {
-  "name": "Darkslick Shores",
-  "qty": 1,
-  "cost": "",
-  "mv": 0,
-  "type": "Land",
-  "cat": "Land",
-  "pt": "",
-  "text": "Darkslick Shores enters tapped unless you control two or fewer other lands.\n{T}: Add {U} or {B}.",
-  "roles": [
-   "land"
-  ],
-  "why": "Taps for {U} or {B}, untapped on your first three land drops.",
-  "how": "Play it on turns 1-3.",
-  "syn": [
-   "Etrata, Deadly Fugitive"
-  ]
- },
- {
-  "name": "Underground River",
-  "qty": 1,
-  "cost": "",
-  "mv": 0,
-  "type": "Land",
-  "cat": "Land",
-  "pt": "",
-  "text": "{T}: Add {C}.\n{T}: Add {U} or {B}. Underground River deals 1 damage to you.",
-  "roles": [
-   "land"
-  ],
-  "why": "{C} for free, or {U} or {B} for 1 damage to you. Always untapped.",
-  "how": "Use {C} for generic costs and save the damage for colored mana.",
-  "syn": [
-   "Etrata, Deadly Fugitive"
-  ]
- },
- {
-  "name": "Sunken Hollow",
-  "qty": 1,
-  "cost": "",
-  "mv": 0,
-  "type": "Land — Island Swamp",
-  "cat": "Land",
-  "pt": "",
-  "text": "({T}: Add {U} or {B}.)\nSunken Hollow enters tapped unless you control two or more basic lands.",
-  "roles": [
-   "land"
-  ],
-  "why": "An Island Swamp that enters untapped if you control two or more basic lands. Polluted Delta fetches it.",
-  "how": "Play it after two basics, or fetch it.",
-  "syn": [
-   "Polluted Delta",
-   "Island",
-   "Swamp",
-   "Gloomlake Verge"
-  ]
- },
- {
-  "name": "Morphic Pool",
-  "qty": 1,
-  "cost": "",
-  "mv": 0,
-  "type": "Land",
-  "cat": "Land",
-  "pt": "",
-  "text": "Morphic Pool enters tapped unless you have two or more opponents.\n{T}: Add {U} or {B}.",
-  "roles": [
-   "land"
-  ],
-  "why": "Taps for {U} or {B}, untapped whenever you have two or more opponents, which is every normal Commander game.",
-  "how": "Play it any turn.",
-  "syn": [
-   "Etrata, Deadly Fugitive"
-  ]
- },
- {
-  "name": "Gloomlake Verge",
-  "qty": 1,
-  "cost": "",
-  "mv": 0,
-  "type": "Land",
-  "cat": "Land",
-  "pt": "",
-  "text": "{T}: Add {U}.\n{T}: Add {B}. Activate only if you control an Island or a Swamp.",
-  "roles": [
-   "land"
-  ],
-  "why": "Taps for {U}, and for {B} if you control an Island or a Swamp. Always untapped.",
-  "how": "Play it with a basic or a typed dual already down.",
-  "syn": [
-   "Watery Grave",
-   "Sunken Hollow",
-   "Undercity Sewers",
-   "Island",
-   "Swamp"
-  ]
- },
- {
-  "name": "Undercity Sewers",
-  "qty": 1,
-  "cost": "",
-  "mv": 0,
-  "type": "Land — Island Swamp",
-  "cat": "Land",
-  "pt": "",
-  "text": "({T}: Add {U} or {B}.)\nUndercity Sewers enters tapped.\nWhen Undercity Sewers enters, surveil 1. (Look at the top card of your library. You may put it into your graveyard.)",
-  "roles": [
-   "land"
-  ],
-  "why": "An Island Swamp that enters tapped and surveils 1. Polluted Delta fetches it.",
-  "how": "Play it on a turn you don't need all your mana, often turn 1.",
-  "syn": [
-   "Polluted Delta",
-   "Gloomlake Verge",
+   "Marsh Flats",
+   "Scalding Tarn",
+   "Snuff Out",
+   "Tainted Isle",
    "Drowned Catacomb"
   ]
  },
@@ -1616,131 +1551,122 @@ window.CETRATA_CARDS = [
   "mv": 0,
   "type": "Land",
   "cat": "Land",
-  "pt": "",
   "text": "{T}, Pay 1 life, Sacrifice Polluted Delta: Search your library for an Island or Swamp card, put it onto the battlefield, then shuffle.",
   "roles": [
    "land"
   ],
-  "why": "Pay 1 life and sacrifice it: fetch an Island or Swamp card. That includes Watery Grave, Sunken Hollow and Undercity Sewers.",
-  "how": "Fetch Watery Grave early for both colors. Crack it after Brainstorm to shuffle away the cards you put back.",
+  "why": "Pay 1 life and sacrifice it: put an Island or Swamp card onto the battlefield. It finds a basic, Watery Grave, Sunken Hollow or Undercity Sewers, and it shuffles after Brainstorm.",
+  "how": "Crack it at the end of an opponent's turn, or after Brainstorm to shuffle away the two cards you put back.",
   "syn": [
    "Watery Grave",
    "Sunken Hollow",
    "Undercity Sewers",
    "Brainstorm",
-   "Island",
+   "Vampiric Tutor"
+  ],
+  "warn": "Don't crack it after Vampiric Tutor or Imperial Seal and before your draw: the shuffle loses the tutored card."
+ },
+ {
+  "name": "Marsh Flats",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "text": "{T}, Pay 1 life, Sacrifice Marsh Flats: Search your library for a Plains or Swamp card, put it onto the battlefield, then shuffle.",
+  "roles": [
+   "land"
+  ],
+  "why": "A Swamp fetch: pay 1 life, sacrifice it, put a Plains or Swamp card onto the battlefield. In this deck that's a basic Swamp, Watery Grave, Sunken Hollow or Undercity Sewers.",
+  "how": "Fetch Watery Grave early for both colors, a basic Swamp late to protect the duals.",
+  "syn": [
+   "Watery Grave",
+   "Sunken Hollow",
+   "Undercity Sewers",
+   "Brainstorm",
    "Swamp"
   ],
-  "warn": "If an opponent has Opposition Agent, wait to crack it."
+  "warn": "It can't find a basic Island."
  },
  {
-  "name": "Otawara, Soaring City",
-  "qty": 1,
-  "cost": "",
-  "mv": 0,
-  "type": "Legendary Land",
-  "cat": "Land",
-  "pt": "",
-  "text": "{T}: Add {U}.\nChannel — {3}{U}, Discard Otawara, Soaring City: Return target artifact, creature, enchantment, or planeswalker to its owner's hand. This ability costs {1} less to activate for each legendary creature you control.",
-  "roles": [
-   "land",
-   "removal"
-  ],
-  "why": "A land that taps for {U} and can channel to bounce an artifact, creature, enchantment or planeswalker. Bouncing your own face-up Wormfang Manta gives an extra turn.",
-  "how": "Play it as a land unless you need the bounce. Channel costs {1} less per legendary creature you control.",
-  "syn": [
-   "Wormfang Manta",
-   "Etrata, Deadly Fugitive",
-   "Tetsuko Umezawa, Fugitive",
-   "Vito, Thorn of the Dusk Rose"
-  ]
- },
- {
-  "name": "Takenuma, Abandoned Mire",
-  "qty": 1,
-  "cost": "",
-  "mv": 0,
-  "type": "Legendary Land",
-  "cat": "Land",
-  "pt": "",
-  "text": "{T}: Add {B}.\nChannel — {3}{B}, Discard Takenuma, Abandoned Mire: Mill three cards, then return a creature or planeswalker card from your graveyard to your hand. This ability costs {1} less to activate for each legendary creature you control.",
-  "roles": [
-   "land",
-   "utility"
-  ],
-  "why": "A land that taps for {B} and can channel to mill three and return a creature card from your graveyard to your hand. It brings back a dead combo creature.",
-  "how": "Play it as a land unless a combo creature is in your graveyard. Channel costs {1} less per legendary creature you control.",
-  "syn": [
-   "Wormfang Manta",
-   "Starscape Cleric",
-   "Marauding Blight-Priest",
-   "Etrata, Deadly Fugitive"
-  ]
- },
- {
-  "name": "Rogue's Passage",
+  "name": "Scalding Tarn",
   "qty": 1,
   "cost": "",
   "mv": 0,
   "type": "Land",
   "cat": "Land",
-  "pt": "",
-  "text": "{T}: Add {C}.\n{4}, {T}: Target creature can't be blocked this turn.",
-  "roles": [
-   "land",
-   "utility"
-  ],
-  "why": "{4}, {T}: target creature can't be blocked this turn. It gets Virtus through on the double tap turn when Tetsuko isn't out.",
-  "how": "Use it on Virtus on the double tap turn, or on Bloodthirsty Conqueror or an Assassin that has to connect.",
-  "syn": [
-   "Virtus the Veiled",
-   "Bloodletter of Aclazotz",
-   "Tetsuko Umezawa, Fugitive",
-   "Mutavault"
-  ],
-  "warn": "It makes only colorless mana."
- },
- {
-  "name": "Path of Ancestry",
-  "qty": 1,
-  "cost": "",
-  "mv": 0,
-  "type": "Land",
-  "cat": "Land",
-  "pt": "",
-  "text": "Path of Ancestry enters tapped.\n{T}: Add one mana of any color in your commander's color identity. When that mana is spent to cast a creature spell that shares a creature type with your commander, scry 1. (Look at the top card of your library. You may put that card on the bottom.)",
+  "text": "{T}, Pay 1 life, Sacrifice Scalding Tarn: Search your library for an Island or Mountain card, put it onto the battlefield, then shuffle.",
   "roles": [
    "land"
   ],
-  "why": "Taps for {U} or {B}. When the mana casts a creature spell that shares a type with Etrata (Vampire or Assassin), you scry 1.",
-  "how": "Play it on a turn you don't need all your mana.",
+  "why": "An Island fetch: pay 1 life, sacrifice it, put an Island or Mountain card onto the battlefield. In this deck that's a basic Island, Watery Grave, Sunken Hollow or Undercity Sewers.",
+  "how": "Fetch Watery Grave early for both colors, a basic Island late.",
   "syn": [
-   "Marauding Blight-Priest",
-   "Bloodletter of Aclazotz",
-   "Starscape Cleric",
-   "Changeling Outcast"
+   "Watery Grave",
+   "Sunken Hollow",
+   "Undercity Sewers",
+   "Brainstorm",
+   "Island"
   ],
-  "warn": "It enters tapped."
+  "warn": "It can't find a basic Swamp."
  },
  {
-  "name": "Secluded Courtyard",
+  "name": "Underground River",
   "qty": 1,
   "cost": "",
   "mv": 0,
   "type": "Land",
   "cat": "Land",
-  "pt": "",
-  "text": "As Secluded Courtyard enters, choose a creature type.\n{T}: Add {C}.\n{T}: Add one mana of any color. Spend this mana only to cast a creature spell of the chosen type or activate an ability of a creature or creature card of the chosen type.",
+  "text": "{T}: Add {C}.\n{T}: Add {U} or {B}. Underground River deals 1 damage to you.",
   "roles": [
    "land"
   ],
-  "why": "Taps for {C}, or any color for creature spells of the chosen type and abilities of creatures of that type. Name Vampire for Etrata, Vito, Bloodletter, Blight-Priest, the Conqueror and Vampire of the Dire Moon.",
-  "how": "Name Vampire in most games. Name Assassin if Etrata, Virtus and Silumgar Assassin are your plan. It can't pay Etrata's flip: face-down creatures have no types.",
+  "why": "{C} for free, or {U} or {B} for 1 damage to you. Always untapped.",
+  "how": "Play it any turn; tap it for colorless when that's enough.",
   "syn": [
    "Etrata, Deadly Fugitive",
-   "Vito, Thorn of the Dusk Rose",
-   "Bloodletter of Aclazotz",
-   "Path of Ancestry"
+   "Ramses, Assassin Lord"
+  ]
+ },
+ {
+  "name": "Drowned Catacomb",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "text": "Drowned Catacomb enters tapped unless you control an Island or a Swamp.\n{T}: Add {U} or {B}.",
+  "roles": [
+   "land"
+  ],
+  "why": "Taps for {U} or {B}, untapped if you control an Island or a Swamp.",
+  "how": "Play it from turn 2 on, after a basic or a typed dual.",
+  "syn": [
+   "Island",
+   "Swamp",
+   "Watery Grave",
+   "Sunken Hollow"
+  ]
+ },
+ {
+  "name": "Sunken Hollow",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land — Island Swamp",
+  "cat": "Land",
+  "text": "({T}: Add {U} or {B}.)\nSunken Hollow enters tapped unless you control two or more basic lands.",
+  "roles": [
+   "land"
+  ],
+  "why": "An Island Swamp that enters untapped if you control two or more basic lands. The fetch lands find it.",
+  "how": "Play it from turn 3 on, once two basics are out.",
+  "syn": [
+   "Island",
+   "Swamp",
+   "Polluted Delta",
+   "Tainted Isle",
+   "Snuff Out"
   ]
  },
  {
@@ -1750,18 +1676,18 @@ window.CETRATA_CARDS = [
   "mv": 0,
   "type": "Land",
   "cat": "Land",
-  "pt": "",
   "text": "As Choked Estuary enters, you may reveal an Island or Swamp card from your hand. If you don't, Choked Estuary enters tapped.\n{T}: Add {U} or {B}.",
   "roles": [
    "land"
   ],
-  "why": "Taps for {U} or {B}, untapped if you reveal an Island or Swamp card from your hand. Added in v3 for the mana: bot games showed the deck was short on lands.",
-  "how": "Play it while you still hold a basic or a typed dual (Watery Grave, Sunken Hollow, Undercity Sewers) to reveal.",
+  "why": "Taps for {U} or {B}, untapped if you reveal an Island or Swamp card from your hand.",
+  "how": "Play it early, while you still have a basic or a typed dual in hand to show.",
   "syn": [
    "Island",
    "Swamp",
    "Watery Grave",
-   "Sunken Hollow"
+   "Sunken Hollow",
+   "Undercity Sewers"
   ]
  },
  {
@@ -1771,17 +1697,37 @@ window.CETRATA_CARDS = [
   "mv": 0,
   "type": "Land",
   "cat": "Land",
-  "pt": "",
   "text": "{1}, {T}: Add {U}{B}.",
   "roles": [
    "land"
   ],
-  "why": "A filter land: pay {1} from another source and it makes {U}{B}, both of Etrata's colors at once. Always untapped. Added in v3 for the mana.",
-  "how": "Pair it with Sol Ring or a basic to turn colorless mana into {U}{B}. It makes nothing on its own, so don't play it as your only land.",
+  "why": "A filter land: pay {1} from another source and it makes {U}{B}, both of Etrata's colors at once. Always untapped.",
+  "how": "Pair it with Sol Ring or a colorless land to turn colorless mana into {U}{B}.",
+  "syn": [
+   "Sol Ring",
+   "Ancient Tomb",
+   "Rogue's Passage",
+   "Mutavault",
+   "Etrata, Deadly Fugitive"
+  ],
+  "warn": "It makes nothing on its own: don't keep it as the only land."
+ },
+ {
+  "name": "Darkslick Shores",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "text": "Darkslick Shores enters tapped unless you control two or fewer other lands.\n{T}: Add {U} or {B}.",
+  "roles": [
+   "land"
+  ],
+  "why": "Taps for {U} or {B}, untapped on your first three land drops.",
+  "how": "Play it on turns 1-3.",
   "syn": [
    "Etrata, Deadly Fugitive",
-   "Sol Ring",
-   "Duskmantle Guildmage"
+   "Changeling Outcast"
   ]
  },
  {
@@ -1791,13 +1737,12 @@ window.CETRATA_CARDS = [
   "mv": 0,
   "type": "Land",
   "cat": "Land",
-  "pt": "",
   "text": "{T}: Add {C}.\n{T}: Add {U} or {B}. Activate only if you control a Swamp.",
   "roles": [
    "land"
   ],
-  "why": "Taps for {C}, and for {U} or {B} if you control a Swamp. Always untapped. Added in v3 for the mana.",
-  "how": "Play it after a Swamp or a typed dual. Watery Grave, Sunken Hollow and Undercity Sewers are Swamps.",
+  "why": "Taps for {C}, and for {U} or {B} if you control a Swamp. Always untapped.",
+  "how": "Play it after a basic Swamp or a dual with the Swamp type.",
   "syn": [
    "Swamp",
    "Watery Grave",
@@ -1812,18 +1757,128 @@ window.CETRATA_CARDS = [
   "mv": 0,
   "type": "Land",
   "cat": "Land",
-  "pt": "",
   "text": "{T}: Add {U}. If you played a land this turn, add {B} instead.",
   "roles": [
    "land"
   ],
-  "why": "Taps for {U}, or {B} on a turn you played a land. Always untapped. Added in v3 for the mana.",
-  "how": "Use it for {U} on opponents' turns (Counterspell, Muddle the Mixture). On your turn, play your land first if you need {B} from it.",
+  "why": "Taps for {U}, or {B} on a turn you played a land. Always untapped.",
+  "how": "Use it for {U} on opponents' turns: Swan Song, Force of Negation's hard cost.",
   "syn": [
-   "Counterspell",
-   "Dark Ritual",
-   "Island"
+   "Swan Song",
+   "Force of Negation",
+   "Brainstorm"
   ]
+ },
+ {
+  "name": "Path of Ancestry",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "text": "Path of Ancestry enters tapped.\n{T}: Add one mana of any color in your commander's color identity. When that mana is spent to cast a creature spell that shares a creature type with your commander, scry 1. (Look at the top card of your library. You may put that card on the bottom.)",
+  "roles": [
+   "land"
+  ],
+  "why": "Taps for {U} or {B}. When that mana casts a creature spell that shares a type with Etrata (Vampire or Assassin), you scry 1. Most of the deck's creatures are Assassins.",
+  "how": "Play it on turn 1 when you have nothing to cast, since it enters tapped.",
+  "syn": [
+   "Changeling Outcast",
+   "Hired Poisoner",
+   "Ramses, Assassin Lord",
+   "Leyline of Transformation",
+   "Arcane Adaptation"
+  ],
+  "warn": "It enters tapped."
+ },
+ {
+  "name": "Rogue's Passage",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "text": "{T}: Add {C}.\n{4}, {T}: Target creature can't be blocked this turn.",
+  "roles": [
+   "land",
+   "evasion"
+  ],
+  "why": "{4}, {T}: target creature can't be blocked this turn. With Ramses out, it puts the halver or the Quietus Spike carrier through to the player you're killing.",
+  "how": "Activate it before blockers on the kill turn, on the creature whose hit ends the player.",
+  "syn": [
+   "Quietus Spike",
+   "Virtus the Veiled",
+   "Unstoppable Slasher",
+   "Ramses, Assassin Lord",
+   "Bloodletter of Aclazotz"
+  ],
+  "warn": "It makes only colorless mana, and it can't target a creature with shroud from Lightning Greaves."
+ },
+ {
+  "name": "Brotherhood Headquarters",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "text": "{T}: Add {C}.\n{T}: Add one mana of any color. Spend this mana only to cast an Assassin spell or a spell that has freerunning, or to activate an ability of an Assassin source.",
+  "roles": [
+   "land"
+  ],
+  "why": "Taps for {C}, or any color to cast an Assassin spell or a freerunning spell, or to activate an ability of an Assassin source. It casts Etrata, Ramses and most of the creatures.",
+  "how": "Use the colored mana for Assassin creature spells and Achilles's freerunning cost.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord",
+   "Achilles Davenport",
+   "Leyline of Transformation",
+   "Arcane Adaptation"
+  ],
+  "warn": "Etrata's flip ability belongs to the face-down creature, so this colored mana pays it only when a type-changer makes that face-down creature an Assassin."
+ },
+ {
+  "name": "Cavern of Souls",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "text": "As Cavern of Souls enters, choose a creature type.\n{T}: Add {C}.\n{T}: Add one mana of any color. Spend this mana only to cast a creature spell of the chosen type, and that spell can't be countered.",
+  "roles": [
+   "land"
+  ],
+  "why": "Name Assassin: its colored mana casts Assassin creature spells that can't be countered. Etrata and Ramses resolve through counterspells.",
+  "how": "Name Assassin. Pay for Ramses or Etrata with its colored mana when an opponent has a counter up.",
+  "syn": [
+   "Ramses, Assassin Lord",
+   "Etrata, Deadly Fugitive",
+   "Leyline of Transformation",
+   "Arcane Adaptation",
+   "Roshan, Hidden Magister"
+  ],
+  "warn": "Only the spell its colored mana paid for is uncounterable; the {C} does nothing special. After the creature resolves, removal still works."
+ },
+ {
+  "name": "Secluded Courtyard",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "text": "As Secluded Courtyard enters, choose a creature type.\n{T}: Add {C}.\n{T}: Add one mana of any color. Spend this mana only to cast a creature spell of the chosen type or activate an ability of a creature or creature card of the chosen type.",
+  "roles": [
+   "land"
+  ],
+  "why": "Name Assassin: taps for {C}, or any color for Assassin creature spells and abilities of Assassin creatures. It casts most of the deck's creatures.",
+  "how": "Name Assassin. Use the colored mana on creature spells and creature abilities.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord",
+   "Leyline of Transformation",
+   "Arcane Adaptation",
+   "Vito, Thorn of the Dusk Rose"
+  ],
+  "warn": "Etrata's flip on a face-down creature counts only if that creature is an Assassin through a type-changer."
  },
  {
   "name": "Mutavault",
@@ -1832,61 +1887,124 @@ window.CETRATA_CARDS = [
   "mv": 0,
   "type": "Land",
   "cat": "Land",
-  "pt": "",
   "text": "{T}: Add {C}.\n{1}: Until end of turn, Mutavault becomes a 2/2 creature with all creature types. It's still a land.",
   "roles": [
    "land",
-   "utility"
+   "assassin"
   ],
-  "why": "A land that taps for {C} and for {1} becomes a 2/2 with all creature types until end of turn. As a creature it's an Assassin, so when it deals combat damage to an opponent, Etrata cloaks a card. Added in v3's third round, as one of the 36 lands.",
-  "how": "Animate it in your first main phase or beginning of combat and attack a player with no good blockers. On opponents' turns, animate it to block in a pinch. It can't attack the turn you play it.",
+  "why": "A land that taps for {C} and for {1} becomes a 2/2 with all creature types. As an Assassin it triggers Etrata when it connects, Ramses pumps it, and Kindred Dominance spares it.",
+  "how": "Animate it before combat and attack the player you're stealing from, like any Assassin.",
   "syn": [
    "Etrata, Deadly Fugitive",
-   "Changeling Outcast",
-   "Rogue's Passage"
+   "Ramses, Assassin Lord",
+   "Coat of Arms",
+   "Kindred Dominance",
+   "Achilles Davenport"
   ],
-  "warn": "It makes only colorless mana, and it's not legendary, so it doesn't turn on Mox Amber. Animated, it's a creature: creature removal and wraths hit it."
+  "warn": "It makes only colorless mana. Animated, it's a creature: removal and wraths hit it."
+ },
+ {
+  "name": "Morphic Pool",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land",
+  "cat": "Land",
+  "text": "Morphic Pool enters tapped unless you have two or more opponents.\n{T}: Add {U} or {B}.",
+  "roles": [
+   "land"
+  ],
+  "why": "Taps for {U} or {B}, untapped whenever you have two or more opponents.",
+  "how": "Play it any turn.",
+  "syn": [
+   "Etrata, Deadly Fugitive",
+   "Ramses, Assassin Lord"
+  ]
+ },
+ {
+  "name": "Undercity Sewers",
+  "qty": 1,
+  "cost": "",
+  "mv": 0,
+  "type": "Land — Island Swamp",
+  "cat": "Land",
+  "text": "({T}: Add {U} or {B}.)\nUndercity Sewers enters tapped.\nWhen Undercity Sewers enters, surveil 1. (Look at the top card of your library. You may put it into your graveyard.)",
+  "roles": [
+   "land"
+  ],
+  "why": "An Island Swamp that enters tapped and surveils 1. The fetch lands find it.",
+  "how": "Play it on turn 1 or a turn you have spare mana.",
+  "syn": [
+   "Polluted Delta",
+   "Snuff Out",
+   "Tainted Isle",
+   "Reanimate"
+  ],
+  "warn": "It enters tapped."
  },
  {
   "name": "Island",
-  "qty": 7,
+  "qty": 8,
   "cost": "",
   "mv": 0,
   "type": "Basic Land — Island",
   "cat": "Land",
-  "pt": "",
   "text": "({T}: Add {U}.)",
   "roles": [
    "land"
   ],
-  "why": "Seven basic Islands. They turn on Sunken Hollow, Drowned Catacomb and Gloomlake Verge, let Choked Estuary enter untapped, and survive nonbasic land hate.",
-  "how": "Fetch one with Polluted Delta when you need {U} and expect land hate.",
+  "why": "Eight basic Islands. They turn on Drowned Catacomb, Sunken Hollow and Choked Estuary, and the fetch lands find them.",
+  "how": "Play them like any land; fetch them late to save life and duals.",
   "syn": [
-   "Polluted Delta",
-   "Sunken Hollow",
    "Drowned Catacomb",
-   "Gloomlake Verge"
+   "Sunken Hollow",
+   "Choked Estuary",
+   "Scalding Tarn"
   ]
  },
  {
+  "name": "Kindred Dominance",
+  "qty": 1,
+  "cost": "{5}{B}{B}",
+  "mv": 7,
+  "type": "Sorcery",
+  "cat": "Sorcery",
+  "text": "Choose a creature type. Destroy all creatures that aren't of the chosen type.",
+  "roles": [
+   "evasion",
+   "removal"
+  ],
+  "why": "The deck's own wrath: name Assassin and every creature that isn't one dies. With a type-changer out, all your creatures, stolen 2/2s included, are Assassins and survive while the blockers die. It measured +0.8 / +0.7 over 5,040 bot games, the only card of 22 snowball candidates to beat a basic land.",
+  "how": "Cast it with Leyline of Transformation, Arcane Adaptation or Roshan out, then swing into the open board next turn. Without a type-changer, count what you'd lose first.",
+  "syn": [
+   "Leyline of Transformation",
+   "Arcane Adaptation",
+   "Roshan, Hidden Magister",
+   "Ramses, Assassin Lord",
+   "Teferi's Veil",
+   "Ashnod's Altar"
+  ],
+  "warn": "Without a type-changer your face-down 2/2s, Tetsuko, Satoru, Slither Blade, Dark Confidant, Bloodletter, Vito and Bloodthirsty Conqueror die too. Opponents' changelings and indestructible creatures survive."
+ },
+ {
   "name": "Swamp",
-  "qty": 9,
+  "qty": 7,
   "cost": "",
   "mv": 0,
   "type": "Basic Land — Swamp",
   "cat": "Land",
-  "pt": "",
   "text": "({T}: Add {B}.)",
   "roles": [
    "land"
   ],
-  "why": "Nine basic Swamps. They turn on Sunken Hollow, Drowned Catacomb, Gloomlake Verge and Tainted Isle and survive nonbasic land hate.",
-  "how": "Play a Swamp first when your hand has Dark Ritual or Necropotence.",
+  "why": "Seven basic Swamps. They turn on Snuff Out's free cost, Tainted Isle, Drowned Catacomb and Sunken Hollow.",
+  "how": "Play them like any land; fetch one early if Snuff Out is in hand.",
   "syn": [
-   "Polluted Delta",
+   "Snuff Out",
+   "Tainted Isle",
    "Sunken Hollow",
-   "Drowned Catacomb",
-   "Dark Ritual"
+   "Dark Ritual",
+   "Marsh Flats"
   ]
  }
 ];
