@@ -1,0 +1,139 @@
+// Trostani (Miku precon), tier 15 + Smothering Tithe (buy option): 15 cards different from the precon (cap 15). Bracket 4 legal: Commander banned list only.
+// "[in]" = a swap into the box list; the cut cards are listed under "Out". Prices: cheapest nonfoil printing, Scryfall bulk data 2026-10-07.
+
+Commander
+1 Trostani, Selesnya's Voice
+
+Creatures (26)
+1 Adeline, Resplendent Cathar  [in]
+1 Angel of Indemnity
+1 Arasta of the Endless Web
+1 Archangel of Thune
+1 Avacyn's Pilgrim
+1 Blossoming Bogbeast
+1 Bramble Sovereign
+1 Crested Sunmare
+1 Elenda's Hierophant
+1 Elvish Mystic  [in]
+1 Fanatic of Rhonas
+1 Ghalta and Mavren
+1 Gruff Triplets
+1 Hero of Bladehold  [in]
+1 Lathiel, the Bounteous Dawn
+1 Llanowar Elves
+1 Nykthos Paragon
+1 Resplendent Angel
+1 Shalai, Voice of Plenty
+1 Soul Warden
+1 Soul of Eternity
+1 Speaker of the Heavens
+1 Suture Priest
+1 Voice of Resurgence
+1 Voice of the Blessed
+1 Vorinclex, Voice of Hunger
+
+Planeswalkers (1)
+1 Elspeth, Sun's Champion  [in]
+
+Instants (10)
+1 Beast Within  [in]
+1 Break Down
+1 Congregate
+1 Generous Gift  [in]
+1 Grand Crescendo
+1 Path to Exile
+1 Return of the Wildspeaker  [in]
+1 Rootborn Defenses
+1 Sundering Growth
+1 Swords to Plowshares
+
+Sorceries (11)
+1 Cultivate
+1 Explore
+1 Farseek
+1 Finale of Devastation
+1 Hour of Reckoning
+1 Invincible Hymn
+1 Nature's Lore
+1 Overwhelming Stampede  [in]
+1 Pest Infestation
+1 Shamanic Revelation
+1 Storm Herd
+
+Artifacts (8)
+1 Aetherflux Reservoir
+1 Arcane Signet  [in]
+1 Esika's Chariot  [in]
+1 Halo Fountain
+1 Idol of Oblivion
+1 Selesnya Signet
+1 Skullclamp
+1 Sol Ring
+
+Enchantments (7)
+1 Boon Reflection
+1 Cathars' Crusade  [in]
+1 Cleric Class
+1 Dazzling Theater // Prop Room
+1 Mirari's Wake
+1 Smothering Tithe  [in]
+1 True Conviction  [in]
+
+Lands (36)
+1 Blossoming Sands
+1 Bountiful Promenade
+1 Brokers Hideout
+1 Canopy Vista
+1 Command Tower
+8 Forest  [in]
+1 Gavony Township
+1 Graypelt Refuge
+1 Grove of the Guardian
+1 Krosan Verge
+1 Lazotep Quarry
+1 Overgrown Farmland
+8 Plains  [in]
+1 Radiant Fountain
+1 Restless Prairie
+1 Rogue's Passage
+1 Sapseep Forest
+1 Selesnya Sanctuary
+1 Seraph Sanctuary
+1 Sungrass Prairie
+1 Sunpetal Grove
+1 Temple of Plenty
+
+Out (15)
+1 Ajani's Pridemate  [out]
+1 Ancient Cornucopia  [out]
+1 Healing Technique  [out]
+1 Camaraderie  [out]
+1 Conclave Evangelist  [out]
+1 Silverquill Lecturer  [out]
+1 Song of Freyalise  [out]
+1 Excavation Technique  [out]
+1 Rhys the Redeemed  [out]
+1 Growing Ranks  [out]
+1 Angelic Chorus  [out]
+1 Prosperous Innkeeper  [out]
+1 Song of the Worldsoul  [out]
+1 Springleaf Drum  [out]
+1 Phyrexian Processor  [out]
+
+Prices of the cards that come in (cards from the 80€ plan are marked owned)
+1 Overwhelming Stampede: €1.31 / $0.64 (owned: 80€ plan) https://scryfall.com/card/fdc/218/overwhelming-stampede
+1 Forest: basic land
+1 Esika's Chariot: €0.70 / $0.45 (owned: 80€ plan) https://scryfall.com/card/blc/215/esikas-chariot
+1 Hero of Bladehold: €0.81 / $0.65 (owned: 80€ plan) https://scryfall.com/card/tdc/119/hero-of-bladehold
+1 Adeline, Resplendent Cathar: €2.84 / $2.44 (owned: 80€ plan) https://scryfall.com/card/j25/57/adeline-resplendent-cathar
+1 Cathars' Crusade: €4.76 / $5.04 (owned: 80€ plan) https://scryfall.com/card/mb2/6/cathars-crusade
+1 Elspeth, Sun's Champion: €0.44 / $0.32 (owned: 80€ plan) https://scryfall.com/card/frc/24/elspeth-suns-champion
+1 True Conviction: €3.19 / $3.93 (owned: 80€ plan) https://scryfall.com/card/c14/93/true-conviction
+1 Arcane Signet: €0.26 / $0.39 (owned: 80€ plan) https://scryfall.com/card/fdc/245/arcane-signet
+1 Beast Within: €0.52 / $0.44 (owned: 80€ plan) https://scryfall.com/card/fdc/190/beast-within
+1 Smothering Tithe: €34.19 / $55.60 (Game Changer) https://scryfall.com/card/rna/22/smothering-tithe
+1 Plains: basic land
+1 Generous Gift: €0.70 / $0.93 (owned: 80€ plan) https://scryfall.com/card/msc/133/generous-gift
+1 Return of the Wildspeaker: €1.06 / $1.50 (owned: 80€ plan) https://scryfall.com/card/peld/172p/return-of-the-wildspeaker
+1 Elvish Mystic: €0.51 / $0.34 (owned: 80€ plan) https://scryfall.com/card/fdc/202/elvish-mystic
+To buy beyond the precon and the 80€ plan: €34.19 / $55.60

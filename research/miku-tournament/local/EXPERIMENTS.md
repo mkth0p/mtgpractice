@@ -37,6 +37,9 @@ Every bench run, in order. Unless a line says otherwise, the hero is `miku-preco
 | 30 | **C10b** (5,040) | **tier 10** = v10b | 53.7% ±0.7 | 23.3% ±0.6 | PF280 | **+5.3 ±0.8** | **+3.1 ±0.6** | |
 | 31 | **C15d** (5,040) | **tier 15** = v15d (tier 10 + 5 plan cards) | 56.7% ±0.7 | 23.6% ±0.6 | PF280 | **+8.3 ±0.9** | **+3.4 ±0.7** | adopted: nested on tier 10 |
 | 32 | C15e (5,040) | v15e (the 2,016-game leader) | 55.8% ±0.7 | 23.8% ±0.6 | PF280 | +7.4 ±0.9 | +3.6 ±0.7 | ties C15d on B4 (0.2 apart, ±0.7), worse on B2; not nested |
+| 33 | r-* (17 runs) + r-Forest | buy-today research cards, each for Song of the Worldsoul vs p4; **r-Forest is the land control** (table below) | | | p4 | | | a Forest in that slot is +1.3 / +1.3; only Smothering Tithe clearly beats it (+2.6 / +2.6); tutors and protection at or below a land (bot artifact for protection) |
+| 34 | w15t / w15tb | tier 15 with Smothering Tithe for the Plains in Angelic Chorus's slot (/ + Birds of Paradise for the Forest in Ancient Cornucopia's slot) | 57.2% | 25.6% / 25.7% | p4 (and v15d paired) | +8.7 ±1.4 | +6.3 ±1.1 / +6.4 ±1.1 | vs v15d: +1.6 ±0.5 / +1.7 ±0.7 on B4; Birds adds nothing |
+| 35 | **C15t** (5,040) | **tier 15 + Smothering Tithe (buy option)** | **58.4% ±0.7** | **25.1% ±0.6** | PF280 | **+10.0 ±0.9** | **+4.9 ±0.7** | vs C15d (tier 15): +1.8 ±0.4 / **+1.5 ±0.3** |
 
 ### First tier candidates on p2 (experiment 24, superseded)
 | Run | Change | B4 win | Δ B4 | B2 win | Δ B2 | vs |
@@ -164,3 +167,24 @@ How to read it: 50 of 61 cards measure within ±0.6 of a basic land on B4. Every
 | v5b | Song of the Worldsoul → Generous Gift; Rhys the Redeemed → Arcane Signet; Excavation Technique → True Conviction; Phyrexian Processor → Plains; Song of Freyalise → Forest | 21.7% | +2.5 ±0.8 | 52.8% | +4.3 ±1.1 | p4 |
 | v5c | Song of the Worldsoul → Generous Gift; Rhys the Redeemed → Arcane Signet; Excavation Technique → True Conviction; Phyrexian Processor → Elvish Mystic; Song of Freyalise → Plains | 21.3% | +2 ±0.8 | 52.4% | +3.9 ±1.1 | p4 |
 | v5a | Song of the Worldsoul → Generous Gift; Rhys the Redeemed → Arcane Signet; Excavation Technique → True Conviction; Phyrexian Processor → Elvish Mystic; Song of Freyalise → Elspeth, Sun's Champion | 21.1% | +1.9 ±0.8 | 53.9% | +5.4 ±1.1 | p4 |
+
+### Buy-today research singles (experiment 33), each for Song of the Worldsoul, vs p4, 2,016 paired games per field. r-Forest = the land control.
+| Run | Change | B4 win | Δ B4 | B2 win | Δ B2 | vs |
+|---|---|---|---|---|---|---|
+| r-SmotheringTithe | Song of the Worldsoul → Smothering Tithe | 21.9% | +2.6 ±0.5 | 51.1% | +2.6 ±0.6 | p4 |
+| r-BirdsofParadise | Song of the Worldsoul → Birds of Paradise | 20.7% | +1.5 ±0.4 | 49.8% | +1.2 ±0.6 | p4 |
+| r-WorldlyTutor | Song of the Worldsoul → Worldly Tutor | 20.6% | +1.3 ±0.4 | 50.1% | +1.6 ±0.6 | p4 |
+| r-GreenSunsZenith | Song of the Worldsoul → Green Sun's Zenith | 20.6% | +1.3 ±0.4 | 49.1% | +0.6 ±0.5 | p4 |
+| r-Forest | Song of the Worldsoul → Forest | 20.5% | +1.3 ±0.5 | 49.9% | +1.3 ±0.6 | p4 |
+| r-ScurryOak | Song of the Worldsoul → Scurry Oak | 20.4% | +1.1 ±0.4 | 50.6% | +2.1 ±0.6 | p4 |
+| r-EladamrisCall | Song of the Worldsoul → Eladamri's Call | 20.4% | +1.1 ±0.4 | 50.6% | +2.1 ±0.6 | p4 |
+| r-EsperSentinel | Song of the Worldsoul → Esper Sentinel | 20.3% | +1.1 ±0.4 | 49.6% | +1.1 ±0.6 | p4 |
+| r-GrandAbolisher | Song of the Worldsoul → Grand Abolisher | 20.2% | +0.9 ±0.3 | 48.1% | -0.4 ±0.6 | p4 |
+| r-ChordofCalling | Song of the Worldsoul → Chord of Calling | 20% | +0.8 ±0.3 | 49.7% | +1.1 ±0.5 | p4 |
+| r-FlawlessManeuver | Song of the Worldsoul → Flawless Maneuver | 20% | +0.8 ±0.3 | 49.4% | +0.8 ±0.5 | p4 |
+| r-ForceofVigor | Song of the Worldsoul → Force of Vigor | 20% | +0.8 ±0.4 | 48.5% | +0 ±0.5 | p4 |
+| r-LightningGreaves | Song of the Worldsoul → Lightning Greaves | 20% | +0.8 ±0.4 | 48.4% | -0.1 ±0.5 | p4 |
+| r-SelesnyaCharm | Song of the Worldsoul → Selesnya Charm | 20% | +0.8 ±0.3 | 49.1% | +0.5 ±0.6 | p4 |
+| r-TeferisProtection | Song of the Worldsoul → Teferi's Protection | 19.9% | +0.7 ±0.3 | 49.5% | +0.9 ±0.5 | p4 |
+| r-HeroicIntervention | Song of the Worldsoul → Heroic Intervention | 19.9% | +0.7 ±0.3 | 48.9% | +0.4 ±0.5 | p4 |
+| r-EnlightenedTutor | Song of the Worldsoul → Enlightened Tutor | 19.6% | +0.3 ±0.4 | 49.6% | +1.1 ±0.6 | p4 |

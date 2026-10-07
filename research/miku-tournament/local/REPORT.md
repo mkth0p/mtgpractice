@@ -15,13 +15,17 @@ Written 2026-10-07, about 18:30. Branch `miku-tournament`. Every number comes fr
 | 5 (`decklist-tier5.txt`) | 5 | **21.4% ±0.6** | **+1.3 ±0.5** | 53.1% ±0.7 | +4.7 ±0.7 | 5,040 |
 | 10 (`decklist-tier10.txt`) | 10 | **23.3% ±0.6** | **+3.1 ±0.6** | 53.7% ±0.7 | +5.3 ±0.8 | 5,040 |
 | 15 (`decklist-tier15.txt`) | 15 | **23.6% ±0.6** | **+3.4 ±0.7** | 56.7% ±0.7 | +8.3 ±0.9 | 5,040 |
+| 15 + buy 1 card (`decklist-tier15-tithe.txt`) | 15 | **25.1% ±0.6** | **+4.9 ±0.7** | 58.4% ±0.7 | +10.0 ±0.9 | 5,040 |
 
 - A fair share at a four-player table is 25%.
 - Paired Δ is against the box list on the same seeds, in percentage points.
-- All three tiers use only owned cards (precon + 80€ plan), so **€0 to buy**.
+- Tiers 5, 10 and 15 use only owned cards (precon + 80€ plan), so **€0 to buy**.
+- The last row buys one card: **Smothering Tithe**, about €34 (Cardmarket trend, cheapest printing). It replaces tier 15's extra Plains. Paired against tier 15 on the same seeds: **+1.5 ±0.3** on Bracket 4 and +1.8 ±0.4 on precons.
 - Each tier contains the one below it, so you can stop at any tier.
 
-**Recommendation: tier 10, or tier 15 if you have time to sleeve 15 swaps.**
+**Recommendation:**
+- If you can buy one card today: **tier 15 + Smothering Tithe**. It's the only list measured at a fair share against Bracket 4.
+- Otherwise: tier 10, or tier 15 if you have time to sleeve 15 swaps.
 - Tier 10 gets most of the gain (+3.1 of +3.4 against Bracket 4).
 - Tier 15 adds little against Bracket 4 (+0.3 over tier 10, within noise) but a lot against slower tables (+3.0 against precons).
 - Keep **Trostani** as commander.
@@ -42,7 +46,7 @@ How the box list loses against Bracket 4 (4,024 lost games):
 - **Before it gets going.** When it's knocked out, it's out by a median of **round 7**, a quarter of the time by round 6. Its own median win is round 10–11.
 - **How it dies:** combat 42%, noncombat (drains, combo damage) 42%, alternate wins 8%, commander damage 5%.
 - **Who wins the lost games:** Corrupted Etrata's drain combo 23% (it wins 49% of the games it's in), Ghalta's big creatures 18%, the rest 6–12% each.
-- **Speed matters, the timing of Trostani doesn't.** Trostani reaches the battlefield in 90% of games, by round 4 at the median. Whether she lands in round 3 or round 6 barely changes the win rate (21–23%); never casting her drops it to 1.6%. Sol Ring on the battlefield by round 4 means 26% wins, against 19%.
+- **Speed matters, the timing of Trostani doesn't.** Trostani reaches the battlefield in 90% of games, by round 4 at the median. Whether she lands in round 3 or round 6 barely changes the win rate (21–23%); never casting her drops it to 1.6%. Sol Ring on the battlefield by round 4 means 26% wins, against 19%. (These two come from the 5,040-game run on the generic bot, P280.)
 
 ## 3. The swaps, and why
 
@@ -50,9 +54,9 @@ How the box list loses against Bracket 4 (4,024 lost games):
 
 | Cut | In | What the new card does |
 |---|---|---|
-| Song of the Worldsoul | **Generous Gift** | 3-mana instant that destroys any permanent: the combo piece, Smothering Tithe, a Thassa's Oracle. Song is a 6-mana engine that does nothing the turn it lands. |
+| Song of the Worldsoul | **Generous Gift** | 3-mana instant that destroys any permanent (its controller gets a 3/3 Elephant): the combo piece, Smothering Tithe, a Thassa's Oracle. Song is a 6-mana engine that does nothing the turn it lands. |
 | Rhys the Redeemed | **Arcane Signet** | 2-mana rock for either color, which fixes {G}{G}{W}{W}. Rhys's abilities cost 3 and 6 mana plus a tap. |
-| Excavation Technique | **True Conviction** | Your creatures get double strike and lifelink. Doubles a wide board's damage, and each lifelink hit is a Thune, Cleric Class or Pridemate-style trigger. |
+| Excavation Technique | **True Conviction** | Your creatures get double strike and lifelink. Doubles a wide board's damage, and each lifelink hit is an Archangel of Thune or Cleric Class trigger. |
 | Phyrexian Processor | Plains | The cut sweep scores a land above Processor (+0.9 / +1.6). |
 | Song of Freyalise | Forest | A land beats it in bot games (+1.0 / +0.5). |
 
@@ -60,7 +64,7 @@ How the box list loses against Bracket 4 (4,024 lost games):
 
 | Cut | In | What the new card does |
 |---|---|---|
-| Growing Ranks | **Beast Within** | 3-mana instant that destroys any permanent; the second hard answer. |
+| Growing Ranks | **Beast Within** | 3-mana instant that destroys any permanent (its controller gets a 3/3 Beast); the second hard answer. |
 | Prosperous Innkeeper | Plains | |
 | Ancient Cornucopia | Forest | |
 | Angelic Chorus | Plains | |
@@ -90,7 +94,7 @@ How the box list loses against Bracket 4 (4,024 lost games):
 
 | Try | Result (Δ B4 / Δ B2) | Why |
 |---|---|---|
-| The site's 80€ plan, whole (22 swaps) | −2.6 ±0.7 / −4.9 ±0.9 (5,040) | It cuts the precon's lifegain multipliers (Boon Reflection, Angelic Chorus, Mirari's Wake, Crested Sunmare) that make Thune and Trostani snowball, and adds combo pieces that rarely meet. |
+| The site's 80€ plan, whole (22 swaps) | −2.6 ±0.7 / −4.9 ±0.9 (5,040) | Most of its swaps measure negative alone: Heliod −1.0, Triumph −0.9, Avenger −0.7, Cathars' Crusade −0.6, Intangible Virtue −0.5. It also cuts two of the precon's clear keeps, Mirari's Wake and Crested Sunmare (−0.5 / −0.6 when cut), and adds combo pieces that rarely meet. Its good swaps (Generous Gift, Arcane Signet, True Conviction, Elvish Mystic, Elspeth) are the ones the tiers use. |
 | The site's full upgrade, whole (24 swaps) | −2.6 ±0.7 / −8.8 ±0.9 (5,040) | Same, plus Jazal (−1.1 alone). |
 | Heliod + Walking Ballista (+ Spike Feeder) | −0.8 ±0.5 / −1.6 (pair); +0.1 ±0.6 / −1.7 (trio); tier-15 version (v15a) +3.7 vs +4.8–5.6 for the others | Without tutors the pieces meet in about 4% of games. When they do, the deck wins 70–90% of those games, now that the brain plays the line. |
 | Single combo pieces | Heliod −1.0, Ballista −0.3, Spike Feeder −0.2 | A half combo is a weak card. |
@@ -101,13 +105,40 @@ How the box list loses against Bracket 4 (4,024 lost games):
 **Reference, not a candidate: the site's Corrupted Miku** (Shalai, 15 Game Changers): **31.0% ±0.7** against Bracket 4 (+11.4 ±0.9 over the box) and 43.7% against precons. But 80 cards differ from the precon, and buying the missing 73 costs about €2,300. If you own it, bring it.
 
 ## 5. If you can buy cards today
-BUYLIST
+Each research card was measured in Song of the Worldsoul's slot, against p4, 2,016 paired games per field (experiment 33). The control matters: **a Forest in that slot is +1.3 ±0.5 / +1.3 ±0.6**, so a card has to beat +1.3 to be worth more than a land in bot games.
+
+| Card | € (cheapest printing) | Game Changer | Δ B4 | Δ B2 | vs the land |
+|---|---|---|---|---|---|
+| **Smothering Tithe** | 34.19 | yes | **+2.6 ±0.5** | +2.6 ±0.6 | **+1.3 / +1.3** |
+| Birds of Paradise | 3.00 | no | +1.5 ±0.4 | +1.2 | +0.2 / −0.1 |
+| Worldly Tutor | 17.19 | yes | +1.3 ±0.4 | +1.6 | 0.0 / +0.3 |
+| Green Sun's Zenith | 17.40 | no | +1.3 ±0.4 | +0.6 | 0.0 / −0.7 |
+| Scurry Oak | 1.18 | no | +1.1 ±0.4 | +2.1 | −0.2 / +0.8 |
+| Eladamri's Call | 7.59 | no | +1.1 ±0.4 | +2.1 | −0.2 / +0.8 |
+| Esper Sentinel | 39.36 | no | +1.1 ±0.4 | +1.1 | −0.2 / −0.2 |
+| Grand Abolisher | 10.01 | no | +0.9 ±0.3 | −0.4 | |
+| Chord of Calling | 4.01 | no | +0.8 ±0.3 | +1.1 | |
+| Flawless Maneuver | 7.94 | no | +0.8 ±0.3 | +0.8 | |
+| Force of Vigor | 4.73 | no | +0.8 ±0.4 | 0.0 | |
+| Lightning Greaves | 3.39 | no | +0.8 ±0.4 | −0.1 | |
+| Selesnya Charm | 0.16 | no | +0.8 ±0.3 | +0.5 | |
+| Teferi's Protection | 28.28 | yes | +0.7 ±0.3 | +0.9 | |
+| Heroic Intervention | 9.86 | no | +0.7 ±0.3 | +0.4 | |
+| Enlightened Tutor | 17.38 | yes | +0.3 ±0.4 | +1.1 | |
+
+- **Smothering Tithe added to tier 15** (for the Plains in Angelic Chorus's slot): +1.5 ±0.3 over tier 15 on Bracket 4 at 5,040 games (experiments 34–35). Adding Birds of Paradise as well added nothing.
+- **Caveats.**
+  - The bots decide whether to pay Tithe's {2} by a rule (`titheShouldPay` in `decks-edgar.js`); real players pay more often early on.
+  - The protection spells (Teferi's Protection, Heroic Intervention, Flawless Maneuver) are undervalued by the bot, which doesn't hold them for the wipe.
+  - The tutors find a card the bot then plays like any other.
+  - Scurry Oak's loop is capped at 60 Squirrels a turn.
+- Prices are Scryfall's Cardmarket trend for the cheapest nonfoil printing (bulk data 2026-10-07), not a shop's price. Check what your shop has; any price not in the index is "not verified".
 
 ## 6. Skeptic's section
 **Bots aren't people.**
 - **The opponents.** The Bracket 4 field is eight engine decks: Azusa, Corrupted Etrata, Edgar, Etrata B4, Ghalta, Krenko, Talrand, Ur-Dragon. They don't counter like people, rarely hold interaction, and target by a threat model, not by table talk. Real Bracket 4 tables run free counters and more efficient combos. Expect the absolute win rates to be optimistic and the *differences* to be the useful part.
 - **Our own interaction.** The bots undervalue held interaction on their own side too: Swords, Path, Rootborn Defenses and Grand Crescendo measure as worth about a land. That's a bot artifact, so the tiers keep them all. Generous Gift and Beast Within made the list because even the bot gets value from an instant that hits anything.
-- **Lands.** The cut sweep shows the bots like lands: replacing most precon cards with a basic is neutral or better. Tiers 10 and 15 run 37 lands (3 basics added). A person who mulligans well might prefer 35–36 lands plus a cheap spell (NEXT.md item 6). If you dislike 37 lands, the first basics to swap back are the tier-10 Plains for Angelic Chorus and Forest for Ancient Cornucopia; both measured close to a land.
+- **Lands.** The cut sweep shows the bots like lands: replacing most precon cards with a basic is neutral or better. Tiers 10 and 15 run 37 lands (3 basics added). A person who mulligans well might prefer 35–36 lands plus a cheap spell (NEXT.md item 6). If you dislike 37 lands, the cheapest basics to swap back are the tier-10 Plains for Angelic Chorus and Forest for Ancient Cornucopia: in the cut sweep a land beat them by 0.7–0.8, among the smallest gaps of the ten cut cards. The Tithe list is already at 36.
 - **The combo.** Heliod + Ballista and Spike Feeder + Thune + Aetherflux are real wins that the bots assemble rarely. A person who tutors, sequences and protects them does better than the bot. They're left out of the tiers because the measured lists beat them, not because they're bad. Tell the table if you play them; Bracket 4 allows them.
 
 **Engine simplifications** (each card's `note`):
@@ -124,7 +155,7 @@ BUYLIST
 
 **Bracket and legality.**
 - Bracket 4 has no deckbuilding limits beyond the Commander banned list (Wizards' update of 21 October 2025; `../sources/trostani-bracket4.md`).
-- None of the three tier lists contains a Game Changer, so they would also fit Bracket 3.
+- None of the three owned-card tier lists contains a Game Changer, so they would also fit Bracket 3. The Tithe list has one, which is legal at Bracket 4 (and at Bracket 3, up to three).
 - Every card is in green-white identity and Commander-legal, checked against Scryfall's bulk data of 2026-10-07 (`scryfall/gw-index.json`).
 - Noble Hierarch was dropped from the research list: Bant identity.
 - Vorinclex is no longer a Game Changer (removed 21 October 2025).
