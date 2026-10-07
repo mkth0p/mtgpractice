@@ -22,6 +22,7 @@
   const mem = (g, p) => { const m = g.__mikuBrain || (g.__mikuBrain = {}); return m[p.id] || (m[p.id] = {}); };
 
   function plan(g, p, ctx) {
+    patchLate();
     const acts = ctx.actions || [];
     const opps = g.opponents(p);
     // Heliod + Ballista: lifelink on a 2+-counter Ballista before anything else spends the {1}{W}
@@ -143,12 +144,15 @@
   }
   // Storm Herd makes X Pegasus where X is your life total: past 150 life a player has already won another way, and
   // thousands of tokens (each a Trostani / Soul Warden / Thune trigger) stall the engine, so a Miku deck holds it then
-  const herd = MK.defs.get("Storm Herd");
-  if (herd && !herd.__miku) {
-    herd.ai = Object.assign({}, herd.ai);
-    const h0 = herd.ai.hold;
-    herd.ai.hold = (g, p, o) => (isMiku(p) && p.life > 150) || (h0 ? h0(g, p, o) : false);
-    herd.__miku = true;
+  // (Storm Herd is defined by precon-isperia.js, which loads after this file, so the guard is applied on first use)
+  function patchLate() {
+    const herd = MK.defs.get("Storm Herd");
+    if (herd && !herd.__miku) {
+      herd.ai = Object.assign({}, herd.ai);
+      const h0 = herd.ai.hold;
+      herd.ai.hold = (g, p, o) => (isMiku(p) && p.life > 150) || (h0 ? h0(g, p, o) : false);
+      herd.__miku = true;
+    }
   }
   MK.MIKU_BRAIN = { plan, choose, keepHome, IDS };
 })(typeof window !== "undefined" ? window : globalThis);
