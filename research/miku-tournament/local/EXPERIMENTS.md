@@ -23,6 +23,10 @@ Every bench run, in order. Unless a line says otherwise, the hero is `miku-preco
 | 16 | pk-HB | Heliod + Walking Ballista (for Pest Infestation, Phyrexian Processor) | 44.9% | 18.0% | p1 | −1.6 ±0.8 | −0.8 ±0.5 | the combo rarely assembles without tutors |
 | 17 | pk-HBF | + Spike Feeder (for Suture Priest) | 44.8% | 18.9% | p1 | −1.7 ±0.9 | +0.1 ±0.6 | |
 | 18 | pk-top6 | the six best plan singles together: Generous Gift, Arcane Signet, True Conviction, Elvish Mystic, Craterhoof, Elspeth (plan pairings) | 51.9% | 21.9% | p1 | +5.4 ±1.2 | **+3.1 ±0.8** | packages add up; Craterhoof is not owned (full plan) |
+| 19 | b-flux2 | p1 + MIKU_ON=flux2: Aetherflux shoots only when the shot kills and leaves 15+ life, or leaves 40+ | 48.5% | 19.2% | p1 | +2.0 ±0.4 | +0.4 ±0.2 | to adopt after the cut sweep |
+| 20 | b-mull2 | p1 + MIKU_ON=mull2: the pilot sheet's Bracket 4 keep rule (a play by turn 2 or both colors by turn 4) | 46.1% | 18.9% | p1 | −0.4 ±0.6 | +0.1 ±0.4 | neutral: not adopted for the bot |
+| 21 | c-* (61 runs) | cut sweep: each nonland precon card → a basic land, table below | | | p1 | | | |
+| 22 | COR280 (5,040 per field, telemetry) | reference: the site's **Corrupted Miku** deck (`corrupted`, Shalai commander, its own brain, 15 Game Changers) | 43.7% ±0.7 | **31.0% ±0.7** | P280 (same seeds) | −2.4 ±1.0 | **+11.4 ±0.9** | median win round 8 (B4); combo assembled in 24% of B4 games, 70% won; 80 cards differ from the precon, 73 not owned, about €2,300 to buy; 3 B2 games hit an engine error (opponent's Kenrith's Transformation, see NEXT.md) |
 
 ### Plan singles (experiment 11), sorted by Δ B4, 2,016 paired games per field
 | Run | Change | B4 win | Δ B4 | B2 win | Δ B2 | vs |
