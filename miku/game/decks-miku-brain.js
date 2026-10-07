@@ -13,6 +13,7 @@
   "use strict";
   const MK = root.MK;
   const IDS = ["miku-precon", "miku-budget", "miku"];
+  const ON = new Set(String((root.process && root.process.env && root.process.env.MIKU_ON) || "").split(",").filter(Boolean));
   const OFF = new Set(String((root.process && root.process.env && root.process.env.MIKU_OFF) || "").split(",").filter(Boolean));
   const on = (g, p, name) => g.controlled(p, o => o.def.name === name);
   const has = (g, p, name) => on(g, p, name).length > 0;
@@ -45,11 +46,16 @@
       }
     }
     // Aetherflux Reservoir: shoot whoever 50 kills first, while we stay above 0
-    if (!OFF.has("flux") && p.life > 50) {
+    // (flux2: only when the shot kills someone and leaves us at 15+, or we're the last two, or we stay at 40+)
+    if (!OFF.has("flux") && p.life > 50 && (!ON.has("flux2") || fluxOk(g, p))) {
       const a = acts.find(x => x.type === "activate" && x.card.def.name === "Aetherflux Reservoir");
       if (a && opps.length) return { type: "activate", card: a.card, idx: a.idx, maxTries: 3 };
     }
     return null;
+  }
+  function fluxOk(g, p) {
+    const opps = g.opponents(p), after = p.life - 50;
+    return after >= 40 || (opps.some(q => q.life <= 50) && (after >= 15 || opps.length === 1));
   }
   function choose(g, p, req) {
     const src = req && req.src;
@@ -110,6 +116,13 @@
       } });
     }
     bal.__mikuHold = true;
+  }
+  // flux2: the card's own hint (shoot at 60+ life) follows the same rule for a Miku deck
+  const flux = MK.defs.get("Aetherflux Reservoir");
+  if (flux && ON.has("flux2") && flux.abilities && flux.abilities[0] && !flux.__miku) {
+    const ab = flux.abilities[0], use0 = ab.ai && ab.ai.use;
+    ab.ai = Object.assign({}, ab.ai, { use: (g, p, o, ctx) => isMiku(p) ? fluxOk(g, p) && p.life > 50 : (use0 ? use0(g, p, o, ctx) : false) });
+    flux.__miku = true;
   }
   MK.MIKU_BRAIN = { plan, choose, keepHome, IDS };
 })(typeof window !== "undefined" ? window : globalThis);
