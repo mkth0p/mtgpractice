@@ -27,6 +27,19 @@ Every bench run, in order. Unless a line says otherwise, the hero is `miku-preco
 | 20 | b-mull2 | p1 + MIKU_ON=mull2: the pilot sheet's Bracket 4 keep rule (a play by turn 2 or both colors by turn 4) | 46.1% | 18.9% | p1 | −0.4 ±0.6 | +0.1 ±0.4 | neutral: not adopted for the bot |
 | 21 | c-* (61 runs) | cut sweep: each nonland precon card → a basic land, table below | | | p1 | | | |
 | 22 | COR280 (5,040 per field, telemetry) | reference: the site's **Corrupted Miku** deck (`corrupted`, Shalai commander, its own brain, 15 Game Changers) | 43.7% ±0.7 | **31.0% ±0.7** | P280 (same seeds) | −2.4 ±1.0 | **+11.4 ±0.9** | median win round 8 (B4); combo assembled in 24% of B4 games, 70% won; 80 cards differ from the precon, 73 not owned, about €2,300 to buy; 3 B2 games hit an engine error (opponent's Kenrith's Transformation, see NEXT.md) |
+| 23 | **p2** | **p1 + the Aetherflux rule as default (= b-flux2): the base from here** | 48.5% ±1.1 | 19.2% ±0.9 | p1 | +2.0 ±0.4 | +0.4 ±0.2 | |
+| 24 | t5a–t15c (tiers1) | first tier candidates from owned cards vs p2 (lists in `xp/tiers1.sh`, table below) | | | p2 | | | superseded by the u* runs on p3 (the brain changed); t15a hung (Storm Herd at thousands of life) and is marked invalid in xp.log |
+| 25 | **p3** | **p2 + Storm Herd held above 150 life: the base from here** | | | p2 | | | see the u* and r-* runs |
+
+### First tier candidates on p2 (experiment 24, superseded)
+| Run | Change | B4 win | Δ B4 | B2 win | Δ B2 | vs |
+|---|---|---|---|---|---|---|
+| t15c | Song of the Worldsoul → Generous Gift; Rhys the Redeemed → Arcane Signet; Excavation Technique → True Conviction; Phyrexian Processor → Elvish Mystic; Song of Freyalise → Elspeth, Sun's Champion; Growing Ranks → Beast Within; Prosperous Innkeeper → Return of the Wildspeaker; Ancient Cornucopia → Hero of Bladehold; Angelic Chorus → Overwhelming Stampede; Camaraderie → Adeline, Resplendent Cathar; Springleaf Drum → Cathars' Crusade; Ajani's Pridemate → Esika's Chariot; Conclave Evangelist → Beastmaster Ascension; Healing Technique → Razorverge Thicket; Silverquill Lecturer → Brushland | 24.8% | +5.5 ±1.1 | 56.4% | +7.9 ±1.4 | p2 |
+| t15b | Song of the Worldsoul → Generous Gift; Rhys the Redeemed → Arcane Signet; Excavation Technique → True Conviction; Phyrexian Processor → Elvish Mystic; Song of Freyalise → Elspeth, Sun's Champion; Growing Ranks → Beast Within; Prosperous Innkeeper → Return of the Wildspeaker; Ancient Cornucopia → Hero of Bladehold; Angelic Chorus → Overwhelming Stampede; Camaraderie → Adeline, Resplendent Cathar; Springleaf Drum → Plains; Ajani's Pridemate → Forest; Conclave Evangelist → Plains; Healing Technique → Forest; Silverquill Lecturer → Spike Feeder | 24.4% | +5.2 ±1.1 | 57% | +8.5 ±1.4 | p2 |
+| t10b | Song of the Worldsoul → Generous Gift; Rhys the Redeemed → Arcane Signet; Excavation Technique → True Conviction; Phyrexian Processor → Elvish Mystic; Song of Freyalise → Elspeth, Sun's Champion; Growing Ranks → Beast Within; Prosperous Innkeeper → Plains; Ancient Cornucopia → Forest; Angelic Chorus → Plains; Camaraderie → Hero of Bladehold | 23.8% | +4.6 ±1 | 54% | +5.5 ±1.3 | p2 |
+| t10a | Song of the Worldsoul → Generous Gift; Rhys the Redeemed → Arcane Signet; Excavation Technique → True Conviction; Phyrexian Processor → Elvish Mystic; Song of Freyalise → Elspeth, Sun's Champion; Growing Ranks → Beast Within; Prosperous Innkeeper → Return of the Wildspeaker; Ancient Cornucopia → Hero of Bladehold; Angelic Chorus → Overwhelming Stampede; Camaraderie → Adeline, Resplendent Cathar | 23% | +3.7 ±1 | 53.8% | +5.3 ±1.3 | p2 |
+| t5b | Song of the Worldsoul → Generous Gift; Rhys the Redeemed → Arcane Signet; Excavation Technique → True Conviction; Phyrexian Processor → Plains; Song of Freyalise → Forest | 21.8% | +2.5 ±0.8 | 53% | +4.5 ±1.1 | p2 |
+| t5a | Song of the Worldsoul → Generous Gift; Rhys the Redeemed → Arcane Signet; Excavation Technique → True Conviction; Phyrexian Processor → Elvish Mystic; Song of Freyalise → Elspeth, Sun's Champion | 21.2% | +1.9 ±0.8 | 53.9% | +5.4 ±1.1 | p2 |
 
 ### Plan singles (experiment 11), sorted by Δ B4, 2,016 paired games per field
 | Run | Change | B4 win | Δ B4 | B2 win | Δ B2 | vs |
@@ -58,3 +71,74 @@ Every bench run, in order. Unless a line says otherwise, the hero is `miku-preco
 | s-TriumphoftheHordes | Crested Sunmare → Triumph of the Hordes | 17.9% | -0.9 ±0.4 | 45.7% | -0.8 ±0.6 | p1 |
 | s-HeliodSunCrowned | Pest Infestation → Heliod, Sun-Crowned | 17.8% | -1 ±0.4 | 44.7% | -1.8 ±0.6 | p1 |
 | s-JazalGoldmane | Mirari's Wake → Jazal Goldmane | 17.7% | -1.1 ±0.4 | 43.6% | -3 ±0.6 | p1 |
+
+### Cut sweep (experiment 21): each nonland precon card → a basic land, vs p1, sorted by Δ B4 (positive = the deck is better without the card)
+| Run | Change | B4 win | Δ B4 | B2 win | Δ B2 | vs |
+|---|---|---|---|---|---|---|
+| c-SongoftheWorldsoul | Song of the Worldsoul → Plains | 20.5% | +1.7 ±0.5 | 47.8% | +1.2 ±0.6 | p1 |
+| c-RhystheRedeemed | Rhys the Redeemed → Forest | 20.3% | +1.5 ±0.5 | 46.8% | +0.2 ±0.7 | p1 |
+| c-ExcavationTechniqu | Excavation Technique → Plains | 20.2% | +1.4 ±0.5 | 47.9% | +1.3 ±0.7 | p1 |
+| c-AetherfluxReservoi | Aetherflux Reservoir → Forest | 20.1% | +1.3 ±0.5 | 47.1% | +0.5 ±0.7 | p1 |
+| c-SelesnyaSignet | Selesnya Signet → Forest | 19.9% | +1.1 ±0.4 | 46.2% | -0.3 ±0.5 | p1 |
+| c-SongofFreyalise | Song of Freyalise → Forest | 19.8% | +1 ±0.4 | 47% | +0.5 ±0.6 | p1 |
+| c-GrowingRanks | Growing Ranks → Forest | 19.7% | +0.9 ±0.4 | 47.4% | +0.8 ±0.6 | p1 |
+| c-Skullclamp | Skullclamp → Forest | 19.7% | +0.9 ±0.5 | 46.1% | -0.4 ±0.7 | p1 |
+| c-SpringleafDrum | Springleaf Drum → Forest | 19.7% | +0.9 ±0.4 | 46.9% | +0.4 ±0.6 | p1 |
+| c-PhyrexianProcessor | Phyrexian Processor → Forest | 19.7% | +0.9 ±0.4 | 48.2% | +1.6 ±0.6 | p1 |
+| c-AncientCornucopia | Ancient Cornucopia → Forest | 19.6% | +0.8 ±0.5 | 47% | +0.4 ±0.6 | p1 |
+| c-ProsperousInnkeepe | Prosperous Innkeeper → Forest | 19.6% | +0.8 ±0.5 | 47.7% | +1.1 ±0.7 | p1 |
+| c-Camaraderie | Camaraderie → Forest | 19.5% | +0.7 ±0.4 | 46.8% | +0.2 ±0.7 | p1 |
+| c-AngelicChorus | Angelic Chorus → Plains | 19.5% | +0.7 ±0.4 | 46.9% | +0.4 ±0.6 | p1 |
+| c-AjanisPridemate | Ajani's Pridemate → Plains | 19.4% | +0.6 ±0.4 | 47.1% | +0.6 ±0.6 | p1 |
+| c-ConclaveEvangelist | Conclave Evangelist → Forest | 19.4% | +0.6 ±0.5 | 48.1% | +1.5 ±0.6 | p1 |
+| c-Farseek | Farseek → Forest | 19.4% | +0.6 ±0.5 | 47.7% | +1.1 ±0.7 | p1 |
+| c-RootbornDefenses | Rootborn Defenses → Plains | 19.4% | +0.6 ±0.4 | 47.2% | +0.7 ±0.6 | p1 |
+| c-SwordstoPlowshares | Swords to Plowshares → Plains | 19.4% | +0.6 ±0.5 | 47.3% | +0.7 ±0.6 | p1 |
+| c-HealingTechnique | Healing Technique → Forest | 19.3% | +0.5 ±0.4 | 47.9% | +1.4 ±0.6 | p1 |
+| c-BlossomingBogbeast | Blossoming Bogbeast → Forest | 19.3% | +0.5 ±0.5 | 46.6% | +0 ±0.7 | p1 |
+| c-ClericClass | Cleric Class → Plains | 19.3% | +0.5 ±0.5 | 46.1% | -0.4 ±0.6 | p1 |
+| c-SilverquillLecture | Silverquill Lecturer → Plains | 19.3% | +0.5 ±0.4 | 47.1% | +0.6 ±0.6 | p1 |
+| c-Cultivate | Cultivate → Forest | 19.3% | +0.5 ±0.5 | 46.1% | -0.4 ±0.6 | p1 |
+| c-GrandCrescendo | Grand Crescendo → Plains | 19.3% | +0.5 ±0.4 | 48.3% | +1.7 ±0.6 | p1 |
+| c-BoonReflection | Boon Reflection → Plains | 19.3% | +0.5 ±0.4 | 47.7% | +1.2 ±0.6 | p1 |
+| c-DazzlingTheaterPro | Dazzling Theater // Prop Room → Forest | 19.2% | +0.4 ±0.4 | 46.5% | +0 ±0.6 | p1 |
+| c-Congregate | Congregate → Plains | 19.2% | +0.4 ±0.4 | 48.1% | +1.6 ±0.6 | p1 |
+| c-InvincibleHymn | Invincible Hymn → Plains | 19.1% | +0.3 ±0.5 | 47.1% | +0.5 ±0.6 | p1 |
+| c-Explore | Explore → Forest | 19.1% | +0.3 ±0.4 | 47.3% | +0.7 ±0.6 | p1 |
+| c-FanaticofRhonas | Fanatic of Rhonas → Forest | 19.1% | +0.3 ±0.5 | 45.6% | -0.9 ±0.6 | p1 |
+| c-SoulofEternity | Soul of Eternity → Plains | 19.1% | +0.3 ±0.4 | 46% | -0.5 ±0.7 | p1 |
+| c-SpeakeroftheHeaven | Speaker of the Heavens → Plains | 19.1% | +0.3 ±0.5 | 46.1% | -0.4 ±0.7 | p1 |
+| c-VoiceoftheBlessed | Voice of the Blessed → Plains | 19.1% | +0.3 ±0.4 | 45.5% | -1 ±0.6 | p1 |
+| c-ArastaoftheEndless | Arasta of the Endless Web → Forest | 19% | +0.2 ±0.4 | 45.6% | -0.9 ±0.6 | p1 |
+| c-PestInfestation | Pest Infestation → Forest | 19% | +0.2 ±0.4 | 46.7% | +0.1 ±0.6 | p1 |
+| c-HourofReckoning | Hour of Reckoning → Plains | 19% | +0.2 ±0.5 | 48.8% | +2.3 ±0.6 | p1 |
+| c-LlanowarElves | Llanowar Elves → Forest | 19% | +0.2 ±0.5 | 47.2% | +0.6 ±0.6 | p1 |
+| c-VorinclexVoiceofHu | Vorinclex, Voice of Hunger → Forest | 19% | +0.2 ±0.5 | 45.7% | -0.8 ±0.7 | p1 |
+| c-SuturePriest | Suture Priest → Plains | 18.9% | +0.1 ±0.5 | 45.7% | -0.8 ±0.6 | p1 |
+| c-IdolofOblivion | Idol of Oblivion → Forest | 18.8% | +0 ±0.5 | 47.4% | +0.9 ±0.6 | p1 |
+| c-ElendasHierophant | Elenda's Hierophant → Plains | 18.8% | +0 ±0.4 | 45.6% | -0.9 ±0.6 | p1 |
+| c-GruffTriplets | Gruff Triplets → Forest | 18.8% | +0 ±0.4 | 47.6% | +1.1 ±0.6 | p1 |
+| c-NaturesLore | Nature's Lore → Forest | 18.8% | +0 ±0.5 | 46.1% | -0.4 ±0.7 | p1 |
+| c-AngelofIndemnity | Angel of Indemnity → Plains | 18.8% | +0 ±0.4 | 46.8% | +0.3 ±0.7 | p1 |
+| c-VoiceofResurgence | Voice of Resurgence → Forest | 18.8% | +0 ±0.4 | 46.4% | -0.1 ±0.7 | p1 |
+| c-BreakDown | Break Down → Forest | 18.7% | -0.1 ±0.4 | 47.9% | +1.3 ±0.7 | p1 |
+| c-FinaleofDevastatio | Finale of Devastation → Forest | 18.7% | -0.1 ±0.5 | 46.3% | -0.2 ±0.6 | p1 |
+| c-HaloFountain | Halo Fountain → Plains | 18.7% | -0.1 ±0.5 | 47.3% | +0.8 ±0.6 | p1 |
+| c-PathtoExile | Path to Exile → Plains | 18.7% | -0.1 ±0.5 | 46.4% | -0.1 ±0.6 | p1 |
+| c-SunderingGrowth | Sundering Growth → Forest | 18.7% | -0.1 ±0.4 | 46.4% | -0.1 ±0.6 | p1 |
+| c-NykthosParagon | Nykthos Paragon → Plains | 18.6% | -0.2 ±0.4 | 45.1% | -1.4 ±0.6 | p1 |
+| c-ShamanicRevelation | Shamanic Revelation → Forest | 18.6% | -0.2 ±0.4 | 46.4% | -0.1 ±0.7 | p1 |
+| c-ResplendentAngel | Resplendent Angel → Plains | 18.5% | -0.3 ±0.4 | 46.7% | +0.2 ±0.6 | p1 |
+| c-SoulWarden | Soul Warden → Plains | 18.5% | -0.3 ±0.5 | 45.7% | -0.8 ±0.7 | p1 |
+| c-ArchangelofThune | Archangel of Thune → Plains | 18.4% | -0.4 ±0.5 | 45.8% | -0.7 ±0.7 | p1 |
+| c-BrambleSovereign | Bramble Sovereign → Forest | 18.4% | -0.4 ±0.4 | 46.7% | +0.2 ±0.6 | p1 |
+| c-StormHerd | Storm Herd → Plains | 18.3% | -0.5 ±0.4 | 44.6% | -1.9 ±0.6 | p1 |
+| c-MirarisWake | Mirari's Wake → Forest | 18.3% | -0.5 ±0.4 | 45% | -1.5 ±0.6 | p1 |
+| c-LathieltheBounteou | Lathiel, the Bounteous Dawn → Forest | 18.2% | -0.6 ±0.5 | 46.6% | +0 ±0.6 | p1 |
+| c-CrestedSunmare | Crested Sunmare → Plains | 18.2% | -0.6 ±0.4 | 46.6% | +0.1 ±0.7 | p1 |
+| c-AvacynsPilgrim | Avacyn's Pilgrim → Forest | 18.1% | -0.7 ±0.4 | 46.9% | +0.3 ±0.6 | p1 |
+| c-GhaltaandMavren | Ghalta and Mavren → Forest | 17.9% | -0.9 ±0.5 | 46.4% | -0.1 ±0.6 | p1 |
+| c-ShalaiVoiceofPlent | Shalai, Voice of Plenty → Plains | 17.8% | -1 ±0.4 | 45.6% | -0.9 ±0.6 | p1 |
+| c-SolRing | Sol Ring → Forest | 17.5% | -1.3 ±0.5 | 46.2% | -0.3 ±0.6 | p1 |
+
+How to read it: 50 of 61 cards measure within ±0.6 of a basic land on B4. Every card's land replacement is also one more land, and the bots seem to like lands (the precon runs 34). The bots also undervalue held interaction: Swords to Plowshares (+0.6), Path (−0.1), Rootborn Defenses (+0.6), Grand Crescendo (+0.5) and Break Down measure as worth about a land. That's a bot artifact: a person holds Swords for the combo piece, and the bot fires it at the first big creature. Those cards stay. The clear keeps: Sol Ring, Shalai, Ghalta and Mavren, Avacyn's Pilgrim, Crested Sunmare, Lathiel, Mirari's Wake and Storm Herd.

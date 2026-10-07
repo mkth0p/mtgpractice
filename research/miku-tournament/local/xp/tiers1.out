@@ -1,0 +1,1 @@
+/Users/glyphsek/Documents/mtg-todeletelater/mtgpractice/tools/sim/bench/bench.sh: line 13:  2618 Terminated: 15          TELE_OUT=$([ -n "$TELE" ] && echo "$OUT/$NAME-$k.tele.json") node "$D/wrap.js" --games "$N" --seed $((1000 + k*N)) --decks "$HERO,$OPP,$OPP,$OPP" --first random --json "$OUT/$NAME-$k.json" > "$OUT/$NAME-$k.log" 2>&1

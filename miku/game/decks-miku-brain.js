@@ -46,8 +46,8 @@
       }
     }
     // Aetherflux Reservoir: shoot whoever 50 kills first, while we stay above 0
-    // (flux2: only when the shot kills someone and leaves us at 15+, or we're the last two, or we stay at 40+)
-    if (!OFF.has("flux") && p.life > 50 && (!ON.has("flux2") || fluxOk(g, p))) {
+    // (flux2, the default: only when the shot kills someone and leaves us at 15+, or we're the last two, or we stay at 40+)
+    if (!OFF.has("flux") && p.life > 50 && (OFF.has("flux2") || fluxOk(g, p))) {
       const a = acts.find(x => x.type === "activate" && x.card.def.name === "Aetherflux Reservoir");
       if (a && opps.length) return { type: "activate", card: a.card, idx: a.idx, maxTries: 3 };
     }
@@ -136,10 +136,19 @@
   }
   // flux2: the card's own hint (shoot at 60+ life) follows the same rule for a Miku deck
   const flux = MK.defs.get("Aetherflux Reservoir");
-  if (flux && ON.has("flux2") && flux.abilities && flux.abilities[0] && !flux.__miku) {
+  if (flux && !OFF.has("flux2") && flux.abilities && flux.abilities[0] && !flux.__miku) {
     const ab = flux.abilities[0], use0 = ab.ai && ab.ai.use;
     ab.ai = Object.assign({}, ab.ai, { use: (g, p, o, ctx) => isMiku(p) ? fluxOk(g, p) && p.life > 50 : (use0 ? use0(g, p, o, ctx) : false) });
     flux.__miku = true;
+  }
+  // Storm Herd makes X Pegasus where X is your life total: past 150 life a player has already won another way, and
+  // thousands of tokens (each a Trostani / Soul Warden / Thune trigger) stall the engine, so a Miku deck holds it then
+  const herd = MK.defs.get("Storm Herd");
+  if (herd && !herd.__miku) {
+    herd.ai = Object.assign({}, herd.ai);
+    const h0 = herd.ai.hold;
+    herd.ai.hold = (g, p, o) => (isMiku(p) && p.life > 150) || (h0 ? h0(g, p, o) : false);
+    herd.__miku = true;
   }
   MK.MIKU_BRAIN = { plan, choose, keepHome, IDS };
 })(typeof window !== "undefined" ? window : globalThis);
