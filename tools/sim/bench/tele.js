@@ -8,7 +8,11 @@
              half is credited to whatever caused the first half)
      poison  poison counters from the hero's infect damage
    For every opponent who is out: why (life, poison, commander, alt, library) and, for life, who made the last
-   cut and of which kind. telesum.js reads the files. */
+   cut and of which kind. telesum.js reads the files.
+   Generic fields added for the Miku research (any hero): life gained (gained), tokens made (tokens), populates, the
+   highest life total (maxLife), the round a lifegain combo was first assembled on the battlefield (combo: Heliod with
+   Walking Ballista or Spike Feeder, Archangel of Thune with Spike Feeder), what dealt the hero's last life loss (heroLast:
+   the opponent's deck id, the source, combat or not), and the deck that won a game the hero lost (winnerDeck). */
 "use strict";
 const fs = require("fs");
 module.exports = function install(MK, opts) {
@@ -31,6 +35,7 @@ module.exports = function install(MK, opts) {
   const od = G.damage;
   G.damage = function (src, target, n, o) {
     const g = this, s = st(g);
+    if (s.hero && target === s.hero && n > 0) { const c = ctl(src && src.def ? src : src); s.heroLast = { by: c && c.deckId || "?", src: src && src.def ? src.def.name : "?", combat: !!(o && o.combat) }; }
     if (!s.hero || !this.isPlayer(target) || target === s.hero || n <= 0) return od.apply(this, arguments);
     const srcObj = src && src.def ? src : null;
     const mine = ctl(srcObj || src) === s.hero;
@@ -51,6 +56,7 @@ module.exports = function install(MK, opts) {
   G.loseLife = function (p, n, src) {
     const g = this, s = st(g);
     const before = p.life;
+    if (s.hero && p === s.hero && n > 0 && !this.__dmgBy) { const c = ctl(src); s.heroLast = { by: c && c.deckId || "?", src: src && src.def ? src.def.name : "?", combat: false }; }
     const r = ol.apply(this, arguments);
     if (s.hero && p !== s.hero && r > 0) {
       const mine = ctl(src) === s.hero;
@@ -96,6 +102,21 @@ module.exports = function install(MK, opts) {
     }
     return r;
   };
+  const COMBO = [["Heliod, Sun-Crowned", "Walking Ballista"], ["Heliod, Sun-Crowned", "Spike Feeder"], ["Archangel of Thune", "Spike Feeder"]];
+  const oe2 = G.emit;
+  G.emit = function (type, ev) {
+    const s = this.__tele;
+    if (type === "enters" && s && s.hero && ev && ev.o && ev.o.controller === s.hero && s.combo == null) {
+      const names = new Set(this.battlefield.filter(o => o.controller === s.hero && !(o.def.name === "Walking Ballista" && !(o.counters.p1 > 0))).map(o => o.def.name));
+      const c = COMBO.find(([a, b]) => names.has(a) && names.has(b));
+      if (c) { s.combo = this.round; s.comboName = c[1] === "Walking Ballista" ? "Heliod+Ballista" : c[0] === "Heliod, Sun-Crowned" ? "Heliod+Feeder" : "Thune+Feeder"; }
+    }
+    return oe2.apply(this, arguments);
+  };
+  const opop = G.populate;
+  G.populate = async function (p) { const s = st(this); if (s.hero && p === s.hero) s.populates = (s.populates || 0) + 1; return opop.apply(this, arguments); };
+  const ogl = G.gainLife;
+  G.gainLife = function (p) { const s = st(this), r = ogl.apply(this, arguments); if (s.hero && p === s.hero && p.life > (s.maxLife || 0)) s.maxLife = p.life; return r; };
   const oc = G.cloakTop;
   G.cloakTop = function (p, from, src) { const s = st(this); if (s.hero && p === s.hero && src && src.def && src.def.name === ET && from && from !== p) s.etrataSteals++; return oc.apply(this, arguments); };
   const olose = G.lose;
@@ -139,7 +160,9 @@ module.exports = function install(MK, opts) {
     if (h) rows.push({
       seed: g.seed, win: g.winner === h, rounds: g.round, casts: h.stats.cast[h.commanders[0] ? h.commanders[0].def.name : ""] || 0,
       steals: s.steals, etrataSteals: s.etrataSteals, flips: s.flips, stolenFlips: s.stolenFlips, freeCasts: s.freeCasts, faceUpStolen: s.faceUpStolen,
-      dmg: s.dmg, cmdDmg: s.cmdDmg, outs: s.outs, altWin: s.altWin || null, heroLost: h.lost ? h.lostReason : null, trace: s.trace || [], first: s.first || {}, cast: Object.assign({}, h.stats.cast), found: s.found || [], left: s.left || [], wipes: s.wipes || 0, countered: s.countered || [], gotCountered: s.gotCountered || [], lostMyTurn: s.lostMyTurn || 0, lostTheirTurn: s.lostTheirTurn || 0, end: (() => { const g2 = g; return { oppLife: g2.players.filter(q => q !== h).map(q => q.lost ? 0 : q.life), heroLife: h.life }; })()
+      dmg: s.dmg, cmdDmg: s.cmdDmg, outs: s.outs, altWin: s.altWin || null, heroLost: h.lost ? h.lostReason : null, trace: s.trace || [], first: s.first || {}, cast: Object.assign({}, h.stats.cast), found: s.found || [], left: s.left || [], wipes: s.wipes || 0, countered: s.countered || [], gotCountered: s.gotCountered || [], lostMyTurn: s.lostMyTurn || 0, lostTheirTurn: s.lostTheirTurn || 0,
+      gained: h.stats.gained || 0, tokens: h.stats.tokens || 0, populates: s.populates || 0, maxLife: s.maxLife || 40, combo: s.combo == null ? null : s.combo, comboName: s.comboName || null,
+      heroLast: s.heroLast || null, winnerDeck: g.winner ? g.winner.deckId : null, end: (() => { const g2 = g; return { oppLife: g2.players.filter(q => q !== h).map(q => q.lost ? 0 : q.life), heroLife: h.life }; })()
     });
     return r;
   };

@@ -1,0 +1,34 @@
+# Decisions (Miku tournament research)
+Choices made while working unattended, with the reason for each. Newest at the bottom. Started 2026-10-07 13:58.
+
+## The prompt's open slots
+1. **The event is Bracket 4.** The prompt's bracket slot was left as a template; the line after it says "backet 4 deck". So: Bracket 4 (Optimized) rules, which since the 21 October 2025 update have no deckbuilding limits beyond the Commander banned list (Game Changers, two-card combos and tutors all allowed; see `../sources/trostani-bracket4.md` §1). The field that matches the event is the engine's Bracket 4 bots (`random4`); the precon field (`random2`) is the "not negative" check.
+2. **Time budget: 6 hours.** The "[N] hours" slot was empty. I assume 6 hours (13:58 → about 20:00), so the search stops at about 18:58 and the rest goes to the write-up. Compute isn't the limit: 2,016 games per field take about 25 seconds on this Mac's 18 cores.
+3. **Cards available tonight: the precon plus the 80€ plan's 22 cards.** The swap-source slot was empty. `miku/game/cards-miku-precon.js` describes the 80€ plan as "the one bought for about 80€", so I take those 22 cards (Heliod, Walking Ballista, Spike Feeder, Avenger of Zendikar, True Conviction, Cathars' Crusade...) as owned. The tier lists use only precon + 80€ cards. The full plan's extra cards (Craterhoof, Jazal, Mirror Entity, Crashing Drawbridge) and cards from my own research are reported separately as "if you can buy it today", with their Cardmarket price from Scryfall's bulk data. None of them is in a tier list unless it's in that pool.
+4. **The swap cap counts basics.** "At most 15 cards different from the precon", basics included, is counted as the multiset difference: the cards in a list that the precon doesn't have, counted with multiplicity.
+
+## Setup
+5. **Branch.** `miku-tournament`, made from the local `etrata-heist-aggro-research`, which is one commit ahead of the pushed branch: the Heist cut-sweep scripts and raw rows, no engine change. So the new branch contains everything on the pushed branch, plus that one commit.
+6. **Bench standard.** As in the Etrata research: PROCS=18, N=112 (2,016 games per field) to search, N=280 (5,040) to confirm and for the honest numbers. `xp/env.sh` sets HERO=miku-precon, DECK_CONST=MIKU_PRECON_DECK, HERO_NAME=Miku and XPLOG. Pairs only between runs with the same PROCS and N.
+7. **Scryfall.** The blue-black index was useless for this deck. I copied the scripts to `local/scryfall/`, changed the identity filter to green-white, and added Cardmarket's EUR trend price (Scryfall `prices.eur`), because the user buys on Cardmarket. Bulk files are `default_cards` and `rulings` of 2026-10-07 09:00 UTC. `gw-index.json` and the `.gz` files are kept out of git.
+
+## Engine and brain
+8. **`MK.DECK_BRAINS.miku` didn't exist.** The prompt names it, but the Miku decks played only on the generic bot (`ai.js`) and the cards' own hints. I added `miku/game/decks-miku-brain.js`. It registers one brain for `miku-precon`, `miku-budget` and `miku`, and it is sim only: it's not in `app.js` GAME_FILES or `sw.js`, so the Play tab is unchanged.
+9. **What the brain does, and why.** In the first runs, the 80€ list won only 42% of the Bracket 4 games where Heliod and Walking Ballista were both out. Traces showed four misplays:
+   - Ballista cast for X=1 on turn 3 and sent into a blocker.
+   - Ballista cast with X so high that no {1}{W} was left for Heliod's lifelink, then pinged away or killed by Skullclamp.
+   - The lifelink mana spent on another creature first.
+   - Finale of Devastation fetching Ballista onto the battlefield at X=0, where it dies. The site's guide warns about exactly this.
+   
+   Also, the engine's Spike Feeder helper loops only with Heliod out, never with Archangel of Thune. The brain fixes all of these, the way the pilot sheet tells a person to play. Aetherflux Reservoir shoots players only.
+   
+   Measured on the 80€ list: +1.8 ±0.8 against precons, +0.6 ±0.5 against Bracket 4 (experiment 9). On the precon, which has none of those cards: +0.9 ±0.6 / −0.3 ±0.3 (experiment 10). With the brain, Heliod + Ballista wins 38 of the 42 games where it assembles against precons, and 10 of 13 against Bracket 4.
+10. **`p1` is the base for everything after experiment 10.** The brain was frozen before the sweeps started at 14:20, so the sweeps and `p1` ran on the same code.
+11. **Scurry Oak** is the one research candidate the engine lacked. It's defined in the new sim-only file `miku/game/cards-miku-tourney.js` with its Oracle text. Its Squirrel loop (with Trostani plus Archangel of Thune, Heliod or Cleric Class level 2) stops at 60 Squirrels a turn, standing in for the number a player would name. Tests are in `tools/sim/test-miku.js` (97 checks, was 80).
+12. **Telemetry.** Added to `tools/sim/bench/tele.js` and `telesum.js`, generic for any hero:
+    - life gained, tokens made, populates and the highest life total;
+    - the round a lifegain combo first assembled, with which pieces;
+    - what dealt the hero's last life loss and from which deck;
+    - which deck won the games the hero lost.
+    
+    A Walking Ballista on the battlefield with no counters doesn't count as assembled. The Etrata fields (steals, flips) still print and read zero.

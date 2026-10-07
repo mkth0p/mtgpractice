@@ -28,3 +28,25 @@ const all = {};
 let tot = 0;
 for (const x of wins) for (const o of x.outs) { tot++; const k = o.by === "hero" ? "hero " + o.kind : o.why === "life" ? "others" : o.why; all[k] = (all[k] || 0) + 1; }
 console.log(`  every opponent out in won games: ${fmt(all, tot)}`);
+// the lifegain/token fields (Miku research): life gained, tokens, populates, combo assembly, how the hero lost and to whom
+if (r[0].gained != null) {
+  const med = a => { const b = a.slice().sort((x, y) => x - y); return b.length ? b[b.length >> 1] : "-"; };
+  const losses = r.filter(x => !x.win);
+  const combo = r.filter(x => x.combo != null);
+  console.log(`  lifegain: ${avg(x => x.gained).toFixed(0)} life gained a game (wins ${(wins.reduce((t, x) => t + x.gained, 0) / (wins.length || 1)).toFixed(0)}, losses ${(losses.reduce((t, x) => t + x.gained, 0) / (losses.length || 1)).toFixed(0)}), max life ${avg(x => x.maxLife).toFixed(0)}; tokens ${avg(x => x.tokens).toFixed(1)}, populates ${avg(x => x.populates).toFixed(2)}`);
+  console.log(`  combo assembled (Heliod+Ballista/Feeder, Thune+Feeder): ${pct(combo.length, n)} of games, median round ${med(combo.map(x => x.combo))}, win ${pct(combo.filter(x => x.win).length, combo.length)} when assembled`);
+  const how = {}, who = {}, winner = {};
+  for (const x of losses) {
+    const k = x.heroLost === "life" ? (x.heroLast ? (x.heroLast.combat ? "combat" : "noncombat: " + x.heroLast.src) : "life ?") : x.heroLost || "game went on (someone else won/cap)";
+    const kk = /^noncombat/.test(k) ? "noncombat" : k; how[kk] = (how[kk] || 0) + 1;
+    if (x.heroLast && x.heroLost === "life") who[x.heroLast.by] = (who[x.heroLast.by] || 0) + 1;
+    if (x.winnerDeck) winner[x.winnerDeck] = (winner[x.winnerDeck] || 0) + 1;
+  }
+  console.log(`  how the hero went out (${losses.length} losses): ${fmt(how, losses.length)}`);
+  console.log(`  who dealt the last blow: ${fmt(who, losses.length)}; who won the lost games: ${fmt(winner, losses.length)}`);
+  const firstR = k => { const v = r.map(x => x.first[k]).filter(v => v != null); return v.length ? `${pct(v.length, n)} by med. round ${med(v)}` : "never"; };
+  console.log(`  key cards on the battlefield: Trostani ${firstR("Trostani, Selesnya's Voice")}, Thune ${firstR("Archangel of Thune")}, Heliod ${firstR("Heliod, Sun-Crowned")}`);
+  const srcs = {};
+  for (const x of wins) { const o = x.outs[x.outs.length - 1]; if (o && o.by === "hero" && o.src) srcs[o.src] = (srcs[o.src] || 0) + 1; }
+  console.log(`  the source of the last kill in won games: ${fmt(srcs, wins.length).split(", ").slice(0, 8).join(", ")}`);
+}

@@ -7,6 +7,9 @@ const dir = path.join(__dirname, "../../miku/game");
 require(path.join(dir, "engine.js"));
 require(path.join(dir, "cards-miku.js"));
 require(path.join(dir, "decks-edgar.js")); // Vein Ripper, for ward
+require(path.join(dir, "cards-miku-precon.js")); // the precon's cards (Aetherflux targets, the Miku deck ids)
+require(path.join(dir, "cards-miku-tourney.js")); // Scurry Oak (Miku tournament research)
+require(path.join(dir, "decks-miku-brain.js")); // the Miku decks' bot brain (Miku tournament research)
 require(path.join(dir, "ai.js"));
 const MK = globalThis.MK;
 
@@ -342,6 +345,50 @@ const named = (g, p, name) => g.battlefield.filter(o => o.controller === p && o.
     const idx = g.abilitiesOf(grove).find(e => e.ab.tapCreatures).i;
     const ok = await g.activate(a, grove, idx); await g.settle();
     check("Grove of the Guardian taps Hero and Jazal and pays with the mana creatures", ok && g.creatures(a).some(o => o.def.name === "Elemental" && g.power(o) === 8), { ok, elf: elf.tapped, pil: pil.tapped, log: g.logs.slice(-3).map(e => e.text) }); }
+
+
+  // Scurry Oak (research card): evolve, a Squirrel per counter, and the Trostani + Archangel of Thune loop stops at 60 a turn
+  { const { g, a } = table(); const oak = put(g, a, "Scurry Oak"); await g.settle();
+    put(g, a, "Llanowar Elves"); await g.settle();
+    check("Evolve doesn't trigger for a 1/1 entering under a 1/2", (oak.counters.p1 || 0) === 0, oak.counters);
+    put(g, a, "Ajani's Pridemate"); await g.settle();
+    check("Evolve: a 2/2 entering gives Scurry Oak a counter", oak.counters.p1 === 1, oak.counters);
+    check("The counter makes a Squirrel", named(g, a, "Squirrel").length === 1, named(g, a, "Squirrel").length);
+    check("A Squirrel 1/1 doesn't evolve a 2/3 Oak", oak.counters.p1 === 1, oak.counters); }
+  { const { g, a } = table(); put(g, a, "Trostani, Selesnya's Voice"); put(g, a, "Archangel of Thune"); await g.settle();
+    a.life = 40; put(g, a, "Scurry Oak"); await g.settle();
+    const sq = named(g, a, "Squirrel").length;
+    check("Scurry Oak entering next to Trostani + Archangel of Thune loops: 60 Squirrels this turn, then stops", sq === 60, sq);
+    check("Every Squirrel gained life through Trostani", a.life >= 100, a.life);
+    check("Archangel's counters went on each creature every loop", named(g, a, "Archangel of Thune")[0].counters.p1 >= 60, named(g, a, "Archangel of Thune")[0].counters); }
+
+  // the Miku brain (research): Ballista waits for X >= 2, Heliod gives it lifelink, the loop pings the table out
+  { const { g, a, b, c, d } = table(); for (const q of [a]) q.deckId = "miku-budget";
+    lands(g, a, 3); const bal = hand(g, a, "Walking Ballista"); await g.settle();
+    const hold = MK.defs.get("Walking Ballista").ai.hold;
+    check("A Miku deck holds Walking Ballista with 3 mana (X would be 1)", hold(g, a, bal) === true);
+    lands(g, a, 1); check("...and casts it with 4 mana (X = 2)", hold(g, a, bal) === false);
+    const other = table(); other.a.deckId = "ghalta"; lands(other.g, other.a, 3);
+    check("Another deck still casts Ballista for X = 1", !hold(other.g, other.a, hand(other.g, other.a, "Walking Ballista"))); }
+  { const { g, a, b, c, d } = table(); a.deckId = "miku-budget"; lands(g, a, 2); put(g, a, "Heliod, Sun-Crowned");
+    const bal = put(g, a, "Walking Ballista"); bal.counters.p1 = 2; await g.settle();
+    const plan = MK.DECK_BRAINS["miku-budget"].plan(g, a, { window: "main1", actions: g.legalActions(a) });
+    check("The brain's first action is Heliod's lifelink on the 2-counter Ballista", plan && plan.card.def.name === "Heliod, Sun-Crowned", plan && plan.card.def.name);
+    await g.perform(a, plan); await g.settle();
+    check("Ballista has lifelink", g.kw(bal, "lifelink"));
+    const acts = g.legalActions(a).filter(x => x.type === "activate" && x.card === bal && x.ab.label === "Deal 1 damage");
+    const use = acts[0] && acts[0].ab.ai.use(g, a, bal, { window: "main1" });
+    check("The ping loop is asked for the whole table's life", use && use.repeat >= b.life + c.life + d.life, use);
+    await g.perform(a, Object.assign({ type: "activate", card: bal, idx: acts[0].idx }, use)); await g.settle();
+    check("Heliod + Ballista kills the three opponents", b.lost && c.lost && d.lost, [b.life, c.life, d.life]); }
+  { const { g, a, b, c, d } = table(); a.deckId = "miku-precon"; put(g, a, "Archangel of Thune"); put(g, a, "Aetherflux Reservoir");
+    const sf = put(g, a, "Spike Feeder"); await g.settle(); a.life = 40;
+    let plan = MK.DECK_BRAINS["miku-precon"].plan(g, a, { window: "main1", actions: g.legalActions(a) });
+    check("Spike Feeder + Archangel of Thune loops without Heliod", plan && plan.card === sf && plan.repeat >= 60, plan && plan.repeat);
+    await g.perform(a, plan); await g.settle();
+    check("The loop gains enough life for three Aetherflux shots", a.life >= 175, a.life);
+    for (let k = 0; k < 3; k++) { plan = MK.DECK_BRAINS["miku-precon"].plan(g, a, { window: "main1", actions: g.legalActions(a) }); if (plan) { await g.perform(a, plan); await g.settle(); } }
+    check("Aetherflux Reservoir shoots the three opponents", b.lost && c.lost && d.lost, [b.life, c.life, d.life, a.life]); }
 
   console.log(`${passed} checks passed, ${failed} failed.`);
   process.exitCode = failed ? 1 : 0;
