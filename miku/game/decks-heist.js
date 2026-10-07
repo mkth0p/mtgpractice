@@ -2,8 +2,8 @@
    research/etrata-theft-aggro/local/). Cheap Assassins connect, every hit cloaks an opponent's card, and the
    stolen cards become more attackers.
    This file holds the cards the other Etrata lists don't define, `MK.ETRATA_HEIST_DECK` (id
-   "etrata-heist-aggro") and its bot brain (MK.DECK_BRAINS["etrata-heist-aggro"]). The deck is a hero deck only:
-   it isn't in MK.BOT_DECKS, so the random Bracket 4 tables stay the same.
+   "etrata-heist-aggro") and its bot brain (MK.DECK_BRAINS["etrata-heist-aggro"]). The deck is a hero deck only
+   (on the Etrata and Corrupted Etrata sites and in the Arena): it isn't in MK.BOT_DECKS, so the random Bracket 4 tables stay the same.
    Card text follows the printed Oracle text; `note` says where the engine simplifies a card. */
 (function (root) {
   "use strict";
@@ -2230,24 +2230,32 @@
 
   /* ================================================================ the deck */
   const B = n => Array(n).fill("Swamp"), I = n => Array(n).fill("Island");
-  // the starting point: the Etrata B4 aggro list (decks-etrata4.js); research lists replace it (tools/sim/bench LIST_FILE)
-  const LIST = ["Changeling Outcast", "Mothdust Changeling", "Universal Automaton", "Hookblade Veteran", "Hired Poisoner",
-    "Brotherhood Spy", "Desmond Miles", "Basim Ibn Ishaq", "Duskmantle Guildmage", "Guildsworn Prowler", "Thrill-Kill Assassin", "Mischievous Sneakling",
-    "Mari, the Killing Quill", "Black Widow, Deadly Hunter", "Shadow, Mysterious Assassin", "Virtus the Veiled", "Unstoppable Slasher", "Mistwalker", "Midnight Assassin", "Lydia Frye", "Merciless Harlequin", "Gix, Yawgmoth Praetor", "Adéwalé, Breaker of Chains",
-    "Achilles Davenport", "Ramses, Assassin Lord", "Roshan, Hidden Magister", "Etrata, the Silencer", "Interceptor, Shadow's Hound", "Spark Double", "Ezio, Blade of Vengeance",
-    "Sol Ring", "Mana Vault", "Chrome Mox", "Lotus Petal", "Arcane Signet", "Talisman of Dominance", "Fellwar Stone", "Dark Ritual",
-    "Skullclamp", "Rhystic Study", "Mystic Remora", "Kindred Discovery", "Rooftop Bypass", "Bitterblossom", "Eagle Vision", "Preordain", "Brainstorm",
-    "Demonic Tutor", "Vampiric Tutor", "Imperial Seal",
-    "Force of Will", "Fierce Guardianship", "Swan Song", "Counterspell", "An Offer You Can't Refuse", "Infernal Grasp", "Go for the Throat", "Deadly Rollick", "Chain Assassination", "Shoot the Sheriff", "Cyclonic Rift",
-    "Swiftfoot Boots", "Lightning Greaves", "Brotherhood Regalia", "Cover of Darkness", "Maskwood Nexus", "Mindcrank",
-    "Ancient Tomb", "Command Tower", "Watery Grave", "Polluted Delta", "Marsh Flats", "Scalding Tarn", "Flooded Strand", "Underground River", "Drowned Catacomb", "Sunken Hollow", "Choked Estuary", "Darkwater Catacombs", "Darkslick Shores", "Tainted Isle", "River of Tears", "Path of Ancestry", "Access Tunnel", "Rogue's Passage", "Brotherhood Headquarters", "Cavern of Souls", "Secluded Courtyard"
-  ].concat(I(5), B(6));
+  // the recommended list: research/etrata-theft-aggro/local/decklist-heist-closer.txt (bench runs can swap in
+  // another one with tools/sim/bench LIST_FILE)
+  const LIST = [
+    "Changeling Outcast", "Hired Poisoner", "Slither Blade", "Mothdust Changeling", "Tetsuko Umezawa, Fugitive",
+    "Satoru, the Infiltrator", "Brotherhood Spy", "Reno and Rude", "Dark Confidant", "Virtus the Veiled", "Unstoppable Slasher",
+    "Mari, the Killing Quill", "Ramses, Assassin Lord", "Achilles Davenport", "Roshan, Hidden Magister", "Roaming Throne",
+    "Bloodletter of Aclazotz", "Spark Double", "Sakashima the Impostor", "Preordain", "Basim Ibn Ishaq", "Brainstorm",
+    "Demonic Consultation", "Vein Ripper", "Exquisite Blood", "Sanguine Bond", "Bloodthirsty Conqueror", "Vito, Thorn of the Dusk Rose",
+    "Leyline of Transformation", "Arcane Adaptation", "Coat of Arms", "Eldrazi Monument", "Teferi's Veil",
+    "They Came from the Pipes", "Quietus Spike", "Reverse the Polarity", "Ashnod's Altar", "Lightning Greaves",
+    "Reanimate", "Demonic Tutor", "Vampiric Tutor", "Imperial Seal", "Grim Tutor", "Diabolic Intent", "Pyre of Heroes",
+    "Sol Ring", "Mox Amber", "Chrome Mox", "Lotus Petal", "Dark Ritual", "Arcane Signet", "Talisman of Dominance",
+    "Force of Will", "Fierce Guardianship", "Force of Negation", "Swan Song", "Deadly Rollick", "Snuff Out",
+    "Cyclonic Rift", "Rhystic Study", "Mystic Remora", "Ancient Tomb", "Command Tower", "Watery Grave", "Polluted Delta",
+    "Marsh Flats", "Scalding Tarn", "Underground River", "Drowned Catacomb", "Sunken Hollow", "Choked Estuary",
+    "Darkwater Catacombs", "Darkslick Shores", "Tainted Isle", "River of Tears", "Path of Ancestry", "Rogue's Passage",
+    "Brotherhood Headquarters", "Cavern of Souls", "Secluded Courtyard", "Mutavault", "Morphic Pool", "Undercity Sewers",
+    "Kindred Dominance"
+  ].concat(I(8), B(7));
   MK.ETRATA_HEIST_DECK = {
-    id: DECK_ID, hero: "etrata", variant: DECK_ID, label: "Etrata Heist (research)", name: "Etrata Heist", title: "Etrata, Deadly Fugitive",
+    id: DECK_ID, hero: "etrata", alsoOn: ["corrupted-etrata"], variant: DECK_ID,
+    label: "Etrata Heist", name: "Etrata Heist", title: "Etrata, Deadly Fugitive",
     commander: "Etrata, Deadly Fugitive", identity: ["U", "B"], bracket: 4, aggression: 0.85,
     style: "Dimir theft aggro",
-    blurb: "Research list: cheap Assassins connect, each hit cloaks an opponent's card, and the stolen cards attack too. One opponent at a time, until Ramses or the damage ends the game.",
-    watch: ["Ramses, Assassin Lord", "Unstoppable Slasher", "Virtus the Veiled", "Quietus Spike", "Bloodletter of Aclazotz"],
+    blurb: "Bracket 4 Etrata heist: cheap evasive Assassins connect, every hit cloaks an opponent's card, and a type-changer turns the stolen 2/2s into more Assassins. Tutor for Ramses first and focus one player; the Exquisite Blood + Sanguine Bond loop is the second kill.",
+    watch: ["Ramses, Assassin Lord", "Bloodletter of Aclazotz", "Unstoppable Slasher", "Virtus the Veiled", "Quietus Spike", "Exquisite Blood", "Sanguine Bond"],
     list: LIST
   };
   (MK.HERO_DECKS = MK.HERO_DECKS || []).push(MK.ETRATA_HEIST_DECK);
