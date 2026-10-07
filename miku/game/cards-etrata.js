@@ -375,6 +375,9 @@
      attacker could be turned face up in it: the mana stays open for the flip, and they come down
      in the second main phase. */
   function etrataCast(g, p, o, ctx) {
+    // a deck brain that holds some cards itself (decks-heist.js castHold)
+    const db = brainOn(p) && AI().deckBrain ? AI().deckBrain(p) : null;
+    if (db && db.castHold) { const r = db.castHold(g, p, o, ctx); if (r !== undefined) return r; }
     if (!brainOn(p) || ctx.window !== "main1" || g.active !== p || o.isCommander) return undefined;
     if (combatCard(o.def)) return undefined;
     return flipReady(g, p) ? false : undefined;
@@ -406,7 +409,7 @@
   function etrataPlan(g, p, o, ctx) {
     if (!brainOn(p)) return null;
     const win = ctx.window, acts = ctx.actions || [];
-    if (win === "combat" && g.active === p && g.phase === "damage") return combatFlip(g, p, acts);
+    if (win === "combat" && g.active === p && g.phase === "damage") { const db = AI().deckBrain ? AI().deckBrain(p) : null; return db && db.ownFlips ? null : combatFlip(g, p, acts); }
     if (win === "main1" && g.active === p) {
       for (const eq of g.controlled(p, x => HEXERS.includes(x.def.name))) {
         const act = acts.find(a => a.type === "activate" && a.card === eq && a.ab && a.ab.label === "Equip");
@@ -476,6 +479,9 @@
     ai: { use: (g, p, o, ctx) => etrataUpUse(g, p, o, ctx), inStack: true }
   };
   function etrataUpUse(g, p, o, ctx) {
+    // a deck brain that decides its own flips (decks-heist.js)
+    const db = AI().deckBrain ? AI().deckBrain(p) : null;
+    if (db && db.flipUse) { const r = db.flipUse(g, p, o, ctx); if (r !== undefined) return r; }
     const d = o.cardDef;
     if (!d || d.types.includes("Land")) return false;
     const t = d.types;

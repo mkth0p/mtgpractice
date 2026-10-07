@@ -1,0 +1,622 @@
+[
+ {
+  "title": "Closing: halving and doubling (combat-damage kills)",
+  "why": "Pure aggro dealt about 15 damage a game against 120 total life. These turn one connection into half or all of a player's life, and Ramses turns one kill into the game.",
+  "cards": [
+   [
+    "Bloodletter of Aclazotz",
+    "doubles every life loss on our turn: a halving hit takes all of it"
+   ],
+   [
+    "Quietus Spike",
+    "equipment halver; no P/T change, so it keeps Tetsuko's evasion"
+   ],
+   [
+    "Scytheclaw",
+    "halver with its own 1/1 body; +1/+1 breaks Tetsuko"
+   ],
+   [
+    "Shredder, Shadow Master",
+    "attacks all three opponents at once, each hit halves"
+   ],
+   [
+    "Grievous Wound",
+    "every source that damages the enchanted player halves them"
+   ],
+   [
+    "Radioactive Man",
+    "a 5-mana deathtouch halver"
+   ],
+   [
+    "Unstoppable Slasher",
+    "3-mana deathtouch Assassin halver that comes back"
+   ],
+   [
+    "Virtus the Veiled",
+    "3-mana 1/1 deathtouch Assassin halver: unblockable with Tetsuko"
+   ],
+   [
+    "Ramses, Assassin Lord",
+    "one opponent dying after an Assassin attacked them wins the game"
+   ]
+  ]
+ },
+ {
+  "title": "Extra combats, double strike and extra turns",
+  "why": "No blue, black or colorless extra-combat card had been found. The Scryfall search `o:\"additional combat\" id<=ub legal:commander` finds Genji Glove (colorless), Illusionist's Gambit (on an opponent's turn, for their attack) and Swinging Ship (an Attraction).",
+  "cards": [
+   [
+    "Genji Glove",
+    "colorless: double strike and an extra combat each turn"
+   ],
+   [
+    "Leyline Axe",
+    "double strike and trample, free in the opening hand"
+   ],
+   [
+    "Fireshrieker",
+    "double strike for {3}, equip {2}"
+   ],
+   [
+    "Time Warp",
+    "extra turn"
+   ],
+   [
+    "Temporal Manipulation",
+    "extra turn"
+   ],
+   [
+    "Capture of Jingzhou",
+    "extra turn"
+   ],
+   [
+    "Notorious Throng",
+    "fliers for the damage dealt this turn; with prowl, an extra turn"
+   ],
+   [
+    "Alrund's Epiphany",
+    "extra turn and two fliers (7 mana)"
+   ]
+  ]
+ },
+ {
+  "title": "Turning steals into value without a flip",
+  "why": "Each cloak is a stolen card. These draw, make mana or pump for it.",
+  "cards": [
+   [
+    "Satoru, the Infiltrator",
+    "draws when cloaks and ninjutsu creatures enter"
+   ],
+   [
+    "They Came from the Pipes",
+    "draws for each face-down creature entering"
+   ],
+   [
+    "Glitch Interpreter",
+    "draws when colorless (face-down) creatures connect"
+   ],
+   [
+    "Thieving Amalgam",
+    "manifests each opponent's top card in their upkeep; stolen creatures dying drain 2"
+   ],
+   [
+    "Orochi Soul-Reaver",
+    "Treasure and a manifest of their top card per player hit"
+   ],
+   [
+    "Grim Hireling",
+    "two Treasures per player hit"
+   ],
+   [
+    "Forsaken Monument",
+    "face-down (colorless) creatures +2/+2"
+   ],
+   [
+    "Garland, Royal Kidnapper",
+    "creatures you control but don't own +2/+2 (monarch: not in the engine)"
+   ],
+   [
+    "Roaming Throne",
+    "Assassin: Etrata's cloak trigger happens twice"
+   ],
+   [
+    "Spark Double",
+    "a second Etrata"
+   ],
+   [
+    "Auton Soldier",
+    "a second Etrata with myriad (each token cloaks too)"
+   ],
+   [
+    "Ghostly Flicker",
+    "a cloaked card returns face up and ours for good"
+   ],
+   [
+    "Hostage Taker",
+    "removal you can cast"
+   ],
+   [
+    "Rogue Class",
+    "a second steal on each hit, team menace"
+   ],
+   [
+    "Predators' Hour",
+    "team menace and a steal per hit for a turn"
+   ],
+   [
+    "Reno and Rude",
+    "2-mana menace Assassin that steals its hit"
+   ],
+   [
+    "Staff of Eden, Vault's Key",
+    "draws a card per permanent you control but don't own (not built)"
+   ],
+   [
+    "Become Anonymous",
+    "instant: one creature and two cards become three cloaks (not built)"
+   ],
+   [
+    "Ixidron",
+    "turns every other nontoken creature face down (not built)"
+   ],
+   [
+    "Conspiracy",
+    "type changer that replaces types (not built: Arcane Adaptation does the job here)"
+   ]
+  ]
+ },
+ {
+  "title": "Evasion for the whole team",
+  "why": "Stolen 2/2s and 1/1 Assassins need to connect.",
+  "cards": [
+   [
+    "Vela the Night-Clad",
+    "others get intimidate: a colorless face-down creature can only be blocked by artifact creatures"
+   ],
+   [
+    "Archetype of Imagination",
+    "our creatures fly, theirs can't"
+   ],
+   [
+    "Levitation",
+    "team flying"
+   ],
+   [
+    "Intimidation",
+    "team fear"
+   ],
+   [
+    "Eldrazi Monument",
+    "+1/+1, flying, indestructible; a creature a turn"
+   ],
+   [
+    "Interceptor, Shadow's Hound",
+    "Assassins have menace"
+   ],
+   [
+    "Cover of Darkness",
+    "Assassins have fear"
+   ],
+   [
+    "Winged Boots",
+    "flying and ward {4}"
+   ],
+   [
+    "Glen Elendra Liege",
+    "blue and black anthem with flying"
+   ],
+   [
+    "Massacre Girl, Known Killer",
+    "menace Assassin, team wither"
+   ],
+   [
+    "Dolmen Gate",
+    "attacking creatures you control take no combat damage"
+   ],
+   [
+    "Haunted One",
+    "Background in the 99: Etrata becoming tapped gives every creature sharing a type +2/+0 and undying"
+   ],
+   [
+    "Sword Coast Sailor",
+    "Background in the 99: Etrata unblockable against the highest life total"
+   ],
+   [
+    "Reverse the Polarity",
+    "instant: creatures can't be blocked this turn"
+   ],
+   [
+    "Akroma's Memorial",
+    "team flying, first strike, haste, protection from black and red (7 mana)"
+   ],
+   [
+    "Teferi's Veil",
+    "attackers phase out after combat (not built: they couldn't block)"
+   ],
+   [
+    "Nanogene Conversion",
+    "every creature becomes an Etrata for a turn (not built: it copies the opponents' creatures too)"
+   ]
+  ]
+ },
+ {
+  "title": "Cheap connectors",
+  "why": "The trace shows the deck too slow on turns 1 to 3.",
+  "cards": [
+   [
+    "Assassin Initiate",
+    "1-mana Assassin"
+   ],
+   [
+    "Hullcarver",
+    "1-mana artifact deathtouch Assassin"
+   ],
+   [
+    "Ruthless Ripper",
+    "1-mana deathtouch Assassin"
+   ],
+   [
+    "Poison-Blade Mentor",
+    "2-mana deathtouch Assassin"
+   ],
+   [
+    "Evie Frye",
+    "2-mana Assassin looter that makes a creature unblockable"
+   ],
+   [
+    "Slither Blade",
+    "1-mana unblockable"
+   ],
+   [
+    "Triton Shorestalker",
+    "1-mana unblockable"
+   ],
+   [
+    "Invisible Stalker",
+    "2-mana hexproof unblockable"
+   ],
+   [
+    "Gray Harbor Merfolk",
+    "2-mana 2/3 unblockable with Etrata out"
+   ],
+   [
+    "Shoreline Looter",
+    "2-mana unblockable that draws"
+   ],
+   [
+    "Looter il-Kor",
+    "2-mana shadow looter"
+   ],
+   [
+    "Prickly Boggart",
+    "1-mana fear"
+   ],
+   [
+    "Vampire Cutthroat",
+    "1-mana skulk lifelink"
+   ],
+   [
+    "Nightshade Stinger",
+    "1-mana flier"
+   ],
+   [
+    "Network Disruptor",
+    "1-mana flier that taps a blocker"
+   ],
+   [
+    "Sygg, River Cutthroat",
+    "draws when an opponent lost 3 life"
+   ],
+   [
+    "Mist-Syndicate Naga",
+    "ninja that copies itself"
+   ],
+   [
+    "Bident of Thassa",
+    "a card per hit"
+   ]
+  ]
+ },
+ {
+  "title": "Typal anthems, lords and copies (the Assassins and the stolen 2/2s grow together)",
+  "why": "The pilots' snowball plan: with a type-changer out, every face-down 2/2 is an Assassin, so one anthem lifts the whole stolen army; the copies make a second Etrata (another cloak per hit) or a second Ramses.",
+  "cards": [
+   [
+    "Coat of Arms",
+    "every creature grows for each other creature sharing a type: with Maskwood Nexus or Arcane Adaptation out the whole board shares Assassin"
+   ],
+   [
+    "Obelisk of Urd",
+    "convoke anthem for the chosen type; the Assassins tap to cast it the turn after they land"
+   ],
+   [
+    "Kindred Dominance",
+    "a one-sided wipe that spares the chosen type (Assassin, with the type-changers covering the stolen cards)"
+   ],
+   [
+    "Vanquisher's Banner",
+    "anthem plus a card per Assassin cast"
+   ],
+   [
+    "Door of Destinies",
+    "an anthem that grows with every Assassin spell"
+   ],
+   [
+    "Icon of Ancestry",
+    "cheap typal anthem that also digs for Assassins"
+   ],
+   [
+    "Adaptive Automaton",
+    "a 3-mana lord for Assassins"
+   ],
+   [
+    "Sakashima the Impostor",
+    "a copy of Etrata or Ramses that keeps its own name, so the legend rule doesn't take it"
+   ]
+  ]
+ },
+ {
+  "title": "Closers from the Bracket 4 research (one-shot kills and life halving)",
+  "why": "The research's answer to 'fifteen damage a game': turn one unblocked Assassin into a kill through Ramses.",
+  "cards": [
+   [
+    "Hatred",
+    "pay X life for +X/+0 at instant speed: one unblocked Assassin becomes a kill, and Ramses turns the kill into the game"
+   ],
+   [
+    "Blood Tribute",
+    "halves a player's life at sorcery speed (the deck's Vampires can tap to gain it)"
+   ],
+   [
+    "Rush of Dread",
+    "modal: half of a player's life, half their creatures, half their hand"
+   ],
+   [
+    "Archfiend of Despair",
+    "at end of turn each opponent loses what they lost this turn again"
+   ],
+   [
+    "Massacre Wurm",
+    "a one-sided sweeper that drains two per creature; the 1/1 and 2/2 Assassins are ours, so it spares them"
+   ]
+  ]
+ },
+ {
+  "title": "Bracket 4 shell: card flow, fast mana and Ramses tutors",
+  "why": "From `../sources/bracket4-deckbuilding.md`: the optimized decks run 5–11 tutors and 2–11 fast mana; Ramses is the card the deck tutors for, so every tutor that finds a 4-drop creature was tested.",
+  "cards": [
+   [
+    "Dark Confidant",
+    "2-mana card flow in a deck whose average mana value is about two"
+   ],
+   [
+    "Cabal Ritual",
+    "fast mana for a turn 3 Ramses"
+   ],
+   [
+    "Demonic Consultation",
+    "a one-mana instant tutor for Ramses (it exiles the top six cards and more; the deck accepts that for the access)"
+   ],
+   [
+    "Fleshwrither",
+    "transfigure: sacrifice it to put a creature with the same mana value onto the battlefield, Ramses is a 4-drop"
+   ],
+   [
+    "Pyre of Heroes",
+    "sacrifice a 3-mana Assassin to put Ramses (a 4-mana Assassin) onto the battlefield"
+   ],
+   [
+    "Mana Drain",
+    "a Game Changer counter that pays for the next turn's Ramses"
+   ]
+  ]
+ },
+ {
+  "title": "Free and cheap interaction (the Bracket 4 count: 5–11 free counters, interaction without losing tempo)",
+  "why": "The research's rule: interaction that costs no mana on the opponent's turn is what lets an aggro deck keep developing; the counters are saved for the wipe (DECISIONS #26).",
+  "cards": [
+   [
+    "Flare of Denial",
+    "a free counter by sacrificing a nontoken blue creature"
+   ],
+   [
+    "Flare of Malice",
+    "free by sacrificing a nontoken black creature: each opponent sacrifices their highest-mana-value creature or planeswalker"
+   ],
+   [
+    "Force of Despair",
+    "a free answer to a creature that entered this turn, on the opponent's turn"
+   ],
+   [
+    "Snapback",
+    "free bounce by exiling a blue card: saves Etrata or Ramses from removal"
+   ],
+   [
+    "Fading Hope",
+    "one-mana bounce: Etrata returns to hand without the commander tax"
+   ],
+   [
+    "Baleful Mastery",
+    "two-mana exile removal if an opponent draws a card, four mana otherwise"
+   ],
+   [
+    "Dismember",
+    "one mana and four life for −5/−5"
+   ],
+   [
+    "Submerge",
+    "free against a Forest and Island player"
+   ],
+   [
+    "Mental Misstep",
+    "a free counter for the one-mana spells the Bracket 4 field runs"
+   ]
+  ]
+ },
+ {
+  "title": "Ninjutsu and the Yuriko template (v3 'tempo')",
+  "why": "From `../sources/bracket4-piloting-and-aggro.md`: the only Dimir aggro shell that holds its own at high power is Yuriko's: 0–2 mana evasive bodies, ninjutsu swapping a connected body for a payoff, free interaction. Tested as version 3 (26.5% vs precons).",
+  "cards": [
+   [
+    "Ninja of the Deep Hours",
+    "ninjutsu: the connected Assassin returns to hand and a card is drawn"
+   ],
+   [
+    "Ingenious Infiltrator",
+    "ninjutsu with a card per Ninja hit"
+   ],
+   [
+    "Moon-Circuit Hacker",
+    "a 2-mana ninjutsu draw"
+   ],
+   [
+    "Thousand-Faced Shadow",
+    "ninjutsu copy of an attacking creature (Etrata attacking makes a second cloak)"
+   ],
+   [
+    "Prosperous Thief",
+    "ninjutsu Treasure maker"
+   ],
+   [
+    "Mistblade Shinobi",
+    "ninjutsu bounce on hit"
+   ],
+   [
+    "Silver-Fur Master",
+    "Ninja and Rogue anthem that discounts ninjutsu"
+   ],
+   [
+    "Faerie Seer",
+    "1-mana flyer: scry 2 and a ninjutsu enabler"
+   ],
+   [
+    "Ornithopter",
+    "0-mana flyer to ninjutsu through"
+   ],
+   [
+    "Spectral Sailor",
+    "1-mana flash flyer that draws late"
+   ],
+   [
+    "Siren Stormtamer",
+    "1-mana flyer that protects Etrata from a targeted spell"
+   ],
+   [
+    "Fell the Profane // Fell Mire",
+    "removal that is a land when the hand needs one"
+   ],
+   [
+    "Sink into Stupor // Soporific Springs",
+    "bounce that is a land when the hand needs one"
+   ],
+   [
+    "Cunning Evasion",
+    "a blocked attacker returns to hand instead of dying"
+   ]
+  ]
+ },
+ {
+  "title": "Protection and recursion for Ramses (the second-round loss analysis)",
+  "why": "Ramses was removed in about a third of the games he landed in (STRATEGY.md §9); these were the research's answers. Measured: the equipment package cost 2.3 points vs precons (#44), tutoring for protection changed nothing (#45).",
+  "cards": [
+   [
+    "Whispersilk Cloak",
+    "shroud and unblockable: removal can't target him and he connects"
+   ],
+   [
+    "Darksteel Plate",
+    "indestructible through the destroy wipes (Wrath, Cleansing Nova, Phyrexian Rebirth)"
+   ],
+   [
+    "Mithril Coat",
+    "flash indestructible that attaches itself to a legendary creature (Ramses, Etrata) when it enters"
+   ],
+   [
+    "Reanimate",
+    "Ramses back for one mana after a wipe"
+   ],
+   [
+    "Patriarch's Bidding",
+    "every Assassin back after a wipe"
+   ]
+  ]
+ },
+ {
+  "title": "Attack drains (version 4, deathtouch Assassins that drain on attack)",
+  "why": "A build around 'whenever this attacks, each opponent loses 1 life' bodies, Mari and Hooded Blightfang; it took 6.4 life a game and won 27.7% vs precons, so it was dropped (#30).",
+  "cards": [
+   [
+    "Pulse Tracker",
+    "1-mana Rogue: each opponent loses 1 on attack"
+   ],
+   [
+    "Vicious Conquistador",
+    "1-mana Vampire: each opponent loses 1 on attack"
+   ],
+   [
+    "Sanguine Syphoner",
+    "drains on attack"
+   ],
+   [
+    "Postmortem Professor",
+    "2-mana attack drain that can't block and comes back from the graveyard"
+   ],
+   [
+    "Agate-Blade Assassin",
+    "2-mana Assassin that drains the defending player on attack"
+   ],
+   [
+    "Within Range",
+    "whenever you attack, each opponent loses life equal to the number of creatures attacking them; two 1/1 tokens on entry"
+   ]
+  ]
+ },
+ {
+  "title": "Ramses redundancy: reanimation Auras and non-legendary copies (round 4, 2026-10-06)",
+  "why": "Asked for a deck less dependent on Ramses: a second Ramses the legend rule doesn't take, and ways to bring him back that stay on the battlefield.",
+  "cards": [
+   [
+    "Animate Dead",
+    "two-mana reanimation of Ramses (or an opponent's bomb) that stays; the Aura leaving sacrifices the creature"
+   ],
+   [
+    "Necromancy",
+    "three-mana reanimation with flash, the same way"
+   ],
+   [
+    "Helm of the Host",
+    "a non-legendary token copy of the equipped creature every combat: a new Ramses (or Etrata) each turn, with haste"
+   ],
+   [
+    "Irenicus's Vile Duplication",
+    "a flying, non-legendary token copy of Ramses or Etrata"
+   ]
+  ]
+ },
+ {
+  "title": "The snowball axis for a Bracket 4 table (rounds 6–7, 2026-10-06): copies that stack, myriad, a trigger copier",
+  "why": "Asked to make the face-down army scale: more cloaks per hit and copies of Etrata that the legend rule doesn't take. All measured at or below a basic land on the closer list (EXPERIMENTS #64–65); Kindred Dominance (already listed) was the one card that beat a land.",
+  "cards": [
+   [
+    "Mirror Box",
+    "the legend rule off for our permanents, +1/+1 to legends and per same-name creature"
+   ],
+   [
+    "Sakashima of a Thousand Faces",
+    "enters as a second Etrata or Ramses and switches the legend rule off while it stays"
+   ],
+   [
+    "Rite of Replication",
+    "one copy, or five when kicked: five Ramses make every Assassin a 9/9"
+   ],
+   [
+    "Blade of Selves",
+    "myriad: the equipped Assassin attacks all three players, three cloaks from one attack"
+   ],
+   [
+    "Strionic Resonator",
+    "copies Etrata's cloak trigger or a halver's trigger from the stack for two mana"
+   ]
+  ]
+ }
+]
