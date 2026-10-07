@@ -63,3 +63,38 @@ The index covers all five colors: 34,543 cards, every non-token Oracle card, eac
 **D18. Planeswalkers as commanders.** Elspeth Tirel and the four Vocaloid planeswalkers have no "can be your commander" line in their Oracle text, so they can't be commanders. Freyalise has the line and keeps pass 1's evaluation.
 
 **D19. SLD 2443 stays excluded.** Bulk data says `legal` for that printing, as it does for every printing of the card. Whether the display copy is a legal playing piece wasn't verified, so pass1 D10 stands.
+
+**D20. Cardmarket product pages couldn't be read.** Cards over €20 were to be confirmed on Cardmarket. Its product pages answer 403 to scripts and show a Cloudflare challenge ("Just a moment...") in the browser. I didn't try to get past the challenge. So every EUR price is Scryfall's Cardmarket trend for the cheapest nonfoil printing, with that printing's Cardmarket URL, and the cheapest near-mint English listing is **not verified** for any card.
+
+**D21. Summer Magic is left out of the cheapest price.** Summer Magic / Edgar (`sum`) printings are a near-unobtainable misprint run whose Cardmarket trend is noise (Tundra €0.25, Underground Sea €280, against €376 and €737 in Revised). Like memorabilia (Collectors' Edition, 30th Anniversary) and oversized cards, they don't count toward the cheapest price.
+
+**D22. Win lines (step 4) were checked by a research subagent on Commander Spellbook's backend.** Every line in combos.json names its Spellbook page. I checked the riskiest claims against Oracle text myself: Thought Lash, Teferi + Kitten + Sol Ring, Forsaken Monument + Basalt Monolith, Swift Reconfiguration + Devoted Druid. Where Spellbook's result is infinite mana, the kill is Walking Ballista (colorless, in the engine) cast with a huge X. In combos.json, `colors` is recomputed from the pieces' color identities.
+
+**D23. The pass 1 queue, corrected** (details in `work/winlines.md`):
+- Brago does have infinites: with Strionic Resonator, and with Lithoform Engine + Sol Ring. Both need Brago to connect.
+- Coalition Victory with Child isn't a Spellbook combo. It's a 13-mana closer, and it's left out of the lists.
+- Earthcraft + Squirrel Nest, and Restoration Angel + Felidar Guardian, need a third or fourth card to win.
+- Ad Nauseam is a draw engine, not a combo.
+- Displacer Kitten + Dramatic Reversal isn't on Spellbook.
+
+**D24. Public lists (step 5) were read by a research subagent.** 38 lists in all: 33 counted, 4 discarded for Mana Crypt or Jeweled Lotus, 1 kept for reference. Details in `work/publiclists.md`. Moxfield's API answers 403 to curl, so its lists were read through the browser pane. The cEDH Decklist Database has no entry for any of the four commanders.
+
+**D25. The candidate pools (step 6) are generated** (`scripts/build-pool.js`). A pool is:
+- the cards of that commander's two lists;
+- every card in at least 2 kept public lists;
+- every combo piece in its colors.
+
+For green-white, the Shalai and Trostani tables are combined. Sizes: Child 209, Brago 188, Shalai/Trostani 246 (485 unique cards in `cards.json`). Roles come from rules on the Oracle text and type. Each reason is one generated sentence: the role, the win line the card belongs to, and how many kept public lists play it. The rules were spot-checked and fixed where they mislabeled (mana-doubling auras, flickers of your own creatures, "up to one target").
+
+**D26. Lists (step 8): two per commander, with Trostani on Shalai's 99.**
+- **Uncapped lists:** the strongest version of each archetype the public lists support:
+  - Shalai: green-white creature-combo toolbox;
+  - Brago: Kitten + Teferi with Scepter + Reversal and Heliod + Ballista, backed by counters and blink value;
+  - Child: five-color Thassa's Oracle shell with Breach backup.
+- **~€1,500 lists:** each uncapped list with its most expensive cards swapped for the closest cheap stand-in:
+  - Shalai: Gaea's Cradle → Forest, Mox Diamond → Elvish Spirit Guide, Savannah → Sungrass Prairie;
+  - Brago: Mox Diamond → Thought Vessel, Tundra → Island;
+  - Child: the ten original duals → shock lands, Lion's Eye Diamond / Mox Diamond / Grim Monolith / Imperial Seal → cheaper equivalents, and the Breach line → Faerie Mastermind and Snuff Out, since it doesn't work without LED.
+- **Trostani:** `decklist-trostani-*` are Shalai's lists with the two swapped between command zone and 99 (pass1 D7).
+- **Win lines vs the engine:** where possible the lists lean on lines whose pieces are already in the engine (Heliod + Ballista, Thune + Feeder, Druid + Vizier, Scepter + Reversal, Thassa's Oracle + Consultation), so the next session's simulations can start with fewer new cards.
+- **No alternative archetype lists.** The research supports one (Brago Bracket 4 value-blink without the Kitten combo), but it wasn't written: time went to the main lists. It's in STATUS.md as not done.

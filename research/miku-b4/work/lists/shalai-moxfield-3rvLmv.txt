@@ -1,0 +1,97 @@
+1 Shalai, Voice of Plenty
+4 Forest
+5 Plains
+1 Adarkar Valkyrie
+1 Admonition Angel
+1 Ancient Tomb
+1 Arcane Signet
+1 Archangel of Thune
+1 Archangel of Tithes
+1 Arctic Treeline
+1 Authority of the Consuls
+1 Avacyn, Angel of Hope
+1 Bala Ged Recovery // Bala Ged Sanctuary
+1 Battle Angels of Tyr
+1 Birds of Paradise
+1 Bishop of Wings
+1 Boseiju, Who Endures
+1 Bountiful Promenade
+1 Branchloft Pathway // Boulderloft Pathway
+1 Canopy Vista
+1 Command Tower
+1 Concordant Crossroads
+1 Crop Rotation
+1 Cultivate
+1 Defense of the Heart
+1 Delighted Halfling
+1 Dryad's Revival
+1 Eiganjo, Seat of the Empire
+1 Eladamri's Call
+1 Emeria Shepherd
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Eternal Witness
+1 Finale of Devastation
+1 Gaea's Cradle
+1 Gavony Township
+1 Giada, Font of Hope
+1 Giver of Runes
+1 Guardian Augmenter
+1 Guardian Project
+1 Hall of the Bandit Lord
+1 Herald of Eternal Dawn
+1 Herald of War
+1 Heroic Intervention
+1 Homeward Path
+1 Kodama's Reach
+1 Krosan Verge
+1 Lifestream's Blessing
+1 Lightning Greaves
+1 Linvala, Keeper of Silence
+1 Loran of the Third Path
+1 Lyra Dawnbringer
+1 Mother of Runes
+1 Nature's Lore
+1 Noxious Revival
+1 Pearl Medallion
+1 Platinum Angel
+1 Pull from Eternity
+1 Radiant Grove
+1 Reflecting Pool
+1 Resplendent Angel
+1 Riftsweeper
+1 Righteous Valkyrie
+1 Savannah
+1 Scattered Groves
+1 Selesnya Sanctuary
+1 Seraph Sanctuary
+1 Serra Paragon
+1 Serra's Emissary
+1 Sigarda, Font of Blessings
+1 Sigarda, Host of Herons
+1 Smothering Tithe
+1 Sol Ring
+1 Spike Feeder
+1 Starnheim Aspirant
+1 Sunpetal Grove
+1 Sylvan Library
+1 Teferi's Protection
+1 Temple Garden
+1 The One Ring
+1 Thran Dynamo
+1 Three Visits
+1 Tooth and Nail
+1 Urza's Incubator
+1 Vanquish the Horde
+1 Vigor
+1 War Room
+1 Windswept Heath
+1 Wooded Bastion
+1 Worldly Tutor
+1 Yavimaya Bloomsage // Channel
+1 Yavimaya Hollow
+1 Yavimaya, Cradle of Growth
+# source: https://moxfield.com/decks/3rvLmvsbfES7I6n6Fj3FIQ (API https://api2.moxfield.com/v3/decks/all/3rvLmvsbfES7I6n6Fj3FIQ), accessed 2026-10-08
+# title: Can't Touch This (PL:8) ; author younghan ; updated 2026-07-07 ; Moxfield bracket b4/auto4 ; main 99 ; lands 35 ; MDFC Bala Ged Recovery ; BAN
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 8: Ancient Tomb; Gaea's Cradle; Crop Rotation; Teferi's Protection; The One Ring; Smothering Tithe; Enlightened Tutor; Worldly Tutor
+# tags: +1/+1 Counters, Casual, Combo, Enchantments, Flying, Goodstuff, Midrange, Pillowfort, Ramp, Rule Zero, Selesnya (GW), Tempo

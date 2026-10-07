@@ -1,0 +1,518 @@
+card	count	lists	is_land
+# 13 kept lists: shalai-archidekt-21015429, shalai-archidekt-26388397, shalai-edhrec-avg-optimized, shalai-moxfield-3rvLmv, shalai-moxfield-Ssl9sg, shalai-moxfield-UodV4Y, shalai-moxfield-_P7Txb, shalai-moxfield-of28bO, trostani-archidekt-15997080, trostani-edhrec-avg-optimized, trostani-moxfield-OMSnnZ, trostani-moxfield-clz23n, trostani-moxfield-wRT3f_; discarded/duplicate lists excluded; accessed 2026-10-08
+Command Tower	12	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-UodV4Y,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	land
+Forest	12	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	land
+Plains	12	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	land
+Sol Ring	12	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Enlightened Tutor	11	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Temple Garden	11	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	land
+Windswept Heath	11	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	land
+Bountiful Promenade	10	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	land
+Canopy Vista	10	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	land
+Sunpetal Grove	10	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	land
+Swords to Plowshares	10	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Arcane Signet	9	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n	
+Aura Shards	9	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Birds of Paradise	9	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Eladamri's Call	9	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-moxfield-clz23n	
+Esper Sentinel	9	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Finale of Devastation	9	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Branchloft Pathway // Boulderloft Pathway	8	shalai-archidekt-26388397,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-moxfield-wRT3f_	land
+Brushland	8	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	land
+Gavony Township	8	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-_P7Txb,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	land
+Heroic Intervention	8	shalai-archidekt-21015429,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Sylvan Library	8	shalai-archidekt-21015429,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n	
+Teferi's Protection	8	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n	
+Worldly Tutor	8	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO	
+Avacyn's Pilgrim	7	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	
+Elvish Mystic	7	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	
+Llanowar Elves	7	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-wRT3f_	
+Archangel of Thune	6	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Archivist of Oghma	6	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-moxfield-wRT3f_	
+Boseiju, Who Endures	6	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	land
+Cavern of Souls	6	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO	land
+Chord of Calling	6	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-moxfield-wRT3f_	
+Eternal Witness	6	shalai-archidekt-21015429,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-moxfield-clz23n	
+Grand Abolisher	6	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO	
+Horizon Canopy	6	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg,shalai-moxfield-of28bO,trostani-moxfield-clz23n	land
+Nature's Lore	6	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Path to Exile	6	shalai-archidekt-21015429,shalai-edhrec-avg-optimized,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Sigarda, Font of Blessings	6	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-moxfield-wRT3f_	
+Smothering Tithe	6	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized	
+Walking Ballista	6	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-archidekt-15997080	
+Ancient Tomb	5	shalai-archidekt-21015429,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-UodV4Y,trostani-moxfield-clz23n	land
+Delighted Halfling	5	shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-moxfield-wRT3f_	
+Drannith Magistrate	5	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO	
+Eiganjo, Seat of the Empire	5	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	land
+Exotic Orchard	5	shalai-archidekt-21015429,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-moxfield-OMSnnZ,trostani-moxfield-wRT3f_	land
+Green Sun's Zenith	5	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO	
+Heliod, Sun-Crowned	5	shalai-archidekt-21015429,shalai-edhrec-avg-optimized,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-archidekt-15997080	
+Linvala, Keeper of Silence	5	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO	
+Mirari's Wake	5	shalai-edhrec-avg-optimized,shalai-moxfield-_P7Txb,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Mother of Runes	5	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-_P7Txb	
+Overgrown Farmland	5	shalai-edhrec-avg-optimized,shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	land
+Ranger-Captain of Eos	5	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO	
+Razorverge Thicket	5	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO	land
+Resplendent Angel	5	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Savannah	5	shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	land
+Seedborn Muse	5	shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+The One Ring	5	shalai-archidekt-21015429,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,trostani-moxfield-clz23n	
+Three Visits	5	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n	
+Arbor Elf	4	shalai-archidekt-21015429,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,trostani-moxfield-OMSnnZ	
+Archangel of Tithes	4	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO	
+Avacyn, Angel of Hope	4	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO	
+Bala Ged Recovery // Bala Ged Sanctuary	4	shalai-archidekt-26388397,shalai-moxfield-3rvLmv,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Birthing Pod	4	shalai-archidekt-26388397,shalai-moxfield-UodV4Y,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Blossoming Bogbeast	4	trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Bramble Sovereign	4	trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Craterhoof Behemoth	4	shalai-archidekt-26388397,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	
+Crop Rotation	4	shalai-archidekt-21015429,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	
+Cultivate	4	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Devoted Druid	4	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-moxfield-Ssl9sg,shalai-moxfield-of28bO	
+Fanatic of Rhonas	4	trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Farseek	4	shalai-moxfield-of28bO,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Fyndhorn Elves	4	shalai-archidekt-26388397,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,trostani-moxfield-OMSnnZ	
+Giver of Runes	4	shalai-archidekt-21015429,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg	
+Kutzil, Malamet Exemplar	4	shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg,shalai-moxfield-of28bO,trostani-moxfield-wRT3f_	
+Lush Portico	4	shalai-moxfield-UodV4Y,shalai-moxfield-of28bO,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	land
+Scattered Groves	4	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-moxfield-3rvLmv,trostani-moxfield-OMSnnZ	land
+Selesnya Sanctuary	4	shalai-archidekt-21015429,shalai-moxfield-3rvLmv,trostani-archidekt-15997080,trostani-edhrec-avg-optimized	land
+Serra's Emissary	4	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-of28bO,trostani-moxfield-clz23n	
+Soul Warden	4	shalai-edhrec-avg-optimized,trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Spike Feeder	4	shalai-archidekt-21015429,shalai-moxfield-3rvLmv,shalai-moxfield-of28bO,trostani-archidekt-15997080	
+Sungrass Prairie	4	shalai-archidekt-21015429,shalai-archidekt-26388397,trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	land
+War Room	4	shalai-archidekt-21015429,shalai-moxfield-3rvLmv,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	land
+Wild Growth	4	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg	
+Wooded Bastion	4	shalai-moxfield-3rvLmv,shalai-moxfield-of28bO,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	land
+Aetherflux Reservoir	3	trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-wRT3f_	
+Akroma's Will	3	shalai-moxfield-_P7Txb,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Allosaurus Shepherd	3	shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-_P7Txb	
+Archon of Emeria	3	shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO	
+Arid Mesa	3	shalai-archidekt-21015429,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	land
+Cleric Class	3	shalai-moxfield-UodV4Y,trostani-archidekt-15997080,trostani-edhrec-avg-optimized	
+Concordant Crossroads	3	shalai-archidekt-21015429,shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg	
+Destiny Spinner	3	shalai-moxfield-UodV4Y,shalai-moxfield-_P7Txb,shalai-moxfield-of28bO	
+Disciple of Freyalise // Garden of Freyalise	3	shalai-archidekt-26388397,shalai-moxfield-Ssl9sg,trostani-moxfield-wRT3f_	
+Doubling Season	3	trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Eldritch Evolution	3	shalai-archidekt-26388397,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	
+Elesh Norn, Grand Cenobite	3	shalai-archidekt-26388397,shalai-moxfield-Ssl9sg,trostani-moxfield-OMSnnZ	
+Endurance	3	shalai-archidekt-26388397,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	
+Exalted Sunborn	3	trostani-archidekt-15997080,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Flooded Strand	3	shalai-archidekt-21015429,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	land
+Garruk's Uprising	3	trostani-archidekt-15997080,trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Gemstone Caverns	3	shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO	land
+Giada, Font of Hope	3	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,trostani-moxfield-wRT3f_	
+Grand Crescendo	3	shalai-archidekt-21015429,trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Grove of the Guardian	3	shalai-moxfield-_P7Txb,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	land
+Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun	3	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-moxfield-_P7Txb	
+Hall of Heliod's Generosity	3	shalai-moxfield-_P7Txb,shalai-moxfield-of28bO,trostani-archidekt-15997080	land
+Krosan Verge	3	shalai-moxfield-3rvLmv,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	land
+Lightning Greaves	3	shalai-archidekt-21015429,shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv	
+Lyra Dawnbringer	3	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-of28bO	
+Mana Confluence	3	shalai-archidekt-21015429,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO	land
+Mana Vault	3	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-moxfield-UodV4Y	
+Marsh Flats	3	shalai-archidekt-21015429,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	land
+Misty Rainforest	3	shalai-archidekt-21015429,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	land
+Ocelot Pride	3	trostani-edhrec-avg-optimized,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Rhys the Redeemed	3	trostani-archidekt-15997080,trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Righteous Valkyrie	3	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,trostani-moxfield-wRT3f_	
+Rogue's Passage	3	shalai-moxfield-_P7Txb,trostani-edhrec-avg-optimized,trostani-moxfield-clz23n	land
+Serra Ascendant	3	shalai-moxfield-of28bO,trostani-archidekt-15997080,trostani-moxfield-clz23n	
+Sigarda, Host of Herons	3	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv,shalai-moxfield-of28bO	
+Silence	3	shalai-archidekt-26388397,shalai-moxfield-UodV4Y,shalai-moxfield-of28bO	
+Temple of Plenty	3	shalai-moxfield-_P7Txb,trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	land
+Thalia, Guardian of Thraben	3	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-of28bO	
+Thalia, Heretic Cathar	3	shalai-archidekt-26388397,shalai-edhrec-avg-optimized,shalai-moxfield-Ssl9sg	
+Vizier of Remedies	3	shalai-archidekt-21015429,shalai-archidekt-26388397,shalai-moxfield-of28bO	
+Vorinclex, Voice of Hunger	3	trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ,trostani-moxfield-wRT3f_	
+Witch Enchanter // Witch-Blessed Meadow	3	shalai-archidekt-26388397,trostani-moxfield-clz23n,trostani-moxfield-wRT3f_	
+Wooded Foothills	3	shalai-archidekt-21015429,shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	land
+Yavimaya, Cradle of Growth	3	shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg,trostani-moxfield-clz23n	land
+Accomplished Alchemist	2	trostani-archidekt-15997080,trostani-moxfield-clz23n	
+Altar of Dementia	2	trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Angel of Jubilation	2	shalai-edhrec-avg-optimized,shalai-moxfield-_P7Txb	
+Anointed Procession	2	trostani-archidekt-15997080,trostani-moxfield-wRT3f_	
+Archon of Valor's Reach	2	shalai-moxfield-Ssl9sg,shalai-moxfield-of28bO	
+Augur of Autumn	2	shalai-archidekt-26388397,shalai-moxfield-_P7Txb	
+Austere Command	2	trostani-moxfield-OMSnnZ,trostani-moxfield-wRT3f_	
+Authority of the Consuls	2	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv	
+Aven Mindcensor	2	shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	
+Basking Broodscale	2	shalai-archidekt-26388397,trostani-archidekt-15997080	
+Battle Angels of Tyr	2	shalai-moxfield-3rvLmv,shalai-moxfield-of28bO	
+Beast Whisperer	2	shalai-edhrec-avg-optimized,shalai-moxfield-_P7Txb	
+Beast Within	2	shalai-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	
+Break Down	2	trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Carpet of Flowers	2	shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	
+Cavalier of Dawn	2	trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Chrome Mox	2	shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	
+Circle of Dreams Druid	2	shalai-archidekt-26388397,shalai-moxfield-Ssl9sg	
+City of Brass	2	shalai-moxfield-UodV4Y,shalai-moxfield-of28bO	land
+Collector Ouphe	2	shalai-moxfield-Ssl9sg,shalai-moxfield-of28bO	
+Crested Sunmare	2	trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	
+Dollhouse of Horrors	2	trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Dryad Arbor	2	shalai-archidekt-21015429,shalai-moxfield-Ssl9sg	land
+Duskwatch Recruiter // Krallenhorde Howler	2	shalai-archidekt-21015429,shalai-archidekt-26388397	
+Elemental Bond	2	shalai-moxfield-of28bO,trostani-moxfield-OMSnnZ	
+Elspeth Tirel	2	trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Elvish Spirit Guide	2	shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	
+Emergence Zone	2	shalai-moxfield-UodV4Y,trostani-moxfield-OMSnnZ	land
+Emeria Shepherd	2	shalai-moxfield-3rvLmv,trostani-moxfield-OMSnnZ	
+Emeria's Call // Emeria, Shattered Skyclave	2	shalai-archidekt-26388397,trostani-moxfield-wRT3f_	
+Essence Warden	2	shalai-archidekt-21015429,trostani-archidekt-15997080	
+Evendo, Waking Haven	2	trostani-archidekt-15997080,trostani-moxfield-wRT3f_	land
+Fauna Shaman	2	shalai-archidekt-26388397,trostani-moxfield-OMSnnZ	
+Flawless Maneuver	2	shalai-moxfield-_P7Txb,shalai-moxfield-of28bO	
+Formidable Speaker	2	shalai-archidekt-21015429,trostani-moxfield-clz23n	
+Fortified Village	2	trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	land
+Gaea's Cradle	2	shalai-moxfield-3rvLmv,shalai-moxfield-Ssl9sg	land
+Generous Gift	2	shalai-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	
+Ghalta and Mavren	2	trostani-archidekt-15997080,trostani-edhrec-avg-optimized	
+Guardian Project	2	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv	
+Haliya, Guided by Light	2	trostani-archidekt-15997080,trostani-moxfield-wRT3f_	
+Halo Fountain	2	trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Hardened Scales	2	shalai-edhrec-avg-optimized,shalai-moxfield-_P7Txb	
+Herald of War	2	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv	
+Herd Baloth	2	shalai-archidekt-26388397,trostani-archidekt-15997080	
+Heronblade Elite	2	shalai-archidekt-26388397,trostani-archidekt-15997080	
+Hour of Reckoning	2	trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Hushwood Verge	2	shalai-moxfield-of28bO,trostani-moxfield-wRT3f_	land
+Idol of Oblivion	2	trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Idyllic Tutor	2	shalai-edhrec-avg-optimized,shalai-moxfield-_P7Txb	
+Invasion of Ikoria // Zilortha, Apex of Ikoria	2	shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	
+Kami of Whispered Hopes	2	shalai-edhrec-avg-optimized,trostani-archidekt-15997080	
+Karmic Guide	2	trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Kodama's Reach	2	shalai-edhrec-avg-optimized,shalai-moxfield-3rvLmv	
+Lathiel, the Bounteous Dawn	2	trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Loran of the Third Path	2	shalai-archidekt-26388397,shalai-moxfield-3rvLmv	
+Lotus Cobra	2	shalai-archidekt-21015429,shalai-moxfield-_P7Txb	
+Lotus Petal	2	shalai-edhrec-avg-optimized,shalai-moxfield-UodV4Y	
+Manglehorn	2	shalai-moxfield-Ssl9sg,shalai-moxfield-of28bO	
+Mimic Vat	2	trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Minas Tirith	2	shalai-moxfield-of28bO,trostani-archidekt-15997080	land
+Mirrorpool	2	trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	land
+Mondrak, Glory Dominus	2	trostani-archidekt-15997080,trostani-edhrec-avg-optimized	
+Mosswort Bridge	2	trostani-archidekt-15997080,trostani-moxfield-clz23n	land
+Mox Diamond	2	shalai-moxfield-Ssl9sg,shalai-moxfield-UodV4Y	
+Nature's Claim	2	shalai-moxfield-UodV4Y,trostani-moxfield-OMSnnZ	
+Noxious Revival	2	shalai-moxfield-3rvLmv,shalai-moxfield-UodV4Y	
+Nykthos Paragon	2	trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	
+Nykthos, Shrine to Nyx	2	shalai-moxfield-_P7Txb,trostani-moxfield-clz23n	land
+Panharmonicon	2	trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Parallel Lives	2	trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Phyrexian Processor	2	trostani-edhrec-avg-optimized,trostani-moxfield-clz23n	
+Prosperous Innkeeper	2	trostani-archidekt-15997080,trostani-edhrec-avg-optimized	
+Reliquary Tower	2	trostani-archidekt-15997080,trostani-moxfield-OMSnnZ	land
+Rest in Peace	2	shalai-archidekt-26388397,shalai-moxfield-Ssl9sg	
+Rootborn Defenses	2	trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	
+Rosie Cotton of South Lane	2	shalai-archidekt-26388397,trostani-archidekt-15997080	
+Sakura-Tribe Elder	2	trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Sanctum Weaver	2	shalai-moxfield-_P7Txb,trostani-archidekt-15997080	
+Scurry Oak	2	shalai-archidekt-26388397,trostani-archidekt-15997080	
+Scute Swarm	2	trostani-archidekt-15997080,trostani-moxfield-OMSnnZ	
+Seraph Sanctuary	2	shalai-moxfield-3rvLmv,trostani-moxfield-wRT3f_	land
+Shalai, Voice of Plenty	2	trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Shamanic Revelation	2	trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	
+Skullclamp	2	shalai-archidekt-21015429,trostani-edhrec-avg-optimized	
+Skyclave Apparition	2	shalai-moxfield-UodV4Y,trostani-moxfield-clz23n	
+Song of the Worldsoul	2	trostani-edhrec-avg-optimized,trostani-moxfield-wRT3f_	
+Staff of Domination	2	shalai-archidekt-26388397,trostani-archidekt-15997080	
+Sterling Grove	2	shalai-archidekt-21015429,shalai-moxfield-_P7Txb	
+Strip Mine	2	shalai-archidekt-21015429,trostani-moxfield-clz23n	land
+Sundering Growth	2	trostani-edhrec-avg-optimized,trostani-moxfield-OMSnnZ	
+Suture Priest	2	trostani-archidekt-15997080,trostani-edhrec-avg-optimized	
+Swift Reconfiguration	2	shalai-moxfield-Ssl9sg,shalai-moxfield-of28bO	
+Séance	2	trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+The Great Henge	2	shalai-edhrec-avg-optimized,trostani-moxfield-clz23n	
+The Queen of Dale	2	shalai-archidekt-26388397,trostani-moxfield-wRT3f_	
+Timeless Witness	2	trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Turntimber Symbiosis // Turntimber, Serpentine Wood	2	shalai-archidekt-26388397,shalai-moxfield-Ssl9sg	
+Ulvenwald Hydra	2	trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Veil of Summer	2	shalai-archidekt-21015429,shalai-moxfield-UodV4Y	
+Verdant Catacombs	2	shalai-archidekt-21015429,shalai-moxfield-UodV4Y	land
+Vigor	2	shalai-moxfield-3rvLmv,shalai-moxfield-_P7Txb	
+Windbrisk Heights	2	trostani-archidekt-15997080,trostani-moxfield-clz23n	land
+Wood Elves	2	trostani-moxfield-OMSnnZ,trostani-moxfield-clz23n	
+Abandoned Air Temple	1	shalai-archidekt-21015429	land
+Adagia, Windswept Bastion	1	trostani-moxfield-wRT3f_	land
+Adarkar Valkyrie	1	shalai-moxfield-3rvLmv	
+Admonition Angel	1	shalai-moxfield-3rvLmv	
+Aegis of the Gods	1	shalai-moxfield-UodV4Y	
+Ajani's Welcome	1	trostani-archidekt-15997080	
+Angel of Destiny	1	trostani-moxfield-clz23n	
+Angel's Grace	1	shalai-moxfield-_P7Txb	
+Angelic Accord	1	trostani-moxfield-wRT3f_	
+Archdruid's Charm	1	shalai-archidekt-26388397	
+Arctic Treeline	1	shalai-moxfield-3rvLmv	land
+Argothian Elder	1	shalai-moxfield-Ssl9sg	
+Argothian Enchantress	1	shalai-moxfield-_P7Txb	
+Arid Archway	1	trostani-archidekt-15997080	land
+Armageddon	1	shalai-moxfield-of28bO	
+Asceticism	1	shalai-moxfield-_P7Txb	
+Ashaya, Soul of the Wild	1	shalai-moxfield-Ssl9sg	
+Ashnod's Altar	1	trostani-archidekt-15997080	
+Autumn's Veil	1	shalai-moxfield-UodV4Y	
+Avenger of Zendikar	1	trostani-moxfield-OMSnnZ	
+Avoid Fate	1	shalai-moxfield-_P7Txb	
+Azusa, Lost but Seeking	1	shalai-moxfield-_P7Txb	
+Belladonna Took	1	trostani-moxfield-wRT3f_	
+Beloved Princess	1	trostani-moxfield-wRT3f_	
+Birthing Ritual	1	shalai-archidekt-26388397	
+Bishop of Wings	1	shalai-moxfield-3rvLmv	
+Blade of Selves	1	trostani-moxfield-clz23n	
+Blind Obedience	1	shalai-moxfield-Ssl9sg	
+Bloom Tender	1	shalai-moxfield-UodV4Y	
+Blossoming Sands	1	trostani-edhrec-avg-optimized	land
+Boromir, Warden of the Tower	1	shalai-moxfield-Ssl9sg	
+Branching Evolution	1	shalai-moxfield-_P7Txb	
+Branchloft Pathway	1	shalai-edhrec-avg-optimized	land
+Brightglass Gearhulk	1	shalai-moxfield-UodV4Y	
+Bristly Bill, Spine Sower	1	shalai-moxfield-_P7Txb	
+Bruna, the Fading Light	1	shalai-moxfield-of28bO	
+Captain Sisay	1	shalai-moxfield-Ssl9sg	
+Caretaker's Talent	1	trostani-moxfield-wRT3f_	
+Castle Ardenvale	1	shalai-archidekt-26388397	land
+Castle Garenbrig	1	trostani-archidekt-15997080	land
+Cataclysmic Gearhulk	1	trostani-moxfield-clz23n	
+Cathars' Crusade	1	trostani-archidekt-15997080	
+Command Beacon	1	shalai-moxfield-Ssl9sg	land
+Commander's Sphere	1	trostani-archidekt-15997080	
+Conclave Evangelist	1	trostani-edhrec-avg-optimized	
+Cosmic Intervention	1	shalai-moxfield-_P7Txb	
+Cradle Clearcutter	1	trostani-archidekt-15997080	
+Cryptolith Rite	1	shalai-moxfield-_P7Txb	
+Crystal Barricade	1	shalai-moxfield-UodV4Y	
+Darksteel Mutation	1	shalai-moxfield-of28bO	
+Dauntless Dismantler	1	shalai-moxfield-UodV4Y	
+Dawn Charm	1	shalai-archidekt-21015429	
+Daxos, Blessed by the Sun	1	trostani-archidekt-15997080	
+Deafening Silence	1	shalai-moxfield-Ssl9sg	
+Defense Grid	1	shalai-moxfield-UodV4Y	
+Defense of the Heart	1	shalai-moxfield-3rvLmv	
+Defensive Formation	1	shalai-moxfield-_P7Txb	
+Delney, Streetwise Lookout	1	shalai-archidekt-26388397	
+Doorkeeper Thrull	1	shalai-moxfield-Ssl9sg	
+Dromoka Monument	1	trostani-archidekt-15997080	
+Druid of Purification	1	trostani-moxfield-clz23n	
+Dryad of the Ilysian Grove	1	shalai-moxfield-_P7Txb	
+Dryad's Revival	1	shalai-moxfield-3rvLmv	
+Duelist's Heritage	1	shalai-moxfield-_P7Txb	
+Dusk // Dawn	1	shalai-archidekt-21015429	
+Eidolon of Blossoms	1	shalai-moxfield-_P7Txb	
+Eidolon of Rhetoric	1	shalai-moxfield-Ssl9sg	
+Eiganjo Castle	1	shalai-archidekt-26388397	land
+Elenda's Hierophant	1	trostani-edhrec-avg-optimized	
+Elspeth, Storm Slayer	1	trostani-archidekt-15997080	
+Elspeth, Sun's Champion	1	shalai-edhrec-avg-optimized	
+Elvish Piper	1	shalai-moxfield-of28bO	
+Elvish Reclaimer	1	shalai-moxfield-Ssl9sg	
+Emeria, the Sky Ruin	1	shalai-moxfield-of28bO	land
+Emiel the Blessed	1	trostani-moxfield-clz23n	
+Enchantress's Presence	1	shalai-moxfield-_P7Txb	
+Erode	1	trostani-moxfield-wRT3f_	
+Everybody Lives!	1	shalai-archidekt-21015429	
+Evolving Wilds	1	shalai-moxfield-_P7Txb	land
+Exemplar of Light	1	trostani-moxfield-wRT3f_	
+Exploration	1	shalai-moxfield-_P7Txb	
+Famished Paladin	1	trostani-archidekt-15997080	
+Fanatical Devotion	1	shalai-moxfield-_P7Txb	
+Farewell	1	shalai-moxfield-of28bO	
+Felidar Sovereign	1	trostani-archidekt-15997080	
+Fell the Mighty	1	shalai-archidekt-21015429	
+Fellwar Stone	1	shalai-moxfield-UodV4Y	
+Final Showdown	1	trostani-moxfield-clz23n	
+Finneas, Ace Archer	1	trostani-moxfield-wRT3f_	
+Flare of Fortitude	1	trostani-moxfield-clz23n	
+Flickering Ward	1	shalai-moxfield-_P7Txb	
+Forbidden Orchard	1	shalai-moxfield-UodV4Y	land
+Gaddock Teeg	1	shalai-moxfield-of28bO	
+Gauntlets of Light	1	trostani-archidekt-15997080	
+Geier Reach Sanitarium	1	shalai-moxfield-Ssl9sg	land
+Gemstone Mine	1	shalai-moxfield-UodV4Y	land
+Ghost Quarter	1	trostani-moxfield-OMSnnZ	land
+Ghostly Prison	1	shalai-moxfield-_P7Txb	
+Gilded Goose	1	shalai-archidekt-26388397	
+Gisela, the Broken Blade	1	shalai-moxfield-of28bO	
+Glacial Chasm	1	shalai-moxfield-UodV4Y	land
+Gleaming Splendor	1	shalai-archidekt-26388397	
+God-Pharaoh's Gift	1	trostani-moxfield-OMSnnZ	
+Golgari Grave-Troll	1	trostani-moxfield-OMSnnZ	
+Grafdigger's Cage	1	shalai-moxfield-UodV4Y	
+Graypelt Refuge	1	trostani-edhrec-avg-optimized	land
+Greater Good	1	trostani-moxfield-OMSnnZ	
+Grinding Station	1	shalai-moxfield-UodV4Y	
+Growing Ranks	1	trostani-edhrec-avg-optimized	
+Growing Rites of Itlimoc	1	shalai-edhrec-avg-optimized	
+Guardian Augmenter	1	shalai-moxfield-3rvLmv	
+Guardian of Faith	1	shalai-moxfield-_P7Txb	
+Guide of Souls	1	shalai-archidekt-26388397	
+Guildless Commons	1	trostani-archidekt-15997080	land
+Hall of the Bandit Lord	1	shalai-moxfield-3rvLmv	land
+Haywire Mite	1	shalai-archidekt-21015429	
+Helm of the Host	1	trostani-moxfield-OMSnnZ	
+Herald of Eternal Dawn	1	shalai-moxfield-3rvLmv	
+Hermit Druid	1	trostani-moxfield-OMSnnZ	
+High Market	1	trostani-moxfield-OMSnnZ	land
+Homeward Path	1	shalai-moxfield-3rvLmv	land
+Hopeful Initiate	1	shalai-archidekt-26388397	
+Ivy Lane Denizen	1	trostani-archidekt-15997080	
+Jennifer Walters // The Sensational She-Hulk	1	shalai-archidekt-21015429	
+Kabira Takedown // Kabira Plateau	1	trostani-moxfield-OMSnnZ	
+Kamahl, Heart of Krosa	1	shalai-moxfield-Ssl9sg	
+Karoo	1	trostani-archidekt-15997080	land
+Khalni Ambush // Khalni Territory	1	trostani-moxfield-OMSnnZ	
+Knight of Autumn	1	trostani-moxfield-OMSnnZ	
+Knowledge Pool	1	shalai-moxfield-UodV4Y	
+Kodama of the East Tree	1	trostani-archidekt-15997080	
+Kudo, King Among Bears	1	shalai-archidekt-26388397	
+Land Tax	1	shalai-moxfield-_P7Txb	
+Lapse of Certainty	1	shalai-moxfield-UodV4Y	
+Legolas's Quick Reflexes	1	shalai-moxfield-UodV4Y	
+Ley Weaver	1	shalai-moxfield-Ssl9sg	
+Life from the Loam	1	trostani-moxfield-clz23n	
+Lifestream's Blessing	1	shalai-moxfield-3rvLmv	
+Light of Promise	1	trostani-archidekt-15997080	
+Lurking Roper	1	trostani-archidekt-15997080	
+Luxior, Giada's Gift	1	shalai-archidekt-21015429	
+Mana Reflection	1	shalai-moxfield-_P7Txb	
+Mana Tithe	1	shalai-moxfield-UodV4Y	
+Mangara, the Diplomat	1	shalai-archidekt-26388397	
+Marwyn, the Nurturer	1	trostani-archidekt-15997080	
+Maze of Ith	1	shalai-archidekt-21015429	land
+Mentor of the Meek	1	shalai-archidekt-21015429	
+Mesa Enchantress	1	shalai-moxfield-_P7Txb	
+Midnight Guard	1	trostani-archidekt-15997080	
+Mirri's Guile	1	shalai-moxfield-_P7Txb	
+Monster Manual // Zoological Study	1	trostani-moxfield-clz23n	
+Mox Opal	1	shalai-moxfield-UodV4Y	
+Null Rod	1	shalai-moxfield-Ssl9sg	
+Ojer Taq, Deepest Foundation // Temple of Civilization	1	trostani-archidekt-15997080	
+Ondu Inversion // Ondu Skyruins	1	trostani-moxfield-OMSnnZ	
+Ondu Spiritdancer	1	shalai-moxfield-_P7Txb	
+Palantír of Orthanc	1	trostani-moxfield-clz23n	
+Patriar's Seal	1	trostani-moxfield-clz23n	
+Pearl Medallion	1	shalai-moxfield-3rvLmv	
+Peregrin Took	1	trostani-moxfield-wRT3f_	
+Pest Infestation	1	trostani-edhrec-avg-optimized	
+Platinum Angel	1	shalai-moxfield-3rvLmv	
+Plaza of Heroes	1	shalai-moxfield-Ssl9sg	land
+Presence of Gond	1	trostani-archidekt-15997080	
+Priest of Titania	1	shalai-moxfield-Ssl9sg	
+Primal Vigor	1	trostani-archidekt-15997080	
+Prismatic Vista	1	shalai-moxfield-UodV4Y	land
+Privileged Position	1	shalai-moxfield-_P7Txb	
+Pull from Eternity	1	shalai-moxfield-3rvLmv	
+Radiant Grove	1	shalai-moxfield-3rvLmv	land
+Rampaging Baloths	1	trostani-archidekt-15997080	
+Rebuff the Wicked	1	shalai-moxfield-_P7Txb	
+Reconnaissance	1	shalai-moxfield-_P7Txb	
+Recruiter of the Guard	1	shalai-archidekt-26388397	
+Recruitment Officer	1	shalai-archidekt-26388397	
+Reflecting Pool	1	shalai-moxfield-3rvLmv	land
+Regal Force	1	trostani-moxfield-OMSnnZ	
+Reprieve	1	shalai-archidekt-21015429	
+Return of the Wildspeaker	1	trostani-moxfield-OMSnnZ	
+Reveillark	1	trostani-moxfield-OMSnnZ	
+Rhox Faithmender	1	trostani-archidekt-15997080	
+Riftsweeper	1	shalai-moxfield-3rvLmv	
+Rite of Harmony	1	trostani-moxfield-wRT3f_	
+Roaring Earth	1	shalai-moxfield-_P7Txb	
+Root Maze	1	shalai-moxfield-Ssl9sg	
+Rule of Law	1	shalai-moxfield-Ssl9sg	
+Sanctifier en-Vec	1	shalai-archidekt-26388397	
+Sanctum Prelate	1	shalai-moxfield-Ssl9sg	
+Satyr Enchanter	1	shalai-moxfield-_P7Txb	
+Satyr Wayfinder	1	trostani-moxfield-OMSnnZ	
+Savage Summoning	1	shalai-archidekt-21015429	
+Scavenging Ooze	1	shalai-archidekt-21015429	
+See the Unwritten	1	trostani-moxfield-OMSnnZ	
+Selesnya Signet	1	trostani-edhrec-avg-optimized	
+Selvala's Stampede	1	trostani-moxfield-OMSnnZ	
+Selvala, Heart of the Wilds	1	shalai-moxfield-of28bO	
+Sephara, Sky's Blade	1	shalai-edhrec-avg-optimized	
+Serra Paragon	1	shalai-moxfield-3rvLmv	
+Serra the Benevolent	1	trostani-moxfield-wRT3f_	
+Setessan Champion	1	shalai-moxfield-_P7Txb	
+Sevinne's Reclamation	1	shalai-moxfield-UodV4Y	
+Shang-Chi, Master of Kung Fu	1	shalai-archidekt-21015429	
+Shelter	1	trostani-moxfield-wRT3f_	
+Shifting Woodland	1	shalai-moxfield-UodV4Y	land
+Shigeki, Jukai Visionary	1	trostani-moxfield-OMSnnZ	
+Silverback Elder	1	shalai-moxfield-_P7Txb	
+Silverquill Lecturer	1	trostani-moxfield-clz23n	
+Six	1	shalai-moxfield-Ssl9sg	
+Smuggler's Share	1	shalai-archidekt-21015429	
+Solemn Simulacrum	1	trostani-moxfield-OMSnnZ	
+Solitude	1	trostani-moxfield-clz23n	
+Soul of Eternity	1	trostani-moxfield-clz23n	
+Soul of the Harvest	1	trostani-moxfield-OMSnnZ	
+Soul's Attendant	1	trostani-archidekt-15997080	
+Speaker of the Heavens	1	trostani-edhrec-avg-optimized	
+Sphere of Safety	1	shalai-moxfield-_P7Txb	
+Spire of Industry	1	shalai-moxfield-UodV4Y	land
+Springbloom Druid	1	trostani-moxfield-OMSnnZ	
+Springheart Nantuko	1	trostani-moxfield-clz23n	
+Springleaf Drum	1	shalai-moxfield-UodV4Y	
+Starnheim Aspirant	1	shalai-moxfield-3rvLmv	
+Stoneforge Mystic	1	shalai-archidekt-21015429	
+Stony Silence	1	shalai-moxfield-Ssl9sg	
+Storm Herd	1	trostani-moxfield-clz23n	
+Sun Titan	1	trostani-moxfield-OMSnnZ	
+Sunbond	1	trostani-archidekt-15997080	
+Surrak and Goreclaw	1	trostani-archidekt-15997080	
+Survival of the Fittest	1	trostani-moxfield-clz23n	
+Swiftfoot Boots	1	shalai-edhrec-avg-optimized	
+Sylvan Safekeeper	1	shalai-moxfield-UodV4Y	
+Sylvan Tutor	1	shalai-moxfield-UodV4Y	
+Sythis, Harvest's Hand	1	shalai-moxfield-_P7Txb	
+Talisman of Unity	1	shalai-moxfield-of28bO	
+Talon Gates of Madara	1	shalai-moxfield-UodV4Y	land
+Temple of the False God	1	trostani-moxfield-OMSnnZ	land
+The Book of Exalted Deeds	1	trostani-moxfield-wRT3f_	
+The Gaffer	1	trostani-moxfield-wRT3f_	
+The Notary Hobbits	1	trostani-moxfield-wRT3f_	
+Thespian's Stage	1	trostani-moxfield-wRT3f_	land
+Thran Dynamo	1	shalai-moxfield-3rvLmv	
+Tigereye Cameo	1	trostani-moxfield-wRT3f_	
+Tireless Tracker	1	shalai-archidekt-21015429	
+Titan of Industry	1	trostani-moxfield-OMSnnZ	
+Tocasia's Welcome	1	shalai-archidekt-21015429	
+Tooth and Nail	1	shalai-moxfield-3rvLmv	
+Topiary Stomper	1	trostani-moxfield-clz23n	
+Touch the Spirit Realm	1	shalai-moxfield-UodV4Y	
+Traverse the Ulvenwald	1	shalai-moxfield-_P7Txb	
+Treebeard, Gracious Host	1	trostani-archidekt-15997080	
+Triskelion	1	trostani-archidekt-15997080	
+Trudge Garden	1	trostani-archidekt-15997080	
+Tyvar's Stand	1	shalai-archidekt-21015429	
+Umbral Mantle	1	trostani-archidekt-15997080	
+Urza's Incubator	1	shalai-moxfield-3rvLmv	
+Urza's Saga	1	shalai-moxfield-UodV4Y	land
+Utopia Sprawl	1	shalai-archidekt-21015429	
+Valkyrie Harbinger	1	trostani-moxfield-wRT3f_	
+Vanquish the Horde	1	shalai-moxfield-3rvLmv	
+Vaultborn Tyrant	1	trostani-moxfield-clz23n	
+Verduran Enchantress	1	shalai-moxfield-_P7Txb	
+Vesuva	1	shalai-moxfield-_P7Txb	land
+Vexing Bauble	1	shalai-moxfield-Ssl9sg	
+Viridian Joiner	1	trostani-archidekt-15997080	
+Viridian Longbow	1	shalai-archidekt-21015429	
+Vivien, Champion of the Wilds	1	shalai-moxfield-Ssl9sg	
+Vivien, Monsters' Advocate	1	shalai-moxfield-Ssl9sg	
+Voice of Resurgence	1	trostani-edhrec-avg-optimized	
+Voice of Victory	1	shalai-archidekt-26388397	
+Voice of the Blessed	1	trostani-edhrec-avg-optimized	
+Wall of Blossoms	1	trostani-moxfield-OMSnnZ	
+Wall of Omens	1	trostani-moxfield-OMSnnZ	
+Wandering Archaic // Explore the Vastlands	1	shalai-moxfield-Ssl9sg	
+Weathered Wayfarer	1	shalai-moxfield-_P7Txb	
+Welcoming Vampire	1	shalai-archidekt-21015429	
+Whip Silk	1	shalai-moxfield-_P7Txb	
+Winding Canyons	1	shalai-moxfield-Ssl9sg	land
+Wingmate Roc	1	trostani-moxfield-OMSnnZ	
+Wirewood Lodge	1	shalai-moxfield-Ssl9sg	land
+Wrath of God	1	shalai-moxfield-of28bO	
+Yasharn, Implacable Earth	1	shalai-moxfield-of28bO	
+Yavimaya Bloomsage // Channel	1	shalai-moxfield-3rvLmv	
+Yavimaya Hollow	1	shalai-moxfield-3rvLmv	land
+Yisan, the Wanderer Bard	1	shalai-moxfield-Ssl9sg	
+Youthful Valkyrie	1	trostani-moxfield-wRT3f_	

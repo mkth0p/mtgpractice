@@ -1,0 +1,86 @@
+1 Shalai, Voice of Plenty
+10 Forest
+10 Plains
+1 Akroma's Will
+1 Allosaurus Shepherd
+1 Angel of Jubilation
+1 Angel's Grace
+1 Archangel of Tithes
+1 Argothian Enchantress
+1 Asceticism
+1 Augur of Autumn
+1 Aura Shards
+1 Avacyn, Angel of Hope
+1 Avoid Fate
+1 Azusa, Lost but Seeking
+1 Beast Whisperer
+1 Branching Evolution
+1 Branchloft Pathway // Boulderloft Pathway
+1 Bristly Bill, Spine Sower
+1 Brushland
+1 Command Tower
+1 Cosmic Intervention
+1 Cryptolith Rite
+1 Defensive Formation
+1 Destiny Spinner
+1 Dryad of the Ilysian Grove
+1 Duelist's Heritage
+1 Eidolon of Blossoms
+1 Eladamri's Call
+1 Enchantress's Presence
+1 Enlightened Tutor
+1 Evolving Wilds
+1 Exploration
+1 Fanatical Devotion
+1 Flawless Maneuver
+1 Flickering Ward
+1 Gavony Township
+1 Ghostly Prison
+1 Grand Abolisher
+1 Grove of the Guardian
+1 Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun
+1 Guardian of Faith
+1 Hall of Heliod's Generosity
+1 Hardened Scales
+1 Heroic Intervention
+1 Idyllic Tutor
+1 Land Tax
+1 Linvala, Keeper of Silence
+1 Lotus Cobra
+1 Mana Reflection
+1 Mesa Enchantress
+1 Mirari's Wake
+1 Mirri's Guile
+1 Mother of Runes
+1 Nykthos, Shrine to Nyx
+1 Ondu Spiritdancer
+1 Privileged Position
+1 Rebuff the Wicked
+1 Reconnaissance
+1 Roaring Earth
+1 Rogue's Passage
+1 Sanctum Weaver
+1 Satyr Enchanter
+1 Setessan Champion
+1 Sigarda, Font of Blessings
+1 Silverback Elder
+1 Sol Ring
+1 Sphere of Safety
+1 Sterling Grove
+1 Sunpetal Grove
+1 Sythis, Harvest's Hand
+1 Teferi's Protection
+1 Temple Garden
+1 Temple of Plenty
+1 Traverse the Ulvenwald
+1 Verduran Enchantress
+1 Vesuva
+1 Vigor
+1 Weathered Wayfarer
+1 Whip Silk
+1 Windswept Heath
+1 Worldly Tutor
+# source: https://moxfield.com/decks/_P7TxbJsNUqwQbbL57BEJg (API https://api2.moxfield.com/v3/decks/all/_P7TxbJsNUqwQbbL57BEJg), accessed 2026-10-08
+# title: Shalai Pillowfort (B:4) ; author BuildsByConnolly ; updated 2026-10-04 ; Moxfield bracket b4/auto4 ; main 99 ; lands 34 ; MDFC Growing Rites of Itlimoc ; BAN
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 4: Aura Shards; Teferi's Protection; Enlightened Tutor; Worldly Tutor
+# tags: 

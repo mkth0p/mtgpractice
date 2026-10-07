@@ -1,0 +1,100 @@
+1 Brago, King Eternal
+1 Adarkar Wastes
+1 Aether Channeler
+1 An Offer You Can't Refuse
+1 Ancient Tomb
+1 Arcane Signet
+1 Archaeomancer
+1 Arid Mesa
+1 Aven Mindcensor
+1 Azorius Signet
+1 Basalt Monolith
+1 Blind Obedience
+1 Chrome Mox
+1 City of Brass
+1 Cloud of Faeries
+1 Command Tower
+1 Cryogen Relic
+1 Cursed Totem
+1 Cyclonic Rift
+1 Delney, Streetwise Lookout
+1 Displacer Kitten
+1 Dovin's Veto
+1 Drannith Magistrate
+1 Elesh Norn, Mother of Machines
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Ethersworn Canonist
+1 Fabricate
+1 Fellwar Stone
+1 Fierce Guardianship
+1 Flooded Strand
+1 Flusterstorm
+1 Force of Negation
+1 Force of Will
+1 Gemstone Caverns
+1 Glacial Fortress
+1 Gleaming Splendor
+1 Grafdigger's Cage
+1 Grand Abolisher
+1 Grand Arbiter Augustin IV
+1 Grim Monolith
+1 Hallowed Fountain
+1 Inventors' Fair
+3 Island
+1 Lightning Greaves
+1 Lithoform Engine
+1 Lotus Petal
+1 Mana Confluence
+1 Mana Drain
+1 Mana Vault
+1 Marsh Flats
+1 Mental Misstep
+1 Misty Rainforest
+1 Mox Diamond
+1 Mox Opal
+1 Muddle the Mixture
+1 Mystic Remora
+1 Mystical Tutor
+1 Narset, Parter of Veils
+1 Omen of the Sea
+1 Otawara, Soaring City
+1 Pact of Negation
+1 Path to Exile
+1 Peregrine Drake
+1 Peter Parker's Camera
+1 Phyrexian Metamorph
+2 Plains
+1 Polluted Delta
+1 Reality Acid
+1 Recruiter of the Guard
+1 Rhystic Study
+1 Scalding Tarn
+1 Sea of Clouds
+1 Silence
+1 Skyclave Apparition
+1 Smothering Tithe
+2 Snow-Covered Island
+2 Snow-Covered Plains
+1 Sol Ring
+1 Spellseeker
+1 Strionic Resonator
+1 Supreme Verdict
+1 Swan Song
+1 Swords to Plowshares
+1 Talisman of Progress
+1 Teferi, Time Raveler
+1 The One Ring
+1 Transmute Artifact
+1 Tribute Mage
+1 Trinket Mage
+1 Tundra
+1 Urza's Saga
+1 Venser, Shaper Savant
+1 Windswept Heath
+1 Witch Enchanter
+# source: https://edhrec.com/average-decks/brago-king-eternal/cedh (JSON https://json.edhrec.com/pages/average-decks/brago-king-eternal/cedh.json), accessed 2026-10-08
+# title: Average Deck for Brago, King Eternal - cEDH ; author EDHREC (aggregate) ; num_decks 132 ; deck save dates 2024-11-15 to 2026-10-05 ; bracket_counts {'3': 1512, '4': 1089, '2': 1015, '5': 132, '1': 27}
+# total 100 ; lands 29 ; BAN 
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 16: Ancient Tomb; Chrome Mox; Cyclonic Rift; Drannith Magistrate; Enlightened Tutor; Fierce Guardianship; Force of Will; Grand Arbiter Augustin IV; Grim Monolith; Mana Vault; Mox Diamond; Mystical Tutor; Narset, Parter of Veils; Rhystic Study; Smothering Tithe; The One Ring
+# types: ['Artifact', 'Land', 'Creature', 'Enchantment', 'Instant', 'Planeswalker', 'Sorcery']

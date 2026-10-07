@@ -1,23 +1,24 @@
-/* node price.js LIST.txt [--csv out.csv]: prices a decklist ("1 Card Name" lines) from ub-index.json, the cheapest nonfoil
-   paper printing's TCGplayer market price as Scryfall reports it (bulk data of the date in ub-index). Basic lands too. */
+/* node scryfall/price.js decklist.txt > prices.csv: prices a 100-card list ("1 Card Name", commander first) from index.json.
+   Columns: qty,card,price_eur,price_eur_url,price_usd,price_usd_url,game_changer, then a TOTAL row. Prices are the cheapest
+   nonfoil printing in Scryfall's bulk data (dates in index-meta.json): EUR = Cardmarket trend with that printing's Cardmarket
+   URL, USD = TCGplayer market with its TCGplayer URL. A card with no price in the data is "not verified". Basic lands are
+   priced like any card. */
+"use strict";
 const fs = require("fs"), path = require("path");
-const idx = require("./ub-index.json");
-const [file, ...rest] = process.argv.slice(2);
-const ci = rest.indexOf("--csv"), csv = ci >= 0 ? rest[ci + 1] : null;
-const rows = [];
-let total = 0, missing = [];
+const idx = require("./index.json"), meta = require("./index-meta.json");
+const file = process.argv[2];
+const q = s => /[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s);
+const find = n => idx[n] || Object.values(idx).find(x => x.name.split(" // ")[0] === n);
+const rows = [["qty", "card", "price_eur", "price_eur_url", "price_usd", "price_usd_url", "game_changer"]];
+let eur = 0, usd = 0, missE = 0, missU = 0, gc = 0;
 for (const line of fs.readFileSync(file, "utf8").split(/\r?\n/)) {
   const m = line.trim().match(/^(\d+)\s+(.+)$/); if (!m) continue;
-  const n = +m[1], name = m[2].trim();
-  const c = idx[name] || Object.values(idx).find(x => x.name.split(" // ")[0] === name);
-  if (!c || c.minUsd == null) { missing.push(name); rows.push([n, name, "not verified", "", ""]); continue; }
-  total += n * c.minUsd;
-  rows.push([n, c.name, c.minUsd.toFixed(2), c.minScryfall, c.minTcg || "", c.gc ? "Game Changer" : ""]);
+  const n = +m[1], c = find(m[2].trim());
+  if (!c) { rows.push([n, m[2].trim(), "not verified", "", "not verified", "", ""]); missE++; missU++; continue; }
+  if (c.game_changer) gc += n;
+  if (c.price_eur != null) eur += n * c.price_eur; else missE++;
+  if (c.price_usd != null) usd += n * c.price_usd; else missU++;
+  rows.push([n, c.name.split(" // ")[0] === m[2].trim() ? m[2].trim() : c.name, c.price_eur != null ? c.price_eur.toFixed(2) : "not verified", c.price_eur_url || "", c.price_usd != null ? c.price_usd.toFixed(2) : "not verified", c.price_usd_url || "", c.game_changer ? "yes" : "no"]);
 }
-rows.sort((a, b) => (+b[2] || 0) - (+a[2] || 0));
-if (csv) {
-  const q = s => /[",]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s);
-  fs.writeFileSync(csv, ["qty,card,price_usd,scryfall_url,tcgplayer_url,game_changer"].concat(rows.map(r => r.map(q).join(","))).concat([`,TOTAL,${total.toFixed(2)},,,`]).join("\n") + "\n");
-}
-console.log(`total $${total.toFixed(2)} for ${rows.reduce((s, r) => s + r[0], 0)} cards; GC ${rows.filter(r => r[5]).length}; not priced: ${missing.join(", ") || "none"}`);
-console.log(rows.slice(0, 25).map(r => `  ${r[2]} ${r[1]}${r[5] ? " (GC)" : ""}`).join("\n"));
+rows.push(["", "TOTAL", eur.toFixed(2) + (missE ? ` (+${missE} not verified)` : ""), `Scryfall bulk default-cards ${meta.default_cards}`, usd.toFixed(2) + (missU ? ` (+${missU} not verified)` : ""), "", `${gc} Game Changers`]);
+console.log(rows.map(r => r.map(q).join(",")).join("\n"));

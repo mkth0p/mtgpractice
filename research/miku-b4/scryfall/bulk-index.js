@@ -50,7 +50,9 @@ const face = f => ({ name: f.name, mana_cost: f.mana_cost || "", type_line: f.ty
       sld.push(row);
       if (mikuSet.has(c.collector_number)) e.miku_printings.push(row);
     }
-    if (c.oversized || c.set_type === "memorabilia") continue;
+    // printings that don't give a real buying price: oversized, memorabilia (Collectors' Edition, 30th Anniversary...),
+    // and Summer Magic / Edgar (SUM), a near-unobtainable misprint run whose Cardmarket trend is noise (Tundra at €0.25)
+    if (c.oversized || c.set_type === "memorabilia" || c.set === "sum") continue;
     const eur = c.prices && c.prices.eur != null ? +c.prices.eur : null;
     const usd = c.prices && c.prices.usd != null ? +c.prices.usd : null;
     if (eur != null && (e.price_eur == null || eur < e.price_eur)) Object.assign(e, { price_eur: eur, price_eur_set: `${c.set_name} (${c.set.toUpperCase()} ${c.collector_number})`, price_eur_url: (c.purchase_uris || {}).cardmarket || c.scryfall_uri.split("?")[0], price_scryfall: c.scryfall_uri.split("?")[0] });

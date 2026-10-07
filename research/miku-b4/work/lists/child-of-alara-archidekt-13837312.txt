@@ -1,0 +1,103 @@
+1 Child of Alara
+1 Abraded Bluffs
+1 Ancient Cellarspawn
+1 Ancient Den
+1 Arcane Signet
+1 Ashnod's Altar
+1 Azorius Chancery
+1 Barbed Servitor
+1 Blightsteel Colossus
+1 Brash Taunter
+1 Bringer of the Black Dawn
+1 Bristling Backwoods
+1 Buried Ruin
+1 Cascading Cataracts
+1 Chromatic Lantern
+1 Command Tower
+1 Commander's Sphere
+1 Court of Locthwain
+1 Crawlspace
+1 Creosote Heath
+1 Darkmoss Bridge
+1 Darksteel Citadel
+1 Darksteel Forge
+1 Darksteel Ingot
+1 Drannith Magistrate
+1 Drossforge Bridge
+1 Duty Beyond Death
+1 Elesh Norn, Grand Cenobite
+1 Encroaching Mycosynth
+1 Enlightened Tutor
+1 Eroded Canyon
+1 Eternity Vessel
+1 Festering Gulch
+1 Forlorn Flats
+1 Foundry Inspector
+1 Gerrard, Weatherlight Hero
+1 Gift of Immortality
+1 Giggling Skitterspike
+1 Goldmire Bridge
+1 Great Furnace
+1 High Market
+1 Idyllic Tutor
+1 Imperial Seal
+1 Indestructibility
+1 Inspirit, Flagship Vessel
+1 Jagged Barrens
+1 Jokulhaups
+1 Kotis, the Fangkeeper
+1 Krang, Utrom Warlord
+1 Lavinia, Azorius Renegade
+1 Lonely Arroyo
+1 Lotus Ring
+1 Lush Oasis
+1 Maha, Its Feathers Night
+1 Mind's Dilation
+1 Mistvault Bridge
+1 Mornsong Aria
+1 Obliterate
+1 Omen Machine
+1 One with the Multiverse
+1 Ornithopter of Paradise
+1 Oviya, Automech Artisan
+1 Padeem, Consul of Innovation
+1 Pain for All
+1 Pariah
+1 Pariah's Shield
+1 Planetarium of Wan Shi Tong
+1 Platinum Angel
+1 Platinum Emperion
+1 Power Depot
+1 Razortide Bridge
+1 Rustvale Bridge
+1 Scour for Scrap
+1 Seat of the Synod
+1 Silverbluff Bridge
+1 Skyclave Relic
+1 Slagwoods Bridge
+1 Smothering Tithe
+1 Sol Ring
+1 Soured Springs
+1 Stuffy Doll
+1 Suspended Sentence
+1 Tanglepool Bridge
+1 Teferi's Protection
+1 The Key to the Vault
+1 The One Ring
+1 The Soul Stone
+1 Thespian's Stage
+1 Thornglint Bridge
+1 Tree of Tales
+1 Triple Triad
+1 Ultimate Magic: Holy
+1 Unwinding Clock
+1 Urborg, Tomb of Yawgmoth
+1 Vampiric Tutor
+1 Vashta Nerada
+1 Vault of Whispers
+1 With Great Power . . .
+1 Worldfire
+1 Yahenni, Undying Partisan
+# source: https://archidekt.com/decks/13837312 (API https://archidekt.com/api/decks/13837312/), accessed 2026-10-08
+# title: Child of alara optimizd lv 4, Boom! ; author TheArchaonOfChaos ; updated 2026-10-03 ; Archidekt edhBracket 4 ; total 100 ; lands 34 ; MDFC  ; BAN 
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 7: Drannith Magistrate; Enlightened Tutor; Imperial Seal; Smothering Tithe; Teferi's Protection; The One Ring; Vampiric Tutor

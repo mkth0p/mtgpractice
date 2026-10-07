@@ -1,0 +1,100 @@
+1 Shalai, Voice of Plenty
+1 Heliod, Sun-Crowned
+1 Walking Ballista
+1 Archangel of Thune
+1 Spike Feeder
+1 Devoted Druid
+1 Vizier of Remedies
+1 Swift Reconfiguration
+1 Trostani, Selesnya's Voice
+1 Scurry Oak
+1 Craterhoof Behemoth
+1 Worldly Tutor
+1 Enlightened Tutor
+1 Eladamri's Call
+1 Chord of Calling
+1 Finale of Devastation
+1 Green Sun's Zenith
+1 Natural Order
+1 Survival of the Fittest
+1 Fauna Shaman
+1 Ranger-Captain of Eos
+1 Recruiter of the Guard
+1 Sylvan Tutor
+1 Eldritch Evolution
+1 Crop Rotation
+1 Sol Ring
+1 Mana Vault
+1 Chrome Mox
+1 Mox Diamond
+1 Lotus Petal
+1 Arcane Signet
+1 Birds of Paradise
+1 Llanowar Elves
+1 Elvish Mystic
+1 Fyndhorn Elves
+1 Avacyn's Pilgrim
+1 Delighted Halfling
+1 Utopia Sprawl
+1 Wild Growth
+1 Nature's Lore
+1 Three Visits
+1 Tireless Provisioner
+1 Sylvan Library
+1 Esper Sentinel
+1 Smothering Tithe
+1 The One Ring
+1 Archivist of Oghma
+1 Skullclamp
+1 Eternal Witness
+1 Swords to Plowshares
+1 Path to Exile
+1 Generous Gift
+1 Beast Within
+1 Force of Vigor
+1 Aura Shards
+1 Drannith Magistrate
+1 Kutzil, Malamet Exemplar
+1 Archon of Emeria
+1 Teferi's Protection
+1 Heroic Intervention
+1 Flawless Maneuver
+1 Grand Abolisher
+1 Mother of Runes
+1 Giver of Runes
+1 Veil of Summer
+1 Allosaurus Shepherd
+1 Destiny Spinner
+1 Gaea's Cradle
+1 Dryad Arbor
+1 Ancient Tomb
+1 Command Tower
+1 Savannah
+1 Temple Garden
+1 Horizon Canopy
+1 Sunpetal Grove
+1 Brushland
+1 Razorverge Thicket
+1 Windswept Heath
+1 Flooded Strand
+1 Wooded Foothills
+1 Misty Rainforest
+1 Verdant Catacombs
+1 Marsh Flats
+1 Arid Mesa
+1 Prismatic Vista
+1 Canopy Vista
+1 Gavony Township
+1 Boseiju, Who Endures
+1 Urza's Saga
+1 Scattered Groves
+1 Bountiful Promenade
+1 Overgrown Farmland
+1 Forest
+1 Forest
+1 Forest
+1 Forest
+1 Plains
+1 Plains
+1 Plains
+1 Endurance

@@ -1,0 +1,95 @@
+1 Brago, King Eternal
+5 Snow-Covered Plains
+7 Snow-Covered Island
+1 Act of Authority
+1 Adarkar Wastes
+1 Ancient Tomb
+1 Arcane Signet
+1 Arcum's Astrolabe
+1 Arid Mesa
+1 Azorius Signet
+1 Chrome Mox
+1 City of Brass
+1 Command Tower
+1 Counterspell
+1 Cursed Totem
+1 Cyclonic Rift
+1 Delay
+1 Dispel
+1 Dovin's Veto
+1 Enlightened Tutor
+1 Ephemerate
+1 Fabricate
+1 Fellwar Stone
+1 Fierce Guardianship
+1 Flooded Strand
+1 Flusterstorm
+1 Force of Negation
+1 Force of Will
+1 Generous Gift
+1 Glacial Fortress
+1 Grasp of Fate
+1 Hallowed Fountain
+1 Hierophant's Chalice
+1 Lightning Greaves
+1 Mana Confluence
+1 Mana Crypt
+1 Mana Drain
+1 Mana Vault
+1 Marsh Flats
+1 Misty Rainforest
+1 Mox Diamond
+1 Mox Opal
+1 Mystic Gate
+1 Mystic Remora
+1 Mystical Tutor
+1 Narset, Parter of Veils
+1 Negate
+1 Oath of Jace
+1 Oblivion Ring
+1 Omen of the Sea
+1 Phyrexian Revoker
+1 Polluted Delta
+1 Ponder
+1 Prismatic Vista
+1 Prophetic Prism
+1 Reality Acid
+1 Recruiter of the Guard
+1 Reflecting Pool
+1 Rest in Peace
+1 Rhystic Study
+1 Scalding Tarn
+1 Sea of Clouds
+1 Silence
+1 Skycloud Expanse
+1 Sol Ring
+1 Spellseeker
+1 Sphere of Resistance
+1 Stasis
+1 Static Orb
+1 Strionic Resonator
+1 Stupefying Touch
+1 Supreme Verdict
+1 Swan Song
+1 Swiftfoot Boots
+1 Swords to Plowshares
+1 Talisman of Progress
+1 Tangle Wire
+1 Teferi, Hero of Dominaria
+1 Teferi, Time Raveler
+1 Tezzeret the Seeker
+1 Timetwister
+1 Transmute Artifact
+1 Trial of Knowledge
+1 Tribute Mage
+1 Trinket Mage
+1 Tundra
+1 Venser, Shaper Savant
+1 Watcher for Tomorrow
+1 Windswept Heath
+1 Winter Orb
+# source: https://moxfield.com/decks/ywjZih5sFEiLnZA_uEDiaQ (API https://api2.moxfield.com/v3/decks/all/ywjZih5sFEiLnZA_uEDiaQ), accessed 2026-10-08
+# title: Brago Stax [cEDH] ; author MGT ; updated 2020-08-01 ; Moxfield bracket b5/auto4 ; main 99 ; lands 32 ; MDFC ; BAN Mana Crypt
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 11: Rhystic Study; Mana Vault; Force of Will; Mystical Tutor; Chrome Mox; Enlightened Tutor; Ancient Tomb; Cyclonic Rift; Mox Diamond; Narset, Parter of Veils; Fierce Guardianship
+# tags: Azorius (WU), Combo, Competitive, Control, Stax
+# DISCARDED: runs a card banned 2024-09-23 (see BAN field above); kept on disk for reference only, excluded from frequency counts
