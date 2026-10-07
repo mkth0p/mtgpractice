@@ -32,3 +32,15 @@ Choices made while working unattended, with the reason for each. Newest at the b
     - which deck won the games the hero lost.
     
     A Walking Ballista on the battlefield with no counters doesn't count as assembled. The Etrata fields (steals, flips) still print and read zero.
+
+## Card pool checks (14:25)
+13. **Color identity and legality** checked against `gw-index.json`, which holds only Commander-legal cards inside green-white identity. Every card of the precon and of both plans passes. **Noble Hierarch is out**: it's Bant (G/W/U identity, its mana ability makes {U}), and the engine wouldn't have caught it. I took it off the research list before that batch ran.
+14. **Game Changers in the pool:** Worldly Tutor, Enlightened Tutor, Teferi's Protection and Smothering Tithe. All are legal at Bracket 4 without limit. The precon and both plans have none: Vorinclex left the list on 2025-10-21 (`../sources/trostani-bracket4.md` §1).
+
+## The commander is open (user, 14:30)
+15. **The user said any card of the deck can be the commander, preferably a Miku card.** The Secret Lair's Miku printings (`miku/kit.js` MIKU_PRINTS) that are legendary creatures are Trostani, Shalai, Voice of Plenty and Vorinclex, Voice of Hunger.
+    - **Shalai has a green-white identity**: her {4}{G}{G} ability counts. So she can lead this exact 100 cards; Trostani moves into the 99 in Shalai's slot.
+    - **Vorinclex is mono-green**: 59 of the precon's cards fall outside that identity, which breaks the 15-card cap many times over. Not considered.
+    - Non-Miku legendaries in the precon, measured for reference: Lathiel, the Bounteous Dawn; Ghalta and Mavren; Rhys the Redeemed. Arasta is mono-green. The 80€ plan's Heliod and Adeline are mono-white.
+16. **A commander change costs 0 swaps.** The 100 cards are identical; only which one sits in the command zone changes. The cap counts cards different from the precon, so this is "piloting", and it's allowed in tier 0.
+17. **How it's measured.** `wrap.js` has a new `COMMANDER="Card Name"` switch. It puts the old commander into the new one's slot in the list, so the library order is unchanged and runs pair with `p1`. Script: `xp/commanders.sh`.

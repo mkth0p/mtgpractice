@@ -4,6 +4,8 @@
      so a swapped card keeps its library position and paired seeds stay comparable.
    - LIST_FILE=path replaces the hero list with a whole decklist ("1 Card Name" lines, commander excluded).
    - DECK_CONST=CETRATA_DECK picks which MK.*_DECK object is the hero (default CETRATA_DECK).
+   - COMMANDER="Card Name" makes a card of the hero's list its commander; the old commander takes that card's slot in the
+     list (so the 100 cards are the same and paired seeds stay comparable). Applied after LIST_FILE and VARIANT.
    - NO_COMMANDER=1 stops the hero from ever casting its commander from the command zone.
    - TELE_OUT=file.json records per-game telemetry for the hero (tele.js: steals, flips, where the damage came from,
      how each opponent went out).
@@ -30,6 +32,11 @@ if (process.env.VARIANT) {
   const v = JSON.parse(process.env.VARIANT), list = deck.list.slice();
   (v.cut || []).forEach((n, i) => { const k = list.indexOf(n); if (k < 0) throw new Error("not in list: " + n); list[k] = v.add[i]; });
   deck.list = list;
+}
+if (process.env.COMMANDER && process.env.COMMANDER !== deck.commander) {
+  const k = deck.list.indexOf(process.env.COMMANDER);
+  if (k < 0) throw new Error("COMMANDER not in the list: " + process.env.COMMANDER);
+  const list = deck.list.slice(); list[k] = deck.commander; deck.list = list; deck.commander = process.env.COMMANDER;
 }
 for (const n of deck.list) if (!MK.defs.has(n)) throw new Error("card not defined in the engine: " + n);
 if (process.env.NO_COMMANDER) {
