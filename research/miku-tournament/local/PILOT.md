@@ -1,49 +1,53 @@
 # Pilot sheet: Trostani (Miku precon) at a Bracket 4 table, tonight
-*Draft v1, 14:30. The list section is updated at the end with the measured swaps.*
+*v2, 18:30. The lists are `decklist-tier10.txt` (recommended) and `decklist-tier15.txt` (if you have time to sleeve 15 swaps). Trostani stays the commander.*
 
-**Reality check.** In 5,040 bot games against three Bracket 4 decks, the box precon wins **19.5% ±0.6** (a fair share is 25%), with a median win in round 11. The Bracket 4 decks usually end games in rounds 7–8. You're the slow deck at the table. You win by surviving their first push and making them deal with you late, or by assembling a combo they don't see coming.
+**Reality check.** In 5,040 bot games against three Bracket 4 decks, the box list wins **20.2%**, tier 10 **23.3%** and tier 15 **23.6%** (a fair share is 25%). Your median win comes in round 10–11. When you lose, you're out by about **round 7**. You're the slow deck: survive their first push, answer the combo, then go wide and overrun.
 
 ## Mulligan (the first one is free)
-- **Keep:** 3–4 lands (or 2 lands + Sol Ring / Llanowar / Pilgrim / Signet / Springleaf Drum) **and** a play by turn 2. Trostani on turn 3–4 is the target: she costs {G}{G}{W}{W}, so you need **2 green and 2 white sources**.
-- **Mulligan:** 0–1 or 6–7 lands; hands of 5–8-drops (Storm Herd, Invincible Hymn, Vorinclex, Ghalta and Mavren, Hour of Reckoning); two tapped lands and nothing to do before turn 3. At Bracket 4, a hand that does nothing until turn 4 loses.
-- **What to bottom after a mulligan:** the most expensive cards first (Storm Herd, Invincible Hymn), then a second removal spell. Keep land 4, cheap ramp and Soul Warden.
+- **Keep:** 3–4 lands, or 2 lands + a 1–2-mana accelerant (Sol Ring, Llanowar, Elvish Mystic, Avacyn's Pilgrim, Arcane/Selesnya Signet, Farseek, Nature's Lore). Plus something to do by turn 2–3. Trostani costs **{G}{G}{W}{W}**: count two sources of each color by turn 4.
+- **Mulligan:** 0–1 or 6–7 lands; hands of 5+-drops (Storm Herd, Invincible Hymn, Vorinclex, Ghalta and Mavren, Hour of Reckoning); two tapped lands and nothing to cast before turn 3.
+- **Bottom after a paid mulligan:** the most expensive spell first, then a second removal spell. Keep land 4, cheap ramp and Soul Warden.
+- (A stricter "a play by turn 2 or ship it" rule measured neutral in the bots. Use judgment, not dogma.)
 
-## Opening sequence
-1. **T1:** Sol Ring > Llanowar/Avacyn's Pilgrim > Soul Warden / Cleric Class. If you have no 1-drop, play a tapped land.
-2. **T2:** ramp (Farseek / Nature's Lore onto a dual, Signet, Fanatic of Rhonas, Prosperous Innkeeper) plus Soul Warden if mana allows.
-3. **T3–4: Trostani.** She counts only creatures that enter *after* her, so cast her before your token makers. From then on, the lifegain source goes first and the bodies second.
-4. **T4–6:** bait first (Ghalta and Mavren, Conclave Evangelist, Voice of the Blessed), **then Archangel of Thune** once the first removal is spent. Keep Shalai, Voice of Plenty in front of Thune if you have it: she gives your other permanents and you hexproof.
-5. **Populate at the end of the turn before yours** ({1}{G}{W}, tap Trostani). The token can attack on your turn, and the open mana doubles as Grand Crescendo / Rootborn Defenses.
+## Opening
+1. **T1:** Sol Ring > Llanowar / Elvish Mystic / Avacyn's Pilgrim > Soul Warden / Cleric Class. If you have no 1-drop, play a tapped land.
+2. **T2:** Arcane Signet / Signet / Farseek / Nature's Lore / Fanatic of Rhonas. Add Soul Warden if mana allows.
+3. **T3–4: Trostani.** Whether she lands on turn 3 or 6 barely changes the win rate. What matters is that she lands: never casting her = 1.6% wins. She counts only creatures that enter after her, so the lifegain source goes first and the bodies second.
+4. **T4–6: bait, then the engine.** Bait first: Hero of Bladehold, Adeline, Elspeth, Ghalta and Mavren. Then **Archangel of Thune** once removal has been spent, ideally behind **Shalai** (hexproof for you and your other creatures).
+5. **Populate at the end of the turn before yours** ({1}{G}{W}, tap Trostani). The open mana doubles as Grand Crescendo / Rootborn Defenses if a wipe comes.
 
 ## The lines that win
-- **Wide board → overrun.** Most precon wins (bots: 92% are combat). Your finishers:
-  - Finale of Devastation with X ≥ 10: +X/+X and haste to everything.
-  - Thune's counters.
+- **Go wide, then overrun** (85% of bot wins are combat). Your finishers:
+  - True Conviction: double strike + lifelink for the team, and every lifelink hit is a Thune trigger.
+  - Overwhelming Stampede, Return of the Wildspeaker (+3/+3 mode), Finale of Devastation at X ≥ 10.
   - Gavony Township every turn.
-  - Song of the Worldsoul and Growing Ranks to populate.
-  - Rogue's Passage on your biggest creature.
   
-  Count the attack before you cast the finisher: attackers + pump + blockers.
-- **Archangel of Thune** is the deck's best card. Every lifegain event puts a counter on every creature you control.
-- **Aetherflux Reservoir:** pay 50, deal 50. With Thune + a lifegain engine you'll get there. Shoot the player who's about to win, not the one at lowest life.
-- **Halo Fountain:** {W}{W}{W}{W}{W}, tap, untap 15 tapped creatures: you win. Attack with the tokens first so they're tapped.
-- **Finale of Devastation** at X=3–5 finds an engine piece (Thune at X=5), at X ≥ 10 it ends the game.
+  Count before you cast: attackers, pump, Hero/Adeline tokens (they arrive *after* a sorcery pump), minus blockers.
+- **Archangel of Thune** is the best card: every lifegain event = a counter on every creature. Cathars' Crusade (tier 15) does the same for every creature that enters.
+- **Aetherflux Reservoir** ends 10–13% of the deck's wins: pay 50, deal 50. Shoot only when it **kills** someone and leaves you at 15+, or when you'll still be at 40+. Shooting at 55 life leaves you dead to the Bracket 4 deck next to you. Shoot whoever is about to win, not whoever is lowest.
+- **Halo Fountain:** {W}{W}{W}{W}{W}, tap, untap 15 tapped creatures: you win. Attack first so the tokens are tapped.
+- **Combo, if you sleeve it** (not in the measured tiers; tell the table): Heliod + Walking Ballista with 2+ counters, {1}{W} for lifelink, ping forever. Spike Feeder + Archangel of Thune (or Heliod) gives infinite life, then Aetherflux kills the table. Finale at X=3 fetches Heliod or Spike Feeder, **never Ballista** (it enters with 0 counters and dies).
 
 ## What to hold your interaction for
-- **Swords / Path (1 mana, instant):** the combo piece or the commander that kills you next turn. In the bot games, most of your losses came from combo and drain decks: 42% of losses were non-combat, 8% were alternate wins. Keep {W} open when a combo player could go off. Don't fire at a merely annoying creature.
-- **Grand Crescendo (X=0 is enough) / Rootborn Defenses:** in response to a *destroy* wipe (Wrath, Hour). They don't stop -X/-X (Toxic Deluge) or exile wipes. Keep {W}{W} up once your board is worth more than your hand.
-- **Break Down / Sundering Growth:** artifact or enchantment combo pieces and lifegain hate (Tainted Remedy, Erebos).
-- **Don't overextend:** two or three threats on board, a rebuild in hand (Grand Crescendo, Storm Herd, Song of the Worldsoul).
+- **Swords / Path ({W}), Generous Gift / Beast Within (3, instant, hit any permanent):**
+  - the combo piece or engine of the player who wins next turn;
+  - a lifegain-hate permanent (Tainted Remedy, Erebos, Rampaging Ferocidon).
+  
+  Most of your losses at Bracket 4 are drains and combo (42% non-combat, 8% alternate wins). Keep one answer and its mana up on the combo player's turn. Don't fire at the first big creature.
+- **Grand Crescendo (X=0 is fine) / Rootborn Defenses:** in response to a *destroy* wipe. They do nothing against -X/-X (Toxic Deluge) or exile. Keep {W}{W} up once your board is worth more than your hand.
+- **Break Down / Sundering Growth:** artifact or enchantment combo pieces.
+- **Elspeth's −3** kills every creature with power 4+: the answer to a Ghalta-style board. Your tokens survive.
+- **Don't overextend:** two or three threats out, a rebuild in hand (Elspeth, Esika's Chariot, Grand Crescendo, Storm Herd).
 
 ## Who to pressure first
-1. **The combo / drain player** with pieces on board or a full grip and open mana. They end Bracket 4 games before you can. Your removal and early attacks go there.
-2. **The player with wipes and mana open.** Make them tap out before your big turn, and attack them while their board is empty.
-3. **The biggest board** last: you out-block it with tokens and gain life to outlast it.
+1. **The combo/drain player.** In the bot games, Corrupted Etrata's drain combo won 49% of the games it was in, and 23% of your losses. Removal and early attacks go there.
+2. **The big-creature deck** (Ghalta-style, 18% of losses). Chump with tokens, Elspeth −3, gain life, outlast it.
+3. **The player with wipes and open mana.** Make them tap out before your big turn.
 
 Your life total makes you look like the threat. Answer with facts: point at whoever kills next turn.
 
-## What loses games (from 5,040 bot games against Bracket 4)
-- **Being too slow:** the Bracket 4 decks win by rounds 7–8, and the precon's median win is round 11. A keep that misses turn-3–4 Trostani is the most common way to fall behind.
-- **Combo/drain you can't interact with:** 42% of losses. Hold the cheap removal.
-- **Board wipes after you dumped your hand.**
-- **Spending Swords on the first creature you see.**
+## What loses games
+- Too slow: a keep that misses Trostani by turn 4–5 and has no accelerant.
+- A combo you didn't keep an answer for (42% of losses are non-combat).
+- A wipe after you dumped your hand.
+- Paying 50 to Aetherflux at low margin, or Swords on the first creature you see.

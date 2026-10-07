@@ -1,0 +1,11 @@
+#!/bin/bash
+# run4.sh: 5,040-game confirmations (PROCS=18, N=280, telemetry): the precon on the final brain (PF280, the honest
+# numbers) and the tier candidates paired against it.
+cd "$(dirname "$0")/../../../.."
+source research/miku-tournament/local/xp/env.sh
+export N=280 TELE=1
+tools/sim/bench/xp.sh PF280 PF280 > /dev/null
+tools/sim/bench/xp.sh PF280 C5b '{"cut":["Song of the Worldsoul","Rhys the Redeemed","Excavation Technique","Phyrexian Processor","Song of Freyalise"],"add":["Generous Gift","Arcane Signet","True Conviction","Plains","Forest"]}' > /dev/null
+tools/sim/bench/xp.sh PF280 C10b '{"cut":["Song of the Worldsoul","Rhys the Redeemed","Excavation Technique","Phyrexian Processor","Song of Freyalise","Growing Ranks","Prosperous Innkeeper","Ancient Cornucopia","Angelic Chorus","Camaraderie"],"add":["Generous Gift","Arcane Signet","True Conviction","Elvish Mystic","Elspeth, Sun'"'"'s Champion","Beast Within","Plains","Forest","Plains","Hero of Bladehold"]}' > /dev/null
+tools/sim/bench/xp.sh PF280 C15d '{"cut":["Song of the Worldsoul","Rhys the Redeemed","Excavation Technique","Phyrexian Processor","Song of Freyalise","Growing Ranks","Prosperous Innkeeper","Ancient Cornucopia","Angelic Chorus","Camaraderie","Springleaf Drum","Ajani'"'"'s Pridemate","Conclave Evangelist","Healing Technique","Silverquill Lecturer"],"add":["Generous Gift","Arcane Signet","True Conviction","Elvish Mystic","Elspeth, Sun'"'"'s Champion","Beast Within","Plains","Forest","Plains","Hero of Bladehold","Return of the Wildspeaker","Overwhelming Stampede","Adeline, Resplendent Cathar","Esika'"'"'s Chariot","Cathars'"'"' Crusade"]}' > /dev/null
+tools/sim/bench/xp.sh PF280 C15e '{"cut":["Song of the Worldsoul","Rhys the Redeemed","Excavation Technique","Phyrexian Processor","Song of Freyalise","Growing Ranks","Prosperous Innkeeper","Ancient Cornucopia","Angelic Chorus","Camaraderie","Springleaf Drum","Ajani'"'"'s Pridemate","Conclave Evangelist","Healing Technique","Silverquill Lecturer"],"add":["Generous Gift","Arcane Signet","True Conviction","Elvish Mystic","Elspeth, Sun'"'"'s Champion","Beast Within","Return of the Wildspeaker","Hero of Bladehold","Overwhelming Stampede","Adeline, Resplendent Cathar","Plains","Forest","Esika'"'"'s Chariot","Razorverge Thicket","Brushland"]}' > /dev/null
