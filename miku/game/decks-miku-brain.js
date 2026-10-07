@@ -93,7 +93,24 @@
     if (c.def.name === "Spike Feeder") return "always";
     return false;
   }
-  const brain = { plan, choose, keepHome };
+  /* mull2 (MIKU_ON=mull2): the Bracket 4 keep rule of the pilot sheet. 2–4 lands with a play by turn 2 (a 1–2-mana
+     ramp piece or creature), or 3–4 lands with both colors for Trostani by turn 4; 5 lands only with ramp. After two
+     mulligans, any 2–5 lands. */
+  function mulligan(g, p, { hand, mulls }) {
+    if (!ON.has("mull2")) return undefined;
+    const lands = hand.filter(o => o.def.types.includes("Land"));
+    const non = hand.filter(o => !o.def.types.includes("Land"));
+    const cheap = non.filter(o => o.def.mv <= 2 && ((o.def.ai && o.def.ai.ramp) || o.def.types.includes("Creature") || o.def.name === "Sol Ring" || o.def.name === "Cleric Class"));
+    const colors = new Set(); for (const o of lands) for (const m of o.def.mana || []) for (const c of [].concat(m.produce || [])) colors.add(c === "any" ? "GW" : c);
+    const both = [...colors].join("").includes("G") && [...colors].join("").includes("W");
+    const n = lands.length;
+    if (mulls >= 2) return n >= 2 && n <= 5;
+    if (n >= 2 && n <= 4 && cheap.length) return true;
+    if (n >= 3 && n <= 4 && both) return true;
+    if (n === 5 && cheap.some(o => o.def.ai && o.def.ai.ramp)) return true;
+    return false;
+  }
+  const brain = { plan, choose, keepHome, mulligan };
   MK.DECK_BRAINS = MK.DECK_BRAINS || {};
   for (const id of IDS) MK.DECK_BRAINS[id] = brain;
 

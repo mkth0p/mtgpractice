@@ -1,0 +1,117 @@
+Etrata heist closer: cards to add to the site's base Etrata list (57 in / 57 out; the commander stays)
+
+IN (print these as proxies):
+1 Achilles Davenport  [{2}{U}{B} | Legendary Creature — Human Assassin | $6.76]
+1 Ancient Tomb  [ | Land | $56.94]
+1 Ashnod's Altar  [{3} | Artifact | $8.15]
+1 Bloodletter of Aclazotz  [{1}{B}{B}{B} | Creature — Vampire Demon | $34.32]
+1 Bloodthirsty Conqueror  [{3}{B}{B} | Creature — Vampire Knight | $34.19]
+1 Brainstorm  [{U} | Instant | $0.57]
+1 Brotherhood Headquarters  [ | Land | $0.33]
+1 Cavern of Souls  [ | Land | $48.08]
+1 Chrome Mox  [{0} | Artifact | $47.56]
+1 Coat of Arms  [{5} | Artifact | $12.24]
+1 Cyclonic Rift  [{1}{U} | Instant | $30.04]
+1 Dark Confidant  [{1}{B} | Creature — Human Wizard | $3.39]
+1 Deadly Rollick  [{3}{B} | Instant | $26.69]
+1 Demonic Consultation  [{B} | Instant | $7.36]
+1 Demonic Tutor  [{1}{B} | Sorcery | $63.10]
+1 Diabolic Intent  [{1}{B} | Sorcery | $15.37]
+1 Eldrazi Monument  [{5} | Artifact | $9.14]
+1 Exquisite Blood  [{4}{B} | Enchantment | $38.86]
+1 Fierce Guardianship  [{2}{U} | Instant | $59.66]
+1 Force of Negation  [{1}{U}{U} | Instant | $45.86]
+1 Force of Will  [{3}{U}{U} | Instant | $26.56]
+1 Grim Tutor  [{1}{B}{B} | Sorcery | $24.46]
+1 Hired Poisoner  [{B} | Creature — Human Assassin | $0.18]
+1 Imperial Seal  [{B} | Sorcery | $170.58]
+1 Kindred Dominance  [{5}{B}{B} | Sorcery | $5.15]
+1 Lightning Greaves  [{2} | Artifact — Equipment | $3.68]
+1 Lotus Petal  [{0} | Artifact | $34.73]
+1 Mari, the Killing Quill  [{1}{B}{B} | Legendary Creature — Vampire Assassin | $5.19]
+1 Marsh Flats  [ | Land | $32.13]
+1 Morphic Pool  [ | Land | $26.99]
+1 Mox Amber  [{0} | Legendary Artifact | $87.79]
+1 Mutavault  [ | Land | $4.19]
+1 Mystic Remora  [{U} | Enchantment | $10.55]
+1 Polluted Delta  [ | Land | $20.50]
+1 Pyre of Heroes  [{2} | Artifact | $1.79]
+1 Quietus Spike  [{3} | Artifact — Equipment | $1.45]
+1 Reanimate  [{B} | Sorcery | $6.61]
+1 Reno and Rude  [{1}{B} | Legendary Creature — Human Assassin | $0.18]
+1 Reverse the Polarity  [{1}{U}{U} | Instant | $0.49]
+1 Rhystic Study  [{2}{U} | Enchantment | $61.95]
+1 Roaming Throne  [{4} | Artifact Creature — Golem | $49.25]
+1 Sakashima the Impostor  [{2}{U}{U} | Legendary Creature — Human Rogue | $13.82]
+1 Sanguine Bond  [{3}{B}{B} | Enchantment | $5.35]
+1 Satoru, the Infiltrator  [{U}{B} | Legendary Creature — Human Ninja Rogue | $0.77]
+1 Scalding Tarn  [ | Land | $38.37]
+1 Secluded Courtyard  [ | Land | $0.29]
+1 Slither Blade  [{U} | Creature — Snake Rogue | $0.35]
+1 Snuff Out  [{3}{B} | Instant | $5.79]
+1 Swan Song  [{U} | Instant | $9.99]
+1 Teferi's Veil  [{1}{U} | Enchantment | $1.06]
+1 Tetsuko Umezawa, Fugitive  [{1}{U} | Legendary Creature — Human Rogue | $0.15]
+1 Undercity Sewers  [ | Land — Island Swamp | $8.32]
+1 Vampiric Tutor  [{B} | Instant | $51.00]
+1 Vein Ripper  [{3}{B}{B}{B} | Creature — Vampire Assassin | $6.29]
+1 Virtus the Veiled  [{2}{B} | Legendary Creature — Azra Assassin | $8.31]
+1 Vito, Thorn of the Dusk Rose  [{2}{B} | Legendary Creature — Vampire Cleric | $9.11]
+1 Watery Grave  [ | Land — Island Swamp | $9.67]
+
+OUT (take these out):
+1 Access Tunnel
+1 An Offer You Can't Refuse
+1 Aqueous Form
+1 Arcane Denial
+1 Aven Heartstabber
+1 Boggart Trawler
+1 Bojuka Bog
+1 Chthonian Nightmare
+1 Consider
+1 Counterspell
+1 Cover of Darkness
+1 Cryptic Coat
+1 Cursed Windbreaker
+1 Desmond Miles
+1 Dimir Signet
+1 Dispel
+1 Duskmantle Guildmage
+1 Etrata, the Silencer
+1 Exotic Orchard
+1 Feed the Swarm
+1 Fellwar Stone
+1 Frantic Search
+1 Gix, Yawgmoth Praetor
+1 Glitch Interpreter
+1 Grazilaxx, Illithid Scholar
+1 Hookblade Veteran
+1 Infernal Grasp
+3 Island
+1 Key to the City
+1 Kheru Spellsnatcher
+1 March of Swirling Mist
+1 Mask of Memory
+1 Maskwood Nexus
+1 Mind Stone
+1 Mindcrank
+1 Night's Whisper
+1 Omen Hawker
+1 Plumb the Forbidden
+1 Ravenloft Adventurer
+1 Reality Shift
+1 Reconnaissance Mission
+1 Scroll of Fate
+1 Silent Hallcreeper
+1 Springleaf Drum
+1 Strixhaven Stadium
+1 Supernatural Stamina
+3 Swamp
+1 Toxic Deluge
+1 Training Grounds
+1 Universal Automaton
+1 Wash Away
+1 Willbender
+1 Wound Reflection
+
+The resulting 100-card list is decklist-heist-closer.txt (prices in prices-heist-closer.csv).
