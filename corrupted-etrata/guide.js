@@ -42,7 +42,7 @@ window.CETRATA_GUIDE = [
       ] },
       { t: "p", html: "A fair game in a four-player pod is 25%. The deck clears that against both fields, but it isn't the fastest Etrata list on this site: the v3 drain list wins more bot games. The heist is the list that wins by attacking and stealing. The variants chapter compares them." },
       { t: "callout", tone: "key", title: "Tell the table first", html: "\"Bracket 4, nine Game Changers, lots of tutors. Dimir Etrata: I steal the top card of your library every time an Assassin hits you. Ramses wins the game when I kill one of you, and there's a two-card infinite drain loop. In bot games it wins around round 8 or 9.\"" },
-      { t: "callout", tone: "tip", title: "Cost", html: "$1,323.02 for the 100 cards, cheapest nonfoil paper printing of each (Scryfall prices of 2026-10-05). The big ones are <i-c>Imperial Seal</i-c> ($170.58), <i-c>Mox Amber</i-c> ($87.79) and <i-c>Demonic Tutor</i-c> ($63.10). Or proxy it: 44 cards, 15 basics included, carry over from ju's Etrata deck, and the other 56 can be proxies. The variants chapter has both lists." }
+      { t: "callout", tone: "tip", title: "Cost", html: "$1,323.02 for the 100 cards, cheapest nonfoil paper printing of each (Scryfall prices of 2026-10-05). The big ones are <i-c>Imperial Seal</i-c> ($170.58), <i-c>Mox Amber</i-c> ($87.79) and <i-c>Demonic Tutor</i-c> ($63.10). Or proxy it: 43 cards, 15 basics included, carry over from your Etrata deck, and the other 57 can be proxies. The variants chapter has both lists." }
     ]
   },
   {
@@ -523,7 +523,7 @@ window.CETRATA_GUIDE = [
       { t: "p", html: "The list this site documented before the heist: Etrata's Shadow Market v3, a combo deck with the vampire court (<i-c>Exquisite Blood</i-c> or <i-c>Bloodthirsty Conqueror</i-c> with <i-c>Marauding Blight-Priest</i-c>, <i-c>Starscape Cleric</i-c>, <i-c>Vito, Thorn of the Dusk Rose</i-c>, <i-c>Sanguine Bond</i-c> or <i-c>Enduring Tenacity</i-c>), <i-c>Mindcrank</i-c> with <i-c>Duskmantle Guildmage</i-c>, and <i-c>Wormfang Manta</i-c> turns with <i-c>Scroll of Fate</i-c> and <i-c>Crystal Shard</i-c>. In the same engine it wins more bot games than the heist (68.0% / 41.7%, average winning round 8.2 / 7.3), with 99% of its wins from the drain combo." },
       { t: "p", html: "It stays: its cards are in the card wiki under the \"v3 drain list\" filter, and it's a playable deck in the game. Pick it if you want the combo deck. Pick the heist if you want Etrata's steals and attacks to be the game." },
       { t: "h", text: "Building it" },
-      { t: "p", html: "44 cards of the heist closer, 15 basics included, carry over from ju's Etrata deck. The other 56 can be proxies. The proxy list below shows them; the buy list prices every card." },
+      { t: "p", html: "43 cards of the heist closer, 15 basics included, carry over from your Etrata deck. The other 57 can be proxies. The proxy list below shows them; the buy list prices every card." },
       { t: "widget", id: "proxyList" },
       { t: "widget", id: "buyList" },
       { t: "callout", tone: "tip", title: "If the table is softer", html: "Take out the loop and play the snowball list, or leave the tutors on the bench and let the steals decide. A good game for everyone beats a fast win." }

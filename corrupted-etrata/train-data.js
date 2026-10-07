@@ -60,7 +60,7 @@ window.CETRATA_TRAIN_DATA = {
       q: "An opponent casts <i-c>Cyclonic Rift</i-c> with overload. You hold <i-c>Fierce Guardianship</i-c>. What do you do?",
       options: ["Cast Fierce Guardianship for free and counter it", "Let it go: Rift doesn't touch stolen cards", "You can't: you're tapped out"],
       answer: 0,
-      explain: "Overloaded Rift returns every nonland permanent you don't control to its owner's hand: Ramses, Etrata, the Leyline, and the stolen face-down cards go back to their owners. With Etrata on the battlefield, tapped or not, <i-c>Fierce Guardianship</i-c> costs nothing, and Rift is a noncreature spell.",
+      explain: "Overloaded Rift returns every nonland permanent its caster doesn't control to its owner's hand: Ramses and the Leyline to your hand, Etrata to your hand or the command zone, and the stolen face-down cards to their owners. With Etrata on the battlefield, tapped or not, <i-c>Fierce Guardianship</i-c> costs nothing, and Rift is a noncreature spell.",
       principle: "With Etrata out, Fierce Guardianship and Deadly Rollick cost nothing. You're never really tapped out."
     },
     {
@@ -168,7 +168,7 @@ window.CETRATA_TRAIN_DATA = {
       principle: "Know when you're already protected, and don't spend a counter twice."
     },
     {
-      context: "Your turn, round 6. You attack, and in combat an opponent casts a removal spell on Etrata. You're tapped out. Ramses is in your library.",
+      context: "Your turn, round 6. You attack, and in combat an opponent casts a removal spell on Etrata. You're tapped out.",
       q: "Your hand: <i-c>Force of Will</i-c>, <i-c>Brainstorm</i-c>. What do you do?",
       options: ["Force of Will it, paying 1 life and exiling Brainstorm", "Let her die: recast her later", "Nothing: no counter is free on your turn"],
       answer: 0,
@@ -186,11 +186,11 @@ window.CETRATA_TRAIN_DATA = {
   ],
   threat: [
     {
-      context: "Your turn, round 6. Ramses is out. Opponent A: 14 life, three untapped fliers. Opponent B: 18 life, no untapped creatures. Opponent C: 31 life, one ground blocker. Your evasive attackers deal about 16 to an open player, and <i-c>Changeling Outcast</i-c> carries <i-c>Quietus Spike</i-c>.",
+      context: "Your turn, round 6. Ramses is out. Opponent A: 12 life, three untapped fliers. Opponent B: 15 life, no untapped creatures. Opponent C: 31 life, one ground blocker. Your evasive attackers deal about 16 to an open player.",
       q: "Who's the mark?",
       options: ["A: lowest life", "B: the board kills them this turn", "C: the highest life total is the biggest threat"],
       answer: 1,
-      explain: "Into B, 16 damage leaves 2, and the Spike's halving takes half of the rest after combat damage. Into A, the fliers block most of it and A survives. With Ramses out, one death is the game: the mark is whoever the board kills soonest, not whoever has the least life.",
+      explain: "Into B, 16 damage is lethal this turn. Into A, the fliers block most of it and A survives. With Ramses out, one death is the game: the mark is whoever the board kills soonest, not whoever has the least life.",
       principle: "With Ramses out, the mark is whoever the board kills soonest. Count blockers, not just life."
     },
     {

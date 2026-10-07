@@ -152,7 +152,7 @@
       opps: [{ commander: "Kaalia of the Vast", life: 29, board: ["Serra Angel", "Angel of Indemnity"] }, { commander: "Lathril, Blade of the Elves", life: 33, board: ["Elvish Archdruid", "Llanowar Elves"] }, { commander: "Ghired, Conclave Exile", life: 36, board: ["Old Gnawbone"] }],
       hints: ["Ramses: whenever a player loses the game, if they were attacked this turn by an Assassin you controlled, you win. You only need one of them to die.", "Unstoppable Slasher halves on a hit, and Bloodletter doubles. Everyone has blockers. What makes the Slasher unblockable?"],
       solution: ["Rogue's Passage ({4}, {T}): Unstoppable Slasher can't be blocked this turn.", "Attack one player with the Slasher (and Changeling Outcast, which can't be blocked). The hit takes all their life: they lose, and Ramses wins you the game."],
-      lesson: "Rule 7: with Ramses out, one death is the game. Pick one player and put everything that gets through at them. Ramses makes the Slasher a 4/3, too big for Tetsuko: Rogue's Passage is the way.",
+      lesson: "Rule 7: with Ramses out, one death is the game. Pick one player and put everything that gets through at them. Ramses makes the Slasher a 3/4, too big for Tetsuko: Rogue's Passage is the way.",
       check: won, script: [{ main: "Rogue's Passage", target: "Unstoppable Slasher" }, { attack: [["Unstoppable Slasher", "Kaalia"], ["Changeling Outcast", "Kaalia"]] }] },
     { id: "loop", title: "Gain, drain, gain", level: 2, rating: 1200, skill: "lines",
       goal: "Win the game this turn.",
@@ -331,7 +331,7 @@
   }
   // Expected value of taking a mulligan, by mulligans already taken (tools/sim/mull-values.js --deck heist --write).
   let MULL = null;
-  /*MULL*/ MULL = null; /*MULL-END*/
+  /*MULL*/ MULL = [null,0.4906,0.3409,0.1677,-0.0509,-0.3007,0.15]; /*MULL-END*/
   function mulliganAdvice(hand, mulls) {
     const k = Math.max(0, mulls - 1);
     const kept = k ? bestBottom(hand, k) : { bottom: [], hand: hand.slice() };
@@ -477,8 +477,8 @@
     }
     if (k === "twohalves") {
       const L = ri(20, 40);
-      const a = L - 1, b = a - Math.ceil(a / 2), c = b - Math.ceil(b / 2);
-      return { kind: "math", seed, q: `No Bloodletter. Unstoppable Slasher (power 1 after a -2/-0 effect, it doesn't matter how) carries Quietus Spike and connects with a player at ${L}. Two halving triggers. Where do they end?`, ...opts4(c, [Math.floor(a / 2), b, Math.floor(L / 4)]), explain: `1 combat damage: ${a}. The first trigger takes half rounded up: ${b}. The second takes half of what's left, not the same amount again: ${c}.`, cards: ["Unstoppable Slasher", "Quietus Spike"] };
+      const a = L - 2, b = a - Math.ceil(a / 2), c = b - Math.ceil(b / 2);
+      return { kind: "math", seed, q: `No Bloodletter. Unstoppable Slasher (2/3) carries Quietus Spike and connects with a player at ${L}. Two halving triggers. Where do they end?`, ...opts4(c, [Math.floor(a / 2), b, Math.floor(L / 4)]), explain: `2 combat damage: ${a}. The first trigger takes half rounded up: ${b}. The second takes half of what's left, not the same amount again: ${c}.`, cards: ["Unstoppable Slasher", "Quietus Spike"] };
     }
     if (k === "bloodcombat") {
       const n = ri(2, 5), L = ri(15, 30);

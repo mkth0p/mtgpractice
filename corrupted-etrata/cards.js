@@ -9,10 +9,7 @@ window.CETRATA_CARDS = [
   "mv": 3,
   "type": "Legendary Creature — Vampire Assassin",
   "cat": "Creature",
-  "pt": [
-   1,
-   4
-  ],
+  "pt": "1/4",
   "text": "Deathtouch\nFace-down creatures you control have \"{2}{U}{B}: Turn this creature face up. If you can't, exile it, then you may cast the exiled card without paying its mana cost.\"\nWhenever an Assassin you control deals combat damage to an opponent, cloak the top card of that player's library.",
   "roles": [
    "cmd"
@@ -37,10 +34,7 @@ window.CETRATA_CARDS = [
   "mv": 1,
   "type": "Creature — Shapeshifter",
   "cat": "Creature",
-  "pt": [
-   1,
-   1
-  ],
+  "pt": "1/1",
   "text": "Changeling (This card is every creature type.)\nChangeling Outcast can't block and can't be blocked.",
   "roles": [
    "assassin"
@@ -64,10 +58,7 @@ window.CETRATA_CARDS = [
   "mv": 1,
   "type": "Creature — Human Assassin",
   "cat": "Creature",
-  "pt": [
-   1,
-   1
-  ],
+  "pt": "1/1",
   "text": "Deathtouch",
   "roles": [
    "assassin"
@@ -90,10 +81,7 @@ window.CETRATA_CARDS = [
   "mv": 1,
   "type": "Creature — Snake Rogue",
   "cat": "Creature",
-  "pt": [
-   1,
-   2
-  ],
+  "pt": "1/2",
   "text": "This creature can't be blocked.",
   "roles": [
    "assassin"
@@ -116,10 +104,7 @@ window.CETRATA_CARDS = [
   "mv": 1,
   "type": "Creature — Shapeshifter",
   "cat": "Creature",
-  "pt": [
-   1,
-   1
-  ],
+  "pt": "1/1",
   "text": "Changeling (This card is every creature type.)\nTap an untapped creature you control: This creature gains flying until end of turn.",
   "roles": [
    "assassin"
@@ -142,10 +127,7 @@ window.CETRATA_CARDS = [
   "mv": 2,
   "type": "Legendary Creature — Human Rogue",
   "cat": "Creature",
-  "pt": [
-   1,
-   3
-  ],
+  "pt": "1/3",
   "text": "Creatures you control with power or toughness 1 or less can't be blocked.",
   "roles": [
    "assassin",
@@ -170,10 +152,7 @@ window.CETRATA_CARDS = [
   "mv": 2,
   "type": "Legendary Creature — Human Ninja Rogue",
   "cat": "Creature",
-  "pt": [
-   2,
-   3
-  ],
+  "pt": "2/3",
   "text": "Menace\nWhenever Satoru and/or one or more other nontoken creatures you control enter, if none of them were cast or no mana was spent to cast them, draw a card.",
   "roles": [
    "assassin",
@@ -197,10 +176,7 @@ window.CETRATA_CARDS = [
   "mv": 2,
   "type": "Creature — Human Assassin",
   "cat": "Creature",
-  "pt": [
-   1,
-   3
-  ],
+  "pt": "1/3",
   "text": "At the beginning of combat on your turn, if you control a legendary Assassin, this creature gets +1/+0 until end of turn and can't be blocked this turn.",
   "roles": [
    "assassin"
@@ -223,10 +199,7 @@ window.CETRATA_CARDS = [
   "mv": 2,
   "type": "Legendary Creature — Human Assassin",
   "cat": "Creature",
-  "pt": [
-   2,
-   1
-  ],
+  "pt": "2/1",
   "text": "Menace\nWhenever Reno and Rude deals combat damage to a player, exile the top card of that player's library. Then you may sacrifice another creature or artifact. If you do, you may play the exiled card this turn, and mana of any type can be spent to cast it.",
   "roles": [
    "assassin"
@@ -249,10 +222,7 @@ window.CETRATA_CARDS = [
   "mv": 2,
   "type": "Creature — Human Wizard",
   "cat": "Creature",
-  "pt": [
-   2,
-   1
-  ],
+  "pt": "2/1",
   "text": "At the beginning of your upkeep, reveal the top card of your library and put that card into your hand. You lose life equal to its mana value.",
   "roles": [
    "draw"
@@ -275,10 +245,7 @@ window.CETRATA_CARDS = [
   "mv": 3,
   "type": "Legendary Creature — Azra Assassin",
   "cat": "Creature",
-  "pt": [
-   1,
-   1
-  ],
+  "pt": "1/1",
   "text": "Partner with Gorm the Great (When this creature enters, target player may put Gorm into their hand from their library, then shuffle.)\nDeathtouch\nWhenever Virtus deals combat damage to a player, that player loses half their life, rounded up.",
   "roles": [
    "kill",
@@ -303,10 +270,7 @@ window.CETRATA_CARDS = [
   "mv": 3,
   "type": "Creature — Zombie Assassin",
   "cat": "Creature",
-  "pt": [
-   2,
-   3
-  ],
+  "pt": "2/3",
   "text": "Deathtouch\nWhenever this creature deals combat damage to a player, they lose half their life, rounded up.\nWhen this creature dies, if it had no counters on it, return it to the battlefield tapped under its owner's control with two stun counters on it.",
   "roles": [
    "kill",
@@ -331,10 +295,7 @@ window.CETRATA_CARDS = [
   "mv": 3,
   "type": "Legendary Creature — Vampire Assassin",
   "cat": "Creature",
-  "pt": [
-   3,
-   2
-  ],
+  "pt": "3/2",
   "text": "Whenever a creature an opponent controls dies, exile it with a hit counter on it.\nAssassins, Mercenaries, and Rogues you control have deathtouch and \"Whenever this creature deals combat damage to a player, you may remove a hit counter from a card that player owns in exile. If you do, draw a card and create two Treasure tokens.\"",
   "roles": [
    "kill"
@@ -358,10 +319,7 @@ window.CETRATA_CARDS = [
   "mv": 4,
   "type": "Legendary Creature — Human Assassin",
   "cat": "Creature",
-  "pt": [
-   4,
-   4
-  ],
+  "pt": "4/4",
   "text": "Deathtouch\nOther Assassins you control get +1/+1.\nWhenever a player loses the game, if they were attacked this turn by an Assassin you controlled, you win the game.",
   "roles": [
    "kill"
@@ -386,10 +344,7 @@ window.CETRATA_CARDS = [
   "mv": 4,
   "type": "Legendary Creature — Human Assassin",
   "cat": "Creature",
-  "pt": [
-   3,
-   3
-  ],
+  "pt": "3/3",
   "text": "Freerunning {U}{B} (You may cast this spell for its freerunning cost if you dealt combat damage to a player this turn with an Assassin or commander.)\nMenace\nOther Assassins you control get +1/+1.",
   "roles": [
    "snowball"
@@ -412,10 +367,7 @@ window.CETRATA_CARDS = [
   "mv": 4,
   "type": "Legendary Creature — Human Assassin",
   "cat": "Creature",
-  "pt": [
-   4,
-   4
-  ],
+  "pt": "4/4",
   "text": "Other creatures you control are Assassins in addition to their other types. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.\nFace-down creatures you control have menace.\nWhenever a permanent you control is turned face up, you draw a card and you lose 1 life.",
   "roles": [
    "snowball"
@@ -439,10 +391,7 @@ window.CETRATA_CARDS = [
   "mv": 4,
   "type": "Artifact Creature — Golem",
   "cat": "Creature",
-  "pt": [
-   4,
-   4
-  ],
+  "pt": "4/4",
   "text": "Ward {2}\nAs this creature enters, choose a creature type.\nThis creature is the chosen type in addition to its other types.\nIf a triggered ability of another creature you control of the chosen type triggers, it triggers an additional time.",
   "roles": [
    "snowball"
@@ -466,10 +415,7 @@ window.CETRATA_CARDS = [
   "mv": 4,
   "type": "Creature — Vampire Demon",
   "cat": "Creature",
-  "pt": [
-   2,
-   4
-  ],
+  "pt": "2/4",
   "text": "Flying\nIf an opponent would lose life during your turn, they lose twice that much life instead. (Damage causes loss of life.)",
   "roles": [
    "kill"
@@ -493,10 +439,7 @@ window.CETRATA_CARDS = [
   "mv": 4,
   "type": "Creature — Illusion",
   "cat": "Creature",
-  "pt": [
-   0,
-   0
-  ],
+  "pt": "0/0",
   "text": "You may have this creature enter as a copy of a creature or planeswalker you control, except it enters with an additional +1/+1 counter on it if it's a creature, it enters with an additional loyalty counter on it if it's a planeswalker, and it isn't legendary.",
   "roles": [
    "snowball"
@@ -519,10 +462,7 @@ window.CETRATA_CARDS = [
   "mv": 4,
   "type": "Legendary Creature — Human Rogue",
   "cat": "Creature",
-  "pt": [
-   3,
-   1
-  ],
+  "pt": "3/1",
   "text": "You may have Sakashima the Impostor enter as a copy of any creature on the battlefield, except its name is Sakashima the Impostor, it's legendary in addition to its other types, and it has \"{2}{U}{U}: Return Sakashima the Impostor to its owner's hand at the beginning of the next end step.\"",
   "roles": [
    "snowball"
@@ -567,10 +507,7 @@ window.CETRATA_CARDS = [
   "mv": 2,
   "type": "Legendary Creature — Human Assassin",
   "cat": "Creature",
-  "pt": [
-   2,
-   2
-  ],
+  "pt": "2/2",
   "text": "Whenever you cast a historic spell, draw a card. Basim Ibn Ishaq can't be blocked this turn. This ability triggers only once each turn. (Artifacts, legendaries, and Sagas are historic.)\nWhenever Basim Ibn Ishaq deals combat damage to a player, put a +1/+1 counter on it.",
   "roles": [
    "assassin",
@@ -640,10 +577,7 @@ window.CETRATA_CARDS = [
   "mv": 6,
   "type": "Creature — Vampire Assassin",
   "cat": "Creature",
-  "pt": [
-   6,
-   5
-  ],
+  "pt": "6/5",
   "text": "Flying\nWard—Sacrifice a creature.\nWhenever a creature dies, target opponent loses 2 life and you gain 2 life.",
   "roles": [
    "loop"
@@ -712,10 +646,7 @@ window.CETRATA_CARDS = [
   "mv": 5,
   "type": "Creature — Vampire Knight",
   "cat": "Creature",
-  "pt": [
-   5,
-   5
-  ],
+  "pt": "5/5",
   "text": "Flying, deathtouch\nWhenever an opponent loses life, you gain that much life. (Damage causes loss of life.)",
   "roles": [
    "loop"
@@ -739,10 +670,7 @@ window.CETRATA_CARDS = [
   "mv": 3,
   "type": "Legendary Creature — Vampire Cleric",
   "cat": "Creature",
-  "pt": [
-   1,
-   3
-  ],
+  "pt": "1/3",
   "text": "Whenever you gain life, target opponent loses that much life.\n{3}{B}{B}: Creatures you control gain lifelink until end of turn.",
   "roles": [
    "loop"

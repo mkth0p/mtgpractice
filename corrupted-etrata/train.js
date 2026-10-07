@@ -18,7 +18,8 @@
 
   /* ================================================================ state on this device */
   const KEY = "cetrataWiki";
-  const SK = { train: KEY + ".train.v1", games: KEY + ".games.v1", an: KEY + ".analysis.v2" };
+  // the drills and puzzles changed with the heist list, so its progress starts fresh; recorded games carry their deck
+  const SK = { train: KEY + ".heist.train.v1", games: KEY + ".games.v1", an: KEY + ".analysis.v2" };
   const MAX_GAMES = 14;
   let A = null;   // the shell's helpers, set by the first widget
   const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
@@ -41,7 +42,11 @@
   const cnText = s => String(s).replace(/<i-c>(.*?)<\/i-c>/g, (m, n) => cn(n));
   const ago = t => { const d = (Date.now() - t) / 1000; return d < 90 ? "just now" : d < 3600 ? Math.round(d / 60) + " min ago" : d < 86400 ? Math.round(d / 3600) + " h ago" : Math.round(d / 86400) + " d ago"; };
   const MKG = () => window.MK;
-  const TR = () => window.MK && window.MK.TRAIN && window.MK.TRAIN["corrupted-etrata"];
+  // The Train tab trains the heist closer; a recorded game reviews with the rules of the deck it was played with.
+  const HERO_ID = "etrata-heist-aggro";
+  const TR = () => window.MK && window.MK.TRAIN && window.MK.TRAIN[HERO_ID];
+  const TRof = rec => (window.MK && window.MK.TRAIN && rec && window.MK.TRAIN[rec.deck]) || TR();
+  const HERO = () => MKG().ETRATA_HEIST_DECK;
   const refreshers = new Set();
   function bus() { for (const f of refreshers) { try { f(); } catch (e) { console.error(e); } } }
   window.addEventListener("hashchange", () => { if (/^#train/.test(location.hash)) bus(); });
@@ -54,18 +59,18 @@
     refreshers.add(() => { if (!st.busy) run(); });
     run();
   }
-  const SKILL_NAME = { mull: "Mulligans", tempo: "Mana and tempo", lines: "Seeing the win", tutor: "Tutoring", etrata: "Etrata and face-down play", stack: "The stack", combat: "Combat and threats", rules: "Rules knowledge" };
+  const SKILL_NAME = { mull: "Mulligans", tempo: "Mana and tempo", lines: "Seeing the kill", tutor: "Tutoring", etrata: "Etrata and the snowball", stack: "The stack", combat: "Combat and the mark", rules: "Rules knowledge" };
   const SKILL_SHORT = { mull: "Mulligans", tempo: "Tempo", lines: "Lines", tutor: "Tutoring", etrata: "Etrata", stack: "Stack", combat: "Combat", rules: "Rules" };
-  const SKILL_TRACK = { mull: "mana", tempo: "mana", lines: "combos", tutor: "tutors", etrata: "etrata", stack: "interaction", combat: "board", rules: "etrata" };
+  const SKILL_TRACK = { mull: "mana-mulligans", tempo: "opening", lines: "kill-ramses", tutor: "tutors", etrata: "cloak-snowball", stack: "interaction", combat: "getting-through", rules: "rules-corner" };
 
   /* ================================================================ drills */
   const DRILLS = [
     { id: "mulligan", name: "Mulligan Lab", skill: "mull", n: 12, icon: "🂠", blurb: "Twelve opening hands from the real 99. Keep or ship, graded by 400 goldfish games per hand." },
-    { id: "lines", name: "Line Spotter", skill: "lines", n: 10, icon: "◎", blurb: "Boards built in the game engine. Is a win live this turn, and which one? Against the clock." },
-    { id: "tutor", name: "Tutor Target", skill: "tutor", n: 8, icon: "⌕", blurb: "One tutor, four candidates. Fetch the card that wins soonest, with the mana you have. Transmute counts mana values." },
+    { id: "lines", name: "Kill Spotter", skill: "lines", n: 10, icon: "◎", blurb: "Boards built in the game engine. All in at one player: who dies this turn, and does it win the game? Against the clock." },
+    { id: "tutor", name: "Tutor Target", skill: "tutor", n: 8, icon: "⌕", blurb: "One tutor, four candidates. Ramses first, then the other half of the loop, Reanimate for a dead Ramses." },
     { id: "stack", name: "Stack Sentinel", skill: "stack", n: 10, icon: "⛉", blurb: "An opponent casts something. Counter it, with what, or let it go?" },
-    { id: "math", name: "Clock Math", skill: "rules", n: 10, icon: "∑", blurb: "Virtus halves, Bloodletter doubles, Mindcrank mills, Training Grounds discounts. Numbers that decide games." },
-    { id: "threat", name: "Threat Read", skill: "combat", n: 8, icon: "⚑", blurb: "Four players, one choice: who to attack, who to rob, who gets the gift." }
+    { id: "math", name: "Clock Math", skill: "rules", n: 10, icon: "∑", blurb: "Virtus and the Slasher halve, Bloodletter doubles, Coat of Arms counts, the loop never stops. Numbers that decide games." },
+    { id: "threat", name: "Threat Read", skill: "combat", n: 8, icon: "⚑", blurb: "Four players, one choice: who's the mark, when to flip, what Kindred Dominance names." }
   ];
   const drillDone = (st, id) => ((st.drills[id] || {}).sessions || []).length > 0;
   const drillBest = (st, id) => Math.max(0, ...((st.drills[id] || {}).sessions || []).map(s => s.score));
@@ -80,7 +85,7 @@
       const st = adv.stats;
       return { kind: "mulligan", hand, mulls, q: mulls ? "Your free mulligan is spent. Keep this seven, or mulligan to six?" : "Your opening seven. Keep, or take the free mulligan?",
         options: ["Keep", "Mulligan"], answer: adv.close ? [0, 1] : [adv.keep ? 0 : 1], close: adv.close,
-        explain: `${adv.close ? "Close call: either is fine. " : adv.keep ? "Keep. " : "Mulligan. "}In 400 goldfish games this hand finds a win line by turn 6 in ${pct(st.w6)} and by turn 8 in ${pct(st.w8)}, and has Etrata out by turn 4 in ${pct(st.e4)}${st.l3 < 0.6 ? `; it reaches three lands by turn 3 only ${pct(st.l3)} of the time` : ""}. Hand value ${Math.round(adv.value * 100)} against ${Math.round(adv.mull * 100)} for ${mulls ? "a mulligan to six" : "the free mulligan"}.`,
+        explain: `${adv.close ? "Close call: either is fine. " : adv.keep ? "Keep. " : "Mulligan. "}In 400 goldfish games this hand gets Etrata's first hit by turn 3 in ${pct(st.h3)} and Ramses down by turn 6 in ${pct(st.r6)}${st.l3 < 0.6 ? `; it reaches three lands by turn 3 only ${pct(st.l3)} of the time` : ""}. Hand value ${Math.round(adv.value * 100)} against ${Math.round(adv.mull * 100)} for ${mulls ? "a mulligan to six" : "the free mulligan"}. Rule 1: mulligan is the default.`,
         adv };
     }
     if (d.id === "lines") return T.lineSpotter(s);
@@ -222,7 +227,7 @@
   }
   function assessSeats(pool) {
     const MK = MKG();
-    const hero = MK.CETRATA_DECK;
+    const hero = HERO();
     const all = (MK.BOT_DECKS || []).filter(d => d.id !== hero.id && d.commander !== hero.commander);
     const inPool = d => pool === "mixed" ? true : pool === "b4" ? (d.bracket || 4) >= 4 : (d.bracket || 4) < 4;
     const list = all.filter(inPool);
@@ -276,7 +281,7 @@
   function openPuzzle(pz) {
     const T = TR();
     const mode = { kind: "puzzle", puzzle: T.puzzleFor(pz), onDone: res => recordPuzzle(pz, res) };
-    return openTable(mode, [{ human: true, deck: MKG().CETRATA_DECK }]);
+    return openTable(mode, [{ human: true, deck: HERO() }]);
   }
   function recordPuzzle(pz, res) {
     const ts = trainState();
@@ -484,7 +489,7 @@
       cur = anStore()[rec.id];
       let sum = An.summarize(rec, cur.quick, cur.deep);
       // deep: the decisions that cost the most, plus flagged ones the quick pass couldn't judge
-      let rv = null; try { rv = T.review(rec); } catch (e) { rv = null; }
+      let rv = null; try { rv = TRof(rec).review(rec); } catch (e) { rv = null; }
       const flagged = rv ? rv.flags.filter(f => !f.info && f.i != null && f.id !== "mull").map(f => f.i) : [];
       const pick = [...new Set(sum.worst.slice(0, opts.deep || 5).concat(flagged.slice(0, 2)))].filter(i => !cur.deep[i]);
       run.phase = "deep"; run.total = pick.length; run.done = 0; run.frac = {};
@@ -539,7 +544,7 @@
     const haveAll = moments.every(m => store.quick && store.quick[m.i]);
     if (!run && (!haveAll || !store.sum)) { analyzeGame(rec); return renderReview(el, st, rec); }
     const sum = store.sum && haveAll ? store.sum : An.summarize(rec, store.quick || {}, store.deep || {});
-    st.rvd = st.rvd && st.rvd.id === rec.id ? st.rvd : { id: rec.id, rv: T.review(rec), open: null };
+    st.rvd = st.rvd && st.rvd.id === rec.id ? st.rvd : { id: rec.id, rv: TRof(rec).review(rec), open: null };
     const rv = st.rvd.rv;
     const res = rec.result || {};
     const opp = rec.seats.filter((s, i) => i !== rec.hero).map(s => s.name);
@@ -775,8 +780,8 @@
         <label>Mulligans<select name="mull"><option>0</option><option>1</option><option>2</option><option>3</option></select></label>
         <label>Etrata out on turn<input name="et" type="number" min="1" max="20" placeholder="3"></label>
         <label>Game ended on turn<input name="end" type="number" min="1" max="40" placeholder="8"></label>
-        <label>Line that won (or tried)<select name="line"><option value="">None</option><option value="vampire">Vampire loop</option><option value="mindcrank">Mindcrank + Guildmage</option><option value="doubletap">Double tap</option><option value="manta">Infinite turns</option><option value="combat">Combat</option></select></label>
-        <label>What beat you<select name="why"><option value="">Nothing / I won</option><option value="speed">Someone was faster</option><option value="interaction">My combo got answered</option><option value="removal">Etrata kept dying</option><option value="mana">Mana problems</option><option value="flood">Flood or no action</option><option value="target">The table ganged up on me</option><option value="misplay">My own misplay</option></select></label>
+        <label>Line that won (or tried)<select name="line"><option value="">None</option><option value="ramses">Ramses' verdict</option><option value="halve">Half, doubled</option><option value="loop">Drain loop</option><option value="combat">Combat</option></select></label>
+        <label>What beat you<select name="why"><option value="">Nothing / I won</option><option value="speed">Someone was faster</option><option value="interaction">Ramses or the loop got answered</option><option value="removal">Etrata kept dying</option><option value="mana">Mana problems</option><option value="flood">Flood or no action</option><option value="target">The table ganged up on me</option><option value="misplay">My own misplay</option></select></label>
         <label class="wide">One thing I'd do differently<input name="note" maxlength="200" placeholder="e.g. hold Swan Song for the wipe"></label>
         <div class="btn-row wide"><button class="btn primary" type="submit">Save the game</button></div>
       </form>
@@ -846,7 +851,7 @@
     // quiz, by topic
     const quiz = load(KEY + ".quiz.v1", {});
     const QS = window.CETRATA_QUIZ || [];
-    const TOPIC = { combos: "lines", tutors: "tutor", theft: "etrata", cards: "rules", rules: "rules", plan: "lines", mana: "tempo", rulings: "rules" };
+    const TOPIC = { kills: "lines", snowball: "etrata", tutors: "tutor", cards: "rules", rules: "rules", plan: "lines", mana: "tempo", rulings: "rules" };
     const byT = {};
     for (const q of QS) { const b = (quiz.box || {})[q.id]; if (b == null) continue; const k = TOPIC[q.topic] || "rules"; byT[k] = byT[k] || { n: 0, s: 0 }; byT[k].n++; byT[k].s += Math.min(1, b / 3); }
     for (const k of Object.keys(byT)) add(k, byT[k].s / byT[k].n, Math.min(8, byT[k].n * 0.3), `Quiz: ${byT[k].n} questions seen`);
@@ -854,7 +859,7 @@
     const ans = anStore();
     for (const g of p.gs) {
       let rv = null;
-      try { rv = T ? T.review(g) : null; } catch (e) { rv = null; }
+      try { rv = T ? TRof(g).review(g) : null; } catch (e) { rv = null; }
       if (rv) for (const k of Object.keys(rv.ev)) { const e = rv.ev[k]; if (e.n) add(k, e.ok / e.n, e.n * 0.8, `Game ${ago(g.t)}: ${Math.round(e.ok * 10) / 10}/${Math.round(e.n * 10) / 10}`); }
       const sm = (ans[g.id] || {}).sum;
       if (!sm) continue;
@@ -900,7 +905,7 @@
     const leaks = ranked.slice(0, 3), strengths = ranked.slice(3).slice(-2).reverse();
     const overall = keys.length ? Math.round(keys.reduce((a, k) => a + S[k].score * Math.min(1, S[k].conf / 6), 0) / keys.reduce((a, k) => a + Math.min(1, S[k].conf / 6), 0)) : null;
     // the games: stats, flags and examples
-    const reviews = p.gs.map(g => { try { return { g, rv: T.review(g) }; } catch (e) { return null; } }).filter(Boolean);
+    const reviews = p.gs.map(g => { try { return { g, rv: TRof(g).review(g) }; } catch (e) { return null; } }).filter(Boolean);
     const ans = anStore();
     const examples = k => {
       const out = [];
@@ -924,14 +929,14 @@
     const accs = G.accs;
     const journal = p.ts.journal || [];
     const PLAN = {
-      mull: ["Mulligan Lab until Silver (80%).", "Before each keep, name the turn Etrata comes down and the line you're digging for."],
-      tempo: ["Every turn: land, then rocks, then Etrata. Check the land drop before you pass.", "Clock Math for the costs, and play two assessment games watching only your mana."],
-      lines: ["Line Spotter until you answer in under 8 seconds.", "Puzzles: Court is in session, Crank the whole table, One point is enough.", "In games, open the Plan in your head at the start of each of your turns: what's live, what's one card away."],
-      tutor: ["Tutor Target until Silver.", "Rule: tutor for the piece you can cast this turn; a stronger card next turn is worth less."],
-      etrata: ["Puzzles: Three cloaks, The blocker that bites, Their wipe, your turn.", "Look at your face-down cards at the start of every turn: a stolen spell is a free cast."],
-      stack: ["Stack Sentinel until Gold.", "Counters are for wipes, removal on your pieces and winning spells. Say which before you pass priority."],
-      combat: ["Threat Read until Silver.", "Keep Etrata home unless no blocker can kill her; she's your engine."],
-      rules: ["Clock Math and the Quiz's rules topic until box 3.", "Puzzles: Milling isn't losing life, Blocked doesn't matter."]
+      mull: ["Mulligan Lab until Silver (80%).", "Before each keep, name the turn Etrata's first hit lands and how you find Ramses. Mulligan is the default."],
+      tempo: ["Every turn: land, then fast mana, then a cheap Assassin. Etrata on the turn one connects.", "Play two assessment games watching only your mana: nothing held back for one-shots."],
+      lines: ["Kill Spotter until you answer in under 8 seconds.", "Puzzles: Half, doubled; Ramses' verdict; Gain, drain, gain; Nobody blocks.", "In games, name the mark at the start of each of your turns once Ramses is out."],
+      tutor: ["Tutor Target until Silver.", "Rule 3: Ramses first. Then the other half of the loop, then Bloodletter and the halvers."],
+      etrata: ["Puzzles: The first hit, Two cloaks a hit, Only Assassins.", "Flip rarely: a stolen card turns up only when it beats the 2/2 it is."],
+      stack: ["Stack Sentinel until Gold.", "Rule 5: the last counter is for the wrath and for removal on Ramses or Etrata. Say which before you pass priority."],
+      combat: ["Threat Read until Silver.", "With Ramses out, everything that gets through goes at one player. Teferi's Veil out: attack with everything."],
+      rules: ["Clock Math and the Quiz's rules topic until box 3.", "Puzzles: Only Assassins, First things first."]
     };
     el.innerHTML = `<div class="tn-report">
       ${p.unlocked ? "" : `<p class="tn-peek">A preview: the analysis isn't unlocked yet, so some skills have little data.</p>`}
@@ -1089,14 +1094,14 @@
   function journalReport(j) {
     const n = j.length, wins = j.filter(x => x.res === "win").length;
     const count = k => { const m = {}; for (const x of j) if (x[k]) m[x[k]] = (m[x[k]] || 0) + 1; return Object.entries(m).sort((a, b) => b[1] - a[1]); };
-    const WHY = { speed: "someone was faster", interaction: "your combo got answered", removal: "Etrata kept dying", mana: "mana problems", flood: "flood or no action", target: "the table ganged up", misplay: "your own misplay" };
+    const WHY = { speed: "someone was faster", interaction: "Ramses or the loop got answered", removal: "Etrata kept dying", mana: "mana problems", flood: "flood or no action", target: "the table ganged up", misplay: "your own misplay" };
     const ets = j.filter(x => x.et).map(x => x.et), ends = j.filter(x => x.res === "win" && x.end).map(x => x.end);
     const why = count("why"), lines = count("line");
     return `<section class="tn-sec"><h3>At the real table</h3><div class="panel tn-paper">
       <p><b>${wins} of ${n}</b> paper games won${ets.length ? `, Etrata out on turn ${(ets.reduce((a, b) => a + b, 0) / ets.length).toFixed(1)} on average` : ""}${ends.length ? `, wins on turn ${(ends.reduce((a, b) => a + b, 0) / ends.length).toFixed(1)}` : ""}.</p>
       ${why.length ? `<p>What beats you most: <b>${esc(WHY[why[0][0]] || why[0][0])}</b> (${why[0][1]} of ${n})${why[1] ? `, then ${esc(WHY[why[1][0]] || why[1][0])} (${why[1][1]})` : ""}.</p>` : ""}
       ${lines.length ? `<p>Lines you go for: ${lines.map(([k, v]) => `${esc(k)} ${v}`).join(", ")}.</p>` : ""}
-      ${why.length && why[0][0] === "interaction" ? `<p class="tn-principle"><span>From your table</span>Your combos get answered: wait a turn for a counter of your own, or bait their interaction with a lesser threat first. Stack Sentinel trains exactly this.</p>` : ""}
+      ${why.length && why[0][0] === "interaction" ? `<p class="tn-principle"><span>From your table</span>Your kill gets answered: cast Ramses with a counter up when you can, and keep the last one for the wrath. Teferi's Veil and Eldrazi Monument blank the wraths. Stack Sentinel trains this.</p>` : ""}
       ${why.length && why[0][0] === "removal" ? `<p class="tn-principle"><span>From your table</span>Etrata keeps dying: cast her when you can protect her or when the table is tapped out, and keep her home as a blocker.</p>` : ""}
       ${why.length && why[0][0] === "speed" ? `<p class="tn-principle"><span>From your table</span>The table is faster: mulligan harder for hands with a line, and keep a counter for their win.</p>` : ""}
       ${j.filter(x => x.note).slice(0, 3).map(x => `<p class="muted small">“${esc(x.note)}”</p>`).join("")}
