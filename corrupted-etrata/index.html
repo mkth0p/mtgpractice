@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Corrupted Etrata</title>
-<meta name="description" content="Corrupted Etrata, a Bracket 4 Etrata, Deadly Fugitive Commander deck (Etrata's Shadow Market v3): a step-by-step guide, every card with rulings, four win lines, a play checklist, a quiz, and a playable Commander game against bots with live tips.">
+<meta name="description" content="Corrupted Etrata, a Bracket 4 Etrata, Deadly Fugitive Commander deck (the Etrata heist closer): cheap evasive Assassins, Etrata's cloaks, Ramses as the kill and the drain loop as a second kill. A step-by-step guide, every card with rulings, a play checklist, a quiz, and a playable Commander game against bots with live tips.">
 <meta name="theme-color" content="#f3f0e8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#07090c" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,9 +18,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cards.scryfall.io" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Martian+Mono:wght@400;500;600&family=Unbounded:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="../miku/styles.css?v=37">
-<link rel="stylesheet" href="theme.css?v=37">
-<link rel="stylesheet" href="train.css?v=37">
+<link rel="stylesheet" href="../miku/styles.css?v=38">
+<link rel="stylesheet" href="theme.css?v=38">
+<link rel="stylesheet" href="train.css?v=38">
 <script>try { var t = localStorage.getItem("cetrataWiki.theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}</script>
 </head>
 <body>
@@ -49,21 +49,21 @@
 
 <main id="main">
 <!-- ================================================================== GUIDE -->
-<div class="view" id="view-guide" data-view="guide" data-segs="start:Overview,chapters:Chapters,combos:Combos,checklist:Checklist">
+<div class="view" id="view-guide" data-view="guide" data-segs="start:Overview,chapters:Chapters,combos:Kills,checklist:Checklist">
 
   <div class="segment" data-segment="start">
     <section class="hero" id="overview">
-      <div class="marquee" aria-hidden="true"><div class="marquee-track"><span>Now playing</span><b>Etrata, Deadly Fugitive</b><span>Bracket 4 · Dimir</span><b>Etrata's Shadow Market</b><span>4 win lines</span><b>Steal their best cards</b><span>Now playing</span><b>Etrata, Deadly Fugitive</b><span>Bracket 4 · Dimir</span><b>Etrata's Shadow Market</b><span>4 win lines</span><b>Steal their best cards</b></div></div>
+      <div class="marquee" aria-hidden="true"><div class="marquee-track"><span>Now playing</span><b>Etrata, Deadly Fugitive</b><span>Bracket 4 · Dimir</span><b>The heist closer</b><span>Ramses is the kill</span><b>Steal their best cards</b><span>Now playing</span><b>Etrata, Deadly Fugitive</b><span>Bracket 4 · Dimir</span><b>The heist closer</b><span>Ramses is the kill</span><b>Steal their best cards</b></div></div>
       <div class="wrap hero-grid">
         <div class="hero-copy">
-          <p class="kicker"><span class="live-dot" aria-hidden="true"></span>Dimir theft and odd combos · Bracket 4</p>
+          <p class="kicker"><span class="live-dot" aria-hidden="true"></span>Dimir theft aggro · Bracket 4</p>
           <h1 class="hero-title" aria-label="Corrupted Etrata"><span class="ht-1">Corrupted</span><span class="ht-2" data-t="Etrata">Etrata</span></h1>
-          <p class="hero-lede">The dark side of the Etrata deck: <i-c>Etrata, Deadly Fugitive</i-c> at the head of "Etrata's Shadow Market", a Bracket 4 list built to win on turns 6 to 7 with cards almost nobody plays. A vampire court that drains the table, cheap deathtouch blockers, infinite turns with <i-c>Wormfang Manta</i-c>, and a lot of stealing. Here's the full manual: a guide in steps, every card with rulings, the four win lines, a checklist to play with, a quiz to learn it fast, and a real game to practise against.</p>
+          <p class="hero-lede">The dark side of the Etrata deck: <i-c>Etrata, Deadly Fugitive</i-c> at the head of the heist closer, a Bracket 4 theft-aggro list. Cheap evasive Assassins on turns 1 and 2, Etrata the turn one of them connects, and every hit steals the top card of a library as a face-down 2/2 that attacks for you next turn. <i-c>Ramses, Assassin Lord</i-c> is the kill: once an Assassin of yours has attacked a player, their death wins you the game. The vampire drain loop is the second kill. Here's the full manual: a guide in steps, every card with rulings, both kills, a checklist to play with, a quiz to learn it fast, and a real game to practise against.</p>
           <ul class="ticket-strip" aria-label="Deck facts">
             <li class="teal">Bracket 4</li>
-            <li>36 lands</li>
-            <li class="pink">4 win lines</li>
-            <li>14 tutors</li>
+            <li>37 lands</li>
+            <li class="pink">2 kills</li>
+            <li>8 tutors</li>
           </ul>
           <div class="hero-cta">
             <a class="btn primary" href="#ch-deck-in-60-seconds">Start the guide</a>
@@ -85,22 +85,22 @@
 
     <div class="wrap">
       <dl class="hero-stats">
-        <div class="stat"><dt><b data-count="100">100</b></dt><dd>cards, 36 lands, 16 of them basics</dd></div>
-        <div class="stat"><dt><b data-count="2.5" data-dec="1">2.5</b></dt><dd>average mana value of the nonland cards</dd></div>
-        <div class="stat"><dt><b data-count="14">14</b></dt><dd>tutors, four of them transmute cards</dd></div>
-        <div class="stat"><dt><b data-count="69">69</b><span>%</span></dt><dd>of four-player bot games won against three precons</dd></div>
+        <div class="stat"><dt><b data-count="100">100</b></dt><dd>cards, 37 lands, 15 of them basics</dd></div>
+        <div class="stat"><dt><b data-count="2.7" data-dec="1">2.7</b></dt><dd>average mana value of the nonland cards</dd></div>
+        <div class="stat"><dt><b data-count="7.3" data-dec="1">7.3</b></dt><dd>cards stolen a game against three precons (bot games)</dd></div>
+        <div class="stat"><dt><b data-count="47.9" data-dec="1">47.9</b><span>%</span></dt><dd>of four-player bot games won against three precons</dd></div>
       </dl>
 
       <section class="block" id="engine">
         <div class="section-head">
           <p class="eyebrow">How the deck wins</p>
-          <h2>Cloak, steal, tutor, loop</h2>
+          <h2>Sneak in, steal, snowball, kill one</h2>
         </div>
         <ol class="flow">
-          <li><span class="beat">1</span><div><b>Hide in the shadows</b><p>Etrata's Assassins cloak the top of each library they hit. <i-c>Scroll of Fate</i-c> manifests your own cards. Etrata flips any face-down creature for {2}{U}{B}, {U}{B} with <i-c>Training Grounds</i-c>.</p></div></li>
-          <li><span class="beat">2</span><div><b>Run the black market</b><p>Etrata's cloaks, <i-c>Thief of Sanity</i-c>, <i-c>Opposition Agent</i-c> and <i-c>Notion Thief</i-c> take their cards. <i-c>Necropotence</i-c>, <i-c>Phyrexian Arena</i-c> and <i-c>Rhystic Study</i-c> refill your hand.</p></div></li>
-          <li><span class="beat">3</span><div><b>Find two cards</b><p>Fourteen tutors, from <i-c>Demonic Tutor</i-c> to four transmute cards, find the missing piece.</p></div></li>
-          <li><span class="beat">4</span><div><b>Four ways to win</b><p>The vampire court loop, <i-c>Mindcrank</i-c> + <i-c>Duskmantle Guildmage</i-c>, the double tap and infinite turns. See <a href="#guide/combos">the combos</a>.</p></div></li>
+          <li><span class="beat">1</span><div><b>Cheap evasive Assassins</b><p><i-c>Changeling Outcast</i-c>, <i-c>Hired Poisoner</i-c>, <i-c>Slither Blade</i-c>, <i-c>Mothdust Changeling</i-c> and <i-c>Tetsuko Umezawa, Fugitive</i-c> on turns 1 and 2, with <i-c>Sol Ring</i-c>, the Moxes, <i-c>Dark Ritual</i-c> and <i-c>Ancient Tomb</i-c> behind them.</p></div></li>
+          <li><span class="beat">2</span><div><b>Etrata when one connects</b><p>Her trigger works the turn she's cast. Each Assassin hit cloaks the top card of that player's library: a face-down 2/2 with ward {2}, yours, that attacks next turn.</p></div></li>
+          <li><span class="beat">3</span><div><b>The snowball</b><p><i-c>Leyline of Transformation</i-c>, <i-c>Arcane Adaptation</i-c> or <i-c>Roshan, Hidden Magister</i-c> make the stolen 2/2s Assassins, so they steal too. <i-c>They Came from the Pipes</i-c> and <i-c>Satoru, the Infiltrator</i-c> turn the steals into cards.</p></div></li>
+          <li><span class="beat">4</span><div><b>Kill one player</b><p><i-c>Ramses, Assassin Lord</i-c> turns one death into the game, and the drain loop kills the table. See <a href="#guide/combos">the kills</a>.</p></div></li>
         </ol>
       </section>
 
@@ -108,7 +108,7 @@
         <div class="section-head">
           <p class="eyebrow">The guide</p>
           <h2>Learn it track by track</h2>
-          <p class="muted">Fifteen short chapters, from the deck in 60 seconds to the rules corner and the pregame talk. Your place is saved on this device.</p>
+          <p class="muted">Sixteen short chapters, from the deck in 60 seconds to the piloting rules, the numbers and the rules corner. Your place is saved on this device.</p>
         </div>
         <div class="resume" id="resume"></div>
       </section>
@@ -117,7 +117,7 @@
         <div class="section-head">
           <p class="eyebrow">Memorize it</p>
           <h2>Quiz yourself</h2>
-          <p class="muted">124 questions on the combos, tutors, theft, cards, rules and game plan, plus flashcards for every card. Questions you miss come back more often.</p>
+          <p class="muted">117 questions on the kills, tutors, cloaks, cards, rules and game plan, plus flashcards for every card. Questions you miss come back more often.</p>
         </div>
         <div class="btn-row"><a class="btn primary" href="#train/quiz">Start the quiz</a><a class="btn" href="#guide/checklist">Open the play checklist</a></div>
       </section>
@@ -125,7 +125,7 @@
       <section class="block" id="play-promo">
         <a class="play-promo" href="#play">
           <span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-          <span class="pp-copy"><span class="eyebrow">Live</span><b>Take Corrupted Etrata to a four-player pod</b><span class="muted">A real Commander game against bots dealt at random. The light bulb shows live tips (the line you can finish, what to tutor, when to flip) and the turn checklist.</span></span>
+          <span class="pp-copy"><span class="eyebrow">Live</span><b>Take Corrupted Etrata to a four-player pod</b><span class="muted">A real Commander game against bots dealt at random. The light bulb shows live tips (which kill is live, what to tutor, who to mark) and the turn checklist. The v3 drain list is in the deck picker too.</span></span>
           <span class="pp-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span>
         </a>
       </section>
@@ -136,7 +136,7 @@
     <div class="wrap">
       <section class="block" id="chapters">
         <div class="section-head">
-          <p class="eyebrow">The guide · 15 tracks</p>
+          <p class="eyebrow">The guide · 16 tracks</p>
           <h2>Step by step</h2>
           <p class="muted" id="guideMeta">Tap a track to read it. Each one ends with the next.</p>
         </div>
@@ -149,91 +149,100 @@
     <div class="wrap">
       <section class="block" id="kills">
         <div class="section-head">
-          <p class="eyebrow">Combos &amp; kills</p>
+          <p class="eyebrow">Kills &amp; how to get through</p>
           <h2>How to actually win</h2>
-          <p class="prose">Four lines, two of them two cards. Go for the one you're closest to, keep a tutor for the missing piece, and protect the turn you go off with <i-c>Fierce Guardianship</i-c>, <i-c>Swan Song</i-c> or <i-c>Counterspell</i-c>. Tell your table about the infinite combos and the infinite turns before you play.</p>
+          <p class="prose">Two kills. <i-c>Ramses, Assassin Lord</i-c> turns one dead player into the game, and the drain loop kills the whole table. Tutor for Ramses first, pick one player, and send everything that gets through at them. Tell your table about Ramses and the two-card loop before you play.</p>
         </div>
-        <div data-widget="comboFinder"></div>
+        <div data-widget="killFinder"></div>
       </section>
 
-      <section class="block" id="combo-court">
+      <section class="block" id="combo-verdict">
         <details class="ticket" open>
-          <summary class="stub"><span class="admit">Line 1</span><span class="kind">Drain the table</span><span class="serial mono" aria-hidden="true">No. 01 · Two cards, ten pairs</span><span class="t-title">The vampire court loop</span><span class="t-open" aria-hidden="true"></span></summary>
+          <summary class="stub"><span class="admit">Kill 1</span><span class="kind">One death is the game</span><span class="serial mono" aria-hidden="true">No. 01 · Your turn, after an attack</span><span class="t-title">Ramses' verdict</span><span class="t-open" aria-hidden="true"></span></summary>
           <div class="ticket-body">
-            <div class="pieces"><button class="chip" type="button" data-card="Exquisite Blood">Exquisite Blood</button><span class="plus">or</span><button class="chip" type="button" data-card="Bloodthirsty Conqueror">Bloodthirsty Conqueror</button><span class="plus">+</span><button class="chip" type="button" data-card="Marauding Blight-Priest">Blight-Priest</button><span class="plus">or</span><button class="chip" type="button" data-card="Starscape Cleric">Starscape Cleric</button><span class="plus">or</span><button class="chip" type="button" data-card="Vito, Thorn of the Dusk Rose">Vito</button><span class="plus">or</span><button class="chip" type="button" data-card="Sanguine Bond">Sanguine Bond</button><span class="plus">or</span><button class="chip" type="button" data-card="Enduring Tenacity">Enduring Tenacity</button></div>
+            <div class="pieces"><button class="chip" type="button" data-card="Ramses, Assassin Lord">Ramses</button><span class="plus">+</span><button class="chip" type="button" data-card="Virtus the Veiled">Virtus</button><span class="plus">or</span><button class="chip" type="button" data-card="Unstoppable Slasher">Unstoppable Slasher</button><span class="plus">or</span><button class="chip" type="button" data-card="Quietus Spike">Quietus Spike</button><span class="plus">+</span><button class="chip" type="button" data-card="Bloodletter of Aclazotz">Bloodletter of Aclazotz</button></div>
             <dl class="kv">
-              <dt>You need</dt><dd>One drain card and one payoff on the battlefield, then any opponent losing life or you gaining life.</dd>
-              <dt>Speed</dt><dd>Any time an opponent loses life, on any turn. No mana once both are out.</dd>
+              <dt>You need</dt><dd>Ramses on the battlefield when a player loses, and an Assassin you controlled attacked that player this turn.</dd>
+              <dt>Speed</dt><dd>Your turn, in combat or after it. Any way they lose counts.</dd>
             </dl>
             <ol class="steps">
-              <li><span>An opponent loses life: your attack, a <i-c>Hooded Blightfang</i-c> trigger, their fetch land or shock land, <i-c>Mindcrank</i-c>'s Guildmage, anything. Your own life gain, like <i-c>Vampire of the Dire Moon</i-c>'s lifelink, starts it too.</span></li>
+              <li><span>Pick the mark: the player your board kills soonest. Declare your Assassins as attackers against that player (not their planeswalker). Attacked is enough: the Assassin doesn't have to hit or survive.</span></li>
+              <li><span><i-c>Virtus the Veiled</i-c>, <i-c>Unstoppable Slasher</i-c> or a creature with <i-c>Quietus Spike</i-c> deals combat damage: that player loses half their life, rounded up.</span></li>
+              <li><span><i-c>Bloodletter of Aclazotz</i-c>: on your turn, opponents lose twice as much life as they would. Half doubled is all of it.</span></li>
+              <li><span>That player loses the game. They were attacked by an Assassin you controlled this turn, so Ramses' trigger wins you the game.</span></li>
+            </ol>
+            <div class="note"><h4>The halver is a shortcut, not a requirement</h4><p>Any death after the attack wins: combat damage, the drain loop, <i-c>Vein Ripper</i-c>. Ramses can even arrive late: cast him in your second main phase and a death after that still counts. In bot games his trigger made the last kill in 50% of the wins against the precons and 46% against Bracket 4.</p></div>
+          </div>
+        </details>
+        <div data-widget="halveCalc"></div>
+      </section>
+
+      <section class="block" id="combo-loop">
+        <details class="ticket pinkish">
+          <summary class="stub"><span class="admit">Kill 2</span><span class="kind">Drain the table</span><span class="serial mono" aria-hidden="true">No. 02 · Two cards, four pairs</span><span class="t-title">The drain loop</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <div class="pieces"><button class="chip" type="button" data-card="Exquisite Blood">Exquisite Blood</button><span class="plus">or</span><button class="chip" type="button" data-card="Bloodthirsty Conqueror">Bloodthirsty Conqueror</button><span class="plus">+</span><button class="chip" type="button" data-card="Sanguine Bond">Sanguine Bond</button><span class="plus">or</span><button class="chip" type="button" data-card="Vito, Thorn of the Dusk Rose">Vito</button></div>
+            <dl class="kv">
+              <dt>You need</dt><dd>One of each side on the battlefield, then any opponent losing life or you gaining life.</dd>
+              <dt>Speed</dt><dd>Any turn. No mana once both are out.</dd>
+            </dl>
+            <ol class="steps">
+              <li><span>An opponent loses life: your attack, <i-c>Vein Ripper</i-c>, <i-c>Ashnod's Altar</i-c> sacrificing a stolen 2/2 to Vein Ripper, their own fetch land or shock land.</span></li>
               <li><span><i-c>Exquisite Blood</i-c> or <i-c>Bloodthirsty Conqueror</i-c>: you gain that much life.</span></li>
-              <li><span><i-c>Marauding Blight-Priest</i-c> or <i-c>Starscape Cleric</i-c> makes each opponent lose 1; <i-c>Vito, Thorn of the Dusk Rose</i-c>, <i-c>Sanguine Bond</i-c> or <i-c>Enduring Tenacity</i-c> makes one opponent lose that much.</span></li>
+              <li><span><i-c>Sanguine Bond</i-c> or <i-c>Vito, Thorn of the Dusk Rose</i-c>: target opponent loses that much life.</span></li>
               <li><span>That life loss triggers the drain card again. It loops until every opponent is at 0.</span></li>
             </ol>
-            <div class="note"><h4>Underplayed on purpose</h4><p>Starscape Cleric costs 2, Blight-Priest and Vito cost 3, and few tables see them coming. Enduring Tenacity comes back as an enchantment when it dies as a creature. Vito has 1 power, so <i-c>Tetsuko Umezawa, Fugitive</i-c> makes him unblockable too.</p></div>
+            <div class="note"><h4>It wins without Ramses</h4><p>It's the only other card pair in the deck that kills three players at once. In bot games it made 36% of the kills against the precons, and the deck still won 38% of the games where Ramses never landed (the list without the loop: 17%). With Ramses out, the first player it kills after your attack already wins the game.</p></div>
           </div>
         </details>
       </section>
 
-      <section class="block" id="combo-crank">
-        <details class="ticket pinkish">
-          <summary class="stub"><span class="admit">Line 2</span><span class="kind">They mill themselves to death</span><span class="serial mono" aria-hidden="true">No. 02 · Instant speed</span><span class="t-title">Mindcrank + Duskmantle Guildmage</span><span class="t-open" aria-hidden="true"></span></summary>
-          <div class="ticket-body">
-            <div class="pieces"><button class="chip" type="button" data-card="Mindcrank">Mindcrank</button><span class="plus">+</span><button class="chip" type="button" data-card="Duskmantle Guildmage">Duskmantle Guildmage</button></div>
-            <dl class="kv">
-              <dt>You need</dt><dd>Both out, and {1}{U}{B} for the Guildmage's ability.</dd>
-              <dt>Speed</dt><dd>Instant. Best on an opponent's turn, when they cast a spell.</dd>
-            </dl>
-            <ol class="steps">
-              <li><span>Pay {1}{U}{B}: this turn, whenever a card is put into an opponent's graveyard from anywhere, that player loses 1 life.</span></li>
-              <li><span>Start it: an opponent's spell resolving, a mill, or <i-c>Duskmantle Guildmage</i-c>'s other ability ({2}{U}{B}: target player mills two cards).</span></li>
-              <li><span><i-c>Mindcrank</i-c>: whenever an opponent loses life, they mill that many cards. Each milled card costs them 1 life, which mills another card.</span></li>
-              <li><span>It runs until that opponent has no library and no life left. Each loop kills one player, so every other opponent needs their own starter: a <i-c>Windfall</i-c>, a <i-c>Toxic Deluge</i-c>, an attack.</span></li>
-            </ol>
-            <div class="note"><h4>Finding the pieces</h4><p><i-c>Tribute Mage</i-c> finds Mindcrank. <i-c>Shred Memory</i-c> and <i-c>Muddle the Mixture</i-c> transmute for either piece (both have mana value 2).</p></div>
-          </div>
-        </details>
-      </section>
-
-      <section class="block" id="combo-double">
+      <section class="block" id="combo-half">
         <details class="ticket">
-          <summary class="stub"><span class="admit">Line 3</span><span class="kind">One hit, all their life</span><span class="serial mono" aria-hidden="true">No. 03 · Your turn</span><span class="t-title">Double tap: Bloodletter + Virtus</span><span class="t-open" aria-hidden="true"></span></summary>
+          <summary class="stub"><span class="admit">Reach</span><span class="kind">One hit, all their life</span><span class="serial mono" aria-hidden="true">No. 03 · Your turn</span><span class="t-title">Half, doubled: Bloodletter + a halver</span><span class="t-open" aria-hidden="true"></span></summary>
           <div class="ticket-body">
-            <div class="pieces"><button class="chip" type="button" data-card="Bloodletter of Aclazotz">Bloodletter of Aclazotz</button><span class="plus">+</span><button class="chip" type="button" data-card="Virtus the Veiled">Virtus the Veiled</button><span class="plus">+</span><button class="chip" type="button" data-card="Tetsuko Umezawa, Fugitive">Tetsuko</button></div>
+            <div class="pieces"><button class="chip" type="button" data-card="Bloodletter of Aclazotz">Bloodletter of Aclazotz</button><span class="plus">+</span><button class="chip" type="button" data-card="Virtus the Veiled">Virtus</button><span class="plus">or</span><button class="chip" type="button" data-card="Unstoppable Slasher">Unstoppable Slasher</button><span class="plus">or</span><button class="chip" type="button" data-card="Quietus Spike">Quietus Spike</button></div>
             <ol class="steps">
-              <li><span><i-c>Bloodletter of Aclazotz</i-c>: on your turn, opponents lose twice as much life as they would.</span></li>
-              <li><span><i-c>Virtus the Veiled</i-c> deals combat damage: that player loses half their life, rounded up. Doubled, that's all of it.</span></li>
-              <li><span><i-c>Tetsuko Umezawa, Fugitive</i-c> makes Virtus, a 1/1, unblockable. <i-c>Rogue's Passage</i-c> ({4}, {T}) does it too.</span></li>
-              <li><span>It kills the player Virtus hits, not the table. Finish the others with another line, or use it on the player closest to winning.</span></li>
+              <li><span><i-c>Bloodletter of Aclazotz</i-c>: during your turn, an opponent who would lose life loses twice that much instead.</span></li>
+              <li><span>The halver deals combat damage, doubled. Then its trigger: half their life, rounded up, counted when it resolves, after the damage. Doubled, that's all of it.</span></li>
+              <li><span>It kills the player it hits, not the table. Without Ramses that's one player; with him, it's the game.</span></li>
             </ol>
-            <div class="note warn"><h4>Keep Virtus a 1/1</h4><p>Tetsuko checks power and toughness as blockers are declared. If anything makes Virtus 2/2 or bigger, it can be blocked: use <i-c>Rogue's Passage</i-c> instead, or attack where nobody can block it.</p></div>
+            <div class="note warn"><h4>Only on your turn</h4><p>Bloodletter does nothing on an opponent's turn. Without it, a halver takes half: two hits on the same player in one combat still leave them at 1 or more.</p></div>
           </div>
         </details>
-        <div data-widget="doubleTap"></div>
       </section>
 
-      <section class="block" id="combo-manta">
+      <section class="block" id="combo-through">
         <details class="ticket pinkish">
-          <summary class="stub"><span class="admit">Line 4</span><span class="kind">An extra turn every turn</span><span class="serial mono" aria-hidden="true">No. 04 · 5 mana a turn</span><span class="t-title">Scroll of Fate + Wormfang Manta + Crystal Shard</span><span class="t-open" aria-hidden="true"></span></summary>
+          <summary class="stub"><span class="admit">Support</span><span class="kind">Past the blockers and the wraths</span><span class="serial mono" aria-hidden="true">No. 04 · Evasion and survival</span><span class="t-title">Getting through</span><span class="t-open" aria-hidden="true"></span></summary>
           <div class="ticket-body">
-            <div class="pieces"><button class="chip" type="button" data-card="Scroll of Fate">Scroll of Fate</button><span class="plus">+</span><button class="chip" type="button" data-card="Wormfang Manta">Wormfang Manta</button><span class="plus">+</span><button class="chip" type="button" data-card="Crystal Shard">Crystal Shard</button></div>
+            <div class="pieces"><button class="chip" type="button" data-card="Tetsuko Umezawa, Fugitive">Tetsuko</button><span class="plus">·</span><button class="chip" type="button" data-card="Rogue's Passage">Rogue's Passage</button><span class="plus">·</span><button class="chip" type="button" data-card="Reverse the Polarity">Reverse the Polarity</button><span class="plus">·</span><button class="chip" type="button" data-card="Eldrazi Monument">Eldrazi Monument</button><span class="plus">·</span><button class="chip" type="button" data-card="Teferi's Veil">Teferi's Veil</button><span class="plus">·</span><button class="chip" type="button" data-card="Kindred Dominance">Kindred Dominance</button></div>
             <ol class="steps">
-              <li><span>Manifest <i-c>Wormfang Manta</i-c> from your hand with <i-c>Scroll of Fate</i-c> ({T}). It enters face down, so its "skip your next turn" trigger never happens.</span></li>
-              <li><span>Etrata turns it face up for {2}{U}{B} instead of {5}{U}{U}. Turning face up isn't entering, so still no skipped turn.</span></li>
-              <li><span><i-c>Crystal Shard</i-c> ({U}, {T}) returns it to your hand. When it leaves the battlefield, you take an extra turn.</span></li>
-              <li><span>Next turn, manifest it again. That's 5 mana a turn, 3 with <i-c>Training Grounds</i-c>, for infinite turns.</span></li>
+              <li><span><i-c>Tetsuko Umezawa, Fugitive</i-c>: your creatures with power or toughness 1 or less can't be blocked. <i-c>Rogue's Passage</i-c> ({4}, {T}) does it for one creature of any size.</span></li>
+              <li><span><i-c>Reverse the Polarity</i-c>: creatures can't be blocked this turn, or, in the other mode, counter all other spells.</span></li>
+              <li><span><i-c>Eldrazi Monument</i-c>: +1/+1, flying and indestructible for the whole team. Each upkeep, sacrifice a creature (a stolen 2/2 is fine) or the Monument.</span></li>
+              <li><span><i-c>Teferi's Veil</i-c>: each creature that attacks phases out at end of combat and phases back in at your next untap, so the wraths cast on other players' turns miss it. Once it's out, attack with everything that gets through.</span></li>
+              <li><span><i-c>Kindred Dominance</i-c>: name Assassin and every other creature dies. With a type-changer out, the stolen 2/2s are Assassins and stay.</span></li>
             </ol>
-            <div class="note"><h4>In the game</h4><p>The Play tab plays this line as written: a manifested Manta has no abilities, a flipped one gives you an extra turn when it leaves, and casting it normally makes you skip your next turn.</p></div>
+            <div class="note warn"><h4>Pumps break Tetsuko</h4><p>Tetsuko checks power and toughness as blockers are declared. Once Ramses or <i-c>Achilles Davenport</i-c> gives your Assassins +1/+1, Virtus and the other 1/1s are 2/2 and can be blocked. <i-c>Changeling Outcast</i-c> and <i-c>Slither Blade</i-c> don't care: their own text does it.</p></div>
           </div>
         </details>
+      </section>
+
+      <section class="block" id="pilot">
+        <div class="section-head">
+          <p class="eyebrow">How to play it</p>
+          <h2>The nine piloting rules</h2>
+          <p class="muted">Each rule was measured in bot games, against three precons / three Bracket 4 bots. Humans kill Ramses faster than bots do, so trust the order of the rules more than the exact points.</p>
+        </div>
+        <div data-widget="pilotRules"></div>
       </section>
 
       <section class="block" id="tutors">
         <div class="section-head">
           <p class="eyebrow">Find the missing piece</p>
           <h2>The tutor map</h2>
-          <p class="muted">Nine tutors find any card. Transmute cards find a card with the same mana value, so learn the mana values of your combo pieces.</p>
+          <p class="muted">Eight tutors, <i-c>Pyre of Heroes</i-c> and <i-c>Reanimate</i-c> included. Ramses first, every time: in bot games, tutoring anything else first cost 8 to 11 points.</p>
         </div>
         <div data-widget="tutorMap"></div>
       </section>
@@ -276,7 +285,7 @@
         <div class="section-head">
           <p class="eyebrow">Short sessions</p>
           <h2>Drills</h2>
-          <p class="muted">Each drill is ten questions or so. The mulligans, boards and tutor spots are generated by the game engine from the real 99, so a new session is new questions. Every answer comes with the reason.</p>
+          <p class="muted">Six drills of ten questions or so: Mulligan Lab, Kill Spotter, Tutor Target, Stack Sentinel, Clock Math and Threat Read. The mulligans, boards and tutor spots are generated by the game engine from the real 99, so a new session is new questions. Every answer comes with the reason.</p>
         </div>
         <div data-widget="drills"></div>
       </section>
@@ -289,7 +298,7 @@
         <div class="section-head">
           <p class="eyebrow">One turn to win</p>
           <h2>Puzzles</h2>
-          <p class="muted">A set board, your turn, a goal. You play it in the real game: the bots block, respond and counter like they would in a game.</p>
+          <p class="muted">A set board, your turn, a goal: the first hit, half doubled, Ramses' verdict, the drain loop, Kindred Dominance and more. You play it in the real game: the bots block, respond and counter like they would in a game.</p>
         </div>
         <div data-widget="puzzles"></div>
       </section>
@@ -448,7 +457,7 @@
         </div>
         <div class="split">
           <div class="eq-card">
-            <div class="eq-head"><b>68 nonland cards</b><span class="muted mono small">peak at 2 mana</span></div>
+            <div class="eq-head"><b>63 nonland cards</b><span class="muted mono small">peak at 1 and 2 mana</span></div>
             <div class="eq" id="eq" role="group" aria-label="Mana curve"></div>
             <div class="eq-readout" id="eqReadout" aria-live="polite"></div>
           </div>
@@ -491,7 +500,7 @@
         <div class="section-head">
           <p class="eyebrow">Opening hands</p>
           <h2>Lands in your first seven</h2>
-          <p class="muted">36 lands in the 99, plus 10 mana rocks and rituals. How often each count shows up in a fresh seven.</p>
+          <p class="muted">37 lands in the 99 (Ancient Tomb included), plus seven pieces of fast mana. How often each count shows up in a fresh seven.</p>
         </div>
         <div class="land-odds" id="landOdds"></div>
       </section>
@@ -503,31 +512,40 @@
       <section class="block" id="strength">
         <div class="section-head">
           <p class="eyebrow">Strength</p>
-          <h2>A mid to high Bracket 4 deck</h2>
-          <p class="prose">Bracket 4 is "Optimized": no limit on Game Changers, two-card combos or tutors, but not built for the cEDH tournament meta. This deck plays 9 Game Changers and none of its cards is banned. It has no Thassa's Oracle and no Mana Vault, so it is slower than the Etrata Heist list. In 8,000 simulated games against opponents who answer 30% of combo attempts, it won 25% of games by turn 6, 40% by turn 7 and 52% by turn 8 (32%, 50% and 64% when nobody answers). The sim hardly counts stolen cards or combat damage, so treat those as a floor.</p>
+          <h2>A mid Bracket 4 aggro deck</h2>
+          <p class="prose">Bracket 4 is "Optimized": no limit on Game Changers, two-card combos or tutors, but not built for the cEDH tournament meta. This deck plays 9 Game Changers and none of its cards is banned. In 5,040 four-player bot games against three precons it won 47.9%, and 27.5% against three Bracket 4 bots, with an average winning round of 9.0 and 8.0. These are bot games: humans at a Bracket 4 table kill Ramses faster and hold up more interaction, so expect less at a real table. The order of the lists and the piloting rules are what carries over.</p>
         </div>
-        <div class="power" aria-hidden="true"><div class="power-track"><i style="--from:70%;--to:82%"></i></div><div class="power-scale"><span>1</span><span>casual</span><span>upgraded</span><span>optimized</span><span>cEDH 10</span></div></div>
+        <div class="power" aria-hidden="true"><div class="power-track"><i style="--from:64%;--to:76%"></i></div><div class="power-scale"><span>1</span><span>casual</span><span>upgraded</span><span>optimized</span><span>cEDH 10</span></div></div>
         <div class="grid-2">
           <div class="panel rule keep"><h3>Why it's strong</h3><ul class="prose">
-            <li>Four win lines, three of them two cards, and 14 tutors to find them.</li>
-            <li>The vampire loop has ten possible pairs, and any life loss starts it. In paired bot games, the v3 list won about 69% against precons (v2: 49.7%) and 43% against Bracket 4 decks (v2: 24.8%).</li>
-            <li>Cheap deathtouch blockers and a face-down <i-c>Silumgar Assassin</i-c> keep you alive while you set up.</li>
-            <li>Etrata's flip makes Wormfang Manta cost 4 instead of 7.</li>
-            <li>Stealing and Necropotence keep your hand full while theirs empties.</li></ul></div>
+            <li>Nine evasive Assassins and changelings cost one or two mana, and seven pieces of fast mana plus <i-c>Ancient Tomb</i-c> put them down early.</li>
+            <li>Etrata steals: 7.3 cards a game against the precons and 5.1 against Bracket 4, in bot games. Without her the deck won 16.7 points less against the precons.</li>
+            <li>One death is the game once <i-c>Ramses, Assassin Lord</i-c> is out, and eight tutors find him. With him the deck won 56% / 44%.</li>
+            <li>The drain loop is a second kill that doesn't need Ramses: 38% of the games without him still won against the precons (17% for the list without the loop).</li>
+            <li><i-c>Teferi's Veil</i-c>, <i-c>Eldrazi Monument</i-c> and <i-c>Kindred Dominance</i-c> keep the board alive through wraths.</li></ul></div>
           <div class="panel rule mull"><h3>What holds it back</h3><ul class="prose">
-            <li>Only four counterspells to protect a combo turn.</li>
-            <li>Rest in Peace stops the Mindcrank loop, and Null Rod stops Scroll of Fate, Crystal Shard and your mana rocks.</li>
-            <li>Wishclaw Talisman and Scheming Symmetry hand an opponent a tutor.</li>
-            <li>Many lines go through creatures, so board wipes slow it down.</li></ul></div>
+            <li>It leans on Ramses. He landed in 54% / 36% of bot games; without him it won 38% / 18%.</li>
+            <li>Wraths on their owners' turns are what removed Ramses most often in the bot games, and a bigger pile of face-down 2/2s loses more to them.</li>
+            <li>A deck of 1/1s and 2/2s runs into blockers. Pumps from Ramses and <i-c>Achilles Davenport</i-c> turn off <i-c>Tetsuko Umezawa, Fugitive</i-c>.</li>
+            <li><i-c>Demonic Consultation</i-c> and the draw engines can deck you: 8% of the losses against the precons were an empty library.</li></ul></div>
         </div>
-        <div class="panel callout"><h3>Game Changers in the deck (9)</h3><p class="prose"><i-c>Necropotence</i-c>, <i-c>Imperial Seal</i-c>, <i-c>Demonic Tutor</i-c>, <i-c>Vampiric Tutor</i-c>, <i-c>Opposition Agent</i-c>, <i-c>Notion Thief</i-c>, <i-c>Rhystic Study</i-c>, <i-c>Fierce Guardianship</i-c> and <i-c>Cyclonic Rift</i-c>. The brackets are still in beta, so check the official list before a game.</p></div>
+        <div class="panel callout"><h3>Game Changers in the deck (9)</h3><p class="prose"><i-c>Imperial Seal</i-c>, <i-c>Demonic Tutor</i-c>, <i-c>Vampiric Tutor</i-c>, <i-c>Rhystic Study</i-c>, <i-c>Fierce Guardianship</i-c>, <i-c>Force of Will</i-c>, <i-c>Cyclonic Rift</i-c>, <i-c>Chrome Mox</i-c> and <i-c>Ancient Tomb</i-c>. The brackets are still in beta, so check the official list before a game.</p></div>
+      </section>
+
+      <section class="block" id="bench">
+        <div class="section-head">
+          <p class="eyebrow">The numbers</p>
+          <h2>Every list in the same engine</h2>
+          <p class="muted">Four-player bot games, the hero against three precons / three Bracket 4 bots, paired seeds. ± is one standard error.</p>
+        </div>
+        <div data-widget="benchTable"></div>
       </section>
 
       <section class="block" id="versus">
         <div class="section-head">
           <p class="eyebrow">Your other decks</p>
           <h2>Corrupted Etrata vs Etrata</h2>
-          <p class="prose">Same commander, two very different decks. The <a href="../etrata/">Etrata deck</a> is a Bracket 3 Assassin deck that cloaks and steals through combat, with a Bracket 4 aggro upgrade. Corrupted Etrata keeps the cloaks and the stealing but wins with odd combos and tutors, usually on turns 6 to 8. Don't bring it to a Bracket 3 table. It shares 44 of its 100 cards with the Etrata deck, basics included. This comes from the lists and the sim, not from playtesting.</p>
+          <p class="prose">Same commander, and this time the same idea. The <a href="../etrata/">Etrata deck</a> is a Bracket 3 Assassin deck that cloaks and steals through combat, with a Bracket 4 aggro upgrade. The heist closer is that plan built on a Bracket 4 shell: more fast mana, more tutors, free counters, Ramses as the kill and the drain loop behind it. In the same bot engine the Etrata Bracket 4 aggro list won 25.4% against three precons and 14.7% against three Bracket 4 bots; the heist closer won 47.9% and 27.5%. The v3 drain list this site used to document won more (68.0% / 41.7%), but almost all of it from the combo, not from Etrata. Don't bring the heist to a Bracket 3 table. 43 of its 100 cards come from the Etrata deck, basics included. These are bot games, not playtesting: humans kill Ramses faster.</p>
         </div>
       </section>
     </div>
@@ -553,8 +571,8 @@
       <section class="block" id="proxy">
         <div class="section-head">
           <p class="eyebrow">Build it</p>
-          <h2>From your Etrata deck, plus 56 proxies</h2>
-          <p class="prose">You build this one from your current <a href="../etrata/">Etrata deck</a>: 44 of the 100 cards (Etrata, the Mindcrank pieces, Scroll of Fate, Training Grounds, the rocks, most of the lands and 16 basics) come straight out of it. The other 56 are proxies. Real copies of those would cost about $1,053, not counting Phyrexian Arena, Aetherize and Mutavault, which have no price yet, so proxying saves almost the whole price. Tell your table they're proxies before you play.</p>
+          <h2>From your Etrata deck, plus 57 proxies</h2>
+          <p class="prose">You build this one from your current <a href="../etrata/">Etrata deck</a>: 43 of the 100 cards come straight out of it. That's Etrata, <i-c>Changeling Outcast</i-c>, <i-c>Mothdust Changeling</i-c>, <i-c>Brotherhood Spy</i-c>, <i-c>Unstoppable Slasher</i-c>, <i-c>Ramses, Assassin Lord</i-c>, <i-c>Roshan, Hidden Magister</i-c>, <i-c>Spark Double</i-c>, <i-c>Basim Ibn Ishaq</i-c>, the type-changers <i-c>Leyline of Transformation</i-c> and <i-c>Arcane Adaptation</i-c>, <i-c>They Came from the Pipes</i-c>, <i-c>Preordain</i-c>, <i-c>Sol Ring</i-c>, <i-c>Dark Ritual</i-c>, <i-c>Arcane Signet</i-c>, <i-c>Talisman of Dominance</i-c>, 12 lands and 15 basics (8 Islands and 7 Swamps). The other 57 are proxies. Real copies of those would cost about $1,292, so proxying saves almost the whole price. Tell your table they're proxies before you play.</p>
         </div>
         <div data-widget="proxyList"></div>
       </section>
@@ -565,8 +583,8 @@
       <section class="block" id="buy">
         <div class="section-head">
           <p class="eyebrow">What it costs</p>
-          <h2>If you buy the real cards: about $1,099</h2>
-          <p class="prose">The whole list costs about $1,099 (about 930€), not counting seven cards whose price lookup didn't go through: <i-c>Phyrexian Arena</i-c>, <i-c>Aetherize</i-c>, <i-c>Mutavault</i-c> and four lands from the Etrata deck. The biggest cards are <i-c>Imperial Seal</i-c> ($180), <i-c>Mox Amber</i-c> ($87), <i-c>Fierce Guardianship</i-c>, <i-c>Rhystic Study</i-c>, <i-c>Demonic Tutor</i-c> and <i-c>Vampiric Tutor</i-c>. The cards also in the Etrata deck start ticked. Tick what you own to see what's left.</p>
+          <h2>If you buy the real cards: about $1,323</h2>
+          <p class="prose">The whole list costs about $1,323 (about 1,125€ at ×0.85), with 9 Game Changers. The biggest cards are <i-c>Imperial Seal</i-c> ($171), <i-c>Mox Amber</i-c> ($88), <i-c>Demonic Tutor</i-c> ($63), <i-c>Rhystic Study</i-c> ($62), <i-c>Fierce Guardianship</i-c> ($60) and <i-c>Ancient Tomb</i-c> ($57). Prices are Scryfall's TCGplayer market price for each card's cheapest nonfoil paper printing, from its data of 2026-10-05. The cards also in the Etrata deck start ticked. Tick what you own to see what's left.</p>
         </div>
         <div data-widget="buyList"></div>
       </section>
@@ -577,17 +595,16 @@
       <section class="block" id="extras">
         <div class="section-head">
           <p class="eyebrow">Tuning</p>
-          <h2>Weird extras, if you want them</h2>
-          <p class="prose">Cards from the research that didn't make the 99 but fit the deck's odd side. Not in the game's card pool.</p>
+          <h2>Cards that didn't make the 100</h2>
+          <p class="prose">Cards the research tested and cut, with what they did in bot games (Δ win rate against three precons / three Bracket 4 bots, paired games). A human pilot can get more out of some of them than the bot did.</p>
         </div>
         <div class="table-wrap"><table class="stack"><thead><tr><th>Card</th><th>Why</th></tr></thead><tbody>
-          <tr><td data-label="Card">Phyrexian Dreadnought</td><td data-label="Why">Manifest it with <i-c>Scroll of Fate</i-c>, then turn it face up for its mana cost, {1} (a manifested creature card can always do that). Turning face up isn't entering, so you never sacrifice anything, and you get a 12/12 trampler. About $271.</td></tr>
-          <tr><td data-label="Card">Kheru Spellsnatcher</td><td data-label="Why">Flip it for 4 to counter a spell and cast it yourself.</td></tr>
-          <tr><td data-label="Card">Expropriate</td><td data-label="Why">Costs 9, but Scroll of Fate plus Etrata casts it for free when it can't be turned face up.</td></tr>
-          <tr><td data-label="Card">Unstoppable Slasher</td><td data-label="Why">A second halver for the double tap with <i-c>Bloodletter of Aclazotz</i-c>.</td></tr>
-          <tr><td data-label="Card">Grim Hireling</td><td data-label="Why">Treasures from combat.</td></tr>
-          <tr><td data-label="Card">Psychic Frog</td><td data-label="Why">Card draw on hits and a hard-to-kill body.</td></tr>
-          <tr><td data-label="Card">Ransom Note</td><td data-label="Why">Costs {1} and surveils 1. Later, {2} and sacrifice it to cloak your own top card for Etrata to flip.</td></tr>
+          <tr><td data-label="Card">Mana Drain, Swiftfoot Boots</td><td data-label="Why">Cut for basic lands in the bot games, and the counters' numbers say as much about the bot's counter play as about the cards. If you trust your own counter play, 35 to 36 lands with these two back is the human-adjusted version. The engine can't measure it.</td></tr>
+          <tr><td data-label="Card">Blade of Selves</td><td data-label="Why">Myriad: one Assassin attacks all three players, three cloaks from one attack. 0.0 / −0.8 for the bot; better when you equip it while the table is tapped out.</td></tr>
+          <tr><td data-label="Card">Strionic Resonator</td><td data-label="Why">Copies a cloak trigger or a halver's trigger. 0.0 / −0.8 for the bot; a human holds it for the <i-c>Quietus Spike</i-c> hit.</td></tr>
+          <tr><td data-label="Card">Animate Dead, Necromancy</td><td data-label="Why">More ways to bring Ramses back. −0.4 / −3.4: they're live only once he has died.</td></tr>
+          <tr><td data-label="Card">Hullcarver, Desmond Miles, Skullclamp, Maskwood Nexus</td><td data-label="Why">The heist snowball list plays them instead of the drain loop and <i-c>Kindred Dominance</i-c>. That list measured 7.5 / 4.0 points lower.</td></tr>
+          <tr><td data-label="Card">Hatred</td><td data-label="Why">A one-shot kill with Ramses. Holding five mana for it measured −0.8 / −0.5, and it was cast in 3% of games.</td></tr>
         </tbody></table></div>
       </section>
     </div>
@@ -598,8 +615,9 @@
         <div class="section-head">
           <p class="eyebrow">The 100</p>
           <h2>Corrupted Etrata, all 100</h2>
-          <p class="muted">The full list is in Cards, under Setlist, with a copy button. The cards cut from the first version are in the Cards tab too.</p>
+          <p class="muted">Three lists: the heist closer (this site's deck), the heist snowball without the loop, and the v3 drain list this site used to document. The v3 list stays playable in the Play tab's deck picker, and its cards are in the Cards tab under the "v3 drain list" filter. The heist closer's setlist is in Cards, under Setlist, with a copy button.</p>
         </div>
+        <div data-widget="listPicker"></div>
         <div class="btn-row"><a class="btn primary" href="#cards/setlist">Open the setlist</a></div>
       </section>
     </div>
@@ -609,7 +627,7 @@
 </main>
 
 <footer class="foot"><div class="wrap">
-  <p>Built for the Corrupted Etrata deck (Etrata's Shadow Market v3, Etrata, Deadly Fugitive). Rules text from the Forge card database, 3 Oct 2026. Also see the <a href="../etrata/">Etrata deck</a>, the <a href="../miku/">Miku deck</a> and <a href="../corrupted/">Corrupted Miku</a>.</p>
+  <p>Built for the Corrupted Etrata deck (the Etrata heist closer, Etrata, Deadly Fugitive; the v3 drain list is kept as a variant). Numbers from bot games in this site's engine. Rules text from Scryfall and the Forge card database. Also see the <a href="../etrata/">Etrata deck</a>, the <a href="../miku/">Miku deck</a> and <a href="../corrupted/">Corrupted Miku</a>.</p>
   <p>Card images and links via Scryfall. Magic: The Gathering is © Wizards of the Coast. This is an unofficial fan page.</p>
 </div></footer>
 
@@ -635,16 +653,18 @@
 <div class="peek" id="peek" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="../miku/kit.js?v=37"></script>
-<script src="cards.js?v=37"></script>
-<script src="wiki.js?v=37"></script>
-<script src="guide.js?v=37"></script>
-<script src="quiz.js?v=37"></script>
-<script src="prices.js?v=37"></script>
-<script src="../miku/game/checklist-cetrata.js?v=37"></script>
-<script src="site.js?v=37"></script>
-<script src="train.js?v=37"></script>
-<script src="train-data.js?v=37"></script>
-<script src="../miku/app.js?v=37"></script>
+<script src="../miku/kit.js?v=38"></script>
+<script src="cards.js?v=38"></script>
+<script src="cards-v3.js?v=38"></script>
+<script src="lists.js?v=38"></script>
+<script src="wiki.js?v=38"></script>
+<script src="guide.js?v=38"></script>
+<script src="quiz.js?v=38"></script>
+<script src="prices.js?v=38"></script>
+<script src="../miku/game/checklist-heist.js?v=38"></script>
+<script src="site.js?v=38"></script>
+<script src="train.js?v=38"></script>
+<script src="train-data.js?v=38"></script>
+<script src="../miku/app.js?v=38"></script>
 </body>
 </html>
