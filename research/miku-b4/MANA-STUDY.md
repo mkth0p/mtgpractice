@@ -247,3 +247,18 @@ node manacompare.js DIR base variant1 ...   # paired comparison of runs named NA
 ```
 
 The sweep's swap lists are in section 4. Seeds: process k of 4 uses 1000 + k·400 (bots) and 5000 + k·150 (goldfish), with `--first random`.
+
+## Addendum (2026-10-10): the exact lists in the engine
+
+All 41 missing cards are now in the engine (`miku/game/cards-miku-b4.js`, 55 checks in `tools/sim/test-miku-b4.js`), so the pass 2 lists run with no stand-ins. Shalai plays through the Corrupted Miku bot, which now knows Druid + Swift Reconfiguration, Fauna Shaman, Sylvan Tutor and Mother of Runes. Brago plays through a new, first-pass bot brain. Same seeds and sizes as the sweeps above (1,600 games vs B4 bots, 600 goldfish); `research/miku-b4/mana/exact.sh`, numbers in `mana/exact-results.json`.
+
+| List | Win vs B4 bots | vs Corrupted Miku (paired) | Goldfish kill (median / mean) | Goldfish won by round 6 | Useful mana | Wasted | Keep 7 |
+|---|---|---|---|---|---|---|---|
+| Corrupted Miku (today's deck) | 30.6% ±1.2 | - | 8 / 8.10 | 31.2% | 29.5 | 6.6 | 62.8% |
+| Shalai uncapped | 34.5% ±1.2 | +3.9 ±1.7 | 7 / 8.05 | 33.8% | 30.1 | 6.0 | 65.5% |
+| Shalai 1,500 € | 32.1% ±1.2 | +1.4 ±1.7 | 8 / 8.19 | 30.3% | 28.5 | 5.7 | 67.2% |
+| Brago uncapped | 3.7% ±0.5 | -26.9 ±1.2 | 12 / 12.37 | 3.7% | 29.9 | 11.6 | 59.4% |
+| Brago 1,500 € | 3.3% ±0.4 | -27.3 ±1.2 | 12 / 12.35 | 4.3% | 29.7 | 11.2 | 59.4% |
+
+- The exact Shalai uncapped list beats today's Corrupted Miku by about 4 points (2.3 standard errors). With stand-ins it was 1.4 points behind: the missing win pieces mattered. The 1,500 € list is level within noise.
+- Brago's number is mostly the bot, not the deck. The cards work (the loops kill in the tests), but the brain is a first pass: it rarely assembles a loop and it doesn't run counter wars the way Talrand's brain does. Its goldfish speed (median round 12, 4% by round 6) is what the r 0.87 relationship predicts for ~4%. Don't read this as "Brago is a bad deck" until the brain is stronger.
