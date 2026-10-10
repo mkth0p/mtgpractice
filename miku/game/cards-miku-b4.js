@@ -3,8 +3,8 @@
    bot brain (MK.DECK_BRAINS.brago). The Shalai lists are played by the Corrupted Miku deck and brain
    (cards-corrupted.js), which know the new Shalai lines (Swift Reconfiguration, Fauna Shaman,
    Sylvan Tutor, Mother of Runes).
-   These decks are for the headless sims (tools/sim/run.js, tools/sim/bench/wrap.js); the site
-   doesn't load this file yet. Card text follows the printed Oracle text; `note` says where the
+   The two Brago lists are Bracket 4 bot decks (lobby and Arena); the Shalai lists are measured
+   with tools/sim/bench/wrap.js. Card text follows the printed Oracle text; `note` says where the
    engine simplifies a card. */
 (function (root) {
   "use strict";
@@ -784,6 +784,11 @@
     return null;
   }
   /* The loops that make mana. Each returns an action, or null when it can't run. want: the mana to stop at. */
+  /* Stop a loop that stopped making mana (an opponent's Rhystic Study tax eats the gain). */
+  function progress(p) {
+    let best = -1, flat = 0;
+    return g2 => { const n = g2.poolTotal(p); if (n > best) { best = n; flat = 0; } else flat++; return flat >= 3; };
+  }
   function drakeDeadeye(g, p, acts, m, want) {
     const drake = onBf(g, p, DRAKE).find(o => partnerOf(g, o) && partnerOf(g, o).def.name === DEADEYE);
     if (!drake || drakeLands(g, p) < 3) return null;
@@ -791,7 +796,8 @@
     if (!a) return null;
     m.loops++;
     floatAll(g, p, true);
-    return { type: "activate", card: drake, idx: a.idx, repeat: 400, stop: g2 => { floatAll(g2, p, true); return g2.poolTotal(p) >= want || !(p.pool.U > 0 || g2.controlled(p, o => g2.isLand(o) && !o.tapped).length); }, maxTries: 6 };
+    const stuck = progress(p);
+    return { type: "activate", card: drake, idx: a.idx, repeat: 400, stop: g2 => { floatAll(g2, p, true); return g2.poolTotal(p) >= want || stuck(g2) || !(p.pool.U > 0 || g2.controlled(p, o => g2.isLand(o) && !o.tapped).length); }, maxTries: 6 };
   }
   function scepterLoop(g, p, acts, m, want) {
     const sc = g.controlled(p, o => o.def.name === "Isochron Scepter" && o.state.imprint && o.state.imprint.def.name === "Dramatic Reversal" && !o.tapped)[0];
@@ -802,7 +808,8 @@
     if (!a) return null;
     m.loops++;
     floatAll(g, p, false);
-    return { type: "activate", card: sc, idx: 0, repeat: 400, stop: g2 => g2.poolTotal(p) >= want, maxTries: 6 };
+    const stuck = progress(p);
+    return { type: "activate", card: sc, idx: 0, repeat: 400, stop: g2 => g2.poolTotal(p) >= want || stuck(g2), maxTries: 6 };
   }
   function flickerLoop(g, p, acts, m, want) {
     const drake = onBf(g, p, DRAKE)[0], arch = onBf(g, p, "Archaeomancer")[0], gf = inHand(p, "Ghostly Flicker");
@@ -825,6 +832,7 @@
     if (kill) return kill;
     if (m.loops > 150) return null;
     const want = 2 * Math.min(need, 120) + 8;
+    if (m.loops >= 3 && g.poolTotal(p) < want) return null;
     return drakeDeadeye(g, p, acts, m, want) || scepterLoop(g, p, acts, m, want) || flickerLoop(g, p, acts, m, want);
   }
   function bragoChoose(g, p, req) {
@@ -968,13 +976,19 @@ Plains
 Plains
 Plains`)
   };
-  MK.BRAGO_DECK = {
-    id: "brago", name: "Brago", title: "Brago, King Eternal", commander: "Brago, King Eternal",
-    identity: ["W", "U"], bracket: 4, aggression: 0.5, hero: "lab", label: "Brago (B4 research)",
+  /* The 1,500 € list: Coldsteel Heart and an Island for Mox Diamond and Tundra. */
+  MK.BRAGO_LISTS["1500"] = MK.BRAGO_LISTS.uncapped.map(n => (n === "Mox Diamond" ? "Coldsteel Heart" : n === "Tundra" ? "Island" : n));
+  const bragoDeck = (id, name, list, extra) => Object.assign({
+    id, name, title: "Brago, King Eternal", commander: "Brago, King Eternal",
+    identity: ["W", "U"], bracket: 4, aggression: 0.5,
     style: "Azorius blink and control",
-    blurb: "Bracket 4 Azorius blink: Brago flickers rocks and enters-the-battlefield creatures every hit, counterspells protect it, and Peregrine Drake loops (Deadeye Navigator, Archaeomancer + Ghostly Flicker) or Isochron Scepter + Dramatic Reversal make infinite mana for Walking Ballista.",
+    blurb: "Bracket 4 Azorius blink: Brago flickers mana rocks and enters-the-battlefield creatures every time it connects, counterspells protect it, and Peregrine Drake loops (with Deadeye Navigator, or Archaeomancer + Ghostly Flicker) or Isochron Scepter + Dramatic Reversal make infinite mana for Walking Ballista.",
     watch: ["Peregrine Drake", "Deadeye Navigator", "Isochron Scepter"],
-    list: MK.BRAGO_LISTS.uncapped
-  };
-  (MK.HERO_DECKS = MK.HERO_DECKS || []).push(MK.BRAGO_DECK);
+    list
+  }, extra || {});
+  /* Two bot decks from ju's Miku high-B4 research (research/miku-b4/decklist-brago-*.txt). */
+  MK.BRAGO_DECK = bragoDeck("brago", "Brago", MK.BRAGO_LISTS.uncapped);
+  MK.BRAGO_1500_DECK = bragoDeck("brago-1500", "Brago 1500", MK.BRAGO_LISTS["1500"], { blurb: "The 1,500 € Brago list: the same blink and Drake loops, with Coldsteel Heart and an Island for Mox Diamond and Tundra." });
+  MK.DECK_BRAINS["brago-1500"] = MK.DECK_BRAINS.brago;
+  (MK.BOT_DECKS = MK.BOT_DECKS || []).push(MK.BRAGO_DECK, MK.BRAGO_1500_DECK);
 })(typeof window !== "undefined" ? window : globalThis);
