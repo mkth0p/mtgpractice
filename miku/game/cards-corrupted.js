@@ -742,7 +742,9 @@
   /* Something that turns Druid + Vizier's mana into a win: Ballista, Craterhoof, or Shalai's counters. */
   function killSink(g, p) {
     const hoofIn = p.library.some(c => c.def.name === HOOF);
-    return onBf(g, p, BALLISTA).length > 0 || !!inHandCard(p, BALLISTA) || reachable(g, p, BALLISTA) || onBf(g, p, SHALAI).length > 0 ||
+    // engine 9: Shalai in the command zone too (the Druid's mana casts her)
+    const home = !legacy(g) && p.commanders && p.commanders.some(c => c.def.name === SHALAI && c.zone === "command");
+    return onBf(g, p, BALLISTA).length > 0 || !!inHandCard(p, BALLISTA) || reachable(g, p, BALLISTA) || onBf(g, p, SHALAI).length > 0 || home ||
       !!inHandCard(p, HOOF) || (hoofIn && Object.keys(HOOF_FETCH).some(n => inHandCard(p, n)));
   }
   function tutorBonus(g, p, o) {
@@ -813,7 +815,14 @@
       }
       if (pool < 6 && p.hand.some(t => BOT_TUTORS[t.def.name] && BOT_TUTORS[t.def.name].dest === "hand" && BOT_TUTORS[t.def.name].finds(MK.get(BALLISTA)))) return make(6 - pool);
     }
-    // no Ballista: Shalai's {4}{G}{G} twenty times (twenty +1/+1 counters on every creature), then Craterhoof
+    // no Ballista: Shalai's {4}{G}{G} twenty times (twenty +1/+1 counters on every creature), then Craterhoof.
+    // Shalai still in the command zone comes down first, paid with the Druid's mana (engine 9)
+    const home = !legacy(g) && p.commanders && p.commanders[0] && p.commanders[0].zone === "command" && p.commanders[0].def.name === SHALAI ? p.commanders[0] : null;
+    if (home && !firstOn(g, p, SHALAI)) {
+      const a = acts.find(x => x.type === "cast" && x.card === home && !x.alt);
+      if (a && g.canPay(p, g.spellCost(p, home, {}))) return { type: "cast", card: home, maxTries: 2 };
+      return make(MK.util.costMV(g.spellCost(p, home, {})) + 2 - pool);
+    }
     const sh = firstOn(g, p, SHALAI);
     if (sh && !m.looped) {
       if (pool >= 120) { const a = activateOf(acts, sh, 0); if (a) { m.looped++; return { type: "activate", card: sh, idx: 0, repeat: 20, maxTries: 4 }; } }
@@ -943,7 +952,7 @@
     return out;
   }
   /* The cheapest line that finishes a combo this turn: { steps, cost }, or null. */
-  function lineNow(g, p, acts) {
+  function lineNow(g, p, acts, relax) {
     const lines = [];
     const on = n => onBf(g, p, n).length > 0;
     const bal = bestBallista(g, p);
@@ -953,7 +962,8 @@
       const missing = pieces.filter(n => !(opts.has && opts.has[n]));
       if (!missing.length || missing.length > 2) return;
       // a Devoted Druid that enters now is summoning sick, unless Lightning Greaves gives it haste
-      if (opts.noSick && missing.includes(DRUID) && !greaves) return;
+      if (opts.noSick && missing.includes(DRUID) && !greaves && !relax) return;
+      if (relax) extra = pcost("");
       const first = routes(g, p, acts, missing[0], new Set(), opts.x || 0);
       for (const r1 of first) {
         const rest = missing.length > 1 ? routes(g, p, acts, missing[1], new Set(r1.uses), opts.x || 0) : [null];
@@ -970,7 +980,7 @@
     add([HELIOD, BALLISTA], addC(pcost("{1}{W}"), balExtra), { has: { [HELIOD]: on(HELIOD), [BALLISTA]: !!bal && counters(bal) >= 1 }, x: 2 });
     // Druid + Vizier: the Druid must be able to tap this turn, and something must turn the mana into a kill
     const readyDruid = onBf(g, p, DRUID).some(o => unsick(g, o));
-    if ((readyDruid || greaves) && killSink(g, p)) add([DRUID, VIZIER], pcost(""), { has: { [DRUID]: onBf(g, p, DRUID).length > 0, [VIZIER]: on(VIZIER) }, noSick: true });
+    if ((readyDruid || greaves || relax) && killSink(g, p)) add([DRUID, VIZIER], pcost(""), { has: { [DRUID]: onBf(g, p, DRUID).length > 0, [VIZIER]: on(VIZIER) }, noSick: true });
     // Druid + Swift Reconfiguration: a noncreature Druid taps at once, so a Druid cast now works too
     if (killSink(g, p) && inHandCard(p, SWIFT)) add([DRUID, SWIFT], pcost(""), { has: { [DRUID]: onBf(g, p, DRUID).some(o => !o.tapped), [SWIFT]: onBf(g, p, DRUID).some(o => swiftOn(g, o)) } });
     const ok = lines.filter(l => g.canPay(p, l.cost));
@@ -997,13 +1007,21 @@
     return tryCast("Grand Abolisher");
   }
   function assemble(g, p, acts, m) {
-    const l = lineNow(g, p, acts);
+    // engine 9: no line finishes this turn, but the pieces fit: put them out now, the kill comes next turn
+    const l = lineNow(g, p, acts) || (!legacy(g) ? setupLine(g, p, acts, m) : null);
     if (!l) return null;
     const s = shield(g, p, acts, m, l.cost);
     if (s) return s;
     const st = l.steps[0];
     if (st.want) m.want = st.want;
     return Object.assign({ maxTries: 2 }, st.act);
+  }
+
+  /* The pieces of a kill line without its last activation ({1}{W} for lifelink, Ballista's {4}), or with
+     a Druid that is sick this turn. Only one piece may be missing (the other is already out). */
+  function setupLine(g, p, acts, m) {
+    const l = lineNow(g, p, acts, true);
+    return l && l.steps.length === 1 ? l : null;
   }
 
   /* ---------- the end of the turn before ours: instant tutors for the missing piece */
@@ -1112,7 +1130,40 @@
     if (run) return run;
     // the land drop comes first: it may be the mana the line needs
     if (acts.some(a => a.type === "land")) return null;
-    return assemble(g, p, acts, m) || (win === "main1" ? cropPlan(g, p, acts, m) : null);
+    return assemble(g, p, acts, m) || (win === "main1" ? cropPlan(g, p, acts, m) : null) || (win === "main2" && !legacy(g) ? topTutorNow(g, p, acts, m) : null);
+  }
+  /* Engine 9: a tutor to the top of the library (Enlightened, Worldly) for a missing kill piece goes
+     in our second main phase when the mana won't be there at the end of the turn before ours: the
+     card is drawn at the same time either way. */
+  function topTutorNow(g, p, acts, m) {
+    let best = null, bs = 0;
+    for (const c of p.library) {
+      if (!BOT_PIECES.includes(c.def.name) && c.def.name !== HOOF) continue;
+      const s = tutorBonus(g, p, c);
+      if (s > bs) { bs = s; best = c; }
+    }
+    if (!best || bs < 20) return null;
+    for (const n of ["Enlightened Tutor", "Worldly Tutor", "Sylvan Tutor"]) {
+      const c = inHandCard(p, n), T = BOT_TUTORS[n], a = castOf(acts, c);
+      if (!a || !T.finds(best.def)) continue;
+      m.want = best.def.name;
+      return { type: "cast", card: c, maxTries: 1 };
+    }
+    return null;
+  }
+  /* Recorded games from before engine 9 replay with the old Corrupted Miku bot. */
+  const legacy = g => !!(g.opts && g.opts.legacyCorrupted);
+  /* Engine 9: Skullclamp only goes on a creature that isn't a combo piece (its -1 toughness kills
+     Ballista, Vizier and Feeder); an Endurance that can't be hard-cast isn't evoked for nothing. */
+  function botUseOk(g, p, o, ab, win) {
+    if (legacy(g)) return undefined;
+    if (o.def.name === "Skullclamp" && ab.label === "Equip") return g.creatures(p).some(c => c !== o.attachedTo && g.toughness(c) === 1 && !BOT_PIECES.includes(c.def.name) && c.def.name !== SHALAI);
+    return undefined;
+  }
+  function botCastOk(g, p, o, win) {
+    if (legacy(g)) return undefined;
+    if (o.def.name === "Endurance") return g.canPay(p, g.spellCost(p, o, {}));
+    return undefined;
   }
 
   /* The bot's choices that the generic picks get wrong for this deck. undefined: ai.js decides. */
@@ -1194,7 +1245,7 @@
   }
 
   MK.DECK_BRAINS = MK.DECK_BRAINS || {};
-  MK.DECK_BRAINS.corrupted = { plan: brain, choose: botChoose, tutorBonus, keepHome, mulligan: botMulligan, tutors: true };
+  MK.DECK_BRAINS.corrupted = { plan: brain, choose: botChoose, tutorBonus, keepHome, mulligan: botMulligan, tutors: true, useOk: botUseOk, castOk: botCastOk };
 
   /* ================================================================ the deck */
   const LIST = [

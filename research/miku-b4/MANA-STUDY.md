@@ -262,3 +262,51 @@ All 41 missing cards are now in the engine (`miku/game/cards-miku-b4.js`, 55 che
 
 - The exact Shalai uncapped list beats today's Corrupted Miku by about 4 points (2.3 standard errors). With stand-ins it was 1.4 points behind: the missing win pieces mattered. The 1,500 € list is level within noise.
 - Brago's number is mostly the bot, not the deck. The cards work (the loops kill in the tests), but the brain is a first pass: it rarely assembles a loop and it doesn't run counter wars the way Talrand's brain does. Its goldfish speed (median round 12, 4% by round 6) is what the r 0.87 relationship predicts for ~4%. Don't read this as "Brago is a bad deck" until the brain is stronger.
+
+## Addendum 2 (2026-10-10): 1,000 goldfish games of Corrupted Miku
+
+Corrupted Miku (today's site list) played 1,000 games against three do-nothing opponents. Seeds were 5000 + k·250 for 4 processes, `--first random`. The script records each turn's board and hand, then sorts out why the slow games were slow.
+
+**Mano's numbers, goldfish, turns 1-8 (games that reached turn 8):**
+- 38.9 mana made: 3.4 on ramp, 3.8 on Shalai, 13.0 on spells and 10.0 on abilities.
+- 8.8 wasted (23%), with 2.1 extra cards drawn.
+- Against Bracket 4 bots the same deck wastes 6.6 (section 3). Mano's own deck makes 40 and wastes 11.
+
+The extra goldfish waste comes from interaction with nothing to aim at. Reprieve, Generous Gift, Orim's Chant, Swords, Force of Vigor, Silence, Solitude, Teferi's Protection, Veil, Kenrith's Transformation, Flawless Maneuver and Path each sit in 11-19% of the slow games' hands at round 7.
+
+**Speed (after the bot fixes below):**
+- Median kill round 8, mean 7.97.
+- Won by round 4/5/6/7/8/10: 4% / 16% / 34.5% / 49% / 62% / 82%.
+- How it wins: Ballista 49%, a Thune/Feeder or Druid loop then combat 32%, plain combat 14%, Craterhoof 6%.
+
+**The 29% of games that go to round 10 or later, by their board at round 7:**
+
+| State at round 7 | Share of slow games |
+|---|---|
+| A combo piece missing, cards in hand (mostly interaction) | 73% |
+| Out of cards (one card or none) | 19% |
+| Short of mana (under 6 lands and sources) | 5% |
+| Kill pair on the battlefield but not used | 3% |
+
+Slow games are a draw problem, not a mana problem: the deck finds no tutor or second piece.
+
+**Bot misplays found and fixed (engine 9, `legacyCorrupted` for old recorded games):**
+- Skullclamp equipped a lone Walking Ballista or Vizier and killed it (about 3% of games).
+- Endurance was evoked for no reason, which costs two cards (about 7% of games).
+- Devoted Druid + Vizier made no mana while Shalai was still in the command zone. The Druid now casts her and pumps.
+- Enlightened or Worldly Tutor for the last kill piece was never cast when the end step had no mana. It now goes in the second main phase.
+- With a full line too expensive this turn, the bot played other cards instead of the missing piece. It now puts out the missing half (Charm for Heliod, a Druid next to Vizier) so the kill comes next turn.
+
+| Measure | Before | After |
+|---|---|---|
+| Goldfish won by round 6 | 30.7% | **34.5%** |
+| Goldfish mean kill round | 8.15 | 7.97 |
+| Win rate vs Bracket 4 bots, paired, 1,600 games | 33.8% | 34.6% |
+| Difference vs Bracket 4 bots | | +0.8 ±0.8 (noise) |
+
+Against real bots, games turn on interaction more than on these lines.
+
+**What this means for fitting Mano's model:**
+1. The deck already beats Mano's waste mark at a real table (6.6 against his 11). Cutting lands to his 26-28 was measured at −1 to −6 points (section 4), so don't follow it.
+2. Waste in the goldfish is held-up interaction. That's the price of a Bracket 4 table, not a build error.
+3. The lever is redundancy in the kill: more ways to find the second piece. The research's Shalai uncapped list adds Fauna Shaman, Sylvan Tutor and Swift Reconfiguration, and it is the one list that measured faster (+3.9 ±1.7 against the bots).
