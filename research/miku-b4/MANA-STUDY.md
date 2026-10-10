@@ -310,3 +310,20 @@ Against real bots, games turn on interaction more than on these lines.
 1. The deck already beats Mano's waste mark at a real table (6.6 against his 11). Cutting lands to his 26-28 was measured at −1 to −6 points (section 4), so don't follow it.
 2. Waste in the goldfish is held-up interaction. That's the price of a Bracket 4 table, not a build error.
 3. The lever is redundancy in the kill: more ways to find the second piece. The research's Shalai uncapped list adds Fauna Shaman, Sylvan Tutor and Swift Reconfiguration, and it is the one list that measured faster (+3.9 ±1.7 against the bots).
+
+## Addendum 3 (2026-10-10): more draw or a faster kill on the Shalai 1,500 list
+
+The question was: what's the best way to draw more and win sooner? These are swap packages on `decklist-shalai-1500.txt`, engine 9. Each played 1,600 games against Bracket 4 bots (seeds 1000 + k·400; paired against base) and 1,000 goldfish games (seeds 5000 + k·250). Base and the draw package also played 1,600 more bot games (seeds 2600-4199).
+
+| Package | Swap | vs B4 bots, paired | Goldfish won by round 6 | Goldfish mean kill round | Extra cards, turns 1-8 |
+|---|---|---|---|---|---|
+| **base** | | 34.4% (3,200 games) | 34.8% | 7.94 | 2.2 |
+| draw ×3 | Destiny Spinner, Allosaurus Shepherd, Archon of Emeria → Guardian Project, Tireless Tracker, Beast Whisperer | +0.4 ±0.5 (3,200) | 34.8% | 7.78 | 3.2 |
+| Guardian Project alone | Destiny Spinner → Guardian Project | +0.1 ±0.5 | | | |
+| fast mana ×3 | same three cuts → Mox Diamond, Grim Monolith, Gemstone Caverns | −1.9 ±0.9 | 35.3% | 7.93 | 2.4 |
+| fast mana for protection | Flawless Maneuver, Heroic Intervention, Veil of Summer → the same three | −1.1 ±0.8 | 35.7% | 7.91 | 2.2 |
+| −2 lands, +2 fast mana | Plains, Forest → Mox Diamond, Grim Monolith | −2.1 ±0.8 | 32.8% | 8.03 | 2.1 |
+
+- **Draw:** three draw engines add one card by turn 8 and take 0.16 rounds off the goldfish mean kill. Against bots the gain is within noise. They're fine as a taste choice, not a measurable upgrade.
+- **Fast mana:** it makes more mana and keeps more 7s (70% against 66%), but it loses games. The bot either spends a card on mana it doesn't need, or loses the interaction it cut. Mox Diamond (759 €) and Grim Monolith (306 €) at the 2026-10-07 Cardmarket trend are not worth buying for this deck.
+- **Together with sections 4 and Addendum 2:** neither the lands, ramp, draw nor fast mana axis beats the list. The kill turn is set by finding a combo piece. Opening-hand data from 1,000 goldfish games of the Corrupted list: Devoted Druid in the opener goes with 66% won by round 6 against 32% without, and Archdruid's Charm, Vizier, Eladamri's Call and Chord of Calling with +19 to +22 points. At a real table, the levers are play choices (keep hands with a combo piece or a tutor, cast tutors at the end of the turn before yours), not deck slots.
