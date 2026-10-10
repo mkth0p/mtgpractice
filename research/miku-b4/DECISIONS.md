@@ -98,3 +98,17 @@ For green-white, the Shalai and Trostani tables are combined. Sizes: Child 209, 
 - **Trostani:** `decklist-trostani-*` are Shalai's lists with the two swapped between command zone and 99 (pass1 D7).
 - **Win lines vs the engine:** where possible the lists lean on lines whose pieces are already in the engine (Heliod + Ballista, Thune + Feeder, Druid + Vizier, Scepter + Reversal, Thassa's Oracle + Consultation), so the next session's simulations can start with fewer new cards.
 - **No alternative archetype lists.** The research supports one (Brago Bracket 4 value-blink without the Kitten combo), but it wasn't written: time went to the main lists. It's in STATUS.md as not done.
+
+**D27. The user's clarification after the report (2026-10-08/10) overrides REPORT.md §1.**
+- **The goal:** do well at real Bracket 4 tables without being accused of Bracket 5; beating the bots isn't the goal.
+- **The user corrected my Bracket 3-style advice** (Sol Ring and signets only, few Game Changers). Bracket 4 expects full fast mana, and the table is fine with Thassa's Oracle + Demonic Consultation and Isochron Scepter + Dramatic Reversal.
+- **What counts as Bracket 5** is intent and metagame:
+  - a cEDH shell or a copied cEDH list;
+  - a colors-only commander that is never cast;
+  - turbo kills on turns 2–3;
+  - hard stax locks.
+- **New order:**
+  1. Brago as Bracket 4 blink-value, with full fast mana and counters, without the Displacer Kitten + Teferi lock;
+  2. Shalai uncapped;
+  3. Child of Alara dropped.
+- **Details:** HANDOFF.md.

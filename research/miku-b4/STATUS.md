@@ -1,4 +1,9 @@
 # STATUS
+
+> **2026-10-10:**
+> - `HANDOFF.md` has the user's corrections and the current recommendation (Brago Bracket 4 blink-value first, then Shalai uncapped; Child dropped).
+> - Step 9 (mana shape) was added to LOCAL-PROMPT.md after pass 2 and is **not started**.
+> - The Brago lists need a rebuild without the Kitten + Teferi lock.
 Pass 2 ran 2026-10-08 (Claude Code, its own clone of the repo; DECISIONS D13). Steps refer to `pass1/STATUS.md`.
 
 ## Done in pass 2

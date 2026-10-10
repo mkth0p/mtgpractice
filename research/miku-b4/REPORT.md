@@ -8,6 +8,11 @@ Every rules claim below traces to:
 
 Every price is Scryfall's bulk price (2026-10-07 21:05 UTC) with that printing's Cardmarket or TCGplayer URL in `prices-*.csv`. The cheapest near-mint English listing on Cardmarket is **not verified** for any card: Cardmarket's pages block both scripts and the browser pane behind a Cloudflare challenge (DECISIONS D20).
 
+> **Update 2026-10-10: the recommendation in §1 is superseded. Read `HANDOFF.md` §1.** The user's goal is to do well at real Bracket 4 tables without being called Bracket 5, not to beat the bots. Bracket 4 expects full fast mana, and the table accepts Thassa's Oracle + Demonic Consultation and Isochron Scepter + Dramatic Reversal. The recommendation is now:
+> 1. Brago as Bracket 4 blink-value, with full fast mana and counters but without the Kitten + Teferi lock;
+> 2. Shalai uncapped;
+> 3. not Child of Alara: a five-color shell whose commander is never cast is the cEDH signal.
+
 ## 1. Recommendation
 
 **Primary candidate: Child of Alara, colors only (`decklist-child-of-alara-1500.txt`).**
