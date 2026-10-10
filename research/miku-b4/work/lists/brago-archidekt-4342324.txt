@@ -1,0 +1,103 @@
+1 Brago, King Eternal
+1 Access Tunnel
+1 Adagia, Windswept Bastion
+1 Adarkar Wastes
+1 Agent of Treachery
+1 Altar of the Brood
+1 An Offer You Can't Refuse
+1 Ancient Tomb
+1 Arcane Lighthouse
+1 Arcane Signet
+1 Azorius Signet
+1 Basalt Monolith
+1 Borne Upon a Wind
+1 Command Tower
+1 Confounding Conundrum
+1 Coveted Jewel
+1 Cyclonic Rift
+1 Deadeye Navigator
+1 Delivery Moogle
+1 Deserted Beach
+1 Displacer Kitten
+1 Dovin's Veto
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Fabled Passage
+1 Farewell
+1 Fellwar Stone
+1 Fierce Guardianship
+1 Final Showdown
+1 Flooded Strand
+1 Force of Will
+1 Geist of Saint Thalia
+1 Gemstone Caverns
+1 Generous Gift
+1 Glacial Fortress
+1 Gleaming Splendor
+1 Glen Elendra Archmage
+1 Grim Monolith
+1 Hallowed Fountain
+1 Hengegate Pathway // Mistgate Pathway
+1 Hide on the Ceiling
+1 High Fae Trickster
+1 Hydroelectric Specimen // Hydroelectric Laboratory
+1 Instant Ramen
+1 Inventors' Fair
+1 Karn Liberated
+1 Land Tax
+1 Lightning Greaves
+1 Lithoform Engine
+1 Mana Drain
+1 Mana Vault
+1 Meticulous Archive
+1 Mox Opal
+1 Mystic Remora
+1 Omen of the Sea
+1 Otawara, Soaring City
+1 Peregrine Drake
+1 Peter Parker's Camera
+1 Phyrexian Metamorph
+1 Port Town
+1 Prismatic Vista
+1 Recruiter of the Guard
+1 Reliquary Tower
+1 Rest in Peace
+1 Rhystic Study
+1 Riptide Gearhulk
+1 Rogue's Passage
+1 Sea of Clouds
+1 Silence
+1 Sink into Stupor // Soporific Springs
+1 Smothering Tithe
+1 Sol Ring
+1 Spine of Ish Sah
+1 Strionic Resonator
+1 Strip Mine
+1 Swiftfoot Boots
+1 Swords to Plowshares
+1 Talisman of Progress
+1 Teferi's Protection
+1 Teferi, Time Raveler
+1 Thassa, Deep-Dwelling
+1 The Mind Stone
+1 The One Ring
+1 Thespian's Stage
+1 Traveler's Cloak
+1 Treachery
+1 Trinket Mage
+1 Triskelion
+1 Tundra
+1 Urza's Saga
+1 Whirler Rogue
+1 Witch Enchanter // Witch-Blessed Meadow
+4 Island
+4 Plains
+# url: https://archidekt.com/decks/4342324
+# title: Brago, Flicker King
+# author: Beaster1212
+# updated: 2026-10-08
+# bracket: 4 (Archidekt, author-set)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Brago, King Eternal ; total 100 ; lands 33 (+3 MDFC) ; source API https://archidekt.com/api/decks/4342324/
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 12: Ancient Tomb; Cyclonic Rift; Enlightened Tutor; Farewell; Fierce Guardianship; Force of Will; Grim Monolith; Mana Vault; Rhystic Study; Smothering Tithe; Teferi's Protection; The One Ring

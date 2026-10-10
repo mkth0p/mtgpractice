@@ -1,0 +1,110 @@
+1 Celes, Rune Knight
+1 Ad Nauseam
+1 Ancient Tomb
+1 Arcane Signet
+1 Archivist of Oghma
+1 Arid Mesa
+1 Badlands
+1 Beseech the Mirror
+1 Birgi, God of Storytelling // Harnfel, Horn of Bounty
+1 Blood Crypt
+1 Bloodstained Mire
+1 Cabal Ritual
+1 Cavern of Souls
+1 Chrome Mox
+1 City of Brass
+1 City of Traitors
+1 Command Tower
+1 Continue?
+1 Crystal Vein
+1 Culling the Weak
+1 Curse of Opulence
+1 Dark Ritual
+1 Defense Grid
+1 Deflecting Swat
+1 Demonic Tutor
+1 Diabolic Intent
+1 Dualcaster Mage
+1 Emergence Zone
+1 Enlightened Tutor
+1 Entomb
+1 Ephemerate
+1 Esper Sentinel
+1 Exotic Orchard
+1 Fellwar Stone
+1 Final Fortune
+1 Flare of Duplication
+1 Flashback
+1 Flooded Strand
+1 Gamble
+1 Gemstone Caverns
+1 Gleaming Splendor
+1 Goblin Bombardment
+1 Godless Shrine
+1 Grand Abolisher
+1 Grim Monolith
+1 Grinding Station
+1 Hexing Squelcher
+1 Imperial Seal
+1 Jeska's Will
+1 Lesser Masticore
+1 Lion's Eye Diamond
+1 Lotho, Corrupt Shirriff
+1 Lotus Petal
+1 Mana Confluence
+1 Mana Vault
+1 Marsh Flats
+1 Molten Duplication
+1 Mox Amber
+1 Mox Diamond
+1 Mox Opal
+1 Necropotence
+1 Orcish Bowmasters
+1 Personify
+1 Plateau
+1 Polluted Delta
+1 Pyroblast
+1 Ragavan, Nimble Pilferer
+1 Rain of Filth
+1 Ranger-Captain of Eos
+1 Raucous Theater
+1 Reanimate
+1 Red Elemental Blast
+1 Rite of Flame
+1 Rograkh, Son of Rohgahh
+1 Sacred Foundry
+1 Saw in Half
+1 Scalding Tarn
+1 Scrubland
+1 Sevinne's Reclamation
+1 Silence
+1 Simian Spirit Guide
+1 Smothering Tithe
+1 Sol Ring
+1 Springleaf Drum
+1 Starting Town
+1 Strike It Rich
+1 Swords to Plowshares
+1 Tainted Pact
+1 Talisman of Indulgence
+1 Tataru Taru
+1 The Queen of Dale
+1 Underworld Breach
+1 Vampiric Tutor
+1 Verdant Catacombs
+1 Vexing Bauble
+1 Voice of Victory
+1 Wheel of Fortune
+1 Windswept Heath
+1 Wishclaw Talisman
+1 Wooded Foothills
+# url: https://moxfield.com/decks/bh40TYVQ2UWWHBcoF7pn6w
+# title: Celes: 𝕎𝕚𝕟𝕕𝕠𝕨 ℕ𝕒𝕦𝕤 [cEDH]
+# author: MarkgoesCompetitive
+# updated: 2026-10-05
+# bracket: 5 (Moxfield, author-set; auto 4)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Celes, Rune Knight ; total 100 ; lands 27 ; source API https://api2.moxfield.com/v3/decks/all/bh40TYVQ2UWWHBcoF7pn6w
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 17: Ad Nauseam; Ancient Tomb; Chrome Mox; Demonic Tutor; Enlightened Tutor; Gamble; Grim Monolith; Imperial Seal; Jeska's Will; Lion's Eye Diamond; Mana Vault; Mox Diamond; Necropotence; Orcish Bowmasters; Smothering Tithe; Underworld Breach; Vampiric Tutor
+# listed in: cEDH Decklist Database, entry "Celes Persistant Breach" (section COMPETITIVE, entry updated 2025-07-20; https://raw.githubusercontent.com/AverageDragon/cEDH-Decklist-Database/master/_data/database.json)

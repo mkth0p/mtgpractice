@@ -1,0 +1,99 @@
+1 Child of Alara
+1 An Offer You Can't Refuse
+1 Ancient Tomb
+1 Arcane Signet
+1 Arid Mesa
+1 Armageddon
+1 Avacyn, Angel of Hope
+1 Azusa, Lost but Seeking
+1 Badlands
+1 Bayou
+1 Birds of Paradise
+1 Bloodstained Mire
+1 Bloom Tender
+1 Boseiju, Who Endures
+1 Brain Freeze
+1 Chromatic Lantern
+1 Chrome Mox
+1 City of Brass
+1 Command Tower
+1 Consecrated Sphinx
+1 Crop Rotation
+1 Culling Ritual
+1 Cyclonic Rift
+1 Dark Ritual
+1 Demonic Tutor
+1 Diabolic Intent
+1 Drannith Magistrate
+1 Dryad of the Ilysian Grove
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Eternal Witness
+1 Exotic Orchard
+1 Exploration
+1 Farseek
+1 Fellwar Stone
+1 Flooded Strand
+1 Flusterstorm
+1 Force of Will
+3 Forest
+1 Gamble
+1 Gemstone Caverns
+1 Grand Abolisher
+1 Hallowed Fountain
+1 Hexing Squelcher
+1 High Market
+1 Imperial Seal
+2 Island
+1 Lotus Petal
+1 Mana Confluence
+1 Mana Vault
+1 Marsh Flats
+1 Mental Misstep
+1 Misty Rainforest
+2 Mountain
+1 Mox Diamond
+1 Mystic Remora
+1 Mystical Tutor
+1 Nature's Lore
+1 Necropotence
+1 Opposition Agent
+1 Orcish Bowmasters
+1 Phyrexian Tower
+2 Plains
+1 Polluted Delta
+1 Ponder
+1 Ragavan, Nimble Pilferer
+1 Rhystic Study
+1 Savannah
+1 Scalding Tarn
+1 Scrubland
+1 Sevinne's Reclamation
+1 Silence
+1 Smothering Tithe
+1 Sol Ring
+2 Swamp
+1 Swan Song
+1 Taiga
+1 Teferi, Time Raveler
+1 Thassa's Oracle
+1 Thassa, God of the Sea
+1 The Cabbage Merchant
+1 The One Ring
+1 Three Visits
+1 Tropical Island
+1 Tundra
+1 Underground Sea
+1 Underworld Breach
+1 Vampiric Tutor
+1 Verdant Catacombs
+1 Volcanic Island
+1 Windswept Heath
+1 Wooded Foothills
+1 Worldly Tutor
+1 Wrath of God
+# source: https://edhrec.com/average-decks/child-of-alara/cedh (JSON https://json.edhrec.com/pages/average-decks/child-of-alara/cedh.json), accessed 2026-10-08
+# title: Average Deck for Child of Alara - cEDH ; author EDHREC (aggregate) ; num_decks 40 ; deck save dates 2024-10-10 to 2026-10-03 ; bracket_counts {'4': 423, '3': 741, '1': 251, '2': 772, '5': 40}
+# total 100 ; lands 40 ; BAN 
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 24: Ancient Tomb; Chrome Mox; Consecrated Sphinx; Crop Rotation; Cyclonic Rift; Demonic Tutor; Drannith Magistrate; Enlightened Tutor; Force of Will; Gamble; Imperial Seal; Mana Vault; Mox Diamond; Mystical Tutor; Necropotence; Opposition Agent; Orcish Bowmasters; Rhystic Study; Smothering Tithe; Thassa's Oracle; The One Ring; Underworld Breach; Vampiric Tutor; Worldly Tutor
+# types: ['Artifact', 'Land', 'Creature', 'Enchantment', 'Instant', 'Planeswalker', 'Sorcery']

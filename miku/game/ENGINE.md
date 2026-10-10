@@ -8,6 +8,7 @@ before anyone plays it.
 | --- | --- |
 | `engine.js` | Rules: zones, the stack, mana payment, combat, triggers, state-based actions. |
 | `cards-miku.js` | All 88 cards of the Miku deck (Trostani) and `MK.MIKU_DECK`. The best examples to copy. |
+| `cards-miku-b4.js` | The Miku high-Bracket-4 research lists (research/miku-b4/): the Brago and Shalai cards nobody else had, `MK.BRAGO_DECK` and its bot brain, `MK.flicker`. Sims only for now; `tools/sim/test-miku-b4.js` checks them. |
 | `cards-corrupted.js` | The Corrupted Miku deck (Shalai, Bracket 4): its new cards, the generic Cavern of Souls, `MK.CORRUPTED_DECK` and its coach. |
 | `checklist-corrupted.js` | Corrupted Miku's turn checklist (`MK_CHECKLISTS.corrupted`), shared by the game's Coach panel and the site. |
 | `decks-*.js` | One file per bot deck: its card definitions and one entry in `MK.BOT_DECKS`. |
@@ -230,7 +231,10 @@ statics: [{
   uncounterable: (g, s, item) => bool,            // Destiny Spinner
   searchLimit: (g, s, p) => 4 or null,            // Aven Mindcensor: p searches only the top n
   entersTapped: (g, s, o) => bool,                // Thalia, Heretic Cathar, Blind Obedience
-  creatureManaBonus: (g, s, o) => "G"             // Badgermole Cub: tapping creature o for mana adds this too
+  creatureManaBonus: (g, s, o) => "G",            // Badgermole Cub: tapping creature o for mana adds this too
+  tapManaBonus: (g, s, o) => "G",                 // Wild Growth, Utopia Sprawl: tapping permanent o for mana adds this too
+  becomesVehicle: true,                           // with applies: it's a noncreature Vehicle artifact (Swift Reconfiguration)
+  stopTrigger: (g, s, entry) => bool              // the trigger doesn't happen (Elesh Norn, Mother of Machines); triggerExtra(g, s, entry) -> n adds copies
 }]
 commandStatics: [{ costMod }]    // eminence cost reductions that work from the command zone
 ```
@@ -245,7 +249,7 @@ for an alternative cost with its own targets (cleave).
 
 Corrupted Miku added a few more:
 - `g.banCasting((g, p, card) => bool, label)` stops casting until end of turn (Silence, Orim's Chant,
-  Ranger-Captain); `p.noCounterTurn = g.turn` makes p's spells uncounterable this turn (Veil of Summer).
+  Ranger-Captain), or until a player's next turn with `{ until: player }` (Reflector Mage); `p.noCounterTurn = g.turn` makes p's spells uncounterable this turn (Veil of Summer).
 - `p.shield` (protection from everything: no targeting, damage prevented) and `p.lifeLock` (life total
   can't change) last until p's next turn (Teferi's Protection, The One Ring).
 - `g.addEffect({ objs, prot: ["B"] })`: protection from colors ("C" for colorless) until end of turn. It

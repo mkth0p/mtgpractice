@@ -1,0 +1,94 @@
+1 Child of Alara
+1 Aether Flash
+1 Apocalypse
+1 Armageddon
+1 Back to Basics
+1 Beast Within
+1 Blightsteel Colossus
+1 Blood Moon
+1 Braids, Arisen Nightmare
+1 Burning Sands
+1 Chandra, Awakened Inferno
+1 Chaos Warp
+1 Darkmoss Bridge
+1 Darksteel Forge
+1 Deafening Silence
+1 Defense Grid
+1 Deflecting Swat
+1 Demonic Pact
+1 Drannith Magistrate
+1 Drossforge Bridge
+1 Expropriate
+1 Exquisite Blood
+1 Fierce Guardianship
+1 Force of Will
+1 Fractured Identity
+1 Generous Gift
+1 Ghostly Prison
+1 Glacial Chasm
+1 Goldmire Bridge
+1 Grafted Exoskeleton
+1 Grand Arbiter Augustin IV
+1 Head Games
+1 Hokori, Dust Drinker
+1 It That Betrays
+1 Karn, the Great Creator
+1 Magus of the Moon
+1 Mana Drain
+1 Mana Geyser
+1 Manabarbs
+1 Marauding Blight-Priest
+1 Mistvault Bridge
+1 Mycosynth Lattice
+1 Nether Void
+1 Orcish Bowmasters
+1 Phage the Untouchable
+1 Price of Glory
+1 Propaganda
+1 Ragavan, Nimble Pilferer
+1 Ravages of War
+1 Razortide Bridge
+1 Rhystic Study
+1 Root Maze
+1 Rustvale Bridge
+1 Scrambleverse
+1 Screaming Nemesis
+1 Sheoldred, the Apocalypse
+1 Silverbluff Bridge
+1 Slagwoods Bridge
+1 Smothering Tithe
+1 Spreading Plague
+1 Stasis
+1 Static Orb
+1 Stigma Lasher
+1 Strip Mine
+1 Sunder
+1 Tainted Aether
+1 Tanglepool Bridge
+1 Teferi's Protection
+1 Tergrid, God of Fright // Tergrid's Lantern
+1 Thalia and The Gitrog Monster
+1 Thalia, Heretic Cathar
+1 The One Ring
+1 The Tabernacle at Pendrell Vale
+1 Thornglint Bridge
+1 Vandalblast
+1 Vito, Thorn of the Dusk Rose
+1 Vorinclex, Voice of Hunger
+1 Winter Orb
+1 Worldfire
+1 Worldslayer
+2 Forest
+3 Island
+6 Mountain
+3 Plains
+6 Swamp
+# url: https://archidekt.com/decks/15501698
+# title: Saltiest Deck
+# author: MoxLotus679
+# updated: 2026-08-18
+# bracket: 4 (Archidekt, author-set)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Child of Alara ; total 100 ; lands 33 ; source API https://archidekt.com/api/decks/15501698/
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 12: Drannith Magistrate; Fierce Guardianship; Force of Will; Glacial Chasm; Grand Arbiter Augustin IV; Orcish Bowmasters; Rhystic Study; Smothering Tithe; Teferi's Protection; Tergrid, God of Fright // Tergrid's Lantern; The One Ring; The Tabernacle at Pendrell Vale

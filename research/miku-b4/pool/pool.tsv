@@ -1,0 +1,487 @@
+name	roles	for_commanders	combos	why
+Academy Rector	tutor	child		Tutor that finds the missing win-line piece or the answer the turn needs (in 3 of 9 kept public Child of Alara lists).
+Accomplished Alchemist	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 13 kept public Shalai/Trostani lists).
+Adarkar Wastes	land	brago		Land that produces the deck's colors (in 7 of 10 kept public Brago lists).
+Aether Channeler	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 9 of 10 kept public Brago lists).
+Aetherflux Reservoir	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 3 of 13 kept public Shalai/Trostani lists).
+Akroma's Will	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 3 of 13 kept public Shalai/Trostani lists).
+Allosaurus Shepherd	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 3 of 13 kept public Shalai/Trostani lists).
+Altar of Dementia	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+An Offer You Can't Refuse	ramp,counterspell	child,brago		Ramp that adds mana or lands toward a turn-5-6 kill (in 3 of 9 kept public Child of Alara lists; 8 of 10 kept public Brago lists).
+Ancient Den	land	brago		Land that produces the deck's colors (in 4 of 10 kept public Brago lists).
+Ancient Tomb	land	child,brago,shalai		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists; 7 of 10 kept public Brago lists; 5 of 13 kept public Shalai/Trostani lists).
+Angel of Jubilation	stax	shalai		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 13 kept public Shalai/Trostani lists).
+Angel's Grace	stax	brago		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 10 kept public Brago lists).
+Animate Dead	interaction	child		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 9 kept public Child of Alara lists).
+Anointed Procession	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Arbor Elf	value	shalai		Value that adds board presence or card quality (in 4 of 13 kept public Shalai/Trostani lists).
+Arcane Signet	fast-mana	child,brago,shalai		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 7 of 9 kept public Child of Alara lists; 10 of 10 kept public Brago lists; 9 of 13 kept public Shalai/Trostani lists).
+Archaeomancer	win-line	child,brago	drake-flicker-archaeomancer,brago-archaeomancer-timewarp	Piece of Peregrine Drake + Ghostly Flicker + Archaeomancer (or Mnemonic Wall) and of Brago + Archaeomancer + Time Warp (extra-turn loop); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 5 of 10 kept public Brago lists).
+Archangel of Thune	win-line	child,shalai	archangel-spikefeeder,trostani-scurryoak-archangel	Piece of Archangel of Thune + Spike Feeder (+ Walking Ballista or combat) and of Trostani, Selesnya's Voice + Scurry Oak + Archangel of Thune; also win-line piece that undefined (in 1 of 9 kept public Child of Alara lists; 6 of 13 kept public Shalai/Trostani lists).
+Archangel of Tithes	value	shalai		Value that adds board presence or card quality (in 4 of 13 kept public Shalai/Trostani lists).
+Archivist of Oghma	draw	brago,shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 10 kept public Brago lists; 6 of 13 kept public Shalai/Trostani lists).
+Archon of Emeria	stax	brago,shalai		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 10 kept public Brago lists; 3 of 13 kept public Shalai/Trostani lists).
+Archon of Valor's Reach	stax	shalai		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 13 kept public Shalai/Trostani lists).
+Arcum's Astrolabe	fast-mana,draw	brago		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 4 of 10 kept public Brago lists).
+Arid Mesa	land	child,brago,shalai		Land that produces the deck's colors (in 2 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists; 3 of 13 kept public Shalai/Trostani lists).
+Armageddon	interaction	child		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 4 of 9 kept public Child of Alara lists).
+Ashnod's Altar	win-line,ramp	child,shalai	earthcraft-squirrelnest	Piece of Earthcraft + Squirrel Nest (+ Ashnod's Altar + Walking Ballista); also ramp that adds mana or lands toward a turn-5-6 kill (in 1 of 9 kept public Child of Alara lists; 1 of 13 kept public Shalai/Trostani lists).
+Assassin's Trophy	interaction	child		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists).
+Athreos, Shroud-Veiled	protection	child		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 9 kept public Child of Alara lists).
+Augur of Autumn	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Aura Shards	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 9 of 13 kept public Shalai/Trostani lists).
+Austere Command	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 13 kept public Shalai/Trostani lists).
+Authority of the Consuls	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Avacyn, Angel of Hope	protection	child,shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 3 of 9 kept public Child of Alara lists; 4 of 13 kept public Shalai/Trostani lists).
+Avacyn's Pilgrim	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 7 of 13 kept public Shalai/Trostani lists).
+Aven Mindcensor	value	brago,shalai		Value that adds board presence or card quality (in 2 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
+Azorius Chancery	land	child		Land that produces the deck's colors (in 2 of 9 kept public Child of Alara lists).
+Azorius Signet	fast-mana	brago		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 7 of 10 kept public Brago lists).
+Azusa, Lost but Seeking	value	child		Value that adds board presence or card quality (in 3 of 9 kept public Child of Alara lists).
+Badlands	land	child		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists).
+Bala Ged Recovery // Bala Ged Sanctuary	fast-mana	shalai		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 4 of 13 kept public Shalai/Trostani lists).
+Basalt Monolith	win-line,ramp	child,brago,shalai	basalt-forsaken,basalt-rings,monolith-powerartifact	Piece of Basalt Monolith + Forsaken Monument (+ Walking Ballista) and of Basalt Monolith + Rings of Brighthearth (+ Walking Ballista) (+1 more lines); also ramp that adds mana or lands toward a turn-5-6 kill (in 0 of 9 kept public Child of Alara lists; 4 of 10 kept public Brago lists; 0 of 13 kept public Shalai/Trostani lists).
+Basking Broodscale	win-line,ramp	child,shalai	rosie-broodscale	Piece of Rosie Cotton of South Lane + Basking Broodscale (+ Walking Ballista); also ramp that adds mana or lands toward a turn-5-6 kill (in 0 of 9 kept public Child of Alara lists; 2 of 13 kept public Shalai/Trostani lists).
+Battle Angels of Tyr	draw	shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 13 kept public Shalai/Trostani lists).
+Bayou	land	child		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists).
+Beast Whisperer	draw	shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 13 kept public Shalai/Trostani lists).
+Beast Within	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 13 kept public Shalai/Trostani lists).
+Beseech the Mirror	tutor	child		Tutor that finds the missing win-line piece or the answer the turn needs (in 2 of 9 kept public Child of Alara lists).
+Birds of Paradise	ramp	child,shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 4 of 9 kept public Child of Alara lists; 9 of 13 kept public Shalai/Trostani lists).
+Birthing Pod	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 4 of 13 kept public Shalai/Trostani lists).
+Blasphemous Act	value	child		Value that adds board presence or card quality (in 2 of 9 kept public Child of Alara lists).
+Blind Obedience	value	brago		Value that adds board presence or card quality (in 3 of 10 kept public Brago lists).
+Blood Crypt	land	child		Land that produces the deck's colors (in 1 of 9 kept public Child of Alara lists).
+Bloodstained Mire	land	child		Land that produces the deck's colors (in 4 of 9 kept public Child of Alara lists).
+Bloom Tender	ramp	child		Ramp that adds mana or lands toward a turn-5-6 kill (in 3 of 9 kept public Child of Alara lists).
+Blossoming Bogbeast	value	shalai		Value that adds board presence or card quality (in 4 of 13 kept public Shalai/Trostani lists).
+Borne Upon a Wind	draw	child,brago		Card draw that refills the hand so the deck finds its pieces (in 2 of 9 kept public Child of Alara lists; 2 of 10 kept public Brago lists).
+Boseiju, Who Endures	land	child,shalai		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists; 6 of 13 kept public Shalai/Trostani lists).
+Bountiful Promenade	land	shalai		Land that produces the deck's colors (in 10 of 13 kept public Shalai/Trostani lists).
+Brago, King Eternal	win-line,blink	child,brago	brago-resonator,brago-archaeomancer-timewarp	Piece of Brago, King Eternal + Strionic Resonator (+ mana rocks + Walking Ballista) and of Brago + Archaeomancer + Time Warp (extra-turn loop); also blink that reuses enter-the-battlefield effects and untaps permanents (in 1 of 9 kept public Child of Alara lists; 0 of 10 kept public Brago lists).
+Brain Freeze	win-line	child	breach-led-brainfreeze	Piece of Underworld Breach + Lion's Eye Diamond + Brain Freeze (+ Thassa's Oracle finish); also win-line piece that undefined (in 3 of 9 kept public Child of Alara lists).
+Bramble Sovereign	value	shalai		Value that adds board presence or card quality (in 4 of 13 kept public Shalai/Trostani lists).
+Branchloft Pathway // Boulderloft Pathway	land	shalai		Land that produces the deck's colors (in 8 of 13 kept public Shalai/Trostani lists).
+Break Down	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 13 kept public Shalai/Trostani lists).
+Breeding Pool	land	child		Land that produces the deck's colors (in 3 of 9 kept public Child of Alara lists).
+Brushland	land	shalai		Land that produces the deck's colors (in 8 of 13 kept public Shalai/Trostani lists).
+Cabal Ritual	fast-mana	child		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 1 of 9 kept public Child of Alara lists).
+Canopy Vista	land	shalai		Land that produces the deck's colors (in 10 of 13 kept public Shalai/Trostani lists).
+Carpet of Flowers	ramp	child,shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 9 kept public Child of Alara lists; 2 of 13 kept public Shalai/Trostani lists).
+Cavalier of Dawn	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 13 kept public Shalai/Trostani lists).
+Cavern of Souls	land	child,shalai		Land that produces the deck's colors (in 2 of 9 kept public Child of Alara lists; 6 of 13 kept public Shalai/Trostani lists).
+Celestial Colonnade	land	brago		Land that produces the deck's colors (in 0 of 10 kept public Brago lists).
+Charming Prince	value	brago		Value that adds board presence or card quality (in 3 of 10 kept public Brago lists).
+Child of Alara	win-line,interaction	child	coalition-victory-child	Piece of Coalition Victory with Child of Alara on the battlefield; also interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists).
+Chord of Calling	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 6 of 13 kept public Shalai/Trostani lists).
+Chromatic Lantern	ramp	child		Ramp that adds mana or lands toward a turn-5-6 kill (in 5 of 9 kept public Child of Alara lists).
+Chrome Mox	fast-mana	child,brago,shalai		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 4 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
+Circle of Dreams Druid	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 13 kept public Shalai/Trostani lists).
+City of Brass	land	child,brago,shalai		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists; 5 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
+Cleric Class	value	shalai		Value that adds board presence or card quality (in 3 of 13 kept public Shalai/Trostani lists).
+Cloud of Faeries	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 5 of 10 kept public Brago lists).
+Cloudshift	blink	brago		Blink that reuses enter-the-battlefield effects and untaps permanents (in 5 of 10 kept public Brago lists).
+Coalition Victory	win-line	child	coalition-victory-child	Piece of Coalition Victory with Child of Alara on the battlefield; also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists).
+Codex Shredder	value	brago		Value that adds board presence or card quality (in 2 of 10 kept public Brago lists).
+Coldsteel Heart	fast-mana	brago		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 0 of 10 kept public Brago lists).
+Collector Ouphe	stax	shalai		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 13 kept public Shalai/Trostani lists).
+Command Tower	land	child,brago,shalai		Land that produces the deck's colors (in 9 of 9 kept public Child of Alara lists; 10 of 10 kept public Brago lists; 12 of 13 kept public Shalai/Trostani lists).
+Concordant Crossroads	value	shalai		Value that adds board presence or card quality (in 3 of 13 kept public Shalai/Trostani lists).
+Consecrated Sphinx	draw	child		Card draw that refills the hand so the deck finds its pieces (in 2 of 9 kept public Child of Alara lists).
+Counterspell	counterspell	child,brago		Counterspell that stops a wipe, a removal spell on a combo piece, or an opponent's win (in 3 of 9 kept public Child of Alara lists; 5 of 10 kept public Brago lists).
+Craterhoof Behemoth	value	shalai		Value that adds board presence or card quality (in 4 of 13 kept public Shalai/Trostani lists).
+Crested Sunmare	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 13 kept public Shalai/Trostani lists).
+Crop Rotation	ramp	child,shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 4 of 9 kept public Child of Alara lists; 4 of 13 kept public Shalai/Trostani lists).
+Crucible of Worlds	value	child		Value that adds board presence or card quality (in 2 of 9 kept public Child of Alara lists).
+Cryogen Relic	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 5 of 10 kept public Brago lists).
+Culling Ritual	fast-mana	child		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 4 of 9 kept public Child of Alara lists).
+Cultivate	ramp	child,shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 9 kept public Child of Alara lists; 4 of 13 kept public Shalai/Trostani lists).
+Cursed Totem	stax	brago		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 10 kept public Brago lists).
+Cyclonic Rift	interaction	child,brago		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 5 of 9 kept public Child of Alara lists; 10 of 10 kept public Brago lists).
+Dark Ritual	fast-mana	child		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 5 of 9 kept public Child of Alara lists).
+Darksteel Forge	protection	child		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 9 kept public Child of Alara lists).
+Darksteel Ingot	ramp,protection	child		Ramp that adds mana or lands toward a turn-5-6 kill (in 3 of 9 kept public Child of Alara lists).
+Deadeye Navigator	win-line	child,brago	drake-deadeye	Piece of Peregrine Drake + Deadeye Navigator (+ Walking Ballista); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 4 of 10 kept public Brago lists).
+Deadly Rollick	interaction	child		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists).
+Deafening Silence	stax	brago		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 3 of 10 kept public Brago lists).
+Deathrite Shaman	ramp,interaction	child		Ramp that adds mana or lands toward a turn-5-6 kill (in 1 of 9 kept public Child of Alara lists).
+Delighted Halfling	ramp,protection	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 5 of 13 kept public Shalai/Trostani lists).
+Delney, Streetwise Lookout	value	brago		Value that adds board presence or card quality (in 3 of 10 kept public Brago lists).
+Demonic Consultation	win-line,interaction	child	thoracle-consult	Piece of Thassa's Oracle + Demonic Consultation; also interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists).
+Demonic Tutor	tutor	child		Tutor that finds the missing win-line piece or the answer the turn needs (in 7 of 9 kept public Child of Alara lists).
+Deserted Beach	land	brago		Land that produces the deck's colors (in 5 of 10 kept public Brago lists).
+Destiny Spinner	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 3 of 13 kept public Shalai/Trostani lists).
+Devoted Druid	win-line,ramp,interaction	child,shalai	druid-vizier,druid-swiftreconfig	Piece of Devoted Druid + Vizier of Remedies (+ Walking Ballista) and of Devoted Druid + Swift Reconfiguration (+ Walking Ballista); also ramp that adds mana or lands toward a turn-5-6 kill (in 0 of 9 kept public Child of Alara lists; 4 of 13 kept public Shalai/Trostani lists).
+Diabolic Intent	tutor	child		Tutor that finds the missing win-line piece or the answer the turn needs (in 3 of 9 kept public Child of Alara lists).
+Diabolic Tutor	tutor	child		Tutor that finds the missing win-line piece or the answer the turn needs (in 2 of 9 kept public Child of Alara lists).
+Disciple of Freyalise // Garden of Freyalise	ramp,draw	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 3 of 13 kept public Shalai/Trostani lists).
+Dispel	counterspell	brago		Counterspell that stops a wipe, a removal spell on a combo piece, or an opponent's win (in 3 of 10 kept public Brago lists).
+Displacer Kitten	win-line,blink	child,brago	kitten-teferi-solring	Piece of Displacer Kitten + Teferi, Time Raveler + Sol Ring (+ Thassa's Oracle); also blink that reuses enter-the-battlefield effects and untaps permanents (in 0 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists).
+Dollhouse of Horrors	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Doubling Season	value	shalai		Value that adds board presence or card quality (in 3 of 13 kept public Shalai/Trostani lists).
+Dour Port-Mage	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 4 of 10 kept public Brago lists).
+Dovin's Veto	counterspell,protection	brago		Counterspell that stops a wipe, a removal spell on a combo piece, or an opponent's win (in 6 of 10 kept public Brago lists).
+Dramatic Reversal	win-line	child,brago	scepter-reversal	Piece of Isochron Scepter + Dramatic Reversal; also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 0 of 10 kept public Brago lists).
+Drannith Magistrate	stax	child,brago,shalai		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 3 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists; 5 of 13 kept public Shalai/Trostani lists).
+Dryad Arbor	land	shalai		Land that produces the deck's colors (in 2 of 13 kept public Shalai/Trostani lists).
+Dryad of the Ilysian Grove	value	child		Value that adds board presence or card quality (in 3 of 9 kept public Child of Alara lists).
+Dualcaster Mage	win-line	child	dualcaster-twinflame	Piece of Dualcaster Mage + Twinflame; also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists).
+Duskwatch Recruiter // Krallenhorde Howler	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Earthcraft	win-line	child,shalai	earthcraft-squirrelnest	Piece of Earthcraft + Squirrel Nest (+ Ashnod's Altar + Walking Ballista); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 0 of 13 kept public Shalai/Trostani lists).
+Eiganjo, Seat of the Empire	land	brago,shalai		Land that produces the deck's colors (in 5 of 10 kept public Brago lists; 5 of 13 kept public Shalai/Trostani lists).
+Eladamri's Call	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 9 of 13 kept public Shalai/Trostani lists).
+Eldritch Evolution	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 3 of 13 kept public Shalai/Trostani lists).
+Elemental Bond	draw	shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 13 kept public Shalai/Trostani lists).
+Elesh Norn, Grand Cenobite	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 3 of 13 kept public Shalai/Trostani lists).
+Elesh Norn, Mother of Machines	value	brago		Value that adds board presence or card quality (in 6 of 10 kept public Brago lists).
+Elspeth Tirel	interaction	child,shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 3 of 9 kept public Child of Alara lists; 2 of 13 kept public Shalai/Trostani lists).
+Elvish Mystic	ramp	child,shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 9 kept public Child of Alara lists; 7 of 13 kept public Shalai/Trostani lists).
+Elvish Spirit Guide	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 13 kept public Shalai/Trostani lists).
+Emergence Zone	land	shalai		Land that produces the deck's colors (in 2 of 13 kept public Shalai/Trostani lists).
+Emeria Shepherd	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Emeria's Call // Emeria, Shattered Skyclave	fast-mana,protection	shalai		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 2 of 13 kept public Shalai/Trostani lists).
+Endurance	value	shalai		Value that adds board presence or card quality (in 3 of 13 kept public Shalai/Trostani lists).
+Enlightened Tutor	tutor	child,brago,shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 6 of 9 kept public Child of Alara lists; 10 of 10 kept public Brago lists; 11 of 13 kept public Shalai/Trostani lists).
+Ephemerate	blink	brago		Blink that reuses enter-the-battlefield effects and untaps permanents (in 7 of 10 kept public Brago lists).
+Esper Sentinel	draw	child,brago,shalai		Card draw that refills the hand so the deck finds its pieces (in 4 of 9 kept public Child of Alara lists; 7 of 10 kept public Brago lists; 9 of 13 kept public Shalai/Trostani lists).
+Essence Flux	blink	brago		Blink that reuses enter-the-battlefield effects and untaps permanents (in 3 of 10 kept public Brago lists).
+Essence Warden	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Eternal Witness	value	child,shalai		Value that adds board presence or card quality (in 4 of 9 kept public Child of Alara lists; 6 of 13 kept public Shalai/Trostani lists).
+Ethersworn Canonist	stax	brago		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 10 kept public Brago lists).
+Evendo, Waking Haven	land	shalai		Land that produces the deck's colors (in 2 of 13 kept public Shalai/Trostani lists).
+Exalted Sunborn	value	shalai		Value that adds board presence or card quality (in 3 of 13 kept public Shalai/Trostani lists).
+Exotic Orchard	land	child,brago,shalai		Land that produces the deck's colors (in 4 of 9 kept public Child of Alara lists; 2 of 10 kept public Brago lists; 5 of 13 kept public Shalai/Trostani lists).
+Exploration	value	child		Value that adds board presence or card quality (in 4 of 9 kept public Child of Alara lists).
+Explore	draw	child		Card draw that refills the hand so the deck finds its pieces (in 2 of 9 kept public Child of Alara lists).
+Exquisite Blood	win-line	child	sanguine-exquisite	Piece of Sanguine Bond + Exquisite Blood; also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists).
+Fabricate	tutor	brago		Tutor that finds the missing win-line piece or the answer the turn needs (in 4 of 10 kept public Brago lists).
+Faerie Mastermind	draw	child,brago		Card draw that refills the hand so the deck finds its pieces (in 0 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists).
+Fanatic of Rhonas	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 4 of 13 kept public Shalai/Trostani lists).
+Farewell	interaction	brago		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 10 kept public Brago lists).
+Farseek	tutor,ramp	child,shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 4 of 9 kept public Child of Alara lists; 4 of 13 kept public Shalai/Trostani lists).
+Fauna Shaman	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 2 of 13 kept public Shalai/Trostani lists).
+Fellwar Stone	fast-mana	child,brago		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 3 of 9 kept public Child of Alara lists; 7 of 10 kept public Brago lists).
+Fierce Guardianship	counterspell	child,brago		Counterspell that stops a wipe, a removal spell on a combo piece, or an opponent's win (in 1 of 9 kept public Child of Alara lists; 10 of 10 kept public Brago lists).
+Finale of Devastation	value	shalai		Value that adds board presence or card quality (in 9 of 13 kept public Shalai/Trostani lists).
+Flare of Fortitude	protection	child		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 9 kept public Child of Alara lists).
+Flawless Maneuver	protection	brago,shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
+Flooded Strand	land	child,brago,shalai		Land that produces the deck's colors (in 4 of 9 kept public Child of Alara lists; 7 of 10 kept public Brago lists; 3 of 13 kept public Shalai/Trostani lists).
+Floodfarm Verge	land	brago		Land that produces the deck's colors (in 5 of 10 kept public Brago lists).
+Flusterstorm	counterspell	child,brago		Counterspell that stops a wipe, a removal spell on a combo piece, or an opponent's win (in 4 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists).
+Force of Negation	counterspell	child,brago		Counterspell that stops a wipe, a removal spell on a combo piece, or an opponent's win (in 2 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists).
+Force of Vigor	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 13 kept public Shalai/Trostani lists).
+Force of Will	counterspell	child,brago		Counterspell that stops a wipe, a removal spell on a combo piece, or an opponent's win (in 4 of 9 kept public Child of Alara lists; 8 of 10 kept public Brago lists).
+Formidable Speaker	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 2 of 13 kept public Shalai/Trostani lists).
+Forsaken Monument	win-line,ramp	child,brago,shalai	basalt-forsaken	Piece of Basalt Monolith + Forsaken Monument (+ Walking Ballista); also ramp that adds mana or lands toward a turn-5-6 kill (in 0 of 9 kept public Child of Alara lists; 0 of 10 kept public Brago lists; 0 of 13 kept public Shalai/Trostani lists).
+Fortified Village	land	shalai		Land that produces the deck's colors (in 2 of 13 kept public Shalai/Trostani lists).
+Fyndhorn Elves	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 4 of 13 kept public Shalai/Trostani lists).
+Gaea's Cradle	land	shalai		Land that produces the deck's colors (in 2 of 13 kept public Shalai/Trostani lists).
+Gamble	tutor	child		Tutor that finds the missing win-line piece or the answer the turn needs (in 3 of 9 kept public Child of Alara lists).
+Garruk's Uprising	draw	shalai		Card draw that refills the hand so the deck finds its pieces (in 3 of 13 kept public Shalai/Trostani lists).
+Gavony Township	land	shalai		Land that produces the deck's colors (in 8 of 13 kept public Shalai/Trostani lists).
+Gemstone Caverns	land	child,brago,shalai		Land that produces the deck's colors (in 6 of 9 kept public Child of Alara lists; 4 of 10 kept public Brago lists; 3 of 13 kept public Shalai/Trostani lists).
+Generous Gift	interaction	brago,shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
+Ghalta and Mavren	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Ghostly Flicker	win-line	child,brago	drake-flicker-archaeomancer	Piece of Peregrine Drake + Ghostly Flicker + Archaeomancer (or Mnemonic Wall); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 1 of 10 kept public Brago lists).
+Giada, Font of Hope	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 3 of 13 kept public Shalai/Trostani lists).
+Gilded Drake	value	brago		Value that adds board presence or card quality (in 2 of 10 kept public Brago lists).
+Giver of Runes	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 4 of 13 kept public Shalai/Trostani lists).
+Glacial Fortress	land	brago		Land that produces the deck's colors (in 6 of 10 kept public Brago lists).
+Gleaming Bastion	land	brago		Land that produces the deck's colors (in 2 of 10 kept public Brago lists).
+Gleaming Splendor	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 3 of 10 kept public Brago lists).
+Godless Shrine	land	child		Land that produces the deck's colors (in 1 of 9 kept public Child of Alara lists).
+Grafdigger's Cage	stax	brago		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 4 of 10 kept public Brago lists).
+Grand Abolisher	stax	child,brago,shalai		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 3 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists; 6 of 13 kept public Shalai/Trostani lists).
+Grand Arbiter Augustin IV	value	brago		Value that adds board presence or card quality (in 3 of 10 kept public Brago lists).
+Grand Crescendo	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 3 of 13 kept public Shalai/Trostani lists).
+Green Sun's Zenith	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 5 of 13 kept public Shalai/Trostani lists).
+Grim Monolith	win-line,fast-mana	child,brago	monolith-powerartifact	Piece of Basalt Monolith or Grim Monolith + Power Artifact (+ Walking Ballista); also fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 0 of 9 kept public Child of Alara lists; 5 of 10 kept public Brago lists).
+Grim Tutor	tutor	child		Tutor that finds the missing win-line piece or the answer the turn needs (in 1 of 9 kept public Child of Alara lists).
+Grove of the Guardian	land	shalai		Land that produces the deck's colors (in 3 of 13 kept public Shalai/Trostani lists).
+Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 3 of 13 kept public Shalai/Trostani lists).
+Guardian Project	draw	shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 13 kept public Shalai/Trostani lists).
+Haliya, Guided by Light	draw	shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 13 kept public Shalai/Trostani lists).
+Hall of Heliod's Generosity	land	shalai		Land that produces the deck's colors (in 3 of 13 kept public Shalai/Trostani lists).
+Hallowed Fountain	land	child,brago		Land that produces the deck's colors (in 3 of 9 kept public Child of Alara lists; 10 of 10 kept public Brago lists).
+Halo Fountain	draw	shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 13 kept public Shalai/Trostani lists).
+Hardened Scales	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Harmonize	draw	child		Card draw that refills the hand so the deck finds its pieces (in 2 of 9 kept public Child of Alara lists).
+Heliod, Sun-Crowned	win-line,protection	child,brago,shalai	heliod-ballista	Piece of Heliod, Sun-Crowned + Walking Ballista; also protection that keeps the combo or the board alive through removal, wipes or counters (in 0 of 9 kept public Child of Alara lists; 0 of 10 kept public Brago lists; 5 of 13 kept public Shalai/Trostani lists).
+Helpful Hunter	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 3 of 10 kept public Brago lists).
+Hengegate Pathway // Mistgate Pathway	land	brago		Land that produces the deck's colors (in 3 of 10 kept public Brago lists).
+Herald of War	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Herd Baloth	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Hermit Druid	win-line	child	hermit-thoracle	Piece of Hermit Druid + Thassa's Oracle; also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists).
+Heroic Intervention	protection	child,shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 9 kept public Child of Alara lists; 8 of 13 kept public Shalai/Trostani lists).
+Heronblade Elite	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 13 kept public Shalai/Trostani lists).
+Hexing Squelcher	protection	child		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 9 kept public Child of Alara lists).
+High Fae Trickster	value	brago		Value that adds board presence or card quality (in 2 of 10 kept public Brago lists).
+High Market	land	child		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists).
+Horizon Canopy	land	shalai		Land that produces the deck's colors (in 6 of 13 kept public Shalai/Trostani lists).
+Hour of Reckoning	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 13 kept public Shalai/Trostani lists).
+Hushwood Verge	land	shalai		Land that produces the deck's colors (in 2 of 13 kept public Shalai/Trostani lists).
+Idol of Oblivion	draw	shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 13 kept public Shalai/Trostani lists).
+Idyllic Tutor	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 2 of 13 kept public Shalai/Trostani lists).
+Imperial Recruiter	tutor	child		Tutor that finds the missing win-line piece or the answer the turn needs (in 1 of 9 kept public Child of Alara lists).
+Imperial Seal	tutor	child		Tutor that finds the missing win-line piece or the answer the turn needs (in 6 of 9 kept public Child of Alara lists).
+Intuition	value	child		Value that adds board presence or card quality (in 3 of 9 kept public Child of Alara lists).
+Invasion of Ikoria // Zilortha, Apex of Ikoria	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Inventors' Fair	land	brago		Land that produces the deck's colors (in 4 of 10 kept public Brago lists).
+Irrigated Farmland	land	brago		Land that produces the deck's colors (in 0 of 10 kept public Brago lists).
+Isochron Scepter	win-line	child,brago	scepter-reversal	Piece of Isochron Scepter + Dramatic Reversal; also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 0 of 10 kept public Brago lists).
+Kami of Whispered Hopes	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 13 kept public Shalai/Trostani lists).
+Karmic Guide	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 13 kept public Shalai/Trostani lists).
+Kiki-Jiki, Mirror Breaker	win-line	child	kiki-conscripts,kiki-resto-felidar	Piece of Kiki-Jiki, Mirror Breaker + Zealous Conscripts (or Splinter Twin + Conscripts) and of Kiki-Jiki + Restoration Angel / Felidar Guardian / Pestermite / Deceiver Exarch; also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists).
+Kindly Customer	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 2 of 10 kept public Brago lists).
+Kodama's Reach	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 13 kept public Shalai/Trostani lists).
+Krosan Verge	land	shalai		Land that produces the deck's colors (in 3 of 13 kept public Shalai/Trostani lists).
+Kutzil, Malamet Exemplar	protection,draw	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 4 of 13 kept public Shalai/Trostani lists).
+Lathiel, the Bounteous Dawn	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Lavinia, Azorius Renegade	stax	child,brago		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists).
+Lembas	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 2 of 10 kept public Brago lists).
+Leyline of the Guildpact	value	child		Value that adds board presence or card quality (in 2 of 9 kept public Child of Alara lists).
+Lightning Greaves	value	brago,shalai		Value that adds board presence or card quality (in 9 of 10 kept public Brago lists; 3 of 13 kept public Shalai/Trostani lists).
+Linvala, Keeper of Silence	stax	shalai		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 5 of 13 kept public Shalai/Trostani lists).
+Lion's Eye Diamond	win-line,fast-mana	child	breach-led-brainfreeze	Piece of Underworld Breach + Lion's Eye Diamond + Brain Freeze (+ Thassa's Oracle finish); also fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 2 of 9 kept public Child of Alara lists).
+Lithoform Engine	value	brago		Value that adds board presence or card quality (in 3 of 10 kept public Brago lists).
+Llanowar Elves	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 7 of 13 kept public Shalai/Trostani lists).
+Loran of the Third Path	interaction,draw	brago,shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 5 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
+Lotus Cobra	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 13 kept public Shalai/Trostani lists).
+Lotus Petal	fast-mana	child,brago,shalai		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 4 of 9 kept public Child of Alara lists; 4 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
+Lush Portico	land	shalai		Land that produces the deck's colors (in 4 of 13 kept public Shalai/Trostani lists).
+Lyra Dawnbringer	value	shalai		Value that adds board presence or card quality (in 3 of 13 kept public Shalai/Trostani lists).
+Mana Confluence	land	child,brago,shalai		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists; 3 of 13 kept public Shalai/Trostani lists).
+Mana Drain	counterspell	child,brago		Counterspell that stops a wipe, a removal spell on a combo piece, or an opponent's win (in 1 of 9 kept public Child of Alara lists; 7 of 10 kept public Brago lists).
+Mana Vault	fast-mana	child,brago,shalai		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 3 of 9 kept public Child of Alara lists; 9 of 10 kept public Brago lists; 3 of 13 kept public Shalai/Trostani lists).
+Manglehorn	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 13 kept public Shalai/Trostani lists).
+Marsh Flats	land	child,brago,shalai		Land that produces the deck's colors (in 3 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists; 3 of 13 kept public Shalai/Trostani lists).
+Mental Misstep	counterspell	child,brago		Counterspell that stops a wipe, a removal spell on a combo piece, or an opponent's win (in 4 of 9 kept public Child of Alara lists; 5 of 10 kept public Brago lists).
+Meticulous Archive	land	brago		Land that produces the deck's colors (in 4 of 10 kept public Brago lists).
+Mimic Vat	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Minamo, School at Water's Edge	land	brago		Land that produces the deck's colors (in 2 of 10 kept public Brago lists).
+Minas Tirith	land	shalai		Land that produces the deck's colors (in 2 of 13 kept public Shalai/Trostani lists).
+Mind Stone	fast-mana,draw	brago		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 1 of 10 kept public Brago lists).
+Mindbreak Trap	value	child,brago		Value that adds board presence or card quality (in 2 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists).
+Mirari's Wake	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 5 of 13 kept public Shalai/Trostani lists).
+Mirrormade	value	brago		Value that adds board presence or card quality (in 2 of 10 kept public Brago lists).
+Mirrorpool	land	shalai		Land that produces the deck's colors (in 2 of 13 kept public Shalai/Trostani lists).
+Misdirection	value	child		Value that adds board presence or card quality (in 2 of 9 kept public Child of Alara lists).
+Misty Rainforest	land	child,brago,shalai		Land that produces the deck's colors (in 3 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists; 3 of 13 kept public Shalai/Trostani lists).
+Mnemonic Betrayal	interaction	child		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 9 kept public Child of Alara lists).
+Mockingbird	value	brago		Value that adds board presence or card quality (in 2 of 10 kept public Brago lists).
+Mondrak, Glory Dominus	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 13 kept public Shalai/Trostani lists).
+Mosswort Bridge	land	shalai		Land that produces the deck's colors (in 2 of 13 kept public Shalai/Trostani lists).
+Mother of Runes	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 5 of 13 kept public Shalai/Trostani lists).
+Mox Diamond	fast-mana	child,brago,shalai		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 4 of 9 kept public Child of Alara lists; 4 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
+Mox Opal	fast-mana	brago		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 5 of 10 kept public Brago lists).
+Muddle the Mixture	tutor,counterspell	brago		Tutor that finds the missing win-line piece or the answer the turn needs (in 4 of 10 kept public Brago lists).
+Mulldrifter	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 3 of 10 kept public Brago lists).
+Mystic Gate	land	brago		Land that produces the deck's colors (in 3 of 10 kept public Brago lists).
+Mystic Remora	draw	child,brago		Card draw that refills the hand so the deck finds its pieces (in 5 of 9 kept public Child of Alara lists; 9 of 10 kept public Brago lists).
+Mystic Sanctuary	land	brago		Land that produces the deck's colors (in 1 of 10 kept public Brago lists).
+Mystical Tutor	tutor	child,brago		Tutor that finds the missing win-line piece or the answer the turn needs (in 8 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists).
+Narset, Parter of Veils	stax	brago		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 5 of 10 kept public Brago lists).
+Natural Order	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 0 of 13 kept public Shalai/Trostani lists).
+Nature's Claim	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 13 kept public Shalai/Trostani lists).
+Nature's Lore	tutor,ramp	child,shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 3 of 9 kept public Child of Alara lists; 6 of 13 kept public Shalai/Trostani lists).
+Necropotence	stax	child		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 4 of 9 kept public Child of Alara lists).
+Nimbus Maze	land	brago		Land that produces the deck's colors (in 6 of 10 kept public Brago lists).
+Noble Hierarch	ramp	child		Ramp that adds mana or lands toward a turn-5-6 kill (in 0 of 9 kept public Child of Alara lists).
+Noxious Revival	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Nykthos Paragon	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Nykthos, Shrine to Nyx	land	shalai		Land that produces the deck's colors (in 2 of 13 kept public Shalai/Trostani lists).
+Ocelot Pride	value	shalai		Value that adds board presence or card quality (in 3 of 13 kept public Shalai/Trostani lists).
+Omen of the Sea	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 9 of 10 kept public Brago lists).
+Opposition Agent	value	child		Value that adds board presence or card quality (in 4 of 9 kept public Child of Alara lists).
+Orcish Bowmasters	interaction	child		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 9 kept public Child of Alara lists).
+Orim's Chant	stax	brago		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 10 kept public Brago lists).
+Otawara, Soaring City	land	child,brago		Land that produces the deck's colors (in 2 of 9 kept public Child of Alara lists; 8 of 10 kept public Brago lists).
+Overgrown Farmland	land	shalai		Land that produces the deck's colors (in 5 of 13 kept public Shalai/Trostani lists).
+Overgrown Tomb	land	child		Land that produces the deck's colors (in 3 of 9 kept public Child of Alara lists).
+Pact of Negation	counterspell	child,brago		Counterspell that stops a wipe, a removal spell on a combo piece, or an opponent's win (in 3 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists).
+Panharmonicon	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Parallel Lives	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Pariah	value	child		Value that adds board presence or card quality (in 2 of 9 kept public Child of Alara lists).
+Path to Exile	interaction	child,brago,shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 9 kept public Child of Alara lists; 7 of 10 kept public Brago lists; 6 of 13 kept public Shalai/Trostani lists).
+Peregrine Drake	win-line	child,brago	drake-flicker-archaeomancer,drake-deadeye	Piece of Peregrine Drake + Ghostly Flicker + Archaeomancer (or Mnemonic Wall) and of Peregrine Drake + Deadeye Navigator (+ Walking Ballista); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists).
+Peter Parker's Camera	value	brago		Value that adds board presence or card quality (in 7 of 10 kept public Brago lists).
+Phyrexian Metamorph	value	brago		Value that adds board presence or card quality (in 5 of 10 kept public Brago lists).
+Phyrexian Processor	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Phyrexian Tower	land	child		Land that produces the deck's colors (in 4 of 9 kept public Child of Alara lists).
+Plateau	land	child		Land that produces the deck's colors (in 3 of 9 kept public Child of Alara lists).
+Platinum Angel	stax	child		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 9 kept public Child of Alara lists).
+Polluted Delta	land	child,brago		Land that produces the deck's colors (in 6 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists).
+Port Town	land	brago		Land that produces the deck's colors (in 2 of 10 kept public Brago lists).
+Power Artifact	win-line	child,brago	monolith-powerartifact	Piece of Basalt Monolith or Grim Monolith + Power Artifact (+ Walking Ballista); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 0 of 10 kept public Brago lists).
+Prairie Stream	land	brago		Land that produces the deck's colors (in 3 of 10 kept public Brago lists).
+Preston, the Vanisher	interaction	brago		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 10 kept public Brago lists).
+Prismatic Vista	land	child,brago,shalai		Land that produces the deck's colors (in 0 of 9 kept public Child of Alara lists; 4 of 10 kept public Brago lists; 1 of 13 kept public Shalai/Trostani lists).
+Proft's Eidetic Memory	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 2 of 10 kept public Brago lists).
+Prosperous Innkeeper	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 13 kept public Shalai/Trostani lists).
+Ragavan, Nimble Pilferer	value	child		Value that adds board presence or card quality (in 3 of 9 kept public Child of Alara lists).
+Ramunap Excavator	value	child		Value that adds board presence or card quality (in 2 of 9 kept public Child of Alara lists).
+Ranger-Captain of Eos	tutor,stax	brago,shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 3 of 10 kept public Brago lists; 5 of 13 kept public Shalai/Trostani lists).
+Razorverge Thicket	land	shalai		Land that produces the deck's colors (in 5 of 13 kept public Shalai/Trostani lists).
+Reality Acid	value	brago		Value that adds board presence or card quality (in 6 of 10 kept public Brago lists).
+Reanimate	value	child		Value that adds board presence or card quality (in 3 of 9 kept public Child of Alara lists).
+Recruiter of the Guard	tutor	brago,shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 8 of 10 kept public Brago lists; 1 of 13 kept public Shalai/Trostani lists).
+Red Elemental Blast	interaction	child		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 9 kept public Child of Alara lists).
+Reflecting Pool	land	brago		Land that produces the deck's colors (in 2 of 10 kept public Brago lists).
+Reflector Mage	interaction,stax	brago		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 4 of 10 kept public Brago lists).
+Reliquary Tower	land	brago,shalai		Land that produces the deck's colors (in 5 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
+Resplendent Angel	value	shalai		Value that adds board presence or card quality (in 5 of 13 kept public Shalai/Trostani lists).
+Rest in Peace	interaction	brago,shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
+Restoration Angel	win-line,interaction,blink	child	kiki-resto-felidar	Piece of Kiki-Jiki + Restoration Angel / Felidar Guardian / Pestermite / Deceiver Exarch; also interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists).
+Rhys the Redeemed	value	shalai		Value that adds board presence or card quality (in 3 of 13 kept public Shalai/Trostani lists).
+Rhystic Study	draw	child,brago		Card draw that refills the hand so the deck finds its pieces (in 7 of 9 kept public Child of Alara lists; 7 of 10 kept public Brago lists).
+Righteous Valkyrie	value	shalai		Value that adds board presence or card quality (in 3 of 13 kept public Shalai/Trostani lists).
+Rings of Brighthearth	win-line	child,brago,shalai	basalt-rings	Piece of Basalt Monolith + Rings of Brighthearth (+ Walking Ballista); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 0 of 10 kept public Brago lists; 0 of 13 kept public Shalai/Trostani lists).
+Riptide Gearhulk	value	brago		Value that adds board presence or card quality (in 3 of 10 kept public Brago lists).
+Rogue's Passage	land	shalai		Land that produces the deck's colors (in 3 of 13 kept public Shalai/Trostani lists).
+Rootborn Defenses	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 13 kept public Shalai/Trostani lists).
+Rosie Cotton of South Lane	win-line	child,shalai	rosie-broodscale	Piece of Rosie Cotton of South Lane + Basking Broodscale (+ Walking Ballista); also win-line piece that undefined (in 1 of 9 kept public Child of Alara lists; 2 of 13 kept public Shalai/Trostani lists).
+Sacred Foundry	land	child		Land that produces the deck's colors (in 1 of 9 kept public Child of Alara lists).
+Sakura-Tribe Elder	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 13 kept public Shalai/Trostani lists).
+Sanctum Weaver	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 13 kept public Shalai/Trostani lists).
+Sanguine Bond	win-line	child	sanguine-exquisite	Piece of Sanguine Bond + Exquisite Blood; also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists).
+Savannah	land	child,shalai		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists; 5 of 13 kept public Shalai/Trostani lists).
+Scalding Tarn	land	child,brago		Land that produces the deck's colors (in 2 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists).
+Scattered Groves	land	shalai		Land that produces the deck's colors (in 4 of 13 kept public Shalai/Trostani lists).
+Scrubland	land	child		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists).
+Scurry Oak	win-line	child,shalai	trostani-scurryoak-archangel	Piece of Trostani, Selesnya's Voice + Scurry Oak + Archangel of Thune; also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 2 of 13 kept public Shalai/Trostani lists).
+Scute Swarm	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Sea Gate Oracle	value	brago		Value that adds board presence or card quality (in 2 of 10 kept public Brago lists).
+Sea of Clouds	land	brago		Land that produces the deck's colors (in 10 of 10 kept public Brago lists).
+Seachrome Coast	land	brago		Land that produces the deck's colors (in 3 of 10 kept public Brago lists).
+Séance	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 13 kept public Shalai/Trostani lists).
+Seat of the Synod	land	brago		Land that produces the deck's colors (in 4 of 10 kept public Brago lists).
+Seedborn Muse	value	shalai		Value that adds board presence or card quality (in 5 of 13 kept public Shalai/Trostani lists).
+Selesnya Sanctuary	land	shalai		Land that produces the deck's colors (in 4 of 13 kept public Shalai/Trostani lists).
+Sensei's Divining Top	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 3 of 10 kept public Brago lists).
+Seraph Sanctuary	land	shalai		Land that produces the deck's colors (in 2 of 13 kept public Shalai/Trostani lists).
+Serra Ascendant	value	shalai		Value that adds board presence or card quality (in 3 of 13 kept public Shalai/Trostani lists).
+Serra's Emissary	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 4 of 13 kept public Shalai/Trostani lists).
+Sevinne's Reclamation	value	child		Value that adds board presence or card quality (in 4 of 9 kept public Child of Alara lists).
+Shalai, Voice of Plenty	protection	child,shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 9 kept public Child of Alara lists; 2 of 13 kept public Shalai/Trostani lists).
+Shamanic Revelation	draw	shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 13 kept public Shalai/Trostani lists).
+Sigarda, Font of Blessings	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 6 of 13 kept public Shalai/Trostani lists).
+Sigarda, Host of Herons	protection	shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 3 of 13 kept public Shalai/Trostani lists).
+Silence	stax	child,brago,shalai		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 5 of 9 kept public Child of Alara lists; 4 of 10 kept public Brago lists; 3 of 13 kept public Shalai/Trostani lists).
+Sink into Stupor // Soporific Springs	fast-mana	brago		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 3 of 10 kept public Brago lists).
+Skullclamp	draw	shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 13 kept public Shalai/Trostani lists).
+Skyclave Apparition	interaction	brago,shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 5 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
+Skyclave Relic	ramp,protection	child		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 9 kept public Child of Alara lists).
+Smothering Tithe	ramp	child,brago,shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 8 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists; 6 of 13 kept public Shalai/Trostani lists).
+Snapcaster Mage	value	child		Value that adds board presence or card quality (in 0 of 9 kept public Child of Alara lists).
+Snow-Covered Island	land	brago		Land that produces the deck's colors (in 5 of 10 kept public Brago lists).
+Snow-Covered Plains	land	brago		Land that produces the deck's colors (in 5 of 10 kept public Brago lists).
+Snuff Out	interaction	child		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists).
+Sol Ring	win-line,fast-mana	child,brago,shalai	kitten-teferi-solring,brago-resonator	Piece of Displacer Kitten + Teferi, Time Raveler + Sol Ring (+ Thassa's Oracle) and of Brago, King Eternal + Strionic Resonator (+ mana rocks + Walking Ballista); also fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 9 of 9 kept public Child of Alara lists; 10 of 10 kept public Brago lists; 12 of 13 kept public Shalai/Trostani lists).
+Solemn Simulacrum	ramp,draw	brago		Ramp that adds mana or lands toward a turn-5-6 kill (in 3 of 10 kept public Brago lists).
+Solitude	value	brago		Value that adds board presence or card quality (in 2 of 10 kept public Brago lists).
+Song of the Worldsoul	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Soul Warden	value	shalai		Value that adds board presence or card quality (in 4 of 13 kept public Shalai/Trostani lists).
+Soulherder	blink	brago		Blink that reuses enter-the-battlefield effects and untaps permanents (in 4 of 10 kept public Brago lists).
+Spellseeker	tutor	child,brago		Tutor that finds the missing win-line piece or the answer the turn needs (in 0 of 9 kept public Child of Alara lists; 5 of 10 kept public Brago lists).
+Spelunking	draw	child		Card draw that refills the hand so the deck finds its pieces (in 2 of 9 kept public Child of Alara lists).
+Spike Feeder	win-line	child,shalai	archangel-spikefeeder	Piece of Archangel of Thune + Spike Feeder (+ Walking Ballista or combat); also win-line piece that undefined (in 1 of 9 kept public Child of Alara lists; 4 of 13 kept public Shalai/Trostani lists).
+Spire of Industry	land	child		Land that produces the deck's colors (in 0 of 9 kept public Child of Alara lists).
+Spirited Companion	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 2 of 10 kept public Brago lists).
+Squirrel Nest	win-line	child,shalai	earthcraft-squirrelnest	Piece of Earthcraft + Squirrel Nest (+ Ashnod's Altar + Walking Ballista); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 0 of 13 kept public Shalai/Trostani lists).
+Staff of Domination	draw	shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 13 kept public Shalai/Trostani lists).
+Starfield Vocalist	value	brago		Value that adds board presence or card quality (in 3 of 10 kept public Brago lists).
+Starting Town	land	child		Land that produces the deck's colors (in 2 of 9 kept public Child of Alara lists).
+Stasis	stax	brago		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 10 kept public Brago lists).
+Steam Vents	land	child		Land that produces the deck's colors (in 2 of 9 kept public Child of Alara lists).
+Sterling Grove	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 2 of 13 kept public Shalai/Trostani lists).
+Stomping Ground	land	child		Land that produces the deck's colors (in 2 of 9 kept public Child of Alara lists).
+Strionic Resonator	win-line	child,brago	brago-resonator	Piece of Brago, King Eternal + Strionic Resonator (+ mana rocks + Walking Ballista); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 9 of 10 kept public Brago lists).
+Strip Mine	land	brago,shalai		Land that produces the deck's colors (in 2 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
+Stuffy Doll	protection	child		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 9 kept public Child of Alara lists).
+Sun Titan	value	brago		Value that adds board presence or card quality (in 2 of 10 kept public Brago lists).
+Sundering Growth	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 13 kept public Shalai/Trostani lists).
+Sungrass Prairie	land	shalai		Land that produces the deck's colors (in 4 of 13 kept public Shalai/Trostani lists).
+Sunpetal Grove	land	shalai		Land that produces the deck's colors (in 10 of 13 kept public Shalai/Trostani lists).
+Supreme Verdict	interaction,protection	brago		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 4 of 10 kept public Brago lists).
+Survival of the Fittest	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 1 of 13 kept public Shalai/Trostani lists).
+Suture Priest	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Swan Song	value	child,brago		Value that adds board presence or card quality (in 5 of 9 kept public Child of Alara lists; 9 of 10 kept public Brago lists).
+Swift Reconfiguration	win-line	child,shalai	druid-swiftreconfig	Piece of Devoted Druid + Swift Reconfiguration (+ Walking Ballista); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 2 of 13 kept public Shalai/Trostani lists).
+Swords to Plowshares	interaction	child,brago,shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 9 kept public Child of Alara lists; 10 of 10 kept public Brago lists; 10 of 13 kept public Shalai/Trostani lists).
+Sylvan Library	draw	child,shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 9 kept public Child of Alara lists; 8 of 13 kept public Shalai/Trostani lists).
+Sylvan Tutor	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 1 of 13 kept public Shalai/Trostani lists).
+Taiga	land	child		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists).
+Tainted Pact	win-line	child	thoracle-pact	Piece of Thassa's Oracle + Tainted Pact; also win-line piece that undefined (in 1 of 9 kept public Child of Alara lists).
+Talisman of Dominance	fast-mana	child		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 0 of 9 kept public Child of Alara lists).
+Talisman of Progress	fast-mana	brago		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 9 of 10 kept public Brago lists).
+Tax Collector	stax	brago		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 10 kept public Brago lists).
+Teferi, Time Raveler	win-line,draw	child,brago	kitten-teferi-solring	Piece of Displacer Kitten + Teferi, Time Raveler + Sol Ring (+ Thassa's Oracle); also card draw that refills the hand so the deck finds its pieces (in 1 of 9 kept public Child of Alara lists; 8 of 10 kept public Brago lists).
+Teferi's Protection	protection	child,brago,shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 3 of 9 kept public Child of Alara lists; 2 of 10 kept public Brago lists; 8 of 13 kept public Shalai/Trostani lists).
+Teleportation Circle	interaction,blink	brago		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 10 kept public Brago lists).
+Temple Garden	land	child,shalai		Land that produces the deck's colors (in 2 of 9 kept public Child of Alara lists; 11 of 13 kept public Shalai/Trostani lists).
+Temple of Plenty	land	shalai		Land that produces the deck's colors (in 3 of 13 kept public Shalai/Trostani lists).
+Tezzeret the Seeker	tutor	brago		Tutor that finds the missing win-line piece or the answer the turn needs (in 2 of 10 kept public Brago lists).
+Tezzeret, Cruel Captain	tutor	brago		Tutor that finds the missing win-line piece or the answer the turn needs (in 3 of 10 kept public Brago lists).
+Thalia, Guardian of Thraben	stax	shalai		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 3 of 13 kept public Shalai/Trostani lists).
+Thalia, Heretic Cathar	value	shalai		Value that adds board presence or card quality (in 3 of 13 kept public Shalai/Trostani lists).
+Thassa's Oracle	win-line	child,brago	thoracle-consult,thoracle-pact,thoracle-thoughtlash,breach-led-brainfreeze,hermit-thoracle,kitten-teferi-solring	Piece of Thassa's Oracle + Demonic Consultation and of Thassa's Oracle + Tainted Pact (+4 more lines); also win-line piece that undefined (in 2 of 9 kept public Child of Alara lists; 1 of 10 kept public Brago lists).
+The Cabbage Merchant	ramp	child		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 9 kept public Child of Alara lists).
+The Great Henge	ramp,draw	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 13 kept public Shalai/Trostani lists).
+The Mind Stone	fast-mana,protection	child		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 2 of 9 kept public Child of Alara lists).
+The One Ring	protection,draw	child,brago,shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 7 of 9 kept public Child of Alara lists; 4 of 10 kept public Brago lists; 5 of 13 kept public Shalai/Trostani lists).
+The Queen of Dale	draw	shalai		Card draw that refills the hand so the deck finds its pieces (in 2 of 13 kept public Shalai/Trostani lists).
+The Soul Stone	fast-mana,protection	child		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 3 of 9 kept public Child of Alara lists).
+Thespian's Stage	land	child		Land that produces the deck's colors (in 4 of 9 kept public Child of Alara lists).
+Thought Lash	win-line	child,brago	thoracle-thoughtlash	Piece of Thassa's Oracle + Thought Lash; also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 0 of 10 kept public Brago lists).
+Thought Vessel	fast-mana	brago		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 4 of 10 kept public Brago lists).
+Three Visits	tutor,ramp	child,shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 4 of 9 kept public Child of Alara lists; 5 of 13 kept public Shalai/Trostani lists).
+Time Warp	win-line	child,brago	brago-archaeomancer-timewarp	Piece of Brago + Archaeomancer + Time Warp (extra-turn loop); also win-line piece that undefined (in 1 of 9 kept public Child of Alara lists; 1 of 10 kept public Brago lists).
+Timeless Witness	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Tireless Provisioner	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 0 of 13 kept public Shalai/Trostani lists).
+Toxic Deluge	value	child		Value that adds board presence or card quality (in 0 of 9 kept public Child of Alara lists).
+Transmute Artifact	tutor	brago		Tutor that finds the missing win-line piece or the answer the turn needs (in 3 of 10 kept public Brago lists).
+Tribute Mage	tutor	brago		Tutor that finds the missing win-line piece or the answer the turn needs (in 9 of 10 kept public Brago lists).
+Trinket Mage	tutor	brago		Tutor that finds the missing win-line piece or the answer the turn needs (in 8 of 10 kept public Brago lists).
+Tropical Island	land	child		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists).
+Trostani, Selesnya's Voice	win-line	child,shalai	trostani-scurryoak-archangel	Piece of Trostani, Selesnya's Voice + Scurry Oak + Archangel of Thune; also win-line piece that undefined (in 1 of 9 kept public Child of Alara lists; 0 of 13 kept public Shalai/Trostani lists).
+Tundra	land	child,brago		Land that produces the deck's colors (in 4 of 9 kept public Child of Alara lists; 4 of 10 kept public Brago lists).
+Turntimber Symbiosis // Turntimber, Serpentine Wood	fast-mana	shalai		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 2 of 13 kept public Shalai/Trostani lists).
+Twinflame	win-line	child	dualcaster-twinflame	Piece of Dualcaster Mage + Twinflame; also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists).
+Ulvenwald Hydra	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 13 kept public Shalai/Trostani lists).
+Underground Sea	land	child		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists).
+Underworld Breach	win-line	child	breach-led-brainfreeze	Piece of Underworld Breach + Lion's Eye Diamond + Brain Freeze (+ Thassa's Oracle finish); also win-line piece that undefined (in 6 of 9 kept public Child of Alara lists).
+Unquestioned Authority	protection,draw	brago		Protection that keeps the combo or the board alive through removal, wipes or counters (in 3 of 10 kept public Brago lists).
+Urborg, Tomb of Yawgmoth	land	child		Land that produces the deck's colors (in 3 of 9 kept public Child of Alara lists).
+Urza's Saga	land	brago,shalai		Land that produces the deck's colors (in 6 of 10 kept public Brago lists; 1 of 13 kept public Shalai/Trostani lists).
+Utopia Sprawl	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 1 of 13 kept public Shalai/Trostani lists).
+Vampiric Tutor	tutor	child		Tutor that finds the missing win-line piece or the answer the turn needs (in 8 of 9 kept public Child of Alara lists).
+Veil of Summer	protection,draw	child,shalai		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 9 kept public Child of Alara lists; 2 of 13 kept public Shalai/Trostani lists).
+Venser, Shaper Savant	interaction	brago		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 7 of 10 kept public Brago lists).
+Verdant Catacombs	land	child,shalai		Land that produces the deck's colors (in 3 of 9 kept public Child of Alara lists; 2 of 13 kept public Shalai/Trostani lists).
+Vigor	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
+Vindicate	interaction	child		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists).
+Vizier of Remedies	win-line,interaction	child,shalai	druid-vizier	Piece of Devoted Druid + Vizier of Remedies (+ Walking Ballista); also interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists; 3 of 13 kept public Shalai/Trostani lists).
+Voice of Victory	protection	brago		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 10 kept public Brago lists).
+Volcanic Island	land	child		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists).
+Vorinclex, Voice of Hunger	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 3 of 13 kept public Shalai/Trostani lists).
+Walking Ballista	win-line,interaction	child,brago,shalai	scepter-reversal,heliod-ballista,archangel-spikefeeder,druid-vizier,druid-swiftreconfig,trostani-scurryoak-archangel,rosie-broodscale,earthcraft-squirrelnest,basalt-forsaken,basalt-rings,monolith-powerartifact,drake-flicker-archaeomancer,brago-resonator,drake-deadeye	Piece of Isochron Scepter + Dramatic Reversal and of Heliod, Sun-Crowned + Walking Ballista (+12 more lines); also interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists; 2 of 10 kept public Brago lists; 6 of 13 kept public Shalai/Trostani lists).
+Wall of Omens	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 4 of 10 kept public Brago lists).
+Wan Shi Tong, Librarian	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 2 of 10 kept public Brago lists).
+War Room	land	shalai		Land that produces the deck's colors (in 4 of 13 kept public Shalai/Trostani lists).
+Watery Grave	land	child		Land that produces the deck's colors (in 2 of 9 kept public Child of Alara lists).
+Wheel of Fortune	value	child		Value that adds board presence or card quality (in 2 of 9 kept public Child of Alara lists).
+Whir of Invention	tutor	brago		Tutor that finds the missing win-line piece or the answer the turn needs (in 3 of 10 kept public Brago lists).
+Whirler Rogue	value	brago		Value that adds board presence or card quality (in 2 of 10 kept public Brago lists).
+Wild Growth	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 4 of 13 kept public Shalai/Trostani lists).
+Windbrisk Heights	land	shalai		Land that produces the deck's colors (in 2 of 13 kept public Shalai/Trostani lists).
+Windfall	value	child		Value that adds board presence or card quality (in 2 of 9 kept public Child of Alara lists).
+Windswept Heath	land	child,brago,shalai		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists; 11 of 13 kept public Shalai/Trostani lists).
+Wishclaw Talisman	tutor	child		Tutor that finds the missing win-line piece or the answer the turn needs (in 1 of 9 kept public Child of Alara lists).
+Witch Enchanter // Witch-Blessed Meadow	ramp,interaction	brago,shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 5 of 10 kept public Brago lists; 3 of 13 kept public Shalai/Trostani lists).
+Wood Elves	tutor,ramp	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 2 of 13 kept public Shalai/Trostani lists).
+Wooded Bastion	land	shalai		Land that produces the deck's colors (in 4 of 13 kept public Shalai/Trostani lists).
+Wooded Foothills	land	child,shalai		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists; 3 of 13 kept public Shalai/Trostani lists).
+Worldly Tutor	tutor	child,shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 4 of 9 kept public Child of Alara lists; 8 of 13 kept public Shalai/Trostani lists).
+Xenagos, God of Revels	protection	child		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 9 kept public Child of Alara lists).
+Yavimaya, Cradle of Growth	land	child,shalai		Land that produces the deck's colors (in 2 of 9 kept public Child of Alara lists; 3 of 13 kept public Shalai/Trostani lists).
+Zealous Conscripts	win-line	child	kiki-conscripts	Piece of Kiki-Jiki, Mirror Breaker + Zealous Conscripts (or Splinter Twin + Conscripts); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists).

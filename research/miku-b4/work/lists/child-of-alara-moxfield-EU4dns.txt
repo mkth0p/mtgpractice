@@ -1,0 +1,109 @@
+1 Child of Alara
+1 Arcane Signet
+1 Arid Mesa
+1 Armageddon
+1 Avacyn's Collar
+1 Badlands
+1 Basalt Monolith
+1 Basri Ket
+1 Bayou
+1 Biorhythm
+1 Birds of Paradise
+1 Bloodstained Mire
+1 Bloom Tender
+1 Chromatic Lantern
+1 Chrome Mox
+1 City of Brass
+1 Cliffhaven Kitesail
+1 Clock of Omens
+1 Command Tower
+1 Counterspell
+1 Crucible of Worlds
+1 Cryptolith Rite
+1 Darksteel Axe
+1 Darksteel Colossus
+1 Darksteel Forge
+1 Darksteel Gargoyle
+1 Darksteel Ingot
+1 Darksteel Plate
+1 Demonic Tutor
+1 Devoted Druid
+1 Displacer Kitten
+1 Drannith Magistrate
+1 Eladamri's Call
+1 Enlightened Tutor
+1 Eternal Witness
+1 Exotic Orchard
+1 Faeburrow Elder
+1 Farewell
+1 Fellwar Stone
+1 Flicker
+1 Flicker of Fate
+1 Flickering Ward
+1 Flooded Strand
+1 Freed from the Real
+1 Gemstone Caverns
+1 Gemstone Mine
+1 Ghostly Flicker
+1 Glacial Chasm
+1 Grasslands
+1 Heliod, God of the Sun
+1 Imperial Seal
+1 Intruder Alarm
+1 Lotus Petal
+1 Machine God's Effigy
+1 Magistrate's Scepter
+1 Mana Confluence
+1 Mana Drain
+1 Mandibular Kite
+1 Misty Rainforest
+1 Mox Diamond
+1 Moxite Refinery
+1 Noxious Revival
+1 Opposition Agent
+1 Polluted Delta
+1 Reflecting Pool
+1 Rhystic Study
+1 Rings of Brighthearth
+1 Savannah
+1 Scalding Tarn
+1 Sol Ring
+1 Stomping Ground
+1 Summoner's Pact
+1 Sunder
+1 Swift Reconfiguration
+1 Swiftfoot Boots
+1 Taiga
+1 Teferi's Protection
+1 Temple Garden
+1 The One Ring
+1 Thran Portal
+1 Thran Quarry
+1 Training Grounds
+1 Tropical Island
+1 Underground Sea
+1 Utopia Sprawl
+1 Vampiric Tutor
+1 Verdant Catacombs
+1 Vivi Ornitier
+1 Vizier of Remedies
+1 Walking Ballista
+1 Weftwalking
+1 Wild Growth
+1 Windswept Heath
+1 Wooded Foothills
+1 Zuran Orb
+1 Forest
+1 Island
+1 Mountain
+1 Plains
+1 Swamp
+# url: https://moxfield.com/decks/EU4dnsOjEkeVRB7GHVd-gw
+# title: ragebait
+# author: chancequist
+# updated: 2026-10-03
+# bracket: 5 (Moxfield, author-set; auto 4)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Child of Alara ; total 100 ; lands 33 ; source API https://api2.moxfield.com/v3/decks/all/EU4dnsOjEkeVRB7GHVd-gw
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 14: Biorhythm; Chrome Mox; Demonic Tutor; Drannith Magistrate; Enlightened Tutor; Farewell; Glacial Chasm; Imperial Seal; Mox Diamond; Opposition Agent; Rhystic Study; Teferi's Protection; The One Ring; Vampiric Tutor

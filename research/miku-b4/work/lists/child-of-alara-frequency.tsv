@@ -1,0 +1,486 @@
+card	count	lists	is_land
+# 9 kept lists: child-of-alara-archidekt-13837312, child-of-alara-archidekt-26039177, child-of-alara-edhrec-avg-cedh, child-of-alara-edhrec-avg-optimized, child-of-alara-moxfield-11Y4nD, child-of-alara-moxfield-Ba1nFY, child-of-alara-moxfield-IYUM_c, child-of-alara-moxfield-JpT6ND, child-of-alara-moxfield-lGdVhD; discarded/duplicate lists excluded; accessed 2026-10-08
+Command Tower	9	child-of-alara-archidekt-13837312,child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND,child-of-alara-moxfield-lGdVhD	land
+Sol Ring	9	child-of-alara-archidekt-13837312,child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND,child-of-alara-moxfield-lGdVhD	
+Mystical Tutor	8	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND,child-of-alara-moxfield-lGdVhD	
+Smothering Tithe	8	child-of-alara-archidekt-13837312,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND,child-of-alara-moxfield-lGdVhD	
+Vampiric Tutor	8	child-of-alara-archidekt-13837312,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND,child-of-alara-moxfield-lGdVhD	
+Arcane Signet	7	child-of-alara-archidekt-13837312,child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-JpT6ND	
+Demonic Tutor	7	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND,child-of-alara-moxfield-lGdVhD	
+Rhystic Study	7	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND,child-of-alara-moxfield-lGdVhD	
+The One Ring	7	child-of-alara-archidekt-13837312,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND	
+Enlightened Tutor	6	child-of-alara-archidekt-13837312,child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Gemstone Caverns	6	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Imperial Seal	6	child-of-alara-archidekt-13837312,child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Polluted Delta	6	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND,child-of-alara-moxfield-lGdVhD	land
+Underworld Breach	6	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Ancient Tomb	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Badlands	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Bayou	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Boseiju, Who Endures	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Chromatic Lantern	5	child-of-alara-archidekt-13837312,child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+City of Brass	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Cyclonic Rift	5	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND	
+Dark Ritual	5	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Forest	5	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND	land
+High Market	5	child-of-alara-archidekt-13837312,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND	land
+Island	5	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND	land
+Mana Confluence	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Mystic Remora	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Savannah	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Scrubland	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Silence	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Swamp	5	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND	land
+Swan Song	5	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-JpT6ND	
+Taiga	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Tropical Island	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Underground Sea	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Volcanic Island	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	land
+Windswept Heath	5	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c	land
+Wooded Foothills	5	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-JpT6ND,child-of-alara-moxfield-lGdVhD	land
+Armageddon	4	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Birds of Paradise	4	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND,child-of-alara-moxfield-lGdVhD	
+Bloodstained Mire	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-lGdVhD	land
+Chrome Mox	4	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	
+Crop Rotation	4	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Culling Ritual	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Esper Sentinel	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Eternal Witness	4	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND	
+Exotic Orchard	4	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-JpT6ND	land
+Exploration	4	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c	
+Farseek	4	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Flooded Strand	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c	land
+Flusterstorm	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-lGdVhD	
+Force of Will	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-lGdVhD	
+Lotus Petal	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Mental Misstep	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-lGdVhD	
+Mountain	4	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	land
+Mox Diamond	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Necropotence	4	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	
+Opposition Agent	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c	
+Phyrexian Tower	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND	land
+Plains	4	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	land
+Sevinne's Reclamation	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Thespian's Stage	4	child-of-alara-archidekt-13837312,child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	land
+Three Visits	4	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c	
+Tundra	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c	land
+Worldly Tutor	4	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c	
+Academy Rector	3	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c	
+An Offer You Can't Refuse	3	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	
+Avacyn, Angel of Hope	3	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Azusa, Lost but Seeking	3	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Bloom Tender	3	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Brain Freeze	3	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Breeding Pool	3	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-JpT6ND	land
+Counterspell	3	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Darksteel Ingot	3	child-of-alara-archidekt-13837312,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Diabolic Intent	3	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Drannith Magistrate	3	child-of-alara-archidekt-13837312,child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD	
+Dryad of the Ilysian Grove	3	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Elspeth Tirel	3	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Fellwar Stone	3	child-of-alara-edhrec-avg-cedh,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-11Y4nD	
+Gamble	3	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-lGdVhD	
+Grand Abolisher	3	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Hallowed Fountain	3	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-JpT6ND	land
+Intuition	3	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Mana Vault	3	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	
+Marsh Flats	3	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	land
+Misty Rainforest	3	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	land
+Nature's Lore	3	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c	
+Overgrown Tomb	3	child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND	land
+Pact of Negation	3	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-lGdVhD	
+Plateau	3	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c	land
+Ragavan, Nimble Pilferer	3	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	
+Reanimate	3	child-of-alara-archidekt-26039177,child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c	
+Teferi's Protection	3	child-of-alara-archidekt-13837312,child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+The Soul Stone	3	child-of-alara-archidekt-13837312,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-JpT6ND	
+Urborg, Tomb of Yawgmoth	3	child-of-alara-archidekt-13837312,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-JpT6ND	land
+Verdant Catacombs	3	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	land
+Animate Dead	2	child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c	
+Arid Mesa	2	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD	land
+Athreos, Shroud-Veiled	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Azorius Chancery	2	child-of-alara-archidekt-13837312,child-of-alara-archidekt-26039177	land
+Beseech the Mirror	2	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	
+Blasphemous Act	2	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-optimized	
+Borne Upon a Wind	2	child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Carpet of Flowers	2	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	
+Cavern of Souls	2	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c	land
+Consecrated Sphinx	2	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-IYUM_c	
+Crucible of Worlds	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Cultivate	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Darksteel Forge	2	child-of-alara-archidekt-13837312,child-of-alara-moxfield-JpT6ND	
+Diabolic Tutor	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Elvish Mystic	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Explore	2	child-of-alara-archidekt-26039177,child-of-alara-edhrec-avg-optimized	
+Flare of Fortitude	2	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-IYUM_c	
+Force of Negation	2	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY	
+Harmonize	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Heroic Intervention	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Hexing Squelcher	2	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-lGdVhD	
+Lavinia, Azorius Renegade	2	child-of-alara-archidekt-13837312,child-of-alara-moxfield-11Y4nD	
+Leyline of the Guildpact	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Lion's Eye Diamond	2	child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Mindbreak Trap	2	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	
+Misdirection	2	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	
+Mnemonic Betrayal	2	child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Orcish Bowmasters	2	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-IYUM_c	
+Otawara, Soaring City	2	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY	land
+Pariah	2	child-of-alara-archidekt-13837312,child-of-alara-moxfield-Ba1nFY	
+Path to Exile	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-Ba1nFY	
+Platinum Angel	2	child-of-alara-archidekt-13837312,child-of-alara-moxfield-Ba1nFY	
+Ramunap Excavator	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Red Elemental Blast	2	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-lGdVhD	
+Scalding Tarn	2	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-11Y4nD	land
+Shalai, Voice of Plenty	2	child-of-alara-archidekt-26039177,child-of-alara-moxfield-JpT6ND	
+Skyclave Relic	2	child-of-alara-archidekt-13837312,child-of-alara-moxfield-JpT6ND	
+Spelunking	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Starting Town	2	child-of-alara-moxfield-JpT6ND,child-of-alara-moxfield-lGdVhD	land
+Steam Vents	2	child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c	land
+Stomping Ground	2	child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-JpT6ND	land
+Stuffy Doll	2	child-of-alara-archidekt-13837312,child-of-alara-moxfield-Ba1nFY	
+Swords to Plowshares	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-Ba1nFY	
+Sylvan Library	2	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-Ba1nFY	
+Temple Garden	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-Ba1nFY	land
+Thassa's Oracle	2	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-lGdVhD	
+The Cabbage Merchant	2	child-of-alara-edhrec-avg-cedh,child-of-alara-moxfield-lGdVhD	
+The Mind Stone	2	child-of-alara-moxfield-11Y4nD,child-of-alara-moxfield-JpT6ND	
+Veil of Summer	2	child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-lGdVhD	
+Watery Grave	2	child-of-alara-moxfield-Ba1nFY,child-of-alara-moxfield-IYUM_c	land
+Wheel of Fortune	2	child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Windfall	2	child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-lGdVhD	
+Xenagos, God of Revels	2	child-of-alara-edhrec-avg-optimized,child-of-alara-moxfield-JpT6ND	
+Yavimaya, Cradle of Growth	2	child-of-alara-moxfield-IYUM_c,child-of-alara-moxfield-JpT6ND	land
+Abraded Bluffs	1	child-of-alara-archidekt-13837312	land
+Ad Nauseam	1	child-of-alara-moxfield-lGdVhD	
+Aether Flash	1	child-of-alara-moxfield-Ba1nFY	
+Ajani's Chosen	1	child-of-alara-moxfield-Ba1nFY	
+Alisaie Leveilleur	1	child-of-alara-archidekt-26039177	
+Alphinaud Leveilleur	1	child-of-alara-archidekt-26039177	
+Ancient Cellarspawn	1	child-of-alara-archidekt-13837312	
+Ancient Den	1	child-of-alara-archidekt-13837312	land
+Annihilate	1	child-of-alara-archidekt-26039177	
+Archangel of Thune	1	child-of-alara-archidekt-26039177	
+Archivist of Oghma	1	child-of-alara-moxfield-IYUM_c	
+Archon of Justice	1	child-of-alara-moxfield-IYUM_c	
+Ashnod's Altar	1	child-of-alara-archidekt-13837312	
+Atraxa, Grand Unifier	1	child-of-alara-moxfield-IYUM_c	
+Azorius Guildgate	1	child-of-alara-edhrec-avg-optimized	land
+Baldur's Gate	1	child-of-alara-edhrec-avg-optimized	land
+Barbed Servitor	1	child-of-alara-archidekt-13837312	
+Basilisk Gate	1	child-of-alara-edhrec-avg-optimized	land
+Beloved Princess	1	child-of-alara-archidekt-26039177	
+Black Dragon Gate	1	child-of-alara-edhrec-avg-optimized	land
+Blightsteel Colossus	1	child-of-alara-archidekt-13837312	
+Blinkmoth Nexus	1	child-of-alara-moxfield-Ba1nFY	land
+Blood Crypt	1	child-of-alara-moxfield-Ba1nFY	land
+Bojuka Bog	1	child-of-alara-archidekt-26039177	land
+Bolas's Citadel	1	child-of-alara-archidekt-26039177	
+Boros Guildgate	1	child-of-alara-edhrec-avg-optimized	land
+Bountiful Promenade	1	child-of-alara-moxfield-JpT6ND	land
+Brago, King Eternal	1	child-of-alara-edhrec-avg-optimized	
+Brainstorm	1	child-of-alara-moxfield-Ba1nFY	
+Brash Taunter	1	child-of-alara-archidekt-13837312	
+Bringer of the Black Dawn	1	child-of-alara-archidekt-13837312	
+Bristling Backwoods	1	child-of-alara-archidekt-13837312	land
+Burgeoning	1	child-of-alara-edhrec-avg-optimized	
+Buried Ruin	1	child-of-alara-archidekt-13837312	land
+Cabal Ritual	1	child-of-alara-moxfield-lGdVhD	
+Cabal Therapy	1	child-of-alara-moxfield-11Y4nD	
+Caged Sun	1	child-of-alara-moxfield-Ba1nFY	
+Cascading Cataracts	1	child-of-alara-archidekt-13837312	land
+Caves of Koilos	1	child-of-alara-moxfield-JpT6ND	land
+Chain of Vapor	1	child-of-alara-moxfield-lGdVhD	
+Circuitous Route	1	child-of-alara-edhrec-avg-optimized	
+Citadel Gate	1	child-of-alara-edhrec-avg-optimized	land
+City of Traitors	1	child-of-alara-moxfield-lGdVhD	land
+Cleansing	1	child-of-alara-archidekt-26039177	
+Clever Impersonator	1	child-of-alara-moxfield-IYUM_c	
+Cliffgate	1	child-of-alara-edhrec-avg-optimized	land
+Colossal Skyturtle	1	child-of-alara-moxfield-11Y4nD	
+Colossification	1	child-of-alara-archidekt-26039177	
+Combustible Gearhulk	1	child-of-alara-archidekt-26039177	
+Commander's Sphere	1	child-of-alara-archidekt-13837312	
+Commercial District	1	child-of-alara-moxfield-JpT6ND	land
+Conduit of Worlds	1	child-of-alara-moxfield-JpT6ND	
+Copy Enchantment	1	child-of-alara-moxfield-11Y4nD	
+Counterbalance	1	child-of-alara-moxfield-Ba1nFY	
+Court of Locthwain	1	child-of-alara-archidekt-13837312	
+Crawlspace	1	child-of-alara-archidekt-13837312	
+Creosote Heath	1	child-of-alara-archidekt-13837312	land
+Crystal Grotto	1	child-of-alara-moxfield-JpT6ND	land
+Crystal Quarry	1	child-of-alara-moxfield-JpT6ND	land
+Culling the Weak	1	child-of-alara-moxfield-lGdVhD	
+Cursed Totem	1	child-of-alara-moxfield-11Y4nD	
+Damn	1	child-of-alara-archidekt-26039177	
+Damping Sphere	1	child-of-alara-moxfield-11Y4nD	
+Dark Fortress	1	child-of-alara-archidekt-26039177	land
+Dark Triumph	1	child-of-alara-moxfield-11Y4nD	
+Darkmoss Bridge	1	child-of-alara-archidekt-13837312	land
+Darksteel Citadel	1	child-of-alara-archidekt-13837312	land
+Darksteel Colossus	1	child-of-alara-moxfield-JpT6ND	
+Deafening Silence	1	child-of-alara-moxfield-11Y4nD	
+Deathrite Shaman	1	child-of-alara-moxfield-lGdVhD	
+Decimate	1	child-of-alara-archidekt-26039177	
+Deflecting Swat	1	child-of-alara-moxfield-Ba1nFY	
+Delighted Halfling	1	child-of-alara-moxfield-JpT6ND	
+Demonic Counsel	1	child-of-alara-moxfield-lGdVhD	
+Deserted Temple	1	child-of-alara-moxfield-JpT6ND	land
+Diamond Valley	1	child-of-alara-moxfield-IYUM_c	land
+Dimir Guildgate	1	child-of-alara-edhrec-avg-optimized	land
+District Guide	1	child-of-alara-edhrec-avg-optimized	
+Divine Intervention	1	child-of-alara-moxfield-Ba1nFY	
+Doubling Season	1	child-of-alara-archidekt-26039177	
+Dovin's Veto	1	child-of-alara-moxfield-Ba1nFY	
+Drossforge Bridge	1	child-of-alara-archidekt-13837312	land
+Duty Beyond Death	1	child-of-alara-archidekt-13837312	
+Eldritch Evolution	1	child-of-alara-moxfield-IYUM_c	
+Elesh Norn, Grand Cenobite	1	child-of-alara-archidekt-13837312	
+Elvish Spirit Guide	1	child-of-alara-moxfield-lGdVhD	
+Emergence Zone	1	child-of-alara-moxfield-lGdVhD	land
+Emet-Selch of the Third Seat	1	child-of-alara-archidekt-26039177	
+Enchanted Evening	1	child-of-alara-moxfield-Ba1nFY	
+Encroaching Mycosynth	1	child-of-alara-archidekt-13837312	
+Endless One	1	child-of-alara-archidekt-26039177	
+Endurance	1	child-of-alara-moxfield-IYUM_c	
+Ensoul Artifact	1	child-of-alara-moxfield-Ba1nFY	
+Entomb	1	child-of-alara-moxfield-IYUM_c	
+Eroded Canyon	1	child-of-alara-archidekt-13837312	land
+Etali, Primal Conqueror // Etali, Primal Sickness	1	child-of-alara-moxfield-JpT6ND	
+Eternity Vessel	1	child-of-alara-archidekt-13837312	
+Everquill Phoenix	1	child-of-alara-archidekt-26039177	
+Everybody Lives!	1	child-of-alara-moxfield-JpT6ND	
+Expedition Map	1	child-of-alara-edhrec-avg-optimized	
+Fabled Passage	1	child-of-alara-moxfield-JpT6ND	land
+Farewell	1	child-of-alara-edhrec-avg-optimized	
+Festering Gulch	1	child-of-alara-archidekt-13837312	land
+Fierce Guardianship	1	child-of-alara-moxfield-Ba1nFY	
+Final Fortune	1	child-of-alara-moxfield-lGdVhD	
+Finale of Devastation	1	child-of-alara-moxfield-JpT6ND	
+Flare of Cultivation	1	child-of-alara-moxfield-IYUM_c	
+Forbidden Orchard	1	child-of-alara-moxfield-lGdVhD	land
+Force of Vigor	1	child-of-alara-moxfield-IYUM_c	
+Forlorn Flats	1	child-of-alara-archidekt-13837312	land
+Foundry Inspector	1	child-of-alara-archidekt-13837312	
+Frantic Search	1	child-of-alara-moxfield-11Y4nD	
+Gatecreeper Vine	1	child-of-alara-edhrec-avg-optimized	
+Gemstone Mine	1	child-of-alara-moxfield-lGdVhD	land
+Gerrard, Weatherlight Hero	1	child-of-alara-archidekt-13837312	
+Giada, Font of Hope	1	child-of-alara-archidekt-26039177	
+Gift of Immortality	1	child-of-alara-archidekt-13837312	
+Gift of Orzhova	1	child-of-alara-archidekt-26039177	
+Gifts Ungiven	1	child-of-alara-moxfield-11Y4nD	
+Giggling Skitterspike	1	child-of-alara-archidekt-13837312	
+Gilded Drake	1	child-of-alara-moxfield-IYUM_c	
+Glacial Chasm	1	child-of-alara-moxfield-JpT6ND	land
+Gleaming Splendor	1	child-of-alara-moxfield-11Y4nD	
+Godless Shrine	1	child-of-alara-moxfield-Ba1nFY	land
+Goldmire Bridge	1	child-of-alara-archidekt-13837312	land
+Golgari Guildgate	1	child-of-alara-edhrec-avg-optimized	land
+Gond Gate	1	child-of-alara-edhrec-avg-optimized	land
+Gran-Gran	1	child-of-alara-archidekt-26039177	
+Grand Crescendo	1	child-of-alara-moxfield-JpT6ND	
+Great Furnace	1	child-of-alara-archidekt-13837312	land
+Greater Gargadon	1	child-of-alara-moxfield-11Y4nD	
+Grim Tutor	1	child-of-alara-moxfield-JpT6ND	
+Growth Spiral	1	child-of-alara-edhrec-avg-optimized	
+Gruul Guildgate	1	child-of-alara-edhrec-avg-optimized	land
+Halo Fountain	1	child-of-alara-archidekt-26039177	
+Hangarback Walker	1	child-of-alara-archidekt-26039177	
+Harrow	1	child-of-alara-archidekt-26039177	
+Heap Gate	1	child-of-alara-edhrec-avg-optimized	land
+Helm of Obedience	1	child-of-alara-moxfield-Ba1nFY	
+Hex Parasite	1	child-of-alara-moxfield-Ba1nFY	
+Homeward Path	1	child-of-alara-moxfield-IYUM_c	land
+Icetill Explorer	1	child-of-alara-moxfield-11Y4nD	
+Idyllic Tutor	1	child-of-alara-archidekt-13837312	
+Ignoble Hierarch	1	child-of-alara-moxfield-lGdVhD	
+Imperial Recruiter	1	child-of-alara-moxfield-IYUM_c	
+Indatha Triome	1	child-of-alara-moxfield-JpT6ND	land
+Indestructibility	1	child-of-alara-archidekt-13837312	
+Inkshield	1	child-of-alara-archidekt-26039177	
+Inspiring Vantage	1	child-of-alara-moxfield-JpT6ND	land
+Inspirit, Flagship Vessel	1	child-of-alara-archidekt-13837312	
+Izzet Guildgate	1	child-of-alara-edhrec-avg-optimized	land
+Jagged Barrens	1	child-of-alara-archidekt-13837312	land
+Jetmir's Garden	1	child-of-alara-moxfield-JpT6ND	land
+Jokulhaups	1	child-of-alara-archidekt-13837312	
+Karn Liberated	1	child-of-alara-moxfield-Ba1nFY	
+Ketria Triome	1	child-of-alara-moxfield-JpT6ND	land
+Kotis, the Fangkeeper	1	child-of-alara-archidekt-13837312	
+Krang, Utrom Warlord	1	child-of-alara-archidekt-13837312	
+Kruphix, God of Horizons	1	child-of-alara-edhrec-avg-optimized	
+Kutzil, Malamet Exemplar	1	child-of-alara-moxfield-IYUM_c	
+Last Chance	1	child-of-alara-moxfield-lGdVhD	
+Lazotep Quarry	1	child-of-alara-moxfield-IYUM_c	land
+Leyline of Anticipation	1	child-of-alara-moxfield-Ba1nFY	
+Lich's Mirror	1	child-of-alara-moxfield-Ba1nFY	
+Life and Limb	1	child-of-alara-moxfield-Ba1nFY	
+Life from the Loam	1	child-of-alara-moxfield-11Y4nD	
+Lightning Greaves	1	child-of-alara-archidekt-26039177	
+Lively Dirge	1	child-of-alara-moxfield-11Y4nD	
+Llanowar Elves	1	child-of-alara-moxfield-JpT6ND	
+Lonely Arroyo	1	child-of-alara-archidekt-13837312	land
+Lore Drakkis	1	child-of-alara-archidekt-26039177	
+Lotho, Corrupt Shirriff	1	child-of-alara-moxfield-lGdVhD	
+Lotus Ring	1	child-of-alara-archidekt-13837312	
+Lush Oasis	1	child-of-alara-archidekt-13837312	land
+Maha, Its Feathers Night	1	child-of-alara-archidekt-13837312	
+Mana Drain	1	child-of-alara-moxfield-Ba1nFY	
+Manamorphose	1	child-of-alara-moxfield-lGdVhD	
+Manor Gate	1	child-of-alara-edhrec-avg-optimized	land
+Marauding Raptor	1	child-of-alara-moxfield-Ba1nFY	
+March of the Machines	1	child-of-alara-moxfield-Ba1nFY	
+Maskwood Nexus	1	child-of-alara-moxfield-Ba1nFY	
+Maze's End	1	child-of-alara-edhrec-avg-optimized	land
+Medomai the Ageless	1	child-of-alara-archidekt-26039177	
+Metallurgeon	1	child-of-alara-archidekt-26039177	
+Mind's Dilation	1	child-of-alara-archidekt-13837312	
+Mindslaver	1	child-of-alara-archidekt-26039177	
+Mindslicer	1	child-of-alara-moxfield-IYUM_c	
+Mirrormade	1	child-of-alara-moxfield-11Y4nD	
+Mistvault Bridge	1	child-of-alara-archidekt-13837312	land
+Mithril Coat	1	child-of-alara-moxfield-JpT6ND	
+Mogis, God of Slaughter	1	child-of-alara-edhrec-avg-optimized	
+Mornsong Aria	1	child-of-alara-archidekt-13837312	
+Mox Amber	1	child-of-alara-moxfield-lGdVhD	
+Mox Opal	1	child-of-alara-moxfield-lGdVhD	
+Multiversal Passage	1	child-of-alara-moxfield-JpT6ND	land
+Mythos of Illuna	1	child-of-alara-archidekt-26039177	
+Necrodominance	1	child-of-alara-moxfield-lGdVhD	
+Necromancy	1	child-of-alara-moxfield-IYUM_c	
+Nine-Fingers Keene	1	child-of-alara-edhrec-avg-optimized	
+Notion Thief	1	child-of-alara-archidekt-26039177	
+Obliterate	1	child-of-alara-archidekt-13837312	
+Omen Machine	1	child-of-alara-archidekt-13837312	
+Omenpath Journey	1	child-of-alara-moxfield-JpT6ND	
+Omniscience	1	child-of-alara-moxfield-IYUM_c	
+One with the Multiverse	1	child-of-alara-archidekt-13837312	
+Open the Gates	1	child-of-alara-edhrec-avg-optimized	
+Opt	1	child-of-alara-archidekt-26039177	
+Oracle of Mul Daya	1	child-of-alara-edhrec-avg-optimized	
+Orim's Chant	1	child-of-alara-moxfield-11Y4nD	
+Ornithopter of Paradise	1	child-of-alara-archidekt-13837312	
+Orzhov Basilica	1	child-of-alara-archidekt-26039177	land
+Orzhov Guildgate	1	child-of-alara-edhrec-avg-optimized	land
+Overlord of the Hauntwoods	1	child-of-alara-moxfield-JpT6ND	
+Ovika, Enigma Goliath	1	child-of-alara-archidekt-26039177	
+Oviya, Automech Artisan	1	child-of-alara-archidekt-13837312	
+Padeem, Consul of Innovation	1	child-of-alara-archidekt-13837312	
+Pain for All	1	child-of-alara-archidekt-13837312	
+Pariah's Shield	1	child-of-alara-archidekt-13837312	
+Phyrexian Metamorph	1	child-of-alara-moxfield-IYUM_c	
+Phyrexian Reclamation	1	child-of-alara-archidekt-26039177	
+Pitiless Plunderer	1	child-of-alara-moxfield-Ba1nFY	
+Planar Nexus	1	child-of-alara-moxfield-JpT6ND	land
+Planetarium of Wan Shi Tong	1	child-of-alara-archidekt-13837312	
+Platinum Emperion	1	child-of-alara-archidekt-13837312	
+Polyraptor	1	child-of-alara-moxfield-Ba1nFY	
+Ponder	1	child-of-alara-edhrec-avg-cedh	
+Power Depot	1	child-of-alara-archidekt-13837312	land
+Preordain	1	child-of-alara-archidekt-26039177	
+Progenitus	1	child-of-alara-archidekt-26039177	
+Pyroblast	1	child-of-alara-archidekt-26039177	
+Rain of Filth	1	child-of-alara-moxfield-lGdVhD	
+Rain of Gore	1	child-of-alara-moxfield-Ba1nFY	
+Rakdos Guildgate	1	child-of-alara-edhrec-avg-optimized	land
+Raph & Mikey, Troublemakers	1	child-of-alara-archidekt-26039177	
+Razortide Bridge	1	child-of-alara-archidekt-13837312	land
+Recruiter of the Guard	1	child-of-alara-moxfield-IYUM_c	
+Reflecting Pool	1	child-of-alara-moxfield-IYUM_c	land
+Reliquary Tower	1	child-of-alara-moxfield-JpT6ND	land
+Rise of the Dark Realms	1	child-of-alara-archidekt-26039177	
+Rite of Flame	1	child-of-alara-moxfield-lGdVhD	
+River's Rebuke	1	child-of-alara-moxfield-JpT6ND	
+Rosie Cotton of South Lane	1	child-of-alara-archidekt-26039177	
+Rustvale Bridge	1	child-of-alara-archidekt-13837312	land
+Sab-Sunen, Luxa Embodied	1	child-of-alara-moxfield-JpT6ND	
+Sacred Foundry	1	child-of-alara-moxfield-Ba1nFY	land
+Scour for Scrap	1	child-of-alara-archidekt-13837312	
+Scrying Sheets	1	child-of-alara-moxfield-JpT6ND	land
+Scute Swarm	1	child-of-alara-moxfield-Ba1nFY	
+Sea Gate	1	child-of-alara-edhrec-avg-optimized	land
+Seasons Past	1	child-of-alara-moxfield-IYUM_c	
+Seat of the Synod	1	child-of-alara-archidekt-13837312	land
+Seedguide Ash	1	child-of-alara-moxfield-IYUM_c	
+Selesnya Guildgate	1	child-of-alara-edhrec-avg-optimized	land
+Sensei's Divining Top	1	child-of-alara-moxfield-IYUM_c	
+Serra Ascendant	1	child-of-alara-archidekt-26039177	
+Shallow Grave	1	child-of-alara-moxfield-IYUM_c	
+Shark Typhoon	1	child-of-alara-archidekt-26039177	
+Shelter	1	child-of-alara-moxfield-JpT6ND	
+Shifting Woodland	1	child-of-alara-moxfield-11Y4nD	land
+Silverbluff Bridge	1	child-of-alara-archidekt-13837312	land
+Simian Spirit Guide	1	child-of-alara-moxfield-lGdVhD	
+Simic Guildgate	1	child-of-alara-edhrec-avg-optimized	land
+Sisay, Weatherlight Captain	1	child-of-alara-archidekt-26039177	
+Six	1	child-of-alara-moxfield-lGdVhD	
+Slagwoods Bridge	1	child-of-alara-archidekt-13837312	land
+Snakeskin Veil	1	child-of-alara-archidekt-26039177	
+Solemn Simulacrum	1	child-of-alara-moxfield-JpT6ND	
+Song of Creation	1	child-of-alara-edhrec-avg-optimized	
+Soured Springs	1	child-of-alara-archidekt-13837312	land
+Spara's Headquarters	1	child-of-alara-moxfield-JpT6ND	land
+Spike Feeder	1	child-of-alara-archidekt-26039177	
+Sporemound	1	child-of-alara-moxfield-Ba1nFY	
+Squall Line	1	child-of-alara-moxfield-Ba1nFY	
+Staff of Compleation	1	child-of-alara-archidekt-26039177	
+Stardew Valley	1	child-of-alara-archidekt-26039177	land
+Storm Herd	1	child-of-alara-archidekt-26039177	
+Sulfurous Springs	1	child-of-alara-moxfield-JpT6ND	land
+Summoner's Pact	1	child-of-alara-moxfield-lGdVhD	
+Supreme Verdict	1	child-of-alara-edhrec-avg-optimized	
+Suspended Sentence	1	child-of-alara-archidekt-13837312	
+Susur Secundi, Void Altar	1	child-of-alara-moxfield-JpT6ND	land
+Sylvan Scrying	1	child-of-alara-edhrec-avg-optimized	
+Tainted Pact	1	child-of-alara-moxfield-lGdVhD	
+Talion, the Kindly Lord	1	child-of-alara-moxfield-IYUM_c	
+Talon Gates of Madara	1	child-of-alara-moxfield-lGdVhD	land
+Tanglepool Bridge	1	child-of-alara-archidekt-13837312	land
+Tatyova, Benthic Druid	1	child-of-alara-edhrec-avg-optimized	
+Teferi, Time Raveler	1	child-of-alara-edhrec-avg-cedh	
+Tempt with Discovery	1	child-of-alara-edhrec-avg-optimized	
+Thassa, God of the Sea	1	child-of-alara-edhrec-avg-cedh	
+The Goose Mother	1	child-of-alara-archidekt-26039177	
+The Key to the Vault	1	child-of-alara-archidekt-13837312	
+The World Tree	1	child-of-alara-edhrec-avg-optimized	land
+Thopter Assembly	1	child-of-alara-archidekt-26039177	
+Thornglint Bridge	1	child-of-alara-archidekt-13837312	land
+Thought Vessel	1	child-of-alara-archidekt-26039177	
+Tigereye Cameo	1	child-of-alara-moxfield-JpT6ND	
+Time Sieve	1	child-of-alara-archidekt-26039177	
+Time Warp	1	child-of-alara-archidekt-26039177	
+Timetwister	1	child-of-alara-moxfield-IYUM_c	
+Tinder Wall	1	child-of-alara-moxfield-lGdVhD	
+Toph, the First Metalbender	1	child-of-alara-moxfield-Ba1nFY	
+Transcendence	1	child-of-alara-moxfield-Ba1nFY	
+Transmutation Font	1	child-of-alara-archidekt-26039177	
+Tree of Tales	1	child-of-alara-archidekt-13837312	land
+Triple Triad	1	child-of-alara-archidekt-13837312	
+Trostani, Selesnya's Voice	1	child-of-alara-archidekt-26039177	
+True Conviction	1	child-of-alara-archidekt-26039177	
+Ulamog, the Ceaseless Hunger	1	child-of-alara-moxfield-JpT6ND	
+Ultimate Magic: Holy	1	child-of-alara-archidekt-13837312	
+Undercity Sewers	1	child-of-alara-moxfield-11Y4nD	land
+Underground Mortuary	1	child-of-alara-moxfield-11Y4nD	land
+Unwinding Clock	1	child-of-alara-archidekt-13837312	
+Valley Floodcaller	1	child-of-alara-moxfield-lGdVhD	
+Vampire Hexmage	1	child-of-alara-moxfield-Ba1nFY	
+Vashta Nerada	1	child-of-alara-archidekt-13837312	
+Vault of Whispers	1	child-of-alara-archidekt-13837312	land
+Vault of the Archangel	1	child-of-alara-archidekt-26039177	land
+Vedalken Orrery	1	child-of-alara-moxfield-Ba1nFY	
+Voice of Victory	1	child-of-alara-moxfield-lGdVhD	
+Volatile Stormdrake	1	child-of-alara-moxfield-IYUM_c	
+Volrath's Stronghold	1	child-of-alara-moxfield-IYUM_c	land
+Vorinclex, Voice of Hunger	1	child-of-alara-archidekt-26039177	
+Warrior's Oath	1	child-of-alara-moxfield-lGdVhD	
+Wheel of Sun and Moon	1	child-of-alara-moxfield-Ba1nFY	
+Wishclaw Talisman	1	child-of-alara-moxfield-lGdVhD	
+With Great Power . . .	1	child-of-alara-archidekt-13837312	
+Worldfire	1	child-of-alara-archidekt-13837312	
+Worldgorger Dragon	1	child-of-alara-moxfield-Ba1nFY	
+Wrath of God	1	child-of-alara-edhrec-avg-cedh	
+Yahenni, Undying Partisan	1	child-of-alara-archidekt-13837312	
+Yavimaya Coast	1	child-of-alara-moxfield-JpT6ND	land
+Zagoth Triome	1	child-of-alara-moxfield-JpT6ND	land
+Ziatora's Proving Ground	1	child-of-alara-moxfield-JpT6ND	land

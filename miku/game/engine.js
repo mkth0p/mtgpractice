@@ -13,7 +13,7 @@
 (function (root) {
   "use strict";
   const MK = root.MK = root.MK || {};
-  MK.ENGINE_VERSION = 8;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
+  MK.ENGINE_VERSION = 9;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
                            // 4: the bots gang-block, chump only where it saves life, pick lands for the colors their hand needs, and counter combo pieces
                            //    and judge the table's threats per attacker; deck brains steer the bots of your decks
                            // 7: morph-cast creatures turn up only for their morph cost; Corrupted Etrata v3 list (legacyMorph)
@@ -36,6 +36,9 @@
                            //    of wipe: indestructible doesn't stop -X/-X or bounce, hexproof stops no wipe (legacyWipes)
                            //  - the bots' threat judgement counts Azusa's lands at a quarter weight: three land drops a turn made her
                            //    read as the table's leader while she was behind (legacyAzusa)
+                           // 9: the Corrupted Miku bot keeps Skullclamp off its combo pieces, doesn't evoke Endurance for nothing, casts
+                           //    Shalai with Devoted Druid's mana, and casts a top-of-library tutor for a missing kill piece in its second
+                           //    main phase (legacyCorrupted)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",
@@ -366,7 +369,7 @@
       for (const o of this.battlefield) if (o.def.statics.length || o.def.levels || this.roomStatics(o).length) out.push(o);
       this._ss = out; this._ssv = this.v;
       this._grantsMana = out.some(o => o.def.statics.some(st => st.grantMana));
-      this._trigExtra = out.some(o => o.def.statics.some(st => st.triggerExtra));
+      this._trigExtra = out.some(o => o.def.statics.some(st => st.triggerExtra || st.stopTrigger));
       return out;
     }
     roomStatics(o) {
@@ -389,6 +392,9 @@
       const d = o.def;
       const types = new Set(d.types);
       if (o.zone === "battlefield") {
+        // "enchanted permanent is a Vehicle artifact and loses all other card types" (Swift Reconfiguration)
+        if (this._vehicleSt !== this.v) { this._vehicleSt = this.v; this._hasVehicleSt = this.staticSources().some(s => this.staticsOf(s).some(st => st.becomesVehicle)); }
+        if (this._hasVehicleSt) for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.becomesVehicle && st.applies && st.applies(this, s, o)) { types.clear(); types.add("Artifact"); }
         if (o.state.crewed === this.turn) { types.add("Creature"); types.add("Artifact"); }
         if (o.state.animated && o.state.animated.turn === this.turn) types.add("Creature");
         if (o.state.earth) types.add("Creature"); // earthbend: a land that stays a creature
@@ -526,11 +532,13 @@
     /* "Can't cast spells": statics with cantCast (Grand Abolisher, Drannith Magistrate, Deafening
        Silence) and this turn's bans (Silence, Orim's Chant). Returns why, or false. */
     castBlocked(p, o) {
-      for (const b of this.castBans) if (b.turn === this.turn && b.test(this, p, o)) return b.label || "can't cast spells this turn";
+      if (this.castBans.some(b => b.until && this.active === b.until && this.turn > b.turn)) this.castBans = this.castBans.filter(b => !(b.until && this.active === b.until && this.turn > b.turn));
+      for (const b of this.castBans) if ((b.turn === this.turn || b.until) && b.test(this, p, o)) return b.label || "can't cast spells this turn";
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantCast && st.cantCast(this, s, p, o)) return s.def.name;
       return false;
     }
-    banCasting(test, label) { this.castBans.push({ turn: this.turn, test, label }); this.bump(); }
+    /* opts.until = a player: the ban lasts until that player's next turn (Reflector Mage), else until end of turn */
+    banCasting(test, label, opts) { this.castBans.push({ turn: this.turn, test, label, until: (opts && opts.until) || null }); this.bump(); }
     /* "Can't activate abilities" (Grand Abolisher, Linvala, Keeper of Silence): statics with cantActivate. */
     activateBlocked(p, o, ab) {
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantActivate && st.cantActivate(this, s, p, o, ab)) return true;
@@ -631,6 +639,10 @@
       if ((this.staticSources(), this._trigExtra)) {
         const more = [];
         for (const f of found) {
+          // "permanents entering don't cause abilities of permanents your opponents control to trigger" (Elesh Norn): statics with stopTrigger(g, source, entry)
+          let stop = false;
+          for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.stopTrigger) { try { if (st.stopTrigger(this, s, f)) stop = true; } catch (err) { this.warn(err, s); } }
+          if (stop) continue;
           more.push(f);
           let n = 0;
           for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.triggerExtra) { try { n += st.triggerExtra(this, s, f) || 0; } catch (err) { this.warn(err, s); } }
@@ -883,7 +895,7 @@
       if (arr) { const i = arr.indexOf(o); if (i >= 0) arr.splice(i, 1); }
     }
     lki(o) {
-      return { controller: o.controller, power: this.power(o), toughness: this.toughness(o), counters: Object.assign({}, o.counters), isToken: o.isToken, creature: this.isCreature(o), name: o.def.name, types: [...this.typesOf(o)], subtypes: [...this.ch(o).subtypes], attached: this.battlefield.filter(a => a.attachedTo === o), mv: this.mvOf(o), colors: [...this.colorsOf(o)], faceDown: !!o.faceDown };
+      return { controller: o.controller, power: this.power(o), toughness: this.toughness(o), counters: Object.assign({}, o.counters), isToken: o.isToken, creature: this.isCreature(o), name: o.def.name, types: [...this.typesOf(o)], subtypes: [...this.ch(o).subtypes], attached: this.battlefield.filter(a => a.attachedTo === o), attachedTo: o.attachedTo || null, attachedToZc: o.attachedTo ? o.attachedTo.zc : null, mv: this.mvOf(o), colors: [...this.colorsOf(o)], faceDown: !!o.faceDown };
     }
     /* Move an object between zones. Returns where it ended up. Leaving the battlefield resets it. */
     moveTo(o, zone, opts) {
@@ -1280,7 +1292,7 @@
       if (opts.combat && !this.isPlayer(target) && target.combat && target.combat.attacking) for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.preventCombatDamageTo && st.preventCombatDamageTo(this, s, target)) return 0;
       if (this.isPlayer(target)) {
         if (target.lost) return 0;
-        if (infect) { target.poison += n; this.anim("poison", { p: target, n }); }
+        if (infect) { if (!this.staticSources().some(s => this.staticsOf(s).some(st => st.noPoison && st.noPoison(this, s, target)))) { target.poison += n; this.anim("poison", { p: target, n }); } }
         else { target.life -= n; target.lifeLostThisTurn += n; this.anim("life", { p: target, delta: -n, src: srcObj, combat: opts.combat }); }
         if (opts.combat && srcObj && srcObj.isCommander) target.cmdDmg[srcObj.id] = (target.cmdDmg[srcObj.id] || 0) + n;
         // freerunning: combat damage to a player this turn with an Assassin or a commander
@@ -1458,9 +1470,9 @@
       const ex = exclude instanceof Set ? exclude : new Set(exclude || []);
       const vorinclex = this.battlefield.some(o => o.controller === p && o.def.doublesLandMana);
       // statics that stop mana abilities (Linvala, Grand Abolisher) or add to them (Badgermole Cub)
-      const stops = [], bonus = [];
+      const stops = [], bonus = [], tapBonus = [];   // tapManaBonus(g, s, o): "tapped for mana, add an additional {G}" (Wild Growth, Utopia Sprawl)
       let cBonus = false;   // Forsaken Monument: tapping a permanent for {C} adds one more {C}
-      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) { if (st.cantActivate) stops.push([s, st]); if (st.creatureManaBonus) bonus.push([s, st]); if (st.colorlessTapBonus && s.controller === p) cBonus = true; }
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) { if (st.cantActivate) stops.push([s, st]); if (st.creatureManaBonus) bonus.push([s, st]); if (st.tapManaBonus) tapBonus.push([s, st]); if (st.colorlessTapBonus && s.controller === p) cBonus = true; }
       for (const o of this.battlefield) {
         if (o.controller !== p || ex.has(o.id)) continue;
         const abs = this.manaAbilities(o);
@@ -1483,6 +1495,11 @@
         if (bonus.length && this.isCreature(o)) {
           let extra = "";
           for (const [s, st] of bonus) extra += st.creatureManaBonus(this, s, o) || "";
+          if (extra) for (const opt of options) if (opt.ab.tap) opt.units = opt.units.concat(extra.split(""));
+        }
+        if (tapBonus.length) {
+          let extra = "";
+          for (const [s, st] of tapBonus) extra += st.tapManaBonus(this, s, o) || "";
           if (extra) for (const opt of options) if (opt.ab.tap) opt.units = opt.units.concat(extra.split(""));
         }
         // bigger outputs first (Fanatic of Rhonas: GGGG before G)
@@ -3111,7 +3128,7 @@
     }
     cleanupEffects() {
       for (const o of this.battlefield) { o.damage = 0; o.dtDamage = false; o.dtKill = false; }
-      if (this.castBans.length) this.castBans = [];
+      if (this.castBans.length) this.castBans = this.castBans.filter(b => b.until && !b.until.lost);
       if (this.tempTriggers.length) { this.tempTriggers = []; this.ts++; }
       this.effects = this.effects.filter(e => e.until !== "eot" && e.until !== "eoc");
       this.combat = null;

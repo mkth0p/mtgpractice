@@ -1,0 +1,101 @@
+1 Shalai, Voice of Plenty
+3 Forest
+3 Plains
+1 Allosaurus Shepherd
+1 Ancient Tomb
+1 Arbor Elf
+1 Archivist of Oghma
+1 Archon of Emeria
+1 Argothian Elder
+1 Ashaya, Soul of the Wild
+1 Avacyn's Pilgrim
+1 Aven Mindcensor
+1 Beast Whisperer
+1 Birds of Paradise
+1 Blind Obedience
+1 Boseiju, Who Endures
+1 Bountiful Promenade
+1 Branchloft Pathway // Boulderloft Pathway
+1 Brushland
+1 Cavern of Souls
+1 Chord of Calling
+1 Circle of Dreams Druid
+1 City of Brass
+1 Collector Ouphe
+1 Command Tower
+1 Concordant Crossroads
+1 Craterhoof Behemoth
+1 Crop Rotation
+1 Deafening Silence
+1 Devoted Druid
+1 Drannith Magistrate
+1 Duskwatch Recruiter // Krallenhorde Howler
+1 Eladamri's Call
+1 Eldritch Evolution
+1 Elesh Norn, Grand Cenobite
+1 Elvish Mystic
+1 Elvish Reclaimer
+1 Endurance
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Finale of Devastation
+1 Flagstones of Trokair
+1 Force of Vigor
+1 Fyndhorn Elves
+1 Gaea's Cradle
+1 Gemstone Caverns
+1 Green Sun's Zenith
+1 Guardian Augmenter
+1 Horizon Canopy
+1 Hushbringer
+1 Hushwing Gryff
+1 Jeweled Lotus
+1 Kamahl, Fist of Krosa
+1 Linvala, Keeper of Silence
+1 Llanowar Elves
+1 Magus of the Candelabra
+1 Mana Confluence
+1 Mana Crypt
+1 Maze of Ith
+1 Nature's Claim
+1 Noxious Revival
+1 Null Rod
+1 Nykthos, Shrine to Nyx
+1 Ohran Frostfang
+1 Overgrown Farmland
+1 Path to Exile
+1 Priest of Titania
+1 Quirion Ranger
+1 Ranger-Captain of Eos
+1 Rest in Peace
+1 Sanctum Prelate
+1 Saryth, the Viper's Fang
+1 Savannah
+1 Sevinne's Reclamation
+1 Silence
+1 Strict Proctor
+1 Swift Reconfiguration
+1 Swords to Plowshares
+1 Sylvan Library
+1 Sylvan Safekeeper
+1 Sylvan Scrying
+1 Tadeas, Juniper Ascendant
+1 Temple Garden
+1 Toski, Bearer of Secrets
+1 Veil of Summer
+1 Verdant Catacombs
+1 Vryn Wingmare
+1 Winds of Abandon
+1 Windswept Heath
+1 Wirewood Lodge
+1 Wooded Foothills
+1 Worldly Tutor
+1 Yasharn, Implacable Earth
+1 Yavimaya Hollow
+1 Yavimaya, Cradle of Growth
+1 Yisan, the Wanderer Bard
+# source: https://moxfield.com/decks/ME-zgoCa5kq9c8jCsd4UMg (API https://api2.moxfield.com/v3/decks/all/ME-zgoCa5kq9c8jCsd4UMg), accessed 2026-10-08
+# title: Shalai - Hex Hex Stax Stax [cEDH] ; author EngineNo9 ; updated 2023-11-07 ; Moxfield bracket b5/auto4 ; main 99 ; lands 30 ; MDFC ; BAN Jeweled Lotus;Mana Crypt
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 6: Crop Rotation; Worldly Tutor; Enlightened Tutor; Ancient Tomb; Gaea's Cradle; Drannith Magistrate
+# tags: +1/+1 Counters, Combo, Competitive, Primer, Stax
+# DISCARDED: runs a card banned 2024-09-23 (see BAN field above); kept on disk for reference only, excluded from frequency counts
