@@ -718,13 +718,14 @@
     },
     ai: { tutor: true, priority: 6 }
   });
-  /* Faster-kill pass (2026-10-11): a third Devoted Druid partner and two more tutors for the Shalai list. */
+  /* Faster-kill pass (2026-10-11): two more tutors for the Shalai list, and Melira (not a Devoted Druid combo). */
   D({
     name: "Melira, Sylvok Outcast", cost: "{1}{W}", type: "Legendary Creature — Human Scout", pt: "2/2",
     text: "You can't get poison counters.\nCreatures you control can't have -1/-1 counters put on them.\nCreatures your opponents control lose infect.",
     note: "\"Lose infect\" is not modelled; the poison and -1/-1 parts are.",
+    // a cost that puts a -1/-1 counter on your creature can't be paid (Devoted Druid's untap: no combo, per its ruling)
     statics: [{
-      counterPlus: (g, s, o, kind) => (kind === "m1" && o.controller === s.controller && g.isCreature(o) ? -1000 : 0),
+      cantHaveCounters: (g, s, o, kind) => kind === "m1" && o.controller === s.controller && g.isCreature(o),
       noPoison: (g, s, p) => p === s.controller
     }],
     ai: { priority: 5 }

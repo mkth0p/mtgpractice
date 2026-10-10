@@ -1324,8 +1324,13 @@
       if (lifelink && ctrl && !opts.deferLifelink) this.gainLife(ctrl, n, srcObj);
       return n;
     }
+    /* Melira: "can't have -1/-1 counters put on them" */
+    canHaveCounters(o, kind) {
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantHaveCounters && st.cantHaveCounters(this, s, o, kind)) return false;
+      return true;
+    }
     addCounters(o, kind, n, src) {
-      if (!o || n <= 0 || o.zone !== "battlefield") return 0;
+      if (!o || n <= 0 || o.zone !== "battlefield" || !this.canHaveCounters(o, kind)) return 0;
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.counterPlus) n += st.counterPlus(this, s, o, kind) || 0;
       if (n <= 0) return 0; // Vizier of Remedies: "that many minus one"
       o.counters[kind] = (o.counters[kind] || 0) + n;

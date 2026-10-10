@@ -214,18 +214,12 @@ const repeat = (g, p, o, idx, n, more) => g.perform(p, Object.assign({ type: "ac
     for (let k = 0; k < 14 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (process.env.DEBUG) console.log(act && act.type, act && act.card && act.card.def.name, act && act.repeat, g.poolTotal(a)); if (!act) break; await g.perform(a, act); await g.settle(); }
     check("Shalai bot: Druid + Swift + Ballista from hand kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
 
-  // Melira, Sylvok Outcast: no -1/-1 counters on your creatures, so Devoted Druid untaps forever; no poison
+  // Melira, Sylvok Outcast: no -1/-1 counters on your creatures, so Devoted Druid's untap can't be paid (its ruling); no poison
   { const { g, a, b } = table("Shalai, Voice of Plenty", "corrupted"); const dd = put(g, a, "Devoted Druid"); put(g, a, "Melira, Sylvok Outcast"); await g.settle();
-    await repeat(g, a, dd, 1, 12); await g.settle();
-    check("Druid + Melira: twelve {G}", a.pool.G === 12 && dd.zone === "battlefield" && !(dd.counters.m1 > 0), [a.pool.G, dd.zone, dd.counters.m1]);
+    const loop = g.legalActions(a).filter(x => x.type === "activate" && x.card === dd);
+    check("Druid + Melira: no untap loop", loop.length === 0, loop.map(x => x.ab && x.ab.label));
     const inf = put(g, b, "Llanowar Elves"); g.addEffect({ objs: [inf], kw: ["infect"] }); g.damage(inf, a, 3, {});
     check("Melira: no poison counters", a.poison === 0, a.poison); }
-
-  // Shalai bot: Druid + Melira in hand, Ballista in hand: the kill
-  { const { g, a, b, c, d } = table("Shalai, Voice of Plenty", "corrupted"); lands(g, a, 6, ["Forest", "Plains"]);
-    const dd = put(g, a, "Devoted Druid"); hand(g, a, "Melira, Sylvok Outcast"); hand(g, a, "Walking Ballista"); for (const q of [b, c, d]) q.life = 15;
-    for (let k = 0; k < 14 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
-    check("Shalai bot: Druid + Melira + Ballista kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
 
   // Congregation at Dawn: three creatures on top, the first chosen on top; Idyllic Tutor finds an enchantment
   { const { g, a } = table("Shalai, Voice of Plenty", "corrupted"); lands(g, a, 3, ["Forest", "Forest", "Plains"]);
