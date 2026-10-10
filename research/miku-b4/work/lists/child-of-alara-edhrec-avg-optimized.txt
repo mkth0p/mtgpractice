@@ -1,0 +1,99 @@
+1 Child of Alara
+1 Arcane Signet
+1 Armageddon
+1 Athreos, Shroud-Veiled
+1 Avacyn, Angel of Hope
+1 Azorius Guildgate
+1 Azusa, Lost but Seeking
+1 Baldur's Gate
+1 Basilisk Gate
+1 Birds of Paradise
+1 Black Dragon Gate
+1 Blasphemous Act
+1 Bloom Tender
+1 Boros Guildgate
+1 Brago, King Eternal
+1 Breeding Pool
+1 Burgeoning
+1 Chromatic Lantern
+1 Circuitous Route
+1 Citadel Gate
+1 Cliffgate
+1 Command Tower
+1 Counterspell
+1 Crop Rotation
+1 Crucible of Worlds
+1 Cultivate
+1 Cyclonic Rift
+1 Darksteel Ingot
+1 Demonic Tutor
+1 Diabolic Tutor
+1 Dimir Guildgate
+1 District Guide
+1 Dryad of the Ilysian Grove
+1 Elspeth Tirel
+1 Elvish Mystic
+1 Eternal Witness
+1 Exotic Orchard
+1 Expedition Map
+1 Exploration
+1 Explore
+1 Farewell
+1 Farseek
+1 Fellwar Stone
+3 Forest
+1 Gatecreeper Vine
+1 Golgari Guildgate
+1 Gond Gate
+1 Growth Spiral
+1 Gruul Guildgate
+1 Harmonize
+1 Heap Gate
+1 Heroic Intervention
+1 High Market
+2 Island
+1 Izzet Guildgate
+1 Kruphix, God of Horizons
+1 Leyline of the Guildpact
+1 Manor Gate
+1 Maze's End
+1 Mogis, God of Slaughter
+2 Mountain
+1 Mystical Tutor
+1 Nine-Fingers Keene
+1 Open the Gates
+1 Oracle of Mul Daya
+1 Orzhov Guildgate
+1 Path to Exile
+2 Plains
+1 Rakdos Guildgate
+1 Ramunap Excavator
+1 Rhystic Study
+1 Sea Gate
+1 Selesnya Guildgate
+1 Simic Guildgate
+1 Smothering Tithe
+1 Sol Ring
+1 Song of Creation
+1 Spelunking
+1 Supreme Verdict
+2 Swamp
+1 Swan Song
+1 Swords to Plowshares
+1 Sylvan Scrying
+1 Tatyova, Benthic Druid
+1 Teferi's Protection
+1 Temple Garden
+1 Tempt with Discovery
+1 The One Ring
+1 The World Tree
+1 Thespian's Stage
+1 Three Visits
+1 Vampiric Tutor
+1 Windswept Heath
+1 Xenagos, God of Revels
+# source: https://edhrec.com/average-decks/child-of-alara/optimized (JSON https://json.edhrec.com/pages/average-decks/child-of-alara/optimized.json), accessed 2026-10-08
+# title: Average Deck for Child of Alara - Optimized ; author EDHREC (aggregate) ; num_decks 423 ; deck save dates 2024-11-05 to 2026-10-07 ; bracket_counts {'4': 423, '3': 741, '1': 251, '2': 772, '5': 40}
+# total 100 ; lands 39 ; BAN 
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 10: Crop Rotation; Cyclonic Rift; Demonic Tutor; Farewell; Mystical Tutor; Rhystic Study; Smothering Tithe; Teferi's Protection; The One Ring; Vampiric Tutor
+# types: ['Artifact', 'Land', 'Creature', 'Enchantment', 'Instant', 'Planeswalker', 'Sorcery']

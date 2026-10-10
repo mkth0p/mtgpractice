@@ -1,0 +1,88 @@
+1 Shalai, Voice of Plenty
+1 Ancient Tomb
+1 Angel of Jubilation
+1 Arcane Signet
+1 Archangel of Thune
+1 Archangel of Tithes
+1 Archivist of Oghma
+1 Aura Shards
+1 Authority of the Consuls
+1 Avacyn's Pilgrim
+1 Avacyn, Angel of Hope
+1 Beast Whisperer
+1 Beast Within
+1 Birds of Paradise
+1 Boseiju, Who Endures
+1 Bountiful Promenade
+1 Branchloft Pathway
+1 Brushland
+1 Canopy Vista
+1 Cavern of Souls
+1 Command Tower
+1 Cultivate
+1 Drannith Magistrate
+1 Eiganjo, Seat of the Empire
+1 Eladamri's Call
+1 Elspeth, Sun's Champion
+1 Elvish Mystic
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Finale of Devastation
+9 Forest
+1 Gavony Township
+1 Generous Gift
+1 Giada, Font of Hope
+1 Giver of Runes
+1 Grand Abolisher
+1 Growing Rites of Itlimoc
+1 Guardian Project
+1 Hardened Scales
+1 Heliod, Sun-Crowned
+1 Herald of War
+1 Heroic Intervention
+1 Horizon Canopy
+1 Idyllic Tutor
+1 Kami of Whispered Hopes
+1 Kodama's Reach
+1 Kutzil, Malamet Exemplar
+1 Lightning Greaves
+1 Linvala, Keeper of Silence
+1 Llanowar Elves
+1 Lotus Petal
+1 Lyra Dawnbringer
+1 Mirari's Wake
+1 Mother of Runes
+1 Nature's Lore
+1 Overgrown Farmland
+1 Path to Exile
+10 Plains
+1 Razorverge Thicket
+1 Resplendent Angel
+1 Righteous Valkyrie
+1 Sephara, Sky's Blade
+1 Serra's Emissary
+1 Sigarda, Font of Blessings
+1 Sigarda, Host of Herons
+1 Smothering Tithe
+1 Sol Ring
+1 Soul Warden
+1 Sunpetal Grove
+1 Swiftfoot Boots
+1 Swords to Plowshares
+1 Sylvan Library
+1 Teferi's Protection
+1 Temple Garden
+1 Thalia, Guardian of Thraben
+1 Thalia, Heretic Cathar
+1 The Great Henge
+1 The One Ring
+1 Three Visits
+1 Walking Ballista
+1 Wild Growth
+1 Windswept Heath
+1 Worldly Tutor
+# source: https://edhrec.com/average-decks/shalai-voice-of-plenty/optimized (JSON https://json.edhrec.com/pages/average-decks/shalai-voice-of-plenty/optimized.json), accessed 2026-10-08
+# title: Average Deck for Shalai, Voice of Plenty - Optimized ; author EDHREC (aggregate) ; num_decks 26 ; deck save dates 2025-04-10 to 2026-10-06 ; bracket_counts {'3': 90, '4': 26, '2': 124, '1': 5, '5': 2}
+# total 100 ; lands 35 ; BAN 
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 8: Ancient Tomb; Aura Shards; Drannith Magistrate; Enlightened Tutor; Smothering Tithe; Teferi's Protection; The One Ring; Worldly Tutor
+# types: ['Artifact', 'Land', 'Creature', 'Enchantment', 'Instant', 'Planeswalker', 'Sorcery']

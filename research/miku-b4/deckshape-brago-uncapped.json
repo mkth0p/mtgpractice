@@ -1,0 +1,444 @@
+{
+ "list": "decklist-brago-uncapped.txt",
+ "commander": "Brago, King Eternal",
+ "lands": [
+  "Command Tower",
+  "Tundra",
+  "Hallowed Fountain",
+  "Sea of Clouds",
+  "Adarkar Wastes",
+  "Flooded Strand",
+  "Marsh Flats",
+  "Arid Mesa",
+  "Scalding Tarn",
+  "Polluted Delta",
+  "Misty Rainforest",
+  "Prismatic Vista",
+  "Glacial Fortress",
+  "Port Town",
+  "Otawara, Soaring City",
+  "Ancient Tomb",
+  "Urza's Saga",
+  "Deserted Beach",
+  "Celestial Colonnade",
+  "Irrigated Farmland",
+  "Mystic Sanctuary",
+  "Island",
+  "Island",
+  "Island",
+  "Island",
+  "Island",
+  "Island",
+  "Plains",
+  "Plains",
+  "Plains",
+  "Plains"
+ ],
+ "ramp": [
+  {
+   "name": "Sol Ring",
+   "mv": 1,
+   "fast": true,
+   "net": 2
+  },
+  {
+   "name": "Mana Vault",
+   "mv": 1,
+   "fast": true,
+   "net": 3,
+   "note": "doesn't untap normally: net is its one tap"
+  },
+  {
+   "name": "Grim Monolith",
+   "mv": 2,
+   "fast": true,
+   "net": 3,
+   "note": "doesn't untap normally: net is its one tap"
+  },
+  {
+   "name": "Basalt Monolith",
+   "mv": 3,
+   "fast": true,
+   "net": 3,
+   "note": "doesn't untap normally: net is its one tap"
+  },
+  {
+   "name": "Chrome Mox",
+   "mv": 0,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Mox Diamond",
+   "mv": 0,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "mv": 2,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "mv": 2,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "mv": 2,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "mv": 2,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "mv": 2,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Mind Stone",
+   "mv": 2,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "mv": 4,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "mv": 4,
+   "fast": true,
+   "net": 1
+  }
+ ],
+ "spells": [
+  {
+   "name": "Brago, King Eternal",
+   "mv": 4
+  },
+  {
+   "name": "Peregrine Drake",
+   "mv": 5
+  },
+  {
+   "name": "Deadeye Navigator",
+   "mv": 6
+  },
+  {
+   "name": "Isochron Scepter",
+   "mv": 2
+  },
+  {
+   "name": "Dramatic Reversal",
+   "mv": 2
+  },
+  {
+   "name": "Heliod, Sun-Crowned",
+   "mv": 3
+  },
+  {
+   "name": "Walking Ballista",
+   "mv": 0
+  },
+  {
+   "name": "Archaeomancer",
+   "mv": 4
+  },
+  {
+   "name": "Ghostly Flicker",
+   "mv": 3
+  },
+  {
+   "name": "Strionic Resonator",
+   "mv": 2
+  },
+  {
+   "name": "Force of Will",
+   "mv": 5
+  },
+  {
+   "name": "Force of Negation",
+   "mv": 3
+  },
+  {
+   "name": "Fierce Guardianship",
+   "mv": 3
+  },
+  {
+   "name": "Mana Drain",
+   "mv": 2
+  },
+  {
+   "name": "Swan Song",
+   "mv": 1
+  },
+  {
+   "name": "Counterspell",
+   "mv": 2
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "mv": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "mv": 2
+  },
+  {
+   "name": "Flusterstorm",
+   "mv": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "mv": 1
+  },
+  {
+   "name": "Path to Exile",
+   "mv": 1
+  },
+  {
+   "name": "Generous Gift",
+   "mv": 3
+  },
+  {
+   "name": "Cyclonic Rift",
+   "mv": 2
+  },
+  {
+   "name": "Reality Acid",
+   "mv": 3
+  },
+  {
+   "name": "Skyclave Apparition",
+   "mv": 3
+  },
+  {
+   "name": "Reflector Mage",
+   "mv": 3
+  },
+  {
+   "name": "Supreme Verdict",
+   "mv": 4
+  },
+  {
+   "name": "Enlightened Tutor",
+   "mv": 1
+  },
+  {
+   "name": "Mystical Tutor",
+   "mv": 1
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "mv": 3
+  },
+  {
+   "name": "Trinket Mage",
+   "mv": 3
+  },
+  {
+   "name": "Tribute Mage",
+   "mv": 3
+  },
+  {
+   "name": "Muddle the Mixture",
+   "mv": 2
+  },
+  {
+   "name": "Spellseeker",
+   "mv": 3
+  },
+  {
+   "name": "Aether Channeler",
+   "mv": 3
+  },
+  {
+   "name": "Ephemerate",
+   "mv": 1
+  },
+  {
+   "name": "Cloudshift",
+   "mv": 1
+  },
+  {
+   "name": "Wall of Omens",
+   "mv": 2
+  },
+  {
+   "name": "Omen of the Sea",
+   "mv": 2
+  },
+  {
+   "name": "Mulldrifter",
+   "mv": 5
+  },
+  {
+   "name": "Cloud of Faeries",
+   "mv": 2
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "mv": 4
+  },
+  {
+   "name": "Soulherder",
+   "mv": 3
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "mv": 5
+  },
+  {
+   "name": "Sea Gate Oracle",
+   "mv": 3
+  },
+  {
+   "name": "Cryogen Relic",
+   "mv": 2
+  },
+  {
+   "name": "Loran of the Third Path",
+   "mv": 3
+  },
+  {
+   "name": "Mystic Remora",
+   "mv": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "mv": 3
+  },
+  {
+   "name": "Esper Sentinel",
+   "mv": 1
+  },
+  {
+   "name": "The One Ring",
+   "mv": 4
+  },
+  {
+   "name": "Lightning Greaves",
+   "mv": 2
+  },
+  {
+   "name": "Teferi's Protection",
+   "mv": 3
+  },
+  {
+   "name": "Flawless Maneuver",
+   "mv": 3
+  },
+  {
+   "name": "Grand Abolisher",
+   "mv": 2
+  }
+ ],
+ "draw": [
+  {
+   "name": "Aether Channeler",
+   "extra": 1,
+   "why": "one draw mode on entering (more with Brago blinks)"
+  },
+  {
+   "name": "Wall of Omens",
+   "extra": 1,
+   "why": "draws one on entering (more with blinks)"
+  },
+  {
+   "name": "Omen of the Sea",
+   "extra": 1,
+   "why": "draws one on entering (scry 2)"
+  },
+  {
+   "name": "Mulldrifter",
+   "extra": 2,
+   "why": "draws two on entering (more with blinks)"
+  },
+  {
+   "name": "Sea Gate Oracle",
+   "extra": 1,
+   "why": "one card to hand on entering"
+  },
+  {
+   "name": "Cryogen Relic",
+   "extra": 1,
+   "why": "draws on entering or leaving; Brago blinks repeat it"
+  },
+  {
+   "name": "Loran of the Third Path",
+   "extra": 2,
+   "why": "a repeatable draw effect; about two extra cards by turn 8 (rough default)"
+  },
+  {
+   "name": "Mystic Remora",
+   "extra": 3,
+   "why": "cast turn 1-2 and kept 2-3 upkeeps; opponents cast noncreature spells and often don't pay {4}"
+  },
+  {
+   "name": "Rhystic Study",
+   "extra": 4,
+   "why": "cast about turn 2-3; opponents pay {1} part of the time; about one card every one or two opponent spells from then on"
+  },
+  {
+   "name": "Esper Sentinel",
+   "extra": 2,
+   "why": "a card on most opponents' first noncreature spell each turn until it dies or they pay"
+  },
+  {
+   "name": "The One Ring",
+   "extra": 5,
+   "why": "cast turn 3-4; draws 1, 2, 3 on the following turns before the life loss matters"
+  }
+ ],
+ "sinks": [
+  {
+   "name": "Isochron Scepter",
+   "cost": "{2}, {T}",
+   "what": "You may copy the exiled card. If you do, you may cast the copy without paying its mana cost."
+  },
+  {
+   "name": "Heliod, Sun-Crowned",
+   "cost": "{1}{W}",
+   "what": "Another target creature gains lifelink until end of turn."
+  },
+  {
+   "name": "Walking Ballista",
+   "cost": "{4}",
+   "what": "Put a +1/+1 counter on this creature."
+  },
+  {
+   "name": "Strionic Resonator",
+   "cost": "{2}, {T}",
+   "what": "Copy target triggered ability you control. You may choose new targets for the copy."
+  },
+  {
+   "name": "Omen of the Sea",
+   "cost": "{2}{U}, Sacrifice this enchantment",
+   "what": "Scry 2."
+  },
+  {
+   "name": "Cryogen Relic",
+   "cost": "{1}{U}, Sacrifice this artifact",
+   "what": "Put a stun counter on up to one target tapped creature."
+  }
+ ],
+ "totals": {
+  "lands": 31,
+  "ramp": 14,
+  "spells": 55,
+  "extra_draws_8_turns": 23,
+  "sinks": 6
+ }
+}

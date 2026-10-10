@@ -1,0 +1,96 @@
+1 Brago, King Eternal
+1 An Offer You Can't Refuse
+1 Ancient Den
+1 Angel's Grace
+1 Approach of the Second Sun
+1 Arcane Signet
+1 Archaeomancer
+1 Aura of Silence
+1 Aven Mindcensor
+1 Azorius Signet
+1 Basalt Monolith
+1 Brainstorm
+1 Chrome Mox
+1 City of Brass
+1 Cloudshift
+1 Command Beacon
+1 Command Tower
+1 Counterspell
+1 Cyclonic Rift
+1 Deadeye Navigator
+1 Deafening Silence
+1 Delney, Streetwise Lookout
+1 Dispel
+1 Dovin's Veto
+1 Drannith Magistrate
+1 Eiganjo, Seat of the Empire
+1 Eldrazi Displacer
+1 Elesh Norn, Mother of Machines
+1 Energy Field
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Exotic Orchard
+1 Fabricate
+1 Farewell
+1 Fellwar Stone
+1 Fierce Guardianship
+1 Flusterstorm
+1 Force of Negation
+1 Force of Will
+1 Gemstone Caverns
+1 Grafdigger's Cage
+1 Grand Abolisher
+1 Grand Arbiter Augustin IV
+1 Great Whale
+1 Hallowed Fountain
+1 Helm of Obedience
+1 Inventors' Fair
+5 Island
+1 Lavinia, Azorius Renegade
+1 Lightning Greaves
+1 Lithoform Engine
+1 Lotus Petal
+1 Mana Drain
+1 Meekstone
+1 Mental Misstep
+1 Minamo, School at Water's Edge
+1 Miscast
+1 Mystic Remora
+1 Mystical Tutor
+1 Narset's Reversal
+1 Narset, Parter of Veils
+1 Orim's Chant
+1 Otawara, Soaring City
+1 Path to Exile
+1 Peregrine Drake
+1 Personal Tutor
+4 Plains
+1 Ponder
+1 Recruiter of the Guard
+1 Reflecting Pool
+1 Reliquary Tower
+1 Remand
+1 Rest in Peace
+1 Rhystic Study
+1 Rishadan Footpad
+1 Sea of Clouds
+1 Seat of the Synod
+1 Silence
+1 Smothering Tithe
+1 Sol Ring
+1 Stasis
+1 Strionic Resonator
+1 Supreme Verdict
+1 Swan Song
+1 Swords to Plowshares
+1 Teferi, Time Raveler
+1 Thespian's Stage
+1 Time Warp
+1 Tribute Mage
+1 Trinket Mage
+1 Walking Ballista
+1 War Room
+1 Wasteland
+# source: https://archidekt.com/decks/13491907 (API https://archidekt.com/api/decks/13491907/), accessed 2026-10-08
+# title: Hatsune Miku CEDH ; author agentjester750 ; updated 2025-07-19 ; Archidekt edhBracket 5 ; total 100 ; lands 27 ; MDFC  ; BAN 
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 12: Chrome Mox; Cyclonic Rift; Drannith Magistrate; Enlightened Tutor; Farewell; Fierce Guardianship; Force of Will; Grand Arbiter Augustin IV; Mystical Tutor; Narset, Parter of Veils; Rhystic Study; Smothering Tithe

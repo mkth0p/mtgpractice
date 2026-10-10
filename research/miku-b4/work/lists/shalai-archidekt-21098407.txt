@@ -1,0 +1,93 @@
+1 Shalai, Voice of Plenty
+1 Angel of Jubilation
+1 Angelic Arbiter
+1 Archangel of Thune
+1 Archangel of Tithes
+1 Arctic Treeline
+1 Authority of the Consuls
+1 Avacyn's Pilgrim
+1 Beast Whisperer
+1 Bountiful Promenade
+1 Bristly Bill, Spine Sower
+1 Canopy Vista
+1 Cathars' Crusade
+1 Command Tower
+1 Conclave Mentor
+1 Congregation at Dawn
+1 Court of Garenbrig
+1 Cultivate
+1 Damning Verdict
+1 Dawn's Truce
+1 Drannith Magistrate
+1 Dromoka's Command
+1 Eladamri's Call
+1 Emergency Eject
+1 Emeria Shepherd
+1 Emeria, the Sky Ruin
+1 Enduring Scalelord
+1 Firemane Commando
+1 Fortified Village
+1 Generous Gift
+1 Giada, Font of Hope
+1 Grand Abolisher
+1 Guardian Project
+1 Hardened Scales
+1 Heliod, Sun-Crowned
+1 Herald of Eternal Dawn
+1 Herald of War
+1 Herd Baloth
+1 Heroic Intervention
+1 Hushwood Verge
+1 Idyllic Tutor
+1 Inspiring Call
+1 Ivy Lane Denizen
+1 Kodama's Reach
+1 Lifestream's Blessing
+1 Linvala, Keeper of Silence
+1 Luminarch Ascension
+1 Lyra Dawnbringer
+1 Nature's Claim
+1 Nature's Lore
+1 Overgrown Farmland
+1 Oviya, Automech Artisan
+1 Radiant Grove
+1 Rampant Growth
+1 Razorverge Thicket
+1 Righteous Valkyrie
+1 Sakura-Tribe Elder
+1 Selesnya Sanctuary
+1 Sephara, Sky's Blade
+1 Seraph Sanctuary
+1 Serra's Emissary
+1 Shamanic Revelation
+1 Shared Roots
+1 Sigarda, Font of Blessings
+1 Sigarda, Host of Herons
+1 Smothering Tithe
+1 Split Up
+1 Starnheim Aspirant
+1 Sun Titan
+1 Sunpetal Grove
+1 Swords to Plowshares
+1 Teferi's Protection
+1 Temple Garden
+1 Thalia, Heretic Cathar
+1 Three Visits
+1 Vanquisher's Banner
+1 Walking Ballista
+1 Warden of the Grove
+1 Wildwood Scourge
+1 Windswept Heath
+1 Wooded Bastion
+1 Worldly Tutor
+9 Forest
+9 Plains
+# url: https://archidekt.com/decks/21098407
+# title: voice of dominion
+# author: nathanthenerd
+# updated: 2026-03-25
+# bracket: 4 (Archidekt, author-set)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Shalai, Voice of Plenty ; total 100 ; lands 34 ; source API https://archidekt.com/api/decks/21098407/
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 4: Drannith Magistrate; Smothering Tithe; Teferi's Protection; Worldly Tutor
