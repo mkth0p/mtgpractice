@@ -87,7 +87,7 @@
       },
       {
         label: "Tap for {G}, then untap it (-1/-1 counter)", manaAbility: true,
-        condition: (g, o) => !o.tapped && (!o.sick || g.kw(o, "haste")),
+        condition: (g, o) => !o.tapped && (!g.isCreature(o) || !o.sick || g.kw(o, "haste")),
         do: (g, s, ctx) => {
           g.tap(s); ctx.p.pool.G++;
           g.addCounters(s, "m1", 1, s);
@@ -656,11 +656,12 @@
      It reads the board itself, so it works without brain-corrupted.js (the coach's planner). */
   const THUNE = "Archangel of Thune", FEEDER = "Spike Feeder", HELIOD = "Heliod, Sun-Crowned", BALLISTA = "Walking Ballista";
   const DRUID = "Devoted Druid", VIZIER = "Vizier of Remedies", SHALAI = "Shalai, Voice of Plenty", HOOF = "Craterhoof Behemoth";
-  const BOT_PIECES = [THUNE, FEEDER, HELIOD, BALLISTA, DRUID, VIZIER];
+  const SWIFT = "Swift Reconfiguration";   // the Shalai research lists (cards-miku-b4.js): Druid + Swift is the other Druid combo
+  const BOT_PIECES = [THUNE, FEEDER, HELIOD, BALLISTA, DRUID, VIZIER, SWIFT];
   /* Each piece's partners, and whether that pair wins (Heliod + Feeder only gains life). */
   const PARTNERS = {
     [THUNE]: [[FEEDER, true]], [FEEDER]: [[THUNE, true], [HELIOD, false]], [HELIOD]: [[BALLISTA, true], [FEEDER, false]],
-    [BALLISTA]: [[HELIOD, true]], [DRUID]: [[VIZIER, true]], [VIZIER]: [[DRUID, true]]
+    [BALLISTA]: [[HELIOD, true]], [DRUID]: [[VIZIER, true], [SWIFT, true]], [VIZIER]: [[DRUID, true]], [SWIFT]: [[DRUID, true]]
   };
   const isCre = d => d.types.includes("Creature");
   const greenDef = d => (d.colors || []).includes("G");
@@ -679,8 +680,16 @@
     "Ranger-Captain of Eos": { dest: "hand", finds: d => isCre(d) && d.mv <= 1, etb: true },
     "Brightglass Gearhulk": { dest: "hand", finds: d => d.mv <= 1 && (isCre(d) || d.types.includes("Artifact") || d.types.includes("Enchantment")), etb: true },
     "Formidable Speaker": { dest: "hand", finds: isCre, etb: true, discard: true },
-    "Survival of the Fittest": { dest: "hand", finds: isCre, survival: true }
+    "Survival of the Fittest": { dest: "hand", finds: isCre, survival: true },
+    "Sylvan Tutor": { dest: "top", finds: isCre },
+    "Fauna Shaman": { dest: "hand", finds: isCre, survival: true, tapper: true }
   };
+  /* Survival of the Fittest, or a Fauna Shaman that can tap now */
+  const survivalOn = (g, p) => firstOnS(g, p, "Survival of the Fittest") || g.controlled(p, o => o.def.name === "Fauna Shaman" && !o.tapped && (!o.sick || g.kw(o, "haste")))[0] || null;
+  const firstOnS = (g, p, n) => g.controlled(p, o => o.def.name === n)[0] || null;
+  /* Devoted Druid's untap is free with Vizier out, or when Swift Reconfiguration makes it a noncreature */
+  const swiftOn = (g, o) => g.battlefield.some(a => a.attachedTo === o && a.def.name === SWIFT);
+  const druidFree = (g, p, o) => g.controlled(p, x => x.def.name === VIZIER).length > 0 || swiftOn(g, o);
   const INSTANT_TUTORS = ["Chord of Calling", "Eladamri's Call", "Archdruid's Charm", "Worldly Tutor", "Enlightened Tutor"];
 
   /* Per player, per turn: the card the next tutor should find, whether the shield spell is cast,
@@ -725,7 +734,7 @@
   function reachable(g, p, name, not) {
     const d = MK.get(name);
     if (!d) return false;
-    if (onBf(g, p, "Survival of the Fittest").length && isCre(d)) return true;
+    if (survivalOn(g, p) && isCre(d)) return true;
     return p.hand.some(c => c !== not && BOT_TUTORS[c.def.name] && BOT_TUTORS[c.def.name].finds(d));
   }
   /* Spells that put Craterhoof onto the battlefield, and their X. */
@@ -769,8 +778,8 @@
   }
   /* Devoted Druid + Vizier: make the {G} first, then pour it into Ballista, Finale or Shalai. */
   function druidRun(g, p, acts, m) {
-    const druid = onBf(g, p, DRUID).find(o => unsick(g, o));
-    if (!druid || !onBf(g, p, VIZIER).length || !killSink(g, p)) return null;
+    const druid = onBf(g, p, DRUID).find(o => (unsick(g, o) || !g.isCreature(o)) && druidFree(g, p, o));
+    if (!druid || !killSink(g, p)) return null;
     // a Druid tapped for mana earlier untaps for free with Vizier out
     if (druid.tapped) { const u = activateOf(acts, druid, 0); return u ? { type: "activate", card: druid, idx: 0, maxTries: 4 } : null; }
     const make = n => { const a = activateOf(acts, druid, 1); return a && n > 0 ? { type: "activate", card: druid, idx: 1, repeat: Math.min(400, n), maxTries: 8 } : null; };
@@ -797,7 +806,7 @@
         const a = castOf(acts, t);
         if (a) { m.want = BALLISTA; return shield(g, p, acts, m, pcost("")) || Object.assign({ type: "cast", card: t, maxTries: 3 }, T.mode != null ? { mode: T.mode } : {}); }
       }
-      const sv = firstOn(g, p, "Survival of the Fittest");
+      const sv = survivalOn(g, p);
       if (sv && p.hand.some(c => isCre(c.def) && c.def.name !== BALLISTA)) {
         const a = activateOf(acts, sv, 0);
         if (a) { m.want = BALLISTA; return { type: "activate", card: sv, idx: 0, maxTries: 3 }; }
@@ -840,7 +849,7 @@
       m.want = BALLISTA;
       return shield(g, p, acts, m, addC(g.spellCost(p, t, {}), then)) || Object.assign({ type: "cast", card: t, maxTries: 2 }, T.mode != null ? { mode: T.mode } : {});
     }
-    const sv = firstOn(g, p, "Survival of the Fittest");
+    const sv = survivalOn(g, p);
     if (sv && activateOf(acts, sv, 0) && p.hand.some(c => isCre(c.def) && !BOT_PIECES.includes(c.def.name)) && g.canPay(p, addC(pcost("{G}"), then))) { m.want = BALLISTA; return { type: "activate", card: sv, idx: 0, maxTries: 2 }; }
     return null;
   }
@@ -871,7 +880,7 @@
     if (dr) return dr;
     // Greaves gives a summoning-sick Druid haste for the loop
     const gr = firstOn(g, p, "Lightning Greaves");
-    const sick = onBf(g, p, DRUID).find(o => o.sick && !g.kw(o, "haste") && !o.tapped);
+    const sick = onBf(g, p, DRUID).find(o => o.sick && g.isCreature(o) && !g.kw(o, "haste") && !o.tapped);
     if (gr && sick && onBf(g, p, VIZIER).length && gr.attachedTo !== sick) {
       const a = acts.find(x => x.type === "activate" && x.card === gr && x.ab && x.ab.label === "Equip");
       if (a) { m.equipTo = sick; return { type: "activate", card: gr, idx: a.idx, maxTries: 2 }; }
@@ -886,6 +895,14 @@
     const out = [];
     const d = MK.get(name);
     const own = inHandCard(p, name, used);
+    if (own && name === SWIFT) {
+      // Swift Reconfiguration goes on a Druid: one on the battlefield, or the one this line casts first
+      const a = castOf(acts, own);
+      const dr = onBf(g, p, DRUID).find(o => !o.tapped && !swiftOn(g, o));
+      if (a && dr) out.push({ cost: g.spellCost(p, own, {}), uses: [own], act: { type: "cast", card: own, targets: [dr] }, tutor: false });
+      else if (!dr) out.push({ cost: g.spellCost(p, own, {}), uses: [own], act: { type: "cast", card: own }, tutor: false, after: true });
+      return out;
+    }
     if (own) {
       const a = castOf(acts, own);
       if (a && (!a.xCount || a.xMax >= x)) out.push({ cost: g.spellCost(p, own, { x }), uses: [own], act: Object.assign({ type: "cast", card: own }, a.xCount ? { x } : {}), tutor: false });
@@ -896,7 +913,7 @@
     const pieceCost = inLib ? g.spellCost(p, inLib, { x }) : null;
     const untappedBodies = g.creatures(p).filter(o => !o.tapped && !g.manaAbilities(o).length).length;
     const tutors = p.hand.filter(c => BOT_TUTORS[c.def.name] && !used.has(c));
-    const sv = firstOn(g, p, "Survival of the Fittest");
+    const sv = survivalOn(g, p);
     if (sv && !used.has(sv)) tutors.push(sv);
     for (const t of tutors) {
       const T = BOT_TUTORS[t.def.name];
@@ -941,7 +958,7 @@
       for (const r1 of first) {
         const rest = missing.length > 1 ? routes(g, p, acts, missing[1], new Set(r1.uses), opts.x || 0) : [null];
         for (const r2 of rest) {
-          const steps = [r1, r2].filter(Boolean).sort((a, b) => b.tutor - a.tutor);
+          const steps = [r1, r2].filter(Boolean).sort((a, b) => (a.after ? 1 : 0) - (b.after ? 1 : 0) || b.tutor - a.tutor);
           lines.push({ steps, cost: addC(sumCost(steps.map(s => s.cost)), extra), kill: opts.kill !== false });
         }
       }
@@ -954,6 +971,8 @@
     // Druid + Vizier: the Druid must be able to tap this turn, and something must turn the mana into a kill
     const readyDruid = onBf(g, p, DRUID).some(o => unsick(g, o));
     if ((readyDruid || greaves) && killSink(g, p)) add([DRUID, VIZIER], pcost(""), { has: { [DRUID]: onBf(g, p, DRUID).length > 0, [VIZIER]: on(VIZIER) }, noSick: true });
+    // Druid + Swift Reconfiguration: a noncreature Druid taps at once, so a Druid cast now works too
+    if (killSink(g, p) && inHandCard(p, SWIFT)) add([DRUID, SWIFT], pcost(""), { has: { [DRUID]: onBf(g, p, DRUID).some(o => !o.tapped), [SWIFT]: onBf(g, p, DRUID).some(o => swiftOn(g, o)) } });
     const ok = lines.filter(l => g.canPay(p, l.cost));
     if (!ok.length) return null;
     const mv = c => MK.util.costMV(c);
@@ -1003,7 +1022,7 @@
       m.want = d.name;
       return Object.assign({ type: "cast", card: c, maxTries: 1 }, T.x ? { x: d.mv } : {}, T.mode != null ? { mode: T.mode } : {});
     }
-    const sv = firstOn(g, p, "Survival of the Fittest");
+    const sv = survivalOn(g, p);
     if (sv && isCre(d) && activateOf(acts, sv, 0) && p.hand.some(c => isCre(c.def) && !BOT_PIECES.includes(c.def.name))) { m.want = d.name; return { type: "activate", card: sv, idx: 0, maxTries: 1 }; }
     return null;
   }
@@ -1045,7 +1064,7 @@
     if (!hit) return null;
     const v = cast("Veil of Summer");
     if (v) return { type: "cast", card: v.card, maxTries: 1 };
-    const gv = onBf(g, p, "Giver of Runes").find(o => o !== hit && canTapNow(g, o));
+    const gv = onBf(g, p, "Giver of Runes").find(o => o !== hit && canTapNow(g, o)) || onBf(g, p, "Mother of Runes").find(o => canTapNow(g, o));
     if (gv && activateOf(acts, gv, 0)) { m.protect = hit; return { type: "activate", card: gv, idx: 0, maxTries: 1 }; }
     if (top.kind === "spell") { const r = cast("Reprieve"); if (r && (hit.def.name === SHALAI || BOT_PIECES.includes(hit.def.name))) return { type: "cast", card: r.card, targets: [top], maxTries: 1 }; }
     return null;
@@ -1115,7 +1134,7 @@
     if (req.type === "target") {
       // Walking Ballista shoots the opponent with the least life it can target
       if (sn === BALLISTA && m.ping) { const q = opts.filter(o => g.isPlayer(o) && o !== p).sort((a, b) => a.life - b.life)[0]; if (q) return q; }
-      if (sn === "Giver of Runes" && m.protect && opts.includes(m.protect)) return m.protect;
+      if ((sn === "Giver of Runes" || sn === "Mother of Runes") && m.protect && opts.includes(m.protect)) return m.protect;
       if (sn === "Orim's Chant" && m.chantAt && opts.includes(m.chantAt)) return m.chantAt;
       if (req.purpose === "equip" && m.equipTo && opts.includes(m.equipTo)) return m.equipTo;
       // Lightning Greaves: Shalai first (she has no hexproof of her own), never Ballista (Heliod targets it)
@@ -1171,7 +1190,7 @@
     const n = a.def.name, on = x => onBf(g, p, x).length > 0;
     if ((n === FEEDER && (on(THUNE) || on(HELIOD))) || (n === BALLISTA && on(HELIOD))) return "always";
     if ((n === DRUID || n === VIZIER) && g.power(a) < 10) return "always";
-    return BOT_PIECES.includes(n) || n === "Giver of Runes";
+    return BOT_PIECES.includes(n) || n === "Giver of Runes" || n === "Mother of Runes";
   }
 
   MK.DECK_BRAINS = MK.DECK_BRAINS || {};
