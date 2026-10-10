@@ -657,11 +657,12 @@
   const THUNE = "Archangel of Thune", FEEDER = "Spike Feeder", HELIOD = "Heliod, Sun-Crowned", BALLISTA = "Walking Ballista";
   const DRUID = "Devoted Druid", VIZIER = "Vizier of Remedies", SHALAI = "Shalai, Voice of Plenty", HOOF = "Craterhoof Behemoth";
   const SWIFT = "Swift Reconfiguration";   // the Shalai research lists (cards-miku-b4.js): Druid + Swift is the other Druid combo
-  const BOT_PIECES = [THUNE, FEEDER, HELIOD, BALLISTA, DRUID, VIZIER, SWIFT];
+  const MELIRA = "Melira, Sylvok Outcast";  // a second Vizier: no -1/-1 counters on your creatures
+  const BOT_PIECES = [THUNE, FEEDER, HELIOD, BALLISTA, DRUID, VIZIER, SWIFT, MELIRA];
   /* Each piece's partners, and whether that pair wins (Heliod + Feeder only gains life). */
   const PARTNERS = {
     [THUNE]: [[FEEDER, true]], [FEEDER]: [[THUNE, true], [HELIOD, false]], [HELIOD]: [[BALLISTA, true], [FEEDER, false]],
-    [BALLISTA]: [[HELIOD, true]], [DRUID]: [[VIZIER, true], [SWIFT, true]], [VIZIER]: [[DRUID, true]], [SWIFT]: [[DRUID, true]]
+    [BALLISTA]: [[HELIOD, true]], [DRUID]: [[VIZIER, true], [SWIFT, true], [MELIRA, true]], [VIZIER]: [[DRUID, true]], [SWIFT]: [[DRUID, true]], [MELIRA]: [[DRUID, true]]
   };
   const isCre = d => d.types.includes("Creature");
   const greenDef = d => (d.colors || []).includes("G");
@@ -682,15 +683,18 @@
     "Formidable Speaker": { dest: "hand", finds: isCre, etb: true, discard: true },
     "Survival of the Fittest": { dest: "hand", finds: isCre, survival: true },
     "Sylvan Tutor": { dest: "top", finds: isCre },
-    "Fauna Shaman": { dest: "hand", finds: isCre, survival: true, tapper: true }
+    "Fauna Shaman": { dest: "hand", finds: isCre, survival: true, tapper: true },
+    "Congregation at Dawn": { dest: "top", finds: isCre },
+    "Idyllic Tutor": { dest: "hand", finds: d => d.types.includes("Enchantment") }
   };
   /* Survival of the Fittest, or a Fauna Shaman that can tap now */
   const survivalOn = (g, p) => firstOnS(g, p, "Survival of the Fittest") || g.controlled(p, o => o.def.name === "Fauna Shaman" && !o.tapped && (!o.sick || g.kw(o, "haste")))[0] || null;
   const firstOnS = (g, p, n) => g.controlled(p, o => o.def.name === n)[0] || null;
   /* Devoted Druid's untap is free with Vizier out, or when Swift Reconfiguration makes it a noncreature */
   const swiftOn = (g, o) => g.battlefield.some(a => a.attachedTo === o && a.def.name === SWIFT);
-  const druidFree = (g, p, o) => g.controlled(p, x => x.def.name === VIZIER).length > 0 || swiftOn(g, o);
-  const INSTANT_TUTORS = ["Chord of Calling", "Eladamri's Call", "Archdruid's Charm", "Worldly Tutor", "Enlightened Tutor"];
+  const vizOn = (g, p) => g.controlled(p, x => x.def.name === VIZIER || x.def.name === MELIRA).length > 0;
+  const druidFree = (g, p, o) => vizOn(g, p) || swiftOn(g, o);
+  const INSTANT_TUTORS = ["Chord of Calling", "Eladamri's Call", "Archdruid's Charm", "Worldly Tutor", "Enlightened Tutor", "Congregation at Dawn"];
 
   /* Per player, per turn: the card the next tutor should find, whether the shield spell is cast,
      whom Ballista shoots and Orim's Chant silences, what Giver of Runes and Greaves go on. */
@@ -753,8 +757,8 @@
     const on = x => onBf(g, p, x).length > 0;
     const held = x => on(x) || p.hand.some(c => c !== o && c.def.name === x);
     // the kill for Druid + Vizier's mana
-    if (n === BALLISTA && held(DRUID) && held(VIZIER) && !held(BALLISTA)) return 28;
-    if (n === HOOF && on(DRUID) && on(VIZIER) && !held(BALLISTA)) return 20;
+    if (n === BALLISTA && held(DRUID) && (held(VIZIER) || held(MELIRA)) && !held(BALLISTA)) return 28;
+    if (n === HOOF && on(DRUID) && (on(VIZIER) || on(MELIRA)) && !held(BALLISTA)) return 20;
     const parts = PARTNERS[n];
     if (!parts || held(n)) return 0;
     let best = 0;
@@ -762,7 +766,7 @@
       const st = on(q) ? 3 : held(q) ? 2 : reachable(g, p, q, o) ? 1 : 0;
       let v = [8, 13, 20, 26][st];
       if (!kills) v -= 7;
-      if ((n === DRUID || n === VIZIER) && !killSink(g, p)) v -= 4;
+      if ((n === DRUID || n === VIZIER || n === MELIRA) && !killSink(g, p)) v -= 4;
       best = Math.max(best, v);
     }
     return best;
@@ -890,7 +894,7 @@
     // Greaves gives a summoning-sick Druid haste for the loop
     const gr = firstOn(g, p, "Lightning Greaves");
     const sick = onBf(g, p, DRUID).find(o => o.sick && g.isCreature(o) && !g.kw(o, "haste") && !o.tapped);
-    if (gr && sick && onBf(g, p, VIZIER).length && gr.attachedTo !== sick) {
+    if (gr && sick && vizOn(g, p) && gr.attachedTo !== sick) {
       const a = acts.find(x => x.type === "activate" && x.card === gr && x.ab && x.ab.label === "Equip");
       if (a) { m.equipTo = sick; return { type: "activate", card: gr, idx: a.idx, maxTries: 2 }; }
     }
@@ -980,7 +984,10 @@
     add([HELIOD, BALLISTA], addC(pcost("{1}{W}"), balExtra), { has: { [HELIOD]: on(HELIOD), [BALLISTA]: !!bal && counters(bal) >= 1 }, x: 2 });
     // Druid + Vizier: the Druid must be able to tap this turn, and something must turn the mana into a kill
     const readyDruid = onBf(g, p, DRUID).some(o => unsick(g, o));
-    if ((readyDruid || greaves || relax) && killSink(g, p)) add([DRUID, VIZIER], pcost(""), { has: { [DRUID]: onBf(g, p, DRUID).length > 0, [VIZIER]: on(VIZIER) }, noSick: true });
+    if ((readyDruid || greaves || relax) && killSink(g, p)) {
+      add([DRUID, VIZIER], pcost(""), { has: { [DRUID]: onBf(g, p, DRUID).length > 0, [VIZIER]: on(VIZIER) }, noSick: true });
+      if (p.library.some(c => c.def.name === MELIRA) || inHandCard(p, MELIRA) || on(MELIRA)) add([DRUID, MELIRA], pcost(""), { has: { [DRUID]: onBf(g, p, DRUID).length > 0, [MELIRA]: on(MELIRA) }, noSick: true });
+    }
     // Druid + Swift Reconfiguration: a noncreature Druid taps at once, so a Druid cast now works too
     if (killSink(g, p) && inHandCard(p, SWIFT)) add([DRUID, SWIFT], pcost(""), { has: { [DRUID]: onBf(g, p, DRUID).some(o => !o.tapped), [SWIFT]: onBf(g, p, DRUID).some(o => swiftOn(g, o)) } });
     const ok = lines.filter(l => g.canPay(p, l.cost));
@@ -1240,7 +1247,7 @@
   function keepHome(g, p, a) {
     const n = a.def.name, on = x => onBf(g, p, x).length > 0;
     if ((n === FEEDER && (on(THUNE) || on(HELIOD))) || (n === BALLISTA && on(HELIOD))) return "always";
-    if ((n === DRUID || n === VIZIER) && g.power(a) < 10) return "always";
+    if ((n === DRUID || n === VIZIER || n === MELIRA) && g.power(a) < 10) return "always";
     return BOT_PIECES.includes(n) || n === "Giver of Runes" || n === "Mother of Runes";
   }
 

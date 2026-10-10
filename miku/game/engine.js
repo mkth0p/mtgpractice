@@ -1292,7 +1292,7 @@
       if (opts.combat && !this.isPlayer(target) && target.combat && target.combat.attacking) for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.preventCombatDamageTo && st.preventCombatDamageTo(this, s, target)) return 0;
       if (this.isPlayer(target)) {
         if (target.lost) return 0;
-        if (infect) { target.poison += n; this.anim("poison", { p: target, n }); }
+        if (infect) { if (!this.staticSources().some(s => this.staticsOf(s).some(st => st.noPoison && st.noPoison(this, s, target)))) { target.poison += n; this.anim("poison", { p: target, n }); } }
         else { target.life -= n; target.lifeLostThisTurn += n; this.anim("life", { p: target, delta: -n, src: srcObj, combat: opts.combat }); }
         if (opts.combat && srcObj && srcObj.isCommander) target.cmdDmg[srcObj.id] = (target.cmdDmg[srcObj.id] || 0) + n;
         // freerunning: combat damage to a player this turn with an Assassin or a commander

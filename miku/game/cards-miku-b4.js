@@ -718,6 +718,41 @@
     },
     ai: { tutor: true, priority: 6 }
   });
+  /* Faster-kill pass (2026-10-11): a third Devoted Druid partner and two more tutors for the Shalai list. */
+  D({
+    name: "Melira, Sylvok Outcast", cost: "{1}{W}", type: "Legendary Creature — Human Scout", pt: "2/2",
+    text: "You can't get poison counters.\nCreatures you control can't have -1/-1 counters put on them.\nCreatures your opponents control lose infect.",
+    note: "\"Lose infect\" is not modelled; the poison and -1/-1 parts are.",
+    statics: [{
+      counterPlus: (g, s, o, kind) => (kind === "m1" && o.controller === s.controller && g.isCreature(o) ? -1000 : 0),
+      noPoison: (g, s, p) => p === s.controller
+    }],
+    ai: { priority: 5 }
+  });
+  D({
+    name: "Congregation at Dawn", cost: "{G}{G}{W}", type: "Instant",
+    text: "Search your library for up to three creature cards, reveal them, then shuffle and put those cards on top in any order.",
+    spell: {
+      do: async (g, ctx) => {
+        const p = ctx.p;
+        const got = await g.search(p, { filter: (g2, c) => isCreatureCard(c), to: "hand", count: 3, prompt: "Congregation at Dawn: search for up to three creature cards", src: ctx.o, purpose: "tutor" });
+        // the first card chosen ends on top
+        for (const c of got.slice().reverse()) if (c.zone === "hand") { g.removeFromZone(c); c.zone = "library"; p.library.unshift(c); }
+        g.bump();
+      }
+    },
+    ai: { tutor: true, priority: 6 }
+  });
+  D({
+    name: "Idyllic Tutor", cost: "{2}{W}", type: "Sorcery",
+    text: "Search your library for an enchantment card, reveal it, put it into your hand, then shuffle.",
+    spell: {
+      do: async (g, ctx) => {
+        await g.search(ctx.p, { filter: (g2, c) => typeOf(c, "Enchantment"), to: "hand", prompt: "Idyllic Tutor: search for an enchantment card", src: ctx.o, purpose: "tutor" });
+      }
+    },
+    ai: { tutor: true, priority: 6 }
+  });
   const landAura = (name, text, filter, bonus, extra) => D(Object.assign({
     name, cost: "{G}", type: "Enchantment — Aura", text,
     aura: true, enchant: "land",

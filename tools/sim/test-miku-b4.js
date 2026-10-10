@@ -214,6 +214,29 @@ const repeat = (g, p, o, idx, n, more) => g.perform(p, Object.assign({ type: "ac
     for (let k = 0; k < 14 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (process.env.DEBUG) console.log(act && act.type, act && act.card && act.card.def.name, act && act.repeat, g.poolTotal(a)); if (!act) break; await g.perform(a, act); await g.settle(); }
     check("Shalai bot: Druid + Swift + Ballista from hand kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
 
+  // Melira, Sylvok Outcast: no -1/-1 counters on your creatures, so Devoted Druid untaps forever; no poison
+  { const { g, a, b } = table("Shalai, Voice of Plenty", "corrupted"); const dd = put(g, a, "Devoted Druid"); put(g, a, "Melira, Sylvok Outcast"); await g.settle();
+    await repeat(g, a, dd, 1, 12); await g.settle();
+    check("Druid + Melira: twelve {G}", a.pool.G === 12 && dd.zone === "battlefield" && !(dd.counters.m1 > 0), [a.pool.G, dd.zone, dd.counters.m1]);
+    const inf = put(g, b, "Llanowar Elves"); g.addEffect({ objs: [inf], kw: ["infect"] }); g.damage(inf, a, 3, {});
+    check("Melira: no poison counters", a.poison === 0, a.poison); }
+
+  // Shalai bot: Druid + Melira in hand, Ballista in hand: the kill
+  { const { g, a, b, c, d } = table("Shalai, Voice of Plenty", "corrupted"); lands(g, a, 6, ["Forest", "Plains"]);
+    const dd = put(g, a, "Devoted Druid"); hand(g, a, "Melira, Sylvok Outcast"); hand(g, a, "Walking Ballista"); for (const q of [b, c, d]) q.life = 15;
+    for (let k = 0; k < 14 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
+    check("Shalai bot: Druid + Melira + Ballista kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
+
+  // Congregation at Dawn: three creatures on top, the first chosen on top; Idyllic Tutor finds an enchantment
+  { const { g, a } = table("Shalai, Voice of Plenty", "corrupted"); lands(g, a, 3, ["Forest", "Forest", "Plains"]);
+    a.library = []; for (const n of ["Plains", "Spike Feeder", "Plains", "Devoted Druid", "Archangel of Thune", "Heliod, Sun-Crowned"]) a.library.push(g.newObj(MK.get(n), a, "library"));
+    const order = ["Archangel of Thune", "Spike Feeder", "Devoted Druid"];
+    answer(a, (g2, p, req) => (req.type === "cards" && req.src && req.src.def.name === "Congregation at Dawn" ? order.map(n => req.options.find(o => o.def.name === n)) : undefined));
+    const cg = hand(g, a, "Congregation at Dawn"); await cast(g, a, cg); await g.settle();
+    check("Congregation at Dawn: Thune, Feeder, Druid on top in that order", a.library.slice(0, 3).map(o => o.def.name).join("|") === order.join("|"), a.library.slice(0, 4).map(o => o.def.name));
+    lands(g, a, 3, ["Plains"]); const it = hand(g, a, "Idyllic Tutor"); await cast(g, a, it); await g.settle();
+    check("Idyllic Tutor: Heliod to hand", a.hand.some(o => o.def.name === "Heliod, Sun-Crowned")); }
+
   // Scurry Oak + Trostani + Archangel of Thune: Squirrels loop (capped at 60 a turn)
   { const { g, a } = table("Shalai, Voice of Plenty", "corrupted"); put(g, a, "Trostani, Selesnya's Voice"); put(g, a, "Archangel of Thune"); await g.settle();
     put(g, a, "Scurry Oak"); await g.settle();
