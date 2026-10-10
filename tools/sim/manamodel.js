@@ -15,6 +15,7 @@
             [--cmdr 5] [--energy 0,3,5,...] [--turns 8] [--seed 1] [--sweep] [--json]
    --curve gives the non-land, non-ramp spells by MV; they are scaled to fill 99 - lands - ramp.
    --shape file.json reads a deck shape instead (lands, cmdr, ramp with mv/fast/net/once, spells by MV; see shapeDeck).
+   --draw 0 ignores the draw cards of a shape file (to see what they're worth).
    --sweep runs the land x ramp x curve grid and prints the best shapes (--by useful, the default, or --by wasted). */
 "use strict";
 const A = process.argv.slice(2);
@@ -69,10 +70,12 @@ function game(deck, cmdrMV, energy) {
     lib.push(hand.splice(i, 1)[0]);
   }
   let lands = 0, rocks = 0, cmdr = cmdrMV > 0;
+  const pend = [];
   const out = { produced: 0, ramp: 0, cmdr: 0, spells: 0, wasted: 0, mulls, perTurn: [] };
   for (let t = 1; t <= TURNS; t++) {
     const extra = Math.floor(energy * t / TURNS) - Math.floor(energy * (t - 1) / TURNS);
-    hand.push(...lib.splice(0, 1 + extra));
+    const owed = pend.shift() || 0;   // cards owed by draw spells cast earlier
+    hand.push(...lib.splice(0, 1 + extra + owed));
     const li = hand.findIndex(c => c.t === "l");
     if (li >= 0) { hand.splice(li, 1); lands++; }
     let m = lands + rocks, produced = m, rampSpent = 0;
@@ -92,7 +95,11 @@ function game(deck, cmdrMV, energy) {
     const b = best(items, m);
     let cs = 0, ss = 0;
     const chosen = new Set(b.idx.map(i => items[i]));
-    for (const c of chosen) { if (c.t === "c") { cs += c.mv; cmdr = false; } else ss += c.mv; }
+    for (const c of chosen) {
+      if (c.t === "c") { cs += c.mv; cmdr = false; } else ss += c.mv;
+      // a draw card: its extra cards arrive over the next turns (about one a turn), as an engine or a cantrip would
+      if (c.draw) for (let k = 0; k < c.draw; k++) pend[k] = (pend[k] || 0) + 1;
+    }
     hand = hand.filter(c => !chosen.has(c));
     const wasted = m - cs - ss;
     out.produced += produced; out.ramp += rampSpent; out.cmdr += cs; out.spells += ss; out.wasted += wasted;
@@ -101,11 +108,18 @@ function game(deck, cmdrMV, energy) {
   return out;
 }
 // a deck shape file: { lands, cmdr, ramp: [{ name, mv, fast, net }], spells: [{ name, mv }] or { mv: count } }
+// Also reads pass 2's deckshape-*.json (lands as a name list, the commander among the spells, rocks that don't untap
+// marked by a note, draw cards with their extra cards over 8 turns): the commander is taken out, a rock that doesn't
+// untap counts once, and a card in `draw` brings its extra cards over the turns after it's cast (with DRAW=0, none).
 function shapeDeck(sh) {
   const deck = [];
-  for (let i = 0; i < sh.lands; i++) deck.push({ t: "l", mv: 0 });
-  for (const r of sh.ramp) deck.push({ t: "r", mv: r.mv, fast: r.fast !== false, net: r.net || 1, once: r.once || 0 });
-  if (Array.isArray(sh.spells)) for (const x of sh.spells) deck.push({ t: "s", mv: x.mv });
+  const nl = Array.isArray(sh.lands) ? sh.lands.length : sh.lands;
+  for (let i = 0; i < nl; i++) deck.push({ t: "l", mv: 0 });
+  const once = r => r.once || (/doesn't untap|sacrific|exile it from your hand/i.test(r.note || "") ? r.net || 1 : 0);
+  const drawOf = new Map((sh.draw || []).map(d => [d.name, d.extra || 0]));
+  const useDraw = opt("draw", "1") !== "0";
+  for (const r of sh.ramp) deck.push({ t: "r", mv: r.mv, fast: r.fast !== false, net: r.net || 1, once: once(r) });
+  if (Array.isArray(sh.spells)) for (const x of sh.spells) { if (x.name && x.name === sh.commander) continue; deck.push({ t: "s", mv: x.mv, draw: useDraw ? drawOf.get(x.name) || 0 : 0 }); }
   else for (const [mv, n] of Object.entries(sh.spells)) for (let i = 0; i < n; i++) deck.push({ t: "s", mv: +mv });
   if (deck.length !== 99) console.error(`shape has ${deck.length} cards, not 99`);
   return deck;
@@ -132,7 +146,12 @@ const base = {
   games: GAMES, lands: +opt("lands", 30), ramp: +opt("ramp", 14), rampMV: opt("rampmv", "2"), cmdr: +opt("cmdr", 5),
   curve: parseCurve(opt("curve", "1:8,2:12,3:12,4:8,5:5,6:3,7:2")), energy: 0
 };
-if (opt("shape", null)) { base.shape = JSON.parse(require("fs").readFileSync(opt("shape"), "utf8")); if (base.shape.cmdr != null) base.cmdr = base.shape.cmdr; }
+if (opt("shape", null)) {
+  base.shape = JSON.parse(require("fs").readFileSync(opt("shape"), "utf8"));
+  if (base.shape.cmdr != null) base.cmdr = base.shape.cmdr;
+  else if (base.shape.commander && Array.isArray(base.shape.spells)) { const c = base.shape.spells.find(x => x.name === base.shape.commander); if (c) base.cmdr = c.mv; }
+  if (!base.shape.name) base.shape.name = base.shape.list || base.shape.commander || "";
+}
 module.exports = { run, makeDeck, base };
 if (require.main === module) {
   const f = x => x.toFixed(2);
