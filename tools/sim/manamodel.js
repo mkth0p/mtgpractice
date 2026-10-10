@@ -14,6 +14,7 @@
    Usage: node manamodel.js [--games N] [--lands 30] [--ramp 14] [--rampmv 2] [--curve 1:8,2:12,3:12,4:8,5:5,6:3,7:2]
             [--cmdr 5] [--energy 0,3,5,...] [--turns 8] [--seed 1] [--sweep] [--json]
    --curve gives the non-land, non-ramp spells by MV; they are scaled to fill 99 - lands - ramp.
+   --shape file.json reads a deck shape instead (lands, cmdr, ramp with mv/fast/net/once, spells by MV; see shapeDeck).
    --sweep runs the land x ramp x curve grid and prints the best shapes (--by useful, the default, or --by wasted). */
 "use strict";
 const A = process.argv.slice(2);
@@ -80,8 +81,11 @@ function game(deck, cmdrMV, energy) {
       const ri = hand.reduce((bi, c, k) => (c.t === "r" && c.mv <= m && (bi < 0 || c.mv < hand[bi].mv) ? k : bi), -1);
       if (ri < 0) break;
       const r = hand.splice(ri, 1)[0];
-      m -= r.mv; rampSpent += r.mv; rocks++;
-      if (r.fast) { m++; produced++; }
+      const net = r.net || 1;
+      m -= r.mv; rampSpent += r.mv;
+      if (r.once) { m += r.once; produced += r.once; continue; }   // Mana Vault, Lotus Petal: once
+      rocks += net;
+      if (r.fast) { m += net; produced += net; }
     }
     const items = hand.filter(c => c.t === "s");
     if (cmdr) items.push({ t: "c", mv: cmdrMV });
@@ -96,8 +100,18 @@ function game(deck, cmdrMV, energy) {
   }
   return out;
 }
+// a deck shape file: { lands, cmdr, ramp: [{ name, mv, fast, net }], spells: [{ name, mv }] or { mv: count } }
+function shapeDeck(sh) {
+  const deck = [];
+  for (let i = 0; i < sh.lands; i++) deck.push({ t: "l", mv: 0 });
+  for (const r of sh.ramp) deck.push({ t: "r", mv: r.mv, fast: r.fast !== false, net: r.net || 1, once: r.once || 0 });
+  if (Array.isArray(sh.spells)) for (const x of sh.spells) deck.push({ t: "s", mv: x.mv });
+  else for (const [mv, n] of Object.entries(sh.spells)) for (let i = 0; i < n; i++) deck.push({ t: "s", mv: +mv });
+  if (deck.length !== 99) console.error(`shape has ${deck.length} cards, not 99`);
+  return deck;
+}
 function run(cfg) {
-  const deck = makeDeck(cfg.lands, cfg.ramp, cfg.rampMV, cfg.curve);
+  const deck = cfg.shape ? shapeDeck(cfg.shape) : makeDeck(cfg.lands, cfg.ramp, cfg.rampMV, cfg.curve);
   const acc = { produced: 0, ramp: 0, cmdr: 0, spells: 0, wasted: 0, keep7: 0, w2: 0, perTurn: new Array(TURNS).fill(0) };
   for (let i = 0; i < cfg.games; i++) {
     const r = game(deck, cfg.cmdr, cfg.energy);
@@ -118,6 +132,7 @@ const base = {
   games: GAMES, lands: +opt("lands", 30), ramp: +opt("ramp", 14), rampMV: opt("rampmv", "2"), cmdr: +opt("cmdr", 5),
   curve: parseCurve(opt("curve", "1:8,2:12,3:12,4:8,5:5,6:3,7:2")), energy: 0
 };
+if (opt("shape", null)) { base.shape = JSON.parse(require("fs").readFileSync(opt("shape"), "utf8")); if (base.shape.cmdr != null) base.cmdr = base.shape.cmdr; }
 module.exports = { run, makeDeck, base };
 if (require.main === module) {
   const f = x => x.toFixed(2);
@@ -141,7 +156,7 @@ if (require.main === module) {
     const res = es.map(e => ({ e, ...run(Object.assign({}, base, { energy: e })) }));
     const inf = run(Object.assign({}, base, { energy: 200, games: Math.min(GAMES, 5000) }));
     if (opt("json", false)) { console.log(JSON.stringify({ base, res, limit: inf.wasted })); process.exit(0); }
-    console.log(`lands ${base.lands}, ramp ${base.ramp} (MV ${base.rampMV}), commander MV ${base.cmdr}, curve ${JSON.stringify(base.curve)}, ${GAMES} games, ${TURNS} turns`);
+    console.log(base.shape ? `shape ${opt("shape")}: ${base.shape.name || ""}` : `lands ${base.lands}, ramp ${base.ramp} (MV ${base.rampMV}), commander MV ${base.cmdr}, curve ${JSON.stringify(base.curve)}, ${GAMES} games, ${TURNS} turns`);
     console.log(`limit with 200 extra cards: ${f(inf.wasted)} wasted`);
     console.log("energy  produced  ramp  cmdr  spells  wasted   speed  keep7");
     for (const r of res) console.log(`${String(r.e).padEnd(7)} ${f(r.produced).padStart(8)}  ${f(r.ramp).padStart(4)}  ${f(r.cmdr).padStart(4)}  ${f(r.spells).padStart(6)}  ${f(r.wasted).padStart(6)}  ${(100 * (res[0].wasted - r.wasted) / (res[0].wasted - inf.wasted)).toFixed(1).padStart(5)}%  ${(100 * r.keep7).toFixed(0)}%`);

@@ -1,0 +1,21 @@
+{
+ "name": "Brago blink-value, ESTIMATED shape (pass 2's lists weren't pushed yet): 30 lands, 13 fast mana and rocks, counter suite, ETB creatures",
+ "cmdr": 4,
+ "lands": 30,
+ "ramp": [
+  {"name": "Sol Ring", "mv": 1, "fast": true, "net": 2},
+  {"name": "Mana Vault", "mv": 1, "fast": true, "once": 3},
+  {"name": "Grim Monolith", "mv": 2, "fast": true, "once": 3},
+  {"name": "Chrome Mox", "mv": 0, "fast": true, "net": 1},
+  {"name": "Mox Diamond", "mv": 0, "fast": true, "net": 1},
+  {"name": "Arcane Signet", "mv": 2, "fast": true, "net": 1},
+  {"name": "Azorius Signet", "mv": 2, "fast": true, "net": 1},
+  {"name": "Talisman of Progress", "mv": 2, "fast": true, "net": 1},
+  {"name": "Fellwar Stone", "mv": 2, "fast": true, "net": 1},
+  {"name": "Mind Stone", "mv": 2, "fast": true, "net": 1},
+  {"name": "Thought Vessel", "mv": 2, "fast": true, "net": 1},
+  {"name": "Coalition Relic", "mv": 3, "fast": true, "net": 1},
+  {"name": "Smothering Tithe", "mv": 4, "fast": false, "net": 1}
+ ],
+ "spells": {"0": 3, "1": 9, "2": 12, "3": 14, "4": 9, "5": 5, "6": 3, "7": 1}
+}
