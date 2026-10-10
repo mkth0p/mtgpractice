@@ -78,6 +78,26 @@ const repeat = (g, p, o, idx, n, more) => g.perform(p, Object.assign({ type: "ac
     for (let k = 0; k < 12 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
     check("Brago bot: Scepter + Reversal + Ballista kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
 
+  // Brago bot: the Scepter loop also starts with its rocks tapped (they just paid for the Scepter)
+  { const { g, a, b, c, d } = table(); lands(g, a, 2, ["Island"]); const r1 = put(g, a, "Sol Ring"), r2 = put(g, a, "Arcane Signet");
+    const sc = put(g, a, "Isochron Scepter"); const rev = g.newObj(MK.get("Dramatic Reversal"), a, "exile"); a.exile.push(rev); sc.state.imprint = rev; await g.settle();
+    g.tap(r1); g.tap(r2); hand(g, a, "Walking Ballista"); for (const q of [b, c, d]) q.life = 10;
+    for (let k = 0; k < 12 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
+    check("Brago bot: Scepter loop with tapped rocks kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
+
+  // Brago bot: Heliod + Walking Ballista in hand: Ballista with mana left for lifelink, then the loop
+  { const { g, a, b, c, d } = table(); lands(g, a, 8, ["Plains"]); put(g, a, "Heliod, Sun-Crowned"); await g.settle();
+    hand(g, a, "Walking Ballista"); for (const q of [b, c, d]) q.life = 20;
+    for (let k = 0; k < 12 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
+    check("Brago bot: Heliod + Ballista kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
+
+  // Brago bot: the Scepter loop with no Ballista digs for it (Trinket Mage)
+  { const { g, a, b, c, d } = table(); lands(g, a, 3, ["Island"]); put(g, a, "Sol Ring"); put(g, a, "Arcane Signet");
+    const sc = put(g, a, "Isochron Scepter"); const rev = g.newObj(MK.get("Dramatic Reversal"), a, "exile"); a.exile.push(rev); sc.state.imprint = rev; await g.settle();
+    hand(g, a, "Trinket Mage"); const bl = g.newObj(MK.get("Walking Ballista"), a, "library"); a.library.push(bl); for (const q of [b, c, d]) q.life = 10;
+    for (let k = 0; k < 30 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act || act.type === "pass") break; await g.perform(a, act); await g.settle(); }
+    check("Brago bot: digs Ballista with the Scepter's mana and kills", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
+
   // Cloudshift and Ephemerate: flicker, Ephemerate rebounds
   { const { g, a } = table(); lands(g, a, 2, ["Plains"]); const w = put(g, a, "Wall of Omens"); a.library.length = 40; await g.settle();
     const eph = hand(g, a, "Ephemerate"); const h0 = a.hand.length;

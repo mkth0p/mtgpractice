@@ -738,7 +738,10 @@
      - Peregrine Drake + Deadeye Navigator: blink the Drake for {1}{U}, it untaps five lands (infinite mana);
      - Peregrine Drake + Archaeomancer + Ghostly Flicker (infinite mana, one Flicker cast at a time);
      - Isochron Scepter + Dramatic Reversal with three mana of rocks (infinite mana);
-     then Walking Ballista with a huge X, or Heliod + Ballista (ai.js plays that one).
+     then Walking Ballista with a huge X; or Heliod + Ballista (Ballista with two counters and
+     lifelink). Infinite Scepter mana with no Ballista digs for it. The tutors fetch Ballista and the
+     missing pair piece (tutorBonus, also for Trinket and Tribute Mage), Ballista, the Scepter and
+     Mox Diamond wait for their moment (castOk), and The One Ring stops at a small burden (useOk).
      The counterspells, removal and value cards play by their own hints. */
   const BALLISTA = "Walking Ballista", DRAKE = "Peregrine Drake", DEADEYE = "Deadeye Navigator";
   const inHand = (p, n) => p.hand.find(c => c.def.name === n) || null;
@@ -802,14 +805,29 @@
   function scepterLoop(g, p, acts, m, want) {
     const sc = g.controlled(p, o => o.def.name === "Isochron Scepter" && o.state.imprint && o.state.imprint.def.name === "Dramatic Reversal" && !o.tapped)[0];
     if (!sc) return null;
-    const rocks = g.controlled(p, o => !g.isLand(o) && o !== sc && !(g.isCreature(o) && o.sick && !g.kw(o, "haste"))).reduce((n, o) => { const s = g.manaSources(p).find(x => x.o === o); const opt = s && s.options.find(x => !x.cost && !x.ab.sacSelf); return n + (opt ? opt.units.length : 0); }, 0);
-    if (rocks < 3) return null;
+    if (rockMana(g, p) < 3) return null;
     const a = acts.find(x => x.type === "activate" && x.card === sc && x.idx === 0);
     if (!a) return null;
     m.loops++;
     floatAll(g, p, false);
     const stuck = progress(p);
-    return { type: "activate", card: sc, idx: 0, repeat: 400, stop: g2 => g2.poolTotal(p) >= want || stuck(g2), maxTries: 6 };
+    return { type: "activate", card: sc, idx: 0, repeat: 400, stop: g2 => { floatAll(g2, p, false); return g2.poolTotal(p) >= want || stuck(g2); }, maxTries: 6 };
+  }
+  /* The mana p's nonland permanents make each time Dramatic Reversal untaps them (tapped or not). */
+  function rockMana(g, p) {
+    let n = 0;
+    for (const o of g.controlled(p, x => !g.isLand(x) && x.def.name !== "Isochron Scepter")) {
+      if (g.isCreature(o) && o.sick && !g.kw(o, "haste")) continue;
+      let best = 0;
+      for (const ab of g.manaAbilities(o)) {
+        if (!ab.tap || ab.cost || ab.sacSelf || ab.after || ab.tapCreature) continue;
+        let prod = typeof ab.produce === "function" ? ab.produce(g, o) : ab.produce;
+        if (!prod) continue;
+        best = Math.max(best, Array.isArray(prod) ? prod[0].length : prod === "any" || prod === "any5" ? 1 : prod.startsWith("choice:") ? 1 : prod.length);
+      }
+      n += best;
+    }
+    return n;
   }
   function flickerLoop(g, p, acts, m, want) {
     const drake = onBf(g, p, DRAKE)[0], arch = onBf(g, p, "Archaeomancer")[0], gf = inHand(p, "Ghostly Flicker");
@@ -820,6 +838,54 @@
     floatAll(g, p, true);
     return { type: "cast", card: gf, targets: [drake, arch], maxTries: 2 };
   }
+  /* Heliod + Walking Ballista: Ballista with two counters and lifelink pings forever (each ping
+     gains 1 life, and Heliod puts the counter back). Cast Ballista with the {1}{W} left over, grow a
+     one-counter Ballista, give it lifelink, then shoot. */
+  function heliodRoute(g, p, acts, m) {
+    if (!onBf(g, p, "Heliod, Sun-Crowned").length) return null;
+    const need = killNeed(g, p);
+    const bal = onBf(g, p, BALLISTA).sort((a, b) => (b.counters.p1 || 0) - (a.counters.p1 || 0))[0];
+    if (bal) {
+      const c = bal.counters.p1 || 0;
+      if (c >= 2 && g.kw(bal, "lifelink")) { m.ping = true; return { type: "activate", card: bal, idx: 1, repeat: Math.min(400, need + 5), stop: g2 => !pingable(g2, p).length || !(bal.counters.p1 > 0) || bal.zone !== "battlefield", maxTries: 4 }; }
+      if (c >= 2) { const h = acts.find(x => x.type === "activate" && x.card.def.name === "Heliod, Sun-Crowned" && x.idx === 0); return h ? { type: "activate", card: h.card, idx: 0, maxTries: 2 } : null; }
+      if (c === 1 && g.canPay(p, pc("{5}{W}"))) { const gr = acts.find(x => x.type === "activate" && x.card === bal && x.idx === 0); return gr ? { type: "activate", card: bal, idx: 0, maxTries: 2 } : null; }
+      return null;
+    }
+    const bh = inHand(p, BALLISTA), a = castOf(acts, bh);
+    if (!a) return null;
+    for (let x = a.xMax; x >= 2; x--) if (g.canPay(p, pc(`{${2 * x + 1}}{W}`))) return { type: "cast", card: bh, x, maxTries: 2 };
+    return null;
+  }
+  /* Infinite mana from the Scepter but no Walking Ballista yet: spend it digging. The tutors that
+     find Ballista first (tutorBonus), then every draw: The One Ring (Reversal untaps it), Mind Stone,
+     Mulldrifter and the cantrip creatures. The Scepter refills the pool between them. */
+  const DIG_CASTS = ["Trinket Mage", "Recruiter of the Guard", "Enlightened Tutor", "Mulldrifter", "Sea Gate Oracle", "Wall of Omens", "Omen of the Sea", "Cryogen Relic", "Mind Stone", "Solemn Simulacrum", "Aether Channeler", "Mystic Remora"];
+  function dig(g, p, acts, m) {
+    m.dig = true;
+    if ((m.digN = (m.digN || 0) + 1) > 60) return null;
+    const sc = g.controlled(p, x => x.def.name === "Isochron Scepter" && x.state.imprint && x.state.imprint.def.name === "Dramatic Reversal")[0];
+    const ring = onBf(g, p, "The One Ring")[0];
+    const refill = () => {
+      if (!sc || sc.tapped) return null;
+      const a = acts.find(x => x.type === "activate" && x.card === sc && x.idx === 0);
+      if (!a) return null;
+      floatAll(g, p, false);
+      const stuck = progress(p);
+      return { type: "activate", card: sc, idx: 0, repeat: 400, stop: g2 => { floatAll(g2, p, false); return g2.poolTotal(p) >= 40 || stuck(g2); }, maxTries: 30 };
+    };
+    if (g.poolTotal(p) < 12) return refill();
+    for (const n of DIG_CASTS) { const c = inHand(p, n), a = castOf(acts, c); if (a) return { type: "cast", card: c, maxTries: 1 }; }
+    for (const a of acts) {
+      if (a.type !== "activate" || !a.ab || !a.ab.label) continue;
+      const n = a.card.def.name;
+      if (n === "The One Ring" && a.ab.label.startsWith("Burden") && p.library.length > (a.card.counters.burden || 0) + 3) return { type: "activate", card: a.card, idx: a.idx, maxTries: 30 };
+      if (n === "Cryogen Relic" && a.ab.sacSelf) return { type: "activate", card: a.card, idx: a.idx, maxTries: 1 };
+    }
+    // the Ring is tapped: one more Scepter activation untaps it
+    if (ring && ring.tapped && p.library.length > (ring.counters.burden || 0) + 3) { const a = sc && !sc.tapped && acts.find(x => x.type === "activate" && x.card === sc && x.idx === 0); if (a) return { type: "activate", card: sc, idx: 0, maxTries: 30 }; }
+    return null;
+  }
   function bragoPlan(g, p, ctx) {
     const win = ctx.window, acts = ctx.actions || [];
     const m = bmem(g, p);
@@ -827,7 +893,9 @@
     const need = killNeed(g, p);
     if (!need) return null;
     const hasSink = onBf(g, p, BALLISTA).length > 0 || !!inHand(p, BALLISTA);
-    if (!hasSink) return null;
+    if (!hasSink) return scepterReady(g, p) && rockMana(g, p) >= 3 && p.library.some(c => c.def.name === BALLISTA) ? dig(g, p, acts, m) : null;
+    const hel = heliodRoute(g, p, acts, m);
+    if (hel) return hel;
     const kill = ballistaKill(g, p, acts, m);
     if (kill) return kill;
     if (m.loops > 150) return null;
@@ -854,24 +922,95 @@
     return false;
   }
   MK.DECK_BRAINS = MK.DECK_BRAINS || {};
-  /* What the tutors fetch: the missing piece of the closest loop, then its kill (Walking Ballista). */
+  /* What the tutors fetch. Walking Ballista is the only kill, so it comes first once a partner is
+     ready (Heliod, or a mana loop), and early anyway; then the card that completes a pair; then a
+     half of the two-card pairs (Heliod + Ballista, Scepter + Reversal) over the three-card loops. */
   function bragoTutorBonus(g, p, o) {
     const n = o.def.name;
     const on = x => onBf(g, p, x).length > 0, held = x => on(x) || p.hand.some(c => c !== o && c.def.name === x);
-    const sc = g.controlled(p, x => x.def.name === "Isochron Scepter" && x.state.imprint && x.state.imprint.def.name === "Dramatic Reversal").length > 0;
     if (held(n)) return 0;
-    const loops = [["Isochron Scepter", "Dramatic Reversal"], [DRAKE, DEADEYE], [DRAKE, "Archaeomancer", "Ghostly Flicker"], ["Heliod, Sun-Crowned", BALLISTA]];
-    let best = 0;
-    for (const L of loops) {
-      if (!L.includes(n)) continue;
-      const others = L.filter(x => x !== n), have = others.filter(x => held(x) || (sc && (x === "Dramatic Reversal" || x === "Isochron Scepter"))).length;
-      best = Math.max(best, have === others.length ? 26 : 8 + have * 6);
+    const sc = scepterReady(g, p), scHalf = held("Isochron Scepter") || held("Dramatic Reversal");
+    const loopReady = sc || (held("Isochron Scepter") && held("Dramatic Reversal")) || (held(DRAKE) && held(DEADEYE)) || (held(DRAKE) && held("Archaeomancer") && held("Ghostly Flicker"));
+    switch (n) {
+      case BALLISTA: return held("Heliod, Sun-Crowned") || loopReady ? 40 : 18;
+      case "Heliod, Sun-Crowned": return held(BALLISTA) ? 34 : 15;
+      case "Isochron Scepter": return held("Dramatic Reversal") ? 30 : sc ? 0 : 13;
+      case "Dramatic Reversal": return held("Isochron Scepter") && !onBf(g, p, "Isochron Scepter").some(x => x.state.imprint) ? 30 : 12;
+      case DRAKE: return held(DEADEYE) || (held("Archaeomancer") && held("Ghostly Flicker")) ? 24 : 6;
+      case DEADEYE: return held(DRAKE) ? 24 : 4;
+      case "Archaeomancer": case "Ghostly Flicker": return held(DRAKE) ? 10 : 2;
     }
-    // the kill once a mana loop is ready
-    if (n === BALLISTA && (sc || (held(DRAKE) && held(DEADEYE)) || (held(DRAKE) && held("Archaeomancer") && held("Ghostly Flicker")))) best = Math.max(best, 30);
+    // the Scepter needs three mana of rocks to go infinite
+    if (scHalf && rockMana(g, p) < 3) { const r = ROCK_WANT[n]; if (r) return r; }
+    // a tutor is worth most of the best card it can still find (Spellseeker for Enlightened Tutor,
+    // Recruiter for Trinket Mage)
+    const finds = CHAIN[n];
+    if (finds && !chaining) {
+      chaining = true;
+      try { return 0.7 * p.library.filter(c => c !== o && finds(c)).reduce((b, c) => Math.max(b, bragoTutorBonus(g, p, c)), 0); } finally { chaining = false; }
+    }
+    return 0;
+  }
+  let chaining = false;
+  const isArt = c => c.def.types.includes("Artifact"), isEnch = c => c.def.types.includes("Enchantment");
+  const CHAIN = {
+    "Enlightened Tutor": c => isArt(c) || isEnch(c),
+    "Mystical Tutor": c => isIS(c),
+    "Trinket Mage": c => isArt(c) && c.def.mv <= 1,
+    "Tribute Mage": c => isArt(c) && c.def.mv === 2,
+    "Recruiter of the Guard": c => isCreatureCard(c) && (c.def.pt ? c.def.pt[1] : 0) <= 2,
+    "Spellseeker": c => isIS(c) && c.def.mv <= 2
+  };
+  const ROCK_WANT = { "Grim Monolith": 22, "Mana Vault": 21, "Sol Ring": 20, "Basalt Monolith": 18, "Thought Vessel": 8, "Talisman of Progress": 8, "Azorius Signet": 8, "Arcane Signet": 8, "Fellwar Stone": 7, "Mind Stone": 7, "Coldsteel Heart": 7 };
+  /* The tutors that take their own pick (Trinket Mage, Tribute Mage) ask here: the best fetch by
+     tutorBonus, or null to leave it to their default. */
+  function bragoTutor(g, p, pool) {
+    let best = null, bs = 0;
+    for (const c of pool) { const v = bragoTutorBonus(g, p, c); if (v > bs) { bs = v; best = c; } }
     return best;
   }
-  MK.DECK_BRAINS.brago = { plan: bragoPlan, choose: bragoChoose, keepHome: bragoKeepHome, tutorBonus: bragoTutorBonus };
+  function scepterReady(g, p) { return g.controlled(p, x => x.def.name === "Isochron Scepter" && x.state.imprint && x.state.imprint.def.name === "Dramatic Reversal").length > 0; }
+  /* Cards the bot holds back: Isochron Scepter until Dramatic Reversal can go under it, Reversal
+     itself while a Scepter could still carry it, and Walking Ballista until it kills (the brain
+     casts it for the Heliod loop or a mana loop; a Ballista spent on a 1/1 loses the game's only
+     kill). */
+  function bragoCastOk(g, p, o, win) {
+    const n = o.def.name, gone = x => p.graveyard.concat(p.exile).some(c => c.def.name === x);
+    // Mox Diamond pitches a land: only a spare one (one more land still in hand, or plenty out)
+    if (n === "Mox Diamond") return p.hand.filter(c => c !== o && g.isLand(c)).length >= 2 || g.controlled(p, x => g.isLand(x)).length >= 4;
+    if (n === "Isochron Scepter") return !!inHand(p, "Dramatic Reversal") || gone("Dramatic Reversal");
+    if (n === "Dramatic Reversal") return gone("Isochron Scepter") && !onBf(g, p, "Isochron Scepter").length;
+    if (n === BALLISTA) {
+      const low = Math.min(...pingable(g, p).map(q => q.life));
+      return low <= Math.max(0, Math.floor(manaGuess(g, p) / 2)) || g.round >= 14;
+    }
+    return undefined;
+  }
+  const manaGuess = (g, p) => g.manaSources(p).reduce((n, s) => n + Math.max(0, ...s.options.filter(x => !x.cost).map(x => x.units.length)) * (s.mult || 1), 0) + g.poolTotal(p);
+  /* Keep a seven with lands, mana, and something that moves toward a kill: a tutor, a combo piece or
+     a draw engine. Six and fewer: any hand with two to five lands. */
+  const B_TUTORS = ["Enlightened Tutor", "Mystical Tutor", "Recruiter of the Guard", "Trinket Mage", "Tribute Mage", "Spellseeker", "Urza's Saga"];
+  const B_PIECES = [BALLISTA, "Heliod, Sun-Crowned", "Isochron Scepter", "Dramatic Reversal", DRAKE, DEADEYE];
+  const B_ENGINES = ["Rhystic Study", "Mystic Remora", "Esper Sentinel", "Smothering Tithe", "The One Ring"];
+  function bragoMulligan(g, p, { hand, mulls }) {
+    const lands = hand.filter(o => o.def.types.includes("Land")).length;
+    if (mulls >= 1) return mulls >= 2 ? lands >= 1 && lands <= 6 : lands >= 2 && lands <= 5;
+    const accel = hand.filter(o => !o.def.types.includes("Land") && ROCK_WANT[o.def.name] != null || ["Chrome Mox", "Mox Diamond", "Ancient Tomb"].includes(o.def.name)).length;
+    const action = hand.filter(o => B_TUTORS.includes(o.def.name) || B_PIECES.includes(o.def.name) || B_ENGINES.includes(o.def.name)).length;
+    if (lands < 2 || lands > 5) return false;
+    if (lands === 2 && accel === 0) return false;
+    return action >= 1;
+  }
+  /* The One Ring draws while the burden stays small: its upkeep loss grows with every use. */
+  function bragoUseOk(g, p, o, ab, win) {
+    if (o.def.name === "The One Ring" && ab.label && ab.label.startsWith("Burden")) {
+      const b = o.counters.burden || 0;
+      if (bmem(g, p).dig) return true;
+      return b <= 1 || (b === 2 && p.life >= 25);
+    }
+    return undefined;
+  }
+  MK.DECK_BRAINS.brago = { plan: bragoPlan, choose: bragoChoose, keepHome: bragoKeepHome, tutorBonus: bragoTutorBonus, tutor: bragoTutor, mulligan: bragoMulligan, castOk: bragoCastOk, useOk: bragoUseOk };
 
   /* ================================================================ the decks */
   const listOf = text => text.trim().split("\n").map(s => s.trim()).filter(Boolean);
