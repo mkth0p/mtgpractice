@@ -574,5 +574,30 @@
   "weak_to": "Removal on Child (then Child's death trigger destroys all nonland permanents - the bot's own too); counter on an 8-drop; land destruction (Azusa). Neither Child nor Coalition Victory is in the engine.",
   "beats_field": "Late closer only. NOT on Commander Spellbook as Child + Coalition Victory (only Leyline of the Guildpact + Coalition Victory, 1024-5364).",
   "spellbook_url": "not on Spellbook (closest: https://commanderspellbook.com/combo/1024-5364/)"
+ },
+ {
+  "id": "drake-deadeye",
+  "name": "Peregrine Drake + Deadeye Navigator (+ Walking Ballista)",
+  "pieces": [
+   "Peregrine Drake",
+   "Deadeye Navigator",
+   "Walking Ballista"
+  ],
+  "colors": "U",
+  "prerequisites": "Deadeye Navigator paired with Peregrine Drake (soulbond: pair when either enters). Up to five untapped-able lands that together tap for at least {2}{U} (Spellbook notable prerequisite). Main phase for the Ballista finish.",
+  "steps": [
+   "Cast Peregrine Drake ({4}{U}) and Deadeye Navigator ({4}{U}{U}); when the second one enters, pair them (soulbond).",
+   "Tap five lands for mana (at least {2}{U}).",
+   "Activate the ability Deadeye grants to Peregrine Drake: pay {1}{U}, exile Peregrine Drake, then return it to the battlefield. It re-pairs with Deadeye as it enters (soulbond).",
+   "Peregrine Drake enters: untap up to five lands. Net +1 or more mana per loop (five lands minus {1}{U}).",
+   "Repeat steps 2-4 until the mana pool holds enough for the finish (for example the total life of the opponents x 2 + 4).",
+   "Cast Walking Ballista with X = (opponents total life), then remove counters to deal 1 damage each to the opponents until they are dead. (Mana empties between steps and phases: do the loop and cast Ballista in the same main phase.)"
+  ],
+  "mana_needed": "{1}{U} per loop on the go-off turn after both are out; 11 to cast the pair ({4}{U} + {4}{U}{U}); then X+X for Ballista from the loop",
+  "instant_speed": "partial",
+  "result": "Infinite mana of the colors your five lands produce, infinite ETB/LTB of the two creatures; Walking Ballista turns the mana into damage.",
+  "weak_to": "Removal on Deadeye or Drake before the go-off turn (Edgar/Ur-Dragon 8 targeted removal); counters on the creatures or on Ballista (Talrand); wipes. The loop itself is activated abilities, so counterspells cannot stop it once both are out.",
+  "beats_field": "The Bracket 4 Brago standard (3 of 4 Bracket 4 Brago lists): both pieces are creatures Brago can protect with counters and blink to dodge removal; weak to the 8-removal decks while assembling.",
+  "spellbook_url": "https://commanderspellbook.com/combo/1409-3821/"
  }
 ]

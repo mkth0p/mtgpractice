@@ -1,817 +1,848 @@
 [
-  {
-    "id": "thoracle-consult",
-    "name": "Thassa's Oracle + Demonic Consultation",
-    "pieces": [
-      "Thassa's Oracle",
-      "Demonic Consultation"
-    ],
-    "colors": "UB",
-    "prerequisites": "Both cards in hand; {U}{U}{B} available. No other requirement.",
-    "steps": [
-      "Main phase, with {U}{U}{B} untapped: cast Thassa's Oracle ({U}{U}).",
-      "If Oracle resolves, its enters trigger goes on the stack. Hold priority (or wait for the trigger to be on the stack).",
-      "In response to the trigger, cast Demonic Consultation ({B}). On resolution name a card that is NOT in your library (safe default: 'Demonic Consultation' itself, which is on the stack, or any card already in hand/graveyard/exile). The whole library is exiled.",
-      "Oracle trigger resolves with 0 cards in library: X (devotion to blue, at least 2) >= 0, you win.",
-      "Fallback order (Spellbook's): Consultation first naming Thassa's Oracle while Oracle is in hand, then cast Oracle. Bot should prefer the Oracle-first order so a countered Oracle does not leave it with an exiled library."
-    ],
-    "mana_needed": "{U}{U}{B} on the go-off turn; 3 total (both pieces are cast that turn)",
-    "instant_speed": "partial",
-    "result": "Win the game",
-    "weak_to": "Counterspell on Thassa's Oracle (Talrand 13 counters, Etrata B4 Force of Will/Fierce Guardianship); trigger/ability stifles; Opposition Agent does not matter (no search). Graveyard hate irrelevant.",
-    "beats_field": "Best line vs Edgar/Ur-Dragon/Krenko/Ghalta/Azusa (no permanents to remove, nothing to wipe); vs Talrand/Etrata needs a protection spell (Silence, Grand Abolisher, own counter) or bait first.",
-    "spellbook_url": "https://commanderspellbook.com/combo/742-1295/",
-    "for_commanders": [
-      "child"
-    ],
-    "spellbook_popularity": 149012,
-    "pieces_in_engine": {
-      "Thassa's Oracle": true,
-      "Demonic Consultation": true
-    }
-  },
-  {
-    "id": "thoracle-pact",
-    "name": "Thassa's Oracle + Tainted Pact",
-    "pieces": [
-      "Thassa's Oracle",
-      "Tainted Pact"
-    ],
-    "colors": "UB",
-    "prerequisites": "Both in hand; {1}{U}{U}{B}. Library must contain no two cards with the same name (Spellbook prereq) -> at most ONE copy of each basic land in the deck, or Pact stops early.",
-    "steps": [
-      "Cast Thassa's Oracle ({U}{U}); let it resolve; Oracle trigger on the stack.",
-      "In response cast Tainted Pact ({1}{B}). On resolution, decline to put every exiled card into hand; it keeps exiling until the library is empty.",
-      "Oracle trigger resolves with an empty library: win."
-    ],
-    "mana_needed": "{1}{U}{U}{B}; 4 total",
-    "instant_speed": "partial",
-    "result": "Win the game",
-    "weak_to": "Counters on Oracle; duplicate names in library (basics) stop Pact; Pact is not in the engine yet.",
-    "beats_field": "Same profile as Consultation: immune to removal/wipes/graveyard hate, needs counter protection vs Talrand/Etrata.",
-    "spellbook_url": "https://commanderspellbook.com/combo/1295-3093/",
-    "for_commanders": [
-      "child"
-    ],
-    "spellbook_popularity": 131441,
-    "pieces_in_engine": {
-      "Thassa's Oracle": true,
-      "Tainted Pact": false
-    }
-  },
-  {
-    "id": "thoracle-thoughtlash",
-    "name": "Thassa's Oracle + Thought Lash",
-    "pieces": [
-      "Thassa's Oracle",
-      "Thought Lash"
-    ],
-    "colors": "U",
-    "prerequisites": "Thought Lash on the battlefield (cast earlier for {2}{U}{U}); Oracle in hand; {U}{U}.",
-    "steps": [
-      "Turn N: cast Thought Lash ({2}{U}{U}).",
-      "Turn N+1 upkeep: pay cumulative upkeep (exile 1 card per age counter) - do NOT decline, or the library is exiled with no Oracle ready (that is still fine only if Oracle is in hand and castable this turn).",
-      "Main phase: cast Thassa's Oracle ({U}{U}); with its trigger on the stack, activate Thought Lash's last ability repeatedly ('Exile the top card of your library') until the library is empty (ruling 2008-10-01: cannot activate with an empty library, so stop at 0).",
-      "Oracle trigger resolves with an empty library: win."
-    ],
-    "mana_needed": "{U}{U} on the go-off turn; 6 total",
-    "instant_speed": "partial",
-    "result": "Win the game",
-    "weak_to": "Counter on Oracle; enchantment removal on Thought Lash before the go-off turn (Ur-Dragon, Azusa, Ghalta, Krenko carry artifact/enchantment answers) - but the bot can respond to removal by NOT exiling (just let it die). Not in engine (Thought Lash).",
-    "beats_field": "Only colorless-free blue Oracle line for Brago (no black); exposed to enchantment hate one turn, otherwise like Consultation.",
-    "spellbook_url": "https://commanderspellbook.com/combo/1295-2853/",
-    "for_commanders": [
-      "brago",
-      "child"
-    ],
-    "spellbook_popularity": 4097,
-    "pieces_in_engine": {
-      "Thassa's Oracle": true,
-      "Thought Lash": false
-    }
-  },
-  {
-    "id": "breach-led-brainfreeze",
-    "name": "Underworld Breach + Lion's Eye Diamond + Brain Freeze (+ Thassa's Oracle finish)",
-    "pieces": [
-      "Underworld Breach",
-      "Lion's Eye Diamond",
-      "Brain Freeze",
-      "Thassa's Oracle"
-    ],
-    "colors": "UR (Oracle adds U)",
-    "prerequisites": "Breach and LED on the battlefield (or cast this turn), Brain Freeze in hand or graveyard, at least six other cards in hand and/or graveyard (Spellbook). Thassa's Oracle anywhere it will end up in graveyard/hand. Need {1}{U} to start if Brain Freeze is in hand.",
-    "steps": [
-      "Cast Underworld Breach ({1}{R}) and Lion's Eye Diamond ({0}).",
-      "Cast Brain Freeze from hand targeting YOURSELF (mill 3 x copies). (If it is already in the graveyard, skip.)",
-      "Activate LED: discard hand, sacrifice it, add {U}{U}{U}.",
-      "Loop: escape LED (pay {0} + exile three graveyard cards other than Brain Freeze and Thassa's Oracle) -> activate it for {U}{U}{U} -> escape Brain Freeze ({1}{U} + exile three) targeting yourself; storm copies all target yourself until your library is empty, then aim spare copies at opponents.",
-      "Repeat until your library is in the graveyard. Keep 3 spare cards for the final escape.",
-      "Escape Thassa's Oracle from the graveyard ({U}{U} + exile three other cards). Its trigger resolves with an empty library: win."
-    ],
-    "mana_needed": "{1}{R} for Breach + {1}{U} for first Brain Freeze; ~4 total; the loop then nets mana",
-    "instant_speed": "partial",
-    "result": "Mill yourself and win with escaped Thassa's Oracle (Spellbook itself only lists near-infinite mill/storm/mana)",
-    "weak_to": "Graveyard hate (Shred Memory in two Etrata lists only); artifact/enchantment removal on Breach before the turn; counters on Breach or Oracle; Breach is sacrificed at end step (sorcery-turn window). Breach, LED, Brain Freeze not in engine. Long loop = most complex bot script.",
-    "beats_field": "Graveyard is safe in this field, but needs three cards not in the engine and is the hardest script; keep as backup.",
-    "spellbook_url": "https://commanderspellbook.com/combo/1368-3518-4856/",
-    "for_commanders": [
-      "child"
-    ],
-    "spellbook_popularity": 94839,
-    "pieces_in_engine": {
-      "Underworld Breach": false,
-      "Lion's Eye Diamond": false,
-      "Brain Freeze": false,
-      "Thassa's Oracle": true
-    }
-  },
-  {
-    "id": "hermit-thoracle",
-    "name": "Hermit Druid + Thassa's Oracle",
-    "pieces": [
-      "Hermit Druid",
-      "Thassa's Oracle"
-    ],
-    "colors": "GU",
-    "prerequisites": "No basic land cards in library (deck construction). Hermit Druid not summoning sick. {G} + {U}{U}.",
-    "steps": [
-      "Cast Hermit Druid ({1}{G}) a turn earlier.",
-      "Go-off turn: cast Thassa's Oracle ({U}{U}); with its trigger on the stack, activate Hermit Druid ({G},{T}). With no basics, it reveals and bins the entire library (ruling 2025-01-24).",
-      "Oracle trigger resolves with 0 cards: win."
-    ],
-    "mana_needed": "{G}{U}{U}; 5 total",
-    "instant_speed": "partial",
-    "result": "Win the game",
-    "weak_to": "Any removal on Hermit Druid (Edgar/Ur-Dragon 8 each) during the turn it is summoning sick; counter on Oracle; forces a basic-free five-color mana base. Hermit Druid not in engine.",
-    "beats_field": "Weaker than Consultation here: creature exposed to the field's targeted removal for a full turn cycle.",
-    "spellbook_url": "https://commanderspellbook.com/combo/1295-4400/",
-    "for_commanders": [
-      "child"
-    ],
-    "spellbook_popularity": 10368,
-    "pieces_in_engine": {
-      "Hermit Druid": false,
-      "Thassa's Oracle": true
-    }
-  },
-  {
-    "id": "scepter-reversal",
-    "name": "Isochron Scepter + Dramatic Reversal",
-    "pieces": [
-      "Isochron Scepter",
-      "Dramatic Reversal",
-      "Walking Ballista"
-    ],
-    "colors": "U",
-    "prerequisites": "Scepter on the battlefield with Dramatic Reversal imprinted; nonland permanents (rocks/dorks) that tap for at least {3} total (Spellbook prereq). Outlet: Walking Ballista in hand or on battlefield.",
-    "steps": [
-      "Setup turn: cast Isochron Scepter ({2}); on its enter trigger exile Dramatic Reversal from hand.",
-      "Go-off (main phase): tap every mana rock/dork (>= {3}).",
-      "Activate Scepter ({2},{T}); cast the copy of Dramatic Reversal; it untaps all nonland permanents (rocks and Scepter).",
-      "Repeat steps 2-3; each loop nets (rock mana - 2). Do it N times to bank N x net mana (infinite storm too).",
-      "Cast Walking Ballista with X large enough (X >= 40 per living opponent's life total, e.g. X = 120 -> {240}) and remove counters to deal damage to each opponent until all lose."
-    ],
-    "mana_needed": "{2}+{1}{U} setup (4); go-off needs rocks producing >= 3 plus 0 extra",
-    "instant_speed": "partial",
-    "result": "Infinite mana from nonland permanents + infinite storm -> Walking Ballista for infinite damage",
-    "weak_to": "Artifact removal on Scepter (Ur-Dragon 6, Azusa/Ghalta/Krenko 4 each); rock removal; counter on Scepter. All pieces in engine.",
-    "beats_field": "In-engine and well-known (Talrand runs it), but artifact-dependent against four decks with artifact hate; go off the turn Scepter lands if possible.",
-    "spellbook_url": "https://commanderspellbook.com/combo/4821-5261/",
-    "for_commanders": [
-      "brago",
-      "child"
-    ],
-    "spellbook_popularity": 106172,
-    "pieces_in_engine": {
-      "Isochron Scepter": true,
-      "Dramatic Reversal": true,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "heliod-ballista",
-    "name": "Heliod, Sun-Crowned + Walking Ballista",
-    "pieces": [
-      "Heliod, Sun-Crowned",
-      "Walking Ballista"
-    ],
-    "colors": "W",
-    "prerequisites": "Both on the battlefield; Walking Ballista has at least TWO +1/+1 counters (Spellbook prereq; with one counter it dies to SBA before Heliod's trigger resolves - Heliod ruling 2020-01-24). {1}{W} available.",
-    "steps": [
-      "Cast Heliod ({2}{W}) and Walking Ballista with X=2 ({4}) on earlier turns or the same turn.",
-      "Activate Heliod's {1}{W}: target Walking Ballista gains lifelink.",
-      "Remove a +1/+1 counter from Ballista: 1 damage to an opponent; lifelink gains 1 life; Heliod trigger targets Ballista: +1/+1 counter.",
-      "Repeat step 3 (each loop is counter-neutral) 40 times per opponent (or each opponent's current life), then move to the next opponent.",
-      "Can be done at instant speed, e.g. in response to removal on either piece."
-    ],
-    "mana_needed": "{1}{W} on the go-off turn; 9 total ({2}{W} + {4} + {1}{W})",
-    "instant_speed": "true",
-    "result": "Infinite damage + infinite life",
-    "weak_to": "Removal on Ballista in response to the Heliod activation (Edgar/Ur-Dragon targeted removal; Shalai blanks it); Heliod is indestructible but exiled/bounced by Swords, Rift, Generous Gift; counters on either piece. Both in engine.",
-    "beats_field": "Best creature line: two cards, in engine, instant speed, and under Shalai's hexproof the Ballista cannot be targeted; dies only to wipes before go-off.",
-    "spellbook_url": "https://commanderspellbook.com/combo/1274-3693/",
-    "for_commanders": [
-      "shalai",
-      "brago",
-      "child"
-    ],
-    "spellbook_popularity": 51898,
-    "pieces_in_engine": {
-      "Heliod, Sun-Crowned": true,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "archangel-spikefeeder",
-    "name": "Archangel of Thune + Spike Feeder (+ Walking Ballista or combat)",
-    "pieces": [
-      "Archangel of Thune",
-      "Spike Feeder",
-      "Walking Ballista"
-    ],
-    "colors": "GW",
-    "prerequisites": "Archangel and Spike Feeder on the battlefield, Feeder with >= 2 +1/+1 counters (Spellbook easy prereq). For a kill: Walking Ballista on the battlefield with >= 1 counter, or Archangel able to attack.",
-    "steps": [
-      "Cast Spike Feeder ({1}{G}{G}, enters with 2 counters) and Archangel of Thune ({3}{W}{W}).",
-      "Remove a +1/+1 counter from Spike Feeder: you gain 2 life (Oracle says 2; Spellbook's description says 1).",
-      "Archangel trigger: +1/+1 counter on each creature you control (Feeder back to its count, Ballista +1).",
-      "Repeat steps 2-3 as often as wanted (e.g. 200 times): infinite life and arbitrarily large creatures.",
-      "Kill: remove Ballista counters to deal damage to each opponent; or, without Ballista, attack with the huge flying lifelink Archangel and other creatures."
-    ],
-    "mana_needed": "0 on go-off; 8 total (+ Ballista)",
-    "instant_speed": "true",
-    "result": "Infinite life and +1/+1 counters; infinite damage with Walking Ballista",
-    "weak_to": "Removal on Archangel in response (instant-speed loop can respond, but each loop needs Archangel alive); wipes. All in engine.",
-    "beats_field": "Strong under Shalai: both pieces hexproof; Feeder loop is free so it can win in response to a wipe if Ballista is out.",
-    "spellbook_url": "https://commanderspellbook.com/combo/2290-2919/",
-    "for_commanders": [
-      "shalai",
-      "child"
-    ],
-    "spellbook_popularity": 4982,
-    "pieces_in_engine": {
-      "Archangel of Thune": true,
-      "Spike Feeder": true,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "druid-vizier",
-    "name": "Devoted Druid + Vizier of Remedies (+ Walking Ballista)",
-    "pieces": [
-      "Devoted Druid",
-      "Vizier of Remedies",
-      "Walking Ballista"
-    ],
-    "colors": "GW",
-    "prerequisites": "Devoted Druid not summoning sick; Vizier on the battlefield. Walking Ballista in hand (or Shalai/other outlet).",
-    "steps": [
-      "Cast Devoted Druid ({1}{G}) a turn early; cast Vizier of Remedies ({1}{W}).",
-      "Main phase: tap Druid for {G}; activate 'Put a -1/-1 counter on this creature: Untap' - Vizier reduces it to zero counters (Devoted Druid ruling 2018-12-07 allows activation).",
-      "Repeat N times for N green mana (e.g. 250).",
-      "Cast Walking Ballista with X = 120 (pay 240 green) and shoot each opponent for 40 (or their life).",
-      "Alternative outlet: Shalai's {4}{G}{G} as many times as wanted, then attack (needs combat, weaker)."
-    ],
-    "mana_needed": "0 extra on go-off (Ballista paid by the loop); 4 total for the two pieces",
-    "instant_speed": "partial",
-    "result": "Infinite green mana -> Walking Ballista infinite damage",
-    "weak_to": "Removal on Druid or Vizier (Shalai blanks targeted); wipes; Druid must survive a turn. All in engine.",
-    "beats_field": "Cheap, all in engine; under Shalai only wipes and Shalai removal interfere; the mana loop is not stoppable by counters but Ballista can be countered (Talrand).",
-    "spellbook_url": "https://commanderspellbook.com/combo/978-4762/",
-    "for_commanders": [
-      "shalai",
-      "child"
-    ],
-    "spellbook_popularity": 4897,
-    "pieces_in_engine": {
-      "Devoted Druid": true,
-      "Vizier of Remedies": true,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "druid-swiftreconfig",
-    "name": "Devoted Druid + Swift Reconfiguration (+ Walking Ballista)",
-    "pieces": [
-      "Devoted Druid",
-      "Swift Reconfiguration",
-      "Walking Ballista"
-    ],
-    "colors": "GW",
-    "prerequisites": "Swift Reconfiguration attached to Devoted Druid (Spellbook prereq). Once it is a noncreature Vehicle artifact, -1/-1 counters cannot kill it and summoning sickness does not apply (rules inference, not a Spellbook statement: verify in engine).",
-    "steps": [
-      "Cast Devoted Druid ({1}{G}).",
-      "Cast Swift Reconfiguration ({W}, flash) targeting Devoted Druid.",
-      "Tap Druid for {G}; put a -1/-1 counter on it to untap it; repeat N times (counters do not matter on a noncreature).",
-      "Cast Walking Ballista with large X and shoot opponents."
-    ],
-    "mana_needed": "{W} on go-off (if Druid already out); 3 total",
-    "instant_speed": "partial",
-    "result": "Infinite green mana -> Walking Ballista",
-    "weak_to": "Enchantment/artifact removal on the Aura'd Druid (it is an artifact now: Ur-Dragon/Azusa/Ghalta/Krenko); counters. Swift Reconfiguration not in engine.",
-    "beats_field": "Second copy of the Druid package; the flash Aura means Druid can be enchanted the turn it lands (unverified summoning-sickness interaction) - one-turn kill out of nowhere.",
-    "spellbook_url": "https://commanderspellbook.com/combo/3807-4762/",
-    "for_commanders": [
-      "shalai",
-      "child"
-    ],
-    "spellbook_popularity": 18844,
-    "pieces_in_engine": {
-      "Devoted Druid": true,
-      "Swift Reconfiguration": false,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "trostani-scurryoak-archangel",
-    "name": "Trostani, Selesnya's Voice + Scurry Oak + Archangel of Thune",
-    "pieces": [
-      "Trostani, Selesnya's Voice",
-      "Scurry Oak",
-      "Archangel of Thune",
-      "Walking Ballista"
-    ],
-    "colors": "GW",
-    "prerequisites": "Trostani and Archangel on the battlefield; a way to gain life (casting Scurry Oak does it: Trostani gains life equal to its toughness). Ballista on battlefield for the kill (optional; otherwise attack).",
-    "steps": [
-      "Have Trostani (commander) and Archangel of Thune on the battlefield.",
-      "Cast Scurry Oak ({2}{G}): Trostani trigger, gain 2 life.",
-      "Archangel trigger: +1/+1 counter on each creature, including Scurry Oak -> Scurry Oak trigger: create a 1/1 Squirrel.",
-      "Squirrel enters: Trostani gains 1 life -> Archangel: counters on everything -> Oak makes another Squirrel. Repeat as long as wanted (Oak's token is 'may', so the bot stops it).",
-      "Kill: Ballista counters at opponents, or attack with the giant creatures."
-    ],
-    "mana_needed": "{2}{G} on go-off; 12 total incl. Trostani",
-    "instant_speed": "false",
-    "result": "Infinite life, tokens and +1/+1 counters (infinite damage with Ballista)",
-    "weak_to": "Three pieces; removal on Archangel or Trostani; wipes. Scurry Oak not in engine.",
-    "beats_field": "Only for the Trostani A/B; worse than Heliod/Archangel+Feeder because Trostani is not hexproof.",
-    "spellbook_url": "https://commanderspellbook.com/combo/1545-2919-4186/",
-    "for_commanders": [
-      "shalai",
-      "child"
-    ],
-    "spellbook_popularity": 685,
-    "pieces_in_engine": {
-      "Trostani, Selesnya's Voice": true,
-      "Scurry Oak": false,
-      "Archangel of Thune": true,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "rosie-broodscale",
-    "name": "Rosie Cotton of South Lane + Basking Broodscale (+ Walking Ballista)",
-    "pieces": [
-      "Rosie Cotton of South Lane",
-      "Basking Broodscale",
-      "Walking Ballista"
-    ],
-    "colors": "GW",
-    "prerequisites": "Basking Broodscale on the battlefield; Rosie in hand; {2}{W}.",
-    "steps": [
-      "Cast Basking Broodscale ({1}{G}).",
-      "Cast Rosie Cotton ({2}{W}): ETB creates a Food -> Rosie trigger: +1/+1 counter on target Broodscale -> Broodscale: create an Eldrazi Spawn -> Rosie trigger again (target Broodscale) -> repeat N times (Broodscale's token is 'may').",
-      "Sacrifice Spawns for {C} each: N colorless mana.",
-      "Cast Walking Ballista with X large and shoot opponents."
-    ],
-    "mana_needed": "{2}{W} on go-off; 5 total",
-    "instant_speed": "false",
-    "result": "Infinite colorless mana, tokens, counters -> Walking Ballista",
-    "weak_to": "Removal on Broodscale before Rosie; counter on Rosie. Neither in engine.",
-    "beats_field": "Cheap two-card GW mana engine; with Shalai out Broodscale is hexproof, so only counters (Talrand) stop it.",
-    "spellbook_url": "https://commanderspellbook.com/combo/2433-5641/",
-    "for_commanders": [
-      "shalai",
-      "child"
-    ],
-    "spellbook_popularity": 23599,
-    "pieces_in_engine": {
-      "Rosie Cotton of South Lane": false,
-      "Basking Broodscale": false,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "earthcraft-squirrelnest",
-    "name": "Earthcraft + Squirrel Nest (+ Ashnod's Altar + Walking Ballista)",
-    "pieces": [
-      "Earthcraft",
-      "Squirrel Nest",
-      "Ashnod's Altar",
-      "Walking Ballista"
-    ],
-    "colors": "G",
-    "prerequisites": "Squirrel Nest attached to a BASIC land you control (Earthcraft untaps basic lands only). Needs an outlet: Spellbook result is only infinite tapped tokens.",
-    "steps": [
-      "Cast Earthcraft ({1}{G}), Squirrel Nest ({1}{G}{G}) on a basic land, Ashnod's Altar ({3}).",
-      "Tap the enchanted land: create a Squirrel. Earthcraft: tap that Squirrel to untap the land. Repeat N times.",
-      "Sacrifice Squirrels to Ashnod's Altar for {C}{C} each.",
-      "Cast Walking Ballista with large X."
-    ],
-    "mana_needed": "0 on go-off; 8 total for 3 pieces",
-    "instant_speed": "partial",
-    "result": "Infinite tapped Squirrels (+ Altar: infinite colorless mana -> Ballista)",
-    "weak_to": "Enchantment/artifact removal (Ur-Dragon, Azusa, Ghalta, Krenko); needs 4 pieces for a kill; Earthcraft and Squirrel Nest not in engine.",
-    "beats_field": "Weak here: three non-creature permanents that Shalai cannot protect and four bot decks can destroy.",
-    "spellbook_url": "https://commanderspellbook.com/combo/515-2757/",
-    "for_commanders": [
-      "shalai",
-      "child"
-    ],
-    "spellbook_popularity": 8409,
-    "pieces_in_engine": {
-      "Earthcraft": false,
-      "Squirrel Nest": false,
-      "Ashnod's Altar": true,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "basalt-forsaken",
-    "name": "Basalt Monolith + Forsaken Monument (+ Walking Ballista)",
-    "pieces": [
-      "Basalt Monolith",
-      "Forsaken Monument",
-      "Walking Ballista"
-    ],
-    "colors": "C",
-    "prerequisites": "Both on the battlefield. Ruling (Forsaken Monument 2020-09-25): tapping for more than one {C} adds only one extra, so Basalt makes {C}{C}{C}{C} and untapping costs {3}: net +1 per loop.",
-    "steps": [
-      "Cast Basalt Monolith ({3}) and Forsaken Monument ({5}).",
-      "Tap Basalt for {C}{C}{C} (+{C} from Monument). Pay {3}: untap Basalt. Repeat N times for N colorless.",
-      "Cast Walking Ballista (X large; it also gets +2/+2 from Monument) and shoot."
-    ],
-    "mana_needed": "0 on go-off; 8 total",
-    "instant_speed": "partial",
-    "result": "Infinite colorless mana -> Ballista",
-    "weak_to": "Artifact removal; counters; 8 mana of setup. All in engine.",
-    "beats_field": "Fully in engine and colorless (fits all three commanders), but two artifacts in front of four decks with artifact hate.",
-    "spellbook_url": "https://commanderspellbook.com/combo/4131-4547/",
-    "for_commanders": [
-      "shalai",
-      "brago",
-      "child"
-    ],
-    "spellbook_popularity": 64574,
-    "pieces_in_engine": {
-      "Basalt Monolith": true,
-      "Forsaken Monument": true,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "basalt-rings",
-    "name": "Basalt Monolith + Rings of Brighthearth (+ Walking Ballista)",
-    "pieces": [
-      "Basalt Monolith",
-      "Rings of Brighthearth",
-      "Walking Ballista"
-    ],
-    "colors": "C",
-    "prerequisites": "Both on the battlefield; {2} extra to start (Spellbook).",
-    "steps": [
-      "Tap Basalt for {C}{C}{C}. Activate its untap ability ({3}).",
-      "Rings trigger: pay {2}, copy the untap ability. Copy resolves first (Rings ruling 2020-11-10): Basalt untaps; tap it again for {C}{C}{C}.",
-      "Original untap ability resolves: Basalt untaps. Net +1 per cycle. Repeat.",
-      "Cast Walking Ballista with large X."
-    ],
-    "mana_needed": "{2} on go-off; 6 total",
-    "instant_speed": "partial",
-    "result": "Infinite colorless mana",
-    "weak_to": "Artifact removal; Rings not in engine.",
-    "beats_field": "Same as Monument version but cheaper; Rings needs engine work.",
-    "spellbook_url": "https://commanderspellbook.com/combo/4131-4235/",
-    "for_commanders": [
-      "shalai",
-      "brago",
-      "child"
-    ],
-    "spellbook_popularity": 53051,
-    "pieces_in_engine": {
-      "Basalt Monolith": true,
-      "Rings of Brighthearth": false,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "monolith-powerartifact",
-    "name": "Basalt Monolith or Grim Monolith + Power Artifact (+ Walking Ballista)",
-    "pieces": [
-      "Power Artifact",
-      "Basalt Monolith",
-      "Grim Monolith",
-      "Walking Ballista"
-    ],
-    "colors": "U",
-    "prerequisites": "Power Artifact attached to Basalt Monolith (untap costs {1}, net +2) or Grim Monolith (untap costs {2}, net +1). Only one Monolith is needed.",
-    "steps": [
-      "Cast the Monolith, then Power Artifact ({U}{U}) enchanting it.",
-      "Tap Monolith for {C}{C}{C}; pay reduced untap cost; repeat N times.",
-      "Cast Walking Ballista with large X."
-    ],
-    "mana_needed": "0 on go-off; 5 (Basalt) or 4 (Grim) total",
-    "instant_speed": "partial",
-    "result": "Infinite colorless mana",
-    "weak_to": "Artifact or enchantment removal on either piece; Power Artifact not in engine. Grim Monolith is a Game Changer.",
-    "beats_field": "Two cheap permanents, both exposed to Ur-Dragon/Azusa/Ghalta/Krenko hate; fine as redundancy with Scepter rocks.",
-    "spellbook_url": "https://commanderspellbook.com/combo/4131-5149/",
-    "for_commanders": [
-      "brago",
-      "child"
-    ],
-    "spellbook_popularity": 10849,
-    "pieces_in_engine": {
-      "Power Artifact": false,
-      "Basalt Monolith": true,
-      "Grim Monolith": true,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "kitten-teferi-solring",
-    "name": "Displacer Kitten + Teferi, Time Raveler + Sol Ring (+ Thassa's Oracle)",
-    "pieces": [
-      "Displacer Kitten",
-      "Teferi, Time Raveler",
-      "Sol Ring",
-      "Thassa's Oracle"
-    ],
-    "colors": "WU",
-    "prerequisites": "Kitten and Teferi on the battlefield, Sol Ring in hand, {1}. Main phase (loyalty abilities). Thassa's Oracle to finish.",
-    "steps": [
-      "Cast Sol Ring ({1}): Kitten trigger blinks Teferi (fresh loyalty object).",
-      "Tap Sol Ring for {C}{C}. Teferi -3: return Sol Ring to hand, draw a card.",
-      "Recast Sol Ring ({1}): Kitten blinks Teferi again. Net +{C} and +1 card per loop. Repeat until the library is empty (stop before drawing from an empty library).",
-      "With the library at 0, cast Thassa's Oracle ({U}{U}, from lands or banked colorless is not enough - keep {U}{U} from lands): win. Alternatively use banked colorless for Walking Ballista."
-    ],
-    "mana_needed": "{1} + {U}{U}; 9 total for Kitten+Teferi+Sol Ring",
-    "instant_speed": "false",
-    "result": "Near-infinite colorless mana and card draw (bounded by library) -> Thassa's Oracle win",
-    "weak_to": "Removal on Kitten (Edgar/Ur-Dragon); Teferi attacked; counters on Sol Ring do nothing - Teferi's static stops opponents casting at instant speed, so Talrand cannot counter during the loop. Kitten and Teferi not in engine.",
-    "beats_field": "Teferi turns off Talrand's instant-speed counters, which is the main threat; but Kitten is a fragile 2/2 in front of 8-removal decks.",
-    "spellbook_url": "https://commanderspellbook.com/combo/1170-4761-5034/",
-    "for_commanders": [
-      "brago",
-      "child"
-    ],
-    "spellbook_popularity": 45761,
-    "pieces_in_engine": {
-      "Displacer Kitten": false,
-      "Teferi, Time Raveler": false,
-      "Sol Ring": true,
-      "Thassa's Oracle": true
-    }
-  },
-  {
-    "id": "drake-flicker-archaeomancer",
-    "name": "Peregrine Drake + Ghostly Flicker + Archaeomancer (or Mnemonic Wall)",
-    "pieces": [
-      "Peregrine Drake",
-      "Ghostly Flicker",
-      "Archaeomancer",
-      "Walking Ballista"
-    ],
-    "colors": "U",
-    "prerequisites": "Drake and Archaeomancer (or Mnemonic Wall) on the battlefield, Ghostly Flicker in hand; five lands that make {3}{U} for net mana (Spellbook).",
-    "steps": [
-      "Tap five lands. Cast Ghostly Flicker ({2}{U}) targeting Peregrine Drake and Archaeomancer.",
-      "Archaeomancer returns Ghostly Flicker to hand; Drake untaps five lands.",
-      "Repeat N times (net +2 mana with five lands of which one makes U); infinite storm/ETB.",
-      "Cast Walking Ballista with large X in the main phase."
-    ],
-    "mana_needed": "{2}{U} on go-off; 12 total",
-    "instant_speed": "partial",
-    "result": "Infinite land mana, infinite ETB/storm -> Ballista",
-    "weak_to": "Removal on either creature (they sit for a turn); counter on Flicker. Drake and Mnemonic Wall not in engine (Archaeomancer and Ghostly Flicker are).",
-    "beats_field": "Three pieces, two fragile creatures; mid-tier for Brago.",
-    "spellbook_url": "https://commanderspellbook.com/combo/1987-2493-3821/",
-    "for_commanders": [
-      "brago",
-      "child"
-    ],
-    "spellbook_popularity": 37542,
-    "pieces_in_engine": {
-      "Peregrine Drake": false,
-      "Ghostly Flicker": true,
-      "Archaeomancer": true,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "brago-resonator",
-    "name": "Brago, King Eternal + Strionic Resonator (+ mana rocks + Walking Ballista)",
-    "pieces": [
-      "Brago, King Eternal",
-      "Strionic Resonator",
-      "Sol Ring",
-      "Walking Ballista"
-    ],
-    "colors": "WU",
-    "prerequisites": "Brago can attack (no summoning sickness) and is not blocked; Strionic Resonator untapped; artifacts tapping for >= {2} (Sol Ring) - plus at least one more rock to net mana; Walking Ballista on the battlefield for the kill (it is not blinked).",
-    "steps": [
-      "Attack with Brago. When it deals combat damage, its trigger goes on the stack: target Strionic Resonator, Sol Ring and every other mana rock (choose ALL of them - copies keep the same NUMBER of targets, rule-of-copies nuance; not verified by a Spellbook note).",
-      "In response: tap Sol Ring and the other rocks for mana.",
-      "Activate Strionic Resonator ({2},{T}) copying Brago's trigger; new targets: the same rocks and Resonator.",
-      "Copy resolves: rocks and Resonator are exiled and return untapped.",
-      "Repeat steps 2-4 (Brago's original trigger is still on the stack). With rocks beyond Sol Ring, each loop nets mana.",
-      "Spend the banked colorless on Walking Ballista's {4}: add a counter, then remove counters for 1 damage each to opponents. All of this happens in the combat damage step."
-    ],
-    "mana_needed": "0 on go-off; Brago 4 + Resonator 2 + Sol Ring 1 + Ballista",
-    "instant_speed": "false",
-    "result": "Infinite blinks + infinite colorless mana (Spellbook) -> Ballista damage (composed, not a Spellbook entry)",
-    "weak_to": "Brago removal or blockers (Ur-Dragon dragons fly; Talrand drakes fly); artifact removal on Resonator; Brago not in engine.",
-    "beats_field": "The only Brago-enabled infinite; needs Brago to connect, which the flying Talrand/Ur-Dragon boards contest. Rank below the non-combat lines.",
-    "spellbook_url": "https://commanderspellbook.com/combo/2751-3557/",
-    "for_commanders": [
-      "brago"
-    ],
-    "spellbook_popularity": 12391,
-    "pieces_in_engine": {
-      "Brago, King Eternal": false,
-      "Strionic Resonator": true,
-      "Sol Ring": true,
-      "Walking Ballista": true
-    }
-  },
-  {
-    "id": "brago-archaeomancer-timewarp",
-    "name": "Brago + Archaeomancer + Time Warp (extra-turn loop)",
-    "pieces": [
-      "Brago, King Eternal",
-      "Archaeomancer",
-      "Time Warp"
-    ],
-    "colors": "WU",
-    "prerequisites": "Brago can attack and connect every turn; Archaeomancer on the battlefield; Time Warp in hand; {3}{U}{U} each turn.",
-    "steps": [
-      "Main phase 1: cast Time Warp ({3}{U}{U}) targeting yourself.",
-      "Combat: attack with Brago; on combat damage target Archaeomancer (plus any rocks/lands-free permanents worth blinking).",
-      "Archaeomancer re-enters: return Time Warp to hand.",
-      "Next (extra) turn: repeat. Win by attacking over many turns."
-    ],
-    "mana_needed": "{3}{U}{U} each turn",
-    "instant_speed": "false",
-    "result": "Infinite turns (lock); win through combat",
-    "weak_to": "Brago blocked or removed; counter on Time Warp; flying blockers. Brago not in engine.",
-    "beats_field": "Grindy and combat-dependent; a backup Brago plan, not a turn-5 kill.",
-    "spellbook_url": "https://commanderspellbook.com/combo/2493-3557-4872/",
-    "for_commanders": [
-      "brago"
-    ],
-    "spellbook_popularity": 1566,
-    "pieces_in_engine": {
-      "Brago, King Eternal": false,
-      "Archaeomancer": true,
-      "Time Warp": true
-    }
-  },
-  {
-    "id": "kiki-conscripts",
-    "name": "Kiki-Jiki, Mirror Breaker + Zealous Conscripts (or Splinter Twin + Conscripts)",
-    "pieces": [
-      "Kiki-Jiki, Mirror Breaker",
-      "Zealous Conscripts"
-    ],
-    "colors": "R",
-    "prerequisites": "Both on the battlefield (Kiki has haste). Do it in your main phase 1 or beginning of combat. Splinter Twin on Zealous Conscripts is the same loop (Spellbook 1537-4702).",
-    "steps": [
-      "Tap Kiki-Jiki: token copy of Zealous Conscripts with haste.",
-      "Token ETB: gain control of Kiki-Jiki (target Kiki), untap it.",
-      "Repeat N times (e.g. 60). Optionally aim spare triggers at opponents' blockers/mana to steal and untap them.",
-      "Attack with all hasty tokens (tokens are sacrificed at end step)."
-    ],
-    "mana_needed": "0 on go-off; 10 total ({2}{R}{R}{R} + {4}{R})",
-    "instant_speed": "false",
-    "result": "Infinite hasty tokens -> lethal combat",
-    "weak_to": "Removal on Kiki in response to the first activation; fog effects; wipes before combat. Both in engine.",
-    "beats_field": "In engine and Krenko runs the same line, but it needs combat and RRR; middling vs removal-heavy Edgar/Ur-Dragon.",
-    "spellbook_url": "https://commanderspellbook.com/combo/618-1537/",
-    "for_commanders": [
-      "child"
-    ],
-    "spellbook_popularity": 28001,
-    "pieces_in_engine": {
-      "Kiki-Jiki, Mirror Breaker": true,
-      "Zealous Conscripts": true
-    }
-  },
-  {
-    "id": "kiki-resto-felidar",
-    "name": "Kiki-Jiki + Restoration Angel / Felidar Guardian / Pestermite / Deceiver Exarch",
-    "pieces": [
-      "Kiki-Jiki, Mirror Breaker",
-      "Restoration Angel"
-    ],
-    "colors": "RW (Pestermite/Exarch: UR)",
-    "prerequisites": "Kiki on the battlefield; partner creature cast (Resto/Pestermite/Exarch have flash, Felidar does not).",
-    "steps": [
-      "(Resto) Flash in Restoration Angel at the end of the last opponent's turn, or in your turn.",
-      "Your turn, main phase 1: tap Kiki targeting Resto: hasty token Resto enters, its trigger blinks Kiki (Felidar: blink Kiki; Pestermite/Exarch: untap Kiki).",
-      "Kiki returns untapped (haste): repeat N times.",
-      "Attack with all tokens."
-    ],
-    "mana_needed": "0 on go-off; 9 total ({2}{R}{R}{R} + {3}{W})",
-    "instant_speed": "false",
-    "result": "Infinite hasty tokens -> combat kill",
-    "weak_to": "Same as Conscripts; Resto, Felidar, Pestermite, Exarch are not in engine.",
-    "beats_field": "Redundancy for the Kiki package only.",
-    "spellbook_url": "https://commanderspellbook.com/combo/618-1090/",
-    "for_commanders": [
-      "child"
-    ],
-    "spellbook_popularity": 5880,
-    "pieces_in_engine": {
-      "Kiki-Jiki, Mirror Breaker": true,
-      "Restoration Angel": false
-    }
-  },
-  {
-    "id": "dualcaster-twinflame",
-    "name": "Dualcaster Mage + Twinflame",
-    "pieces": [
-      "Dualcaster Mage",
-      "Twinflame"
-    ],
-    "colors": "R",
-    "prerequisites": "You control at least one creature; {2}{R}{R}{R} in one main phase.",
-    "steps": [
-      "Cast Twinflame ({1}{R}) targeting any creature you control.",
-      "Holding priority, cast Dualcaster Mage ({1}{R}{R}, flash). Its ETB copies Twinflame; new target: Dualcaster Mage.",
-      "Copy resolves: hasty token Dualcaster enters, its ETB copies Twinflame again targeting the newest Dualcaster. Repeat N times.",
-      "Let the original Twinflame resolve, then attack with all hasty tokens."
-    ],
-    "mana_needed": "{2}{R}{R}{R} on go-off; 5 total",
-    "instant_speed": "false",
-    "result": "Infinite hasty tokens -> combat kill",
-    "weak_to": "Counter on Twinflame/Dualcaster; fogs/instant wipes in combat. Neither card in engine.",
-    "beats_field": "Both pieces from hand in one turn, nothing on the board to remove: good vs Edgar/Ur-Dragon; needs combat.",
-    "spellbook_url": "https://commanderspellbook.com/combo/147-1235/",
-    "for_commanders": [
-      "child"
-    ],
-    "spellbook_popularity": 73446,
-    "pieces_in_engine": {
-      "Dualcaster Mage": false,
-      "Twinflame": false
-    }
-  },
-  {
-    "id": "sanguine-exquisite",
-    "name": "Sanguine Bond + Exquisite Blood",
-    "pieces": [
-      "Sanguine Bond",
-      "Exquisite Blood"
-    ],
-    "colors": "B",
-    "prerequisites": "Both on the battlefield; any life gain (lifelink, a land, Trostani, etc.).",
-    "steps": [
-      "Gain any life.",
-      "Sanguine Bond: target opponent loses that much -> Exquisite Blood: you gain that much -> Bond again (retarget the next opponent once one is dead).",
-      "Repeat until all opponents are at 0."
-    ],
-    "mana_needed": "0 + a life-gain event; 10 total",
-    "instant_speed": "true",
-    "result": "Infinite drain",
-    "weak_to": "Enchantment removal (4 bot decks); 10 mana of enchantments. Both in engine.",
-    "beats_field": "Edgar and Corrupted Etrata run this exact line; too slow for a turn 5-6 Child plan. Low priority.",
-    "spellbook_url": "https://commanderspellbook.com/combo/690-3966/",
-    "for_commanders": [
-      "child"
-    ],
-    "spellbook_popularity": 148787,
-    "pieces_in_engine": {
-      "Sanguine Bond": true,
-      "Exquisite Blood": true
-    }
-  },
-  {
-    "id": "coalition-victory-child",
-    "name": "Coalition Victory with Child of Alara on the battlefield",
-    "pieces": [
-      "Coalition Victory",
-      "Child of Alara"
-    ],
-    "colors": "WUBRG",
-    "prerequisites": "Child of Alara on the battlefield (a creature of all five colors - Coalition Victory ruling 2006-09-25: a single multicolored creature counts for all its colors); lands with all five basic land types (basics, typed duals or Triomes; one Triome + typed dual can cover all five); {3}{W}{U}{B}{R}{G}.",
-    "steps": [
-      "Cast Child of Alara from the command zone ({W}{U}{B}{R}{G}).",
-      "Ensure Plains, Island, Swamp, Mountain and Forest types are all on the battlefield.",
-      "Cast Coalition Victory: if Child is still there on resolution, win."
-    ],
-    "mana_needed": "8 on the go-off turn (13 if Child is cast the same turn)",
-    "instant_speed": "false",
-    "result": "Win the game",
-    "weak_to": "Removal on Child (then Child's death trigger destroys all nonland permanents - the bot's own too); counter on an 8-drop; land destruction (Azusa). Neither Child nor Coalition Victory is in the engine.",
-    "beats_field": "Late closer only. NOT on Commander Spellbook as Child + Coalition Victory (only Leyline of the Guildpact + Coalition Victory, 1024-5364).",
-    "spellbook_url": "not on Spellbook (closest: https://commanderspellbook.com/combo/1024-5364/)",
-    "for_commanders": [
-      "child"
-    ],
-    "spellbook_popularity": null,
-    "pieces_in_engine": {
-      "Coalition Victory": false,
-      "Child of Alara": false
-    }
+ {
+  "id": "thoracle-consult",
+  "name": "Thassa's Oracle + Demonic Consultation",
+  "pieces": [
+   "Thassa's Oracle",
+   "Demonic Consultation"
+  ],
+  "colors": "UB",
+  "prerequisites": "Both cards in hand; {U}{U}{B} available. No other requirement.",
+  "steps": [
+   "Main phase, with {U}{U}{B} untapped: cast Thassa's Oracle ({U}{U}).",
+   "If Oracle resolves, its enters trigger goes on the stack. Hold priority (or wait for the trigger to be on the stack).",
+   "In response to the trigger, cast Demonic Consultation ({B}). On resolution name a card that is NOT in your library (safe default: 'Demonic Consultation' itself, which is on the stack, or any card already in hand/graveyard/exile). The whole library is exiled.",
+   "Oracle trigger resolves with 0 cards in library: X (devotion to blue, at least 2) >= 0, you win.",
+   "Fallback order (Spellbook's): Consultation first naming Thassa's Oracle while Oracle is in hand, then cast Oracle. Bot should prefer the Oracle-first order so a countered Oracle does not leave it with an exiled library."
+  ],
+  "mana_needed": "{U}{U}{B} on the go-off turn; 3 total (both pieces are cast that turn)",
+  "instant_speed": "partial",
+  "result": "Win the game",
+  "weak_to": "Counterspell on Thassa's Oracle (Talrand 13 counters, Etrata B4 Force of Will/Fierce Guardianship); trigger/ability stifles; Opposition Agent does not matter (no search). Graveyard hate irrelevant.",
+  "beats_field": "Best line vs Edgar/Ur-Dragon/Krenko/Ghalta/Azusa (no permanents to remove, nothing to wipe); vs Talrand/Etrata needs a protection spell (Silence, Grand Abolisher, own counter) or bait first.",
+  "spellbook_url": "https://commanderspellbook.com/combo/742-1295/",
+  "for_commanders": [
+   "child"
+  ],
+  "spellbook_popularity": 149012,
+  "pieces_in_engine": {
+   "Thassa's Oracle": true,
+   "Demonic Consultation": true
   }
+ },
+ {
+  "id": "thoracle-pact",
+  "name": "Thassa's Oracle + Tainted Pact",
+  "pieces": [
+   "Thassa's Oracle",
+   "Tainted Pact"
+  ],
+  "colors": "UB",
+  "prerequisites": "Both in hand; {1}{U}{U}{B}. Library must contain no two cards with the same name (Spellbook prereq) -> at most ONE copy of each basic land in the deck, or Pact stops early.",
+  "steps": [
+   "Cast Thassa's Oracle ({U}{U}); let it resolve; Oracle trigger on the stack.",
+   "In response cast Tainted Pact ({1}{B}). On resolution, decline to put every exiled card into hand; it keeps exiling until the library is empty.",
+   "Oracle trigger resolves with an empty library: win."
+  ],
+  "mana_needed": "{1}{U}{U}{B}; 4 total",
+  "instant_speed": "partial",
+  "result": "Win the game",
+  "weak_to": "Counters on Oracle; duplicate names in library (basics) stop Pact; Pact is not in the engine yet.",
+  "beats_field": "Same profile as Consultation: immune to removal/wipes/graveyard hate, needs counter protection vs Talrand/Etrata.",
+  "spellbook_url": "https://commanderspellbook.com/combo/1295-3093/",
+  "for_commanders": [
+   "child"
+  ],
+  "spellbook_popularity": 131441,
+  "pieces_in_engine": {
+   "Thassa's Oracle": true,
+   "Tainted Pact": false
+  }
+ },
+ {
+  "id": "thoracle-thoughtlash",
+  "name": "Thassa's Oracle + Thought Lash",
+  "pieces": [
+   "Thassa's Oracle",
+   "Thought Lash"
+  ],
+  "colors": "U",
+  "prerequisites": "Thought Lash on the battlefield (cast earlier for {2}{U}{U}); Oracle in hand; {U}{U}.",
+  "steps": [
+   "Turn N: cast Thought Lash ({2}{U}{U}).",
+   "Turn N+1 upkeep: pay cumulative upkeep (exile 1 card per age counter) - do NOT decline, or the library is exiled with no Oracle ready (that is still fine only if Oracle is in hand and castable this turn).",
+   "Main phase: cast Thassa's Oracle ({U}{U}); with its trigger on the stack, activate Thought Lash's last ability repeatedly ('Exile the top card of your library') until the library is empty (ruling 2008-10-01: cannot activate with an empty library, so stop at 0).",
+   "Oracle trigger resolves with an empty library: win."
+  ],
+  "mana_needed": "{U}{U} on the go-off turn; 6 total",
+  "instant_speed": "partial",
+  "result": "Win the game",
+  "weak_to": "Counter on Oracle; enchantment removal on Thought Lash before the go-off turn (Ur-Dragon, Azusa, Ghalta, Krenko carry artifact/enchantment answers) - but the bot can respond to removal by NOT exiling (just let it die). Not in engine (Thought Lash).",
+  "beats_field": "Only colorless-free blue Oracle line for Brago (no black); exposed to enchantment hate one turn, otherwise like Consultation.",
+  "spellbook_url": "https://commanderspellbook.com/combo/1295-2853/",
+  "for_commanders": [
+   "brago",
+   "child"
+  ],
+  "spellbook_popularity": 4097,
+  "pieces_in_engine": {
+   "Thassa's Oracle": true,
+   "Thought Lash": false
+  }
+ },
+ {
+  "id": "breach-led-brainfreeze",
+  "name": "Underworld Breach + Lion's Eye Diamond + Brain Freeze (+ Thassa's Oracle finish)",
+  "pieces": [
+   "Underworld Breach",
+   "Lion's Eye Diamond",
+   "Brain Freeze",
+   "Thassa's Oracle"
+  ],
+  "colors": "UR (Oracle adds U)",
+  "prerequisites": "Breach and LED on the battlefield (or cast this turn), Brain Freeze in hand or graveyard, at least six other cards in hand and/or graveyard (Spellbook). Thassa's Oracle anywhere it will end up in graveyard/hand. Need {1}{U} to start if Brain Freeze is in hand.",
+  "steps": [
+   "Cast Underworld Breach ({1}{R}) and Lion's Eye Diamond ({0}).",
+   "Cast Brain Freeze from hand targeting YOURSELF (mill 3 x copies). (If it is already in the graveyard, skip.)",
+   "Activate LED: discard hand, sacrifice it, add {U}{U}{U}.",
+   "Loop: escape LED (pay {0} + exile three graveyard cards other than Brain Freeze and Thassa's Oracle) -> activate it for {U}{U}{U} -> escape Brain Freeze ({1}{U} + exile three) targeting yourself; storm copies all target yourself until your library is empty, then aim spare copies at opponents.",
+   "Repeat until your library is in the graveyard. Keep 3 spare cards for the final escape.",
+   "Escape Thassa's Oracle from the graveyard ({U}{U} + exile three other cards). Its trigger resolves with an empty library: win."
+  ],
+  "mana_needed": "{1}{R} for Breach + {1}{U} for first Brain Freeze; ~4 total; the loop then nets mana",
+  "instant_speed": "partial",
+  "result": "Mill yourself and win with escaped Thassa's Oracle (Spellbook itself only lists near-infinite mill/storm/mana)",
+  "weak_to": "Graveyard hate (Shred Memory in two Etrata lists only); artifact/enchantment removal on Breach before the turn; counters on Breach or Oracle; Breach is sacrificed at end step (sorcery-turn window). Breach, LED, Brain Freeze not in engine. Long loop = most complex bot script.",
+  "beats_field": "Graveyard is safe in this field, but needs three cards not in the engine and is the hardest script; keep as backup.",
+  "spellbook_url": "https://commanderspellbook.com/combo/1368-3518-4856/",
+  "for_commanders": [
+   "child"
+  ],
+  "spellbook_popularity": 94839,
+  "pieces_in_engine": {
+   "Underworld Breach": false,
+   "Lion's Eye Diamond": false,
+   "Brain Freeze": false,
+   "Thassa's Oracle": true
+  }
+ },
+ {
+  "id": "hermit-thoracle",
+  "name": "Hermit Druid + Thassa's Oracle",
+  "pieces": [
+   "Hermit Druid",
+   "Thassa's Oracle"
+  ],
+  "colors": "GU",
+  "prerequisites": "No basic land cards in library (deck construction). Hermit Druid not summoning sick. {G} + {U}{U}.",
+  "steps": [
+   "Cast Hermit Druid ({1}{G}) a turn earlier.",
+   "Go-off turn: cast Thassa's Oracle ({U}{U}); with its trigger on the stack, activate Hermit Druid ({G},{T}). With no basics, it reveals and bins the entire library (ruling 2025-01-24).",
+   "Oracle trigger resolves with 0 cards: win."
+  ],
+  "mana_needed": "{G}{U}{U}; 5 total",
+  "instant_speed": "partial",
+  "result": "Win the game",
+  "weak_to": "Any removal on Hermit Druid (Edgar/Ur-Dragon 8 each) during the turn it is summoning sick; counter on Oracle; forces a basic-free five-color mana base. Hermit Druid not in engine.",
+  "beats_field": "Weaker than Consultation here: creature exposed to the field's targeted removal for a full turn cycle.",
+  "spellbook_url": "https://commanderspellbook.com/combo/1295-4400/",
+  "for_commanders": [
+   "child"
+  ],
+  "spellbook_popularity": 10368,
+  "pieces_in_engine": {
+   "Hermit Druid": false,
+   "Thassa's Oracle": true
+  }
+ },
+ {
+  "id": "scepter-reversal",
+  "name": "Isochron Scepter + Dramatic Reversal",
+  "pieces": [
+   "Isochron Scepter",
+   "Dramatic Reversal",
+   "Walking Ballista"
+  ],
+  "colors": "U",
+  "prerequisites": "Scepter on the battlefield with Dramatic Reversal imprinted; nonland permanents (rocks/dorks) that tap for at least {3} total (Spellbook prereq). Outlet: Walking Ballista in hand or on battlefield.",
+  "steps": [
+   "Setup turn: cast Isochron Scepter ({2}); on its enter trigger exile Dramatic Reversal from hand.",
+   "Go-off (main phase): tap every mana rock/dork (>= {3}).",
+   "Activate Scepter ({2},{T}); cast the copy of Dramatic Reversal; it untaps all nonland permanents (rocks and Scepter).",
+   "Repeat steps 2-3; each loop nets (rock mana - 2). Do it N times to bank N x net mana (infinite storm too).",
+   "Cast Walking Ballista with X large enough (X >= 40 per living opponent's life total, e.g. X = 120 -> {240}) and remove counters to deal damage to each opponent until all lose."
+  ],
+  "mana_needed": "{2}+{1}{U} setup (4); go-off needs rocks producing >= 3 plus 0 extra",
+  "instant_speed": "partial",
+  "result": "Infinite mana from nonland permanents + infinite storm -> Walking Ballista for infinite damage",
+  "weak_to": "Artifact removal on Scepter (Ur-Dragon 6, Azusa/Ghalta/Krenko 4 each); rock removal; counter on Scepter. All pieces in engine.",
+  "beats_field": "In-engine and well-known (Talrand runs it), but artifact-dependent against four decks with artifact hate; go off the turn Scepter lands if possible.",
+  "spellbook_url": "https://commanderspellbook.com/combo/4821-5261/",
+  "for_commanders": [
+   "brago",
+   "child"
+  ],
+  "spellbook_popularity": 106172,
+  "pieces_in_engine": {
+   "Isochron Scepter": true,
+   "Dramatic Reversal": true,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "heliod-ballista",
+  "name": "Heliod, Sun-Crowned + Walking Ballista",
+  "pieces": [
+   "Heliod, Sun-Crowned",
+   "Walking Ballista"
+  ],
+  "colors": "W",
+  "prerequisites": "Both on the battlefield; Walking Ballista has at least TWO +1/+1 counters (Spellbook prereq; with one counter it dies to SBA before Heliod's trigger resolves - Heliod ruling 2020-01-24). {1}{W} available.",
+  "steps": [
+   "Cast Heliod ({2}{W}) and Walking Ballista with X=2 ({4}) on earlier turns or the same turn.",
+   "Activate Heliod's {1}{W}: target Walking Ballista gains lifelink.",
+   "Remove a +1/+1 counter from Ballista: 1 damage to an opponent; lifelink gains 1 life; Heliod trigger targets Ballista: +1/+1 counter.",
+   "Repeat step 3 (each loop is counter-neutral) 40 times per opponent (or each opponent's current life), then move to the next opponent.",
+   "Can be done at instant speed, e.g. in response to removal on either piece."
+  ],
+  "mana_needed": "{1}{W} on the go-off turn; 9 total ({2}{W} + {4} + {1}{W})",
+  "instant_speed": "true",
+  "result": "Infinite damage + infinite life",
+  "weak_to": "Removal on Ballista in response to the Heliod activation (Edgar/Ur-Dragon targeted removal; Shalai blanks it); Heliod is indestructible but exiled/bounced by Swords, Rift, Generous Gift; counters on either piece. Both in engine.",
+  "beats_field": "Best creature line: two cards, in engine, instant speed, and under Shalai's hexproof the Ballista cannot be targeted; dies only to wipes before go-off.",
+  "spellbook_url": "https://commanderspellbook.com/combo/1274-3693/",
+  "for_commanders": [
+   "shalai",
+   "brago",
+   "child"
+  ],
+  "spellbook_popularity": 51898,
+  "pieces_in_engine": {
+   "Heliod, Sun-Crowned": true,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "archangel-spikefeeder",
+  "name": "Archangel of Thune + Spike Feeder (+ Walking Ballista or combat)",
+  "pieces": [
+   "Archangel of Thune",
+   "Spike Feeder",
+   "Walking Ballista"
+  ],
+  "colors": "GW",
+  "prerequisites": "Archangel and Spike Feeder on the battlefield, Feeder with >= 2 +1/+1 counters (Spellbook easy prereq). For a kill: Walking Ballista on the battlefield with >= 1 counter, or Archangel able to attack.",
+  "steps": [
+   "Cast Spike Feeder ({1}{G}{G}, enters with 2 counters) and Archangel of Thune ({3}{W}{W}).",
+   "Remove a +1/+1 counter from Spike Feeder: you gain 2 life (Oracle says 2; Spellbook's description says 1).",
+   "Archangel trigger: +1/+1 counter on each creature you control (Feeder back to its count, Ballista +1).",
+   "Repeat steps 2-3 as often as wanted (e.g. 200 times): infinite life and arbitrarily large creatures.",
+   "Kill: remove Ballista counters to deal damage to each opponent; or, without Ballista, attack with the huge flying lifelink Archangel and other creatures."
+  ],
+  "mana_needed": "0 on go-off; 8 total (+ Ballista)",
+  "instant_speed": "true",
+  "result": "Infinite life and +1/+1 counters; infinite damage with Walking Ballista",
+  "weak_to": "Removal on Archangel in response (instant-speed loop can respond, but each loop needs Archangel alive); wipes. All in engine.",
+  "beats_field": "Strong under Shalai: both pieces hexproof; Feeder loop is free so it can win in response to a wipe if Ballista is out.",
+  "spellbook_url": "https://commanderspellbook.com/combo/2290-2919/",
+  "for_commanders": [
+   "shalai",
+   "child"
+  ],
+  "spellbook_popularity": 4982,
+  "pieces_in_engine": {
+   "Archangel of Thune": true,
+   "Spike Feeder": true,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "druid-vizier",
+  "name": "Devoted Druid + Vizier of Remedies (+ Walking Ballista)",
+  "pieces": [
+   "Devoted Druid",
+   "Vizier of Remedies",
+   "Walking Ballista"
+  ],
+  "colors": "GW",
+  "prerequisites": "Devoted Druid not summoning sick; Vizier on the battlefield. Walking Ballista in hand (or Shalai/other outlet).",
+  "steps": [
+   "Cast Devoted Druid ({1}{G}) a turn early; cast Vizier of Remedies ({1}{W}).",
+   "Main phase: tap Druid for {G}; activate 'Put a -1/-1 counter on this creature: Untap' - Vizier reduces it to zero counters (Devoted Druid ruling 2018-12-07 allows activation).",
+   "Repeat N times for N green mana (e.g. 250).",
+   "Cast Walking Ballista with X = 120 (pay 240 green) and shoot each opponent for 40 (or their life).",
+   "Alternative outlet: Shalai's {4}{G}{G} as many times as wanted, then attack (needs combat, weaker)."
+  ],
+  "mana_needed": "0 extra on go-off (Ballista paid by the loop); 4 total for the two pieces",
+  "instant_speed": "partial",
+  "result": "Infinite green mana -> Walking Ballista infinite damage",
+  "weak_to": "Removal on Druid or Vizier (Shalai blanks targeted); wipes; Druid must survive a turn. All in engine.",
+  "beats_field": "Cheap, all in engine; under Shalai only wipes and Shalai removal interfere; the mana loop is not stoppable by counters but Ballista can be countered (Talrand).",
+  "spellbook_url": "https://commanderspellbook.com/combo/978-4762/",
+  "for_commanders": [
+   "shalai",
+   "child"
+  ],
+  "spellbook_popularity": 4897,
+  "pieces_in_engine": {
+   "Devoted Druid": true,
+   "Vizier of Remedies": true,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "druid-swiftreconfig",
+  "name": "Devoted Druid + Swift Reconfiguration (+ Walking Ballista)",
+  "pieces": [
+   "Devoted Druid",
+   "Swift Reconfiguration",
+   "Walking Ballista"
+  ],
+  "colors": "GW",
+  "prerequisites": "Swift Reconfiguration attached to Devoted Druid (Spellbook prereq). Once it is a noncreature Vehicle artifact, -1/-1 counters cannot kill it and summoning sickness does not apply (rules inference, not a Spellbook statement: verify in engine).",
+  "steps": [
+   "Cast Devoted Druid ({1}{G}).",
+   "Cast Swift Reconfiguration ({W}, flash) targeting Devoted Druid.",
+   "Tap Druid for {G}; put a -1/-1 counter on it to untap it; repeat N times (counters do not matter on a noncreature).",
+   "Cast Walking Ballista with large X and shoot opponents."
+  ],
+  "mana_needed": "{W} on go-off (if Druid already out); 3 total",
+  "instant_speed": "partial",
+  "result": "Infinite green mana -> Walking Ballista",
+  "weak_to": "Enchantment/artifact removal on the Aura'd Druid (it is an artifact now: Ur-Dragon/Azusa/Ghalta/Krenko); counters. Swift Reconfiguration not in engine.",
+  "beats_field": "Second copy of the Druid package; the flash Aura means Druid can be enchanted the turn it lands (unverified summoning-sickness interaction) - one-turn kill out of nowhere.",
+  "spellbook_url": "https://commanderspellbook.com/combo/3807-4762/",
+  "for_commanders": [
+   "shalai",
+   "child"
+  ],
+  "spellbook_popularity": 18844,
+  "pieces_in_engine": {
+   "Devoted Druid": true,
+   "Swift Reconfiguration": false,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "trostani-scurryoak-archangel",
+  "name": "Trostani, Selesnya's Voice + Scurry Oak + Archangel of Thune",
+  "pieces": [
+   "Trostani, Selesnya's Voice",
+   "Scurry Oak",
+   "Archangel of Thune",
+   "Walking Ballista"
+  ],
+  "colors": "GW",
+  "prerequisites": "Trostani and Archangel on the battlefield; a way to gain life (casting Scurry Oak does it: Trostani gains life equal to its toughness). Ballista on battlefield for the kill (optional; otherwise attack).",
+  "steps": [
+   "Have Trostani (commander) and Archangel of Thune on the battlefield.",
+   "Cast Scurry Oak ({2}{G}): Trostani trigger, gain 2 life.",
+   "Archangel trigger: +1/+1 counter on each creature, including Scurry Oak -> Scurry Oak trigger: create a 1/1 Squirrel.",
+   "Squirrel enters: Trostani gains 1 life -> Archangel: counters on everything -> Oak makes another Squirrel. Repeat as long as wanted (Oak's token is 'may', so the bot stops it).",
+   "Kill: Ballista counters at opponents, or attack with the giant creatures."
+  ],
+  "mana_needed": "{2}{G} on go-off; 12 total incl. Trostani",
+  "instant_speed": "false",
+  "result": "Infinite life, tokens and +1/+1 counters (infinite damage with Ballista)",
+  "weak_to": "Three pieces; removal on Archangel or Trostani; wipes. Scurry Oak not in engine.",
+  "beats_field": "Only for the Trostani A/B; worse than Heliod/Archangel+Feeder because Trostani is not hexproof.",
+  "spellbook_url": "https://commanderspellbook.com/combo/1545-2919-4186/",
+  "for_commanders": [
+   "shalai",
+   "child"
+  ],
+  "spellbook_popularity": 685,
+  "pieces_in_engine": {
+   "Trostani, Selesnya's Voice": true,
+   "Scurry Oak": false,
+   "Archangel of Thune": true,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "rosie-broodscale",
+  "name": "Rosie Cotton of South Lane + Basking Broodscale (+ Walking Ballista)",
+  "pieces": [
+   "Rosie Cotton of South Lane",
+   "Basking Broodscale",
+   "Walking Ballista"
+  ],
+  "colors": "GW",
+  "prerequisites": "Basking Broodscale on the battlefield; Rosie in hand; {2}{W}.",
+  "steps": [
+   "Cast Basking Broodscale ({1}{G}).",
+   "Cast Rosie Cotton ({2}{W}): ETB creates a Food -> Rosie trigger: +1/+1 counter on target Broodscale -> Broodscale: create an Eldrazi Spawn -> Rosie trigger again (target Broodscale) -> repeat N times (Broodscale's token is 'may').",
+   "Sacrifice Spawns for {C} each: N colorless mana.",
+   "Cast Walking Ballista with X large and shoot opponents."
+  ],
+  "mana_needed": "{2}{W} on go-off; 5 total",
+  "instant_speed": "false",
+  "result": "Infinite colorless mana, tokens, counters -> Walking Ballista",
+  "weak_to": "Removal on Broodscale before Rosie; counter on Rosie. Neither in engine.",
+  "beats_field": "Cheap two-card GW mana engine; with Shalai out Broodscale is hexproof, so only counters (Talrand) stop it.",
+  "spellbook_url": "https://commanderspellbook.com/combo/2433-5641/",
+  "for_commanders": [
+   "shalai",
+   "child"
+  ],
+  "spellbook_popularity": 23599,
+  "pieces_in_engine": {
+   "Rosie Cotton of South Lane": false,
+   "Basking Broodscale": false,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "earthcraft-squirrelnest",
+  "name": "Earthcraft + Squirrel Nest (+ Ashnod's Altar + Walking Ballista)",
+  "pieces": [
+   "Earthcraft",
+   "Squirrel Nest",
+   "Ashnod's Altar",
+   "Walking Ballista"
+  ],
+  "colors": "G",
+  "prerequisites": "Squirrel Nest attached to a BASIC land you control (Earthcraft untaps basic lands only). Needs an outlet: Spellbook result is only infinite tapped tokens.",
+  "steps": [
+   "Cast Earthcraft ({1}{G}), Squirrel Nest ({1}{G}{G}) on a basic land, Ashnod's Altar ({3}).",
+   "Tap the enchanted land: create a Squirrel. Earthcraft: tap that Squirrel to untap the land. Repeat N times.",
+   "Sacrifice Squirrels to Ashnod's Altar for {C}{C} each.",
+   "Cast Walking Ballista with large X."
+  ],
+  "mana_needed": "0 on go-off; 8 total for 3 pieces",
+  "instant_speed": "partial",
+  "result": "Infinite tapped Squirrels (+ Altar: infinite colorless mana -> Ballista)",
+  "weak_to": "Enchantment/artifact removal (Ur-Dragon, Azusa, Ghalta, Krenko); needs 4 pieces for a kill; Earthcraft and Squirrel Nest not in engine.",
+  "beats_field": "Weak here: three non-creature permanents that Shalai cannot protect and four bot decks can destroy.",
+  "spellbook_url": "https://commanderspellbook.com/combo/515-2757/",
+  "for_commanders": [
+   "shalai",
+   "child"
+  ],
+  "spellbook_popularity": 8409,
+  "pieces_in_engine": {
+   "Earthcraft": false,
+   "Squirrel Nest": false,
+   "Ashnod's Altar": true,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "basalt-forsaken",
+  "name": "Basalt Monolith + Forsaken Monument (+ Walking Ballista)",
+  "pieces": [
+   "Basalt Monolith",
+   "Forsaken Monument",
+   "Walking Ballista"
+  ],
+  "colors": "C",
+  "prerequisites": "Both on the battlefield. Ruling (Forsaken Monument 2020-09-25): tapping for more than one {C} adds only one extra, so Basalt makes {C}{C}{C}{C} and untapping costs {3}: net +1 per loop.",
+  "steps": [
+   "Cast Basalt Monolith ({3}) and Forsaken Monument ({5}).",
+   "Tap Basalt for {C}{C}{C} (+{C} from Monument). Pay {3}: untap Basalt. Repeat N times for N colorless.",
+   "Cast Walking Ballista (X large; it also gets +2/+2 from Monument) and shoot."
+  ],
+  "mana_needed": "0 on go-off; 8 total",
+  "instant_speed": "partial",
+  "result": "Infinite colorless mana -> Ballista",
+  "weak_to": "Artifact removal; counters; 8 mana of setup. All in engine.",
+  "beats_field": "Fully in engine and colorless (fits all three commanders), but two artifacts in front of four decks with artifact hate.",
+  "spellbook_url": "https://commanderspellbook.com/combo/4131-4547/",
+  "for_commanders": [
+   "shalai",
+   "brago",
+   "child"
+  ],
+  "spellbook_popularity": 64574,
+  "pieces_in_engine": {
+   "Basalt Monolith": true,
+   "Forsaken Monument": true,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "basalt-rings",
+  "name": "Basalt Monolith + Rings of Brighthearth (+ Walking Ballista)",
+  "pieces": [
+   "Basalt Monolith",
+   "Rings of Brighthearth",
+   "Walking Ballista"
+  ],
+  "colors": "C",
+  "prerequisites": "Both on the battlefield; {2} extra to start (Spellbook).",
+  "steps": [
+   "Tap Basalt for {C}{C}{C}. Activate its untap ability ({3}).",
+   "Rings trigger: pay {2}, copy the untap ability. Copy resolves first (Rings ruling 2020-11-10): Basalt untaps; tap it again for {C}{C}{C}.",
+   "Original untap ability resolves: Basalt untaps. Net +1 per cycle. Repeat.",
+   "Cast Walking Ballista with large X."
+  ],
+  "mana_needed": "{2} on go-off; 6 total",
+  "instant_speed": "partial",
+  "result": "Infinite colorless mana",
+  "weak_to": "Artifact removal; Rings not in engine.",
+  "beats_field": "Same as Monument version but cheaper; Rings needs engine work.",
+  "spellbook_url": "https://commanderspellbook.com/combo/4131-4235/",
+  "for_commanders": [
+   "shalai",
+   "brago",
+   "child"
+  ],
+  "spellbook_popularity": 53051,
+  "pieces_in_engine": {
+   "Basalt Monolith": true,
+   "Rings of Brighthearth": false,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "monolith-powerartifact",
+  "name": "Basalt Monolith or Grim Monolith + Power Artifact (+ Walking Ballista)",
+  "pieces": [
+   "Power Artifact",
+   "Basalt Monolith",
+   "Grim Monolith",
+   "Walking Ballista"
+  ],
+  "colors": "U",
+  "prerequisites": "Power Artifact attached to Basalt Monolith (untap costs {1}, net +2) or Grim Monolith (untap costs {2}, net +1). Only one Monolith is needed.",
+  "steps": [
+   "Cast the Monolith, then Power Artifact ({U}{U}) enchanting it.",
+   "Tap Monolith for {C}{C}{C}; pay reduced untap cost; repeat N times.",
+   "Cast Walking Ballista with large X."
+  ],
+  "mana_needed": "0 on go-off; 5 (Basalt) or 4 (Grim) total",
+  "instant_speed": "partial",
+  "result": "Infinite colorless mana",
+  "weak_to": "Artifact or enchantment removal on either piece; Power Artifact not in engine. Grim Monolith is a Game Changer.",
+  "beats_field": "Two cheap permanents, both exposed to Ur-Dragon/Azusa/Ghalta/Krenko hate; fine as redundancy with Scepter rocks.",
+  "spellbook_url": "https://commanderspellbook.com/combo/4131-5149/",
+  "for_commanders": [
+   "brago",
+   "child"
+  ],
+  "spellbook_popularity": 10849,
+  "pieces_in_engine": {
+   "Power Artifact": false,
+   "Basalt Monolith": true,
+   "Grim Monolith": true,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "kitten-teferi-solring",
+  "name": "Displacer Kitten + Teferi, Time Raveler + Sol Ring (+ Thassa's Oracle)",
+  "pieces": [
+   "Displacer Kitten",
+   "Teferi, Time Raveler",
+   "Sol Ring",
+   "Thassa's Oracle"
+  ],
+  "colors": "WU",
+  "prerequisites": "Kitten and Teferi on the battlefield, Sol Ring in hand, {1}. Main phase (loyalty abilities). Thassa's Oracle to finish.",
+  "steps": [
+   "Cast Sol Ring ({1}): Kitten trigger blinks Teferi (fresh loyalty object).",
+   "Tap Sol Ring for {C}{C}. Teferi -3: return Sol Ring to hand, draw a card.",
+   "Recast Sol Ring ({1}): Kitten blinks Teferi again. Net +{C} and +1 card per loop. Repeat until the library is empty (stop before drawing from an empty library).",
+   "With the library at 0, cast Thassa's Oracle ({U}{U}, from lands or banked colorless is not enough - keep {U}{U} from lands): win. Alternatively use banked colorless for Walking Ballista."
+  ],
+  "mana_needed": "{1} + {U}{U}; 9 total for Kitten+Teferi+Sol Ring",
+  "instant_speed": "false",
+  "result": "Near-infinite colorless mana and card draw (bounded by library) -> Thassa's Oracle win",
+  "weak_to": "Removal on Kitten (Edgar/Ur-Dragon); Teferi attacked; counters on Sol Ring do nothing - Teferi's static stops opponents casting at instant speed, so Talrand cannot counter during the loop. Kitten and Teferi not in engine.",
+  "beats_field": "Teferi turns off Talrand's instant-speed counters, which is the main threat; but Kitten is a fragile 2/2 in front of 8-removal decks.",
+  "spellbook_url": "https://commanderspellbook.com/combo/1170-4761-5034/",
+  "for_commanders": [
+   "brago",
+   "child"
+  ],
+  "spellbook_popularity": 45761,
+  "pieces_in_engine": {
+   "Displacer Kitten": false,
+   "Teferi, Time Raveler": false,
+   "Sol Ring": true,
+   "Thassa's Oracle": true
+  }
+ },
+ {
+  "id": "drake-flicker-archaeomancer",
+  "name": "Peregrine Drake + Ghostly Flicker + Archaeomancer (or Mnemonic Wall)",
+  "pieces": [
+   "Peregrine Drake",
+   "Ghostly Flicker",
+   "Archaeomancer",
+   "Walking Ballista"
+  ],
+  "colors": "U",
+  "prerequisites": "Drake and Archaeomancer (or Mnemonic Wall) on the battlefield, Ghostly Flicker in hand; five lands that make {3}{U} for net mana (Spellbook).",
+  "steps": [
+   "Tap five lands. Cast Ghostly Flicker ({2}{U}) targeting Peregrine Drake and Archaeomancer.",
+   "Archaeomancer returns Ghostly Flicker to hand; Drake untaps five lands.",
+   "Repeat N times (net +2 mana with five lands of which one makes U); infinite storm/ETB.",
+   "Cast Walking Ballista with large X in the main phase."
+  ],
+  "mana_needed": "{2}{U} on go-off; 12 total",
+  "instant_speed": "partial",
+  "result": "Infinite land mana, infinite ETB/storm -> Ballista",
+  "weak_to": "Removal on either creature (they sit for a turn); counter on Flicker. Drake and Mnemonic Wall not in engine (Archaeomancer and Ghostly Flicker are).",
+  "beats_field": "Three pieces, two fragile creatures; mid-tier for Brago.",
+  "spellbook_url": "https://commanderspellbook.com/combo/1987-2493-3821/",
+  "for_commanders": [
+   "brago",
+   "child"
+  ],
+  "spellbook_popularity": 37542,
+  "pieces_in_engine": {
+   "Peregrine Drake": false,
+   "Ghostly Flicker": true,
+   "Archaeomancer": true,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "brago-resonator",
+  "name": "Brago, King Eternal + Strionic Resonator (+ mana rocks + Walking Ballista)",
+  "pieces": [
+   "Brago, King Eternal",
+   "Strionic Resonator",
+   "Sol Ring",
+   "Walking Ballista"
+  ],
+  "colors": "WU",
+  "prerequisites": "Brago can attack (no summoning sickness) and is not blocked; Strionic Resonator untapped; artifacts tapping for >= {2} (Sol Ring) - plus at least one more rock to net mana; Walking Ballista on the battlefield for the kill (it is not blinked).",
+  "steps": [
+   "Attack with Brago. When it deals combat damage, its trigger goes on the stack: target Strionic Resonator, Sol Ring and every other mana rock (choose ALL of them - copies keep the same NUMBER of targets, rule-of-copies nuance; not verified by a Spellbook note).",
+   "In response: tap Sol Ring and the other rocks for mana.",
+   "Activate Strionic Resonator ({2},{T}) copying Brago's trigger; new targets: the same rocks and Resonator.",
+   "Copy resolves: rocks and Resonator are exiled and return untapped.",
+   "Repeat steps 2-4 (Brago's original trigger is still on the stack). With rocks beyond Sol Ring, each loop nets mana.",
+   "Spend the banked colorless on Walking Ballista's {4}: add a counter, then remove counters for 1 damage each to opponents. All of this happens in the combat damage step."
+  ],
+  "mana_needed": "0 on go-off; Brago 4 + Resonator 2 + Sol Ring 1 + Ballista",
+  "instant_speed": "false",
+  "result": "Infinite blinks + infinite colorless mana (Spellbook) -> Ballista damage (composed, not a Spellbook entry)",
+  "weak_to": "Brago removal or blockers (Ur-Dragon dragons fly; Talrand drakes fly); artifact removal on Resonator; Brago not in engine.",
+  "beats_field": "The only Brago-enabled infinite; needs Brago to connect, which the flying Talrand/Ur-Dragon boards contest. Rank below the non-combat lines.",
+  "spellbook_url": "https://commanderspellbook.com/combo/2751-3557/",
+  "for_commanders": [
+   "brago"
+  ],
+  "spellbook_popularity": 12391,
+  "pieces_in_engine": {
+   "Brago, King Eternal": false,
+   "Strionic Resonator": true,
+   "Sol Ring": true,
+   "Walking Ballista": true
+  }
+ },
+ {
+  "id": "brago-archaeomancer-timewarp",
+  "name": "Brago + Archaeomancer + Time Warp (extra-turn loop)",
+  "pieces": [
+   "Brago, King Eternal",
+   "Archaeomancer",
+   "Time Warp"
+  ],
+  "colors": "WU",
+  "prerequisites": "Brago can attack and connect every turn; Archaeomancer on the battlefield; Time Warp in hand; {3}{U}{U} each turn.",
+  "steps": [
+   "Main phase 1: cast Time Warp ({3}{U}{U}) targeting yourself.",
+   "Combat: attack with Brago; on combat damage target Archaeomancer (plus any rocks/lands-free permanents worth blinking).",
+   "Archaeomancer re-enters: return Time Warp to hand.",
+   "Next (extra) turn: repeat. Win by attacking over many turns."
+  ],
+  "mana_needed": "{3}{U}{U} each turn",
+  "instant_speed": "false",
+  "result": "Infinite turns (lock); win through combat",
+  "weak_to": "Brago blocked or removed; counter on Time Warp; flying blockers. Brago not in engine.",
+  "beats_field": "Grindy and combat-dependent; a backup Brago plan, not a turn-5 kill.",
+  "spellbook_url": "https://commanderspellbook.com/combo/2493-3557-4872/",
+  "for_commanders": [
+   "brago"
+  ],
+  "spellbook_popularity": 1566,
+  "pieces_in_engine": {
+   "Brago, King Eternal": false,
+   "Archaeomancer": true,
+   "Time Warp": true
+  }
+ },
+ {
+  "id": "kiki-conscripts",
+  "name": "Kiki-Jiki, Mirror Breaker + Zealous Conscripts (or Splinter Twin + Conscripts)",
+  "pieces": [
+   "Kiki-Jiki, Mirror Breaker",
+   "Zealous Conscripts"
+  ],
+  "colors": "R",
+  "prerequisites": "Both on the battlefield (Kiki has haste). Do it in your main phase 1 or beginning of combat. Splinter Twin on Zealous Conscripts is the same loop (Spellbook 1537-4702).",
+  "steps": [
+   "Tap Kiki-Jiki: token copy of Zealous Conscripts with haste.",
+   "Token ETB: gain control of Kiki-Jiki (target Kiki), untap it.",
+   "Repeat N times (e.g. 60). Optionally aim spare triggers at opponents' blockers/mana to steal and untap them.",
+   "Attack with all hasty tokens (tokens are sacrificed at end step)."
+  ],
+  "mana_needed": "0 on go-off; 10 total ({2}{R}{R}{R} + {4}{R})",
+  "instant_speed": "false",
+  "result": "Infinite hasty tokens -> lethal combat",
+  "weak_to": "Removal on Kiki in response to the first activation; fog effects; wipes before combat. Both in engine.",
+  "beats_field": "In engine and Krenko runs the same line, but it needs combat and RRR; middling vs removal-heavy Edgar/Ur-Dragon.",
+  "spellbook_url": "https://commanderspellbook.com/combo/618-1537/",
+  "for_commanders": [
+   "child"
+  ],
+  "spellbook_popularity": 28001,
+  "pieces_in_engine": {
+   "Kiki-Jiki, Mirror Breaker": true,
+   "Zealous Conscripts": true
+  }
+ },
+ {
+  "id": "kiki-resto-felidar",
+  "name": "Kiki-Jiki + Restoration Angel / Felidar Guardian / Pestermite / Deceiver Exarch",
+  "pieces": [
+   "Kiki-Jiki, Mirror Breaker",
+   "Restoration Angel"
+  ],
+  "colors": "RW (Pestermite/Exarch: UR)",
+  "prerequisites": "Kiki on the battlefield; partner creature cast (Resto/Pestermite/Exarch have flash, Felidar does not).",
+  "steps": [
+   "(Resto) Flash in Restoration Angel at the end of the last opponent's turn, or in your turn.",
+   "Your turn, main phase 1: tap Kiki targeting Resto: hasty token Resto enters, its trigger blinks Kiki (Felidar: blink Kiki; Pestermite/Exarch: untap Kiki).",
+   "Kiki returns untapped (haste): repeat N times.",
+   "Attack with all tokens."
+  ],
+  "mana_needed": "0 on go-off; 9 total ({2}{R}{R}{R} + {3}{W})",
+  "instant_speed": "false",
+  "result": "Infinite hasty tokens -> combat kill",
+  "weak_to": "Same as Conscripts; Resto, Felidar, Pestermite, Exarch are not in engine.",
+  "beats_field": "Redundancy for the Kiki package only.",
+  "spellbook_url": "https://commanderspellbook.com/combo/618-1090/",
+  "for_commanders": [
+   "child"
+  ],
+  "spellbook_popularity": 5880,
+  "pieces_in_engine": {
+   "Kiki-Jiki, Mirror Breaker": true,
+   "Restoration Angel": false
+  }
+ },
+ {
+  "id": "dualcaster-twinflame",
+  "name": "Dualcaster Mage + Twinflame",
+  "pieces": [
+   "Dualcaster Mage",
+   "Twinflame"
+  ],
+  "colors": "R",
+  "prerequisites": "You control at least one creature; {2}{R}{R}{R} in one main phase.",
+  "steps": [
+   "Cast Twinflame ({1}{R}) targeting any creature you control.",
+   "Holding priority, cast Dualcaster Mage ({1}{R}{R}, flash). Its ETB copies Twinflame; new target: Dualcaster Mage.",
+   "Copy resolves: hasty token Dualcaster enters, its ETB copies Twinflame again targeting the newest Dualcaster. Repeat N times.",
+   "Let the original Twinflame resolve, then attack with all hasty tokens."
+  ],
+  "mana_needed": "{2}{R}{R}{R} on go-off; 5 total",
+  "instant_speed": "false",
+  "result": "Infinite hasty tokens -> combat kill",
+  "weak_to": "Counter on Twinflame/Dualcaster; fogs/instant wipes in combat. Neither card in engine.",
+  "beats_field": "Both pieces from hand in one turn, nothing on the board to remove: good vs Edgar/Ur-Dragon; needs combat.",
+  "spellbook_url": "https://commanderspellbook.com/combo/147-1235/",
+  "for_commanders": [
+   "child"
+  ],
+  "spellbook_popularity": 73446,
+  "pieces_in_engine": {
+   "Dualcaster Mage": false,
+   "Twinflame": false
+  }
+ },
+ {
+  "id": "sanguine-exquisite",
+  "name": "Sanguine Bond + Exquisite Blood",
+  "pieces": [
+   "Sanguine Bond",
+   "Exquisite Blood"
+  ],
+  "colors": "B",
+  "prerequisites": "Both on the battlefield; any life gain (lifelink, a land, Trostani, etc.).",
+  "steps": [
+   "Gain any life.",
+   "Sanguine Bond: target opponent loses that much -> Exquisite Blood: you gain that much -> Bond again (retarget the next opponent once one is dead).",
+   "Repeat until all opponents are at 0."
+  ],
+  "mana_needed": "0 + a life-gain event; 10 total",
+  "instant_speed": "true",
+  "result": "Infinite drain",
+  "weak_to": "Enchantment removal (4 bot decks); 10 mana of enchantments. Both in engine.",
+  "beats_field": "Edgar and Corrupted Etrata run this exact line; too slow for a turn 5-6 Child plan. Low priority.",
+  "spellbook_url": "https://commanderspellbook.com/combo/690-3966/",
+  "for_commanders": [
+   "child"
+  ],
+  "spellbook_popularity": 148787,
+  "pieces_in_engine": {
+   "Sanguine Bond": true,
+   "Exquisite Blood": true
+  }
+ },
+ {
+  "id": "coalition-victory-child",
+  "name": "Coalition Victory with Child of Alara on the battlefield",
+  "pieces": [
+   "Coalition Victory",
+   "Child of Alara"
+  ],
+  "colors": "WUBRG",
+  "prerequisites": "Child of Alara on the battlefield (a creature of all five colors - Coalition Victory ruling 2006-09-25: a single multicolored creature counts for all its colors); lands with all five basic land types (basics, typed duals or Triomes; one Triome + typed dual can cover all five); {3}{W}{U}{B}{R}{G}.",
+  "steps": [
+   "Cast Child of Alara from the command zone ({W}{U}{B}{R}{G}).",
+   "Ensure Plains, Island, Swamp, Mountain and Forest types are all on the battlefield.",
+   "Cast Coalition Victory: if Child is still there on resolution, win."
+  ],
+  "mana_needed": "8 on the go-off turn (13 if Child is cast the same turn)",
+  "instant_speed": "false",
+  "result": "Win the game",
+  "weak_to": "Removal on Child (then Child's death trigger destroys all nonland permanents - the bot's own too); counter on an 8-drop; land destruction (Azusa). Neither Child nor Coalition Victory is in the engine.",
+  "beats_field": "Late closer only. NOT on Commander Spellbook as Child + Coalition Victory (only Leyline of the Guildpact + Coalition Victory, 1024-5364).",
+  "spellbook_url": "not on Spellbook (closest: https://commanderspellbook.com/combo/1024-5364/)",
+  "for_commanders": [
+   "child"
+  ],
+  "spellbook_popularity": null,
+  "pieces_in_engine": {
+   "Coalition Victory": false,
+   "Child of Alara": false
+  }
+ },
+ {
+  "id": "drake-deadeye",
+  "name": "Peregrine Drake + Deadeye Navigator (+ Walking Ballista)",
+  "pieces": [
+   "Peregrine Drake",
+   "Deadeye Navigator",
+   "Walking Ballista"
+  ],
+  "colors": "U",
+  "prerequisites": "Deadeye Navigator paired with Peregrine Drake (soulbond: pair when either enters). Up to five untapped-able lands that together tap for at least {2}{U} (Spellbook notable prerequisite). Main phase for the Ballista finish.",
+  "steps": [
+   "Cast Peregrine Drake ({4}{U}) and Deadeye Navigator ({4}{U}{U}); when the second one enters, pair them (soulbond).",
+   "Tap five lands for mana (at least {2}{U}).",
+   "Activate the ability Deadeye grants to Peregrine Drake: pay {1}{U}, exile Peregrine Drake, then return it to the battlefield. It re-pairs with Deadeye as it enters (soulbond).",
+   "Peregrine Drake enters: untap up to five lands. Net +1 or more mana per loop (five lands minus {1}{U}).",
+   "Repeat steps 2-4 until the mana pool holds enough for the finish (for example the total life of the opponents x 2 + 4).",
+   "Cast Walking Ballista with X = (opponents total life), then remove counters to deal 1 damage each to the opponents until they are dead. (Mana empties between steps and phases: do the loop and cast Ballista in the same main phase.)"
+  ],
+  "mana_needed": "{1}{U} per loop on the go-off turn after both are out; 11 to cast the pair ({4}{U} + {4}{U}{U}); then X+X for Ballista from the loop",
+  "instant_speed": "partial",
+  "result": "Infinite mana of the colors your five lands produce, infinite ETB/LTB of the two creatures; Walking Ballista turns the mana into damage.",
+  "weak_to": "Removal on Deadeye or Drake before the go-off turn (Edgar/Ur-Dragon 8 targeted removal); counters on the creatures or on Ballista (Talrand); wipes. The loop itself is activated abilities, so counterspells cannot stop it once both are out.",
+  "beats_field": "The Bracket 4 Brago standard (3 of 4 Bracket 4 Brago lists): both pieces are creatures Brago can protect with counters and blink to dodge removal; weak to the 8-removal decks while assembling.",
+  "spellbook_url": "https://commanderspellbook.com/combo/1409-3821/",
+  "for_commanders": [
+   "brago",
+   "child"
+  ],
+  "spellbook_popularity": 47225,
+  "pieces_in_engine": {}
+ }
 ]

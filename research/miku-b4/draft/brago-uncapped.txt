@@ -1,35 +1,24 @@
 Brago, King Eternal
-Displacer Kitten
-Teferi, Time Raveler
+Peregrine Drake
+Deadeye Navigator
 Isochron Scepter
 Dramatic Reversal
 Heliod, Sun-Crowned
 Walking Ballista
-Thassa's Oracle
-Peregrine Drake
 Archaeomancer
 Ghostly Flicker
 Strionic Resonator
-Enlightened Tutor
-Mystical Tutor
-Recruiter of the Guard
-Trinket Mage
-Spellseeker
-Tribute Mage
-Muddle the Mixture
-Whir of Invention
-Merchant Scroll
 Sol Ring
 Mana Vault
 Grim Monolith
 Basalt Monolith
 Chrome Mox
 Mox Diamond
-Lotus Petal
 Arcane Signet
 Talisman of Progress
 Azorius Signet
 Fellwar Stone
+Thought Vessel
 Mind Stone
 Force of Will
 Force of Negation
@@ -37,35 +26,47 @@ Fierce Guardianship
 Mana Drain
 Swan Song
 Counterspell
-Flusterstorm
 An Offer You Can't Refuse
 Dovin's Veto
+Flusterstorm
 Swords to Plowshares
 Path to Exile
+Generous Gift
 Cyclonic Rift
-Rhystic Study
+Reality Acid
+Skyclave Apparition
+Reflector Mage
+Supreme Verdict
+Enlightened Tutor
+Mystical Tutor
+Recruiter of the Guard
+Trinket Mage
+Tribute Mage
+Muddle the Mixture
+Spellseeker
+Aether Channeler
+Ephemerate
+Cloudshift
+Wall of Omens
+Omen of the Sea
+Mulldrifter
+Cloud of Faeries
+Venser, Shaper Savant
+Soulherder
+Elesh Norn, Mother of Machines
+Solemn Simulacrum
+Sea Gate Oracle
+Cryogen Relic
+Loran of the Third Path
 Mystic Remora
+Rhystic Study
 Esper Sentinel
 Smothering Tithe
 The One Ring
-Omen of the Sea
-Mulldrifter
-Aether Channeler
-Ephemerate
-Venser, Shaper Savant
-Skyclave Apparition
-Reflector Mage
 Lightning Greaves
-Grand Abolisher
-Drannith Magistrate
 Teferi's Protection
-Cloud of Faeries
-Elesh Norn, Mother of Machines
-Silence
-Solemn Simulacrum
-Wall of Omens
-Phyrexian Metamorph
-Supreme Verdict
+Flawless Maneuver
+Grand Abolisher
 Command Tower
 Tundra
 Hallowed Fountain
@@ -86,6 +87,7 @@ Urza's Saga
 Deserted Beach
 Celestial Colonnade
 Irrigated Farmland
+Mystic Sanctuary
 Island
 Island
 Island
@@ -96,5 +98,3 @@ Plains
 Plains
 Plains
 Plains
-Snapcaster Mage
-Soulherder

@@ -3021,6 +3021,37 @@
   "in_engine": false
  },
  {
+  "name": "Coldsteel Heart",
+  "mana_cost": "{2}",
+  "cmc": 2,
+  "type_line": "Snow Artifact",
+  "oracle_text": "This artifact enters tapped.\nAs this artifact enters, choose a color.\n{T}: Add one mana of the chosen color.",
+  "faces": null,
+  "power": null,
+  "toughness": null,
+  "loyalty": null,
+  "color_identity": [],
+  "keywords": [],
+  "legal_commander": true,
+  "game_changer": false,
+  "price_eur": 0.68,
+  "price_eur_url": "https://www.cardmarket.com/en/Magic/Products?idProduct=13623&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+  "price_usd": 1.12,
+  "price_usd_url": "https://www.tcgplayer.com/product/166760",
+  "price_date": "2026-10-07",
+  "miku_printing": null,
+  "roles": [
+   "fast-mana"
+  ],
+  "for_commanders": [
+   "brago"
+  ],
+  "combos": [],
+  "why": "Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 0 of 10 kept public Brago lists).",
+  "rulings": [],
+  "in_engine": false
+ },
+ {
   "name": "Collector Ouphe",
   "mana_cost": "{1}{G}",
   "cmc": 2,
@@ -3612,14 +3643,26 @@
   "price_date": "2026-10-07",
   "miku_printing": null,
   "roles": [
-   "value"
+   "win-line"
   ],
   "for_commanders": [
+   "child",
    "brago"
   ],
-  "combos": [],
-  "why": "Value that adds board presence or card quality (in 4 of 10 kept public Brago lists).",
-  "rulings": [],
+  "combos": [
+   "drake-deadeye"
+  ],
+  "why": "Piece of Peregrine Drake + Deadeye Navigator (+ Walking Ballista); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 4 of 10 kept public Brago lists).",
+  "rulings": [
+   {
+    "date": "2017-03-14",
+    "text": "If you activate the ability granted by Deadeye Navigator, the creature will be exiled, the pair will immediately be broken, and then the card will be returned to the battlefield. Deadeye Navigator’s soulbond ability triggers when that card enters the battlefield and the pair can then be reunited."
+   },
+   {
+    "date": "2017-03-14",
+    "text": "Once Deadeye Navigator or the creature it’s paired with is exiled, the other creature will no longer have the activated ability. However, you can activate the ability of one creature in response to activating the ability of the other creature."
+   }
+  ],
   "in_engine": false
  },
  {
@@ -9198,39 +9241,6 @@
   "in_engine": true
  },
  {
-  "name": "Merchant Scroll",
-  "mana_cost": "{1}{U}",
-  "cmc": 2,
-  "type_line": "Sorcery",
-  "oracle_text": "Search your library for a blue instant card, reveal that card, put it into your hand, then shuffle.",
-  "faces": null,
-  "power": null,
-  "toughness": null,
-  "loyalty": null,
-  "color_identity": [
-   "U"
-  ],
-  "keywords": [],
-  "legal_commander": true,
-  "game_changer": false,
-  "price_eur": 4.43,
-  "price_eur_url": "https://www.cardmarket.com/en/Magic/Products?idProduct=727&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
-  "price_usd": 3.41,
-  "price_usd_url": "https://www.tcgplayer.com/product/563200",
-  "price_date": "2026-10-07",
-  "miku_printing": null,
-  "roles": [
-   "tutor"
-  ],
-  "for_commanders": [
-   "brago"
-  ],
-  "combos": [],
-  "why": "Tutor that finds the missing win-line piece or the answer the turn needs (in 0 of 10 kept public Brago lists).",
-  "rulings": [],
-  "in_engine": true
- },
- {
   "name": "Meticulous Archive",
   "mana_cost": "",
   "cmc": 0,
@@ -9970,6 +9980,39 @@
   ],
   "combos": [],
   "why": "Card draw that refills the hand so the deck finds its pieces (in 5 of 9 kept public Child of Alara lists; 9 of 10 kept public Brago lists).",
+  "rulings": [],
+  "in_engine": true
+ },
+ {
+  "name": "Mystic Sanctuary",
+  "mana_cost": "",
+  "cmc": 0,
+  "type_line": "Land — Island",
+  "oracle_text": "({T}: Add {U}.)\nThis land enters tapped unless you control three or more other Islands.\nWhen this land enters untapped, you may put target instant or sorcery card from your graveyard on top of your library.",
+  "faces": null,
+  "power": null,
+  "toughness": null,
+  "loyalty": null,
+  "color_identity": [
+   "U"
+  ],
+  "keywords": [],
+  "legal_commander": true,
+  "game_changer": false,
+  "price_eur": 1.05,
+  "price_eur_url": "https://www.cardmarket.com/en/Magic/Products?idProduct=401954&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+  "price_usd": 1.01,
+  "price_usd_url": "https://www.tcgplayer.com/product/563081",
+  "price_date": "2026-10-07",
+  "miku_printing": null,
+  "roles": [
+   "land"
+  ],
+  "for_commanders": [
+   "brago"
+  ],
+  "combos": [],
+  "why": "Land that produces the deck's colors (in 1 of 10 kept public Brago lists).",
   "rulings": [],
   "in_engine": true
  },
@@ -10825,9 +10868,10 @@
    "brago"
   ],
   "combos": [
-   "drake-flicker-archaeomancer"
+   "drake-flicker-archaeomancer",
+   "drake-deadeye"
   ],
-  "why": "Piece of Peregrine Drake + Ghostly Flicker + Archaeomancer (or Mnemonic Wall); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists).",
+  "why": "Piece of Peregrine Drake + Ghostly Flicker + Archaeomancer (or Mnemonic Wall) and of Peregrine Drake + Deadeye Navigator (+ Walking Ballista); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists).",
   "rulings": [
    {
     "date": "2022-12-08",
@@ -13316,11 +13360,10 @@
    "value"
   ],
   "for_commanders": [
-   "child",
-   "brago"
+   "child"
   ],
   "combos": [],
-  "why": "Value that adds board presence or card quality (in 0 of 9 kept public Child of Alara lists; 0 of 10 kept public Brago lists).",
+  "why": "Value that adds board presence or card quality (in 0 of 9 kept public Child of Alara lists).",
   "rulings": [],
   "in_engine": false
  },
@@ -16750,9 +16793,10 @@
    "basalt-rings",
    "monolith-powerartifact",
    "drake-flicker-archaeomancer",
-   "brago-resonator"
+   "brago-resonator",
+   "drake-deadeye"
   ],
-  "why": "Piece of Isochron Scepter + Dramatic Reversal and of Heliod, Sun-Crowned + Walking Ballista (+11 more lines); also interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists; 2 of 10 kept public Brago lists; 6 of 13 kept public Shalai/Trostani lists).",
+  "why": "Piece of Isochron Scepter + Dramatic Reversal and of Heliod, Sun-Crowned + Walking Ballista (+12 more lines); also interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists; 2 of 10 kept public Brago lists; 6 of 13 kept public Shalai/Trostani lists).",
   "rulings": [
    {
     "date": "2020-08-07",

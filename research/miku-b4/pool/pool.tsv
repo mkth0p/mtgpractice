@@ -83,6 +83,7 @@ Cloud of Faeries	draw	brago		Card draw that refills the hand so the deck finds i
 Cloudshift	blink	brago		Blink that reuses enter-the-battlefield effects and untaps permanents (in 5 of 10 kept public Brago lists).
 Coalition Victory	win-line	child	coalition-victory-child	Piece of Coalition Victory with Child of Alara on the battlefield; also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists).
 Codex Shredder	value	brago		Value that adds board presence or card quality (in 2 of 10 kept public Brago lists).
+Coldsteel Heart	fast-mana	brago		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 0 of 10 kept public Brago lists).
 Collector Ouphe	stax	shalai		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 2 of 13 kept public Shalai/Trostani lists).
 Command Tower	land	child,brago,shalai		Land that produces the deck's colors (in 9 of 9 kept public Child of Alara lists; 10 of 10 kept public Brago lists; 12 of 13 kept public Shalai/Trostani lists).
 Concordant Crossroads	value	shalai		Value that adds board presence or card quality (in 3 of 13 kept public Shalai/Trostani lists).
@@ -100,7 +101,7 @@ Cyclonic Rift	interaction	child,brago		Interaction that answers the creature, ar
 Dark Ritual	fast-mana	child		Fast mana that costs less than it makes, so the go-off turn comes a turn earlier (in 5 of 9 kept public Child of Alara lists).
 Darksteel Forge	protection	child		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 9 kept public Child of Alara lists).
 Darksteel Ingot	ramp,protection	child		Ramp that adds mana or lands toward a turn-5-6 kill (in 3 of 9 kept public Child of Alara lists).
-Deadeye Navigator	value	brago		Value that adds board presence or card quality (in 4 of 10 kept public Brago lists).
+Deadeye Navigator	win-line	child,brago	drake-deadeye	Piece of Peregrine Drake + Deadeye Navigator (+ Walking Ballista); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 4 of 10 kept public Brago lists).
 Deadly Rollick	interaction	child		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists).
 Deafening Silence	stax	brago		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 3 of 10 kept public Brago lists).
 Deathrite Shaman	ramp,interaction	child		Ramp that adds mana or lands toward a turn-5-6 kill (in 1 of 9 kept public Child of Alara lists).
@@ -255,7 +256,6 @@ Mana Vault	fast-mana	child,brago,shalai		Fast mana that costs less than it makes
 Manglehorn	interaction	shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 13 kept public Shalai/Trostani lists).
 Marsh Flats	land	child,brago,shalai		Land that produces the deck's colors (in 3 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists; 3 of 13 kept public Shalai/Trostani lists).
 Mental Misstep	counterspell	child,brago		Counterspell that stops a wipe, a removal spell on a combo piece, or an opponent's win (in 4 of 9 kept public Child of Alara lists; 5 of 10 kept public Brago lists).
-Merchant Scroll	tutor	brago		Tutor that finds the missing win-line piece or the answer the turn needs (in 0 of 10 kept public Brago lists).
 Meticulous Archive	land	brago		Land that produces the deck's colors (in 4 of 10 kept public Brago lists).
 Mimic Vat	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
 Minamo, School at Water's Edge	land	brago		Land that produces the deck's colors (in 2 of 10 kept public Brago lists).
@@ -278,6 +278,7 @@ Muddle the Mixture	tutor,counterspell	brago		Tutor that finds the missing win-li
 Mulldrifter	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 3 of 10 kept public Brago lists).
 Mystic Gate	land	brago		Land that produces the deck's colors (in 3 of 10 kept public Brago lists).
 Mystic Remora	draw	child,brago		Card draw that refills the hand so the deck finds its pieces (in 5 of 9 kept public Child of Alara lists; 9 of 10 kept public Brago lists).
+Mystic Sanctuary	land	brago		Land that produces the deck's colors (in 1 of 10 kept public Brago lists).
 Mystical Tutor	tutor	child,brago		Tutor that finds the missing win-line piece or the answer the turn needs (in 8 of 9 kept public Child of Alara lists; 3 of 10 kept public Brago lists).
 Narset, Parter of Veils	stax	brago		Rule-setter that slows the opposing decks (taxes, locks) while the deck sets up (in 5 of 10 kept public Brago lists).
 Natural Order	tutor	shalai		Tutor that finds the missing win-line piece or the answer the turn needs (in 0 of 13 kept public Shalai/Trostani lists).
@@ -302,7 +303,7 @@ Panharmonicon	value	shalai		Value that adds board presence or card quality (in 2
 Parallel Lives	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
 Pariah	value	child		Value that adds board presence or card quality (in 2 of 9 kept public Child of Alara lists).
 Path to Exile	interaction	child,brago,shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 2 of 9 kept public Child of Alara lists; 7 of 10 kept public Brago lists; 6 of 13 kept public Shalai/Trostani lists).
-Peregrine Drake	win-line	child,brago	drake-flicker-archaeomancer	Piece of Peregrine Drake + Ghostly Flicker + Archaeomancer (or Mnemonic Wall); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists).
+Peregrine Drake	win-line	child,brago	drake-flicker-archaeomancer,drake-deadeye	Piece of Peregrine Drake + Ghostly Flicker + Archaeomancer (or Mnemonic Wall) and of Peregrine Drake + Deadeye Navigator (+ Walking Ballista); also win-line piece that undefined (in 0 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists).
 Peter Parker's Camera	value	brago		Value that adds board presence or card quality (in 7 of 10 kept public Brago lists).
 Phyrexian Metamorph	value	brago		Value that adds board presence or card quality (in 5 of 10 kept public Brago lists).
 Phyrexian Processor	value	shalai		Value that adds board presence or card quality (in 2 of 13 kept public Shalai/Trostani lists).
@@ -371,7 +372,7 @@ Skullclamp	draw	shalai		Card draw that refills the hand so the deck finds its pi
 Skyclave Apparition	interaction	brago,shalai		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 5 of 10 kept public Brago lists; 2 of 13 kept public Shalai/Trostani lists).
 Skyclave Relic	ramp,protection	child		Ramp that adds mana or lands toward a turn-5-6 kill (in 2 of 9 kept public Child of Alara lists).
 Smothering Tithe	ramp	child,brago,shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 8 of 9 kept public Child of Alara lists; 6 of 10 kept public Brago lists; 6 of 13 kept public Shalai/Trostani lists).
-Snapcaster Mage	value	child,brago		Value that adds board presence or card quality (in 0 of 9 kept public Child of Alara lists; 0 of 10 kept public Brago lists).
+Snapcaster Mage	value	child		Value that adds board presence or card quality (in 0 of 9 kept public Child of Alara lists).
 Snow-Covered Island	land	brago		Land that produces the deck's colors (in 5 of 10 kept public Brago lists).
 Snow-Covered Plains	land	brago		Land that produces the deck's colors (in 5 of 10 kept public Brago lists).
 Snuff Out	interaction	child		Interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists).
@@ -463,7 +464,7 @@ Vizier of Remedies	win-line,interaction	child,shalai	druid-vizier	Piece of Devot
 Voice of Victory	protection	brago		Protection that keeps the combo or the board alive through removal, wipes or counters (in 2 of 10 kept public Brago lists).
 Volcanic Island	land	child		Land that produces the deck's colors (in 5 of 9 kept public Child of Alara lists).
 Vorinclex, Voice of Hunger	ramp	shalai		Ramp that adds mana or lands toward a turn-5-6 kill (in 3 of 13 kept public Shalai/Trostani lists).
-Walking Ballista	win-line,interaction	child,brago,shalai	scepter-reversal,heliod-ballista,archangel-spikefeeder,druid-vizier,druid-swiftreconfig,trostani-scurryoak-archangel,rosie-broodscale,earthcraft-squirrelnest,basalt-forsaken,basalt-rings,monolith-powerartifact,drake-flicker-archaeomancer,brago-resonator	Piece of Isochron Scepter + Dramatic Reversal and of Heliod, Sun-Crowned + Walking Ballista (+11 more lines); also interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists; 2 of 10 kept public Brago lists; 6 of 13 kept public Shalai/Trostani lists).
+Walking Ballista	win-line,interaction	child,brago,shalai	scepter-reversal,heliod-ballista,archangel-spikefeeder,druid-vizier,druid-swiftreconfig,trostani-scurryoak-archangel,rosie-broodscale,earthcraft-squirrelnest,basalt-forsaken,basalt-rings,monolith-powerartifact,drake-flicker-archaeomancer,brago-resonator,drake-deadeye	Piece of Isochron Scepter + Dramatic Reversal and of Heliod, Sun-Crowned + Walking Ballista (+12 more lines); also interaction that answers the creature, artifact or enchantment an opponent wins with (in 0 of 9 kept public Child of Alara lists; 2 of 10 kept public Brago lists; 6 of 13 kept public Shalai/Trostani lists).
 Wall of Omens	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 4 of 10 kept public Brago lists).
 Wan Shi Tong, Librarian	draw	brago		Card draw that refills the hand so the deck finds its pieces (in 2 of 10 kept public Brago lists).
 War Room	land	shalai		Land that produces the deck's colors (in 4 of 13 kept public Shalai/Trostani lists).
