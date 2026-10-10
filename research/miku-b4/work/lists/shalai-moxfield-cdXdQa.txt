@@ -1,0 +1,96 @@
+1 Shalai, Voice of Plenty
+1 Alpha Authority
+1 Angel of Finality
+1 Angel's Grace
+1 Arcane Signet
+1 Archangel of Thune
+1 Archangel of Tithes
+1 Archivist of Oghma
+1 Armageddon
+1 Aura Shards
+1 Avacyn, Angel of Hope
+1 Aven Mindcensor
+1 Bear Umbra
+1 Birds of Paradise
+1 Blacksmith's Skill
+1 Blossoming Defense
+1 Boseiju, Who Endures
+1 Bountiful Promenade
+1 Branchloft Pathway // Boulderloft Pathway
+1 Brushland
+1 Canopy Vista
+1 Chrome Mox
+1 Command Tower
+1 Containment Priest
+1 Deafening Silence
+1 Destiny Spinner
+1 Drannith Magistrate
+1 Eladamri's Call
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Eternal Witness
+1 Exploration
+1 Farseek
+1 Flawless Maneuver
+1 Gaea's Cradle
+1 Giada, Font of Hope
+1 Giver of Runes
+1 Grand Abolisher
+1 Heroic Intervention
+1 Hope of Ghirapur
+1 Hushbringer
+1 Hushwing Gryff
+1 Hyena Umbra
+1 Idyllic Tutor
+1 Karn, the Great Creator
+1 Land Tax
+1 Linvala, Keeper of Silence
+1 Lotus Vale
+1 Mana Crypt
+1 Mother of Runes
+1 Mox Amber
+1 Mox Diamond
+1 Mox Opal
+1 Nykthos, Shrine to Nyx
+1 Nyx Lotus
+1 Overgrown Farmland
+1 Path to Exile
+1 Ranger-Captain of Eos
+1 Recruiter of the Guard
+1 Reflecting Pool
+1 Regrowth
+1 Rest in Peace
+1 Righteous Valkyrie
+1 Runic Armasaur
+1 Sanctum Prelate
+1 Savannah
+1 Scavenging Ooze
+1 Sejiri Shelter // Sejiri Glacier
+1 Sejiri Steppe
+1 Sephara, Sky's Blade
+1 Seraph Sanctuary
+1 Silence
+1 Sol Ring
+1 Spike Feeder
+1 Spirit of the Labyrinth
+1 Sunpetal Grove
+1 Survival of the Fittest
+1 Swords to Plowshares
+1 Temple Garden
+1 Thalia, Guardian of Thraben
+1 Thalia, Heretic Cathar
+1 Thran Dynamo
+1 Vanquish the Horde
+1 Wooded Bastion
+1 Yavimaya, Cradle of Growth
+5 Forest
+10 Plains
+# url: https://moxfield.com/decks/cdXdQaz7BE6j1gMz2vGRBQ
+# title: Angelic Scorn
+# author: multilors
+# updated: 2026-07-30
+# bracket: 4 (Moxfield, author-set; auto 4)
+# kept: no (banned: Mana Crypt)
+# accessed: 2026-10-10
+# commander(s): Shalai, Voice of Plenty ; total 100 ; lands 33 (+1 MDFC) ; source API https://api2.moxfield.com/v3/decks/all/cdXdQaz7BE6j1gMz2vGRBQ
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 7: Aura Shards; Chrome Mox; Drannith Magistrate; Enlightened Tutor; Gaea's Cradle; Mox Diamond; Survival of the Fittest

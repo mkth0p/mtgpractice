@@ -112,3 +112,27 @@ For green-white, the Shalai and Trostani tables are combined. Sizes: Child 209, 
   2. Shalai uncapped;
   3. Child of Alara dropped.
 - **Details:** HANDOFF.md.
+
+**D28. Brago rebuilt as Bracket 4 blink-value** (`draft/brago-*.txt`, `decklist-brago-*.txt`).
+- **Sources:** the four Bracket 4 Brago lists: Moxfield hP0z_z and cTn_eq, Archidekt 8427551, the EDHREC Optimized average. The cards they share run all through the new list: Peregrine Drake, Strionic Resonator, Aether Channeler, Tribute Mage, Ephemerate, Wall of Omens, Omen of the Sea, Lightning Greaves (all four lists); Deadeye Navigator, Elesh Norn, Mother of Machines, Venser, Soulherder (three of four).
+- **Added, to the user's brief:**
+  - full fast mana (Mana Vault, Grim and Basalt Monolith, Chrome Mox, Mox Diamond);
+  - the counter suite;
+  - three compact kills: Drake + Deadeye (verified on Spellbook 1409-3821 and against Oracle text; added to combos.json as `drake-deadeye`), Scepter + Reversal, Heliod + Ballista.
+- **Removed:** Displacer Kitten, Teferi, Time Raveler, Thassa's Oracle, Silence and Drannith Magistrate: the cEDH lock package.
+- **Result:** €2,591 and 14 Game Changers; the €1,500 list swaps Mox Diamond → Coldsteel Heart and Tundra → Island (€1,457, 13 Game Changers).
+
+**D29. Step 9 (mana shape) is counted by script from Oracle text, never from site tags** (`scripts/shape.js`; definitions in its header).
+- **Category order:** a card counts in one mana category at most: dork, ritual, land ramp, accelerant.
+- **Reminder text is ignored,** so Treasure reminders don't count as mana.
+- **3+ mana rocks** aren't accelerants (the CSV has 0–1 and 2 mana value columns only).
+- **`curve_1`** includes mana value 0.
+- **The rules were spot-checked and fixed where they misread:**
+  - Mana Vault's "draw step";
+  - Nature's Lore as a tutor;
+  - The One Ring's draw;
+  - Finale of Devastation's "library and/or graveyard";
+  - Necropotence;
+  - Treasure makers;
+  - untap abilities as mana sinks.
+- **`deckshape-*.json` draw estimates:** extra cards over the first 8 turns. They are hand estimates for the named engines, with the reasoning in each entry, and a default of 2 for other repeatable draw effects.

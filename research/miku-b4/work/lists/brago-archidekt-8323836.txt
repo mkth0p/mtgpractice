@@ -1,0 +1,91 @@
+1 Brago, King Eternal
+1 An Offer You Can't Refuse
+1 Approach of the Second Sun
+1 Arcane Signet
+1 Archaeomancer
+1 Azorius Chancery
+1 Azorius Guildgate
+1 Azorius Signet
+1 Basalt Monolith
+1 Battle Mastery
+1 Cleansing Nova
+1 Cloud of Faeries
+1 Cloudform
+1 Command Tower
+1 Counterspell
+1 Cryogen Relic
+1 Cursed Windbreaker
+1 Cyclonic Rift
+1 Deafening Silence
+1 Dour Port-Mage
+1 Dovin's Veto
+1 Drannith Magistrate
+1 Eerie Interlude
+1 Emeritus of Truce // Swords to Plowshares
+1 Esper Panorama
+1 Farewell
+1 Fellwar Stone
+1 Ghostly Prison
+1 Gifts Ungiven
+1 Glacial Floodplain
+1 God-Pharaoh's Statue
+1 Gods Willing
+1 Grand Arbiter Augustin IV
+1 Hierophant's Chalice
+1 Inquisitor Exarch
+1 Kasmina's Transmutation
+1 Kor Cartographer
+1 Lavinia of the Tenth
+1 Leyline of Anticipation
+1 Lightform
+1 Lightning Greaves
+1 Lithoform Engine
+1 Loran of the Third Path
+1 Loran's Escape
+1 Meandering River
+1 Muddle the Mixture
+1 Myriad Landscape
+1 Mystic Remora
+1 No More Lies
+1 Opal Palace
+1 Overwhelmed Apprentice
+1 Panharmonicon
+1 Path to Exile
+1 Peregrine Drake
+1 Peter Parker's Camera
+1 Prairie Stream
+1 Reality Acid
+1 Rhystic Study
+1 Riptide Gearhulk
+1 Rishadan Footpad
+1 Riverchurn Monument
+1 Rule of Law
+1 Sejiri Refuge
+1 Smothering Tithe
+1 Sol Ring
+1 Spell Pierce
+1 Starfield Vocalist
+1 Stasis
+1 Stonehorn Dignitary
+1 Strionic Resonator
+1 Tax Collector
+1 Thassa's Oracle
+1 Tidal Barracuda
+1 Tranquil Cove
+1 Tribute Mage
+1 Venser, Shaper Savant
+1 Windfall
+1 Winter Moon
+1 Winter Orb
+1 Worship
+10 Island
+10 Plains
+# url: https://archidekt.com/decks/8323836
+# title: Brago Stax
+# author: MrCapeTown
+# updated: 2026-10-07
+# bracket: 4 (Archidekt, author-set)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Brago, King Eternal ; total 100 ; lands 31 ; source API https://archidekt.com/api/decks/8323836/
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 8: Cyclonic Rift; Drannith Magistrate; Farewell; Gifts Ungiven; Grand Arbiter Augustin IV; Rhystic Study; Smothering Tithe; Thassa's Oracle

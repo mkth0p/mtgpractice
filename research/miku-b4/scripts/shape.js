@@ -130,6 +130,9 @@ function deckshape(file) {
   return out;
 }
 
+// lists the list collector kept on disk but didn't count (work/publiclists.md): EDHREC "cEDH" averages built from lists
+// already counted (Shalai: 2 decks) or not cEDH-grade (Trostani: 3 decks)
+const NOT_COUNTED = { "shalai-edhrec-avg-cedh.txt": "built from 2 decks already counted", "trostani-edhrec-avg-cedh.txt": "3 decks, not cEDH-grade" };
 const mode = process.argv[2];
 if (mode === "csv") {
   const dir = path.join(root, "work/lists"), rows = [COLS.join(",")];
@@ -137,7 +140,7 @@ if (mode === "csv") {
   for (const f of fs.readdirSync(dir).filter(f => f.endsWith(".txt")).sort()) {
     const { cards, meta } = readList(path.join(dir, f));
     const blob = JSON.stringify(meta);
-    if (/DISCARDED|"kept":"no|reference only|not counted/i.test(blob)) { skipped.push(f); continue; }
+    if (/DISCARDED|"kept":"no|reference only|not counted/i.test(blob) || NOT_COUNTED[f]) { skipped.push(f); continue; }
     const url = meta.url || (meta.source || "").split(/[ ,(]/)[0];
     const date = meta.updated || ((meta.title || "").match(/updated (\d{4}-\d{2}-\d{2})/) || [])[1] || ((meta.title || "").match(/(\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/) || [])[2] || "";
     const br = meta.bracket || ((meta.title || "").match(/bracket ([^;]+)/i) || [])[1] || (/cedh/i.test(f) ? "cEDH (EDHREC average)" : /optimized/i.test(f) ? "Optimized (EDHREC average)" : "");

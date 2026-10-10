@@ -1,5 +1,5 @@
 # Sources (pass 2)
-Every page or file used in pass 2, all accessed 2026-10-08 unless a line says otherwise. Pass 1's sources are listed in `pass1/commanders.md` and `pass1/rulings.md`.
+Every page or file used in pass 2: accessed 2026-10-08, or 2026-10-10 for the step 9 work, the extra public lists and the Brago rebuild. Pass 1's sources are listed in `pass1/commanders.md` and `pass1/rulings.md`.
 
 ## Scryfall
 - Bulk data index: https://api.scryfall.com/bulk-data. Files used, all recorded in `scryfall/index-meta.json`:
@@ -9,7 +9,7 @@ Every page or file used in pass 2, all accessed 2026-10-08 unless a line says ot
   
   They give the Oracle text, legality, Game Changer flags, rulings, and EUR (Cardmarket trend) and USD (TCGplayer market) prices with purchase URLs.
 - Miku printings, from the art tag `hatsune-miku`: https://api.scryfall.com/cards/search?q=set%3Asld+art%3Ahatsune-miku&unique=prints (46 printings, saved in `scryfall/miku-printings.json`). Also queried, with the same result: `set:sld art:miku`, and `set:sld flavor:miku` (24 printings).
-- Game Changers: Scryfall `is:gamechanger` returns 53 cards (the subagent's API search), and so does the bulk data's `game_changer` flag. Both match `pass1/legality.md`.
+- Game Changers: Scryfall `is:gamechanger` returns 53 cards, and so does the bulk data's `game_changer` flag. Both match `pass1/legality.md`.
 
 ## Cardmarket (step 7)
 - Tried for near-mint confirmation: https://www.cardmarket.com/en/Magic/Products/Singles/Kaldheim-Commander/Brago-King-Eternal?language=1&minCondition=2 and https://www.cardmarket.com/en/Magic/Products?idProduct=535408.
@@ -45,11 +45,12 @@ Backend: https://backend.commanderspellbook.com/variants/ (search) and `/variant
 - Dualcaster Mage + Twinflame: https://commanderspellbook.com/combo/147-1235/
 - Sanguine Bond + Exquisite Blood: https://commanderspellbook.com/combo/690-3966/
 - Coalition Victory with Child of Alara on the battlefield: not on Spellbook (closest: https://commanderspellbook.com/combo/1024-5364/)
+- Peregrine Drake + Deadeye Navigator (+ Walking Ballista): https://commanderspellbook.com/combo/1409-3821/
 
 Further Spellbook searches and pages the win-line research used are listed in `work/winlines.md` (section "Sources").
 
-## Public decklists (step 5)
-Each list's file, URL, date, author, bracket and lesson are in `work/publiclists.md`; the lists themselves in `work/lists/`. URLs:
+## Public decklists (steps 5 and 9)
+Each list's file, URL, date, author, bracket and lesson are in `work/publiclists.md` (sections 1–3, plus "Pass 2b" for the lists added 2026-10-10); the lists themselves in `work/lists/`. URLs:
 
 - https://api.scryfall.com/cards/search?q=is:gamechanger
 - https://api2.moxfield.com/v2/cards/search?q=!"<name
@@ -57,13 +58,34 @@ Each list's file, URL, date, author, bracket and lesson are in `work/publiclists
 - https://api2.moxfield.com/v3/decks/all/<publicId
 - https://archidekt.com/api/decks/<id
 - https://archidekt.com/api/decks/v3/?commanderName=<name
+- https://archidekt.com/decks/11333004
+- https://archidekt.com/decks/11664967
+- https://archidekt.com/decks/11931659
+- https://archidekt.com/decks/12766096
 - https://archidekt.com/decks/13491907
 - https://archidekt.com/decks/13837312
+- https://archidekt.com/decks/15501698
 - https://archidekt.com/decks/15997080
+- https://archidekt.com/decks/16306373
+- https://archidekt.com/decks/18520785
+- https://archidekt.com/decks/19540613
 - https://archidekt.com/decks/21015429
+- https://archidekt.com/decks/21098407
+- https://archidekt.com/decks/21347845
+- https://archidekt.com/decks/2172726
+- https://archidekt.com/decks/24477776
 - https://archidekt.com/decks/26039177
+- https://archidekt.com/decks/26311392
 - https://archidekt.com/decks/26388397
+- https://archidekt.com/decks/26970409
+- https://archidekt.com/decks/3646160
+- https://archidekt.com/decks/4342324
+- https://archidekt.com/decks/5072301
+- https://archidekt.com/decks/5996567
+- https://archidekt.com/decks/7413006
+- https://archidekt.com/decks/8323836
 - https://archidekt.com/decks/8427551
+- https://archidekt.com/decks/9277180
 - https://backend.commanderspellbook.com/variants/?q=..
 - https://edhrec.com/average-decks/brago-king-eternal/cedh
 - https://edhrec.com/average-decks/brago-king-eternal/optimized
@@ -75,28 +97,51 @@ Each list's file, URL, date, author, bracket and lesson are in `work/publiclists
 - https://edhrec.com/average-decks/trostani-selesnyas-voice/optimized
 - https://json.edhrec.com/pages/average-decks/<slug
 - https://moxfield.com/decks/11Y4nDA6zku7QAhn5LLLPQ
+- https://moxfield.com/decks/1DSNHF1Ju0yWCObsgOcXmQ
+- https://moxfield.com/decks/3X1Q42Yur0eaJpUBFP6YiA
 - https://moxfield.com/decks/3rvLmvsbfES7I6n6Fj3FIQ
+- https://moxfield.com/decks/3zycKcQeWEGNxdT_LzejLA
+- https://moxfield.com/decks/BNWjUa_lA0mzxNpgpHDGSA
 - https://moxfield.com/decks/Ba1nFYEBY0mggeRj6mJjbA
+- https://moxfield.com/decks/EU4dnsOjEkeVRB7GHVd-gw
+- https://moxfield.com/decks/Edh3uNCJ1UKq6jhC9goeXQ
+- https://moxfield.com/decks/FaRq0CATYku2G6Z_ANp9TQ
+- https://moxfield.com/decks/HGE4R2XCeEOs6PdZJ4Byyg
 - https://moxfield.com/decks/IYUM_cHxV0W3S6bUu5QTmA
 - https://moxfield.com/decks/JpT6ND95jkyjIe4a7jzSCw
 - https://moxfield.com/decks/M--H_Et5-Eu6faglZHBK8A
 - https://moxfield.com/decks/ME-zgoCa5kq9c8jCsd4UMg
+- https://moxfield.com/decks/M_pcU9UU_UOLeWUVrgD7Aw
+- https://moxfield.com/decks/Mi4yPy0jFUGPx6pI5x3OVw
 - https://moxfield.com/decks/OMSnnZoC-U-UFwBSyNDv5Q
+- https://moxfield.com/decks/PQ9PfU5bX0SKmSWoBhe2aA
 - https://moxfield.com/decks/Ssl9sgdAHESBxWLiktKZWg
 - https://moxfield.com/decks/UodV4YLerEmS7-42rIgA5Q
+- https://moxfield.com/decks/ZEjDYp9TtEi7odTjbmAB6g
 - https://moxfield.com/decks/ZQlyVIx0r0Od4CvcnoOmKw
 - https://moxfield.com/decks/ZbcmXJAAJEOGa74HK_52FQ
 - https://moxfield.com/decks/_P7TxbJsNUqwQbbL57BEJg
+- https://moxfield.com/decks/bh40TYVQ2UWWHBcoF7pn6w
 - https://moxfield.com/decks/cTn_eqq220ukrVWmGkzyFQ
+- https://moxfield.com/decks/cVN7OjyxAU6WtRZk12L4kA
+- https://moxfield.com/decks/cdXdQaz7BE6j1gMz2vGRBQ
 - https://moxfield.com/decks/clz23nIbj0WT5AOWMmXCkw
 - https://moxfield.com/decks/d7FdCq_8gkKlAvKsM1PWrg
 - https://moxfield.com/decks/dQ1i-GmPb0y_dW6wNQOQ8g
+- https://moxfield.com/decks/eb7L1NnJ_UefJC_vNGQkcw
 - https://moxfield.com/decks/hP0z_zZvxUO0IM02rQYptw
+- https://moxfield.com/decks/hraUlzrXJE-73XP5y38sdQ
 - https://moxfield.com/decks/lGdVhDcJzkCddkma6tToag
+- https://moxfield.com/decks/mEqTmCgn70W6PL6fucxRgA
+- https://moxfield.com/decks/ms_4XG56MU6vFnS3NKI9ew
 - https://moxfield.com/decks/n2D5k8ZMCESnAZv8AnzblQ
 - https://moxfield.com/decks/of28bO9hPE2lN4UDi1PCtg
+- https://moxfield.com/decks/oumM4rK-O0uZtgaatbHNrA
+- https://moxfield.com/decks/rkfPluCxT0yK3ktOuDZAEQ
 - https://moxfield.com/decks/wRT3f_0R0UKTR3xfAtgWFQ
+- https://moxfield.com/decks/xmH0i1HMHUi2iCd279RYPA
 - https://moxfield.com/decks/ywjZih5sFEiLnZA_uEDiaQ
+- https://moxfield.com/decks/z_12-vijXkeTyBz-TmZplQ
 - https://playgroup.gg/profiles/32485-milkmanproxies/decks/149392-suck-my-stax-10-pl/cards
 - https://raw.githubusercontent.com/AverageDragon/cEDH-Decklist-Database/master/_data/database.json
 
@@ -142,6 +187,32 @@ Each list's file, URL, date, author, bracket and lesson are in `work/publiclists
 - https://scryfall.com/card/vma/271/lions-eye-diamond
 - https://scryfall.com/card/vma/57/brain-freeze
 
+## Mana efficiency (step 9)
+Summarized with method and findings in `mana-sources.md`; URLs:
+
+- https://cedh-decklist-database.com/
+- https://commanderdeckmaker.com/learn/deckbuilding/command-zone-template
+- https://commandersherald.com/how-many-lands-should-you-play-in-cedh/
+- https://edhrec.com/articles/simultaing-available-mana-beyond-the-hypergeometric-distribution
+- https://edhrec.com/articles/solve-the-equation-mana-efficiency-vs-sequencing
+- https://edhrec.com/articles/superior-numbers-land-counts
+- https://github.com/LoG43/edh-deck-curve-sim
+- https://github.com/Riddmaker/goldfishlab.app
+- https://json.edhrec.com/pages/average-decks/<commander
+- https://json.edhrec.com/pages/commanders/year.json
+- https://library-of-leng.com/authors/frank-karsten
+- https://medium.com/@schulze.mtg/the-math-of-landbases-in-magic-the-gathering-commander-3f03aadac92c
+- https://playgroup.gg/commander/how-many-lands
+- https://podcasts.apple.com/us/podcast/the-new-commander-deck-building-template-379/id898023861?i=1000511316766
+- https://www.cedh-analytics.com/
+- https://www.mtgnexus.com/viewtopic.php?p=255743
+- https://www.mtgnexus.com/viewtopic.php?t=53233
+- https://www.tcgplayer.com/content/article/How-Many-Lands-Do-You-Need-in-Your-Deck-An-Updated-Analysis/cd1c1a24-d439-4a8e-b369-b936edb0b38a/
+- https://www.tcgplayer.com/content/article/How-Many-Sources-Do-You-Need-to-Consistently-Cast-Your-Spells-A-2022-Update/dc23a7d2-0a16-4c0b-ad36-586fcca03ad8/
+- https://www.tcgplayer.com/content/article/How-to-Build-Commander-Mana-Curves-Game-Length-Ramp-Cost-and-Competitiveness/50566e8d-bc0b-457a-bffb-dbb1d5872b7c/
+- https://www.tcgplayer.com/content/article/What-s-an-Optimal-Mana-Curve-and-Land-Ramp-Count-for-Commander/e22caad1-b04b-4f8a-951b-a41e9f08da14/
+- https://www.youtube.com/watch?v=9IY18Dl8Xv8
+
 ## The repository
 - `miku/game/cards-corrupted.js` (`MK.CORRUPTED_DECK`): the overlap count in REPORT.md. Read from this clone at commit 6cb3963.
-- `research/miku-b4/opposition.md` and `engine-cards.txt`: the inputs, unchanged.
+- `research/miku-b4/opposition.md`, `engine-cards.txt` and `tools/sim/manamodel.js`: the inputs, unchanged.

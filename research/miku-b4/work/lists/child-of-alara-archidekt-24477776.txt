@@ -1,0 +1,109 @@
+1 Child of Alara
+1 Arid Mesa
+1 Armageddon
+1 Aura of Silence
+1 Back to Basics
+1 Badlands
+1 Bayou
+1 Blood Moon
+1 Bloodstained Mire
+1 City of Brass
+1 Command Tower
+1 Counterspell
+1 Crucible of Worlds
+1 Damping Sphere
+1 Defense Grid
+1 Demonic Tutor
+1 Descent into Madness
+1 Divine Intervention
+1 Dovin, Hand of Control
+1 Drannith Magistrate
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Feroz's Ban
+1 Fierce Guardianship
+1 Flooded Strand
+1 Ghostly Prison
+1 Gilded Drake
+1 Glowrider
+1 God-Pharaoh's Statue
+1 Grand Abolisher
+1 Grand Arbiter Augustin IV
+1 Hokori, Dust Drinker
+1 Hum of the Radix
+1 Humility
+1 Idyllic Tutor
+1 Impending Disaster
+1 Inventors' Fair
+1 Jin-Gitaxias, Progress Tyrant
+1 Jokulhaups
+1 Lodestone Golem
+1 Magus of the Moon
+1 Mana Breach
+1 Mana Confluence
+1 Mana Drain
+1 Mana Vortex
+1 Marsh Flats
+1 Maze of Ith
+1 Mesmeric Orb
+1 Misty Rainforest
+1 Monastery Siege
+1 Monologue Tax
+1 Nether Void
+1 Painful Quandary
+1 Plateau
+1 Polluted Delta
+1 Propaganda
+1 Ravages of War
+1 Reliquary Tower
+1 Rhystic Study
+1 Rising Waters
+1 Savannah
+1 Scalding Tarn
+1 Scrubland
+1 Silence
+1 Smokestack
+1 Smothering Tithe
+1 Solemnity
+1 Sphere of Resistance
+1 Squeeze
+1 Stasis
+1 Static Orb
+1 Taiga
+1 Tangle Wire
+1 Thalia, Guardian of Thraben
+1 The Tabernacle at Pendrell Vale
+1 The World Tree
+1 Thorn of Amethyst
+1 Torpor Orb
+1 Trinisphere
+1 Tropical Island
+1 Tundra
+1 Uba Mask
+1 Underground Sea
+1 Urborg, Tomb of Yawgmoth
+1 Vampiric Tutor
+1 Verdant Catacombs
+1 Vivi Ornitier
+1 Volcanic Island
+1 Ward of Bones
+1 Weathered Runestone
+1 Windswept Heath
+1 Winter Moon
+1 Winter Orb
+1 Wooded Foothills
+1 Zur the Enchanter
+1 Forest
+1 Island
+1 Mountain
+1 Plains
+1 Swamp
+# url: https://archidekt.com/decks/24477776
+# title: Magnum Errorem (Stax, Pillowfort, Land Destruction)
+# author: player2win11245
+# updated: 2026-08-12
+# bracket: 4 (Archidekt, author-set)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Child of Alara ; total 100 ; lands 34 ; source API https://archidekt.com/api/decks/24477776/
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 10: Demonic Tutor; Drannith Magistrate; Enlightened Tutor; Fierce Guardianship; Grand Arbiter Augustin IV; Humility; Rhystic Study; Smothering Tithe; The Tabernacle at Pendrell Vale; Vampiric Tutor

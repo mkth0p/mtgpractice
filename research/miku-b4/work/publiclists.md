@@ -143,3 +143,88 @@ No public list matches "colors-only, high Bracket 4, not cEDH". That build has t
   - Child: 26 (turbo) to 42 (lands-matter).
   - Shalai: 26–37, the low end with mana dorks.
 - **Moxfield brackets are self-reported.** Several "Bracket 4" lists are casual (Child Gates/wipe decks, Trostani precon upgrades), and several "Bracket 5" Brago lists are what a high Bracket 4 would look like. Moxfield auto-rates all of them as 4. Judge by GC count and win lines, not the label.
+
+---
+
+## Pass 2b (2026-10-10): more lists for the mana-shape study
+
+Goal (step 9): at least 15 counted lists per shortlisted commander, plus 20 high-power lists of other commanders. Every URL below was accessed 2026-10-10. Files are in `work/lists/` in the same format as before, with metadata lines `# url`, `# title`, `# author`, `# updated`, `# bracket`, `# kept`, `# accessed`, then a line with commander(s), total, lands and MDFCs, and a Game Changer line.
+
+**Counted totals after this pass:**
+- Brago: 10 + 6 = **16**
+- Child of Alara: 9 + 7 = **16**
+- Shalai (as commander only): 8 + 8 = **16**
+- Other commanders: **20** kept (12 cEDH from the cEDH Decklist Database, 8 Archidekt Bracket 4)
+- Discarded: 3 (one per commander), all for banned cards, saved with `# kept: no (...)` and not counted.
+
+**How this was collected:**
+- **Archidekt:** `https://archidekt.com/api/decks/v3/?commanderName=<name>&edhBracket=<4|5>&orderBy=-updatedAt&pageSize=50`; each deck's commander was re-checked in the deck JSON. Cards in categories marked not-in-deck, or named Sideboard or Maybeboard, were left out. This is why `brago-archidekt-19540613` has 100 cards: its one Sideboard card, Damping Sphere, is not included. The 8 other-commander Bracket 4 lists come from `edhBracket=4&deckFormat=3&orderBy=-viewCount`, limited to decks updated since 2026-07. I kept the 100-card ones with several Game Changers and spread the colors.
+- **Moxfield:** fetched with `fetch()` inside the Claude Browser pane, as before. Searches used `sortType=updated` and `sortType=views` with `commanderCardId`, keeping only decks the author set to bracket 4 or 5. Decks came from `/v3/decks/all/<publicId>`. Card lists were read out of the browser and written to disk. Each list carries a djb2 hash of its card string, computed in the browser and again on disk, and **all 23 Moxfield lists matched**.
+- **cEDH Decklist Database:** the 12 cEDH lists are Moxfield decklists linked from `COMPETITIVE` entries in `database.json`. Each file has a `# listed in:` line naming the entry. One list per commander was chosen, preferring recently updated, high-view lists and spreading the colors (mono-R, mono-G, UB, BR, GW, UG, UR, URG, UBR, WBR, BUG, 5c).
+- **Bans and Game Changers:** every list was screened for Mana Crypt, Jeweled Lotus, Dockside Extortionist and Nadu, Winged Wisdom. GC counts use Scryfall `is:gamechanger` (53 cards, fetched 2026-10-10). Lands are cards whose front face is a Land. "+N MDFC" counts modal DFCs with a land back face.
+- **Brackets are as set by the author.** As in pass 2, several Archidekt "4" Child lists are casual wipe or indestructible decks. Use GC count and lands to judge power, not the label.
+
+### Brago, King Eternal: 7 new, 6 kept, 1 discarded
+
+| File | URL | Title / author | Updated | Bracket | Kept? | Lands | GC |
+|---|---|---|---|---|---|---|---|
+| brago-archidekt-11333004 | https://archidekt.com/decks/11333004 | Miku-dyoooooo / JH_Goblin | 2026-09-26 | 4 (Archidekt, author-set) | kept, counted | 30 (+4 MDFC) | 11 |
+| brago-archidekt-11664967 | https://archidekt.com/decks/11664967 | Brago Stax / MrKennedy | 2026-06-07 | 5 (Archidekt, author-set) | **DISCARDED: Mana Crypt, Jeweled Lotus** | 32 | 14 |
+| brago-archidekt-19540613 | https://archidekt.com/decks/19540613 | blink cedh / jc81rey | 2026-02-01 | 5 (Archidekt, author-set) | kept, counted | 27 (+1 MDFC) | 14 |
+| brago-archidekt-21347845 | https://archidekt.com/decks/21347845 | Brago, King Eternal / KaleyJustin8 | 2026-04-02 | 5 (Archidekt, author-set) | kept, counted | 27 (+1 MDFC) | 14 |
+| brago-archidekt-4342324 | https://archidekt.com/decks/4342324 | Brago, Flicker King / Beaster1212 | 2026-10-08 | 4 (Archidekt, author-set) | kept, counted | 33 (+3 MDFC) | 12 |
+| brago-archidekt-8323836 | https://archidekt.com/decks/8323836 | Brago Stax / MrCapeTown | 2026-10-07 | 4 (Archidekt, author-set) | kept, counted | 31 | 8 |
+| brago-moxfield-3X1Q42 | https://moxfield.com/decks/3X1Q42Yur0eaJpUBFP6YiA | (cEDH) BRAGO, BRAGO, BRAGOO! / SlagTheGold | 2026-09-30 | 5 (Moxfield, author-set; auto 4) | kept, counted | 29 (+1 MDFC) | 16 |
+
+### Child of Alara: 8 new, 7 kept, 1 discarded
+
+| File | URL | Title / author | Updated | Bracket | Kept? | Lands | GC |
+|---|---|---|---|---|---|---|---|
+| child-of-alara-archidekt-11931659 | https://archidekt.com/decks/11931659 | Sweet Child O'Mine / RsoulZ | 2026-09-13 | 4 (Archidekt, author-set) | kept, counted | 37 (+1 MDFC) | 12 |
+| child-of-alara-archidekt-12766096 | https://archidekt.com/decks/12766096 | Child of Alara Deck / Geekelement | 2026-08-22 | 4 (Archidekt, author-set) | kept, counted | 36 | 10 |
+| child-of-alara-archidekt-15501698 | https://archidekt.com/decks/15501698 | Saltiest Deck / MoxLotus679 | 2026-08-18 | 4 (Archidekt, author-set) | kept, counted | 33 | 12 |
+| child-of-alara-archidekt-24477776 | https://archidekt.com/decks/24477776 | Magnum Errorem (Stax, Pillowfort, Land Destruction) / player2win11245 | 2026-08-12 | 4 (Archidekt, author-set) | kept, counted | 34 | 10 |
+| child-of-alara-archidekt-26311392 | https://archidekt.com/decks/26311392 | Copy of - The Most Salty Deck / bruhmcbruh | 2026-09-12 | 4 (Archidekt, author-set) | **DISCARDED: Jeweled Lotus, Dockside Extortionist** | 39 | 15 |
+| child-of-alara-archidekt-26970409 | https://archidekt.com/decks/26970409 | Kosmik Fetus B4 / Muvieli | 2026-10-01 | 4 (Archidekt, author-set) | kept, counted | 39 | 16 |
+| child-of-alara-moxfield-EU4dns | https://moxfield.com/decks/EU4dnsOjEkeVRB7GHVd-gw | ragebait / chancequist | 2026-10-03 | 5 (Moxfield, author-set; auto 4) | kept, counted | 33 | 14 |
+| child-of-alara-moxfield-ms_4XG | https://moxfield.com/decks/ms_4XG56MU6vFnS3NKI9ew | #1 Idol / ThatWsEpic21 | 2026-09-29 | 5 (Moxfield, author-set; auto 4) | kept, counted | 40 | 17 |
+
+### Shalai, Voice of Plenty (as commander): 9 new, 8 kept, 1 discarded
+
+| File | URL | Title / author | Updated | Bracket | Kept? | Lands | GC |
+|---|---|---|---|---|---|---|---|
+| shalai-archidekt-21098407 | https://archidekt.com/decks/21098407 | voice of dominion / nathanthenerd | 2026-03-25 | 4 (Archidekt, author-set) | kept, counted | 34 | 4 |
+| shalai-moxfield-3zycKc | https://moxfield.com/decks/3zycKcQeWEGNxdT_LzejLA | Miku, Voice Over All / UnearthedNSX | 2026-09-24 | 4 (Moxfield, author-set; auto 4) | kept, counted | 28 | 9 |
+| shalai-moxfield-Edh3uN | https://moxfield.com/decks/Edh3uNCJ1UKq6jhC9goeXQ | [EDH-8] Landslide. / Brimiss | 2026-10-09 | 4 (Moxfield, author-set; auto 4) | kept, counted | 34 | 12 |
+| shalai-moxfield-HGE4R2 | https://moxfield.com/decks/HGE4R2XCeEOs6PdZJ4Byyg | Shalai, Voice of Plenty - Angels/Clerics / dandanthemagicman | 2026-08-29 | 4 (Moxfield, author-set; auto 4) | kept, counted | 38 | 9 |
+| shalai-moxfield-ZEjDYp | https://moxfield.com/decks/ZEjDYp9TtEi7odTjbmAB6g | 0072 Shalai, Voice of Plenty - Birthing Pod / joedolphin13 | 2026-10-06 | 4 (Moxfield, author-set; auto 4) | kept, counted | 35 | 5 |
+| shalai-moxfield-cVN7Oj | https://moxfield.com/decks/cVN7OjyxAU6WtRZk12L4kA | Humans Will Survive / AngryPapaClwnfsh | 2026-07-21 | 4 (Moxfield, author-set; auto 4) | kept, counted | 31 | 7 |
+| shalai-moxfield-cdXdQa | https://moxfield.com/decks/cdXdQaz7BE6j1gMz2vGRBQ | Angelic Scorn / multilors | 2026-07-30 | 4 (Moxfield, author-set; auto 4) | **DISCARDED: Mana Crypt** | 33 (+1 MDFC) | 7 |
+| shalai-moxfield-mEqTmC | https://moxfield.com/decks/mEqTmCgn70W6PL6fucxRgA | Arkinator Shalai / OingusBoingus420 | 2026-08-13 | 4 (Moxfield, author-set; auto 4) | kept, counted | 32 | 13 |
+| shalai-moxfield-z_12-v | https://moxfield.com/decks/z_12-vijXkeTyBz-TmZplQ | Miku, Voice Over All / Gengartuan | 2026-10-06 | 4 (Moxfield, author-set; auto 4) | kept, counted | 34 | 5 |
+
+### Other commanders (high-power Bracket 4 and cEDH): 20 new, 20 kept, 0 discarded
+
+| File | URL | Title / author | Updated | Bracket | Kept? | Lands | GC | Commander(s) |
+|---|---|---|---|---|---|---|---|---|
+| other-celes-rune-knight-moxfield-bh40TY | https://moxfield.com/decks/bh40TYVQ2UWWHBcoF7pn6w | Celes: 𝕎𝕚𝕟𝕕𝕠𝕨 ℕ𝕒𝕦𝕤 [cEDH] / MarkgoesCompetitive (cEDH DB: Celes Persistant Breach) | 2026-10-05 | 5 (Moxfield, author-set; auto 4) | kept, counted | 27 | 17 | Celes, Rune Knight |
+| other-ellivere-of-the-wild-court-moxfield-eb7L1N | https://moxfield.com/decks/eb7L1NnJ_UefJC_vNGQkcw | 🌳 It Does Nothing 🌞 / beard_umbra (cEDH DB: Ellivere Stax) | 2026-10-07 | 5 (Moxfield, author-set; auto 4) | kept, counted | 28 (+1 MDFC) | 10 | Ellivere of the Wild Court |
+| other-glarb-calamitys-augur-moxfield-FaRq0C | https://moxfield.com/decks/FaRq0CATYku2G6Z_ANp9TQ | [PRO] FrogSi - CEDH Glarb Hulk / Shuiro (cEDH DB: Glarb DoomHulk) | 2026-10-05 | 5 (Moxfield, author-set; auto 4) | kept, counted | 26 | 17 | Glarb, Calamity's Augur |
+| other-heliod-sun-crowned-archidekt-18520785 | https://archidekt.com/decks/18520785 | Praise the Sun, Fire the Gun / Marsitz | 2026-10-04 | 4 (Archidekt, author-set) | kept, counted | 32 | 9 | Heliod, Sun-Crowned |
+| other-kaalia-of-the-vast-archidekt-7413006 | https://archidekt.com/decks/7413006 | Kaalia of the Vast / itzKanu | 2026-10-06 | 4 (Archidekt, author-set) | kept, counted | 29 | 11 | Kaalia of the Vast |
+| other-kinnan-bonder-prodigy-moxfield-Mi4yPy | https://moxfield.com/decks/Mi4yPy0jFUGPx6pI5x3OVw | [cEDH] Kinnan NBC (No Bad Cards) / FreedomWaffle (cEDH DB: Kinnan Infinite Mana) | 2026-09-22 | 5 (Moxfield, author-set; auto 4) | kept, counted | 25 (+1 MDFC) | 10 | Kinnan, Bonder Prodigy |
+| other-koma-cosmos-serpent-archidekt-3646160 | https://archidekt.com/decks/3646160 | Koma, Cosmos Serpent / hiuji | 2026-08-20 | 4 (Archidekt, author-set) | kept, counted | 32 (+3 MDFC) | 4 | Koma, Cosmos Serpent |
+| other-krark-the-thumbless-silas-renn-seeker-adept-moxfield-PQ9PfU | https://moxfield.com/decks/PQ9PfU5bX0SKmSWoBhe2aA | Krark / Silas - Breadstorm / BasedBread (cEDH DB: Krark Silas Grixis Krark) | 2026-08-07 | 5 (Moxfield, author-set; auto 4) | kept, counted | 25 (+1 MDFC) | 17 | Krark, the Thumbless + Silas Renn, Seeker Adept |
+| other-kratos-god-of-war-archidekt-16306373 | https://archidekt.com/decks/16306373 | Bracket 4: Kratos, God of War - I WILL HAVE MY REVENGE!!! / Spartens2013 | 2026-09-30 | 4 (Archidekt, author-set) | kept, counted | 31 (+1 MDFC) | 9 | Kratos, God of War |
+| other-lumra-bellow-of-the-woods-moxfield-M_pcU9 | https://moxfield.com/decks/M_pcU9UU_UOLeWUVrgD7Aw | 🌨️🐻Cocaine Bear (w/ Primer)🐻🌨️ / Bric_Eagle (cEDH DB: Lumra Lands) | 2026-09-17 | 5 (Moxfield, author-set; auto 4) | kept, counted | 47 | 10 | Lumra, Bellow of the Woods |
+| other-magda-brazen-outlaw-moxfield-xmH0i1 | https://moxfield.com/decks/xmH0i1HMHUi2iCd279RYPA | [CABLE] Clockside Outlawed / Iraruel (cEDH DB: Magda Clock Combo) | 2026-09-06 | 5 (Moxfield, author-set; auto 4) | kept, counted | 25 (+3 MDFC) | 6 | Magda, Brazen Outlaw |
+| other-obeka-brute-chronologist-archidekt-2172726 | https://archidekt.com/decks/2172726 | Obeka: Cheat and Copy (With Primer) / XU-Mockingbird | 2026-09-16 | 4 (Archidekt, author-set) | kept, counted | 33 (+2 MDFC) | 7 | Obeka, Brute Chronologist |
+| other-rakdos-the-muscle-moxfield-hraUlz | https://moxfield.com/decks/hraUlzrXJE-73XP5y38sdQ | Emotional damage [SALT] / joebassss (cEDH DB: Rakdos Sacrifice) | 2026-09-07 | 5 (Moxfield, author-set; auto 4) | kept, counted | 20 (+3 MDFC) | 10 | Rakdos, the Muscle |
+| other-talion-the-kindly-lord-moxfield-1DSNHF | https://moxfield.com/decks/1DSNHF1Ju0yWCObsgOcXmQ | [CABAL] cEDH 💙🖤 UB adaptive control 💙🖤 / Coach_Memo (cEDH DB: Talion Control) | 2026-09-21 | 5 (Moxfield, author-set; auto 4) | kept, counted | 27 (+2 MDFC) | 15 | Talion, the Kindly Lord |
+| other-terra-magical-adept-moxfield-rkfPlu | https://moxfield.com/decks/rkfPluCxT0yK3ktOuDZAEQ | cEDH Terra, Magical Adept [DEEP PRIMER]🌞🌳💀🔥🌊 ⁵ᶜ ᵍᵒᵒᵈˢᵗᵘᶠᶠ / lucaqualunque (cEDH DB: Terra 5C Goodstuff) | 2026-09-02 | 5 (Moxfield, author-set; auto 4) | kept, counted | 26 | 21 | Terra, Magical Adept // Esper Terra |
+| other-thrasios-triton-hero-rograkh-son-of-rohgahh-moxfield-BNWjUa | https://moxfield.com/decks/BNWjUa_lA0mzxNpgpHDGSA | Thras-and-Silent Rog 🌊🦦⛈️ / AnthonyD3288 (cEDH DB: Rograkh Thrasios Cradlestorm+) | 2026-10-09 | 5 (Moxfield, author-set; auto 4) | kept, counted | 27 | 12 | Thrasios, Triton Hero + Rograkh, Son of Rohgahh |
+| other-toph-the-first-metalbender-archidekt-5996567 | https://archidekt.com/decks/5996567 | Toph, the First Metalbender / Mcgeek | 2026-10-09 | 4 (Archidekt, author-set) | kept, counted | 38 | 7 | Toph, the First Metalbender |
+| other-valgavoth-harrower-of-souls-archidekt-9277180 | https://archidekt.com/decks/9277180 | Valgavoth Life Stax / Phemt | 2026-10-07 | 4 (Archidekt, author-set) | kept, counted | 33 (+5 MDFC) | 5 | Valgavoth, Harrower of Souls |
+| other-vivi-ornitier-moxfield-oumM4r | https://moxfield.com/decks/oumM4rK-O0uZtgaatbHNrA | [cEDH] Vivi - How do you prove you exist? Maybe we don't exist... / Elmekia (cEDH DB: Vivi Curiosity Storm) | 2026-10-06 | 5 (Moxfield, author-set; auto 4) | kept, counted | 24 (+2 MDFC) | 13 | Vivi Ornitier |
+| other-wilhelt-the-rotcleaver-archidekt-5072301 | https://archidekt.com/decks/5072301 | Wilhelt, the Rotcleaver Bracket 4 Optimized Zombie Tribal Deck - Arthas Mijo [Primer] / Wertos | 2026-10-08 | 4 (Archidekt, author-set) | kept, counted | 33 (+3 MDFC) | 9 | Wilhelt, the Rotcleaver |
+
