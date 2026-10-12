@@ -545,6 +545,47 @@
     ai: { ramp: true, priority: 7 }
   });
 
+  /* Power Artifact: Grim Monolith untaps for {2} (it makes three), Basalt Monolith for {1} (it makes
+     three), Isochron Scepter copies for {1}: each is unlimited colorless mana (Commander Spellbook
+     lists the Monolith pairs). The bots put it on a Monolith, else on a Scepter holding Dramatic Reversal. */
+  const powerTarget = (g, p, opts) => {
+    const rank = o => (o.def.name === "Basalt Monolith" ? 4 : o.def.name === "Grim Monolith" ? 3 : o.def.name === "Isochron Scepter" && o.state.imprint && o.state.imprint.def.name === "Dramatic Reversal" ? 2 : o.def.name === "Walking Ballista" ? 1 : 0);
+    const mineOnly = opts.filter(o => o.controller === p && !g.controlled(p, a => a.def.name === "Power Artifact" && a.attachedTo === o).length);
+    return mineOnly.sort((a, b) => rank(b) - rank(a))[0] || null;
+  };
+  D({
+    name: "Power Artifact", cost: "{U}{U}", type: "Enchantment — Aura",
+    text: "Enchant artifact\nEnchanted artifact's activated abilities cost {2} less to activate. This effect can't reduce the mana in that cost to less than one mana.",
+    aura: true, enchant: "artifact",
+    targets: [{ kind: "artifact", purpose: "powerArtifact", prompt: "Power Artifact: enchant an artifact" }],
+    statics: [{ artifactAbilityCostMod: (g, s, o) => (s.attachedTo === o ? 2 : 0) }],
+    ai: {
+      priority: 7,
+      target: (g, p, req) => (req.purpose === "powerArtifact" ? powerTarget(g, p, req.options) : undefined),
+      cast: (g, p) => (g.controlled(p, o => ["Basalt Monolith", "Grim Monolith"].includes(o.def.name) || (o.def.name === "Isochron Scepter" && o.state.imprint && o.state.imprint.def.name === "Dramatic Reversal")).length ? 25 : false)
+    }
+  });
+
+  /* Delney: Brago (2/4) and the small enters-the-battlefield creatures (Spellseeker, Trinket Mage,
+     Peregrine Drake, Mulldrifter...) trigger twice, and big ground creatures can't block them. */
+  D({
+    name: "Delney, Streetwise Lookout", cost: "{2}{W}", type: "Legendary Creature — Human Scout", pt: "2/2",
+    text: "Creatures you control with power 2 or less can't be blocked by creatures with power 3 or greater.\nIf a triggered ability of a creature you control with power 2 or less triggers, that ability triggers an additional time.",
+    note: "A creature's leaves-the-battlefield triggers aren't doubled (its power is read on the battlefield).",
+    statics: [{
+      cantBeBlockedBy: (g, s, a, b) => a.controller === s.controller && g.isCreature(a) && g.power(a) <= 2 && g.power(b) >= 3,
+      triggerExtra: (g, s, f) => (f.controller === s.controller && f.src && !f.src.emblem && f.src.zone === "battlefield" && f.src.controller === s.controller && g.isCreature(f.src) && g.power(f.src) <= 2 ? 1 : 0)
+    }],
+    ai: { priority: 7 }
+  });
+
+  /* Attack taxes (engine: attackTax). Each attacker aimed at you costs its controller {2}. */
+  const prisonText = "Creatures can't attack you unless their controller pays {2} for each creature they control that's attacking you.";
+  const prisonTax = { attackTax: (g, s, a, t) => (t === s.controller && a.controller !== s.controller ? 2 : 0) };
+  D({ name: "Ghostly Prison", cost: "{2}{W}", type: "Enchantment", text: prisonText, statics: [prisonTax], ai: { priority: 7 } });
+  D({ name: "Propaganda", cost: "{2}{U}", type: "Enchantment", text: prisonText, statics: [prisonTax], ai: { priority: 7 } });
+  D({ name: "Windborn Muse", cost: "{3}{W}", type: "Creature — Spirit", pt: "2/3", keywords: ["flying"], text: "Flying\n" + prisonText, statics: [prisonTax], ai: { priority: 6 } });
+
   /* ---------- lands */
   const land = (name, extra) => D(Object.assign({ name, type: "Land" }, extra));
   land("Prismatic Vista", {
@@ -786,6 +827,13 @@
   const killNeed = (g, p) => pingable(g, p).reduce((s, q) => s + Math.max(0, q.life), 0);
   const BMEMO = new WeakMap();
   function bmem(g, p) { let m = BMEMO.get(p); if (!m || m.g !== g || m.turn !== g.turn) { m = { g, turn: g.turn, loops: 0, ping: false }; BMEMO.set(p, m); } return m; }
+  /* The lines the brain runs, for the bench telemetry (tools/sim/brago/tele.js): once per turn and kind. */
+  function note(g, p, m, what, line) {
+    const k = what + ":" + line;
+    if ((m.noted || (m.noted = new Set())).has(k)) return;
+    m.noted.add(k);
+    (p.bragoLines || (p.bragoLines = [])).push({ round: g.round, turn: g.turn, what, line });
+  }
   /* Tap every untapped land and nonland mana source that needs only {T}: the mana floats. */
   function floatAll(g, p, landsOnly) {
     let n = 0;
@@ -814,12 +862,12 @@
     if (!need) return null;
     const bal = onBf(g, p, BALLISTA).sort((a, b) => (b.counters.p1 || 0) - (a.counters.p1 || 0))[0];
     if (bal) {
-      if ((bal.counters.p1 || 0) >= need) { m.ping = true; return { type: "activate", card: bal, idx: 1, repeat: Math.min(400, need + 2), stop: g2 => !pingable(g2, p).length || !(bal.counters.p1 > 0), maxTries: 4 }; }
+      if ((bal.counters.p1 || 0) >= need) { m.ping = true; note(g, p, m, "kill", "Walking Ballista"); return { type: "activate", card: bal, idx: 1, repeat: Math.min(400, need + 2), stop: g2 => !pingable(g2, p).length || !(bal.counters.p1 > 0), maxTries: 4 }; }
       if (g.poolTotal(p) >= 4) return { type: "activate", card: bal, idx: 0, repeat: Math.min(need - (bal.counters.p1 || 0), Math.floor(g.poolTotal(p) / 4)), maxTries: 4 };
       return null;
     }
     const bh = inHand(p, BALLISTA), a = castOf(acts, bh);
-    if (a && a.xMax >= Math.min(need, 60)) return { type: "cast", card: bh, x: Math.min(a.xMax, need), maxTries: 3 };
+    if (a && a.xMax >= Math.min(need, 60)) { note(g, p, m, "kill", "Walking Ballista"); return { type: "cast", card: bh, x: Math.min(a.xMax, need), maxTries: 3 }; }
     return null;
   }
   /* The loops that make mana. Each returns an action, or null when it can't run. want: the mana to stop at. */
@@ -834,6 +882,7 @@
     const a = acts.find(x => x.type === "activate" && x.card === drake && x.ab && x.ab.label && x.ab.label.startsWith("{1}{U}"));
     if (!a) return null;
     m.loops++;
+    note(g, p, m, "infinite", "Drake + Deadeye");
     floatAll(g, p, true);
     const stuck = progress(p);
     return { type: "activate", card: drake, idx: a.idx, repeat: 400, stop: g2 => { floatAll(g2, p, true); return g2.poolTotal(p) >= want || stuck(g2) || !(p.pool.U > 0 || g2.controlled(p, o => g2.isLand(o) && !o.tapped).length); }, maxTries: 6 };
@@ -841,14 +890,42 @@
   function scepterLoop(g, p, acts, m, want) {
     const sc = g.controlled(p, o => o.def.name === "Isochron Scepter" && o.state.imprint && o.state.imprint.def.name === "Dramatic Reversal" && !o.tapped)[0];
     if (!sc) return null;
-    if (rockMana(g, p) < 3) return null;
+    if (rockMana(g, p) < scepterNeed(g, p, sc)) return null;
     const a = acts.find(x => x.type === "activate" && x.card === sc && x.idx === 0);
     if (!a) return null;
     m.loops++;
+    note(g, p, m, "infinite", "Scepter + Reversal");
     floatAll(g, p, false);
     const stuck = progress(p);
     return { type: "activate", card: sc, idx: 0, repeat: 400, stop: g2 => { floatAll(g2, p, false); return g2.poolTotal(p) >= want || stuck(g2); }, maxTries: 6 };
   }
+  /* A Monolith that makes more than its untap costs: Power Artifact on it (Basalt untaps for {1},
+     Grim for {2}), or Forsaken Monument out (Basalt makes four for {3}). Unlimited colorless mana:
+     tap it, untap it, again. */
+  const MONOLITHS = ["Basalt Monolith", "Grim Monolith"];
+  function monolithNet(g, p, o) {
+    const e = g.abilitiesOf(o).find(x => x.ab.untapSelf);
+    if (!e) return 0;
+    const made = 3 + (onBf(g, p, "Forsaken Monument").length ? 1 : 0);
+    return made - MK.util.costMV(g.abilityCost(p, o, e.ab, 0));
+  }
+  function monolithLoop(g, p, acts, m, want) {
+    const mono = g.controlled(p, o => MONOLITHS.includes(o.def.name) && monolithNet(g, p, o) > 0).sort((a, b) => monolithNet(g, p, b) - monolithNet(g, p, a))[0];
+    if (!mono) return null;
+    const e = g.abilitiesOf(mono).find(x => x.ab.untapSelf);
+    floatAll(g, p, false);
+    if (!mono.tapped || !g.canActivate(p, mono, e)) return null;
+    m.loops++;
+    note(g, p, m, "infinite", onBf(g, p, "Forsaken Monument").length && !g.controlled(p, o => o.def.name === "Power Artifact" && o.attachedTo === mono).length ? "Basalt + Forsaken Monument" : "Power Artifact + " + mono.def.name);
+    const stuck = progress(p);
+    return { type: "activate", card: mono, idx: e.i, repeat: 400, stopFirst: true, stop: g2 => { floatAll(g2, p, false); return g2.poolTotal(p) >= want || stuck(g2); }, maxTries: 6 };
+  }
+  /* The rock mana a Scepter loop needs: one more than its activation ({2}, {1} under Power Artifact). */
+  function scepterNeed(g, p, sc) {
+    return sc && MK.scepterCost ? MK.util.costMV(MK.scepterCost(g, sc)) + 1 : 3;
+  }
+  const scepterLive = (g, p) => g.controlled(p, x => x.def.name === "Isochron Scepter" && x.state.imprint && x.state.imprint.def.name === "Dramatic Reversal").some(sc => rockMana(g, p) >= scepterNeed(g, p, sc));
+  const monolithReady = (g, p) => g.controlled(p, o => MONOLITHS.includes(o.def.name) && monolithNet(g, p, o) > 0).length > 0;
   /* The mana p's nonland permanents make each time Dramatic Reversal untaps them (tapped or not). */
   function rockMana(g, p) {
     let n = 0;
@@ -871,6 +948,7 @@
     const a = castOf(acts, gf);
     if (!a) return null;
     m.loops++;
+    note(g, p, m, "infinite", "Drake + Archaeomancer + Flicker");
     floatAll(g, p, true);
     return { type: "cast", card: gf, targets: [drake, arch], maxTries: 2 };
   }
@@ -883,7 +961,7 @@
     const bal = onBf(g, p, BALLISTA).sort((a, b) => (b.counters.p1 || 0) - (a.counters.p1 || 0))[0];
     if (bal) {
       const c = bal.counters.p1 || 0;
-      if (c >= 2 && g.kw(bal, "lifelink")) { m.ping = true; return { type: "activate", card: bal, idx: 1, repeat: Math.min(400, need + 5), stop: g2 => !pingable(g2, p).length || !(bal.counters.p1 > 0) || bal.zone !== "battlefield", maxTries: 4 }; }
+      if (c >= 2 && g.kw(bal, "lifelink")) { m.ping = true; note(g, p, m, "kill", "Heliod + Ballista"); return { type: "activate", card: bal, idx: 1, repeat: Math.min(400, need + 5), stop: g2 => !pingable(g2, p).length || !(bal.counters.p1 > 0) || bal.zone !== "battlefield", maxTries: 4 }; }
       if (c >= 2) { const h = acts.find(x => x.type === "activate" && x.card.def.name === "Heliod, Sun-Crowned" && x.idx === 0); return h ? { type: "activate", card: h.card, idx: 0, maxTries: 2 } : null; }
       if (c === 1 && g.canPay(p, pc("{5}{W}"))) { const gr = acts.find(x => x.type === "activate" && x.card === bal && x.idx === 0); return gr ? { type: "activate", card: bal, idx: 0, maxTries: 2 } : null; }
       return null;
@@ -903,7 +981,8 @@
     const sc = g.controlled(p, x => x.def.name === "Isochron Scepter" && x.state.imprint && x.state.imprint.def.name === "Dramatic Reversal")[0];
     const ring = onBf(g, p, "The One Ring")[0];
     const refill = () => {
-      if (!sc || sc.tapped) return null;
+      if (monolithReady(g, p)) { const r = monolithLoop(g, p, acts, m, 40); if (r) return Object.assign(r, { maxTries: 30 }); }
+      if (!sc || sc.tapped || rockMana(g, p) < scepterNeed(g, p, sc)) return null;
       const a = acts.find(x => x.type === "activate" && x.card === sc && x.idx === 0);
       if (!a) return null;
       floatAll(g, p, false);
@@ -929,7 +1008,15 @@
     const need = killNeed(g, p);
     if (!need) return null;
     const hasSink = onBf(g, p, BALLISTA).length > 0 || !!inHand(p, BALLISTA);
-    if (!hasSink) return scepterReady(g, p) && rockMana(g, p) >= 3 && p.library.some(c => c.def.name === BALLISTA) ? dig(g, p, acts, m) : null;
+    if (!hasSink) {
+      if ((scepterLive(g, p) || monolithReady(g, p)) && p.library.some(c => c.def.name === BALLISTA)) { const d = dig(g, p, acts, m); if (d) return d; }
+    } else {
+      const go = killLines(g, p, acts, m, need);
+      if (go) return go;
+    }
+    return setupPlay(g, p, acts, m);
+  }
+  function killLines(g, p, acts, m, need) {
     const hel = heliodRoute(g, p, acts, m);
     if (hel) return hel;
     const kill = ballistaKill(g, p, acts, m);
@@ -937,7 +1024,20 @@
     if (m.loops > 150) return null;
     const want = 2 * Math.min(need, 120) + 8;
     if (m.loops >= 3 && g.poolTotal(p) < want) return null;
-    return drakeDeadeye(g, p, acts, m, want) || scepterLoop(g, p, acts, m, want) || flickerLoop(g, p, acts, m, want);
+    return monolithLoop(g, p, acts, m, want) || drakeDeadeye(g, p, acts, m, want) || scepterLoop(g, p, acts, m, want) || flickerLoop(g, p, acts, m, want);
+  }
+  /* Plays that move toward a kill: Muddle the Mixture transmutes for a two-mana piece the tutors
+     want (the generic transmute plan only knows other decks' lines). */
+  function setupPlay(g, p, acts, m) {
+    const mud = inHand(p, "Muddle the Mixture");
+    if (mud) {
+      const act = acts.find(a => a.type === "channel" && a.card === mud);
+      if (act) {
+        const best = p.library.filter(c => c.def.mv === 2).reduce((b, c) => Math.max(b, bragoTutorBonus(g, p, c)), 0);
+        if (best >= 12) return { type: "channel", card: mud, maxTries: 1 };
+      }
+    }
+    return null;
   }
   function bragoChoose(g, p, req) {
     const m = bmem(g, p), sn = req.src && req.src.def && req.src.def.name;
@@ -966,8 +1066,14 @@
     const on = x => onBf(g, p, x).length > 0, held = x => on(x) || p.hand.some(c => c !== o && c.def.name === x);
     if (held(n)) return 0;
     const sc = scepterReady(g, p), scHalf = held("Isochron Scepter") || held("Dramatic Reversal");
-    const loopReady = sc || (held("Isochron Scepter") && held("Dramatic Reversal")) || (held(DRAKE) && held(DEADEYE)) || (held(DRAKE) && held("Archaeomancer") && held("Ghostly Flicker"));
+    const mono = held("Basalt Monolith") || held("Grim Monolith");
+    const loopReady = sc || monolithReady(g, p) || (held("Isochron Scepter") && held("Dramatic Reversal")) || (held(DRAKE) && held(DEADEYE)) || (held(DRAKE) && held("Archaeomancer") && held("Ghostly Flicker")) ||
+      (held("Power Artifact") && mono) || (held("Forsaken Monument") && held("Basalt Monolith"));
     switch (n) {
+      case "Power Artifact": return mono ? 30 : held("Isochron Scepter") && held("Dramatic Reversal") ? 16 : 11;
+      case "Basalt Monolith": if (held("Power Artifact") || held("Forsaken Monument")) return 30; break;
+      case "Grim Monolith": if (held("Power Artifact")) return 29; break;
+      case "Forsaken Monument": return held("Basalt Monolith") ? 26 : 5;
       case BALLISTA: return held("Heliod, Sun-Crowned") || loopReady ? 40 : 18;
       case "Heliod, Sun-Crowned": return held(BALLISTA) ? 34 : 15;
       case "Isochron Scepter": return held("Dramatic Reversal") ? 30 : sc ? 0 : 13;

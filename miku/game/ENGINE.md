@@ -221,6 +221,8 @@ statics: [{
   lifeGainPlus: (g, s, p) => 1,                   // Cleric Class
   counterPlus: (g, s, o, kind) => 1,              // Hardened Scales style
   costMod: (g, s, card) => 1,                     // reduce generic cost of your spells by n
+  abilityCostMod: (g, s, o, ab) => 2,             // your creatures' activated abilities cost n less, never below one mana (Training Grounds)
+  artifactAbilityCostMod: (g, s, o, ab) => 2,     // artifact o's activated abilities cost n less, never below one mana (Power Artifact)
   giveConvoke: (g, s, card) => bool, giveFlash: (g, s, card, p) => bool,
   extraLands: 1, untapOnOthersTurn: true, noMaxHand: true,
   playLandsFrom: ["top", "graveyard"],            // Courser of Kruphix, Ramunap Excavator
@@ -235,6 +237,8 @@ statics: [{
   creatureManaBonus: (g, s, o) => "G",            // Badgermole Cub: tapping creature o for mana adds this too
   tapManaBonus: (g, s, o) => "G",                 // Wild Growth, Utopia Sprawl: tapping permanent o for mana adds this too
   becomesVehicle: true,                           // with applies: it's a noncreature Vehicle artifact (Swift Reconfiguration)
+  cantBeBlockedBy: (g, s, attacker, blocker) => bool, // Delney: your small creatures can't be blocked by big ones
+  attackTax: (g, s, attacker, target) => 2,       // Ghostly Prison, Propaganda: pay {n} for that attacker or it doesn't attack (a bot sends it at an untaxed opponent)
   stopTrigger: (g, s, entry) => bool,             // the trigger doesn't happen (Elesh Norn, Mother of Machines); triggerExtra(g, s, entry) -> n adds copies
   addTypes: ["Land"], subtypes: ["Forest"]        // with applies: Ashaya makes nontoken creatures Forest lands (grantMana gives the {G})
 }]
@@ -331,6 +335,9 @@ checks the ability before anything else (win-the-game abilities).
 
 An action returned by a plan looks like `{ type: "cast", card, targets, x, alt }`,
 `{ type: "activate", card, idx, repeat }` (idx = index in `abilities`), or `{ type: "land", card }`.
+A repeated activation can carry `stop(g)` (checked before each repeat; true ends the loop) and
+`stopFirst: true` (stop runs before the can-it-be-activated check, so it can set that up: the Brago
+brain taps a Power Artifact Monolith for mana there, which makes its untap legal again).
 
 ## Deck files
 

@@ -371,6 +371,8 @@
       this._grantsMana = out.some(o => o.def.statics.some(st => st.grantMana));
       this._trigExtra = out.some(o => o.def.statics.some(st => st.triggerExtra || st.stopTrigger));
       this._addsTypes = out.some(o => o.def.statics.some(st => st.addTypes));
+      this._blockRestrict = out.some(o => o.def.statics.some(st => st.cantBeBlockedBy));
+      this._attackTax = out.some(o => o.def.statics.some(st => st.attackTax));
       return out;
     }
     roomStatics(o) {
@@ -2276,9 +2278,14 @@
       c.x = 0;
       // "activated abilities of creatures you control cost {2} less" (Training Grounds): generic mana
       // only, never below one mana in total, and not special actions like turning a card face up
-      if (!ab.special && o.zone === "battlefield" && this.isCreature(o)) {
+      // "enchanted artifact's activated abilities cost {2} less" (Power Artifact): the same floor of one mana
+      if (!ab.special && o.zone === "battlefield" && (this.isCreature(o) || this.isArtifact(o))) {
         let red = 0;
-        for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.abilityCostMod && s.controller === p) red += st.abilityCostMod(this, s, o, ab) || 0;
+        const cre = this.isCreature(o), art = this.isArtifact(o);
+        for (const s of this.staticSources()) for (const st of this.staticsOf(s)) {
+          if (cre && st.abilityCostMod && s.controller === p) red += st.abilityCostMod(this, s, o, ab) || 0;
+          if (art && st.artifactAbilityCostMod) red += st.artifactAbilityCostMod(this, s, o, ab) || 0;
+        }
         if (red > 0) c.g -= Math.max(0, Math.min(red, c.g, costMV(c) - 1));
       }
       return c;
@@ -2523,10 +2530,12 @@
         try {
           for (let k = 0; k < n; k++) {
             if (k > 0) {
+              // stopFirst: the stop check runs first (it can tap a Monolith for mana, so its untap can be activated again)
+              if (act.stopFirst && act.stop && act.stop(this)) break;
               const entry = this.findAbility(act.card, act.idx);
               if (!entry || !this.canActivate(p, act.card, entry)) break;
               if (act.script) p.script = act.script.slice();
-              if (act.stop && act.stop(this)) break;
+              if (!act.stopFirst && act.stop && act.stop(this)) break;
               if (!raised) { raised = true; this.quiet = (this.quiet || 0) + 1; }
             }
             if (act.record) p.recording = [];
@@ -2572,12 +2581,40 @@
       // intimidate: only artifact creatures and creatures that share a color with it (a colorless one: artifacts only)
       if (this.kw(a, "intimidate") && !this.isArtifact(b) && ![...this.colorsOf(a)].some(k => this.colorsOf(b).has(k))) return false;
       if (a.def.canBeBlockedBy && !a.def.canBeBlockedBy(this, a, b)) return false;
+      // "creatures you control with power 2 or less can't be blocked by creatures with power 3 or greater" (Delney): statics with cantBeBlockedBy(g, source, attacker, blocker)
+      if ((this.staticSources(), this._blockRestrict)) for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantBeBlockedBy && st.cantBeBlockedBy(this, s, a, b)) return false;
       if (this.kw(a, "mountainwalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Mountain"))) return false;
       if (this.kw(a, "islandwalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Island"))) return false;
       if (this.kw(a, "forestwalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Forest"))) return false;
       if (this.kw(a, "plainswalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Plains"))) return false;
       if (this.kw(a, "swampwalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Swamp"))) return false;
       return true;
+    }
+    /* Attack taxes: statics with attackTax(g, source, attacker, target) -> generic mana for that attacker
+       (Ghostly Prison: {2} when the target is the source's controller). Each taxed attacker is paid for in
+       declaration order (the bots declare their biggest first); one that isn't paid for doesn't attack, or a
+       bot sends it at an untaxed opponent instead (the one with the least life). */
+    attackTaxOf(a, t) {
+      let n = 0;
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.attackTax) n += st.attackTax(this, s, a, t) || 0;
+      return n;
+    }
+    async payAttackTax(p, decl) {
+      const kept = [];
+      // the attackers are tapped as they're declared, before the costs are paid: they can't make the mana
+      const exclude = decl.filter(d => !this.kw(d.attacker, "vigilance")).map(d => d.attacker.id);
+      for (const d of decl) {
+        const n = this.attackTaxOf(d.attacker, d.target);
+        if (n <= 0) { kept.push(d); continue; }
+        const cost = parseCost(`{${n}}`);
+        let ok = this.canPay(p, cost, { exclude });
+        if (ok) ok = !!(await this.ask(p, { type: "confirm", prompt: `Pay {${n}} so ${d.attacker.def.name} can attack ${this.nameOf(d.target)}?`, purpose: "attackTax", amount: n }));
+        if (ok && this.pay(p, cost, { exclude })) { kept.push(d); continue; }
+        const alt = p.agent && p.agent.bot ? this.opponents(p).filter(q => this.attackTaxOf(d.attacker, q) <= 0).sort((x, y) => x.life - y.life)[0] : null;
+        if (alt) kept.push({ attacker: d.attacker, target: alt });
+        else this.log(`${d.attacker.def.name} doesn't attack ${this.nameOf(d.target)}: ${p.name} doesn't pay {${n}}.`, { p, cards: [d.attacker.def.name] });
+      }
+      return kept;
     }
     defenderOf(t) { return this.isPlayer(t) ? t : t.controller; }
     removeFromCombat(o) {
@@ -2614,6 +2651,8 @@
         const d = decl.find(x => x.attacker === o);
         if (d) d.target = must; else decl.push({ attacker: o, target: must });
       }
+      // "creatures can't attack you unless their controller pays {2} for each" (Ghostly Prison, Propaganda)
+      if (decl.length && (this.staticSources(), this._attackTax)) decl = await this.payAttackTax(p, decl);
       if (!decl.length) { if (this.opts.legacySteps) { this.combat = null; this.phase = "main2"; this.bump(); return; } return this.endCombat(p, true); }
       const tappedNow = [];
       for (const d of decl) {

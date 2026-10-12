@@ -269,6 +269,87 @@ const repeat = (g, p, o, idx, n, more) => g.perform(p, Object.assign({ type: "ac
     await g.activate(a, fs2, 0); await g.settle();
     check("Fauna Shaman: discards a creature, finds one", a.hand.some(c => c.def.name === "Archangel of Thune") && a.graveyard.some(c => c.def.name === "Llanowar Elves")); }
 
+  /* ---------- Brago v2 (2026-10-12): Power Artifact, the Monolith loops, Delney, Muddle's transmute */
+  // Power Artifact: Basalt Monolith's untap costs {1}, Grim Monolith's {2}; never below one mana (Isochron Scepter {2} -> {1})
+  { const { g, a } = table(); lands(g, a, 2, ["Island"]); const bas = put(g, a, "Basalt Monolith"); const grim = put(g, a, "Grim Monolith"); const sc = put(g, a, "Isochron Scepter");
+    const untap = o => g.abilitiesOf(o).find(x => x.ab.untapSelf).ab;
+    check("Basalt Monolith: untap costs {3} alone", MK.util.costMV(g.abilityCost(a, bas, untap(bas), 0)) === 3);
+    const pa = hand(g, a, "Power Artifact"); answer(a, (g2, p, req) => (req.purpose === "powerArtifact" ? bas : undefined));
+    await cast(g, a, pa); await g.settle();
+    check("Power Artifact: attached to Basalt Monolith", pa.zone === "battlefield" && pa.attachedTo === bas);
+    check("Power Artifact: Basalt's untap costs {1}", MK.util.costMV(g.abilityCost(a, bas, untap(bas), 0)) === 1);
+    check("Power Artifact: only the enchanted artifact", MK.util.costMV(g.abilityCost(a, grim, untap(grim), 0)) === 4);
+    const pa2 = put(g, a, "Power Artifact"); pa2.attachedTo = sc; g.bump();
+    check("Power Artifact: Isochron Scepter's {2} becomes {1}, not {0}", MK.util.costMV(MK.scepterCost(g, sc)) === 1 && MK.util.costMV(MK.scepterCost(g, put(g, a, "Isochron Scepter"))) === 2); }
+
+  // Brago bot: Power Artifact on Basalt Monolith + Walking Ballista in hand kills the table
+  { const { g, a, b, c, d } = table(); lands(g, a, 2, ["Island"]); const bas = put(g, a, "Basalt Monolith"); const pa = put(g, a, "Power Artifact"); pa.attachedTo = bas; g.bump(); await g.settle();
+    hand(g, a, "Walking Ballista"); for (const q of [b, c, d]) q.life = 12;
+    for (let k = 0; k < 12 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
+    check("Brago bot: Power Artifact + Basalt + Ballista kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life));
+    check("Brago bot: the line is noted for the bench", (a.bragoLines || []).some(l => l.what === "infinite" && l.line === "Power Artifact + Basalt Monolith")); }
+  // ... Grim Monolith too (makes three, untaps for {2})
+  { const { g, a, b, c, d } = table(); lands(g, a, 2, ["Island"]); const grim = put(g, a, "Grim Monolith"); const pa = put(g, a, "Power Artifact"); pa.attachedTo = grim; g.bump(); await g.settle();
+    hand(g, a, "Walking Ballista"); for (const q of [b, c, d]) q.life = 8;
+    for (let k = 0; k < 12 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
+    check("Brago bot: Power Artifact + Grim + Ballista kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
+  // ... and Forsaken Monument with Basalt Monolith (four mana for {3})
+  { const { g, a, b, c, d } = table(); lands(g, a, 2, ["Island"]); put(g, a, "Basalt Monolith"); put(g, a, "Forsaken Monument"); await g.settle();
+    hand(g, a, "Walking Ballista"); for (const q of [b, c, d]) q.life = 8;
+    for (let k = 0; k < 12 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
+    check("Brago bot: Forsaken Monument + Basalt + Ballista kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
+  // Grim Monolith with Forsaken Monument alone makes four for {4}: no loop
+  { const { g, a, b } = table(); lands(g, a, 2, ["Island"]); put(g, a, "Grim Monolith"); put(g, a, "Forsaken Monument"); await g.settle();
+    hand(g, a, "Walking Ballista"); b.life = 30;
+    const act = await a.agent.main(g, a, { phase: "main1" });
+    check("Brago bot: Grim + Monument is not a loop", !(act && act.type === "activate" && act.card.def.name === "Grim Monolith" && act.repeat > 1)); }
+  // Power Artifact on Isochron Scepter: Reversal goes infinite with two mana of rocks
+  { const { g, a, b, c, d } = table(); lands(g, a, 2, ["Island"]); put(g, a, "Arcane Signet"); put(g, a, "Mind Stone");
+    const sc = put(g, a, "Isochron Scepter"); const rev = g.newObj(MK.get("Dramatic Reversal"), a, "exile"); a.exile.push(rev); sc.state.imprint = rev;
+    const pa = put(g, a, "Power Artifact"); pa.attachedTo = sc; g.bump(); await g.settle();
+    hand(g, a, "Walking Ballista"); for (const q of [b, c, d]) q.life = 6;
+    for (let k = 0; k < 12 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
+    check("Brago bot: Power Artifact on the Scepter + two rocks + Ballista kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
+  // the tutors fetch the missing half of the Monolith pair
+  { const { g, a } = table(); put(g, a, "Basalt Monolith"); const pa = g.newObj(MK.get("Power Artifact"), a, "library"); const sol = g.newObj(MK.get("Sol Ring"), a, "library");
+    const br = MK.DECK_BRAINS.brago;
+    check("Brago tutors: Power Artifact once a Monolith is out", br.tutorBonus(g, a, pa) >= 28 && br.tutorBonus(g, a, pa) > br.tutorBonus(g, a, sol)); }
+
+  // Delney: Brago's hit triggers twice (a tapped rock is flickered twice), Wall of Omens draws two, big ground creatures can't block small ones
+  { const { g, a, b } = table(); const br = put(g, a, "Brago, King Eternal"); put(g, a, "Delney, Streetwise Lookout"); const wall = put(g, a, "Wall of Omens"); await g.settle();
+    a.library.length = 40; const h0 = a.hand.length;
+    g.emit("combatDamagePlayer", { src: br, p: b, amount: 2 }); await g.settle();
+    check("Delney: Brago's trigger twice, Wall of Omens flickered twice and draws twice each time", a.hand.length === h0 + 4, a.hand.length - h0);
+    const big = put(g, b, "Ghalta, Primal Hunger"), small = put(g, b, "Llanowar Elves");
+    check("Delney: a 12/12 can't block Brago", !g.canBlock(big, br) || !g.kw(big, "flying"));
+    const grizzly = put(g, a, "Llanowar Elves");
+    check("Delney: power 3+ can't block our 1/1", !g.canBlock(big, grizzly) && g.canBlock(small, grizzly)); }
+  { const { g, a } = table(); const del = put(g, a, "Delney, Streetwise Lookout"); const ls = lands(g, a, 10, ["Island"]); for (const l of ls) l.tapped = true; await g.settle();
+    put(g, a, "Peregrine Drake"); await g.settle();
+    check("Delney: Peregrine Drake untaps ten lands", ls.filter(l => !l.tapped).length === 10, ls.filter(l => !l.tapped).length); }
+
+  // Brago bot: Muddle the Mixture transmutes for Power Artifact with a Monolith out
+  { const { g, a } = table(); lands(g, a, 3, ["Island"]); put(g, a, "Basalt Monolith"); a.library = []; for (const n of ["Island", "Power Artifact", "Island", "Talisman of Progress"]) a.library.push(g.newObj(MK.get(n), a, "library"));
+    const mud = hand(g, a, "Muddle the Mixture"); g.phase = "main1";
+    const act = await a.agent.main(g, a, { phase: "main1" });
+    check("Brago bot: transmutes Muddle", act && act.type === "channel" && act.card === mud, act && act.type);
+    if (act) { await g.perform(a, act); await g.settle(); }
+    check("Brago bot: Muddle finds Power Artifact", a.hand.some(c => c.def.name === "Power Artifact"), a.hand.map(c => c.def.name)); }
+
+  // Ghostly Prison: {2} per attacker aimed at its controller; an unpaid bot attacker goes at an untaxed opponent
+  { const { g, a, b, c, d } = table(); put(g, a, "Ghostly Prison"); const x1 = put(g, b, "Llanowar Elves"), x2 = put(g, b, "Llanowar Elves"); lands(g, b, 2, ["Forest"]); await g.settle();
+    c.life = 30; d.life = 25;
+    b.agent.attack = () => [{ attacker: x1, target: a }, { attacker: x2, target: a }];
+    g.activeIdx = 1; g.phase = "main1";
+    await g.doCombat(b); await g.settle();
+    check("Ghostly Prison: one attacker paid for ({2}), the other redirected at the lowest-life untaxed opponent", a.life === 39 && d.life === 24 && c.life === 30, [a.life, c.life, d.life]);
+    check("Ghostly Prison: the attacker's lands paid", g.controlled(b, o => g.isLand(o) && o.tapped).length === 2); }
+  { const { g, a, b } = table(); put(g, a, "Propaganda"); const x1 = put(g, b, "Llanowar Elves"); await g.settle();
+    b.agent.attack = () => [{ attacker: x1, target: a }]; b.agent.bot = false;
+    g.activeIdx = 1; g.phase = "main1";
+    await g.doCombat(b); await g.settle();
+    check("Propaganda: no mana, a person's attacker doesn't attack", a.life === 40 && !x1.tapped, [a.life, x1.tapped]); }
+
   console.log(`${passed} passed, ${failed} failed`);
   process.exit(failed ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });
