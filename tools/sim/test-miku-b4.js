@@ -335,6 +335,53 @@ const repeat = (g, p, o, idx, n, more) => g.perform(p, Object.assign({ type: "ac
     check("Brago bot: transmutes Muddle", act && act.type === "channel" && act.card === mud, act && act.type);
     if (act) { await g.perform(a, act); await g.settle(); }
     check("Brago bot: Muddle finds Power Artifact", a.hand.some(c => c.def.name === "Power Artifact"), a.hand.map(c => c.def.name)); }
+  // Tolaria West transmutes for Walking Ballista (mana value 0) when another land is in hand
+  { const { g, a } = table(); lands(g, a, 3, ["Island"]); a.library = []; for (const n of ["Island", "Walking Ballista", "Plains", "Sol Ring"]) a.library.push(g.newObj(MK.get(n), a, "library"));
+    const tw = hand(g, a, "Tolaria West"); hand(g, a, "Plains"); g.phase = "main1";
+    const act = await a.agent.main(g, a, { phase: "main1" });
+    check("Brago bot: transmutes Tolaria West", act && act.type === "channel" && act.card === tw, act && act.type);
+    if (act) { await g.perform(a, act); await g.settle(); }
+    check("Brago bot: Tolaria West finds Walking Ballista", a.hand.some(c => c.def.name === "Walking Ballista") && tw.zone === "graveyard", a.hand.map(c => c.def.name)); }
+  // Grand Architect: its {C}{C} pays for artifacts only; Pili-Pala made blue + the Architect: unlimited colored mana into Ballista
+  { const { g, a, b, c, d } = table(); lands(g, a, 1, ["Island"]); const pili = put(g, a, "Pili-Pala"); pili.sick = false; const arch = put(g, a, "Grand Architect"); await g.settle();
+    hand(g, a, "Sol Ring"); hand(g, a, "Wall of Omens");
+    check("Grand Architect: taps itself for {C}{C} toward an artifact spell (Island tapped)", (g.battlefield.filter(o => g.isLand(o)).forEach(l => (l.tapped = true)), g.canPay(a, MK.parseCost("{2}"), { spell: a.hand.find(x => x.def.name === "Sol Ring") })));
+    check("Grand Architect: not toward a creature spell", !g.canPay(a, MK.parseCost("{2}"), { spell: a.hand.find(x => x.def.name === "Wall of Omens") }));
+    check("Grand Architect: Pili-Pala (colorless) can't make mana for it yet", g.manaSources(a, null, "spell", a.hand.find(x => x.def.name === "Sol Ring")).filter(s => s.o === pili).length === 0);
+    g.battlefield.filter(o => g.isLand(o)).forEach(l => (l.tapped = false));
+    hand(g, a, "Walking Ballista"); for (const q of [b, c, d]) q.life = 8; g.phase = "main1";
+    for (let k = 0; k < 12 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
+    check("Grand Architect: Pili-Pala becomes blue", g.colorsOf(pili).has("U"));
+    check("Brago bot: Grand Architect + Pili-Pala + Ballista kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life));
+    check("Brago bot: the Architect line is noted", (a.bragoLines || []).some(l => l.what === "infinite" && l.line === "Grand Architect + Pili-Pala")); }
+  // ... a summoning-sick Pili-Pala can't use {Q}
+  { const { g, a, b } = table(); lands(g, a, 1, ["Island"]); put(g, a, "Pili-Pala"); put(g, a, "Grand Architect"); await g.settle(); hand(g, a, "Walking Ballista"); b.life = 8; g.phase = "main1";
+    for (let k = 0; k < 6 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
+    check("Brago bot: no Architect loop with a summoning-sick Pili-Pala", !b.lost && !(a.bragoLines || []).some(l => l.line === "Grand Architect + Pili-Pala")); }
+  // Brago doesn't flicker a Monolith wearing Power Artifact (the Aura would fall off); a bare tapped Monolith it does
+  { const { g, a, b } = table(); const br = put(g, a, "Brago, King Eternal"); const bas = put(g, a, "Basalt Monolith"); const pa = put(g, a, "Power Artifact"); pa.attachedTo = bas; bas.tapped = true;
+    const grim = put(g, a, "Grim Monolith"); grim.tapped = true; g.bump(); await g.settle();
+    g.emit("combatDamagePlayer", { src: br, p: b, amount: 2 }); await g.settle();
+    check("Brago: keeps Power Artifact's Monolith, flickers the bare one", bas.zone === "battlefield" && bas.tapped && pa.attachedTo === bas && pa.zone === "battlefield" && !grim.tapped, [bas.tapped, pa.zone, grim.tapped]); }
+  // Inventors' Fair: with three artifacts out it fetches the missing Monolith for Power Artifact; not with two
+  { const { g, a } = table(); lands(g, a, 4, ["Island"]); const fair = put(g, a, "Inventors' Fair"); put(g, a, "Mind Stone"); put(g, a, "Arcane Signet"); await g.settle();
+    hand(g, a, "Power Artifact"); a.library = []; for (const n of ["Island", "Basalt Monolith", "Sol Ring", "Island"]) a.library.push(g.newObj(MK.get(n), a, "library")); g.phase = "main1";
+    const e = g.abilitiesOf(fair).find(x => x.ab.sacSelf);
+    check("Inventors' Fair: needs three artifacts", !g.canActivate(a, fair, e));
+    put(g, a, "Thought Vessel"); await g.settle();
+    check("Inventors' Fair: legendary land", fair.def.legendary && g.isLand(fair));
+    const act = await a.agent.main(g, a, { phase: "main1" });
+    if (act) { await g.perform(a, act); await g.settle(); }
+    check("Brago bot: Inventors' Fair finds Basalt Monolith for Power Artifact", a.hand.some(c => c.def.name === "Basalt Monolith") && fair.zone === "graveyard", act && act.card && act.card.def.name, a.hand.map(c => c.def.name)); }
+  // Staff of Domination: {5}, {T}: draw and {1}: untap; with Power Artifact on Basalt it draws to Ballista, which kills
+  { const { g, a, b, c, d } = table(); lands(g, a, 2, ["Island"]); const bas = put(g, a, "Basalt Monolith"); const pa = put(g, a, "Power Artifact"); pa.attachedTo = bas;
+    const staff = put(g, a, "Staff of Domination"); g.bump(); await g.settle();
+    a.library = []; for (let k = 0; k < 15; k++) a.library.push(g.newObj(MK.get(k === 11 ? "Walking Ballista" : "Island"), a, "library"));
+    for (const q of [b, c, d]) q.life = 8; g.phase = "main1";
+    const draw = g.abilitiesOf(staff).find(x => x.ab.label.startsWith("{5}")), untap = g.abilitiesOf(staff).find(x => x.ab.untapSelf);
+    check("Staff of Domination: draw costs {5} and taps, untap costs {1}", MK.util.costMV(g.abilityCost(a, staff, draw.ab, 0)) === 5 && draw.ab.tap && MK.util.costMV(g.abilityCost(a, staff, untap.ab, 0)) === 1);
+    for (let k = 0; k < 120 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
+    check("Brago bot: Power Artifact + Basalt + Staff of Domination draws Ballista and kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life), a.library.length); }
 
   // Ghostly Prison: {2} per attacker aimed at its controller; an unpaid bot attacker goes at an untaxed opponent
   { const { g, a, b, c, d } = table(); put(g, a, "Ghostly Prison"); const x1 = put(g, b, "Llanowar Elves"), x2 = put(g, b, "Llanowar Elves"); lands(g, b, 2, ["Forest"]); await g.settle();
@@ -349,6 +396,11 @@ const repeat = (g, p, o, idx, n, more) => g.perform(p, Object.assign({ type: "ac
     g.activeIdx = 1; g.phase = "main1";
     await g.doCombat(b); await g.settle();
     check("Propaganda: no mana, a person's attacker doesn't attack", a.life === 40 && !x1.tapped, [a.life, x1.tapped]); }
+  // Baird: {1} per attacker; Archangel of Tithes: {1} only while it's untapped
+  { const { g, a, b } = table(); put(g, a, "Baird, Steward of Argive"); const ang = put(g, a, "Archangel of Tithes"); const x1 = put(g, b, "Llanowar Elves"); await g.settle();
+    check("Baird + Archangel of Tithes: {2} for one attacker", g.attackTaxOf(x1, a) === 2, g.attackTaxOf(x1, a));
+    ang.tapped = true; g.bump();
+    check("Archangel of Tithes: no tax while tapped", g.attackTaxOf(x1, a) === 1, g.attackTaxOf(x1, a)); }
 
   console.log(`${passed} passed, ${failed} failed`);
   process.exit(failed ? 1 : 0);

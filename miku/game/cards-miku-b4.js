@@ -135,6 +135,8 @@
     const n = o.def.name;
     if (o.def.aura) return n === "Reality Acid" && o.attachedTo && o.attachedTo.controller !== p ? 6 : -1;
     if (o.isCommander) return -1;
+    // an Aura of ours on it (Power Artifact on a Monolith) would fall off
+    if (g.battlefield.some(a => a.attachedTo === o && a.controller === p && a.def.aura)) return -1;
     // these lose what they hold, or cost a card, when they come back
     if (["Chrome Mox", "Mox Diamond", "Isochron Scepter", "Lightning Greaves", "Strionic Resonator"].includes(n)) return -1;
     if (n === "The One Ring") return (o.counters.burden || 0) >= 2 ? 4 : -1;   // a fresh Ring: protection again, no burden
@@ -585,9 +587,97 @@
   D({ name: "Ghostly Prison", cost: "{2}{W}", type: "Enchantment", text: prisonText, statics: [prisonTax], ai: { priority: 7 } });
   D({ name: "Propaganda", cost: "{2}{U}", type: "Enchantment", text: prisonText, statics: [prisonTax], ai: { priority: 7 } });
   D({ name: "Windborn Muse", cost: "{3}{W}", type: "Creature — Spirit", pt: "2/3", keywords: ["flying"], text: "Flying\n" + prisonText, statics: [prisonTax], ai: { priority: 6 } });
+  const tax1 = { attackTax: (g, s, a, t) => (t === s.controller && a.controller !== s.controller ? 1 : 0) };
+  D({ name: "Baird, Steward of Argive", cost: "{2}{W}{W}", type: "Legendary Creature — Human Soldier", pt: "2/4", keywords: ["vigilance"], text: "Vigilance\nCreatures can't attack you or planeswalkers you control unless their controller pays {1} for each of those creatures.", statics: [tax1], ai: { priority: 6 } });
+  D({
+    name: "Archangel of Tithes", cost: "{1}{W}{W}{W}", type: "Creature — Angel", pt: "3/5", keywords: ["flying"],
+    text: "Flying\nAs long as this creature is untapped, creatures can't attack you or planeswalkers you control unless their controller pays {1} for each of those creatures.\nAs long as this creature is attacking, creatures can't block unless their controller pays {1} for each of those creatures.",
+    note: "The blocking tax isn't in the game (the Brago bot keeps it home).",
+    statics: [{ attackTax: (g, s, a, t) => (!s.tapped && t === s.controller && a.controller !== s.controller ? 1 : 0) }],
+    ai: { priority: 6 }
+  });
+
+  /* Staff of Domination: with unlimited colorless mana (a Monolith under Power Artifact) it draws
+     the library ({5}, {T}: draw, {1}: untap) until Walking Ballista turns up. */
+  D({
+    name: "Staff of Domination", cost: "{3}", type: "Artifact",
+    text: "{1}: Untap this artifact.\n{2}, {T}: You gain 1 life.\n{3}, {T}: Untap target creature.\n{4}, {T}: Tap target creature.\n{5}, {T}: Draw a card.",
+    abilities: [
+      { label: "{1}: Untap Staff of Domination", cost: "{1}", untapSelf: true, do: (g, s) => { g.untap(s); }, ai: { use: () => false } },
+      { label: "{2}, {T}: Gain 1 life", cost: "{2}", tap: true, do: (g, s, ctx) => { g.gainLife(ctx.p, 1, s); }, ai: { use: () => false } },
+      {
+        label: "{3}, {T}: Untap target creature", cost: "{3}", tap: true,
+        targets: [{ kind: "creature", purpose: "help", prompt: "Staff of Domination: untap target creature" }],
+        do: (g, s, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0]) g.untap(t); }, ai: { use: () => false }
+      },
+      {
+        label: "{4}, {T}: Tap target creature", cost: "{4}", tap: true,
+        targets: [{ kind: "creature", purpose: "harm", prompt: "Staff of Domination: tap target creature" }],
+        do: (g, s, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0]) g.tap(t); }, ai: { use: () => false }
+      },
+      { label: "{5}, {T}: Draw a card", cost: "{5}", tap: true, do: (g, s, ctx) => { g.draw(ctx.p, 1, s); }, ai: { use: (g, p, o, ctx) => myEndBeforeTurn(g, p, ctx) } }
+    ],
+    ai: { priority: 4 }
+  });
+
+  /* Grand Architect + Pili-Pala: Pili-Pala made blue, tapped by the Architect for {C}{C} (artifact
+     mana) pays its own {2}, {Q}: untap it and add one mana of any color. Unlimited colored mana
+     (Commander Spellbook lists the pair). The Architect's mana is offered only for artifact spells
+     and abilities of artifacts; the Brago brain runs the loop itself. */
+  D({
+    name: "Grand Architect", cost: "{1}{U}{U}", type: "Creature — Vedalken Artificer", pt: "1/3",
+    text: "Other blue creatures you control get +1/+1.\n{U}: Target artifact creature becomes blue until end of turn.\nTap an untapped blue creature you control: Add {C}{C}. Spend this mana only to cast artifact spells or activate abilities of artifacts.",
+    note: "Its mana comes from the blue creature it taps (summoning sickness doesn't matter); left in the pool it can pay for anything.",
+    statics: [
+      { applies: (g, s, o) => o !== s && mine(s, o) && g.isCreature(o) && g.colorsOf(o).has("U"), pt: [1, 1] },
+      { applies: (g, s, o) => mine(s, o) && g.isCreature(o) && !o.tapped && g.colorsOf(o).has("U"), grantMana: [{ tap: true, ignoreSick: true, artifactOnly: true, last: true, architect: true, produce: "CC" }] }
+    ],
+    abilities: [{
+      label: "{U}: Target artifact creature becomes blue", cost: "{U}",
+      targets: [{ kind: "creature", purpose: "architect", prompt: "Grand Architect: target artifact creature becomes blue until end of turn", filter: (g, o) => g.isArtifact(o) }],
+      do: (g, s, ctx) => { const t = ctx.targets[0]; if (t && ctx.legal[0]) { g.addEffect({ objs: [t], setColors: ["U"] }); log(g, `${t.def.name} becomes blue until end of turn.`, ctx.p, [t.def.name]); } },
+      ai: { use: () => false }
+    }],
+    ai: { priority: 6 }
+  });
+  D({
+    name: "Pili-Pala", cost: "{2}", type: "Artifact Creature — Scarecrow", pt: "1/1", keywords: ["flying"],
+    text: "Flying\n{2}, {Q}: Add one mana of any color. ({Q} is the untap symbol.)",
+    note: "Its mana ability is used by the Brago brain's Grand Architect loop, not when paying for spells.",
+    mana: [{ cost: "{2}", noAuto: true, untapSym: true, condition: (g, o) => o.tapped && !(o.sick && !g.kw(o, "haste")), produce: "any5", after: (g, o) => g.untap(o) }],
+    ai: { priority: 5 }
+  });
 
   /* ---------- lands */
   const land = (name, extra) => D(Object.assign({ name, type: "Land" }, extra));
+  /* Inventors' Fair: a land that tutors an artifact once three are out (the Brago brain picks the
+     missing combo piece and says when; other bots use it at the end of the turn before theirs). */
+  const artifactsOf = (g, p) => g.controlled(p, x => g.isArtifact(x)).length;
+  land("Inventors' Fair", {
+    type: "Legendary Land",
+    text: "At the beginning of your upkeep, if you control three or more artifacts, you gain 1 life.\n{T}: Add {C}.\n{4}, {T}, Sacrifice Inventors' Fair: Search your library for an artifact card, reveal it, put it into your hand, then shuffle. Activate only if you control three or more artifacts.",
+    mana: [{ tap: true, produce: "C" }],
+    triggers: [{ on: "upkeep", when: (g, s, ev) => ev.p === s.controller, intervening: (g, s) => artifactsOf(g, s.controller) >= 3, do: (g, s, ev, { p }) => g.gainLife(p, 1, s) }],
+    abilities: [{
+      label: "Search for an artifact", cost: "{4}", tap: true, sacSelf: true,
+      condition: (g, o, p) => artifactsOf(g, o.controller) >= 3,
+      do: (g, s, ctx) => g.search(ctx.p, { filter: (g2, c) => typeOf(c, "Artifact"), to: "hand", prompt: "Inventors' Fair: search for an artifact card", src: s, hidden: false, purpose: "tutor" }),
+      ai: { use: (g, p, o, ctx) => myEndBeforeTurn(g, p, ctx) }
+    }]
+  });
+  /* Tolaria West transmutes (a channel ability here: only while you could cast a sorcery) for a
+     card with mana value 0: Walking Ballista, a Mox, a land. */
+  land("Tolaria West", {
+    text: "This land enters tapped.\n{T}: Add {U}.\nTransmute {1}{U}{U} ({1}{U}{U}, Discard this card: Search your library for a card with mana value 0, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)",
+    etbTapped: true,
+    mana: [{ tap: true, produce: "U" }],
+    channel: {
+      label: "Transmute", cost: "{1}{U}{U}",
+      targets: [{ kind: "player", purpose: "transmute", prompt: "Transmute (only as a sorcery): search your library", playerFilter: (g, pl, p) => pl === p && g.canSorcery(p) }],
+      do: (g, o, ctx) => g.search(ctx.p, { filter: (g2, c) => (c.def.mv || 0) === 0, to: "hand", prompt: "Transmute Tolaria West: search for a card with mana value 0", src: o, hidden: false, purpose: "tutor" })
+    },
+    ai: { target: (g, p, req) => (req.purpose === "transmute" ? req.options.find(x => x === p) : undefined) }
+  });
   land("Prismatic Vista", {
     text: "{T}, Pay 1 life: Add {C}.\n{T}, Pay 1 life, Sacrifice this land: Search your library for a basic land card, put it onto the battlefield, then shuffle.",
     note: "Its {T}, pay 1 life: Add {C} isn't in the game: it is always cracked for a basic.",
@@ -920,6 +1010,42 @@
     const stuck = progress(p);
     return { type: "activate", card: mono, idx: e.i, repeat: 400, stopFirst: true, stop: g2 => { floatAll(g2, p, false); return g2.poolTotal(p) >= want || stuck(g2); }, maxTries: 6 };
   }
+  /* Grand Architect + Pili-Pala: make Pili-Pala blue ({U}), then tap it with the Architect for
+     {C}{C} and pay its {2}, {Q}: untap, one mana of any color. The mana abilities run here, until
+     the pool holds `want`; the kill (Ballista) or the dig follows. */
+  const PILI = "Pili-Pala", ARCH = "Grand Architect";
+  const piliReady = (g, p) => onBf(g, p, ARCH).length > 0 && onBf(g, p, PILI).some(o => !(o.sick && !g.kw(o, "haste")));
+  function piliMana(g, p, m, want) {
+    const pili = onBf(g, p, PILI).find(o => !(o.sick && !g.kw(o, "haste")));
+    const arch = onBf(g, p, ARCH)[0];
+    if (!pili || !arch) return null;
+    if (!g.colorsOf(pili).has("U")) {
+      const e = g.abilitiesOf(arch).find(x => x.ab.label && x.ab.label.startsWith("{U}"));
+      if (!e || !g.canActivate(p, arch, e)) return null;
+      m.archTarget = pili;
+      return { type: "activate", card: arch, idx: e.i, maxTries: 2 };
+    }
+    const grant = g.manaAbilities(pili).find(ab => ab.architect), own = pili.def.mana.find(ab => ab.untapSym);
+    if (!grant || !own) return null;
+    let n = 0;
+    for (let k = 0; k < 2000 && g.poolTotal(p) < want; k++) {
+      if (!pili.tapped) g.activateMana(p, { o: pili, options: [{ units: ["C", "C"], ab: grant, cost: null, tapCreature: 0 }], mult: 1 }, 0);
+      if (!pili.tapped || (p.pool.C || 0) < 2) break;
+      const col = (p.pool.W || 0) < 4 && p.identity.includes("W") ? "W" : "U";
+      g.activateMana(p, { o: pili, options: [{ units: [col], ab: own, cost: pc("{2}"), tapCreature: 0 }], mult: 1 }, 0);
+      n++;
+    }
+    if (n) { m.loops++; note(g, p, m, "infinite", "Grand Architect + Pili-Pala"); }
+    return n ? "mana" : null;
+  }
+  function piliLoop(g, p, acts, m, want) {
+    if (!piliReady(g, p)) return null;
+    const r = piliMana(g, p, m, want);
+    if (!r || r !== "mana") return r;
+    const bh = inHand(p, BALLISTA), need = killNeed(g, p);
+    if (bh && !onBf(g, p, BALLISTA).length) { note(g, p, m, "kill", "Walking Ballista"); return { type: "cast", card: bh, x: Math.min(Math.floor(g.poolTotal(p) / 2), need), maxTries: 3 }; }
+    return ballistaKill(g, p, acts, m);
+  }
   /* The rock mana a Scepter loop needs: one more than its activation ({2}, {1} under Power Artifact). */
   function scepterNeed(g, p, sc) {
     return sc && MK.scepterCost ? MK.util.costMV(MK.scepterCost(g, sc)) + 1 : 3;
@@ -975,13 +1101,15 @@
      find Ballista first (tutorBonus), then every draw: The One Ring (Reversal untaps it), Mind Stone,
      Mulldrifter and the cantrip creatures. The Scepter refills the pool between them. */
   const DIG_CASTS = ["Trinket Mage", "Recruiter of the Guard", "Enlightened Tutor", "Mulldrifter", "Sea Gate Oracle", "Wall of Omens", "Omen of the Sea", "Cryogen Relic", "Mind Stone", "Solemn Simulacrum", "Aether Channeler", "Mystic Remora"];
+  const fairAct = acts => { const a = acts.find(x => x.type === "activate" && x.card.def.name === "Inventors' Fair" && x.ab && x.ab.sacSelf); return a ? { type: "activate", card: a.card, idx: a.idx, maxTries: 1 } : null; };
   function dig(g, p, acts, m) {
     m.dig = true;
     if ((m.digN = (m.digN || 0) + 1) > 60) return null;
     const sc = g.controlled(p, x => x.def.name === "Isochron Scepter" && x.state.imprint && x.state.imprint.def.name === "Dramatic Reversal")[0];
     const ring = onBf(g, p, "The One Ring")[0];
     const refill = () => {
-      if (monolithReady(g, p)) { const r = monolithLoop(g, p, acts, m, 40); if (r) return Object.assign(r, { maxTries: 30 }); }
+      if (piliReady(g, p)) { const r = piliMana(g, p, m, 40); if (r && r !== "mana") return r; if (r === "mana") { m.loops--; if (g.poolTotal(p) >= 12) return dig(g, p, acts, m); } }
+      if (monolithReady(g, p)) { const r = monolithLoop(g, p, acts, m, 40); if (r) { m.loops--; return Object.assign(r, { maxTries: 30 }); } }
       if (!sc || sc.tapped || rockMana(g, p) < scepterNeed(g, p, sc)) return null;
       const a = acts.find(x => x.type === "activate" && x.card === sc && x.idx === 0);
       if (!a) return null;
@@ -990,7 +1118,17 @@
       return { type: "activate", card: sc, idx: 0, repeat: 400, stop: g2 => { floatAll(g2, p, false); return g2.poolTotal(p) >= 40 || stuck(g2); }, maxTries: 30 };
     };
     if (g.poolTotal(p) < 12) return refill();
+    const tw = inHand(p, "Tolaria West");
+    if (tw && acts.some(a => a.type === "channel" && a.card === tw)) return { type: "channel", card: tw, maxTries: 1 };
+    const fair = fairAct(acts);
+    if (fair) return fair;
     for (const n of DIG_CASTS) { const c = inHand(p, n), a = castOf(acts, c); if (a) return { type: "cast", card: c, maxTries: 1 }; }
+    // Staff of Domination draws for {5} and untaps for {1}, while the loop refills the pool
+    const staff = onBf(g, p, "Staff of Domination")[0];
+    if (staff && p.library.length > 3) {
+      const e = g.abilitiesOf(staff).find(x => staff.tapped ? x.ab.untapSelf : x.ab.label && x.ab.label.startsWith("{5}"));
+      if (e && g.canActivate(p, staff, e)) { m.digN = Math.min(m.digN, 40); return { type: "activate", card: staff, idx: e.i, maxTries: 30 }; }
+    }
     for (const a of acts) {
       if (a.type !== "activate" || !a.ab || !a.ab.label) continue;
       const n = a.card.def.name;
@@ -1009,7 +1147,7 @@
     if (!need) return null;
     const hasSink = onBf(g, p, BALLISTA).length > 0 || !!inHand(p, BALLISTA);
     if (!hasSink) {
-      if ((scepterLive(g, p) || monolithReady(g, p)) && p.library.some(c => c.def.name === BALLISTA)) { const d = dig(g, p, acts, m); if (d) return d; }
+      if ((scepterLive(g, p) || monolithReady(g, p) || piliReady(g, p)) && p.library.some(c => c.def.name === BALLISTA)) { const d = dig(g, p, acts, m); if (d) return d; }
     } else {
       const go = killLines(g, p, acts, m, need);
       if (go) return go;
@@ -1024,7 +1162,7 @@
     if (m.loops > 150) return null;
     const want = 2 * Math.min(need, 120) + 8;
     if (m.loops >= 3 && g.poolTotal(p) < want) return null;
-    return monolithLoop(g, p, acts, m, want) || drakeDeadeye(g, p, acts, m, want) || scepterLoop(g, p, acts, m, want) || flickerLoop(g, p, acts, m, want);
+    return piliLoop(g, p, acts, m, want) || monolithLoop(g, p, acts, m, want) || drakeDeadeye(g, p, acts, m, want) || scepterLoop(g, p, acts, m, want) || flickerLoop(g, p, acts, m, want);
   }
   /* Plays that move toward a kill: Muddle the Mixture transmutes for a two-mana piece the tutors
      want (the generic transmute plan only knows other decks' lines). */
@@ -1037,6 +1175,15 @@
         if (best >= 12) return { type: "channel", card: mud, maxTries: 1 };
       }
     }
+    // Inventors' Fair fetches a missing artifact piece
+    const fair = fairAct(acts);
+    if (fair && p.library.filter(c => typeOf(c, "Artifact")).reduce((b, c) => Math.max(b, bragoTutorBonus(g, p, c)), 0) >= 20) return fair;
+    // Tolaria West finds Walking Ballista when a land drop can spare it
+    const tw = inHand(p, "Tolaria West");
+    if (tw && acts.some(a => a.type === "channel" && a.card === tw) && (p.hand.some(c => c !== tw && g.isLand(c)) || g.controlled(p, x => g.isLand(x)).length >= 5)) {
+      const best = p.library.filter(c => (c.def.mv || 0) === 0).reduce((b, c) => Math.max(b, bragoTutorBonus(g, p, c)), 0);
+      if (best >= 18) return { type: "channel", card: tw, maxTries: 1 };
+    }
     return null;
   }
   function bragoChoose(g, p, req) {
@@ -1047,6 +1194,7 @@
       const hit = (req.options || []).find(o => o.def && o.def.name === want);
       if (hit) return hit;
     }
+    if (req.purpose === "architect" && m.archTarget && (req.options || []).includes(m.archTarget)) return m.archTarget;
     if (sn === "Archaeomancer" && req.type === "target") { const gf = (req.options || []).find(o => o.def.name === "Ghostly Flicker"); if (gf && onBf(g, p, DRAKE).length) return gf; }
     return undefined;
   }
@@ -1054,7 +1202,7 @@
      it can connect (no untapped flier or reach creature that could block it profitably). */
   function bragoKeepHome(g, p, a) {
     const n = a.def.name;
-    if ([DRAKE, DEADEYE, "Archaeomancer", BALLISTA, "Heliod, Sun-Crowned", "Elesh Norn, Mother of Machines", "Soulherder"].includes(n)) return true;
+    if ([DRAKE, DEADEYE, "Archaeomancer", BALLISTA, "Heliod, Sun-Crowned", "Elesh Norn, Mother of Machines", "Soulherder", PILI, ARCH, "Archangel of Tithes", "Windborn Muse"].includes(n)) return true;
     return false;
   }
   MK.DECK_BRAINS = MK.DECK_BRAINS || {};
@@ -1067,13 +1215,16 @@
     if (held(n)) return 0;
     const sc = scepterReady(g, p), scHalf = held("Isochron Scepter") || held("Dramatic Reversal");
     const mono = held("Basalt Monolith") || held("Grim Monolith");
-    const loopReady = sc || monolithReady(g, p) || (held("Isochron Scepter") && held("Dramatic Reversal")) || (held(DRAKE) && held(DEADEYE)) || (held(DRAKE) && held("Archaeomancer") && held("Ghostly Flicker")) ||
+    const loopReady = sc || monolithReady(g, p) || (held(PILI) && held(ARCH)) || (held("Isochron Scepter") && held("Dramatic Reversal")) || (held(DRAKE) && held(DEADEYE)) || (held(DRAKE) && held("Archaeomancer") && held("Ghostly Flicker")) ||
       (held("Power Artifact") && mono) || (held("Forsaken Monument") && held("Basalt Monolith"));
     switch (n) {
       case "Power Artifact": return mono ? 30 : held("Isochron Scepter") && held("Dramatic Reversal") ? 16 : 11;
       case "Basalt Monolith": if (held("Power Artifact") || held("Forsaken Monument")) return 30; break;
       case "Grim Monolith": if (held("Power Artifact")) return 29; break;
       case "Forsaken Monument": return held("Basalt Monolith") ? 26 : 5;
+      case PILI: return held(ARCH) ? 30 : 9;
+      case ARCH: return held(PILI) ? 30 : 9;
+      case "Staff of Domination": return (monolithReady(g, p) || (held("Power Artifact") && mono)) && !held(BALLISTA) ? 20 : 3;
       case BALLISTA: return held("Heliod, Sun-Crowned") || loopReady ? 40 : 18;
       case "Heliod, Sun-Crowned": return held(BALLISTA) ? 34 : 15;
       case "Isochron Scepter": return held("Dramatic Reversal") ? 30 : sc ? 0 : 13;
@@ -1101,7 +1252,10 @@
     "Trinket Mage": c => isArt(c) && c.def.mv <= 1,
     "Tribute Mage": c => isArt(c) && c.def.mv === 2,
     "Recruiter of the Guard": c => isCreatureCard(c) && (c.def.pt ? c.def.pt[1] : 0) <= 2,
-    "Spellseeker": c => isIS(c) && c.def.mv <= 2
+    "Spellseeker": c => isIS(c) && c.def.mv <= 2,
+    "Fabricate": c => isArt(c),
+    "Idyllic Tutor": c => isEnch(c),
+    "Merchant Scroll": c => typeOf(c, "Instant") && c.def.colors && c.def.colors.includes("U")
   };
   const ROCK_WANT = { "Grim Monolith": 22, "Mana Vault": 21, "Sol Ring": 20, "Basalt Monolith": 18, "Thought Vessel": 8, "Talisman of Progress": 8, "Azorius Signet": 8, "Arcane Signet": 8, "Fellwar Stone": 7, "Mind Stone": 7, "Coldsteel Heart": 7 };
   /* The tutors that take their own pick (Trinket Mage, Tribute Mage) ask here: the best fetch by
@@ -1131,8 +1285,8 @@
   const manaGuess = (g, p) => g.manaSources(p).reduce((n, s) => n + Math.max(0, ...s.options.filter(x => !x.cost).map(x => x.units.length)) * (s.mult || 1), 0) + g.poolTotal(p);
   /* Keep a seven with lands, mana, and something that moves toward a kill: a tutor, a combo piece or
      a draw engine. Six and fewer: any hand with two to five lands. */
-  const B_TUTORS = ["Enlightened Tutor", "Mystical Tutor", "Recruiter of the Guard", "Trinket Mage", "Tribute Mage", "Spellseeker", "Urza's Saga"];
-  const B_PIECES = [BALLISTA, "Heliod, Sun-Crowned", "Isochron Scepter", "Dramatic Reversal", DRAKE, DEADEYE];
+  const B_TUTORS = ["Enlightened Tutor", "Mystical Tutor", "Recruiter of the Guard", "Trinket Mage", "Tribute Mage", "Spellseeker", "Urza's Saga", "Fabricate", "Merchant Scroll", "Idyllic Tutor", "Whir of Invention", "Muddle the Mixture", "Tolaria West", "Inventors' Fair"];
+  const B_PIECES = [BALLISTA, "Heliod, Sun-Crowned", "Isochron Scepter", "Dramatic Reversal", DRAKE, DEADEYE, "Power Artifact", "Grim Monolith", "Basalt Monolith", PILI, ARCH];
   const B_ENGINES = ["Rhystic Study", "Mystic Remora", "Esper Sentinel", "Smothering Tithe", "The One Ring"];
   function bragoMulligan(g, p, { hand, mulls }) {
     const lands = hand.filter(o => o.def.types.includes("Land")).length;

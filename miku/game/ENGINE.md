@@ -168,7 +168,14 @@ mana: [{ tap: true, cost: "{1}", produce: "UR" }]
 mana: [{ tap: true, produce: "CC", condition: (g, o) => true }]
 mana: [{ tap: true, sacSelf: true, produce: "any5", last: true }]   // Treasure: used last
 mana: [{ tap: true, tapCreature: 1, produce: "any5" }]               // Springleaf Drum
+mana: [{ tap: true, ignoreSick: true, artifactOnly: true, produce: "CC" }]   // Grand Architect (via grantMana)
+mana: [{ cost: "{2}", noAuto: true, condition, produce: "any5", after }]    // Pili-Pala's {2}, {Q}
 ```
+
+`artifactOnly` mana is offered only to pay for an artifact spell (`opts.spell`) or an ability of an
+artifact (`opts.src`, which `canActivate` and `activate` pass); once it is in the pool it is plain mana.
+`ignoreSick`: tapping the creature isn't a {T} cost of its own (Grand Architect taps a blue creature).
+`noAuto` abilities are never used by auto-payment; a deck brain runs them with `g.activateMana`.
 
 Several mana abilities on one permanent are alternatives (only one per tap). Lands with
 `doublesLandMana` on the battlefield (Vorinclex) are counted twice. A mana ability with another
@@ -283,7 +290,8 @@ Queries: `g.creatures(p)`, `g.controlled(p, filter)`, `g.opponents(p)`, `g.isCre
 
 Actions: `gainLife(p, n, src)`, `loseLife(p, n, src)`, `damage(src, target, n)`, `addCounters(o, "p1", n)`,
 `removeCounters(o, kind, n)`, `counterEach(p, "p1", n)`, `tap(o)`, `untap(o)`,
-`pump(objs, p, t, kw)`, `grant(objs, kw)`, `addEffect({ objs | filter, pt, kw, setPT, unblockable, cantBlock, until })`
+`pump(objs, p, t, kw)`, `grant(objs, kw)`, `addEffect({ objs | filter, pt, kw, setPT, setColors, unblockable, cantBlock, until })`
+(`setColors: ["U"]`: the object is that color only, "becomes blue until end of turn")
 (`until`: "eot" default, "eoc", or "yourNextTurn" with `player`), `draw(p, n)`, `discard(p, o)`,
 `mill(p, n)`, `impulse(p, n)` (exile top n, may play this turn), `search(p, { filter, count, to, tapped, from, prompt, hidden })`
 (to: "hand", "battlefield", "top", "graveyard"), `shuffle(p)`, `createToken(p, spec, { count, tapped, attacking, counters, exileEoc, sacEnd })`,

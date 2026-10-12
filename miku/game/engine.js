@@ -487,6 +487,7 @@
           }
           for (const e of this.effects) {
             if (!this.affects(e, o)) continue;
+            if (e.setColors) { colors.clear(); e.setColors.forEach(k => colors.add(k)); }   // "becomes blue until end of turn" (Grand Architect)
             if (e.pt) { modP += e.pt[0]; modT += e.pt[1]; }
             if (e.kw) e.kw.forEach(k => kws.add(k));
             if (e.unblockable) unblockable = true;
@@ -1478,7 +1479,7 @@
     /* Every way p could produce mana right now: [{o, ab, units: [["G"], ...] options, cost}] */
     /* forWhat: "spell" (default), "ability" or "special"; mana that can only be spent on abilities
        (Omen Hawker) is left out of everything else. */
-    manaSources(p, exclude, forWhat, spell) {
+    manaSources(p, exclude, forWhat, spell, abilitySrc) {
       const out = [];
       const ex = exclude instanceof Set ? exclude : new Set(exclude || []);
       const vorinclex = this.battlefield.some(o => o.controller === p && o.def.doublesLandMana);
@@ -1494,12 +1495,14 @@
         for (const ab of abs) {
           if (stops.length && stops.some(([s, st]) => st.cantActivate(this, s, p, o, ab))) continue;
           if (ab.tap && o.tapped) continue;
-          if (ab.tap && this.isCreature(o) && o.sick && !this.kw(o, "haste")) continue;
+          if (ab.tap && !ab.ignoreSick && this.isCreature(o) && o.sick && !this.kw(o, "haste")) continue;
           if (ab.condition && !ab.condition(this, o)) continue;
           if (ab.noAuto) continue;
           if (ab.onlyFor && ab.onlyFor !== (forWhat || "spell")) continue;
           // mana that can only pay for some spells (Cavern of Souls): spellOnly(g, spell card, source)
           if (ab.spellOnly && !(spell && (forWhat || "spell") === "spell" && ab.spellOnly(this, spell, o))) continue;
+          // mana for artifact spells and abilities of artifacts only (Grand Architect)
+          if (ab.artifactOnly && !((forWhat || "spell") === "spell" ? spell && this.isArtifact(spell) : forWhat === "ability" && abilitySrc && this.isArtifact(abilitySrc))) continue;
           const prod = typeof ab.produce === "function" ? ab.produce(this, o) : ab.produce;
           if (!prod) continue;
           for (const units of this.expandProduce(prod, p)) options.push({ units: cBonus && ab.tap && units.includes("C") ? units.concat("C") : units, ab, cost: ab.cost ? parseCost(ab.cost) : null, tapCreature: ab.tapCreature || 0 });
@@ -1562,7 +1565,7 @@
       const fromPool = Math.min(poolLeft, need.g);
       need.g -= fromPool;
       const exclude = new Set(opts.exclude || []);
-      let sources = this.manaSources(p, exclude, opts.for, opts.spell);
+      let sources = this.manaSources(p, exclude, opts.for, opts.spell, opts.src);
       // Which colors to keep open: the ones the hand and the commander still need, over how many
       // untapped sources make them. Generic mana then comes from the spare color (a Forest, not
       // the only Plains, pays the {2} of a green spell). A tie-break worth well under 1 rank point.
@@ -1814,7 +1817,7 @@
     maxX(p, baseCost, xCount, opts) {
       if (!xCount) return 0;
       let lo = 0, hi = 0;
-      const sources = this.manaSources(p, new Set(opts && opts.exclude || []), opts && opts.for);
+      const sources = this.manaSources(p, new Set(opts && opts.exclude || []), opts && opts.for, opts && opts.spell, opts && opts.src);
       hi = this.poolTotal(p) + sources.reduce((s, x) => s + x.options[0].units.length * x.mult, 0);
       if (opts && opts.convoke) hi += this.creatures(p).filter(o => !o.tapped).length;
       hi = Math.max(0, Math.floor(hi / xCount));
@@ -2325,7 +2328,7 @@
       if (ab.discard && p.hand.filter(c => !ab.discardFilter || ab.discardFilter(this, c)).length < ab.discard) return false;
       if (ab.targets) for (const spec of ab.targets) if (!spec.optional && !this.targetOptions(p, spec, o).length) return false;
       const cost = this.abilityCost(p, o, ab, ab.minXFn ? ab.minXFn(this, o, p) : (ab.minX || 0));
-      if (!this.canPay(p, cost, { exclude: excl, for: ab.special ? "special" : "ability" })) return false;
+      if (!this.canPay(p, cost, { exclude: excl, for: ab.special ? "special" : "ability", src: o })) return false;
       return true;
     }
     /* Activate an ability. It resolves right away (see SIMPLIFICATIONS). */
@@ -2341,7 +2344,7 @@
       const baseC = parseCost(ab.cost || "");
       if (baseC.x && !ab.xFrom) {
         const base0 = this.abilityCost(p, o, ab, 0);
-        const xMax = this.maxX(p, base0, baseC.x, { exclude: excl, for: forWhat });
+        const xMax = this.maxX(p, base0, baseC.x, { exclude: excl, for: forWhat, src: o });
         let x = choice.x;
         if (x == null) x = await this.ask(p, { type: "number", prompt: `Choose X for ${ab.label || o.def.name}`, min: ab.minX || 0, max: xMax, purpose: "x", src: o, ability: ab });
         ctx.x = Math.max(ab.minX || 0, Math.min(xMax, x | 0));
@@ -2353,7 +2356,7 @@
       }
       if (ab.xFrom) {
         ctx.x = ab.xFrom(this, ctx);
-        if (!this.canPay(p, this.abilityCost(p, o, ab, ctx.x), { exclude: excl, for: forWhat })) { this.log(`${p.name} can't pay for that.`, { p }); return false; }
+        if (!this.canPay(p, this.abilityCost(p, o, ab, ctx.x), { exclude: excl, for: forWhat, src: o })) { this.log(`${p.name} can't pay for that.`, { p }); return false; }
       }
       // non-mana costs
       let sacrificed = null;
@@ -2367,7 +2370,7 @@
       // as long as enough others remain (Grove of the Guardian with Llanowar Elves in play)
       const manaCost = this.abilityCost(p, o, ab, ctx.x);
       const spare = (cands, n, enough) => {
-        const ok = cands.filter(c => this.canPay(p, manaCost, { exclude: excl.concat([c.id]), for: forWhat }));
+        const ok = cands.filter(c => this.canPay(p, manaCost, { exclude: excl.concat([c.id]), for: forWhat, src: o }));
         return enough(ok) ? ok : cands;
       };
       let crewers = null;
@@ -2393,7 +2396,7 @@
         discarded = await this.ask(p, { type: "cards", prompt: ab.discardPrompt || `Discard ${ab.discard}`, options: p.hand.filter(c => !ab.discardFilter || ab.discardFilter(this, c)), min: ab.discard, max: ab.discard, purpose: "discard", src: o });
       }
       const cost = this.abilityCost(p, o, ab, ctx.x);
-      if (!this.pay(p, cost, { exclude: excl.concat(tappers ? tappers.map(c => c.id) : []).concat(crewers ? crewers.map(c => c.id) : []), for: forWhat })) {
+      if (!this.pay(p, cost, { exclude: excl.concat(tappers ? tappers.map(c => c.id) : []).concat(crewers ? crewers.map(c => c.id) : []), for: forWhat, src: o })) {
         this.log(`${p.name} can't pay for ${ab.label || o.def.name}${tappers || crewers ? " with those creatures tapped (they were needed for mana)" : ""}.`, { p, cards: [o.def.name] });
         return false;
       }
