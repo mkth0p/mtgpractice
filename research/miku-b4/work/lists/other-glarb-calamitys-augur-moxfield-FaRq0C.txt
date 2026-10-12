@@ -1,0 +1,110 @@
+1 Glarb, Calamity's Augur
+1 Abrupt Decay
+1 Activated Sleeper
+1 An Offer You Can't Refuse
+1 Ancient Tomb
+1 Animate Dead
+1 Arcane Signet
+1 Bayou
+1 Birds of Paradise
+1 Blood Artist
+1 Bloodstained Mire
+1 Body Snatcher
+1 Borne Upon a Wind
+1 Boseiju, Who Endures
+1 Breeding Pool
+1 Cabal Ritual
+1 Cabal Therapy
+1 Carpet of Flowers
+1 Carrion Feeder
+1 Cavern of Souls
+1 Chrome Mox
+1 City of Brass
+1 Clever Impersonator
+1 Command Tower
+1 Counterbalance
+1 Crop Rotation
+1 Culling Ritual
+1 Culling the Weak
+1 Dark Ritual
+1 Deadly Rollick
+1 Deathrite Shaman
+1 Delighted Halfling
+1 Demonic Consultation
+1 Demonic Tutor
+1 Dosan the Falling Leaf
+1 Elves of Deep Shadow
+1 Elvish Spirit Guide
+1 Entomb
+1 Exotic Orchard
+1 Exploration
+1 Fierce Guardianship
+1 Flooded Strand
+1 Flusterstorm
+1 Footsteps of the Goryo
+1 Force of Will
+1 Forsaken Miner
+1 Gemstone Caverns
+1 Gitaxian Probe
+1 Grim Monolith
+1 Imperial Seal
+1 Lazotep Quarry
+1 Lim-Dûl's Vault
+1 Lotus Petal
+1 Mana Confluence
+1 Mana Vault
+1 Marsh Flats
+1 Mental Misstep
+1 Mindbreak Trap
+1 Misty Rainforest
+1 Mockingbird
+1 Molt Tender
+1 Mox Diamond
+1 Mystic Remora
+1 Natural Order
+1 Necromancy
+1 Necropotence
+1 Neoform
+1 Noxious Revival
+1 Opposition Agent
+1 Overgrown Tomb
+1 Pact of Negation
+1 Phyrexian Tower
+1 Polluted Delta
+1 Protean Hulk
+1 Reanimate
+1 Rhystic Study
+1 Scalding Tarn
+1 Scheming Symmetry
+1 Shifting Woodland
+1 Sol Ring
+1 Spellseeker
+1 Steal Enchantment
+1 Swan Song
+1 Sylvan Library
+1 Sylvan Safekeeper
+1 Tainted Pact
+1 Thassa's Oracle
+1 The Cabbage Merchant
+1 Tropical Island
+1 Underground Sea
+1 Valley Floodcaller
+1 Vampiric Tutor
+1 Veil of Summer
+1 Verdant Catacombs
+1 Viscera Seer
+1 Warren Soultrader
+1 Watery Grave
+1 Windswept Heath
+1 Wooded Foothills
+1 Worldly Tutor
+# url: https://moxfield.com/decks/FaRq0CATYku2G6Z_ANp9TQ
+# title: [PRO] FrogSi - CEDH Glarb Hulk
+# author: Shuiro
+# updated: 2026-10-05
+# bracket: 5 (Moxfield, author-set; auto 4)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Glarb, Calamity's Augur ; total 100 ; lands 26 ; source API https://api2.moxfield.com/v3/decks/all/FaRq0CATYku2G6Z_ANp9TQ
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 17: Ancient Tomb; Chrome Mox; Crop Rotation; Demonic Tutor; Fierce Guardianship; Force of Will; Grim Monolith; Imperial Seal; Mana Vault; Mox Diamond; Natural Order; Necropotence; Opposition Agent; Rhystic Study; Thassa's Oracle; Vampiric Tutor; Worldly Tutor
+# listed in: cEDH Decklist Database, entry "Glarb DoomHulk" (section COMPETITIVE, entry updated 2024-10-03; https://raw.githubusercontent.com/AverageDragon/cEDH-Decklist-Database/master/_data/database.json)

@@ -1,0 +1,93 @@
+1 Shalai, Voice of Plenty
+1 Arcane Signet
+1 Archdruid's Charm
+1 Archivist of Oghma
+1 Augur of Autumn
+1 Aura Shards
+1 Avacyn's Pilgrim
+1 Bala Ged Recovery // Bala Ged Sanctuary
+1 Basking Broodscale
+1 Birds of Paradise
+1 Birthing Pod
+1 Birthing Ritual
+1 Boseiju, Who Endures
+1 Bountiful Promenade
+1 Branchloft Pathway // Boulderloft Pathway
+1 Brushland
+1 Canopy Vista
+1 Castle Ardenvale
+1 Cavern of Souls
+1 Chord of Calling
+1 Circle of Dreams Druid
+1 Command Tower
+1 Craterhoof Behemoth
+1 Delney, Streetwise Lookout
+1 Devoted Druid
+1 Disciple of Freyalise // Garden of Freyalise
+1 Drannith Magistrate
+1 Duskwatch Recruiter // Krallenhorde Howler
+1 Eiganjo Castle
+1 Eiganjo, Seat of the Empire
+1 Eladamri's Call
+1 Eldritch Evolution
+1 Elesh Norn, Grand Cenobite
+1 Elvish Mystic
+1 Emeria's Call // Emeria, Shattered Skyclave
+1 Endurance
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Fauna Shaman
+1 Finale of Devastation
+6 Forest
+1 Fyndhorn Elves
+1 Gavony Township
+1 Gilded Goose
+1 Gleaming Splendor
+1 Grand Abolisher
+1 Green Sun's Zenith
+1 Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun
+1 Guide of Souls
+1 Herd Baloth
+1 Heronblade Elite
+1 Hopeful Initiate
+1 Horizon Canopy
+1 Kudo, King Among Bears
+1 Llanowar Elves
+1 Loran of the Third Path
+1 Mana Vault
+1 Mangara, the Diplomat
+1 Mother of Runes
+6 Plains
+1 Ranger-Captain of Eos
+1 Razorverge Thicket
+1 Recruiter of the Guard
+1 Recruitment Officer
+1 Rest in Peace
+1 Rosie Cotton of South Lane
+1 Sanctifier en-Vec
+1 Scattered Groves
+1 Scurry Oak
+1 Sigarda, Font of Blessings
+1 Silence
+1 Smothering Tithe
+1 Sol Ring
+1 Staff of Domination
+1 Sungrass Prairie
+1 Sunpetal Grove
+1 Swords to Plowshares
+1 Teferi's Protection
+1 Temple Garden
+1 Thalia, Guardian of Thraben
+1 Thalia, Heretic Cathar
+1 The Queen of Dale
+1 Turntimber Symbiosis // Turntimber, Serpentine Wood
+1 Vizier of Remedies
+1 Voice of Victory
+1 Walking Ballista
+1 Wild Growth
+1 Windswept Heath
+1 Witch Enchanter // Witch-Blessed Meadow
+1 Worldly Tutor
+# source: https://archidekt.com/decks/26388397 (API https://archidekt.com/api/decks/26388397/), accessed 2026-10-08
+# title: Shalai Combo ; author DoctorFireFarts ; updated 2026-10-01 ; Archidekt edhBracket 4 ; total 100 ; lands 30 ; MDFC Branchloft Pathway // Boulderloft Pathway ; BAN 
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 7: Aura Shards; Drannith Magistrate; Enlightened Tutor; Mana Vault; Smothering Tithe; Teferi's Protection; Worldly Tutor

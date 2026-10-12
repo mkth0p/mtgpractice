@@ -1,0 +1,291 @@
+card	count	lists	is_land
+# 10 kept lists: brago-archidekt-13491907, brago-archidekt-8427551, brago-edhrec-avg-cedh, brago-edhrec-avg-optimized, brago-moxfield-M--H_E, brago-moxfield-ZbcmXJ, brago-moxfield-cTn_eq, brago-moxfield-d7FdCq, brago-moxfield-hP0z_z, brago-moxfield-n2D5k8; discarded/duplicate lists excluded; accessed 2026-10-08
+Arcane Signet	10	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Command Tower	10	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	land
+Cyclonic Rift	10	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Enlightened Tutor	10	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Fierce Guardianship	10	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Hallowed Fountain	10	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	land
+Sea of Clouds	10	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	land
+Sol Ring	10	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Swords to Plowshares	10	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Aether Channeler	9	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Lightning Greaves	9	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Mana Vault	9	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Mystic Remora	9	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Omen of the Sea	9	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Strionic Resonator	9	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z	
+Swan Song	9	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Talisman of Progress	9	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Tribute Mage	9	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z	
+An Offer You Can't Refuse	8	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z	
+Force of Will	8	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Otawara, Soaring City	8	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z	land
+Recruiter of the Guard	8	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z	
+Teferi, Time Raveler	8	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Trinket Mage	8	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Adarkar Wastes	7	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	land
+Ancient Tomb	7	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	land
+Azorius Signet	7	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z	
+Ephemerate	7	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Esper Sentinel	7	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Fellwar Stone	7	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Flooded Strand	7	brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z	land
+Mana Drain	7	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Path to Exile	7	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Peter Parker's Camera	7	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z	
+Rhystic Study	7	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Venser, Shaper Savant	7	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Chrome Mox	6	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq	
+Displacer Kitten	6	brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Dovin's Veto	6	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Drannith Magistrate	6	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Elesh Norn, Mother of Machines	6	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Flusterstorm	6	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Force of Negation	6	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Glacial Fortress	6	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-ZbcmXJ,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	land
+Grand Abolisher	6	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Island	6	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-cTn_eq	land
+Nimbus Maze	6	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	land
+Peregrine Drake	6	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z	
+Plains	6	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-cTn_eq	land
+Reality Acid	6	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Smothering Tithe	6	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-n2D5k8	
+Urza's Saga	6	brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	land
+Archaeomancer	5	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-n2D5k8	
+City of Brass	5	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-cTn_eq,brago-moxfield-n2D5k8	land
+Cloud of Faeries	5	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-hP0z_z	
+Cloudshift	5	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-ZbcmXJ,brago-moxfield-hP0z_z	
+Counterspell	5	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-cTn_eq,brago-moxfield-n2D5k8	
+Cryogen Relic	5	brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z	
+Deserted Beach	5	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	land
+Eiganjo, Seat of the Empire	5	brago-archidekt-13491907,brago-archidekt-8427551,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq	land
+Floodfarm Verge	5	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-M--H_E,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z	land
+Grim Monolith	5	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Loran of the Third Path	5	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-ZbcmXJ,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Mental Misstep	5	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Mox Opal	5	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Narset, Parter of Veils	5	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Phyrexian Metamorph	5	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Reliquary Tower	5	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z	land
+Skyclave Apparition	5	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z	
+Snow-Covered Island	5	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	land
+Snow-Covered Plains	5	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	land
+Spellseeker	5	brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-n2D5k8	
+Witch Enchanter // Witch-Blessed Meadow	5	brago-archidekt-8427551,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z	
+Ancient Den	4	brago-archidekt-13491907,brago-moxfield-M--H_E,brago-moxfield-cTn_eq,brago-moxfield-n2D5k8	land
+Arcum's Astrolabe	4	brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Basalt Monolith	4	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized	
+Deadeye Navigator	4	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-hP0z_z	
+Dour Port-Mage	4	brago-edhrec-avg-optimized,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Fabricate	4	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized,brago-moxfield-M--H_E	
+Gemstone Caverns	4	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-d7FdCq	land
+Grafdigger's Cage	4	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-d7FdCq	
+Inventors' Fair	4	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ	land
+Lotus Petal	4	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-d7FdCq	
+Meticulous Archive	4	brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq	land
+Mox Diamond	4	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Muddle the Mixture	4	brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z	
+Prismatic Vista	4	brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq,brago-moxfield-hP0z_z	land
+Reflector Mage	4	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Seat of the Synod	4	brago-archidekt-13491907,brago-moxfield-M--H_E,brago-moxfield-cTn_eq,brago-moxfield-n2D5k8	land
+Silence	4	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ	
+Soulherder	4	brago-edhrec-avg-optimized,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Supreme Verdict	4	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh,brago-edhrec-avg-optimized	
+The One Ring	4	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Thought Vessel	4	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z	
+Tundra	4	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq	land
+Wall of Omens	4	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z	
+Arid Mesa	3	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	land
+Blind Obedience	3	brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-d7FdCq	
+Charming Prince	3	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-n2D5k8	
+Deafening Silence	3	brago-archidekt-13491907,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Delney, Streetwise Lookout	3	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E	
+Dispel	3	brago-archidekt-13491907,brago-moxfield-ZbcmXJ,brago-moxfield-n2D5k8	
+Essence Flux	3	brago-archidekt-8427551,brago-moxfield-ZbcmXJ,brago-moxfield-hP0z_z	
+Faerie Mastermind	3	brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Gleaming Splendor	3	brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ	
+Grand Arbiter Augustin IV	3	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-n2D5k8	
+Helpful Hunter	3	brago-moxfield-cTn_eq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Hengegate Pathway // Mistgate Pathway	3	brago-archidekt-8427551,brago-moxfield-M--H_E,brago-moxfield-n2D5k8	land
+Lavinia, Azorius Renegade	3	brago-archidekt-13491907,brago-archidekt-8427551,brago-moxfield-n2D5k8	
+Lithoform Engine	3	brago-archidekt-13491907,brago-archidekt-8427551,brago-edhrec-avg-cedh	
+Mana Confluence	3	brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-n2D5k8	land
+Marsh Flats	3	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	land
+Mindbreak Trap	3	brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Misty Rainforest	3	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	land
+Mulldrifter	3	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-cTn_eq	
+Mystic Gate	3	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-cTn_eq	land
+Mystical Tutor	3	brago-archidekt-13491907,brago-edhrec-avg-cedh,brago-moxfield-M--H_E	
+Pact of Negation	3	brago-edhrec-avg-cedh,brago-moxfield-M--H_E,brago-moxfield-d7FdCq	
+Polluted Delta	3	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	land
+Prairie Stream	3	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-hP0z_z	land
+Ranger-Captain of Eos	3	brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Riptide Gearhulk	3	brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq,brago-moxfield-hP0z_z	
+Scalding Tarn	3	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	land
+Seachrome Coast	3	brago-moxfield-cTn_eq,brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	land
+Sensei's Divining Top	3	brago-moxfield-M--H_E,brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Sink into Stupor // Soporific Springs	3	brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Solemn Simulacrum	3	brago-edhrec-avg-optimized,brago-moxfield-cTn_eq,brago-moxfield-n2D5k8	
+Starfield Vocalist	3	brago-edhrec-avg-optimized,brago-moxfield-ZbcmXJ,brago-moxfield-cTn_eq	
+Tezzeret, Cruel Captain	3	brago-moxfield-M--H_E,brago-moxfield-cTn_eq,brago-moxfield-d7FdCq	
+Transmute Artifact	3	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Unquestioned Authority	3	brago-archidekt-8427551,brago-edhrec-avg-optimized,brago-moxfield-hP0z_z	
+Whir of Invention	3	brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Windswept Heath	3	brago-edhrec-avg-cedh,brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	land
+Angel's Grace	2	brago-archidekt-13491907,brago-moxfield-M--H_E	
+Archivist of Oghma	2	brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Archon of Emeria	2	brago-moxfield-d7FdCq,brago-moxfield-n2D5k8	
+Aven Mindcensor	2	brago-archidekt-13491907,brago-edhrec-avg-cedh	
+Borne Upon a Wind	2	brago-moxfield-M--H_E,brago-moxfield-cTn_eq	
+Codex Shredder	2	brago-moxfield-cTn_eq,brago-moxfield-hP0z_z	
+Cursed Totem	2	brago-edhrec-avg-cedh,brago-moxfield-d7FdCq	
+Ethersworn Canonist	2	brago-edhrec-avg-cedh,brago-moxfield-d7FdCq	
+Exotic Orchard	2	brago-archidekt-13491907,brago-moxfield-n2D5k8	land
+Farewell	2	brago-archidekt-13491907,brago-edhrec-avg-optimized	
+Flawless Maneuver	2	brago-archidekt-8427551,brago-moxfield-hP0z_z	
+Generous Gift	2	brago-moxfield-cTn_eq,brago-moxfield-hP0z_z	
+Gilded Drake	2	brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Gleaming Bastion	2	brago-archidekt-8427551,brago-moxfield-hP0z_z	land
+High Fae Trickster	2	brago-moxfield-cTn_eq,brago-moxfield-d7FdCq	
+Kindly Customer	2	brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Lembas	2	brago-moxfield-cTn_eq,brago-moxfield-d7FdCq	
+Minamo, School at Water's Edge	2	brago-archidekt-13491907,brago-moxfield-n2D5k8	land
+Mirrormade	2	brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ	
+Mockingbird	2	brago-moxfield-M--H_E,brago-moxfield-ZbcmXJ	
+Orim's Chant	2	brago-archidekt-13491907,brago-moxfield-cTn_eq	
+Port Town	2	brago-edhrec-avg-optimized,brago-moxfield-hP0z_z	land
+Preston, the Vanisher	2	brago-moxfield-hP0z_z,brago-moxfield-n2D5k8	
+Proft's Eidetic Memory	2	brago-moxfield-cTn_eq,brago-moxfield-hP0z_z	
+Reflecting Pool	2	brago-archidekt-13491907,brago-moxfield-n2D5k8	land
+Rest in Peace	2	brago-archidekt-13491907,brago-moxfield-d7FdCq	
+Sea Gate Oracle	2	brago-moxfield-cTn_eq,brago-moxfield-hP0z_z	
+Solitude	2	brago-archidekt-8427551,brago-moxfield-ZbcmXJ	
+Spirited Companion	2	brago-edhrec-avg-optimized,brago-moxfield-hP0z_z	
+Stasis	2	brago-archidekt-13491907,brago-moxfield-n2D5k8	
+Strip Mine	2	brago-moxfield-cTn_eq,brago-moxfield-d7FdCq	land
+Sun Titan	2	brago-edhrec-avg-optimized,brago-moxfield-cTn_eq	
+Tax Collector	2	brago-archidekt-8427551,brago-moxfield-cTn_eq	
+Teferi's Protection	2	brago-archidekt-8427551,brago-moxfield-cTn_eq	
+Teleportation Circle	2	brago-edhrec-avg-optimized,brago-moxfield-hP0z_z	
+Tezzeret the Seeker	2	brago-moxfield-ZbcmXJ,brago-moxfield-n2D5k8	
+Voice of Victory	2	brago-moxfield-M--H_E,brago-moxfield-d7FdCq	
+Walking Ballista	2	brago-archidekt-13491907,brago-moxfield-M--H_E	
+Wan Shi Tong, Librarian	2	brago-moxfield-ZbcmXJ,brago-moxfield-d7FdCq	
+Whirler Rogue	2	brago-edhrec-avg-optimized,brago-moxfield-hP0z_z	
+Witch Enchanter	2	brago-edhrec-avg-cedh,brago-edhrec-avg-optimized	
+Academy Ruins	1	brago-moxfield-hP0z_z	land
+Agent of Treachery	1	brago-moxfield-n2D5k8	
+Altar of the Brood	1	brago-edhrec-avg-optimized	
+Angel of Indemnity	1	brago-moxfield-hP0z_z	
+Anticausal Vestige	1	brago-moxfield-hP0z_z	
+Approach of the Second Sun	1	brago-archidekt-13491907	
+Aqueous Form	1	brago-moxfield-cTn_eq	
+Armageddon	1	brago-archidekt-8427551	
+Aura of Silence	1	brago-archidekt-13491907	
+Azorius Chancery	1	brago-edhrec-avg-optimized	land
+Back to Basics	1	brago-moxfield-n2D5k8	
+Boromir, Warden of the Tower	1	brago-archidekt-8427551	
+Brainstorm	1	brago-archidekt-13491907	
+Cavern of Souls	1	brago-moxfield-d7FdCq	land
+Cephalid Coliseum	1	brago-moxfield-M--H_E	land
+Chalice of the Void	1	brago-moxfield-n2D5k8	
+Cleansing Meditation	1	brago-moxfield-n2D5k8	
+Cloudblazer	1	brago-edhrec-avg-optimized	
+Combat Thresher	1	brago-moxfield-hP0z_z	
+Command Beacon	1	brago-archidekt-13491907	land
+Commandeer	1	brago-moxfield-M--H_E	
+Confounding Conundrum	1	brago-archidekt-8427551	
+Consecrated Sphinx	1	brago-moxfield-n2D5k8	
+Copy Enchantment	1	brago-moxfield-M--H_E	
+Counterbalance	1	brago-moxfield-n2D5k8	
+Damping Sphere	1	brago-moxfield-d7FdCq	
+Dawnbringer Cleric	1	brago-moxfield-hP0z_z	
+Delivery Moogle	1	brago-moxfield-cTn_eq	
+Detention Sphere	1	brago-moxfield-cTn_eq	
+Eerie Interlude	1	brago-edhrec-avg-optimized	
+Eldrazi Displacer	1	brago-archidekt-13491907	
+Emergence Zone	1	brago-moxfield-M--H_E	land
+Energy Field	1	brago-archidekt-13491907	
+Ephara, God of the Polis	1	brago-moxfield-n2D5k8	
+Fabled Passage	1	brago-archidekt-8427551	land
+Felidar Guardian	1	brago-edhrec-avg-optimized	
+Flagstones of Trokair	1	brago-archidekt-8427551	land
+Flash Photography	1	brago-moxfield-M--H_E	
+Flesh Duplicate	1	brago-moxfield-ZbcmXJ	
+Flickering Hound	1	brago-archidekt-8427551	
+Forbidden Orchard	1	brago-moxfield-M--H_E	land
+Ghostly Flicker	1	brago-edhrec-avg-optimized	
+Glasspool Mimic // Glasspool Shore	1	brago-moxfield-hP0z_z	
+Glen Elendra Archmage	1	brago-moxfield-hP0z_z	
+Great Whale	1	brago-archidekt-13491907	
+Guardian of Faith	1	brago-archidekt-8427551	
+Helm of Obedience	1	brago-archidekt-13491907	
+Hero of Bretagard	1	brago-moxfield-n2D5k8	
+Hide on the Ceiling	1	brago-moxfield-ZbcmXJ	
+High Market	1	brago-moxfield-n2D5k8	land
+Idyllic Tutor	1	brago-moxfield-M--H_E	
+Imposter Mech	1	brago-moxfield-d7FdCq	
+Inspiring Overseer	1	brago-moxfield-hP0z_z	
+Into the Flood Maw	1	brago-moxfield-M--H_E	
+Jolted Awake	1	brago-moxfield-M--H_E	
+Leyline of Anticipation	1	brago-moxfield-cTn_eq	
+Liberator, Urza's Battlethopter	1	brago-moxfield-cTn_eq	
+Linvala, Keeper of Silence	1	brago-moxfield-d7FdCq	
+Malcator, Purity Overseer	1	brago-moxfield-n2D5k8	
+Meekstone	1	brago-archidekt-13491907	
+Meteor Golem	1	brago-moxfield-n2D5k8	
+Mind Stone	1	brago-archidekt-8427551	
+Miscast	1	brago-archidekt-13491907	
+Mystic Sanctuary	1	brago-archidekt-8427551	land
+Narset's Reversal	1	brago-archidekt-13491907	
+Panharmonicon	1	brago-edhrec-avg-optimized	
+Permission Denied	1	brago-archidekt-8427551	
+Personal Tutor	1	brago-archidekt-13491907	
+Phyrexian Revoker	1	brago-moxfield-d7FdCq	
+Pithing Needle	1	brago-moxfield-d7FdCq	
+Plaza of Heroes	1	brago-moxfield-M--H_E	land
+Ponder	1	brago-archidekt-13491907	
+Prophetic Prism	1	brago-moxfield-ZbcmXJ	
+Ranar the Ever-Watchful	1	brago-moxfield-n2D5k8	
+Razorgrass Ambush // Razorgrass Field	1	brago-moxfield-ZbcmXJ	
+Remand	1	brago-archidekt-13491907	
+Reshape	1	brago-moxfield-ZbcmXJ	
+Restoration Angel	1	brago-edhrec-avg-optimized	
+Rishadan Cutpurse	1	brago-moxfield-n2D5k8	
+Rishadan Footpad	1	brago-archidekt-13491907	
+Rogue's Passage	1	brago-edhrec-avg-optimized	land
+Sailor of Means	1	brago-moxfield-hP0z_z	
+Sevinne's Reclamation	1	brago-moxfield-cTn_eq	
+Skycloud Expanse	1	brago-edhrec-avg-optimized	land
+Snapback	1	brago-moxfield-M--H_E	
+Spell Snare	1	brago-moxfield-ZbcmXJ	
+Spire of Industry	1	brago-moxfield-M--H_E	land
+Steal Enchantment	1	brago-moxfield-ZbcmXJ	
+Strix Serenade	1	brago-moxfield-cTn_eq	
+Swiftfoot Boots	1	brago-edhrec-avg-optimized	
+Talon Gates of Madara	1	brago-moxfield-d7FdCq	land
+Tataru Taru	1	brago-moxfield-M--H_E	
+Thassa's Oracle	1	brago-moxfield-M--H_E	
+Thassa, Deep-Dwelling	1	brago-moxfield-hP0z_z	
+The Mightstone and Weakstone	1	brago-moxfield-hP0z_z	
+The Mind Stone	1	brago-moxfield-hP0z_z	
+Thespian's Stage	1	brago-archidekt-13491907	land
+Thieving Skydiver	1	brago-moxfield-n2D5k8	
+Time Warp	1	brago-archidekt-13491907	
+Traveler's Cloak	1	brago-archidekt-8427551	
+Trial of Knowledge	1	brago-moxfield-cTn_eq	
+Trickbind	1	brago-moxfield-M--H_E	
+Tsabo's Web	1	brago-archidekt-8427551	
+Unstoppable Plan	1	brago-moxfield-cTn_eq	
+Uthros, Titanic Godcore	1	brago-moxfield-cTn_eq	land
+Valley Floodcaller	1	brago-moxfield-M--H_E	
+Venser, the Sojourner	1	brago-archidekt-8427551	
+Vexing Bauble	1	brago-moxfield-M--H_E	
+Virtue of Knowledge // Vantress Visions	1	brago-moxfield-cTn_eq	
+Wandering Archaic // Explore the Vastlands	1	brago-moxfield-d7FdCq	
+War Room	1	brago-archidekt-13491907	land
+Wasteland	1	brago-archidekt-13491907	land
+Wedding Invitation	1	brago-moxfield-cTn_eq	
+Winds of Abandon	1	brago-moxfield-d7FdCq	
+Winter Orb	1	brago-moxfield-n2D5k8	

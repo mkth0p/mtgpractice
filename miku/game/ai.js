@@ -500,7 +500,8 @@
      before the card plans, attack(g, p, candidates, targets) can declare the attack ({ decl }) or
      keep creatures home ({ home }), tutor(g, p, cards) picks for the shared tutors (tutors: true
      lets the deck's own choose pick), choose(g, p, req) before the generic choices (undefined: no say),
-     tutorBonus(g, p, card) replaces the generic combo bonus, keepHome(g, p, creature) keeps a
+     tutorBonus(g, p, card) replaces the generic combo bonus, castOk(g, p, card, window) === false
+     holds a card back, useOk(g, p, permanent, ability, window) === false skips an ability, keepHome(g, p, creature) keeps a
      creature out of an attack that doesn't kill ("always": even one that does), mulligan(g, p,
      { hand, mulls }) keeps or not. */
   function deckBrain(p) {
@@ -795,6 +796,9 @@
       return s;
     }
     function deckHold(g, p, o, win) {
+      // a deck's brain can hold any of its cards back (castOk returns false)
+      const db = deckBrain(p);
+      if (db && db.castOk) { try { if (db.castOk(g, p, o, win) === false) return true; } catch (e) { /* no say */ } }
       for (const s of g.controlled(p).concat(p.command)) {
         const f = s.def.ai && s.def.ai.castPlan;
         if (!f) continue;
@@ -819,6 +823,9 @@
     function abilityUse(g, p, act, win, turnOf) {
       const ab = act.ab, o = act.card;
       if (act.ab.loyalty != null) return null; // handled separately
+      // a deck's brain can veto any of its abilities (useOk returns false)
+      const db = deckBrain(p);
+      if (db && db.useOk) { let ok; try { ok = db.useOk(g, p, o, ab, win); } catch (e) { ok = undefined; } if (ok === false) return null; }
       if (ab.ai && ab.ai.use) {
         let r;
         try { r = ab.ai.use(g, p, o, { window: win, turnOf }); } catch (e) { r = false; }

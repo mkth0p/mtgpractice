@@ -1,0 +1,109 @@
+1 Child of Alara
+1 An Offer You Can't Refuse
+1 Ancient Tomb
+1 Anguished Unmaking
+1 Ashnod's Altar
+1 Athreos, Shroud-Veiled
+1 Avacyn, Angel of Hope
+1 Badlands
+1 Bayou
+1 Bloodstained Mire
+1 Bloom Tender
+1 Brainstorm
+1 Breeding Pool
+1 Burgeoning
+1 Cavern of Souls
+1 Coalition Victory
+1 Command Tower
+1 Crop Rotation
+1 Dark Depths
+1 Defense of the Heart
+1 Deflecting Swat
+1 Demonic Tutor
+1 Diamond Valley
+1 Dovin's Veto
+1 Eladamri's Call
+1 Enlightened Tutor
+1 Erebos, God of the Dead
+1 Farseek
+1 Fierce Guardianship
+1 Flooded Strand
+1 Force of Negation
+1 Force of Will
+1 Gaea's Cradle
+1 Glacial Chasm
+1 Godless Shrine
+1 Greater Good
+1 Hallowed Fountain
+1 High Market
+1 Hour of Promise
+1 Imperial Seal
+1 Karametra, God of Harvests
+1 Kruphix, God of Horizons
+1 Life from the Loam
+1 Mana Confluence
+1 Mana Drain
+1 Marsh Flats
+1 Maskwood Nexus
+1 Misty Rainforest
+1 Mogis, God of Slaughter
+1 Mystic Remora
+1 Mystical Tutor
+1 Nature's Lore
+1 Nylea, God of the Hunt
+1 Nylea, Keen-Eyed
+1 Overgrown Tomb
+1 Pact of Negation
+1 Phyrexian Tower
+1 Plateau
+1 Polluted Delta
+1 Purphoros, God of the Forge
+1 Reanimate
+1 Rhonas the Indomitable
+1 Rhystic Study
+1 Savannah
+1 Scalding Tarn
+1 Scavenger Grounds
+1 Scrubland
+1 Sensei's Divining Top
+1 Shadowspear
+1 Skyshroud Claim
+1 Smothering Tithe
+1 Steam Vents
+1 Stomping Ground
+1 Strip Mine
+1 Swan Song
+1 Swords to Plowshares
+1 Sylvan Library
+1 Sylvan Scrying
+1 Taiga
+1 Teferi's Protection
+1 Temple Garden
+1 Thassa, God of the Sea
+1 The One Ring
+1 The World Tree
+1 Thespian's Stage
+1 Three Visits
+1 Toski, Bearer of Secrets
+1 Tropical Island
+1 Tundra
+1 Ulamog, the Ceaseless Hunger
+1 Underground Sea
+1 Vampiric Tutor
+1 Veil of Summer
+1 Verdant Catacombs
+1 Viscera Seer
+1 Volcanic Island
+1 Watery Grave
+1 Wooded Foothills
+1 Worldly Tutor
+1 Xenagos, God of Revels
+# url: https://moxfield.com/decks/ms_4XG56MU6vFnS3NKI9ew
+# title: #1 Idol
+# author: ThatWsEpic21
+# updated: 2026-09-29
+# bracket: 5 (Moxfield, author-set; auto 4)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Child of Alara ; total 100 ; lands 40 ; source API https://api2.moxfield.com/v3/decks/all/ms_4XG56MU6vFnS3NKI9ew
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 17: Ancient Tomb; Coalition Victory; Crop Rotation; Demonic Tutor; Enlightened Tutor; Fierce Guardianship; Force of Will; Gaea's Cradle; Glacial Chasm; Imperial Seal; Mystical Tutor; Rhystic Study; Smothering Tithe; Teferi's Protection; The One Ring; Vampiric Tutor; Worldly Tutor

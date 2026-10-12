@@ -1,8 +1,8 @@
 /* Offline support for the Etrata deck wiki. It shares the Miku site's kit, styles, shell and game
    engine (../miku/). Site files: network first, cache as fallback. Fonts and card images: cache first. */
-const VERSION = "etrata-v38";
-const V = "?v=38";
-const GAME = ["engine.js", "cards-miku.js", "cards-corrupted.js", "checklist-corrupted.js", "checklist-cetrata.js", "brain-corrupted.js", "cards-etrata.js", "cards-miku-precon.js", "decks-azusa.js", "decks-cetrata.js", "decks-edgar.js", "decks-etrata4.js", "decks-ghalta.js", "decks-heist.js", "decks-krenko.js", "decks-talrand.js", "decks-urdragon.js", "precon-ghired.js", "precon-isperia.js", "precon-kaalia.js", "precon-lathril.js", "precon-wilhelt.js", "ai.js", "coach-heist.js", "checklist-heist.js", "practice.js", "practice-worker.js", "train-cetrata.js", "train-heist.js", "value.js", "analysis.js", "tournament.js", "tournament-worker.js", "game-ui.js", "arena.js", "game.css", "arena.css"].map(f => "../miku/game/" + f + V);
+const VERSION = "etrata-v39";
+const V = "?v=39";
+const GAME = ["engine.js", "cards-miku.js", "cards-corrupted.js", "checklist-corrupted.js", "checklist-cetrata.js", "brain-corrupted.js", "cards-etrata.js", "cards-miku-precon.js", "cards-miku-b4.js", "decks-azusa.js", "decks-cetrata.js", "decks-edgar.js", "decks-etrata4.js", "decks-ghalta.js", "decks-heist.js", "decks-krenko.js", "decks-talrand.js", "decks-urdragon.js", "precon-ghired.js", "precon-isperia.js", "precon-kaalia.js", "precon-lathril.js", "precon-wilhelt.js", "ai.js", "coach-heist.js", "checklist-heist.js", "practice.js", "practice-worker.js", "train-cetrata.js", "train-heist.js", "value.js", "analysis.js", "tournament.js", "tournament-worker.js", "game-ui.js", "arena.js", "game.css", "arena.css"].map(f => "../miku/game/" + f + V);
 const CORE = ["./", "./index.html", "./icon.svg", "./manifest.webmanifest"]
   .concat(["theme.css", "cards.js", "b4.js", "wiki.js", "guide.js", "site.js"].map(f => "./" + f + V))
   .concat(["styles.css", "kit.js", "app.js"].map(f => "../miku/" + f + V), GAME);

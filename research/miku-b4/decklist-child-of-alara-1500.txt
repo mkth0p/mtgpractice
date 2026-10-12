@@ -1,0 +1,100 @@
+1 Child of Alara
+1 Thassa's Oracle
+1 Demonic Consultation
+1 Tainted Pact
+1 Heliod, Sun-Crowned
+1 Walking Ballista
+1 Isochron Scepter
+1 Dramatic Reversal
+1 Kiki-Jiki, Mirror Breaker
+1 Zealous Conscripts
+1 Faerie Mastermind
+1 Culling Ritual
+1 Snuff Out
+1 Demonic Tutor
+1 Vampiric Tutor
+1 Wishclaw Talisman
+1 Mystical Tutor
+1 Enlightened Tutor
+1 Worldly Tutor
+1 Gamble
+1 Diabolic Intent
+1 Grim Tutor
+1 Sol Ring
+1 Mana Vault
+1 Chrome Mox
+1 Talisman of Dominance
+1 Lotus Petal
+1 Arcane Signet
+1 Birds of Paradise
+1 Noble Hierarch
+1 Elvish Mystic
+1 Dark Ritual
+1 Cabal Ritual
+1 Fellwar Stone
+1 Chromatic Lantern
+1 Force of Will
+1 Force of Negation
+1 Fierce Guardianship
+1 Pact of Negation
+1 Swan Song
+1 Counterspell
+1 Mana Drain
+1 An Offer You Can't Refuse
+1 Swords to Plowshares
+1 Path to Exile
+1 Deadly Rollick
+1 Assassin's Trophy
+1 Vindicate
+1 Cyclonic Rift
+1 Rhystic Study
+1 Mystic Remora
+1 Esper Sentinel
+1 Smothering Tithe
+1 The One Ring
+1 Necropotence
+1 Sylvan Library
+1 Silence
+1 Grand Abolisher
+1 Teferi's Protection
+1 Veil of Summer
+1 Eternal Witness
+1 Snapcaster Mage
+1 Orcish Bowmasters
+1 Opposition Agent
+1 Deathrite Shaman
+1 Spellseeker
+1 Imperial Recruiter
+1 Ragavan, Nimble Pilferer
+1 Toxic Deluge
+1 Command Tower
+1 City of Brass
+1 Mana Confluence
+1 Exotic Orchard
+1 Spire of Industry
+1 Flooded Strand
+1 Polluted Delta
+1 Bloodstained Mire
+1 Wooded Foothills
+1 Windswept Heath
+1 Scalding Tarn
+1 Verdant Catacombs
+1 Arid Mesa
+1 Misty Rainforest
+1 Marsh Flats
+1 Hallowed Fountain
+1 Watery Grave
+1 Blood Crypt
+1 Stomping Ground
+1 Temple Garden
+1 Godless Shrine
+1 Steam Vents
+1 Overgrown Tomb
+1 Sacred Foundry
+1 Breeding Pool
+1 Prismatic Vista
+1 Island
+1 Swamp
+1 Forest
+1 Plains
+1 Mountain

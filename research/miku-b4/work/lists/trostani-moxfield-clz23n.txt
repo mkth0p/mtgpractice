@@ -1,0 +1,92 @@
+1 Trostani, Selesnya's Voice
+6 Forest
+8 Plains
+1 Accomplished Alchemist
+1 Akroma's Will
+1 Altar of Dementia
+1 Ancient Tomb
+1 Angel of Destiny
+1 Arcane Signet
+1 Aura Shards
+1 Bala Ged Recovery // Bala Ged Sanctuary
+1 Birthing Pod
+1 Blade of Selves
+1 Blossoming Bogbeast
+1 Bountiful Promenade
+1 Bramble Sovereign
+1 Brushland
+1 Canopy Vista
+1 Cataclysmic Gearhulk
+1 Cavalier of Dawn
+1 Command Tower
+1 Dollhouse of Horrors
+1 Druid of Purification
+1 Eladamri's Call
+1 Emiel the Blessed
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Eternal Witness
+1 Exalted Sunborn
+1 Fanatic of Rhonas
+1 Farseek
+1 Final Showdown
+1 Finale of Devastation
+1 Flare of Fortitude
+1 Formidable Speaker
+1 Garruk's Uprising
+1 Heroic Intervention
+1 Horizon Canopy
+1 Karmic Guide
+1 Life from the Loam
+1 Lush Portico
+1 Mimic Vat
+1 Mirari's Wake
+1 Mirrorpool
+1 Monster Manual // Zoological Study
+1 Mosswort Bridge
+1 Nature's Lore
+1 Nykthos, Shrine to Nyx
+1 Ocelot Pride
+1 Palantír of Orthanc
+1 Panharmonicon
+1 Patriar's Seal
+1 Phyrexian Processor
+1 Rogue's Passage
+1 Sakura-Tribe Elder
+1 Savannah
+1 Seedborn Muse
+1 Serra Ascendant
+1 Serra's Emissary
+1 Silverquill Lecturer
+1 Skyclave Apparition
+1 Sol Ring
+1 Solitude
+1 Soul of Eternity
+1 Springheart Nantuko
+1 Storm Herd
+1 Strip Mine
+1 Sunpetal Grove
+1 Survival of the Fittest
+1 Swords to Plowshares
+1 Sylvan Library
+1 Séance
+1 Teferi's Protection
+1 Temple Garden
+1 The Great Henge
+1 The One Ring
+1 Three Visits
+1 Timeless Witness
+1 Topiary Stomper
+1 Ulvenwald Hydra
+1 Vaultborn Tyrant
+1 War Room
+1 Windbrisk Heights
+1 Windswept Heath
+1 Witch Enchanter // Witch-Blessed Meadow
+1 Wood Elves
+1 Wooded Bastion
+1 Yavimaya, Cradle of Growth
+# source: https://moxfield.com/decks/clz23nIbj0WT5AOWMmXCkw (API https://api2.moxfield.com/v3/decks/all/clz23nIbj0WT5AOWMmXCkw), accessed 2026-10-08
+# title: Trostani, Cheater of Death ; author CowboySensei ; updated 2026-08-19 ; Moxfield bracket b4/auto4 ; main 99 ; lands 34 ; MDFC Bala Ged Recovery;Witch Enchanter ; BAN
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 7: Aura Shards; Teferi's Protection; Seedborn Muse; Survival of the Fittest; Enlightened Tutor; Ancient Tomb; The One Ring
+# tags: Birthing Pod / Pod, Discard, Life Gain, Midrange, Reanimator, Selesnya (GW), Tokens, Toolbox

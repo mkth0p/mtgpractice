@@ -1,0 +1,91 @@
+1 Trostani, Selesnya's Voice
+6 Plains
+9 Forest
+1 Aetherflux Reservoir
+1 Altar of Dementia
+1 Arbor Elf
+1 Aura Shards
+1 Austere Command
+1 Avacyn's Pilgrim
+1 Avenger of Zendikar
+1 Beast Within
+1 Birthing Pod
+1 Blossoming Bogbeast
+1 Bramble Sovereign
+1 Canopy Vista
+1 Cavalier of Dawn
+1 Command Tower
+1 Craterhoof Behemoth
+1 Crested Sunmare
+1 Dollhouse of Horrors
+1 Elemental Bond
+1 Elesh Norn, Grand Cenobite
+1 Elvish Mystic
+1 Emergence Zone
+1 Emeria Shepherd
+1 Exotic Orchard
+1 Fauna Shaman
+1 Fortified Village
+1 Fyndhorn Elves
+1 Garruk's Uprising
+1 Generous Gift
+1 Ghost Quarter
+1 God-Pharaoh's Gift
+1 Golgari Grave-Troll
+1 Greater Good
+1 Grove of the Guardian
+1 Helm of the Host
+1 Hermit Druid
+1 High Market
+1 Kabira Takedown // Kabira Plateau
+1 Karmic Guide
+1 Khalni Ambush // Khalni Territory
+1 Knight of Autumn
+1 Krosan Verge
+1 Llanowar Elves
+1 Mimic Vat
+1 Mirari's Wake
+1 Mirrorpool
+1 Nature's Claim
+1 Nykthos Paragon
+1 Ondu Inversion // Ondu Skyruins
+1 Panharmonicon
+1 Regal Force
+1 Reliquary Tower
+1 Return of the Wildspeaker
+1 Reveillark
+1 Rootborn Defenses
+1 Sakura-Tribe Elder
+1 Satyr Wayfinder
+1 Scattered Groves
+1 Scute Swarm
+1 See the Unwritten
+1 Seedborn Muse
+1 Selvala's Stampede
+1 Shamanic Revelation
+1 Shigeki, Jukai Visionary
+1 Sol Ring
+1 Solemn Simulacrum
+1 Soul of the Harvest
+1 Springbloom Druid
+1 Sun Titan
+1 Sundering Growth
+1 Sunpetal Grove
+1 Swords to Plowshares
+1 Séance
+1 Temple of Plenty
+1 Temple of the False God
+1 Timeless Witness
+1 Titan of Industry
+1 Ulvenwald Hydra
+1 Vorinclex, Voice of Hunger
+1 Wall of Blossoms
+1 Wall of Omens
+1 War Room
+1 Wingmate Roc
+1 Wood Elves
+1 Wooded Bastion
+# source: https://moxfield.com/decks/OMSnnZoC-U-UFwBSyNDv5Q (API https://api2.moxfield.com/v3/decks/all/OMSnnZoC-U-UFwBSyNDv5Q), accessed 2026-10-08
+# title: Trostani, Selesnya's Voice (Token Reanimator) ; author ryxze ; updated 2025-01-29 ; Moxfield bracket b4/auto4 ; main 99 ; lands 32 ; MDFC Khalni Ambush;Kabira Takedown;Ondu Inversion ; BAN
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 2: Aura Shards; Seedborn Muse
+# tags: Primer, Reanimator
