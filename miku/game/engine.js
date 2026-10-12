@@ -370,6 +370,7 @@
       this._ss = out; this._ssv = this.v;
       this._grantsMana = out.some(o => o.def.statics.some(st => st.grantMana));
       this._trigExtra = out.some(o => o.def.statics.some(st => st.triggerExtra || st.stopTrigger));
+      this._addsTypes = out.some(o => o.def.statics.some(st => st.addTypes));
       return out;
     }
     roomStatics(o) {
@@ -401,6 +402,11 @@
         if (d.notCreatureUnless && !d.notCreatureUnless(this, o)) types.delete("Creature");
       }
       o._types = types; o._tv = this.v;
+      // statics that add card types (Ashaya: "nontoken creatures you control are Forest lands"). The
+      // types above are cached first, so an `applies` that asks isCreature(o) sees them and can't loop.
+      if (o.zone === "battlefield" && (this.staticSources(), this._addsTypes)) {
+        for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.addTypes && st.applies && st.applies(this, s, o)) st.addTypes.forEach(t => types.add(t));
+      }
       return types;
     }
     isCreature(o) { return this.typesOf(o).has("Creature"); }
@@ -2309,7 +2315,7 @@
         if (pow < ab.crew) return false;
         if (o.state.crewed === this.turn) return false;
       }
-      if (ab.discard && p.hand.length < ab.discard) return false;
+      if (ab.discard && p.hand.filter(c => !ab.discardFilter || ab.discardFilter(this, c)).length < ab.discard) return false;
       if (ab.targets) for (const spec of ab.targets) if (!spec.optional && !this.targetOptions(p, spec, o).length) return false;
       const cost = this.abilityCost(p, o, ab, ab.minXFn ? ab.minXFn(this, o, p) : (ab.minX || 0));
       if (!this.canPay(p, cost, { exclude: excl, for: ab.special ? "special" : "ability" })) return false;
@@ -2377,7 +2383,7 @@
       }
       let discarded = null;
       if (ab.discard) {
-        discarded = await this.ask(p, { type: "cards", prompt: `Discard ${ab.discard}`, options: p.hand.slice(), min: ab.discard, max: ab.discard, purpose: "discard", src: o });
+        discarded = await this.ask(p, { type: "cards", prompt: ab.discardPrompt || `Discard ${ab.discard}`, options: p.hand.filter(c => !ab.discardFilter || ab.discardFilter(this, c)), min: ab.discard, max: ab.discard, purpose: "discard", src: o });
       }
       const cost = this.abilityCost(p, o, ab, ctx.x);
       if (!this.pay(p, cost, { exclude: excl.concat(tappers ? tappers.map(c => c.id) : []).concat(crewers ? crewers.map(c => c.id) : []), for: forWhat })) {

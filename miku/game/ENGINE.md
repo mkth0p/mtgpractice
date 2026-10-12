@@ -142,6 +142,7 @@ abilities: [{
   sacSelf: true, exileSelf: true,
   sacCost: { filter: (g, c, src) => c.controller === src.controller && g.isCreature(c), prompt: "Sacrifice a creature" },
   tapCreatures: 2, untapCreatures: 1, discard: 1,  // tapFilter(g, c, src), tapSelfOk, tapPrompt narrow the tapped ones
+                                        // discardFilter(g, card), discardPrompt: only some cards (Fauna Shaman: a creature card)
   manaAbility: true,                    // adds mana: resolves at once, no stack
   targets: [spec],                      // see target specs
   minX: 1, xFrom: (g, ctx) => n,        // X chosen by the player, or computed from the targets
@@ -234,7 +235,8 @@ statics: [{
   creatureManaBonus: (g, s, o) => "G",            // Badgermole Cub: tapping creature o for mana adds this too
   tapManaBonus: (g, s, o) => "G",                 // Wild Growth, Utopia Sprawl: tapping permanent o for mana adds this too
   becomesVehicle: true,                           // with applies: it's a noncreature Vehicle artifact (Swift Reconfiguration)
-  stopTrigger: (g, s, entry) => bool              // the trigger doesn't happen (Elesh Norn, Mother of Machines); triggerExtra(g, s, entry) -> n adds copies
+  stopTrigger: (g, s, entry) => bool,             // the trigger doesn't happen (Elesh Norn, Mother of Machines); triggerExtra(g, s, entry) -> n adds copies
+  addTypes: ["Land"], subtypes: ["Forest"]        // with applies: Ashaya makes nontoken creatures Forest lands (grantMana gives the {G})
 }]
 commandStatics: [{ costMod }]    // eminence cost reductions that work from the command zone
 ```

@@ -48,13 +48,15 @@
     if (d.ai && d.ai.threat) v += d.ai.threat;
     return v;
   }
+  /* A creature card that is a land only through an effect (Ashaya's Forests): still a creature to the bots. */
+  const madeLand = (g, o) => !o.def.types.includes("Land") && g.isCreature(o);
   /* How much p wants o (an opponent's permanent) gone. */
   function threat(g, o, p) {
     let t = value(g, o);
     const d = o.def;
     if (!g.isCreature(o) && !g.isLand(o) && (d.statics.length || d.triggers.length)) t += 2;
     if (o.isCommander) t += 3;
-    if (g.isLand(o)) t -= 2;
+    if (g.isLand(o) && !madeLand(g, o)) t -= 2;
     if (o.isToken && !g.isCreature(o)) t -= 2;
     return t;
   }
@@ -247,7 +249,8 @@
     let val = 0, lands = 0, atk = 0, eva = 0, infect = 0;
     for (const o of g.battlefield) {
       if (o.controller !== q) continue;
-      if (g.isLand(o)) { lands++; continue; }
+      // a creature an effect made a land (Ashaya) counts as both
+      if (g.isLand(o)) { lands++; if (!madeLand(g, o)) continue; }
       val += Math.max(0, threat(g, o, p));
       if (g.isCreature(o) && !g.kw(o, "defender")) {
         const d = hitDamage(g, o);
