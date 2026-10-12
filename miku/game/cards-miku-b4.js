@@ -627,7 +627,7 @@
   D({
     name: "Grand Architect", cost: "{1}{U}{U}", type: "Creature — Vedalken Artificer", pt: "1/3",
     text: "Other blue creatures you control get +1/+1.\n{U}: Target artifact creature becomes blue until end of turn.\nTap an untapped blue creature you control: Add {C}{C}. Spend this mana only to cast artifact spells or activate abilities of artifacts.",
-    note: "Its mana comes from the blue creature it taps (summoning sickness doesn't matter); left in the pool it can pay for anything.",
+    note: "Its mana comes from the blue creature it taps (summoning sickness doesn't matter); left in the pool it can pay for anything. An artifact creature it made blue doesn't get its +1/+1.",
     statics: [
       { applies: (g, s, o) => o !== s && mine(s, o) && g.isCreature(o) && g.colorsOf(o).has("U"), pt: [1, 1] },
       { applies: (g, s, o) => mine(s, o) && g.isCreature(o) && !o.tapped && g.colorsOf(o).has("U"), grantMana: [{ tap: true, ignoreSick: true, artifactOnly: true, last: true, architect: true, produce: "CC" }] }
