@@ -1424,6 +1424,110 @@ Plains`)
   };
   /* The 1,500 € list: Coldsteel Heart and an Island for Mox Diamond and Tundra. */
   MK.BRAGO_LISTS["1500"] = MK.BRAGO_LISTS.uncapped.map(n => (n === "Mox Diamond" ? "Coldsteel Heart" : n === "Tundra" ? "Island" : n));
+  /* v2 (2026-10-12; tools/sim/brago, /mnt/project-files/miku-deck/brago/b4-v2/): the 1,500 list with Power Artifact
+     on the Monoliths, Grand Architect + Pili-Pala, Staff of Domination, Forsaken Monument, Stroke of Genius, five
+     more tutors (Fabricate, Merchant Scroll, Idyllic Tutor, Tolaria West, Inventors' Fair) and four attack taxes
+     (Ghostly Prison, Propaganda, Archangel of Tithes, Windborn Muse), in the order the bench played it. The bench
+     seats it as a hero (LIST=v2); it isn't a bot deck, so other benches' opponent pools stay the same. */
+  MK.BRAGO_LISTS.v2 = listOf(`Peregrine Drake
+Deadeye Navigator
+Isochron Scepter
+Dramatic Reversal
+Heliod, Sun-Crowned
+Walking Ballista
+Archaeomancer
+Ghostly Flicker
+Sol Ring
+Mana Vault
+Grim Monolith
+Basalt Monolith
+Chrome Mox
+Coldsteel Heart
+Arcane Signet
+Talisman of Progress
+Azorius Signet
+Fellwar Stone
+Thought Vessel
+Mind Stone
+Force of Will
+Force of Negation
+Fierce Guardianship
+Mana Drain
+Swan Song
+Counterspell
+An Offer You Can't Refuse
+Dovin's Veto
+Flusterstorm
+Swords to Plowshares
+Path to Exile
+Generous Gift
+Cyclonic Rift
+Skyclave Apparition
+Reflector Mage
+Supreme Verdict
+Enlightened Tutor
+Mystical Tutor
+Recruiter of the Guard
+Trinket Mage
+Tribute Mage
+Muddle the Mixture
+Spellseeker
+Stroke of Genius
+Forsaken Monument
+Wall of Omens
+Omen of the Sea
+Mulldrifter
+Venser, Shaper Savant
+Archangel of Tithes
+Windborn Muse
+Sea Gate Oracle
+Mystic Remora
+Rhystic Study
+Esper Sentinel
+Smothering Tithe
+The One Ring
+Teferi's Protection
+Grand Abolisher
+Command Tower
+Hallowed Fountain
+Sea of Clouds
+Adarkar Wastes
+Flooded Strand
+Marsh Flats
+Arid Mesa
+Scalding Tarn
+Polluted Delta
+Misty Rainforest
+Prismatic Vista
+Glacial Fortress
+Port Town
+Otawara, Soaring City
+Island
+Urza's Saga
+Deserted Beach
+Celestial Colonnade
+Irrigated Farmland
+Mystic Sanctuary
+Inventors' Fair
+Island
+Island
+Island
+Island
+Island
+Plains
+Plains
+Plains
+Plains
+Power Artifact
+Ghostly Prison
+Propaganda
+Grand Architect
+Pili-Pala
+Staff of Domination
+Fabricate
+Merchant Scroll
+Idyllic Tutor
+Tolaria West`);
   const bragoDeck = (id, name, list, extra) => Object.assign({
     id, name, title: "Brago, King Eternal", commander: "Brago, King Eternal",
     identity: ["W", "U"], bracket: 4, aggression: 0.5,

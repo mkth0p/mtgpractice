@@ -270,6 +270,10 @@ const repeat = (g, p, o, idx, n, more) => g.perform(p, Object.assign({ type: "ac
     check("Fauna Shaman: discards a creature, finds one", a.hand.some(c => c.def.name === "Archangel of Thune") && a.graveyard.some(c => c.def.name === "Llanowar Elves")); }
 
   /* ---------- Brago v2 (2026-10-12): Power Artifact, the Monolith loops, Delney, Muddle's transmute */
+  { const l = MK.BRAGO_LISTS.v2, basics = ["Island", "Plains"];
+    const dup = l.filter((n, i) => !basics.includes(n) && l.indexOf(n) !== i);
+    check("Brago v2 list: 99 cards, all in the engine, singleton but basics, no Brago in the 99", l.length === 99 && l.every(n => MK.defs.has(n)) && !dup.length && !l.includes("Brago, King Eternal"), l.length, dup);
+    check("Brago v2 list: Azorius identity", l.every(n => MK.get(n).colors.every(k => ["W", "U"].includes(k)))); }
   // Power Artifact: Basalt Monolith's untap costs {1}, Grim Monolith's {2}; never below one mana (Isochron Scepter {2} -> {1})
   { const { g, a } = table(); lands(g, a, 2, ["Island"]); const bas = put(g, a, "Basalt Monolith"); const grim = put(g, a, "Grim Monolith"); const sc = put(g, a, "Isochron Scepter");
     const untap = o => g.abilitiesOf(o).find(x => x.ab.untapSelf).ab;

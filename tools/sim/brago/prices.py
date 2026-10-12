@@ -5,8 +5,9 @@ usage: python3 -I tools/sim/brago/prices.py DECKLIST OUT.csv
 
 Each card takes its cheapest non-foil USD price (Scryfall's TCGplayer price) among its tournament-legal
 printings in research/miku-tournament/local/scryfall/default-cards.jsonl.gz (the bulk committed on
-2026-10-10). Gold-bordered, oversized, memorabilia, token and digital printings are skipped, and so are
-the Marvel Universes Beyond sets (MSH, MSC, SPM, SPE). Brago, King Eternal is priced as the Miku Secret
+2026-10-10). Gold-bordered, oversized, memorabilia, token and digital printings are skipped, and so is
+every Marvel Universes Beyond set (MSH, MSC, SPM, SPE, the Marvel Universe masterpieces MAR, Marvel promos
+and art series: any set whose name says Marvel). Brago, King Eternal is priced as the Miku Secret
 Lair printing (SLD 1601). EUR is an estimate: USD x 0.85. Every row names the printing (its Scryfall
 page) the price comes from. Nothing is filled in when a card has no USD price: the row says so.
 """
@@ -16,7 +17,7 @@ REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
 BULK = os.path.join(REPO, "research/miku-tournament/local/scryfall/default-cards.jsonl.gz")
 SOURCE = "Scryfall bulk default-cards (repo, committed 2026-10-10), TCGplayer USD"
 DATE = "2026-10-10"
-MARVEL = {"msh", "msc", "spm", "spe"}
+MARVEL = {"msh", "msc", "spm", "spe", "mar", "lmar", "pspm", "amsh", "aspm", "fmsc", "tmsc", "tmsh", "tspm"}
 FORCED = {"Brago, King Eternal": ("sld", "1601")}
 EUR_PER_USD = 0.85
 
@@ -37,7 +38,7 @@ def main():
         n = c.get("name")
         if n not in want:
             continue
-        if c.get("set") in MARVEL or c.get("digital") or c.get("oversized") or c.get("border_color") == "gold":
+        if c.get("set") in MARVEL or "Marvel" in c.get("set_name", "") or c.get("digital") or c.get("oversized") or c.get("border_color") == "gold":
             continue
         if c.get("set_type") in ("memorabilia", "token", "minigame"):
             continue
