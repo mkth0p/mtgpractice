@@ -1100,7 +1100,8 @@
   /* Infinite mana from the Scepter but no Walking Ballista yet: spend it digging. The tutors that
      find Ballista first (tutorBonus), then every draw: The One Ring (Reversal untaps it), Mind Stone,
      Mulldrifter and the cantrip creatures. The Scepter refills the pool between them. */
-  const DIG_CASTS = ["Trinket Mage", "Recruiter of the Guard", "Enlightened Tutor", "Mulldrifter", "Sea Gate Oracle", "Wall of Omens", "Omen of the Sea", "Cryogen Relic", "Mind Stone", "Solemn Simulacrum", "Aether Channeler", "Mystic Remora"];
+  const DIG_PERMS = ["The One Ring", "Cryogen Relic", "Mind Stone", "Staff of Domination", "Inventors' Fair"];
+  const DIG_CASTS = ["Fabricate", "Trinket Mage", "Recruiter of the Guard", "Enlightened Tutor", "Mulldrifter", "Sea Gate Oracle", "Wall of Omens", "Omen of the Sea", "Cryogen Relic", "Mind Stone", "Solemn Simulacrum", "Aether Channeler", "Mystic Remora"];
   const fairAct = acts => { const a = acts.find(x => x.type === "activate" && x.card.def.name === "Inventors' Fair" && x.ab && x.ab.sacSelf); return a ? { type: "activate", card: a.card, idx: a.idx, maxTries: 1 } : null; };
   function dig(g, p, acts, m) {
     m.dig = true;
@@ -1117,11 +1118,18 @@
       const stuck = progress(p);
       return { type: "activate", card: sc, idx: 0, repeat: 400, stop: g2 => { floatAll(g2, p, false); return g2.poolTotal(p) >= 40 || stuck(g2); }, maxTries: 30 };
     };
+    // nothing to dig with: don't tap out for mana that would go unused
+    const canDig = !!inHand(p, "Tolaria West") || !!inHand(p, "Stroke of Genius") || DIG_CASTS.some(n => inHand(p, n)) ||
+      g.controlled(p, o => DIG_PERMS.includes(o.def.name)).length > 0;
+    if (!canDig) return null;
     if (g.poolTotal(p) < 12) return refill();
     const tw = inHand(p, "Tolaria West");
     if (tw && acts.some(a => a.type === "channel" && a.card === tw)) return { type: "channel", card: tw, maxTries: 1 };
     const fair = fairAct(acts);
     if (fair) return fair;
+    // Stroke of Genius for nearly the whole library (one card stays)
+    const sg = inHand(p, "Stroke of Genius"), sa = castOf(acts, sg);
+    if (sa && p.library.length > 1) { const x = Math.min(p.library.length - 1, sa.xMax || 0); if (x >= Math.min(10, p.library.length - 1)) return { type: "cast", card: sg, x, maxTries: 1 }; }
     for (const n of DIG_CASTS) { const c = inHand(p, n), a = castOf(acts, c); if (a) return { type: "cast", card: c, maxTries: 1 }; }
     // Staff of Domination draws for {5} and untaps for {1}, while the loop refills the pool
     const staff = onBf(g, p, "Staff of Domination")[0];
@@ -1133,7 +1141,7 @@
       if (a.type !== "activate" || !a.ab || !a.ab.label) continue;
       const n = a.card.def.name;
       if (n === "The One Ring" && a.ab.label.startsWith("Burden") && p.library.length > (a.card.counters.burden || 0) + 3) return { type: "activate", card: a.card, idx: a.idx, maxTries: 30 };
-      if (n === "Cryogen Relic" && a.ab.sacSelf) return { type: "activate", card: a.card, idx: a.idx, maxTries: 1 };
+      if ((n === "Cryogen Relic" || n === "Mind Stone") && a.ab.sacSelf) return { type: "activate", card: a.card, idx: a.idx, maxTries: 1 };
     }
     // the Ring is tapped: one more Scepter activation untaps it
     if (ring && ring.tapped && p.library.length > (ring.counters.burden || 0) + 3) { const a = sc && !sc.tapped && acts.find(x => x.type === "activate" && x.card === sc && x.idx === 0); if (a) return { type: "activate", card: sc, idx: 0, maxTries: 30 }; }
@@ -1160,7 +1168,9 @@
     const kill = ballistaKill(g, p, acts, m);
     if (kill) return kill;
     if (m.loops > 150) return null;
-    const want = 2 * Math.min(need, 120) + 8;
+    // Ballista in hand costs {2} a counter (X=need), on the battlefield {4} a counter
+    const bal = onBf(g, p, BALLISTA).sort((a, b) => (b.counters.p1 || 0) - (a.counters.p1 || 0))[0];
+    const want = bal ? 4 * Math.max(0, Math.min(need, 120) - (bal.counters.p1 || 0)) + 8 : 2 * Math.min(need, 120) + 8;
     if (m.loops >= 3 && g.poolTotal(p) < want) return null;
     return piliLoop(g, p, acts, m, want) || monolithLoop(g, p, acts, m, want) || drakeDeadeye(g, p, acts, m, want) || scepterLoop(g, p, acts, m, want) || flickerLoop(g, p, acts, m, want);
   }
@@ -1224,6 +1234,7 @@
       case "Forsaken Monument": return held("Basalt Monolith") ? 26 : 5;
       case PILI: return held(ARCH) ? 30 : 9;
       case ARCH: return held(PILI) ? 30 : 9;
+      case "Stroke of Genius": return loopReady && !held(BALLISTA) ? 22 : 2;
       case "Staff of Domination": return (monolithReady(g, p) || (held("Power Artifact") && mono)) && !held(BALLISTA) ? 20 : 3;
       case BALLISTA: return held("Heliod, Sun-Crowned") || loopReady ? 40 : 18;
       case "Heliod, Sun-Crowned": return held(BALLISTA) ? 34 : 15;

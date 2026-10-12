@@ -293,6 +293,11 @@ const repeat = (g, p, o, idx, n, more) => g.perform(p, Object.assign({ type: "ac
     hand(g, a, "Walking Ballista"); for (const q of [b, c, d]) q.life = 8;
     for (let k = 0; k < 12 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
     check("Brago bot: Power Artifact + Grim + Ballista kills everyone", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
+  // ... with Ballista already on the battlefield ({4} a counter) and 90 life to burn
+  { const { g, a, b, c, d } = table(); lands(g, a, 2, ["Island"]); const grim = put(g, a, "Grim Monolith"); const pa = put(g, a, "Power Artifact"); pa.attachedTo = grim;
+    const bal = put(g, a, "Walking Ballista"); bal.counters.p1 = 1; g.bump(); await g.settle(); for (const q of [b, c, d]) q.life = 30; g.phase = "main1";
+    for (let k = 0; k < 20 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
+    check("Brago bot: Power Artifact + Grim pumps a Ballista on the battlefield through 90 life", [b, c, d].every(q => q.lost), [b, c, d].map(q => q.life)); }
   // ... and Forsaken Monument with Basalt Monolith (four mana for {3})
   { const { g, a, b, c, d } = table(); lands(g, a, 2, ["Island"]); put(g, a, "Basalt Monolith"); put(g, a, "Forsaken Monument"); await g.settle();
     hand(g, a, "Walking Ballista"); for (const q of [b, c, d]) q.life = 8;
@@ -363,6 +368,12 @@ const repeat = (g, p, o, idx, n, more) => g.perform(p, Object.assign({ type: "ac
     const grim = put(g, a, "Grim Monolith"); grim.tapped = true; g.bump(); await g.settle();
     g.emit("combatDamagePlayer", { src: br, p: b, amount: 2 }); await g.settle();
     check("Brago: keeps Power Artifact's Monolith, flickers the bare one", bas.zone === "battlefield" && bas.tapped && pa.attachedTo === bas && pa.zone === "battlefield" && !grim.tapped, [bas.tapped, pa.zone, grim.tapped]); }
+  // Stroke of Genius: with unlimited mana and no Ballista in hand, draw the library (one card left) and kill
+  { const { g, a, b, c, d } = table(); lands(g, a, 2, ["Island"]); const bas = put(g, a, "Basalt Monolith"); const pa = put(g, a, "Power Artifact"); pa.attachedTo = bas; g.bump(); await g.settle();
+    hand(g, a, "Stroke of Genius"); a.library = []; for (let k = 0; k < 30; k++) a.library.push(g.newObj(MK.get(k === 20 ? "Walking Ballista" : "Island"), a, "library"));
+    for (const q of [b, c, d]) q.life = 8; g.phase = "main1";
+    for (let k = 0; k < 30 && !g.over; k++) { const act = await a.agent.main(g, a, { phase: "main1" }); if (!act) break; await g.perform(a, act); await g.settle(); }
+    check("Brago bot: Power Artifact + Basalt + Stroke of Genius draws Ballista and kills everyone", [b, c, d].every(q => q.lost) && a.library.length >= 1, [b, c, d].map(q => q.life), a.library.length); }
   // Inventors' Fair: with three artifacts out it fetches the missing Monolith for Power Artifact; not with two
   { const { g, a } = table(); lands(g, a, 4, ["Island"]); const fair = put(g, a, "Inventors' Fair"); put(g, a, "Mind Stone"); put(g, a, "Arcane Signet"); await g.settle();
     hand(g, a, "Power Artifact"); a.library = []; for (const n of ["Island", "Basalt Monolith", "Sol Ring", "Island"]) a.library.push(g.newObj(MK.get(n), a, "library")); g.phase = "main1";
