@@ -367,6 +367,7 @@
       this._ss = out; this._ssv = this.v;
       this._grantsMana = out.some(o => o.def.statics.some(st => st.grantMana));
       this._trigExtra = out.some(o => o.def.statics.some(st => st.triggerExtra));
+      this._addsTypes = out.some(o => o.def.statics.some(st => st.addTypes));
       return out;
     }
     roomStatics(o) {
@@ -395,6 +396,11 @@
         if (d.notCreatureUnless && !d.notCreatureUnless(this, o)) types.delete("Creature");
       }
       o._types = types; o._tv = this.v;
+      // statics that add card types (Ashaya: "nontoken creatures you control are Forest lands"). The
+      // types above are cached first, so an `applies` that asks isCreature(o) sees them and can't loop.
+      if (o.zone === "battlefield" && (this.staticSources(), this._addsTypes)) {
+        for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.addTypes && st.applies && st.applies(this, s, o)) st.addTypes.forEach(t => types.add(t));
+      }
       return types;
     }
     isCreature(o) { return this.typesOf(o).has("Creature"); }
@@ -1460,7 +1466,8 @@
       // statics that stop mana abilities (Linvala, Grand Abolisher) or add to them (Badgermole Cub)
       const stops = [], bonus = [];
       let cBonus = false;   // Forsaken Monument: tapping a permanent for {C} adds one more {C}
-      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) { if (st.cantActivate) stops.push([s, st]); if (st.creatureManaBonus) bonus.push([s, st]); if (st.colorlessTapBonus && s.controller === p) cBonus = true; }
+      const tapBonus = [];   // Wild Growth, Utopia Sprawl: the enchanted land adds one more when tapped for mana
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) { if (st.cantActivate) stops.push([s, st]); if (st.creatureManaBonus) bonus.push([s, st]); if (st.tapManaBonus) tapBonus.push([s, st]); if (st.colorlessTapBonus && s.controller === p) cBonus = true; }
       for (const o of this.battlefield) {
         if (o.controller !== p || ex.has(o.id)) continue;
         const abs = this.manaAbilities(o);
@@ -1483,6 +1490,11 @@
         if (bonus.length && this.isCreature(o)) {
           let extra = "";
           for (const [s, st] of bonus) extra += st.creatureManaBonus(this, s, o) || "";
+          if (extra) for (const opt of options) if (opt.ab.tap) opt.units = opt.units.concat(extra.split(""));
+        }
+        if (tapBonus.length) {
+          let extra = "";
+          for (const [s, st] of tapBonus) extra += st.tapManaBonus(this, s, o) || "";
           if (extra) for (const opt of options) if (opt.ab.tap) opt.units = opt.units.concat(extra.split(""));
         }
         // bigger outputs first (Fanatic of Rhonas: GGGG before G)
@@ -2287,7 +2299,7 @@
         if (pow < ab.crew) return false;
         if (o.state.crewed === this.turn) return false;
       }
-      if (ab.discard && p.hand.length < ab.discard) return false;
+      if (ab.discard && p.hand.filter(c => !ab.discardFilter || ab.discardFilter(this, c)).length < ab.discard) return false;
       if (ab.targets) for (const spec of ab.targets) if (!spec.optional && !this.targetOptions(p, spec, o).length) return false;
       const cost = this.abilityCost(p, o, ab, ab.minXFn ? ab.minXFn(this, o, p) : (ab.minX || 0));
       if (!this.canPay(p, cost, { exclude: excl, for: ab.special ? "special" : "ability" })) return false;
@@ -2355,7 +2367,7 @@
       }
       let discarded = null;
       if (ab.discard) {
-        discarded = await this.ask(p, { type: "cards", prompt: `Discard ${ab.discard}`, options: p.hand.slice(), min: ab.discard, max: ab.discard, purpose: "discard", src: o });
+        discarded = await this.ask(p, { type: "cards", prompt: ab.discardPrompt || `Discard ${ab.discard}`, options: p.hand.filter(c => !ab.discardFilter || ab.discardFilter(this, c)), min: ab.discard, max: ab.discard, purpose: "discard", src: o });
       }
       const cost = this.abilityCost(p, o, ab, ctx.x);
       if (!this.pay(p, cost, { exclude: excl.concat(tappers ? tappers.map(c => c.id) : []).concat(crewers ? crewers.map(c => c.id) : []), for: forWhat })) {
