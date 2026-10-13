@@ -14,7 +14,7 @@ Written 2026-10-13, before any part 2 run. Choices marked (ju) were made by ju; 
 
 ## Deck model
 
-- 99 cards plus a commander in the command zone (cost 4; 2 and 6 added as a factor in phase 3).
+- 99 cards plus a commander in the command zone. Commander cost is a main factor (ju): every cost from 2 to 7, in all solo results from phase 2 on. Phase 1 validation uses cost 4 to match part 1.
 - Roles in phases 1-2: untapped land; 1-mana dork (taps the turn after it is cast); 2-mana rock (taps at once); non-ramp spells. Phase 3 adds tapped lands, 0-mana ramp, land ramp, draw spells that cost mana, and a mana sink.
 - Spell cost spreads (ju: several spreads): average spell cost 2.0 to 4.5 in steps of 0.25, each under three shapes:
   - tight: only the two integer costs around the average;
@@ -48,10 +48,10 @@ Lands 20 to 48, dorks 0 to 15, rocks 0 to 20, total ramp at most 25 (widened by 
 
 1. Near-optimal region per archetype and scenario (decks within δ).
 2. Necessity test of the 36-40 range.
-3. Universality: optimum against curve, spread, commander cost and T.
+3. Universality: optimum against curve, spread, commander cost (2 to 7) and T.
 4. Exchange rates: iso-value curves in (lands, dorks) and (lands, rocks).
 5. Robust choice: minimax regret over all 104 scenarios, and over T alone.
-6. Drivers: Morris screen, then Sobol indices over lands, ramp kind, curve, spread, draw and T; hazards only in the separate disruption variant.
+6. Drivers: Morris screen, then Sobol indices over lands, ramp kind, curve, spread, commander cost, draw and T; hazards only in the separate disruption variant.
 7. Speed against consistency: Pareto front of V against non-game probability; stochastic dominance between bases.
 8. Formula check: Karsten's formula against the exact optimum.
 
@@ -68,3 +68,4 @@ All headline results are solo games with no disruption (ju). Disruption is an op
 ## Change log
 
 - 2026-10-13, before any run (ju): ramp range widened from dorks 0-12 / rocks 0-16 / total 20 to dorks 0-15 / rocks 0-20 / total 25. Disruption made explicitly off by default; it is only ever a separate variant.
+- 2026-10-13, before any run (ju): commander cost made a main factor, every cost 2 to 7, instead of 2/4/6 in phase 3.
