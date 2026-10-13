@@ -11,7 +11,7 @@ for (const f of fs.readdirSync(dir).filter(f => /^(cards|decks|precon)-.*\.js$/.
 const MK = globalThis.MK;
 for (const d of MK.AZUSA_VARIANTS) if (!MK.HERO_DECKS.includes(d)) MK.HERO_DECKS.push(d);
 // the Brago bots (merged in later) stay out too, so the pool is still the 7 bots of RESULTS.md
-MK.BOT_DECKS = MK.BOT_DECKS.filter(d => !["azusa", "brago", "brago-1500"].includes(d.id));
+MK.BOT_DECKS = MK.BOT_DECKS.filter(d => !["azusa", "brago", "brago-1500", "brago-v2"].includes(d.id));
 const hero = process.env.HERO;
 const deck = MK.HERO_DECKS.find(d => d.id === hero);
 if (!deck) throw new Error("no hero deck " + hero);

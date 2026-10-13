@@ -17,7 +17,7 @@ require(path.join(dir, "engine.js"));
 require(path.join(dir, "cards-miku.js"));
 for (const f of fs.readdirSync(dir).filter(f => /^(cards|decks|precon)-.*\.js$/.test(f) && f !== "cards-miku.js").sort()) require(path.join(dir, f));
 const MK = globalThis.MK;
-MK.BOT_DECKS = MK.BOT_DECKS.filter(d => !["azusa", "brago", "brago-1500"].includes(d.id));
+MK.BOT_DECKS = MK.BOT_DECKS.filter(d => !["azusa", "brago", "brago-1500", "brago-v2"].includes(d.id));
 const src = process.env.LIST || "1500";
 let list;
 if (MK.BRAGO_LISTS[src]) list = MK.BRAGO_LISTS[src].slice();

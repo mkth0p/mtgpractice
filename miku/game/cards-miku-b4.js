@@ -1541,4 +1541,15 @@ Tolaria West`);
   MK.BRAGO_1500_DECK = bragoDeck("brago-1500", "Brago 1500", MK.BRAGO_LISTS["1500"], { blurb: "The 1,500 € Brago list: the same blink and Drake loops, with Coldsteel Heart and an Island for Mox Diamond and Tundra." });
   MK.DECK_BRAINS["brago-1500"] = MK.DECK_BRAINS.brago;
   (MK.BOT_DECKS = MK.BOT_DECKS || []).push(MK.BRAGO_DECK, MK.BRAGO_1500_DECK);
+  /* The Brago v2 list (miku-deck/brago/b4-v2/decklist-brago-v2.txt): a deck you pilot on the Miku site,
+     and a Bracket 4 bot with the same Brago brain. */
+  MK.BRAGO_V2_DECK = bragoDeck("brago-v2", "Brago v2", MK.BRAGO_LISTS.v2, {
+    hero: "miku", variant: "brago-v2", label: "Bracket 4 Brago",
+    style: "Azorius artifact combo",
+    blurb: "The strongest Miku list: Brago blinks mana rocks and value creatures, Ghostly Prison and Propaganda slow attackers, and the kills are Heliod + Walking Ballista, Isochron Scepter + Dramatic Reversal, Power Artifact on Grim Monolith or Basalt Monolith, and Grand Architect + Pili-Pala.",
+    watch: ["Heliod, Sun-Crowned", "Walking Ballista", "Isochron Scepter", "Power Artifact", "Grand Architect"]
+  });
+  MK.DECK_BRAINS["brago-v2"] = MK.DECK_BRAINS.brago;
+  (MK.HERO_DECKS = MK.HERO_DECKS || []).push(MK.BRAGO_V2_DECK);
+  MK.BOT_DECKS.push(MK.BRAGO_V2_DECK);
 })(typeof window !== "undefined" ? window : globalThis);
