@@ -42,7 +42,7 @@ Every ending turn T from 3 to 15 is its own scenario. A scenario is (T, extra-dr
 
 ## Composition grid
 
-Lands 20 to 48, dorks 0 to 12, rocks 0 to 16, total ramp at most 20. Every composition is solved exactly for every archetype and scenario that the phase 1 state-space measurement shows is affordable; if not, the grid is coarsened to steps of 2 and the change is logged here.
+Lands 20 to 48, dorks 0 to 15, rocks 0 to 20, total ramp at most 25 (widened by ju, see change log). Every composition is solved exactly for every archetype and scenario that the phase 1 state-space measurement shows is affordable; if not, the grid is coarsened to steps of 2 and the change is logged here.
 
 ## Experiments (phase 4)
 
@@ -51,13 +51,13 @@ Lands 20 to 48, dorks 0 to 12, rocks 0 to 16, total ramp at most 20. Every compo
 3. Universality: optimum against curve, spread, commander cost and T.
 4. Exchange rates: iso-value curves in (lands, dorks) and (lands, rocks).
 5. Robust choice: minimax regret over all 104 scenarios, and over T alone.
-6. Drivers: Morris screen, then Sobol indices over lands, ramp kind, curve, spread, draw, T and (phase 3) hazards.
+6. Drivers: Morris screen, then Sobol indices over lands, ramp kind, curve, spread, draw and T; hazards only in the separate disruption variant.
 7. Speed against consistency: Pareto front of V against non-game probability; stochastic dominance between bases.
 8. Formula check: Karsten's formula against the exact optimum.
 
-## Disruption (ju: after solo games)
+## Disruption (ju: after solo games, never by default)
 
-Phase 3, after the solo results are published: dork death per opponent turn, rock and land destruction, and board wipes, with rates per bracket taken from published bracket data (sources logged when chosen). Game length per bracket comes from the same data.
+All headline results are solo games with no disruption (ju). Disruption is an optional layer, added in phase 3 after the solo results are published, and always reported as a separate variant: dork death per opponent turn, rock and land destruction, and board wipes, with rates per bracket taken from published bracket data (sources logged when chosen). Game length per bracket comes from the same data.
 
 ## Gates
 
@@ -67,4 +67,4 @@ Phase 3, after the solo results are published: dork death per opponent turn, roc
 
 ## Change log
 
-(empty)
+- 2026-10-13, before any run (ju): ramp range widened from dorks 0-12 / rocks 0-16 / total 20 to dorks 0-15 / rocks 0-20 / total 25. Disruption made explicitly off by default; it is only ever a separate variant.
