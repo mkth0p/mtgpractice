@@ -1,0 +1,95 @@
+1 Brago, King Eternal
+1 Adarkar Wastes
+1 Aether Channeler
+1 Agent of Treachery
+1 Ancient Den
+1 Ancient Tomb
+1 Arcane Signet
+1 Archaeomancer
+1 Archon of Emeria
+1 Arcum's Astrolabe
+1 Back to Basics
+1 Chalice of the Void
+1 Charming Prince
+1 City of Brass
+1 Cleansing Meditation
+1 Command Tower
+1 Consecrated Sphinx
+1 Counterbalance
+1 Counterspell
+1 Cyclonic Rift
+1 Deafening Silence
+1 Deserted Beach
+1 Dispel
+1 Displacer Kitten
+1 Dour Port-Mage
+1 Drannith Magistrate
+1 Elesh Norn, Mother of Machines
+1 Enlightened Tutor
+1 Ephara, God of the Polis
+1 Ephemerate
+1 Esper Sentinel
+1 Exotic Orchard
+1 Fierce Guardianship
+1 Force of Negation
+1 Force of Will
+1 Glacial Fortress
+1 Grand Abolisher
+1 Grand Arbiter Augustin IV
+1 Grim Monolith
+1 Hallowed Fountain
+1 Helpful Hunter
+1 Hengegate Pathway // Mistgate Pathway
+1 Hero of Bretagard
+1 High Market
+1 Kindly Customer
+1 Lavinia, Azorius Renegade
+1 Lightning Greaves
+1 Loran of the Third Path
+1 Malcator, Purity Overseer
+1 Mana Confluence
+1 Mana Drain
+1 Mana Vault
+1 Meteor Golem
+1 Minamo, School at Water's Edge
+1 Mox Diamond
+1 Mox Opal
+1 Mystic Remora
+1 Narset, Parter of Veils
+1 Nimbus Maze
+1 Omen of the Sea
+1 Path to Exile
+1 Preston, the Vanisher
+1 Ranar the Ever-Watchful
+1 Reality Acid
+1 Reflecting Pool
+1 Reflector Mage
+1 Rhystic Study
+1 Rishadan Cutpurse
+1 Sea of Clouds
+1 Seachrome Coast
+1 Seat of the Synod
+1 Sensei's Divining Top
+1 Smothering Tithe
+1 Sol Ring
+1 Solemn Simulacrum
+1 Soulherder
+1 Spellseeker
+1 Stasis
+1 Swan Song
+1 Swords to Plowshares
+1 Talisman of Progress
+1 Teferi, Time Raveler
+1 Tezzeret the Seeker
+1 The One Ring
+1 Thieving Skydiver
+1 Trinket Mage
+1 Urza's Saga
+1 Venser, Shaper Savant
+1 Winter Orb
+2 Snow-Covered Plains
+9 Snow-Covered Island
+# source: https://moxfield.com/decks/n2D5k8ZMCESnAZv8AnzblQ (API https://api2.moxfield.com/v3/decks/all/n2D5k8ZMCESnAZv8AnzblQ), accessed 2026-10-08
+# title: Kingdom Come | cEDH | PRIMER | Brago, King Eternal ; author Not_me ; updated 2026-10-07 ; Moxfield bracket 5 (auto 4) ; main 99 ; lands 30
+# GC 15: Rhystic Study; Mana Vault; Force of Will; Enlightened Tutor; Ancient Tomb; Smothering Tithe; Cyclonic Rift; Mox Diamond; Grand Arbiter Augustin IV; Narset, Parter of Veils; Grim Monolith; Fierce Guardianship; Consecrated Sphinx; Drannith Magistrate; The One Ring
+# hubs: Artifacts, Azorius, Blink/Flicker, cEDH, Combo, Competitive, Control, Hatebears, Primer, Prison

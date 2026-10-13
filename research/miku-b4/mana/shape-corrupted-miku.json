@@ -1,0 +1,326 @@
+{
+ "name": "Corrupted Miku",
+ "cmdr": 4,
+ "lands": 29,
+ "ramp": [
+  {
+   "name": "Llanowar Elves",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Delighted Halfling",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Badgermole Cub",
+   "mv": 2,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Devoted Druid",
+   "mv": 2,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Crop Rotation",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "mv": 2,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "mv": 4,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Sol Ring",
+   "mv": 1,
+   "fast": true,
+   "net": 2
+  },
+  {
+   "name": "Mana Vault",
+   "mv": 1,
+   "fast": true,
+   "net": 3,
+   "once": 3
+  },
+  {
+   "name": "Grim Monolith",
+   "mv": 2,
+   "fast": true,
+   "net": 3,
+   "once": 3
+  },
+  {
+   "name": "Chrome Mox",
+   "mv": 0,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Mox Diamond",
+   "mv": 0,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Lotus Petal",
+   "mv": 0,
+   "fast": true,
+   "net": 1,
+   "once": 1
+  }
+ ],
+ "spells": [
+  {
+   "name": "Elvish Spirit Guide",
+   "mv": 3
+  },
+  {
+   "name": "Vizier of Remedies",
+   "mv": 2
+  },
+  {
+   "name": "Walking Ballista",
+   "mv": 0
+  },
+  {
+   "name": "Spike Feeder",
+   "mv": 3
+  },
+  {
+   "name": "Heliod, Sun-Crowned",
+   "mv": 3
+  },
+  {
+   "name": "Archangel of Thune",
+   "mv": 5
+  },
+  {
+   "name": "Grand Abolisher",
+   "mv": 2
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "mv": 3
+  },
+  {
+   "name": "Voice of Victory",
+   "mv": 2
+  },
+  {
+   "name": "Drannith Magistrate",
+   "mv": 2
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "mv": 3
+  },
+  {
+   "name": "Linvala, Keeper of Silence",
+   "mv": 4
+  },
+  {
+   "name": "Aven Mindcensor",
+   "mv": 3
+  },
+  {
+   "name": "Destiny Spinner",
+   "mv": 2
+  },
+  {
+   "name": "Esper Sentinel",
+   "mv": 1
+  },
+  {
+   "name": "Archivist of Oghma",
+   "mv": 2
+  },
+  {
+   "name": "Giver of Runes",
+   "mv": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "mv": 3
+  },
+  {
+   "name": "Formidable Speaker",
+   "mv": 3
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "mv": 3
+  },
+  {
+   "name": "Ranger-Captain of Eos",
+   "mv": 3
+  },
+  {
+   "name": "Brightglass Gearhulk",
+   "mv": 4
+  },
+  {
+   "name": "Endurance",
+   "mv": 3
+  },
+  {
+   "name": "Solitude",
+   "mv": 5
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "mv": 8
+  },
+  {
+   "name": "Vorinclex, Voice of Hunger",
+   "mv": 8
+  },
+  {
+   "name": "Worldly Tutor",
+   "mv": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "mv": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "mv": 2
+  },
+  {
+   "name": "Chord of Calling",
+   "mv": 3
+  },
+  {
+   "name": "Summoner's Pact",
+   "mv": 0
+  },
+  {
+   "name": "Archdruid's Charm",
+   "mv": 3
+  },
+  {
+   "name": "Swords to Plowshares",
+   "mv": 1
+  },
+  {
+   "name": "Path to Exile",
+   "mv": 1
+  },
+  {
+   "name": "Generous Gift",
+   "mv": 3
+  },
+  {
+   "name": "Force of Vigor",
+   "mv": 4
+  },
+  {
+   "name": "Veil of Summer",
+   "mv": 1
+  },
+  {
+   "name": "Silence",
+   "mv": 1
+  },
+  {
+   "name": "Orim's Chant",
+   "mv": 1
+  },
+  {
+   "name": "Reprieve",
+   "mv": 2
+  },
+  {
+   "name": "Teferi's Protection",
+   "mv": 3
+  },
+  {
+   "name": "Flawless Maneuver",
+   "mv": 3
+  },
+  {
+   "name": "Natural Order",
+   "mv": 4
+  },
+  {
+   "name": "Green Sun's Zenith",
+   "mv": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "mv": 2
+  },
+  {
+   "name": "Sylvan Library",
+   "mv": 2
+  },
+  {
+   "name": "Survival of the Fittest",
+   "mv": 2
+  },
+  {
+   "name": "Deafening Silence",
+   "mv": 1
+  },
+  {
+   "name": "Blind Obedience",
+   "mv": 2
+  },
+  {
+   "name": "Kenrith's Transformation",
+   "mv": 2
+  },
+  {
+   "name": "Skullclamp",
+   "mv": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "mv": 2
+  },
+  {
+   "name": "The One Ring",
+   "mv": 4
+  }
+ ]
+}

@@ -54,7 +54,9 @@
     "Recruiter of the Guard": { cost: () => "{2}{W}", dest: "hand", etb: true, finds: n => PIECES[n].tough <= 2 },
     "Ranger-Captain of Eos": { cost: () => "{1}{W}{W}", dest: "hand", etb: true, finds: n => PIECES[n].mv <= 1 },
     "Brightglass Gearhulk": { cost: () => "{G}{G}{W}{W}", dest: "hand", etb: true, finds: n => PIECES[n].mv <= 1 },
-    "Formidable Speaker": { cost: () => "{2}{G}", dest: "hand", etb: true, discard: true, finds: () => true }
+    "Formidable Speaker": { cost: () => "{2}{G}", dest: "hand", etb: true, discard: true, finds: () => true },
+    "Congregation at Dawn": { cost: () => "{G}{G}{W}", dest: "top", instant: true, finds: () => true },
+    "Idyllic Tutor": { cost: () => "{2}{W}", dest: "hand", finds: n => n === "Heliod, Sun-Crowned" }
   };
   /* What each hate piece shuts off. */
   const HATE = {

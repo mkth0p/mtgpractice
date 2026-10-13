@@ -1,0 +1,10 @@
+# Marneus Calgar by PokeEnder (Archidekt 26963423), full export pasted by ju on 2026-10-12. Commander: Marneus Calgar
+Counters: An Offer You Can't Refuse, Commandeer, Dovin's Veto, Fierce Guardianship, Flusterstorm, Force of Negation, Force of Will, Mana Drain, Pact of Negation, Swan Song
+Draw: Black Market Connections, Faerie Mastermind, Mentor of the Meek, Mister Fantastic Reed Richards, Mystic Remora, Rhystic Study, The Queen of Dale, Wan Shi Tong Librarian
+Tutor: Beseech the Mirror, Demonic Tutor, Diabolic Intent, Lim-Dul's Vault, Lively Dirge, Mystical Tutor, Scheming Symmetry, Vampiric Tutor, Wishclaw Talisman
+Tokens: Council of Reeds, Faerie Artisans, Finale of Glory, Hermes Overseer of Elpis, Monastery Mentor, Nadir Kraken, Ocelot Pride, Sai Master Thopterist
+Removal: Amphibian Downpour, Cyclonic Rift, Orcish Bowmasters, Swords to Plowshares, Vanquish the Horde, Winnowing
+Sac outlet: Warren Soultrader | Stax: Opposition Agent | Recursion: Reanimate | Finisher: Exsanguinate | Protection: Grand Abolisher, Orim's Chant
+Ramp: Arcane Signet, Cabal Ritual, Chrome Mox, Culling the Weak, Dark Ritual, Fellwar Stone, Lotus Petal, Mana Vault, Mox Amber, Mox Diamond, Mox Opal, Sol Ring
+Ramp engine: Ashnod's Altar, Gleaming Splendor, Lotho Corrupt Shirriff, Monologue Tax, Pitiless Plunderer, Smothering Tithe, Tataru Taru, Training Grounds
+Land (32): Abundant Countryside, Adarkar Wastes, Arcane Sanctum, Bloodstained Mire, Caves of Koilos, City of Brass, Command Tower, Deserted Beach, Exotic Orchard, Fabled Passage, Flooded Strand, Gemstone Caverns, Gemstone Mine, Godless Shrine, Hallowed Fountain, 2 Island, Marsh Flats, Misty Rainforest, Morphic Pool, 2 Plains, Polluted Delta, Raffine's Tower, Sea of Clouds, Shattered Sanctum, Starting Town, Swamp, Underground River, Vault of Champions, Watery Grave, Windswept Heath

@@ -1,0 +1,93 @@
+1 Shalai, Voice of Plenty
+1 Akroma's Will
+1 Ancient Tomb
+1 Angel of Vitality
+1 Arcane Signet
+1 Archangel of Thune
+1 Archangel of Tithes
+1 Archivist of Oghma
+1 Avacyn, Angel of Hope
+1 Battle Angels of Tyr
+1 Beast Within
+1 Bishop of Wings
+1 Bonders' Enclave
+1 Boseiju, Who Endures
+1 Bountiful Promenade
+1 Bruna, the Fading Light
+1 Brushland
+1 Burgeoning
+1 Canopy Vista
+1 Cavern of Souls
+1 Command Tower
+1 Congregation at Dawn
+1 Cultivate
+1 Darksteel Mutation
+1 Dawn of Hope
+1 Eladamri's Call
+1 Elemental Bond
+1 Emeria, the Sky Ruin
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Farewell
+1 Fellwar Stone
+1 Firemane Commando
+1 Flawless Maneuver
+1 Gavony Township
+1 Giada, Font of Hope
+1 Gisela, the Broken Blade
+1 Grand Abolisher
+1 Hall of Heliod's Generosity
+1 Herald of War
+1 Heraldic Banner
+1 Kodama's Reach
+1 Lightning Greaves
+1 Luminarch Ascension
+1 Lyra Dawnbringer
+1 Magus of the Moat
+1 Mana Vault
+1 Mangara, the Diplomat
+1 Mother of Runes
+1 Mox Amber
+1 Nykthos, Shrine to Nyx
+1 Overgrown Farmland
+1 Resplendent Angel
+1 Righteous Valkyrie
+1 Seedborn Muse
+1 Sephara, Sky's Blade
+1 Seraph Sanctuary
+1 Serra Ascendant
+1 Sevinne's Reclamation
+1 Shattered Angel
+1 Sigarda, Font of Blessings
+1 Smothering Tithe
+1 Smuggler's Share
+1 Sol Ring
+1 Soul Warden
+1 Stroke of Midnight
+1 Sunpetal Grove
+1 Swords to Plowshares
+1 Sylvan Library
+1 Teferi's Protection
+1 Temple Garden
+1 Teshar, Ancestor's Apostle
+1 The Great Henge
+1 The One Ring
+1 Valkyrie Harbinger
+1 Vanquish the Horde
+1 War Room
+1 Well of Lost Dreams
+1 Windswept Heath
+1 Wooded Bastion
+1 Worldly Tutor
+1 Yavimaya, Cradle of Growth
+4 Forest
+14 Plains
+# url: https://moxfield.com/decks/HGE4R2XCeEOs6PdZJ4Byyg
+# title: Shalai, Voice of Plenty - Angels/Clerics
+# author: dandanthemagicman
+# updated: 2026-08-29
+# bracket: 4 (Moxfield, author-set; auto 4)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Shalai, Voice of Plenty ; total 100 ; lands 38 ; source API https://api2.moxfield.com/v3/decks/all/HGE4R2XCeEOs6PdZJ4Byyg
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 9: Ancient Tomb; Enlightened Tutor; Farewell; Mana Vault; Seedborn Muse; Smothering Tithe; Teferi's Protection; The One Ring; Worldly Tutor

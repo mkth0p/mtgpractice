@@ -1,0 +1,106 @@
+1 Shalai, Voice of Plenty
+1 Ajani, the Greathearted
+1 Akroma's Will
+1 Angel of Glory's Rise
+1 Aragorn and Arwen, Wed
+1 Arcane Signet
+1 Aura Shards
+1 Avacyn's Pilgrim
+1 Basri's Lieutenant
+1 Bastion Protector
+1 Beast Within
+1 Boseiju, Who Endures
+1 Bretagard Stronghold
+1 Canopy Vista
+1 Castle Ardenvale
+1 Cavern of Souls
+1 Celestine, the Living Saint
+1 Champion of Lambholt
+1 Chronicle of Victory
+1 Clamavus
+1 Command Beacon
+1 Command Tower
+1 Den Protector
+1 Eiganjo, Seat of the Empire
+1 Elspeth Resplendent
+1 Esper Sentinel
+1 Evolving Wilds
+1 Farewell
+1 Gaea's Cradle
+1 Giant Killer // Chop Down
+1 Gideon Blackblade
+1 Haliya, Ascendant Cadet
+1 Hanweir Militia Captain // Westvale Cult Leader
+1 Hardened Scales
+1 Herald of War
+1 Herald's Horn
+1 Heroic Intervention
+1 Heron's Grace Champion
+1 Horizon Canopy
+1 Horn of Gondor
+1 Inkmoth Nexus
+1 Innkeeper's Talent
+1 Juniper Order Ranger
+1 Karvanista, Loyal Lupari // Lupari Shield
+1 Katilda, Dawnhart Prime
+1 Kyler, Sigardian Emissary
+1 Lion Sash
+1 Mikaeus, the Lunarch
+1 Mirari's Wake
+1 Mirror Entity
+1 Mother of Runes
+1 Myriad Landscape
+1 Nature's Claim
+1 Nature's Lore
+1 Nissa, Vastwood Seer // Nissa, Sage Animist
+1 Noxious Revival
+1 Odric, Lunarch Marshal
+1 Odric, Master Tactician
+1 Othelm, Sigardian Outcast
+1 Overgrown Farmland
+1 Path of Ancestry
+1 Rampant Growth
+1 Restless Prairie
+1 Robe of Stars
+1 Saffi Eriksdotter
+1 Savannah
+1 Scattered Groves
+1 Seedborn Muse
+1 Selesnya Signet
+1 Sigarda's Summons
+1 Sigarda, Champion of Light
+1 Sigarda, Font of Blessings
+1 Slippery Bogbonder
+1 Smothering Tithe
+1 Sol Ring
+1 Sun Titan
+1 Sunpetal Grove
+1 Swords to Plowshares
+1 Sylvan Library
+1 Talisman of Unity
+1 Teferi's Protection
+1 Temple Garden
+1 Terramorphic Expanse
+1 Thalia's Lancers
+1 The Mycosynth Gardens
+1 The Shire
+1 Timeless Witness
+1 Torens, Fist of the Angels
+1 Tragic Arrogance
+1 Tyrite Sanctum
+1 Vanquish the Horde
+1 Wasteland
+1 Windswept Heath
+1 Worldly Tutor
+1 Zopandrel, Hunger Dominus
+2 Forest
+3 Plains
+# url: https://moxfield.com/decks/cVN7OjyxAU6WtRZk12L4kA
+# title: Humans Will Survive
+# author: AngryPapaClwnfsh
+# updated: 2026-07-21
+# bracket: 4 (Moxfield, author-set; auto 4)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Shalai, Voice of Plenty ; total 100 ; lands 31 ; source API https://api2.moxfield.com/v3/decks/all/cVN7OjyxAU6WtRZk12L4kA
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 7: Aura Shards; Farewell; Gaea's Cradle; Seedborn Muse; Smothering Tithe; Teferi's Protection; Worldly Tutor

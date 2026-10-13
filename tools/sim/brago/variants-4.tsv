@@ -1,0 +1,10 @@
+# against candidate c3 (c2 + Inventors' Fair for an Island, Forsaken Monument for Cloudshift, Stroke of Genius for Ephemerate, an Island for Ancient Tomb)
+-drakepkg	{"cut":["Peregrine Drake","Deadeye Navigator","Archaeomancer","Ghostly Flicker"],"add":["Ponder","Preordain","Brainstorm","Solitude"]}
+-tutors	{"cut":["Fabricate","Merchant Scroll","Idyllic Tutor"],"add":["Aether Channeler","Cryogen Relic","Loran of the Third Path"]}
++land	{"cut":["Omen of the Sea"],"add":["Island"]}
+-land	{"cut":["Island"],"add":["Ponder"]}
+-sentinel	{"cut":["Esper Sentinel"],"add":["Preordain"]}
+-remora	{"cut":["Mystic Remora"],"add":["Ponder"]}
++flawless	{"cut":["Venser, Shaper Savant"],"add":["Flawless Maneuver"]}
+-mulldrifter	{"cut":["Mulldrifter"],"add":["Ponder"]}
+-fow	{"cut":["Force of Will"],"add":["Arcane Denial"]}

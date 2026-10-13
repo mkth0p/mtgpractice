@@ -1,0 +1,110 @@
+1 Krark, the Thumbless
+1 Silas Renn, Seeker Adept
+1 An Offer You Can't Refuse
+1 Ancient Tomb
+1 Arcane Signet
+1 Archmage Emeritus
+1 Arid Mesa
+1 Badlands
+1 Birgi, God of Storytelling // Harnfel, Horn of Bounty
+1 Blood Crypt
+1 Bloodstained Mire
+1 Borne Upon a Wind
+1 Brain Freeze
+1 Cabal Ritual
+1 Chain of Vapor
+1 Chrome Mox
+1 City of Brass
+1 Command Tower
+1 Copy Enchantment
+1 Culling the Weak
+1 Dark Ritual
+1 Deadly Rollick
+1 Deflecting Swat
+1 Demonic Consultation
+1 Demonic Tutor
+1 Diabolic Intent
+1 Entomb
+1 Exhibition Tidecaller
+1 Faerie Mastermind
+1 Fellwar Stone
+1 Fierce Guardianship
+1 Flare of Duplication
+1 Flashback
+1 Flooded Strand
+1 Flusterstorm
+1 Gamble
+1 Gitaxian Probe
+1 Gut Shot
+1 Harmonic Prodigy
+1 Hexing Squelcher
+1 Imperial Seal
+1 Jeska's Will
+1 Lion's Eye Diamond
+1 Lotus Petal
+1 Luxury Suite
+1 Mana Confluence
+1 Mana Vault
+1 Marsh Flats
+1 Mental Misstep
+1 Mindbreak Trap
+1 Mistrise Village
+1 Misty Rainforest
+1 Mockingbird
+1 Mogg Salvage
+1 Morphic Pool
+1 Mox Amber
+1 Mox Diamond
+1 Mox Opal
+1 Mystic Remora
+1 Mystical Tutor
+1 Necropotence
+1 Orcish Bowmasters
+1 Otawara, Soaring City
+1 Pact of Negation
+1 Phantasmal Image
+1 Polluted Delta
+1 Praetor's Grasp
+1 Professional Face-Breaker
+1 Pyroblast
+1 Ragavan, Nimble Pilferer
+1 Reanimate
+1 Red Elemental Blast
+1 Rhystic Study
+1 Rite of Flame
+1 Scalding Tarn
+1 Simian Spirit Guide
+1 Sink into Stupor // Soporific Springs
+1 Sol Ring
+1 Steal Enchantment
+1 Steam Vents
+1 Storm-Kiln Artist
+1 Submerge
+1 Surgical Extraction
+1 Tainted Pact
+1 Tavern Scoundrel
+1 Thassa's Oracle
+1 Training Center
+1 Undercity Sewers
+1 Underground Sea
+1 Underworld Breach
+1 Valley Floodcaller
+1 Vampiric Tutor
+1 Verdant Catacombs
+1 Vexing Bauble
+1 Vilis, Broker of Blood
+1 Volcanic Island
+1 Watery Grave
+1 Wishclaw Talisman
+1 Wooded Foothills
+1 Yusri, Fortune's Flame
+# url: https://moxfield.com/decks/PQ9PfU5bX0SKmSWoBhe2aA
+# title: Krark / Silas - Breadstorm
+# author: BasedBread
+# updated: 2026-08-07
+# bracket: 5 (Moxfield, author-set; auto 4)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Krark, the Thumbless + Silas Renn, Seeker Adept ; total 100 ; lands 25 (+1 MDFC) ; source API https://api2.moxfield.com/v3/decks/all/PQ9PfU5bX0SKmSWoBhe2aA
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 17: Ancient Tomb; Chrome Mox; Demonic Tutor; Fierce Guardianship; Gamble; Imperial Seal; Jeska's Will; Lion's Eye Diamond; Mana Vault; Mox Diamond; Mystical Tutor; Necropotence; Orcish Bowmasters; Rhystic Study; Thassa's Oracle; Underworld Breach; Vampiric Tutor
+# listed in: cEDH Decklist Database, entry "Krark Silas Grixis Krark" (section COMPETITIVE, entry updated 2025-07-21; https://raw.githubusercontent.com/AverageDragon/cEDH-Decklist-Database/master/_data/database.json)
