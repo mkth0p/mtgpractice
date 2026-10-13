@@ -24,7 +24,7 @@
 //   node realramp.js selftest                         graph pass == exact.js on real decks
 // Slice options (defaults = the comparison run in this container):
 //   --shapes tight,normal3 --avgs 3,3.5 --cmds 4 --scens P1,P4 --T 15
-//   --lands 20,24,...,48 --dorks 0,2,4,6,8,10,12,15 --rocks 0,1,2,4,6,8,12,16,20 --maxramp 25
+//   --lands 20,24,...,48 --dorks 0,2,4,6,8,10,12,15 --rock-counts 0,1,2,4,6,8,12,16,20 --maxramp 25 (rock-counts, not rocks: run.js uses --rocks real)
 //   --profiles all (or a list of keys)   --graph-max 4 (GB: bigger shared graphs are replaced by
 //   one exact.js solve per deck, slower but small)   --skip-direct (leave those decks out for now)
 const os = require('os');
@@ -112,7 +112,7 @@ function parseList(s, d) { return (s || d).split(',').map(x => (isNaN(+x) ? x : 
 function slice(a) {
   return {
     shapes: parseList(a.shapes, 'tight,normal3'), avgs: parseList(a.avgs, '3,3.5'), cmds: parseList(a.cmds, '4'), scens: parseList(a.scens, 'P1,P4'),
-    lands: parseList(a.lands, '20,24,28,32,36,40,44,48'), dorks: parseList(a.dorks, '0,2,4,6,8,10,12,15'), rocks: parseList(a.rocks, '0,1,2,4,6,8,12,16,20'),
+    lands: parseList(a.lands, '20,24,28,32,36,40,44,48'), dorks: parseList(a.dorks, '0,2,4,6,8,10,12,15'), rocks: parseList(a['rock-counts'], '0,1,2,4,6,8,12,16,20'),
     maxramp: +(a.maxramp || 25), T: +(a.T || 15), graphMax: +(a['graph-max'] || 4), skipDirect: !!a['skip-direct'], profiles: a.profiles && a.profiles !== 'all' ? a.profiles.split(',') : null,
   };
 }
