@@ -176,10 +176,9 @@
     } else if (cfg.format === "gauntlet") {
       if (planned >= cfg.games) return null;
       const field = shuffle(cfg.entrants.filter(id => id !== cfg.hero), r).sort((a, b) => played[a] - played[b]);
-      const k = Math.floor(field.length / (P - 1)) * (P - 1);
+      const k = Math.max(1, Math.min(Math.floor(field.length / (P - 1)), cfg.games - planned)) * (P - 1);
       const m = Object.assign({}, meet);
-      let pods = dealPods(field.slice(0, k), P - 1, m, r, false).map(s => [cfg.hero].concat(s));
-      pods = pods.slice(0, Math.max(1, Math.min(pods.length, cfg.games - planned)));
+      const pods = dealPods(field.slice(0, k), P - 1, m, r, false).map(s => [cfg.hero].concat(s));
       round = { kind: "gauntlet", label: `Round ${ri + 1}`, pods: pods.map(s => ({ seats: s, games: 1 })), byes: field.slice(k) };
     } else {
       const swissRounds = cfg.rounds;
