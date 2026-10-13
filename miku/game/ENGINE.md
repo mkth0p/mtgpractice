@@ -8,6 +8,7 @@ before anyone plays it.
 | --- | --- |
 | `engine.js` | Rules: zones, the stack, mana payment, combat, triggers, state-based actions. |
 | `cards-miku.js` | All 88 cards of the Miku deck (Trostani) and `MK.MIKU_DECK`. The best examples to copy. |
+| `cards-miku-b4.js` | The Miku high-Bracket-4 research lists (research/miku-b4/): the Brago and Shalai cards nobody else had, `MK.BRAGO_DECK` and its bot brain, `MK.flicker`. Sims only for now; `tools/sim/test-miku-b4.js` checks them. |
 | `cards-corrupted.js` | The Corrupted Miku deck (Shalai, Bracket 4): its new cards, the generic Cavern of Souls, `MK.CORRUPTED_DECK` and its coach. |
 | `checklist-corrupted.js` | Corrupted Miku's turn checklist (`MK_CHECKLISTS.corrupted`), shared by the game's Coach panel and the site. |
 | `decks-*.js` | One file per bot deck: its card definitions and one entry in `MK.BOT_DECKS`. |
@@ -141,6 +142,7 @@ abilities: [{
   sacSelf: true, exileSelf: true,
   sacCost: { filter: (g, c, src) => c.controller === src.controller && g.isCreature(c), prompt: "Sacrifice a creature" },
   tapCreatures: 2, untapCreatures: 1, discard: 1,  // tapFilter(g, c, src), tapSelfOk, tapPrompt narrow the tapped ones
+                                        // discardFilter(g, card), discardPrompt: only some cards (Fauna Shaman: a creature card)
   manaAbility: true,                    // adds mana: resolves at once, no stack
   targets: [spec],                      // see target specs
   minX: 1, xFrom: (g, ctx) => n,        // X chosen by the player, or computed from the targets
@@ -166,7 +168,14 @@ mana: [{ tap: true, cost: "{1}", produce: "UR" }]
 mana: [{ tap: true, produce: "CC", condition: (g, o) => true }]
 mana: [{ tap: true, sacSelf: true, produce: "any5", last: true }]   // Treasure: used last
 mana: [{ tap: true, tapCreature: 1, produce: "any5" }]               // Springleaf Drum
+mana: [{ tap: true, ignoreSick: true, artifactOnly: true, produce: "CC" }]   // Grand Architect (via grantMana)
+mana: [{ cost: "{2}", noAuto: true, condition, produce: "any5", after }]    // Pili-Pala's {2}, {Q}
 ```
+
+`artifactOnly` mana is offered only to pay for an artifact spell (`opts.spell`) or an ability of an
+artifact (`opts.src`, which `canActivate` and `activate` pass); once it is in the pool it is plain mana.
+`ignoreSick`: tapping the creature isn't a {T} cost of its own (Grand Architect taps a blue creature).
+`noAuto` abilities are never used by auto-payment; a deck brain runs them with `g.activateMana`.
 
 Several mana abilities on one permanent are alternatives (only one per tap). Lands with
 `doublesLandMana` on the battlefield (Vorinclex) are counted twice. A mana ability with another
@@ -219,6 +228,8 @@ statics: [{
   lifeGainPlus: (g, s, p) => 1,                   // Cleric Class
   counterPlus: (g, s, o, kind) => 1,              // Hardened Scales style
   costMod: (g, s, card) => 1,                     // reduce generic cost of your spells by n
+  abilityCostMod: (g, s, o, ab) => 2,             // your creatures' activated abilities cost n less, never below one mana (Training Grounds)
+  artifactAbilityCostMod: (g, s, o, ab) => 2,     // artifact o's activated abilities cost n less, never below one mana (Power Artifact)
   giveConvoke: (g, s, card) => bool, giveFlash: (g, s, card, p) => bool,
   extraLands: 1, untapOnOthersTurn: true, noMaxHand: true,
   playLandsFrom: ["top", "graveyard"],            // Courser of Kruphix, Ramunap Excavator
@@ -230,7 +241,13 @@ statics: [{
   uncounterable: (g, s, item) => bool,            // Destiny Spinner
   searchLimit: (g, s, p) => 4 or null,            // Aven Mindcensor: p searches only the top n
   entersTapped: (g, s, o) => bool,                // Thalia, Heretic Cathar, Blind Obedience
-  creatureManaBonus: (g, s, o) => "G"             // Badgermole Cub: tapping creature o for mana adds this too
+  creatureManaBonus: (g, s, o) => "G",            // Badgermole Cub: tapping creature o for mana adds this too
+  tapManaBonus: (g, s, o) => "G",                 // Wild Growth, Utopia Sprawl: tapping permanent o for mana adds this too
+  becomesVehicle: true,                           // with applies: it's a noncreature Vehicle artifact (Swift Reconfiguration)
+  cantBeBlockedBy: (g, s, attacker, blocker) => bool, // Delney: your small creatures can't be blocked by big ones
+  attackTax: (g, s, attacker, target) => 2,       // Ghostly Prison, Propaganda: pay {n} for that attacker or it doesn't attack (a bot sends it at an untaxed opponent)
+  stopTrigger: (g, s, entry) => bool,             // the trigger doesn't happen (Elesh Norn, Mother of Machines); triggerExtra(g, s, entry) -> n adds copies
+  addTypes: ["Land"], subtypes: ["Forest"]        // with applies: Ashaya makes nontoken creatures Forest lands (grantMana gives the {G})
 }]
 commandStatics: [{ costMod }]    // eminence cost reductions that work from the command zone
 ```
@@ -245,7 +262,7 @@ for an alternative cost with its own targets (cleave).
 
 Corrupted Miku added a few more:
 - `g.banCasting((g, p, card) => bool, label)` stops casting until end of turn (Silence, Orim's Chant,
-  Ranger-Captain); `p.noCounterTurn = g.turn` makes p's spells uncounterable this turn (Veil of Summer).
+  Ranger-Captain), or until a player's next turn with `{ until: player }` (Reflector Mage); `p.noCounterTurn = g.turn` makes p's spells uncounterable this turn (Veil of Summer).
 - `p.shield` (protection from everything: no targeting, damage prevented) and `p.lifeLock` (life total
   can't change) last until p's next turn (Teferi's Protection, The One Ring).
 - `g.addEffect({ objs, prot: ["B"] })`: protection from colors ("C" for colorless) until end of turn. It
@@ -262,6 +279,20 @@ Corrupted Miku added a few more:
   `{ level: "win" | "now" | "plan" | "warn" | "info", title, text, cards }`, most urgent first, and
   `checklist` names an entry of `MK_CHECKLISTS`. `alsoOn: ["miku"]` offers a hero deck on another site too.
 
+Marvel decks added a few more (none of them changes an older deck's games):
+- `altCosts: [{ label: "Web-slinging", cost: "{W}", bounceTapped: true }]`: the alternative cost also returns a
+  tapped creature you control to its owner's hand (`purpose: "webSling"`). The resolving permanent sees
+  `opts.web` (that creature's mana value) in `etbCounters(g, o, opts)` and `asEnters`.
+- `rebound: true` on an instant or sorcery: cast from the hand, it is exiled as it resolves and its owner may cast
+  it for free at their next upkeep (`purpose: "rebound"`).
+- `mayhem: "{B}{R}"`: a card discarded this turn may be cast from the graveyard for that cost. `o.discarded`,
+  `g.discardedThisTurn(p)` count the discards.
+- `await g.connive(o, src)` (draw, discard, a nonland discard puts a +1/+1 counter on o; emits `connive`
+  { o, p, card, nonland }), `g.goad(o, by)` (attacks each combat, a player other than `by` if able, until `by`'s
+  next turn), `await g.discover(p, n, src, { cascade })`.
+- `g.castThisTurn(p, e => e.nc)` counts this turn's spells; castLog entries carry `nc` (noncreature), `name`,
+  `o`, `mv` and `from`.
+
 ## Game methods to use in `do`
 
 Queries: `g.creatures(p)`, `g.controlled(p, filter)`, `g.opponents(p)`, `g.isCreature(o)`, `isLand`,
@@ -273,7 +304,8 @@ Queries: `g.creatures(p)`, `g.controlled(p, filter)`, `g.opponents(p)`, `g.isCre
 
 Actions: `gainLife(p, n, src)`, `loseLife(p, n, src)`, `damage(src, target, n)`, `addCounters(o, "p1", n)`,
 `removeCounters(o, kind, n)`, `counterEach(p, "p1", n)`, `tap(o)`, `untap(o)`,
-`pump(objs, p, t, kw)`, `grant(objs, kw)`, `addEffect({ objs | filter, pt, kw, setPT, unblockable, cantBlock, until })`
+`pump(objs, p, t, kw)`, `grant(objs, kw)`, `addEffect({ objs | filter, pt, kw, setPT, setColors, unblockable, cantBlock, until })`
+(`setColors: ["U"]`: the object is that color only, "becomes blue until end of turn")
 (`until`: "eot" default, "eoc", or "yourNextTurn" with `player`), `draw(p, n)`, `discard(p, o)`,
 `mill(p, n)`, `impulse(p, n)` (exile top n, may play this turn), `search(p, { filter, count, to, tapped, from, prompt, hidden })`
 (to: "hand", "battlefield", "top", "graveyard"), `shuffle(p)`, `createToken(p, spec, { count, tapped, attacking, counters, exileEoc, sacEnd })`,
@@ -325,6 +357,9 @@ checks the ability before anything else (win-the-game abilities).
 
 An action returned by a plan looks like `{ type: "cast", card, targets, x, alt }`,
 `{ type: "activate", card, idx, repeat }` (idx = index in `abilities`), or `{ type: "land", card }`.
+A repeated activation can carry `stop(g)` (checked before each repeat; true ends the loop) and
+`stopFirst: true` (stop runs before the can-it-be-activated check, so it can set that up: the Brago
+brain taps a Power Artifact Monolith for mana there, which makes its untap legal again).
 
 ## Deck files
 

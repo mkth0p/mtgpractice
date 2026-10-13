@@ -1,0 +1,104 @@
+1 Child of Alara
+1 Academy Rector
+1 Aether Flash
+1 Ajani's Chosen
+1 Ancient Tomb
+1 Animate Dead
+1 Arcane Signet
+1 Badlands
+1 Bayou
+1 Blinkmoth Nexus
+1 Blood Crypt
+1 Bloodstained Mire
+1 Boseiju, Who Endures
+1 Brainstorm
+1 Breeding Pool
+1 Caged Sun
+1 City of Brass
+1 Command Tower
+1 Counterbalance
+1 Cyclonic Rift
+1 Deflecting Swat
+1 Demonic Tutor
+1 Divine Intervention
+1 Dovin's Veto
+1 Enchanted Evening
+1 Enlightened Tutor
+1 Ensoul Artifact
+1 Fierce Guardianship
+1 Flooded Strand
+1 Flusterstorm
+1 Force of Negation
+1 Force of Will
+1 Gamble
+1 Gemstone Caverns
+1 Godless Shrine
+1 Hallowed Fountain
+1 Helm of Obedience
+1 Hex Parasite
+1 Imperial Seal
+1 Karn Liberated
+1 Leyline of Anticipation
+1 Lich's Mirror
+1 Life and Limb
+1 Mana Confluence
+1 Mana Drain
+1 Marauding Raptor
+1 March of the Machines
+1 Maskwood Nexus
+1 Mental Misstep
+1 Mystic Remora
+1 Mystical Tutor
+1 Opposition Agent
+1 Otawara, Soaring City
+1 Overgrown Tomb
+1 Pact of Negation
+1 Pariah
+1 Path to Exile
+1 Pitiless Plunderer
+1 Plateau
+1 Platinum Angel
+1 Polluted Delta
+1 Polyraptor
+1 Rain of Gore
+1 Reanimate
+1 Rhystic Study
+1 Sacred Foundry
+1 Savannah
+1 Scrubland
+1 Scute Swarm
+1 Silence
+1 Smothering Tithe
+1 Sol Ring
+1 Sporemound
+1 Squall Line
+1 Steam Vents
+1 Stomping Ground
+1 Stuffy Doll
+1 Swan Song
+1 Swords to Plowshares
+1 Sylvan Library
+1 Taiga
+1 Temple Garden
+1 The One Ring
+1 Toph, the First Metalbender
+1 Transcendence
+1 Tropical Island
+1 Tundra
+1 Underground Sea
+1 Underworld Breach
+1 Vampire Hexmage
+1 Vampiric Tutor
+1 Vedalken Orrery
+1 Veil of Summer
+1 Volcanic Island
+1 Watery Grave
+1 Wheel of Sun and Moon
+1 Windswept Heath
+1 Wooded Foothills
+1 Worldgorger Dragon
+1 Worldly Tutor
+# source: https://moxfield.com/decks/Ba1nFYEBY0mggeRj6mJjbA (API https://api2.moxfield.com/v3/decks/all/Ba1nFYEBY0mggeRj6mJjbA), accessed 2026-10-08
+# title: Draw the Game ; author dwessell2 ; updated 2025-11-21 ; Moxfield bracket b4/auto4 ; main 99 ; lands 33 ; MDFC ; BAN
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 16: Underworld Breach; Demonic Tutor; Rhystic Study; Force of Will; Mystical Tutor; Imperial Seal; Enlightened Tutor; Gamble; Vampiric Tutor; Ancient Tomb; Smothering Tithe; Cyclonic Rift; Fierce Guardianship; Worldly Tutor; Opposition Agent; The One Ring
+# tags: Primer

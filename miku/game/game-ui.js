@@ -9,7 +9,7 @@
   /* The site that hosts the table sets MK_SITE before loading this file (the Etrata pages do):
      its storage prefix, which hero decks the player picks from, and the lobby's words. */
   const SITE = Object.assign({
-    key: "mikuWiki", hero: "miku", defaultHero: "miku", heroOrder: ["miku-precon", "miku-budget", "miku", "azusa", "corrupted"],
+    key: "mikuWiki", hero: "miku", defaultHero: "miku", heroOrder: ["miku-precon", "miku-budget", "miku", "azusa", "brago-v2", "corrupted"],
     title: "Take Miku to a<br><span>four-player pod</span>",
     lede: "Your Miku deck against bots dealt at random: precons for a fair fight, or Bracket 4 decks when you want to be punished. Pick the precon, the budget upgrade, the full upgrade or the Bracket 4 Azusa build. Mana is paid for you, everything else is real Commander: the stack, combat, commander tax and damage, and every card in your deck."
   }, root.MK_SITE || {});
@@ -1076,6 +1076,8 @@
         if (o.def.types.includes("Land")) {
           const ok = !instant && g.canPlayLand(me, o);
           out.push({ label: "Play this land", ok, primary: true, run: () => this.resolve({ type: "land", card: o }) });
+          // cycling lands (Irrigated Farmland, Tranquil Thicket)
+          if (o.def.cycling && o.zone === "hand") out.push({ label: "Cycle (discard it, draw a card)", cost: o.def.cycling, ok: g.canPay(me, MK.parseCost(o.def.cycling)), run: () => this.resolve({ type: "cycle", card: o }) });
           // channel (Boseiju, Eiganjo): discard it from your hand for its effect, at instant speed
           if (o.def.channel && o.zone === "hand") out.push({ label: esc(o.def.channel.label), cost: MK.costString(g.channelCost(me, o), null), ok: g.canChannel(me, o), run: () => this.resolve({ type: "channel", card: o }) });
         } else {

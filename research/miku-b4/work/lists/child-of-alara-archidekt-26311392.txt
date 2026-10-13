@@ -1,0 +1,77 @@
+1 Child of Alara
+1 Apocalypse
+1 Armageddon
+1 Back to Basics
+1 Blightsteel Colossus
+1 Blood Moon
+1 Consecrated Sphinx
+1 Cyclonic Rift
+1 Decree of Annihilation
+1 Devastation
+1 Dockside Extortionist
+1 Drannith Magistrate
+1 Emrakul, the Promised End
+1 Epicenter
+1 Expropriate
+1 Fierce Guardianship
+1 Force of Will
+1 Gaea's Cradle
+1 Global Ruin
+1 Grand Arbiter Augustin IV
+1 Hokori, Dust Drinker
+1 Humility
+1 Impending Disaster
+1 Jeweled Lotus
+1 Jin-Gitaxias, Core Augur
+1 Jin-Gitaxias, Progress Tyrant
+1 Jokulhaups
+1 Mana Breach
+1 Mana Vortex
+1 Mindslaver
+1 Narset, Enlightened Master
+1 Narset, Parter of Veils
+1 Nether Void
+1 Nexus of Fate
+1 Obliterate
+1 Oko, Thief of Crowns
+1 Omniscience
+1 Opposition Agent
+1 Overwhelming Splendor
+1 Ravages of War
+1 Rhystic Study
+1 Rising Waters
+1 Ruination
+1 Scrambleverse
+1 Sen Triplets
+1 Smokestack
+1 Smothering Tithe
+1 Stasis
+1 Static Orb
+1 Sunder
+1 Tectonic Break
+1 Teferi, Time Raveler
+1 Tergrid, God of Fright // Tergrid's Lantern
+1 Thassa's Oracle
+1 The Tabernacle at Pendrell Vale
+1 Thieves' Auction
+1 Time Stretch
+1 Urza, Lord High Artificer
+1 Void Winnower
+1 Vorinclex, Voice of Hunger
+1 Wake of Destruction
+1 Warp World
+1 Winter Orb
+3 Forest
+14 Island
+11 Mountain
+6 Plains
+3 Swamp
+# url: https://archidekt.com/decks/26311392
+# title: Copy of - The Most Salty Deck
+# author: bruhmcbruh
+# updated: 2026-09-12
+# bracket: 4 (Archidekt, author-set)
+# kept: no (banned: Jeweled Lotus, Dockside Extortionist)
+# accessed: 2026-10-10
+# commander(s): Child of Alara ; total 100 ; lands 39 ; source API https://archidekt.com/api/decks/26311392/
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 15: Consecrated Sphinx; Cyclonic Rift; Drannith Magistrate; Fierce Guardianship; Force of Will; Gaea's Cradle; Grand Arbiter Augustin IV; Humility; Narset, Parter of Veils; Opposition Agent; Rhystic Study; Smothering Tithe; Tergrid, God of Fright // Tergrid's Lantern; Thassa's Oracle; The Tabernacle at Pendrell Vale

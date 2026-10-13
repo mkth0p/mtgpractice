@@ -1,0 +1,425 @@
+{
+ "list": "decklist-child-of-alara-uncapped.txt",
+ "commander": "Child of Alara",
+ "lands": [
+  "Command Tower",
+  "City of Brass",
+  "Mana Confluence",
+  "Exotic Orchard",
+  "Ancient Tomb",
+  "Flooded Strand",
+  "Polluted Delta",
+  "Bloodstained Mire",
+  "Wooded Foothills",
+  "Windswept Heath",
+  "Scalding Tarn",
+  "Verdant Catacombs",
+  "Arid Mesa",
+  "Misty Rainforest",
+  "Marsh Flats",
+  "Tundra",
+  "Underground Sea",
+  "Badlands",
+  "Taiga",
+  "Savannah",
+  "Scrubland",
+  "Volcanic Island",
+  "Bayou",
+  "Plateau",
+  "Tropical Island",
+  "Prismatic Vista",
+  "Island",
+  "Swamp",
+  "Forest",
+  "Plains",
+  "Mountain"
+ ],
+ "ramp": [
+  {
+   "name": "Lion's Eye Diamond",
+   "mv": 0,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Sol Ring",
+   "mv": 1,
+   "fast": true,
+   "net": 2
+  },
+  {
+   "name": "Mana Vault",
+   "mv": 1,
+   "fast": true,
+   "net": 3,
+   "note": "doesn't untap normally: net is its one tap"
+  },
+  {
+   "name": "Chrome Mox",
+   "mv": 0,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Mox Diamond",
+   "mv": 0,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Lotus Petal",
+   "mv": 0,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "mv": 2,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Dark Ritual",
+   "mv": 1,
+   "fast": true,
+   "net": 2,
+   "note": "one-shot: net is the mana gained when cast"
+  },
+  {
+   "name": "Grim Monolith",
+   "mv": 2,
+   "fast": true,
+   "net": 3,
+   "note": "doesn't untap normally: net is its one tap"
+  },
+  {
+   "name": "Fellwar Stone",
+   "mv": 2,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "mv": 3,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "mv": 4,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Deathrite Shaman",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Ragavan, Nimble Pilferer",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  }
+ ],
+ "spells": [
+  {
+   "name": "Child of Alara",
+   "mv": 5
+  },
+  {
+   "name": "Thassa's Oracle",
+   "mv": 2
+  },
+  {
+   "name": "Demonic Consultation",
+   "mv": 1
+  },
+  {
+   "name": "Tainted Pact",
+   "mv": 2
+  },
+  {
+   "name": "Heliod, Sun-Crowned",
+   "mv": 3
+  },
+  {
+   "name": "Walking Ballista",
+   "mv": 0
+  },
+  {
+   "name": "Isochron Scepter",
+   "mv": 2
+  },
+  {
+   "name": "Dramatic Reversal",
+   "mv": 2
+  },
+  {
+   "name": "Kiki-Jiki, Mirror Breaker",
+   "mv": 5
+  },
+  {
+   "name": "Zealous Conscripts",
+   "mv": 5
+  },
+  {
+   "name": "Underworld Breach",
+   "mv": 2
+  },
+  {
+   "name": "Brain Freeze",
+   "mv": 2
+  },
+  {
+   "name": "Demonic Tutor",
+   "mv": 2
+  },
+  {
+   "name": "Vampiric Tutor",
+   "mv": 1
+  },
+  {
+   "name": "Imperial Seal",
+   "mv": 1
+  },
+  {
+   "name": "Mystical Tutor",
+   "mv": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "mv": 1
+  },
+  {
+   "name": "Worldly Tutor",
+   "mv": 1
+  },
+  {
+   "name": "Gamble",
+   "mv": 1
+  },
+  {
+   "name": "Diabolic Intent",
+   "mv": 2
+  },
+  {
+   "name": "Grim Tutor",
+   "mv": 3
+  },
+  {
+   "name": "Force of Will",
+   "mv": 5
+  },
+  {
+   "name": "Force of Negation",
+   "mv": 3
+  },
+  {
+   "name": "Fierce Guardianship",
+   "mv": 3
+  },
+  {
+   "name": "Pact of Negation",
+   "mv": 0
+  },
+  {
+   "name": "Swan Song",
+   "mv": 1
+  },
+  {
+   "name": "Counterspell",
+   "mv": 2
+  },
+  {
+   "name": "Mana Drain",
+   "mv": 2
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "mv": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "mv": 1
+  },
+  {
+   "name": "Path to Exile",
+   "mv": 1
+  },
+  {
+   "name": "Deadly Rollick",
+   "mv": 4
+  },
+  {
+   "name": "Assassin's Trophy",
+   "mv": 2
+  },
+  {
+   "name": "Vindicate",
+   "mv": 3
+  },
+  {
+   "name": "Cyclonic Rift",
+   "mv": 2
+  },
+  {
+   "name": "Rhystic Study",
+   "mv": 3
+  },
+  {
+   "name": "Mystic Remora",
+   "mv": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "mv": 1
+  },
+  {
+   "name": "The One Ring",
+   "mv": 4
+  },
+  {
+   "name": "Necropotence",
+   "mv": 3
+  },
+  {
+   "name": "Sylvan Library",
+   "mv": 2
+  },
+  {
+   "name": "Silence",
+   "mv": 1
+  },
+  {
+   "name": "Grand Abolisher",
+   "mv": 2
+  },
+  {
+   "name": "Teferi's Protection",
+   "mv": 3
+  },
+  {
+   "name": "Veil of Summer",
+   "mv": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "mv": 3
+  },
+  {
+   "name": "Snapcaster Mage",
+   "mv": 2
+  },
+  {
+   "name": "Orcish Bowmasters",
+   "mv": 2
+  },
+  {
+   "name": "Opposition Agent",
+   "mv": 3
+  },
+  {
+   "name": "Spellseeker",
+   "mv": 3
+  },
+  {
+   "name": "Imperial Recruiter",
+   "mv": 3
+  },
+  {
+   "name": "Toxic Deluge",
+   "mv": 3
+  }
+ ],
+ "draw": [
+  {
+   "name": "Rhystic Study",
+   "extra": 4,
+   "why": "cast about turn 2-3; opponents pay {1} part of the time; about one card every one or two opponent spells from then on"
+  },
+  {
+   "name": "Mystic Remora",
+   "extra": 3,
+   "why": "cast turn 1-2 and kept 2-3 upkeeps; opponents cast noncreature spells and often don't pay {4}"
+  },
+  {
+   "name": "Esper Sentinel",
+   "extra": 2,
+   "why": "a card on most opponents' first noncreature spell each turn until it dies or they pay"
+  },
+  {
+   "name": "The One Ring",
+   "extra": 5,
+   "why": "cast turn 3-4; draws 1, 2, 3 on the following turns before the life loss matters"
+  },
+  {
+   "name": "Necropotence",
+   "extra": 6,
+   "why": "pay life for cards in a key turn; about 6 cards"
+  },
+  {
+   "name": "Sylvan Library",
+   "extra": 3,
+   "why": "draw two extra each turn and keep one by paying 4 life about half the time from turn 2"
+  },
+  {
+   "name": "Veil of Summer",
+   "extra": 1,
+   "why": "a cantrip: replaces itself"
+  },
+  {
+   "name": "Eternal Witness",
+   "extra": 1,
+   "why": "returns a card (card advantage, not a draw)"
+  },
+  {
+   "name": "Orcish Bowmasters",
+   "extra": 2,
+   "why": "a repeatable draw effect; about two extra cards by turn 8 (rough default)"
+  }
+ ],
+ "sinks": [
+  {
+   "name": "Heliod, Sun-Crowned",
+   "cost": "{1}{W}",
+   "what": "Another target creature gains lifelink until end of turn."
+  },
+  {
+   "name": "Walking Ballista",
+   "cost": "{4}",
+   "what": "Put a +1/+1 counter on this creature."
+  },
+  {
+   "name": "Isochron Scepter",
+   "cost": "{2}, {T}",
+   "what": "You may copy the exiled card. If you do, you may cast the copy without paying its mana cost."
+  }
+ ],
+ "totals": {
+  "lands": 31,
+  "ramp": 17,
+  "spells": 52,
+  "extra_draws_8_turns": 27,
+  "sinks": 3
+ }
+}

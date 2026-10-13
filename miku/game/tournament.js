@@ -39,7 +39,7 @@
   const SITE = { miku: "miku", "miku-precon": "miku", "miku-budget": "miku", azusa: "miku", corrupted: "corrupted", etrata: "etrata", "etrata-aggro": "etrata", "etrata-b4": "etrata", "corrupted-etrata": "corrupted-etrata" };
   let cache = null;
   /* Every deck once: the decks you pilot (MK.HERO_DECKS) and the bot decks (MK.BOT_DECKS).
-     group: "yours" (one of the site decks), "b4" (a Bracket 4 bot) or "precon" (a Bracket 1-2 precon). */
+     group: "yours" (one of the site decks), "b4" (a Bracket 4 bot), "b3" (an upgraded Bracket 3 bot) or "precon" (a Bracket 1-2 precon). */
   T.entrants = function () {
     const heroes = MK.HERO_DECKS || [], bots = MK.BOT_DECKS || [];
     const n = heroes.length + bots.length + (MK.MIKU_DECK ? 1 : 0);
@@ -51,11 +51,11 @@
       const yours = heroes.includes(d);
       seen.set(d.id, {
         id: d.id, name: SHORT[d.id] || d.name, commander: d.commander, identity: (d.identity || []).slice(), bracket,
-        style: d.style || d.title || "", group: yours ? "yours" : bracket <= 2 ? "precon" : "b4", site: SITE[d.id] || null,
+        style: d.style || d.title || "", group: yours ? "yours" : bracket <= 2 ? "precon" : bracket === 3 ? "b3" : "b4", site: SITE[d.id] || null,
         aggression: d.aggression == null ? 0.55 : d.aggression, deck: d
       });
     }
-    const order = { yours: 0, b4: 1, precon: 2 };
+    const order = { yours: 0, b4: 1, b3: 2, precon: 3 };
     const list = [...seen.values()].sort((a, b) => order[a.group] - order[b.group] || b.bracket - a.bracket || a.name.localeCompare(b.name));
     cache = { n, list, by: new Map(list.map(e => [e.id, e])) };
     return list;
@@ -169,17 +169,16 @@
       if (planned >= cfg.games) return null;
       // the decks that have played most sit out when the field doesn't divide into pods
       const ids = shuffle(cfg.entrants.slice(), r).sort((a, b) => played[a] - played[b]);
-      const k = Math.floor(ids.length / P) * P;
-      let pods = dealPods(ids.slice(0, k), P, meet, r, false);
-      pods = pods.slice(0, Math.max(1, Math.min(pods.length, cfg.games - planned)));
+      // the last round can hold fewer pods than the field fills: deal only the decks that have played least
+      const k = Math.max(1, Math.min(Math.floor(ids.length / P), cfg.games - planned)) * P;
+      const pods = dealPods(ids.slice(0, k), P, meet, r, false);
       round = { kind: "league", label: `Round ${ri + 1}`, pods: pods.map(s => ({ seats: s, games: 1 })), byes: ids.slice(k) };
     } else if (cfg.format === "gauntlet") {
       if (planned >= cfg.games) return null;
       const field = shuffle(cfg.entrants.filter(id => id !== cfg.hero), r).sort((a, b) => played[a] - played[b]);
-      const k = Math.floor(field.length / (P - 1)) * (P - 1);
+      const k = Math.max(1, Math.min(Math.floor(field.length / (P - 1)), cfg.games - planned)) * (P - 1);
       const m = Object.assign({}, meet);
-      let pods = dealPods(field.slice(0, k), P - 1, m, r, false).map(s => [cfg.hero].concat(s));
-      pods = pods.slice(0, Math.max(1, Math.min(pods.length, cfg.games - planned)));
+      const pods = dealPods(field.slice(0, k), P - 1, m, r, false).map(s => [cfg.hero].concat(s));
       round = { kind: "gauntlet", label: `Round ${ri + 1}`, pods: pods.map(s => ({ seats: s, games: 1 })), byes: field.slice(k) };
     } else {
       const swissRounds = cfg.rounds;

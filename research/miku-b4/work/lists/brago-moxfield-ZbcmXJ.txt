@@ -1,0 +1,98 @@
+1 Brago, King Eternal
+1 Aether Channeler
+1 An Offer You Can't Refuse
+1 Ancient Tomb
+1 Arcane Signet
+1 Archivist of Oghma
+1 Arcum's Astrolabe
+1 Arid Mesa
+1 Azorius Signet
+1 Chrome Mox
+1 Cloudshift
+1 Command Tower
+1 Cryogen Relic
+1 Cyclonic Rift
+1 Dispel
+1 Displacer Kitten
+1 Dovin's Veto
+1 Eiganjo, Seat of the Empire
+1 Enlightened Tutor
+1 Ephemerate
+1 Esper Sentinel
+1 Essence Flux
+1 Faerie Mastermind
+1 Fellwar Stone
+1 Fierce Guardianship
+1 Flesh Duplicate
+1 Flooded Strand
+1 Flusterstorm
+1 Force of Negation
+1 Force of Will
+1 Gilded Drake
+1 Glacial Fortress
+1 Gleaming Splendor
+1 Grand Abolisher
+1 Grim Monolith
+1 Hallowed Fountain
+1 Hide on the Ceiling
+1 Inventors' Fair
+1 Lightning Greaves
+1 Loran of the Third Path
+1 Mana Vault
+1 Marsh Flats
+1 Mental Misstep
+1 Meticulous Archive
+1 Mindbreak Trap
+1 Mirrormade
+1 Misty Rainforest
+1 Mockingbird
+1 Mox Diamond
+1 Mox Opal
+1 Mystic Remora
+1 Omen of the Sea
+1 Otawara, Soaring City
+1 Peter Parker's Camera
+1 Phyrexian Metamorph
+1 Polluted Delta
+1 Prismatic Vista
+1 Prophetic Prism
+1 Ranger-Captain of Eos
+1 Razorgrass Ambush // Razorgrass Field
+1 Recruiter of the Guard
+1 Reshape
+1 Rhystic Study
+1 Riptide Gearhulk
+1 Scalding Tarn
+1 Sea of Clouds
+1 Silence
+1 Sink into Stupor // Soporific Springs
+1 Smothering Tithe
+1 Sol Ring
+1 Solitude
+1 Spell Snare
+1 Spellseeker
+1 Starfield Vocalist
+1 Steal Enchantment
+1 Strionic Resonator
+1 Swan Song
+1 Swords to Plowshares
+1 Talisman of Progress
+1 Teferi, Time Raveler
+1 Tezzeret the Seeker
+1 The One Ring
+1 Transmute Artifact
+1 Tribute Mage
+1 Trinket Mage
+1 Tundra
+1 Urza's Saga
+1 Venser, Shaper Savant
+1 Wan Shi Tong, Librarian
+1 Whir of Invention
+1 Windswept Heath
+1 Witch Enchanter // Witch-Blessed Meadow
+2 Snow-Covered Plains
+6 Snow-Covered Island
+# source: https://moxfield.com/decks/ZbcmXJAAJEOGa74HK_52FQ (API https://api2.moxfield.com/v3/decks/all/ZbcmXJAAJEOGa74HK_52FQ), accessed 2026-10-08
+# title: cEDH - Brago, Blink Eternal ; author Lazaro46 ; updated 2026-08-30 ; Moxfield bracket 5 (auto 4) ; main 99 ; lands 27 (+3 MDFC: Witch Enchanter, Sink into Stupor, Razorgrass Ambush)
+# GC 12: Rhystic Study; Mana Vault; Chrome Mox; Enlightened Tutor; Ancient Tomb; Cyclonic Rift; Mox Diamond; Grim Monolith; The One Ring; Smothering Tithe; Force of Will; Fierce Guardianship
+# hubs: Azorius, Blink/Flicker, cEDH, Competitive, Control

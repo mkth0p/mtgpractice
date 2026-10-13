@@ -37,7 +37,7 @@ const T = MK.Tournament;
 function pickDecks(spec) {
   const all = T.entrants();
   if (!spec || spec === "all") return all.map(e => e.id);
-  if (["b4", "precon", "yours"].includes(spec)) return all.filter(e => e.group === spec).map(e => e.id);
+  if (["b4", "b3", "precon", "yours"].includes(spec)) return all.filter(e => e.group === spec).map(e => e.id);
   return String(spec).split(",").filter(id => T.entrant(id));
 }
 

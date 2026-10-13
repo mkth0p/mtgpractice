@@ -1,0 +1,100 @@
+Child of Alara
+Thassa's Oracle
+Demonic Consultation
+Tainted Pact
+Heliod, Sun-Crowned
+Walking Ballista
+Isochron Scepter
+Dramatic Reversal
+Kiki-Jiki, Mirror Breaker
+Zealous Conscripts
+Underworld Breach
+Lion's Eye Diamond
+Brain Freeze
+Demonic Tutor
+Vampiric Tutor
+Imperial Seal
+Mystical Tutor
+Enlightened Tutor
+Worldly Tutor
+Gamble
+Diabolic Intent
+Grim Tutor
+Sol Ring
+Mana Vault
+Chrome Mox
+Mox Diamond
+Lotus Petal
+Arcane Signet
+Birds of Paradise
+Noble Hierarch
+Elvish Mystic
+Dark Ritual
+Grim Monolith
+Fellwar Stone
+Chromatic Lantern
+Force of Will
+Force of Negation
+Fierce Guardianship
+Pact of Negation
+Swan Song
+Counterspell
+Mana Drain
+An Offer You Can't Refuse
+Swords to Plowshares
+Path to Exile
+Deadly Rollick
+Assassin's Trophy
+Vindicate
+Cyclonic Rift
+Rhystic Study
+Mystic Remora
+Esper Sentinel
+Smothering Tithe
+The One Ring
+Necropotence
+Sylvan Library
+Silence
+Grand Abolisher
+Teferi's Protection
+Veil of Summer
+Eternal Witness
+Snapcaster Mage
+Orcish Bowmasters
+Opposition Agent
+Deathrite Shaman
+Spellseeker
+Imperial Recruiter
+Ragavan, Nimble Pilferer
+Toxic Deluge
+Command Tower
+City of Brass
+Mana Confluence
+Exotic Orchard
+Ancient Tomb
+Flooded Strand
+Polluted Delta
+Bloodstained Mire
+Wooded Foothills
+Windswept Heath
+Scalding Tarn
+Verdant Catacombs
+Arid Mesa
+Misty Rainforest
+Marsh Flats
+Tundra
+Underground Sea
+Badlands
+Taiga
+Savannah
+Scrubland
+Volcanic Island
+Bayou
+Plateau
+Tropical Island
+Prismatic Vista
+Island
+Swamp
+Forest
+Plains
+Mountain

@@ -1,0 +1,93 @@
+1 Brago, King Eternal
+5 Plains
+8 Island
+1 Adarkar Wastes
+1 Aether Channeler
+1 An Offer You Can't Refuse
+1 Ancient Den
+1 Ancient Tomb
+1 Aqueous Form
+1 Arcane Signet
+1 Borne Upon a Wind
+1 Chrome Mox
+1 City of Brass
+1 Codex Shredder
+1 Command Tower
+1 Counterspell
+1 Cryogen Relic
+1 Cyclonic Rift
+1 Delivery Moogle
+1 Deserted Beach
+1 Detention Sphere
+1 Dour Port-Mage
+1 Eiganjo, Seat of the Empire
+1 Elesh Norn, Mother of Machines
+1 Enlightened Tutor
+1 Ephemerate
+1 Fierce Guardianship
+1 Flooded Strand
+1 Floodfarm Verge
+1 Force of Will
+1 Generous Gift
+1 Grim Monolith
+1 Hallowed Fountain
+1 Helpful Hunter
+1 High Fae Trickster
+1 Lembas
+1 Leyline of Anticipation
+1 Liberator, Urza's Battlethopter
+1 Lightning Greaves
+1 Mana Drain
+1 Mana Vault
+1 Meticulous Archive
+1 Mox Opal
+1 Muddle the Mixture
+1 Mulldrifter
+1 Mystic Gate
+1 Mystic Remora
+1 Nimbus Maze
+1 Omen of the Sea
+1 Orim's Chant
+1 Otawara, Soaring City
+1 Path to Exile
+1 Peregrine Drake
+1 Peter Parker's Camera
+1 Prismatic Vista
+1 Proft's Eidetic Memory
+1 Reality Acid
+1 Reliquary Tower
+1 Riptide Gearhulk
+1 Sea Gate Oracle
+1 Sea of Clouds
+1 Seachrome Coast
+1 Seat of the Synod
+1 Sevinne's Reclamation
+1 Sol Ring
+1 Solemn Simulacrum
+1 Soulherder
+1 Starfield Vocalist
+1 Strionic Resonator
+1 Strip Mine
+1 Strix Serenade
+1 Sun Titan
+1 Swan Song
+1 Swords to Plowshares
+1 Talisman of Progress
+1 Tax Collector
+1 Teferi's Protection
+1 Tezzeret, Cruel Captain
+1 Thought Vessel
+1 Trial of Knowledge
+1 Tribute Mage
+1 Trinket Mage
+1 Tundra
+1 Unstoppable Plan
+1 Urza's Saga
+1 Uthros, Titanic Godcore
+1 Virtue of Knowledge // Vantress Visions
+1 Wall of Omens
+1 Wedding Invitation
+# source: https://moxfield.com/decks/cTn_eqq220ukrVWmGkzyFQ (API https://api2.moxfield.com/v3/decks/all/cTn_eqq220ukrVWmGkzyFQ), accessed 2026-10-08
+# title: Miku, Blink Queen [PRIMER] ; author Juice_Vol ; updated 2026-08-25 ; Moxfield bracket b4/auto4 ; main 99 ; lands 36 ; MDFC ; BAN
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 9: Chrome Mox; Grim Monolith; Ancient Tomb; Mana Vault; Enlightened Tutor; Fierce Guardianship; Teferi's Protection; Force of Will; Cyclonic Rift
+# tags: Primer

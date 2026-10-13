@@ -28,7 +28,7 @@
   // the reference categorical order (dataviz palette), one slot per deck on the rating chart
   const SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"];
   const HOW = { life: "Damage", commander: "Commander damage", poison: "Poison", alt: "Alternate win", library: "Decking", concede: "Concession" };
-  const GROUPS = [["yours", "Your decks"], ["b4", "Bracket 4 bots"], ["precon", "Precons"]];
+  const GROUPS = [["yours", "Your decks"], ["b4", "Bracket 4 bots"], ["b3", "Bracket 3 bots"], ["precon", "Precons"]];
 
   /* ------------------------------------------------------------ state */
   const R = {
@@ -375,7 +375,8 @@
   function race(ol, A, st) {
     const rows = A.standings, H = 46;
     ol.style.height = rows.length * H + "px";
-    const lo = Math.min(...rows.map(r => r.rating)), hi = Math.max(...rows.map(r => r.rating));
+    // bars show points against the leader, so they shrink in the same order as the ranking
+    const top = Math.max(0, ...rows.map(r => r.pts));
     const have = new Map($$("li", ol).map(li => [li.dataset.id, li]));
     rows.forEach((r, i) => {
       let li = have.get(r.id);
@@ -385,7 +386,7 @@
       li.classList.toggle("lead", i === 0 && r.n > 0);
       li.classList.toggle("champ", st.champion === r.id && st.status === "done");
       $(".ar-rk", li).textContent = i + 1;
-      $(".ar-rbar i", li).style.width = pct(hi > lo ? 0.08 + 0.92 * (r.rating - lo) / (hi - lo) : 0.5, 1);
+      $(".ar-rbar i", li).style.width = pct(top > 0 ? Math.max(0, r.pts) / top : 0, 1);
       $(".ar-rv", li).innerHTML = `<span><b>${r.pts}</b> pts</span><small>${r.wins}/${r.n} · ${Math.round(r.rating)}</small>`;
     });
     have.forEach(li => li.remove());

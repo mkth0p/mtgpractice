@@ -1,0 +1,102 @@
+1 Shalai, Voice of Plenty
+1 Ancient Tomb
+1 Archivist of Oghma
+1 Archon of Emeria
+1 Arid Mesa
+1 Armageddon
+1 Avatar's Wrath
+1 Aven Interrupter
+1 Aven Mindcensor
+1 Badgermole Cub
+1 Beast Whisperer
+1 Birthing Pod
+1 Boromir, Warden of the Tower
+1 Boseiju, Who Endures
+1 Bountiful Promenade
+1 Cavern of Souls
+1 Chancellor of the Annex
+1 Charitable Levy
+1 Chord of Calling
+1 Chrome Mox
+1 Collector Ouphe
+1 Compost
+1 Containment Priest
+1 Crop Rotation
+1 Deafening Silence
+1 Drannith Magistrate
+1 Eiganjo, Seat of the Empire
+1 Eladamri's Call
+1 Elesh Norn, Grand Cenobite
+1 Elvish Spirit Guide
+1 Emiel the Blessed
+1 Endurance
+1 Enduring Innocence
+1 Enduring Vitality
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Field of the Dead
+1 Finale of Devastation
+1 Flagstones of Trokair
+1 Flooded Strand
+1 Force of Vigor
+1 Gaea's Cradle
+1 Gemstone Caverns
+1 Giver of Runes
+1 Glacial Chasm
+1 Heartwood Storyteller
+1 Horizon Canopy
+1 Icetill Explorer
+1 Kataki, War's Wage
+1 Knight of the Reliquary
+1 Kudo, King Among Bears
+1 Linvala, Keeper of Silence
+1 Living Plane
+1 Loot, Exuberant Explorer
+1 Lotus Petal
+1 Lush Portico
+1 Marsh Flats
+1 Master of the Wild Hunt
+1 Misty Rainforest
+1 Mole Man, Moloid Master
+1 Mother of Runes
+1 Mox Diamond
+1 Nature's Revolt
+1 Palace Jailer
+1 Ravages of War
+1 Savannah
+1 Shifting Woodland
+1 Skyclave Apparition
+1 Sol Ring
+1 Solitude
+1 Split Up
+1 Strip Mine
+1 Survival of the Fittest
+1 Swords to Plowshares
+1 Sylvan Library
+1 Sylvan Safekeeper
+1 Temple Garden
+1 Thalia, Guardian of Thraben
+1 The One Ring
+1 Thorn of Amethyst
+1 Ulvenwald Tracker
+1 Verdant Catacombs
+1 Walk-In Closet // Forgotten Cellar
+1 Walking Ballista
+1 Wasteland
+1 Welcoming Vampire
+1 Werefox Bodyguard
+1 Windswept Heath
+1 Wooded Foothills
+1 Worldly Tutor
+1 Yavimaya, Cradle of Growth
+4 Snow-Covered Forest
+5 Snow-Covered Plains
+# url: https://moxfield.com/decks/Edh3uNCJ1UKq6jhC9goeXQ
+# title: [EDH-8] Landslide.
+# author: Brimiss
+# updated: 2026-10-09
+# bracket: 4 (Moxfield, author-set; auto 4)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Shalai, Voice of Plenty ; total 100 ; lands 34 ; source API https://api2.moxfield.com/v3/decks/all/Edh3uNCJ1UKq6jhC9goeXQ
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 12: Ancient Tomb; Chrome Mox; Crop Rotation; Drannith Magistrate; Enlightened Tutor; Field of the Dead; Gaea's Cradle; Glacial Chasm; Mox Diamond; Survival of the Fittest; The One Ring; Worldly Tutor

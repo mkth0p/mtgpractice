@@ -1,0 +1,807 @@
+{
+ "source": "https://api.scryfall.com/cards/search?q=set%3Asld+art%3Ahatsune-miku&unique=prints",
+ "fetched": "2026-10-08",
+ "total": 46,
+ "printings": [
+  {
+   "name": "Archangel of Thune",
+   "collector_number": "2430",
+   "flavor_name": "Archangel of Tunes",
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 34.09,
+   "usd": null,
+   "usd_foil": 41.16,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2430/archangel-of-thune",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901922&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710207%3Fpage%3D1"
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "collector_number": "1597",
+   "flavor_name": "Miku, Lost but Singing",
+   "released_at": "2024-05-13",
+   "finishes": [
+    "nonfoil"
+   ],
+   "eur": 19.26,
+   "eur_foil": null,
+   "usd": 45.3,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1597/azusa-lost-but-seeking",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=770425&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F548568%3Fpage%3D1"
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "collector_number": "1597★",
+   "flavor_name": "Miku, Lost but Singing",
+   "released_at": "2024-05-13",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": null,
+   "usd": null,
+   "usd_foil": 48.95,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1597%E2%98%85/azusa-lost-but-seeking",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products/Search?referrer=scryfall&searchString=Azusa%2C+Lost+but+Seeking&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F548569%3Fpage%3D1"
+  },
+  {
+   "name": "Beloved Princess",
+   "collector_number": "804",
+   "flavor_name": null,
+   "released_at": "2024-12-30",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 2.07,
+   "eur_foil": 4.49,
+   "usd": 6.95,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/804/beloved-princess",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=810718&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F619185%3Fpage%3D1"
+  },
+  {
+   "name": "Bountiful Promenade",
+   "collector_number": "2440",
+   "flavor_name": null,
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 8.19,
+   "usd": null,
+   "usd_foil": 10.38,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2440/bountiful-promenade",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901933&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710444%3Fpage%3D1"
+  },
+  {
+   "name": "Brago, King Eternal",
+   "collector_number": "1601",
+   "flavor_name": "Miku, Queen Electric",
+   "released_at": "2025-02-10",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 11.47,
+   "eur_foil": 10.57,
+   "usd": 15.51,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1601/brago-king-eternal",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=810734&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F617868%3Fpage%3D1"
+  },
+  {
+   "name": "Break Down",
+   "collector_number": "2436",
+   "flavor_name": null,
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 2.24,
+   "usd": null,
+   "usd_foil": 3,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2436/break-down",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901928&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710217%3Fpage%3D1"
+  },
+  {
+   "name": "Chandra's Ignition",
+   "collector_number": "1594",
+   "flavor_name": "Miku's Spark",
+   "released_at": "2024-05-13",
+   "finishes": [
+    "nonfoil"
+   ],
+   "eur": 14.26,
+   "eur_foil": null,
+   "usd": 25.75,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1594/chandras-ignition",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=770423&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F548564%3Fpage%3D1"
+  },
+  {
+   "name": "Chandra's Ignition",
+   "collector_number": "1594★",
+   "flavor_name": "Miku's Spark",
+   "released_at": "2024-05-13",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": null,
+   "usd": null,
+   "usd_foil": 27.26,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1594%E2%98%85/chandras-ignition",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products/Search?referrer=scryfall&searchString=Chandra%27s+Ignition&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F548565%3Fpage%3D1"
+  },
+  {
+   "name": "Child of Alara",
+   "collector_number": "1599",
+   "flavor_name": "Miku, Child of Song",
+   "released_at": "2024-06-24",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 18.13,
+   "eur_foil": 19.34,
+   "usd": 34.18,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1599/child-of-alara",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=776211&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F555443%3Fpage%3D1"
+  },
+  {
+   "name": "Chord of Calling",
+   "collector_number": "1595",
+   "flavor_name": null,
+   "released_at": "2024-06-24",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 24.18,
+   "eur_foil": 25,
+   "usd": 31.97,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1595/chord-of-calling",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=776210&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F555441%3Fpage%3D1"
+  },
+  {
+   "name": "Command Tower",
+   "collector_number": "806",
+   "flavor_name": null,
+   "released_at": "2024-06-24",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 54.34,
+   "eur_foil": 55.21,
+   "usd": 50.15,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/806/command-tower",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=782518&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F561736%3Fpage%3D1"
+  },
+  {
+   "name": "Counterspell",
+   "collector_number": "1589",
+   "flavor_name": null,
+   "released_at": "2025-02-10",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 8.88,
+   "eur_foil": 9.06,
+   "usd": 16.98,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1589/counterspell",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=810732&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F617858%3Fpage%3D1"
+  },
+  {
+   "name": "Cultivate",
+   "collector_number": "2437",
+   "flavor_name": null,
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 7.13,
+   "usd": null,
+   "usd_foil": 9.18,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2437/cultivate",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901929&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710220%3Fpage%3D1"
+  },
+  {
+   "name": "Diabolic Tutor",
+   "collector_number": "1592",
+   "flavor_name": null,
+   "released_at": "2024-06-24",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 4.47,
+   "eur_foil": 5.31,
+   "usd": 6.7,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1592/diabolic-tutor",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=776209&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F555439%3Fpage%3D1"
+  },
+  {
+   "name": "Elspeth Tirel",
+   "collector_number": "1585",
+   "flavor_name": "Miku, Divine Diva",
+   "released_at": "2024-09-30",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 89.5,
+   "eur_foil": 94.15,
+   "usd": 102.81,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1585/elspeth-tirel",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=791207&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F583907%3Fpage%3D1"
+  },
+  {
+   "name": "Elvish Mystic",
+   "collector_number": "805",
+   "flavor_name": null,
+   "released_at": "2024-05-13",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 63.07,
+   "eur_foil": 76.73,
+   "usd": 70.71,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/805/elvish-mystic",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=773992&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F554575%3Fpage%3D1"
+  },
+  {
+   "name": "Feather, the Redeemed",
+   "collector_number": "1602",
+   "flavor_name": "Miku, the Renowned",
+   "released_at": "2024-05-13",
+   "finishes": [
+    "nonfoil"
+   ],
+   "eur": 9.91,
+   "eur_foil": null,
+   "usd": 24.42,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1602/feather-the-redeemed",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=770426&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F548570%3Fpage%3D1"
+  },
+  {
+   "name": "Feather, the Redeemed",
+   "collector_number": "1602★",
+   "flavor_name": "Miku, the Renowned",
+   "released_at": "2024-05-13",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": null,
+   "usd": null,
+   "usd_foil": 29.84,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1602%E2%98%85/feather-the-redeemed",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products/Search?referrer=scryfall&searchString=Feather%2C+the+Redeemed&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F548571%3Fpage%3D1"
+  },
+  {
+   "name": "Finale of Devastation",
+   "collector_number": "2438",
+   "flavor_name": null,
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 33.6,
+   "usd": null,
+   "usd_foil": 50.52,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2438/finale-of-devastation",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901930&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710442%3Fpage%3D1"
+  },
+  {
+   "name": "Forest",
+   "collector_number": "2442",
+   "flavor_name": null,
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 5.71,
+   "usd": null,
+   "usd_foil": 7,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2442/forest",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901935&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710446%3Fpage%3D1"
+  },
+  {
+   "name": "Freyalise, Llanowar's Fury",
+   "collector_number": "1598",
+   "flavor_name": "Miku, Voice of Power",
+   "released_at": "2024-09-30",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 18.12,
+   "eur_foil": 23.52,
+   "usd": 37.33,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1598/freyalise-llanowars-fury",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=791210&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F583913%3Fpage%3D1"
+  },
+  {
+   "name": "Giada, Font of Hope",
+   "collector_number": "1586",
+   "flavor_name": "Miku, Font of Pop",
+   "released_at": "2025-02-10",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 19.36,
+   "eur_foil": 29.8,
+   "usd": 34.01,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1586/giada-font-of-hope",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=810730&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F617852%3Fpage%3D1"
+  },
+  {
+   "name": "Grand Crescendo",
+   "collector_number": "2432",
+   "flavor_name": null,
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 7.78,
+   "usd": null,
+   "usd_foil": 9.52,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2432/grand-crescendo",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901924&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710209%3Fpage%3D1"
+  },
+  {
+   "name": "Halo Fountain",
+   "collector_number": "2431",
+   "flavor_name": "Cascade of Song",
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 6.36,
+   "usd": null,
+   "usd_foil": 7.68,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2431/halo-fountain",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901923&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710208%3Fpage%3D1"
+  },
+  {
+   "name": "Harmonize",
+   "collector_number": "1596",
+   "flavor_name": null,
+   "released_at": "2024-05-13",
+   "finishes": [
+    "nonfoil"
+   ],
+   "eur": 25.71,
+   "eur_foil": null,
+   "usd": 60.12,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1596/harmonize",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=770424&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F548566%3Fpage%3D1"
+  },
+  {
+   "name": "Harmonize",
+   "collector_number": "1596★",
+   "flavor_name": null,
+   "released_at": "2024-05-13",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": null,
+   "usd": null,
+   "usd_foil": 84.7,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1596%E2%98%85/harmonize",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products/Search?referrer=scryfall&searchString=Harmonize&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F548567%3Fpage%3D1"
+  },
+  {
+   "name": "Inspiring Vantage",
+   "collector_number": "1605",
+   "flavor_name": null,
+   "released_at": "2024-05-13",
+   "finishes": [
+    "nonfoil"
+   ],
+   "eur": 10.23,
+   "eur_foil": null,
+   "usd": 15,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1605/inspiring-vantage",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=770427&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F548572%3Fpage%3D1"
+  },
+  {
+   "name": "Inspiring Vantage",
+   "collector_number": "1605★",
+   "flavor_name": null,
+   "released_at": "2024-05-13",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": null,
+   "usd": null,
+   "usd_foil": 21.16,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1605%E2%98%85/inspiring-vantage",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products/Search?referrer=scryfall&searchString=Inspiring+Vantage&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F548573%3Fpage%3D1"
+  },
+  {
+   "name": "Plains",
+   "collector_number": "2441",
+   "flavor_name": null,
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 4.65,
+   "usd": null,
+   "usd_foil": 6.25,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2441/plains",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901934&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710445%3Fpage%3D1"
+  },
+  {
+   "name": "Scrying Sheets",
+   "collector_number": "1606",
+   "flavor_name": null,
+   "released_at": "2025-02-10",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 1.09,
+   "eur_foil": 1.55,
+   "usd": 4.16,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1606/scrying-sheets",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=810735&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F617871%3Fpage%3D1"
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "collector_number": "2433",
+   "flavor_name": "Miku, Voice Over All",
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 12.67,
+   "usd": null,
+   "usd_foil": 10.17,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2433/shalai-voice-of-plenty",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901925&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F711476%3Fpage%3D1"
+  },
+  {
+   "name": "Shelter",
+   "collector_number": "1587",
+   "flavor_name": null,
+   "released_at": "2024-05-13",
+   "finishes": [
+    "nonfoil"
+   ],
+   "eur": 6.84,
+   "eur_foil": null,
+   "usd": 11.45,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1587/shelter",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=770422&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F548562%3Fpage%3D1"
+  },
+  {
+   "name": "Shelter",
+   "collector_number": "1587★",
+   "flavor_name": null,
+   "released_at": "2024-05-13",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": null,
+   "usd": null,
+   "usd_foil": 16.22,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1587%E2%98%85/shelter",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products/Search?referrer=scryfall&searchString=Shelter&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F548563%3Fpage%3D1"
+  },
+  {
+   "name": "Snapcaster Mage",
+   "collector_number": "808",
+   "flavor_name": "Encore Electromancer",
+   "released_at": "2024-05-13",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 840.39,
+   "eur_foil": 1749.76,
+   "usd": 1742.95,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/808/snapcaster-mage",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=781285&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F554649%3Fpage%3D1"
+  },
+  {
+   "name": "Sol Ring",
+   "collector_number": "1604",
+   "flavor_name": null,
+   "released_at": "2024-06-24",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 60.28,
+   "eur_foil": 56.65,
+   "usd": 88.64,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1604/sol-ring",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=776213&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F555447%3Fpage%3D1"
+  },
+  {
+   "name": "Song of Creation",
+   "collector_number": "1603",
+   "flavor_name": null,
+   "released_at": "2024-06-24",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 6.28,
+   "eur_foil": 7.6,
+   "usd": 9.94,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1603/song-of-creation",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=776212&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F555445%3Fpage%3D1"
+  },
+  {
+   "name": "Song of the Worldsoul",
+   "collector_number": "2434",
+   "flavor_name": null,
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 4.77,
+   "usd": null,
+   "usd_foil": 4.89,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2434/song-of-the-worldsoul",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901926&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F711477%3Fpage%3D1"
+  },
+  {
+   "name": "Soul Warden",
+   "collector_number": "2435",
+   "flavor_name": null,
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 12.12,
+   "usd": null,
+   "usd_foil": 19.26,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2435/soul-warden",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901927&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710210%3Fpage%3D1"
+  },
+  {
+   "name": "Swan Song",
+   "collector_number": "1591",
+   "flavor_name": null,
+   "released_at": "2025-02-10",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 34.83,
+   "eur_foil": 48.29,
+   "usd": 54.62,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1591/swan-song",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=810733&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F617863%3Fpage%3D1"
+  },
+  {
+   "name": "Thespian's Stage",
+   "collector_number": "1607",
+   "flavor_name": null,
+   "released_at": "2024-06-24",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 5.61,
+   "eur_foil": 8.57,
+   "usd": 8.46,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1607/thespians-stage",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=776214&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F555451%3Fpage%3D1"
+  },
+  {
+   "name": "Tigereye Cameo",
+   "collector_number": "7093",
+   "flavor_name": "Backstage Monitor",
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 1.49,
+   "usd": null,
+   "usd_foil": 2.63,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/7093/tigereye-cameo",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=904079&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F711415%3Fpage%3D1"
+  },
+  {
+   "name": "Trostani, Selesnya's Voice",
+   "collector_number": "2429",
+   "flavor_name": "Miku, Song of the People",
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 7.82,
+   "usd": null,
+   "usd_foil": 12.09,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2429/trostani-selesnyas-voice",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901921&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710205%3Fpage%3D1"
+  },
+  {
+   "name": "Trostani, Selesnya's Voice",
+   "collector_number": "2443",
+   "flavor_name": "Miku, Song of the People",
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": null,
+   "usd": null,
+   "usd_foil": 4.35,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2443/trostani-selesnyas-voice",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products/Search?referrer=scryfall&searchString=Trostani%2C+Selesnya%27s+Voice&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710206%3Fpage%3D1"
+  },
+  {
+   "name": "Vorinclex, Voice of Hunger",
+   "collector_number": "2439",
+   "flavor_name": "Miku, the Complete Performer",
+   "released_at": "2026-08-10",
+   "finishes": [
+    "foil"
+   ],
+   "eur": null,
+   "eur_foil": 23.91,
+   "usd": null,
+   "usd_foil": 39.1,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/2439/vorinclex-voice-of-hunger",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=901932&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F710443%3Fpage%3D1"
+  },
+  {
+   "name": "Youthful Valkyrie",
+   "collector_number": "1588",
+   "flavor_name": null,
+   "released_at": "2025-02-10",
+   "finishes": [
+    "nonfoil",
+    "foil"
+   ],
+   "eur": 2.73,
+   "eur_foil": 6.11,
+   "usd": 8.88,
+   "usd_foil": null,
+   "legal_commander": "legal",
+   "scryfall_uri": "https://scryfall.com/card/sld/1588/youthful-valkyrie",
+   "cardmarket": "https://www.cardmarket.com/en/Magic/Products?idProduct=810731&referrer=scryfall&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall",
+   "tcgplayer": "https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F617855%3Fpage%3D1"
+  }
+ ]
+}

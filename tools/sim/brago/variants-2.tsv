@@ -1,0 +1,14 @@
+# leave-one-out against candidate c1 (each line puts the 1,500 list's card back)
+-pa	{"cut":["Power Artifact"],"add":["Strionic Resonator"]}
+-prison	{"cut":["Ghostly Prison","Propaganda"],"add":["Lightning Greaves","Flawless Maneuver"]}
+-pili	{"cut":["Grand Architect","Pili-Pala"],"add":["Cloud of Faeries","Solemn Simulacrum"]}
+-staff	{"cut":["Staff of Domination"],"add":["Reality Acid"]}
+-tutors	{"cut":["Fabricate","Merchant Scroll","Idyllic Tutor"],"add":["Aether Channeler","Cryogen Relic","Loran of the Third Path"]}
+-tw	{"cut":["Tolaria West"],"add":["Island"]}
+# more on top of c1
++muse	{"cut":["Elesh Norn, Mother of Machines"],"add":["Windborn Muse"]}
++archangel	{"cut":["Soulherder"],"add":["Archangel of Tithes"]}
++baird	{"cut":["Venser, Shaper Savant"],"add":["Baird, Steward of Argive"]}
++fair	{"cut":["Island"],"add":["Inventors' Fair"]}
++fm	{"cut":["Cloudshift"],"add":["Forsaken Monument"]}
++petal	{"cut":["Coldsteel Heart"],"add":["Lotus Petal"]}

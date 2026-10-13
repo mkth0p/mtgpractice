@@ -48,13 +48,15 @@
     if (d.ai && d.ai.threat) v += d.ai.threat;
     return v;
   }
+  /* A creature card that is a land only through an effect (Ashaya's Forests): still a creature to the bots. */
+  const madeLand = (g, o) => !o.def.types.includes("Land") && g.isCreature(o);
   /* How much p wants o (an opponent's permanent) gone. */
   function threat(g, o, p) {
     let t = value(g, o);
     const d = o.def;
     if (!g.isCreature(o) && !g.isLand(o) && (d.statics.length || d.triggers.length)) t += 2;
     if (o.isCommander) t += 3;
-    if (g.isLand(o)) t -= 2;
+    if (g.isLand(o) && !madeLand(g, o)) t -= 2;
     if (o.isToken && !g.isCreature(o)) t -= 2;
     return t;
   }
@@ -247,7 +249,8 @@
     let val = 0, lands = 0, atk = 0, eva = 0, infect = 0;
     for (const o of g.battlefield) {
       if (o.controller !== q) continue;
-      if (g.isLand(o)) { lands++; continue; }
+      // a creature an effect made a land (Ashaya) counts as both
+      if (g.isLand(o)) { lands++; if (!madeLand(g, o)) continue; }
       val += Math.max(0, threat(g, o, p));
       if (g.isCreature(o) && !g.kw(o, "defender")) {
         const d = hitDamage(g, o);
@@ -500,7 +503,8 @@
      before the card plans, attack(g, p, candidates, targets) can declare the attack ({ decl }) or
      keep creatures home ({ home }), tutor(g, p, cards) picks for the shared tutors (tutors: true
      lets the deck's own choose pick), choose(g, p, req) before the generic choices (undefined: no say),
-     tutorBonus(g, p, card) replaces the generic combo bonus, keepHome(g, p, creature) keeps a
+     tutorBonus(g, p, card) replaces the generic combo bonus, castOk(g, p, card, window) === false
+     holds a card back, useOk(g, p, permanent, ability, window) === false skips an ability, keepHome(g, p, creature) keeps a
      creature out of an attack that doesn't kill ("always": even one that does), mulligan(g, p,
      { hand, mulls }) keeps or not. */
   function deckBrain(p) {
@@ -795,6 +799,9 @@
       return s;
     }
     function deckHold(g, p, o, win) {
+      // a deck's brain can hold any of its cards back (castOk returns false)
+      const db = deckBrain(p);
+      if (db && db.castOk) { try { if (db.castOk(g, p, o, win) === false) return true; } catch (e) { /* no say */ } }
       for (const s of g.controlled(p).concat(p.command)) {
         const f = s.def.ai && s.def.ai.castPlan;
         if (!f) continue;
@@ -819,6 +826,9 @@
     function abilityUse(g, p, act, win, turnOf) {
       const ab = act.ab, o = act.card;
       if (act.ab.loyalty != null) return null; // handled separately
+      // a deck's brain can veto any of its abilities (useOk returns false)
+      const db = deckBrain(p);
+      if (db && db.useOk) { let ok; try { ok = db.useOk(g, p, o, ab, win); } catch (e) { ok = undefined; } if (ok === false) return null; }
       if (ab.ai && ab.ai.use) {
         let r;
         try { r = ab.ai.use(g, p, o, { window: win, turnOf }); } catch (e) { r = false; }
@@ -1710,6 +1720,11 @@
             case "counter": return pickCounter(g, p, opts, req);
             case "populate": case "copy": return tokenPick(g, p, opts);
             case "sacrifice": return pickCheapest(g, p, opts);
+            // web-slinging: return the creature that is cheapest to lose, best of all one with an enters trigger to reuse
+            case "webSling": {
+              const etb = o => (o.def.triggers || []).some(t => t.on === "enters" && t.self) ? 3 : 0;
+              return opts.slice().sort((a, b) => (value(g, a) - etb(a) + (a.isToken ? 50 : 0)) - (value(g, b) - etb(b) + (b.isToken ? 50 : 0)))[0];
+            }
             case "reanimate": return opts.slice().sort((a, b) => cardScore(g, p, b, req) - cardScore(g, p, a, req))[0];
             case "bounceOwnLand": {
               const s = opts.filter(o => o !== src && o.tapped && !o.def.abilities.length).sort((a, b) => (g.isBasic(b) - g.isBasic(a)));

@@ -13,7 +13,7 @@
 (function (root) {
   "use strict";
   const MK = root.MK = root.MK || {};
-  MK.ENGINE_VERSION = 8;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
+  MK.ENGINE_VERSION = 9;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
                            // 4: the bots gang-block, chump only where it saves life, pick lands for the colors their hand needs, and counter combo pieces
                            //    and judge the table's threats per attacker; deck brains steer the bots of your decks
                            // 7: morph-cast creatures turn up only for their morph cost; Corrupted Etrata v3 list (legacyMorph)
@@ -36,6 +36,9 @@
                            //    of wipe: indestructible doesn't stop -X/-X or bounce, hexproof stops no wipe (legacyWipes)
                            //  - the bots' threat judgement counts Azusa's lands at a quarter weight: three land drops a turn made her
                            //    read as the table's leader while she was behind (legacyAzusa)
+                           // 9: the Corrupted Miku bot keeps Skullclamp off its combo pieces, doesn't evoke Endurance for nothing, casts
+                           //    Shalai with Devoted Druid's mana, and casts a top-of-library tutor for a missing kill piece in its second
+                           //    main phase (legacyCorrupted)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",
@@ -366,7 +369,10 @@
       for (const o of this.battlefield) if (o.def.statics.length || o.def.levels || this.roomStatics(o).length) out.push(o);
       this._ss = out; this._ssv = this.v;
       this._grantsMana = out.some(o => o.def.statics.some(st => st.grantMana));
-      this._trigExtra = out.some(o => o.def.statics.some(st => st.triggerExtra));
+      this._trigExtra = out.some(o => o.def.statics.some(st => st.triggerExtra || st.stopTrigger));
+      this._addsTypes = out.some(o => o.def.statics.some(st => st.addTypes));
+      this._blockRestrict = out.some(o => o.def.statics.some(st => st.cantBeBlockedBy));
+      this._attackTax = out.some(o => o.def.statics.some(st => st.attackTax));
       return out;
     }
     roomStatics(o) {
@@ -389,12 +395,20 @@
       const d = o.def;
       const types = new Set(d.types);
       if (o.zone === "battlefield") {
+        // "enchanted permanent is a Vehicle artifact and loses all other card types" (Swift Reconfiguration)
+        if (this._vehicleSt !== this.v) { this._vehicleSt = this.v; this._hasVehicleSt = this.staticSources().some(s => this.staticsOf(s).some(st => st.becomesVehicle)); }
+        if (this._hasVehicleSt) for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.becomesVehicle && st.applies && st.applies(this, s, o)) { types.clear(); types.add("Artifact"); }
         if (o.state.crewed === this.turn) { types.add("Creature"); types.add("Artifact"); }
         if (o.state.animated && o.state.animated.turn === this.turn) types.add("Creature");
         if (o.state.earth) types.add("Creature"); // earthbend: a land that stays a creature
         if (d.notCreatureUnless && !d.notCreatureUnless(this, o)) types.delete("Creature");
       }
       o._types = types; o._tv = this.v;
+      // statics that add card types (Ashaya: "nontoken creatures you control are Forest lands"). The
+      // types above are cached first, so an `applies` that asks isCreature(o) sees them and can't loop.
+      if (o.zone === "battlefield" && (this.staticSources(), this._addsTypes)) {
+        for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.addTypes && st.applies && st.applies(this, s, o)) st.addTypes.forEach(t => types.add(t));
+      }
       return types;
     }
     isCreature(o) { return this.typesOf(o).has("Creature"); }
@@ -473,6 +487,7 @@
           }
           for (const e of this.effects) {
             if (!this.affects(e, o)) continue;
+            if (e.setColors) { colors.clear(); e.setColors.forEach(k => colors.add(k)); }   // "becomes blue until end of turn" (Grand Architect)
             if (e.pt) { modP += e.pt[0]; modT += e.pt[1]; }
             if (e.kw) e.kw.forEach(k => kws.add(k));
             if (e.unblockable) unblockable = true;
@@ -526,11 +541,13 @@
     /* "Can't cast spells": statics with cantCast (Grand Abolisher, Drannith Magistrate, Deafening
        Silence) and this turn's bans (Silence, Orim's Chant). Returns why, or false. */
     castBlocked(p, o) {
-      for (const b of this.castBans) if (b.turn === this.turn && b.test(this, p, o)) return b.label || "can't cast spells this turn";
+      if (this.castBans.some(b => b.until && this.active === b.until && this.turn > b.turn)) this.castBans = this.castBans.filter(b => !(b.until && this.active === b.until && this.turn > b.turn));
+      for (const b of this.castBans) if ((b.turn === this.turn || b.until) && b.test(this, p, o)) return b.label || "can't cast spells this turn";
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantCast && st.cantCast(this, s, p, o)) return s.def.name;
       return false;
     }
-    banCasting(test, label) { this.castBans.push({ turn: this.turn, test, label }); this.bump(); }
+    /* opts.until = a player: the ban lasts until that player's next turn (Reflector Mage), else until end of turn */
+    banCasting(test, label, opts) { this.castBans.push({ turn: this.turn, test, label, until: (opts && opts.until) || null }); this.bump(); }
     /* "Can't activate abilities" (Grand Abolisher, Linvala, Keeper of Silence): statics with cantActivate. */
     activateBlocked(p, o, ab) {
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantActivate && st.cantActivate(this, s, p, o, ab)) return true;
@@ -631,6 +648,10 @@
       if ((this.staticSources(), this._trigExtra)) {
         const more = [];
         for (const f of found) {
+          // "permanents entering don't cause abilities of permanents your opponents control to trigger" (Elesh Norn): statics with stopTrigger(g, source, entry)
+          let stop = false;
+          for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.stopTrigger) { try { if (st.stopTrigger(this, s, f)) stop = true; } catch (err) { this.warn(err, s); } }
+          if (stop) continue;
           more.push(f);
           let n = 0;
           for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.triggerExtra) { try { n += st.triggerExtra(this, s, f) || 0; } catch (err) { this.warn(err, s); } }
@@ -883,7 +904,7 @@
       if (arr) { const i = arr.indexOf(o); if (i >= 0) arr.splice(i, 1); }
     }
     lki(o) {
-      return { controller: o.controller, power: this.power(o), toughness: this.toughness(o), counters: Object.assign({}, o.counters), isToken: o.isToken, creature: this.isCreature(o), name: o.def.name, types: [...this.typesOf(o)], subtypes: [...this.ch(o).subtypes], attached: this.battlefield.filter(a => a.attachedTo === o), mv: this.mvOf(o), colors: [...this.colorsOf(o)], faceDown: !!o.faceDown };
+      return { controller: o.controller, power: this.power(o), toughness: this.toughness(o), counters: Object.assign({}, o.counters), isToken: o.isToken, creature: this.isCreature(o), name: o.def.name, types: [...this.typesOf(o)], subtypes: [...this.ch(o).subtypes], attached: this.battlefield.filter(a => a.attachedTo === o), attachedTo: o.attachedTo || null, attachedToZc: o.attachedTo ? o.attachedTo.zc : null, mv: this.mvOf(o), colors: [...this.colorsOf(o)], faceDown: !!o.faceDown };
     }
     /* Move an object between zones. Returns where it ended up. Leaving the battlefield resets it. */
     moveTo(o, zone, opts) {
@@ -1280,7 +1301,7 @@
       if (opts.combat && !this.isPlayer(target) && target.combat && target.combat.attacking) for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.preventCombatDamageTo && st.preventCombatDamageTo(this, s, target)) return 0;
       if (this.isPlayer(target)) {
         if (target.lost) return 0;
-        if (infect) { target.poison += n; this.anim("poison", { p: target, n }); }
+        if (infect) { if (!this.staticSources().some(s => this.staticsOf(s).some(st => st.noPoison && st.noPoison(this, s, target)))) { target.poison += n; this.anim("poison", { p: target, n }); } }
         else { target.life -= n; target.lifeLostThisTurn += n; this.anim("life", { p: target, delta: -n, src: srcObj, combat: opts.combat }); }
         if (opts.combat && srcObj && srcObj.isCommander) target.cmdDmg[srcObj.id] = (target.cmdDmg[srcObj.id] || 0) + n;
         // freerunning: combat damage to a player this turn with an Assassin or a commander
@@ -1312,8 +1333,13 @@
       if (lifelink && ctrl && !opts.deferLifelink) this.gainLife(ctrl, n, srcObj);
       return n;
     }
+    /* Melira: "can't have -1/-1 counters put on them" */
+    canHaveCounters(o, kind) {
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantHaveCounters && st.cantHaveCounters(this, s, o, kind)) return false;
+      return true;
+    }
     addCounters(o, kind, n, src) {
-      if (!o || n <= 0 || o.zone !== "battlefield") return 0;
+      if (!o || n <= 0 || o.zone !== "battlefield" || !this.canHaveCounters(o, kind)) return 0;
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.counterPlus) n += st.counterPlus(this, s, o, kind) || 0;
       if (n <= 0) return 0; // Vizier of Remedies: "that many minus one"
       o.counters[kind] = (o.counters[kind] || 0) + n;
@@ -1381,6 +1407,69 @@
       this.bump();
       return out;
     }
+    /* Web-slinging: the tapped creatures p could return to cast o (not o itself). */
+    webSlingers(p, o) { return this.battlefield.filter(c => c.controller === p && c.tapped && c !== o && this.isCreature(c)); }
+    /* Rebound: at the beginning of p's next upkeep, p may cast o from exile without paying its mana cost. */
+    addRebound(o, p) {
+      const zc = o.zc;
+      this.log(`${o.def.name} is exiled with rebound.`, { p, cards: [o.def.name] });
+      this.delayed.push({ at: "upkeep", once: true, player: p, controller: p, turn: this.turn + 1, src: o, do: async g => {
+        if (o.zone !== "exile" || o.zc !== zc || p.lost) return;
+        const ok = await g.ask(p, { type: "confirm", prompt: `Rebound: cast ${o.def.name} without paying its mana cost?`, purpose: "rebound", src: o });
+        if (ok) await g.castWithoutPaying(p, o);
+      } });
+    }
+    /* "o connives": its controller draws a card, then discards a card; a nonland discard puts a +1/+1
+       counter on o. Emits "connive" { o, p, card, nonland } (Iron Monger, Ultron, Glorious Purpose). */
+    async connive(o, src) {
+      const p = o.controller || o.owner;
+      if (!p || p.lost) return null;
+      this.draw(p, 1);
+      let card = null;
+      if (p.hand.length) {
+        const pick = await this.ask(p, { type: "cards", prompt: `${o.def.name} connives: discard a card`, options: p.hand.slice(), min: 1, max: 1, purpose: "discard", src: src || o });
+        card = (pick && pick[0]) || p.hand[p.hand.length - 1];
+        if (card && card.zone === "hand") this.discard(p, card); else card = null;
+      }
+      const nonland = !!card && !card.def.types.includes("Land");
+      if (nonland && o.zone === "battlefield") this.addCounters(o, "p1", 1, src || o);
+      this.emit("connive", { o, p, card, nonland });
+      return card;
+    }
+    /* Goad: until by's next turn, o attacks each combat if able, and a player other than by if able. */
+    goad(o, by) {
+      if (!o || o.zone !== "battlefield") return;
+      o.state.goad = { by, turn: this.turn };
+      this.log(`${o.def.name} is goaded by ${by.name}.`, { p: by, cards: [o.def.name] });
+      this.bump();
+    }
+    /* Discover n (or cascade below n with opts.cascade): exile from the top until a nonland card with
+       mana value n or less; p may cast it for free, otherwise it goes to the hand (discover) or the
+       bottom (cascade). The rest go to the bottom in a random order. */
+    async discover(p, n, src, opts) {
+      opts = opts || {};
+      const seen = [];
+      let hit = null;
+      while (p.library.length) {
+        const c = p.library[0];
+        this.moveTo(c, "exile");
+        seen.push(c);
+        if (!c.def.types.includes("Land") && (opts.cascade ? c.def.mv < n : c.def.mv <= n)) { hit = c; break; }
+      }
+      const rest = seen.filter(c => c !== hit);
+      this.shuffleArr(rest);
+      for (const c of rest) if (c.zone === "exile") { this.removeFromZone(c); c.zone = "library"; c.zc++; p.library.push(c); }
+      if (!hit) { this.bump(); return null; }
+      this.log(`${p.name} ${opts.cascade ? "cascades" : "discovers"} into ${hit.def.name}.`, { p, cards: [hit.def.name] });
+      const ok = await this.ask(p, { type: "confirm", prompt: `Cast ${hit.def.name} without paying its mana cost?`, purpose: opts.cascade ? "cascade" : "discover", src: src || hit });
+      if (ok && await this.castWithoutPaying(p, hit)) return hit;
+      if (hit.zone === "exile") {
+        if (opts.cascade) { this.removeFromZone(hit); hit.zone = "library"; hit.zc++; p.library.push(hit); }
+        else this.moveTo(hit, "hand");
+      }
+      this.bump();
+      return hit;
+    }
     /* Put cards from any zone onto the battlefield at once. */
     putOntoBattlefield(list, p, opts) {
       list = [].concat(list).filter(Boolean);
@@ -1408,6 +1497,10 @@
     discard(p, o) {
       if (o.zone !== "hand") return;
       this.moveTo(o, "graveyard");
+      // what was discarded this turn (mayhem, connive payoffs, Doctor Doom)
+      o.discarded = { turn: this.turn, zc: o.zc };
+      if (p.discardT !== this.turn) { p.discardT = this.turn; p.discardN = 0; }
+      p.discardN++;
       this.log(`${p.name} discards ${o.def.name}.`, { p, cards: [o.def.name], kind: "discard" });
       this.emit("discard", { p, o });
     }
@@ -1453,14 +1546,14 @@
     /* Every way p could produce mana right now: [{o, ab, units: [["G"], ...] options, cost}] */
     /* forWhat: "spell" (default), "ability" or "special"; mana that can only be spent on abilities
        (Omen Hawker) is left out of everything else. */
-    manaSources(p, exclude, forWhat, spell) {
+    manaSources(p, exclude, forWhat, spell, abilitySrc) {
       const out = [];
       const ex = exclude instanceof Set ? exclude : new Set(exclude || []);
       const vorinclex = this.battlefield.some(o => o.controller === p && o.def.doublesLandMana);
       // statics that stop mana abilities (Linvala, Grand Abolisher) or add to them (Badgermole Cub)
-      const stops = [], bonus = [];
+      const stops = [], bonus = [], tapBonus = [];   // tapManaBonus(g, s, o): "tapped for mana, add an additional {G}" (Wild Growth, Utopia Sprawl)
       let cBonus = false;   // Forsaken Monument: tapping a permanent for {C} adds one more {C}
-      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) { if (st.cantActivate) stops.push([s, st]); if (st.creatureManaBonus) bonus.push([s, st]); if (st.colorlessTapBonus && s.controller === p) cBonus = true; }
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) { if (st.cantActivate) stops.push([s, st]); if (st.creatureManaBonus) bonus.push([s, st]); if (st.tapManaBonus) tapBonus.push([s, st]); if (st.colorlessTapBonus && s.controller === p) cBonus = true; }
       for (const o of this.battlefield) {
         if (o.controller !== p || ex.has(o.id)) continue;
         const abs = this.manaAbilities(o);
@@ -1469,12 +1562,14 @@
         for (const ab of abs) {
           if (stops.length && stops.some(([s, st]) => st.cantActivate(this, s, p, o, ab))) continue;
           if (ab.tap && o.tapped) continue;
-          if (ab.tap && this.isCreature(o) && o.sick && !this.kw(o, "haste")) continue;
+          if (ab.tap && !ab.ignoreSick && this.isCreature(o) && o.sick && !this.kw(o, "haste")) continue;
           if (ab.condition && !ab.condition(this, o)) continue;
           if (ab.noAuto) continue;
           if (ab.onlyFor && ab.onlyFor !== (forWhat || "spell")) continue;
           // mana that can only pay for some spells (Cavern of Souls): spellOnly(g, spell card, source)
           if (ab.spellOnly && !(spell && (forWhat || "spell") === "spell" && ab.spellOnly(this, spell, o))) continue;
+          // mana for artifact spells and abilities of artifacts only (Grand Architect)
+          if (ab.artifactOnly && !((forWhat || "spell") === "spell" ? spell && this.isArtifact(spell) : forWhat === "ability" && abilitySrc && this.isArtifact(abilitySrc))) continue;
           const prod = typeof ab.produce === "function" ? ab.produce(this, o) : ab.produce;
           if (!prod) continue;
           for (const units of this.expandProduce(prod, p)) options.push({ units: cBonus && ab.tap && units.includes("C") ? units.concat("C") : units, ab, cost: ab.cost ? parseCost(ab.cost) : null, tapCreature: ab.tapCreature || 0 });
@@ -1483,6 +1578,11 @@
         if (bonus.length && this.isCreature(o)) {
           let extra = "";
           for (const [s, st] of bonus) extra += st.creatureManaBonus(this, s, o) || "";
+          if (extra) for (const opt of options) if (opt.ab.tap) opt.units = opt.units.concat(extra.split(""));
+        }
+        if (tapBonus.length) {
+          let extra = "";
+          for (const [s, st] of tapBonus) extra += st.tapManaBonus(this, s, o) || "";
           if (extra) for (const opt of options) if (opt.ab.tap) opt.units = opt.units.concat(extra.split(""));
         }
         // bigger outputs first (Fanatic of Rhonas: GGGG before G)
@@ -1532,7 +1632,7 @@
       const fromPool = Math.min(poolLeft, need.g);
       need.g -= fromPool;
       const exclude = new Set(opts.exclude || []);
-      let sources = this.manaSources(p, exclude, opts.for, opts.spell);
+      let sources = this.manaSources(p, exclude, opts.for, opts.spell, opts.src);
       // Which colors to keep open: the ones the hand and the commander still need, over how many
       // untapped sources make them. Generic mana then comes from the spare color (a Forest, not
       // the only Plains, pays the {2} of a green spell). A tie-break worth well under 1 rank point.
@@ -1784,7 +1884,7 @@
     maxX(p, baseCost, xCount, opts) {
       if (!xCount) return 0;
       let lo = 0, hi = 0;
-      const sources = this.manaSources(p, new Set(opts && opts.exclude || []), opts && opts.for);
+      const sources = this.manaSources(p, new Set(opts && opts.exclude || []), opts && opts.for, opts && opts.spell, opts && opts.src);
       hi = this.poolTotal(p) + sources.reduce((s, x) => s + x.options[0].units.length * x.mult, 0);
       if (opts && opts.convoke) hi += this.creatures(p).filter(o => !o.tapped).length;
       hi = Math.max(0, Math.floor(hi / xCount));
@@ -1833,10 +1933,15 @@
       const out = p.hand.slice();
       for (const o of p.command) if (o.isCommander) out.push(o);
       for (const o of p.exile) if (this.playableFromExile(p, o)) out.push(o);
-      for (const o of p.graveyard) if (o.def.flashback || (o.def.castFromGraveyard && o.def.castFromGraveyard(this, p, o))) out.push(o);
+      for (const o of p.graveyard) if (o.def.flashback || (o.def.castFromGraveyard && o.def.castFromGraveyard(this, p, o)) || this.mayhemOk(p, o)) out.push(o);
       return out;
     }
     morphCost(p) { return parseCost("{3}"); }
+    /* Mayhem: a card p discarded this turn may be cast from the graveyard for its mayhem cost. */
+    mayhemOk(p, o) { return !!o.def.mayhem && o.zone === "graveyard" && o.owner === p && !!o.discarded && o.discarded.turn === this.turn && o.discarded.zc === o.zc; }
+    discardedThisTurn(p) { return p.discardT === this.turn ? p.discardN || 0 : 0; }
+    /* Spells p cast this turn that match f (castLog entries: { p, o, name, nc, mv, colors, from }). */
+    castThisTurn(p, f) { return (this.castLog && this.castLog.turn === this.turn ? this.castLog : []).filter(e => e.p === p && (!f || f(e))).length; }
     commanderTax(p, o) { return o.isCommander && o.zone === "command" ? 2 * (p.cmdCasts[o.id] || 0) : 0; }
     /* Total cost of casting o with choices (x, door, alt). */
     spellCost(p, o, ch) {
@@ -1845,6 +1950,7 @@
       let base = d.costObj;
       if (d.doors) base = parseCost(d.doors[ch.door || 0].cost);
       if (o.zone === "graveyard" && d.flashback) base = parseCost(d.flashback);
+      else if (o.zone === "graveyard" && d.mayhem && this.mayhemOk(p, o)) base = parseCost(d.mayhem);
       if (ch.alt && d.altCosts) base = parseCost(d.altCosts[ch.alt - 1].cost || "");
       const c = cloneCost(base);
       // "mana of any type can be spent to cast it" (Hostage Taker, Predators' Hour): its colored symbols take any mana
@@ -1881,6 +1987,7 @@
       if (!sorc && !this.isInstantSpeed(p, o)) return [];
       if (o.def.canCast && !o.def.canCast(this, p, o)) return [];
       if (this.castBlocked(p, o)) return [];
+      if (o.def.modes && o.def.modes.every(m => m.canChoose && !m.canChoose(this, p, o))) return [];
       // no legal target for the normal spell: only an alternative cost with its own targets (cleave) can be cast
       let noTargets = false;
       const needs = (o.def.spell && o.def.spell.targets) || (o.def.aura && o.def.targets);
@@ -1905,7 +2012,7 @@
         if (!this.canPay(p, base, { convoke: conv, spell: o })) continue;
         const xMax = xCount ? this.maxX(p, base, xCount, { convoke: conv, spell: o }) : 0;
         if (xCount && o.def.minX && xMax < o.def.minX) continue;
-        ways.push({ door, xMax, xCount, cost: base, convoke: conv, label: o.def.doors ? o.def.doors[door].name : (o.zone === "graveyard" && o.def.flashback ? "Flashback" : null) });
+        ways.push({ door, xMax, xCount, cost: base, convoke: conv, label: o.def.doors ? o.def.doors[door].name : (o.zone === "graveyard" && o.def.flashback ? "Flashback" : o.zone === "graveyard" && o.def.mayhem && this.mayhemOk(p, o) ? "Mayhem" : null) });
       }
       // alternative costs (Fierce Guardianship, Force of Will...)
       (o.def.altCosts || []).forEach((alt, i) => {
@@ -1916,6 +2023,7 @@
         if (alt.payLife && p.life <= alt.payLife) return;
         if (alt.exileFromHand && !p.hand.some(c => c !== o && alt.exileFromHand.filter(this, c))) return;
         if (alt.sacPermanent && !this.battlefield.some(c => c.controller === p && alt.sacPermanent.filter(this, c, p))) return;
+        if (alt.bounceTapped && !this.webSlingers(p, o).length) return;
         const base = this.spellCost(p, o, { alt: i + 1 });
         if (!this.canPay(p, base, { spell: o })) return;
         ways.push({ door: null, alt: i + 1, xMax: 0, xCount: 0, cost: base, convoke: false, label: alt.label || "Alternative cost" });
@@ -1967,7 +2075,7 @@
       // pay
       const cost = this.spellCost(p, o, { x: item.x, door: item.door, kicked: item.kicked, alt: item.alt });
       const fromZone = o.zone;
-      let altExile = null, altSac = null;
+      let altExile = null, altSac = null, altBounce = null;
       if (item.alt) {
         const alt = d.altCosts[item.alt - 1];
         if (alt.exileFromHand) {
@@ -1982,6 +2090,12 @@
           if (!pick || !opts.includes(pick)) return false;
           altSac = pick;
         }
+        if (alt.bounceTapped) {
+          const opts = this.webSlingers(p, o);
+          const pick = await this.ask(p, { type: "target", prompt: "Web-slinging: return a tapped creature you control to its owner's hand", options: opts, purpose: "webSling", src: o });
+          if (!pick || !opts.includes(pick)) return false;
+          altBounce = pick;
+        }
       }
       if (!this.pay(p, cost, { convoke: way.convoke, spell: o })) { this.log(`${p.name} can't pay for ${d.name}.`, { p }); return false; }
       if (item.alt) {
@@ -1989,7 +2103,10 @@
         if (alt.payLife) this.payLife(p, alt.payLife);
         if (altExile) this.moveTo(altExile, "exile");
         if (altSac && altSac.zone === "battlefield") this.sacrifice(altSac);
+        if (altBounce && altBounce.zone === "battlefield") { item.webMV = this.mvOf(altBounce); item.webSlung = altBounce.def.name; this.bounce(altBounce); }
       }
+      // rebound: cast from the hand, it is exiled as it resolves and cast again for free next upkeep
+      if (d.rebound && fromZone === "hand" && !this.isPermanentCard(o)) item.rebound = true;
       if (o.isCommander && fromZone === "command") p.cmdCasts[o.id] = (p.cmdCasts[o.id] || 0) + 1;
       if (fromZone === "graveyard" && d.flashback) item.exileAfter = true;
       return this.putOnStack(p, o, item);
@@ -2014,7 +2131,7 @@
       if (!d.types.includes("Creature")) p.ncCast = (p.ncCast || 0) + 1; // Deafening Silence, Esper Sentinel
       // spells cast this turn and their colors (Veil of Summer)
       if (!this.castLog || this.castLog.turn !== this.turn) this.castLog = Object.assign([], { turn: this.turn });
-      this.castLog.push({ turn: this.turn, p, colors: [...this.colorsOf(o)] });
+      this.castLog.push({ turn: this.turn, p, colors: [...this.colorsOf(o)], nc: !d.types.includes("Creature"), name: d.name, o, mv: d.mv, from: item.from });
       this.spellsThisTurn = (this.spellsThisTurn || 0) + 1;
       item.storm = this.spellsThisTurn - 1;
       p.stats.cast[d.name] = (p.stats.cast[d.name] || 0) + 1;
@@ -2109,6 +2226,7 @@
         if (item.targets.length && legal.every(x => !x) && specs.every(s => !s.optional)) {
           this.log(`${item.name} has no legal target left and does nothing.`, { cards: [d.name] });
           this.anim("fizzle", { item });
+          item.rebound = false;
           this.finishSpell(item);
           return;
         }
@@ -2118,7 +2236,7 @@
       if (this.isPermanentCard(o) && !item.isCopy) {
         o.zone = "new";
         if (d.aura && item.targets[0]) o.attachedTo = item.targets[0];
-        const eo = { x: item.x, door: item.door, cast: item.free ? "free" : "paid" };
+        const eo = { x: item.x, door: item.door, cast: item.free ? "free" : "paid", web: item.webMV != null ? item.webMV : null, kicked: !!item.kicked, from: item.from };
         // "as this enters" choices (Spark Double's copy); they can change what enters
         if (d.asEnters && !item.faceDown) { try { await d.asEnters(this, p, o, item, eo); } catch (e) { this.warn(e, o); } }
         this.enterMany([{ o, controller: p, opts: eo }]);
@@ -2157,6 +2275,7 @@
       if (o.zone !== "stack") return;
       if (o.cardDef && o.def !== o.cardDef) { o.def = o.cardDef; o.faceDown = null; this.ts++; }
       if (this.isPermanentCard(o)) { o.zone = "graveyard"; o.owner.graveyard.push(o); }
+      else if (item.rebound && !item.countered) { o.zone = "exile"; o.owner.exile.push(o); this.addRebound(o, item.p); }
       else if (item.exileAfter) { o.zone = "exile"; o.owner.exile.push(o); }
       else { o.zone = "graveyard"; o.owner.graveyard.push(o); }
       if (o.isCommander && o.zone !== "command") this.moveTo(o, "command");
@@ -2248,9 +2367,14 @@
       c.x = 0;
       // "activated abilities of creatures you control cost {2} less" (Training Grounds): generic mana
       // only, never below one mana in total, and not special actions like turning a card face up
-      if (!ab.special && o.zone === "battlefield" && this.isCreature(o)) {
+      // "enchanted artifact's activated abilities cost {2} less" (Power Artifact): the same floor of one mana
+      if (!ab.special && o.zone === "battlefield" && (this.isCreature(o) || this.isArtifact(o))) {
         let red = 0;
-        for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.abilityCostMod && s.controller === p) red += st.abilityCostMod(this, s, o, ab) || 0;
+        const cre = this.isCreature(o), art = this.isArtifact(o);
+        for (const s of this.staticSources()) for (const st of this.staticsOf(s)) {
+          if (cre && st.abilityCostMod && s.controller === p) red += st.abilityCostMod(this, s, o, ab) || 0;
+          if (art && st.artifactAbilityCostMod) red += st.artifactAbilityCostMod(this, s, o, ab) || 0;
+        }
         if (red > 0) c.g -= Math.max(0, Math.min(red, c.g, costMV(c) - 1));
       }
       return c;
@@ -2287,10 +2411,10 @@
         if (pow < ab.crew) return false;
         if (o.state.crewed === this.turn) return false;
       }
-      if (ab.discard && p.hand.length < ab.discard) return false;
+      if (ab.discard && p.hand.filter(c => !ab.discardFilter || ab.discardFilter(this, c)).length < ab.discard) return false;
       if (ab.targets) for (const spec of ab.targets) if (!spec.optional && !this.targetOptions(p, spec, o).length) return false;
       const cost = this.abilityCost(p, o, ab, ab.minXFn ? ab.minXFn(this, o, p) : (ab.minX || 0));
-      if (!this.canPay(p, cost, { exclude: excl, for: ab.special ? "special" : "ability" })) return false;
+      if (!this.canPay(p, cost, { exclude: excl, for: ab.special ? "special" : "ability", src: o })) return false;
       return true;
     }
     /* Activate an ability. It resolves right away (see SIMPLIFICATIONS). */
@@ -2306,7 +2430,7 @@
       const baseC = parseCost(ab.cost || "");
       if (baseC.x && !ab.xFrom) {
         const base0 = this.abilityCost(p, o, ab, 0);
-        const xMax = this.maxX(p, base0, baseC.x, { exclude: excl, for: forWhat });
+        const xMax = this.maxX(p, base0, baseC.x, { exclude: excl, for: forWhat, src: o });
         let x = choice.x;
         if (x == null) x = await this.ask(p, { type: "number", prompt: `Choose X for ${ab.label || o.def.name}`, min: ab.minX || 0, max: xMax, purpose: "x", src: o, ability: ab });
         ctx.x = Math.max(ab.minX || 0, Math.min(xMax, x | 0));
@@ -2318,7 +2442,7 @@
       }
       if (ab.xFrom) {
         ctx.x = ab.xFrom(this, ctx);
-        if (!this.canPay(p, this.abilityCost(p, o, ab, ctx.x), { exclude: excl, for: forWhat })) { this.log(`${p.name} can't pay for that.`, { p }); return false; }
+        if (!this.canPay(p, this.abilityCost(p, o, ab, ctx.x), { exclude: excl, for: forWhat, src: o })) { this.log(`${p.name} can't pay for that.`, { p }); return false; }
       }
       // non-mana costs
       let sacrificed = null;
@@ -2332,7 +2456,7 @@
       // as long as enough others remain (Grove of the Guardian with Llanowar Elves in play)
       const manaCost = this.abilityCost(p, o, ab, ctx.x);
       const spare = (cands, n, enough) => {
-        const ok = cands.filter(c => this.canPay(p, manaCost, { exclude: excl.concat([c.id]), for: forWhat }));
+        const ok = cands.filter(c => this.canPay(p, manaCost, { exclude: excl.concat([c.id]), for: forWhat, src: o }));
         return enough(ok) ? ok : cands;
       };
       let crewers = null;
@@ -2355,10 +2479,10 @@
       }
       let discarded = null;
       if (ab.discard) {
-        discarded = await this.ask(p, { type: "cards", prompt: `Discard ${ab.discard}`, options: p.hand.slice(), min: ab.discard, max: ab.discard, purpose: "discard", src: o });
+        discarded = await this.ask(p, { type: "cards", prompt: ab.discardPrompt || `Discard ${ab.discard}`, options: p.hand.filter(c => !ab.discardFilter || ab.discardFilter(this, c)), min: ab.discard, max: ab.discard, purpose: "discard", src: o });
       }
       const cost = this.abilityCost(p, o, ab, ctx.x);
-      if (!this.pay(p, cost, { exclude: excl.concat(tappers ? tappers.map(c => c.id) : []).concat(crewers ? crewers.map(c => c.id) : []), for: forWhat })) {
+      if (!this.pay(p, cost, { exclude: excl.concat(tappers ? tappers.map(c => c.id) : []).concat(crewers ? crewers.map(c => c.id) : []), for: forWhat, src: o })) {
         this.log(`${p.name} can't pay for ${ab.label || o.def.name}${tappers || crewers ? " with those creatures tapped (they were needed for mana)" : ""}.`, { p, cards: [o.def.name] });
         return false;
       }
@@ -2495,10 +2619,12 @@
         try {
           for (let k = 0; k < n; k++) {
             if (k > 0) {
+              // stopFirst: the stop check runs first (it can tap a Monolith for mana, so its untap can be activated again)
+              if (act.stopFirst && act.stop && act.stop(this)) break;
               const entry = this.findAbility(act.card, act.idx);
               if (!entry || !this.canActivate(p, act.card, entry)) break;
               if (act.script) p.script = act.script.slice();
-              if (act.stop && act.stop(this)) break;
+              if (!act.stopFirst && act.stop && act.stop(this)) break;
               if (!raised) { raised = true; this.quiet = (this.quiet || 0) + 1; }
             }
             if (act.record) p.recording = [];
@@ -2544,12 +2670,40 @@
       // intimidate: only artifact creatures and creatures that share a color with it (a colorless one: artifacts only)
       if (this.kw(a, "intimidate") && !this.isArtifact(b) && ![...this.colorsOf(a)].some(k => this.colorsOf(b).has(k))) return false;
       if (a.def.canBeBlockedBy && !a.def.canBeBlockedBy(this, a, b)) return false;
+      // "creatures you control with power 2 or less can't be blocked by creatures with power 3 or greater" (Delney): statics with cantBeBlockedBy(g, source, attacker, blocker)
+      if ((this.staticSources(), this._blockRestrict)) for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantBeBlockedBy && st.cantBeBlockedBy(this, s, a, b)) return false;
       if (this.kw(a, "mountainwalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Mountain"))) return false;
       if (this.kw(a, "islandwalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Island"))) return false;
       if (this.kw(a, "forestwalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Forest"))) return false;
       if (this.kw(a, "plainswalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Plains"))) return false;
       if (this.kw(a, "swampwalk") && this.battlefield.some(x => x.controller === b.controller && x.def.subtypes.includes("Swamp"))) return false;
       return true;
+    }
+    /* Attack taxes: statics with attackTax(g, source, attacker, target) -> generic mana for that attacker
+       (Ghostly Prison: {2} when the target is the source's controller). Each taxed attacker is paid for in
+       declaration order (the bots declare their biggest first); one that isn't paid for doesn't attack, or a
+       bot sends it at an untaxed opponent instead (the one with the least life). */
+    attackTaxOf(a, t) {
+      let n = 0;
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.attackTax) n += st.attackTax(this, s, a, t) || 0;
+      return n;
+    }
+    async payAttackTax(p, decl) {
+      const kept = [];
+      // the attackers are tapped as they're declared, before the costs are paid: they can't make the mana
+      const exclude = decl.filter(d => !this.kw(d.attacker, "vigilance")).map(d => d.attacker.id);
+      for (const d of decl) {
+        const n = this.attackTaxOf(d.attacker, d.target);
+        if (n <= 0) { kept.push(d); continue; }
+        const cost = parseCost(`{${n}}`);
+        let ok = this.canPay(p, cost, { exclude });
+        if (ok) ok = !!(await this.ask(p, { type: "confirm", prompt: `Pay {${n}} so ${d.attacker.def.name} can attack ${this.nameOf(d.target)}?`, purpose: "attackTax", amount: n }));
+        if (ok && this.pay(p, cost, { exclude })) { kept.push(d); continue; }
+        const alt = p.agent && p.agent.bot ? this.opponents(p).filter(q => this.attackTaxOf(d.attacker, q) <= 0).sort((x, y) => x.life - y.life)[0] : null;
+        if (alt) kept.push({ attacker: d.attacker, target: alt });
+        else this.log(`${d.attacker.def.name} doesn't attack ${this.nameOf(d.target)}: ${p.name} doesn't pay {${n}}.`, { p, cards: [d.attacker.def.name] });
+      }
+      return kept;
     }
     defenderOf(t) { return this.isPlayer(t) ? t : t.controller; }
     removeFromCombat(o) {
@@ -2586,6 +2740,19 @@
         const d = decl.find(x => x.attacker === o);
         if (d) d.target = must; else decl.push({ attacker: o, target: must });
       }
+      // goaded creatures attack, a player other than the goader if able
+      for (const o of candidates) {
+        const gd = o.state.goad;
+        if (!gd || o.state.mustAttack) continue;
+        const players = this.attackTargets(p).filter(t => this.isPlayer(t) && !t.lost);
+        const others = players.filter(t => t !== gd.by);
+        const d = decl.find(x => x.attacker === o);
+        const pick = () => (others.length ? others.slice().sort((a, b) => a.life - b.life)[0] : players[0]);
+        if (d) { if (others.length && this.defenderOf(d.target) === gd.by) d.target = pick(); }
+        else if (players.length) decl.push({ attacker: o, target: pick() });
+      }
+      // "creatures can't attack you unless their controller pays {2} for each" (Ghostly Prison, Propaganda)
+      if (decl.length && (this.staticSources(), this._attackTax)) decl = await this.payAttackTax(p, decl);
       if (!decl.length) { if (this.opts.legacySteps) { this.combat = null; this.phase = "main2"; this.bump(); return; } return this.endCombat(p, true); }
       const tappedNow = [];
       for (const d of decl) {
@@ -3002,6 +3169,7 @@
       p.landsPlayed = 0;
       this.loopHint = null;
       this.effects = this.effects.filter(e => !(e.until === "yourNextTurn" && e.player === p));
+      for (const o of this.battlefield) if (o.state.goad && o.state.goad.by === p) delete o.state.goad;
       this.log(`Turn ${this.turn}: ${p.name}${opts.extra ? " (extra turn)" : ""}.`, { p, kind: "turn", extra: !!opts.extra });
       this.anim("turn", { p });
       // untap (phased-out permanents phase in first)
@@ -3111,7 +3279,7 @@
     }
     cleanupEffects() {
       for (const o of this.battlefield) { o.damage = 0; o.dtDamage = false; o.dtKill = false; }
-      if (this.castBans.length) this.castBans = [];
+      if (this.castBans.length) this.castBans = this.castBans.filter(b => b.until && !b.until.lost);
       if (this.tempTriggers.length) { this.tempTriggers = []; this.ts++; }
       this.effects = this.effects.filter(e => e.until !== "eot" && e.until !== "eoc");
       this.combat = null;
