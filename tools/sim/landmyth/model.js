@@ -122,19 +122,30 @@ function spellCounts(shape, S, avg) {
 }
 
 // ---------- Deck ----------
-// Types: 0 land, 1 dork, 2 rock, then one type per spell cost with a nonzero count (ascending).
-function makeDeck(L, D, R, costCounts, cmdCost = CMD_COST) {
-  const S = DECK_SIZE - L - D - R;
+// Types: 0 land, 1 dork, 2 rock, then one type per spell cost with a nonzero count (ascending),
+// then (real-ramp variant only) one type per extra ramp class, from index X0 = 3 + nSp.
+// ramp (optional): extra ramp classes [{name, cost, out, tapped, count}] beyond the default dork
+// (cost 1, makes 1 from the next turn) and rock (cost 2, makes 1 at once): e.g. Sol Ring
+// {cost 1, out 2}, a 3-mana rock {cost 3, out 1}, a 2-mana dork {cost 2, out 1, tapped: true}.
+// A class with tapped makes mana from the turn after it is cast. Counts may be 0 (the type then
+// exists but is never drawn), so decks of one variant share one layout. Without ramp the deck,
+// its layout and every result are exactly the default model's (X0 = n, nX = 0).
+// D counts the default 1-mana dorks and R the default 2-mana rocks; extra classes are not in D or R.
+function makeDeck(L, D, R, costCounts, cmdCost = CMD_COST, ramp = null) {
+  const xs = ramp || [], nXc = xs.reduce((a, c) => a + c.count, 0);
+  const S = DECK_SIZE - L - D - R - nXc;
   if (S < 0) throw new Error('more than 99 cards');
   const sum = costCounts.reduce((a, b) => a + b, 0);
   if (sum !== S) throw new Error(`spell counts sum ${sum} != S ${S}`);
   const costs = [], K = [L, D, R];
   for (let c = 1; c < costCounts.length; c++) if (costCounts[c] > 0) { costs.push(c); K.push(costCounts[c]); }
   if (costCounts[0]) throw new Error('0-cost spells not modelled');
+  const X0 = K.length;
+  for (const c of xs) K.push(c.count);
   const n = K.length;
-  const cost = [0, DORK_CMC, ROCK_CMC, ...costs];
+  const cost = [0, DORK_CMC, ROCK_CMC, ...costs, ...xs.map(c => c.cost)];
   const maxCmc = Math.max(1, ...costs);
-  const nSp = n - 3;
+  const nSp = X0 - 3, nX = xs.length;
   const W = 2 * n + 4;
   return {
     L, D, R, S, K, n, nSp, cost, costs, maxCmc, W, cmdCost,
@@ -142,6 +153,7 @@ function makeDeck(L, D, R, costCounts, cmdCost = CMD_COST) {
     K_OFF: 0, H_OFF: n, B_LAND: 2 * n, B_ROCK: 2 * n + 1, B_DORK: 2 * n + 2, CMD: 2 * n + 3,
     avg: S ? costs.reduce((a, c, i) => a + c * K[3 + i], 0) / S : 0,
     costCounts: costCounts.slice(),
+    X0, nX, ramp: xs.map(c => ({ name: c.name, cost: c.cost, out: c.out, tapped: !!c.tapped, count: c.count })),
   };
 }
 
@@ -191,17 +203,26 @@ function part1Keep(x) {
 // expensive spell, or if there is no spell, a land, else a dork, else a rock.
 function part1Bottom(deck, x) {
   if (x[T_LAND] >= 4) return T_LAND;
-  for (let i = deck.n - 1; i >= 3; i--) if (x[i] > 0) return i;
+  for (let i = deck.X0 - 1; i >= 3; i--) if (x[i] > 0) return i;
   if (x[T_LAND] > 0) return T_LAND;
   if (x[T_DORK] > 0) return T_DORK;
+  if (!deck.nX || x[T_ROCK] > 0) return T_ROCK;
+  for (let i = deck.n - 1; i >= deck.X0; i--) if (x[i] > 0) return i; // real-ramp variant: an extra ramp card
   return T_ROCK;
+}
+// Same keep rule when the deck has extra ramp classes: they count as ramp.
+function part1KeepX(deck, x) {
+  let R = x[T_DORK] + x[T_ROCK];
+  for (let i = deck.X0; i < deck.n; i++) R += x[i];
+  const L = x[T_LAND];
+  return (L >= 2 && L <= 5) || (L === 1 && R >= 2);
 }
 
 // Opening-state distribution. opts.mulligan false: always keep 7.
 // Otherwise part 1: hand 0 kept if keep(x); else hand 1 (new shuffle, 7 cards, free) kept if keep(x);
 // else hand 2 is always kept with one card bottomed (bottom(x)). keep/bottom are pluggable for phase 2.
 function openingStates(deck, opts = {}) {
-  const keep = opts.keep || part1Keep, bottom = opts.bottom || ((x) => part1Bottom(deck, x));
+  const keep = opts.keep || (deck.nX ? (x) => part1KeepX(deck, x) : part1Keep), bottom = opts.bottom || ((x) => part1Bottom(deck, x));
   const hands = openingHands(deck, 7);
   const res = [];
   const mk = (x, b) => {
@@ -230,6 +251,7 @@ function manaAvailable(deck, s, land) { return s[deck.B_LAND] + land + s[deck.B_
 // Apply an action to a post-draw state s, writing the next pre-draw state into out.
 // Returns the turn's rewards in rw (preallocated object).
 function applyAction(deck, s, a, out, rw) {
+  if (deck.nX) return applyActionX(deck, s, a, out, rw);
   const { n, H_OFF, B_LAND, B_ROCK, B_DORK, CMD, cost } = deck;
   out.set(s);
   if (a.land && s[H_OFF + T_LAND] === 0) throw new Error('land drop without land');
@@ -256,10 +278,61 @@ function applyAction(deck, s, a, out, rw) {
   return rw;
 }
 
+// Real-ramp variant (deck.nX > 0): a.x[k] copies of extra class k are cast too. B_ROCK holds the
+// mana the rocks (and tapped-on-entry classes) on the battlefield make each turn, so a Sol Ring adds 2.
+// Legal iff some casting order pays every ramp card when cast; the order tried is the best one:
+// rocks that make at least what they cost (cheapest first), then the other untapped rocks (most
+// mana made first), then dorks and tapped classes (pure costs), then spells and the commander.
+function rampOrder(deck) {
+  if (deck._rampOrder) return deck._rampOrder;
+  const cls = [{ i: T_ROCK, k: -1, cost: ROCK_CMC, out: 1, tapped: false }];
+  deck.ramp.forEach((c, k) => cls.push({ i: deck.X0 + k, k, cost: c.cost, out: c.out, tapped: c.tapped }));
+  const free = cls.filter(c => !c.tapped && c.out >= c.cost).sort((a, b) => a.cost - b.cost);
+  const neg = cls.filter(c => !c.tapped && c.out < c.cost).sort((a, b) => (b.out - a.out) || (a.cost - b.cost));
+  const sick = [{ i: T_DORK, k: -2, cost: DORK_CMC, out: 1, tapped: true }, ...cls.filter(c => c.tapped)];
+  deck._rampOrder = { free, neg, sick, all: cls };
+  return deck._rampOrder;
+}
+function applyActionX(deck, s, a, out, rw) {
+  const { H_OFF, B_LAND, B_ROCK, B_DORK, CMD, cost, X0, nX } = deck;
+  out.set(s);
+  if (a.land && s[H_OFF + T_LAND] === 0) throw new Error('land drop without land');
+  const mana0 = manaAvailable(deck, s, a.land);
+  if (a.r > s[H_OFF + T_ROCK] || a.d > s[H_OFF + T_DORK]) throw new Error('ramp not in hand');
+  const cnt = c => (c.k === -1 ? a.r : c.k === -2 ? a.d : a.x[c.k]);
+  for (let k = 0; k < nX; k++) if (a.x[k] > s[H_OFF + X0 + k]) throw new Error('ramp not in hand');
+  if (a.cmd && s[CMD]) throw new Error('commander twice');
+  const ord = rampOrder(deck);
+  let avail = mana0, gen = mana0, ramp = 0, rampCast = 0, board = 0;
+  for (const c of [...ord.free, ...ord.neg]) for (let q = cnt(c); q > 0; q--) {
+    if (avail < c.cost) throw new Error('rock not payable');
+    avail += c.out - c.cost; gen += c.out; ramp += c.cost; rampCast++; board += c.out;
+  }
+  for (const c of ord.sick) { const q = cnt(c); avail -= q * c.cost; ramp += q * c.cost; rampCast += q; if (c.k !== -2) board += q * c.out; }
+  let useful = a.cmd ? deck.cmdCost : 0, spells = a.cmd ? 1 : 0;
+  for (let j = 0; j < deck.nSp; j++) {
+    const k = a.take[j];
+    if (k) {
+      if (k > s[H_OFF + 3 + j]) throw new Error('spell not in hand');
+      out[H_OFF + 3 + j] -= k; useful += k * cost[3 + j]; spells += k;
+    }
+  }
+  if (useful > avail) throw new Error('overspent');
+  if (a.land) { out[H_OFF + T_LAND]--; out[B_LAND]++; }
+  out[H_OFF + T_ROCK] -= a.r; out[H_OFF + T_DORK] -= a.d; out[B_DORK] += a.d;
+  for (let k = 0; k < nX; k++) out[H_OFF + X0 + k] -= a.x[k];
+  out[B_ROCK] += board;
+  if (a.cmd) out[CMD] = 1;
+  rw.useful = useful; rw.gen = gen; rw.ramp = ramp; rw.spells = spells; rw.rampCast = rampCast;
+  rw.unused = gen - useful - ramp;
+  return rw;
+}
+
 // All legal actions (for phase 2). With maximalOnly, only actions to which no further card
 // in hand can be added (land drop always taken): any other action is weakly dominated in the
 // solo goldfish (casting a card now with mana that would otherwise be lost never hurts).
 function enumerateActions(deck, s, maximalOnly = true) {
+  if (deck.nX) throw new Error('enumerateActions: the real-ramp variant (extra ramp classes) is not supported in phase 2 yet');
   const { H_OFF, CMD, nSp, cost } = deck;
   const land = s[H_OFF + T_LAND] > 0 ? 1 : 0;
   const mana0 = manaAvailable(deck, s, land);
@@ -299,5 +372,5 @@ function enumerateActions(deck, s, maximalOnly = true) {
 module.exports = {
   SCENARIOS, DECK_SIZE, CMD_COST, DORK_CMC, ROCK_CMC, MAX_COST, T_LAND, T_DORK, T_ROCK,
   drawsAt, tightCounts, normalCounts, barbellCounts, spellCounts, makeDeck, binom,
-  openingHands, openingStates, part1Keep, part1Bottom, applyAction, enumerateActions, manaAvailable,
+  openingHands, openingStates, part1Keep, part1KeepX, part1Bottom, applyAction, rampOrder, enumerateActions, manaAvailable,
 };

@@ -21,6 +21,8 @@
 // Options: --out DIR (default ./landmyth-results)  --workers N (default: all cores)
 //          --max-mem GB (default: min(48, 75% of RAM))  --pass N (stop after pass N)
 //          --verbose (print each graph as it is built)
+//          --rocks real (the real-ramp variant, realramp.js: separate results in landmyth-results-real/;
+//          node run.js --rocks real, node run.js report --rocks real, node run.js selftest --rocks real)
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
@@ -344,9 +346,22 @@ async function selftest() {
 }
 
 const cmd = A._[0] || 'run';
+// --rocks real: the real-ramp variant (realramp.js; PREREG change log 2026-10-13). Off by default;
+// its own results folder (default landmyth-results-real/cells-real.jsonl and report.md), so the
+// default grid's files are never touched. Default slice on the Mac: tight + normal3, average cost
+// 2.5/3/3.5/4, commander 4, P1/P4/P8, the comparison grid of realramp.js; every slice option of
+// realramp.js passes through (e.g. --cmds 2,4,6 --scens P1,P8).
+if (A.rocks === 'real') {
+  const RR = require('./realramp');
+  const a = Object.assign({ avgs: '2.5,3,3.5,4', scens: 'P1,P4,P8' }, A, { out: A.out || 'landmyth-results-real', _: [cmd === 'run' ? 'run' : cmd] });
+  if (A['max-mem']) a.mem = A['max-mem'];
+  if (!A['graph-max']) a['graph-max'] = Math.max(4, Math.floor(MEM / 4)); // shared graphs up to a quarter of the memory budget; bigger ones solve deck by deck
+  RR.main(a).catch(e => { console.error('\n' + (e && e.message || e)); process.exitCode = 1; });
+} else {
 const fns = { run, status, report: () => report(false), pack, selftest };
 if (String(A.phase) === '2') { // phase 2: optimal play and mulligans (phase2.js); phase 1 above is unchanged
   const ram = os.totalmem() / 1024 ** 3; // phase 2 scales to the machine: default max(75% of RAM, RAM - 24 GB)
   require('./phase2').cli(cmd, A, { OUT, WORKERS, MEM: +(A['max-mem'] || Math.floor(Math.max(0.75 * ram, ram - 24))) }).catch(e => { console.error('\n' + (e && e.stack || e)); process.exitCode = 1; });
 } else if (!fns[cmd]) { console.log('Usage: node run.js [run|status|report|pack|selftest] [--out DIR] [--workers N] [--max-mem GB] [--pass N]   (phase 2: add --phase 2)'); process.exitCode = 1; }
 else Promise.resolve(fns[cmd]()).catch(e => { console.error('\n' + (e && e.message || e)); process.exitCode = 1; });
+}

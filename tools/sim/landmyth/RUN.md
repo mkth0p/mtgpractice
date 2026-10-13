@@ -101,3 +101,13 @@ nohup node run.js --phase 2 --pass 2 --cmds 2,4,7 --scens P1,P4,P8 --shapes tigh
 ```
 
 Use `plan` with the same flags first to see the time on that machine.
+
+## Real-ramp variant (optional, after the main grid)
+
+This is a separate run with realistic rocks and dorks (Sol Ring, 3-mana rocks and 2-mana dorks, per colour profile; see README "Real-ramp variant"). It never touches the main results.
+```
+caffeinate -i node run.js --rocks real          # results in landmyth-results-real/
+node run.js report --rocks real                  # landmyth-results-real/report.md
+node run.js selftest --rocks real                # graph pass vs the reference solver on real decks
+```
+Default slice: tight + normal3 curves, average cost 2.5/3/3.5/4, commander 4, draw scenarios P1/P4/P8. When a deck group's shared graph would need more than a quarter of `--max-mem`, its decks are solved one by one, which is slower. `--skip-direct` leaves those decks out. Slice options: `--avgs`, `--cmds`, `--scens`, `--shapes`, `--lands`, `--dorks`, `--rock-counts`, `--profiles`. Send back `landmyth-results-real/report.md` and `landmyth-results-real/cells-real.jsonl`.

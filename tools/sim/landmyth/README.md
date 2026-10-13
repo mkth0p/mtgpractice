@@ -44,6 +44,8 @@ Each turn: draw; play a land if one is in hand; if the commander is not cast, ca
 | `measure.js` | state-space measurement (heuristic and optimal-policy reachability). |
 | `reductions.js` | state reductions and approximations, each against the exact model. |
 | `measure-results.json`, `reductions-results.json` | the measurements quoted below. |
+| `realramp.js` | the real-ramp variant (off by default): colour profiles, deck mapping, its own runner and report (`node run.js --rocks real`). See "Real-ramp variant" below. |
+| `pool.js`, `pool-caps.json` | the real card pool behind it: Commander-legal rocks and dorks per class for all 32 colour identities. |
 
 ## Running the grid: `run.js` (see RUN.md)
 
@@ -275,6 +277,47 @@ One-cost tight curves only, so preliminary; the report is `report-p2.md`.
 | `phase2.js` | the phase 2 runner behind `node run.js --phase 2` (passes, ramp-class jobs, memory-aware scheduler, report) |
 | `check2.js` | phase 2 gates |
 | `PREREG-proposed-changes.md` | proposed PREREG change-log lines for phase 2 (not applied) |
+
+## Real-ramp variant
+
+Off by default; the default model and its outputs are unchanged (gates below). PREREG change log, 2026-10-13.
+
+**Why.** The default grid's "rock" is a 2-mana rock that adds 1 and its "dork" a 1-mana creature that adds 1, with no limit on counts. Real decks play one Sol Ring, a handful of 2-mana rocks, 3-mana rocks once those run out, and only green has enough 1-mana dorks (7 in one or two colours, 9 in four or five; past that, 2-mana dorks).
+
+**Classes** (`model.makeDeck(..., ramp)`): Sol Ring (cost 1, adds 2, singleton), 3-mana rocks (add 1), 2-mana dorks (summoning sick). They sit after the spell types; `B_ROCK` holds rock mana, so a Sol Ring adds 2 to it. The default grid's `rocks` and `dorks` stay the 2-mana rocks and 1-mana dorks.
+
+**Deck mapping** (`realramp.deckOf`): a grid deck L:D:R becomes, for a profile with caps (d1, d2, r2, r3): 1-mana dorks min(D, d1), 2-mana dorks the rest; Sol Ring 1 if R >= 1; 2-mana rocks min(R - 1, r2), 3-mana rocks the rest. A deck past d1 + d2 dorks or 1 + r2 + r3 rocks is outside the profile's realistic region and is not scored.
+
+**Caps** come from `pool.js`: it reads the committed Scryfall dump (`research/miku-tournament/local/scryfall/default-cards.jsonl.gz`, cards up to 2027-04-08), keeps Commander-legal cards whose only effect is a plain mana ability, classes them by cost and output, and counts them for all 32 colour identities and for EDHREC rank cut-offs (all, 5000, 3000, 1500). `pool-caps.json` holds the counts, the query rules, the card list and the date. The "realistic" caps use rank <= 3000. Identities are grouped into profiles by their tightest member:
+
+| profile | identities | 1-mana dorks | 2-mana dorks | 2-mana rocks (besides Sol Ring) | 3-mana rocks |
+|---|---|---|---|---|---|
+| C | colourless | 0 | 2 | 7 | 17 |
+| nonG1 | W U B R | 0 | 3 | 7 | 17 |
+| nonG2 | WU WB UB WR UR BR | 0 | 4 | 9 | 18 |
+| nonG34 | WUB WUR WBR UBR WUBR | 0 | 5 | 13 | 19 |
+| G1 | G | 7 | 16 | 7 | 17 |
+| G2 | WG UG BG RG | 7 | 17 | 9 | 17 |
+| G3 | WUG WBG UBG WRG URG BRG | 7 | 18 | 13 | 18 |
+| G45 | WUBG WURG WBRG UBRG WUBRG | 9 | 20 | 19 | 19 |
+| nocap | (real rocks only: Sol Ring + 2-mana rocks, no caps) | any | 0 | any | 0 |
+
+What real decks play (EDHREC "Top mana artifacts", read 2026-10-13, edhrec.com/top/mana-artifacts): Sol Ring in 83% of decks, about 2.1 two-mana rocks per deck (Arcane Signet 72%, Talismans, Signets, Fellwar Stone, Thought Vessel, Mind Stone), about 0.3 three-mana rocks. Mana Crypt and Jeweled Lotus are banned (2024-09-23); Chrome Mox, Mox Diamond, Mana Vault and Grim Monolith are Game Changers. Fast mana (moxen, Vault, Monolith) is not modelled.
+
+**Play rule** (`policy1.makePolicyX`): land; Sol Ring whenever it can be paid; commander first as in part 1 (cast a rock first only if the commander can still be cast after it); then, up to turn 6, rocks by cost per mana added (Sol Ring, 2-mana, 3-mana), then dorks (1-mana, then 2-mana); then spells by the part 1 rule; ramp after turn 6 only with mana left over.
+
+**Gates** (`node check.js --only r`): r0 zero-count classes equal the default exactly; r1 land drops against the closed form (24/24, <= 1e-14); r2 exhaustive enumeration against an independent simulator of the rule (4/4, <= 8.4e-11); r3 Monte Carlo with mulligans (5/5, max |z| 2.72); r4 the shared-graph runner against `exact.js` (tight and normal3, <= 5.4e-11). With the variant in place, check.js a, b1, b3, c and the grid selftest print the same output as before, and the 343 committed pass 1 cells recompute with 0 differences.
+
+**Results** (`/mnt/project-files/mana-base-sim/part2/real-rocks/report.md`, coarse grid, commander 4, T 4-15; complete contexts: tight average 3 and 3.5 at P1 and P4, normal3 average 3 and 3.5 at P1):
+
+- The default model's best decks (12-15 one-mana dorks) cannot be built outside green, even from the whole legal pool (35 of 36 context x T cases); in green they need 2-mana dorks past the seventh (27-33 of 36).
+- Non-green profiles: best decks have no dorks, 36-48 lands and 1-12 rocks. Against the default best they lose 10-18% at T=4 and 4-8% at T=6. From T=8 they lose 0.3-3%, shrinking with T, except on normal3 average 3, where they are level or slightly ahead (0.1-0.9%).
+- Green profiles: 6-10 dorks plus Sol Ring, within -2.6% to +1.6% of the default best.
+- With only real rocks (nocap) the best decks are the default best plus Sol Ring, 0.9-5.5% higher.
+- 36-40 lands is still not necessary in any context, for any variant (36/36 refuted each). Outside green it is refuted more often by decks with more than 40 lands (27 of 36) than with fewer than 36 (18).
+- Dorks against rocks at 36 lands, T=6: in the default model a dork is worth about twice a rock (1.8-2.1; normal3 average 3: 3.6-7). With Sol Ring counted, two rocks beat two dorks (d/r 0.66-0.83), four are about even (0.98-1.12), and from six on dorks win (1.1-1.5). Non-green 2-mana dorks are worth a third to a half of rocks.
+
+**Coverage.** Deck groups whose shared graph is too big for this machine (mostly decks with all five ramp classes) were left out with `--skip-direct`; the report marks each profile row "partial n" (up to 224 decks of a green profile's region). Normal3 at P4 was only started, so the report leaves those two contexts out. The full slice runs on the Mac with `node run.js --rocks real` (RUN.md).
 
 ## Part 1 notes
 
