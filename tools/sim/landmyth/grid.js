@@ -230,7 +230,7 @@ function cellRecord(c, deck, sum, method) {
 // A task is a list of cells of one (shape, commander, scenario) that (nearly always) share one cost
 // set. The worker groups them by (cost set, lump grouping), builds each group's graph once and
 // sweeps every deck of the group over it; one graph is held at a time.
-if (!isMainThread) {
+if (!isMainThread && workerData && workerData.task) { // only grid.js's own workers (other modules may load grid.js in their threads)
   const { task, T } = workerData;
   const groups = new Map();
   for (const c of task.cells) {
@@ -449,4 +449,4 @@ async function main() {
 }
 
 if (require.main === module) main().catch(e => { console.error('\n' + e.message); process.exitCode = 1; });
-module.exports = { universalDeck, lumpGroupsOf, buildGraph, sweep, comps, cellsFor, cellId, parseId, deckFor, sliceTasks, taskCells, runTasks, readDone, forEachLine, estimateGB, estimateSecs, selftest };
+module.exports = { universalDeck, lumpGroupsOf, toUniversal, findIdx, KMAX, buildGraph, sweep, comps, cellsFor, cellId, parseId, deckFor, sliceTasks, taskCells, runTasks, readDone, forEachLine, estimateGB, estimateSecs, selftest };

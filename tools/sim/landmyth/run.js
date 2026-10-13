@@ -8,6 +8,8 @@
 //   node run.js report       write report.md (preliminary findings from the cells done so far)
 //   node run.js pack         write cells.jsonl.gz (the file to send back) next to the results
 //   node run.js selftest     check the runner against exact.js on a few cells
+//   node run.js --phase 2 [run|status|report|pack|selftest|plan]   phase 2: optimal play and
+//                            mulligans (phase2.js, opt.js); its own files cells-p2.jsonl, report-p2.md
 //
 // Passes (each only computes cells that are not done yet; later passes include earlier cells):
 //   1  coarse:  lands/dorks/rocks in steps of 4, average cost 2.5/3/3.5/4, commander 4,
@@ -343,5 +345,8 @@ async function selftest() {
 
 const cmd = A._[0] || 'run';
 const fns = { run, status, report: () => report(false), pack, selftest };
-if (!fns[cmd]) { console.log('Usage: node run.js [run|status|report|pack|selftest] [--out DIR] [--workers N] [--max-mem GB] [--pass N]'); process.exitCode = 1; }
+if (String(A.phase) === '2') { // phase 2: optimal play and mulligans (phase2.js); phase 1 above is unchanged
+  const ram = os.totalmem() / 1024 ** 3; // phase 2 scales to the machine: default max(75% of RAM, RAM - 24 GB)
+  require('./phase2').cli(cmd, A, { OUT, WORKERS, MEM: +(A['max-mem'] || Math.floor(Math.max(0.75 * ram, ram - 24))) }).catch(e => { console.error('\n' + (e && e.stack || e)); process.exitCode = 1; });
+} else if (!fns[cmd]) { console.log('Usage: node run.js [run|status|report|pack|selftest] [--out DIR] [--workers N] [--max-mem GB] [--pass N]   (phase 2: add --phase 2)'); process.exitCode = 1; }
 else Promise.resolve(fns[cmd]()).catch(e => { console.error('\n' + (e && e.message || e)); process.exitCode = 1; });

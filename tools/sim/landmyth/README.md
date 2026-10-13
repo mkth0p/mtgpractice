@@ -1,4 +1,4 @@
-# Land myth part 2, phase 1: the exact goldfish model
+# Land myth part 2: the exact goldfish model (phase 1) and the optimal policy (phase 2)
 
 Part 1 (`tools/sim/manabase/manasim.js`) estimated each mana base by Monte Carlo. Phase 1 of part 2 computes the same solo game **exactly**: every reachable game state is enumerated with its exact probability, so there is no sampling noise. Under part 1's own play and mulligan rules the two must agree, and they do (gates below). Phase 1 also measures how large the state space is, which decides what phase 2 (the optimal policy) can afford. The study design is in `PREREG.md`.
 
@@ -46,6 +46,9 @@ Each turn: draw; play a land if one is in hand; if the commander is not cast, ca
 | `measure-results.json`, `reductions-results.json` | the measurements quoted below. |
 
 ## Running the grid: `run.js` (see RUN.md)
+
+Phase 2: `node run.js --phase 2` (see "Phase 2" below and RUN.md).
+
 
 `node run.js` runs the phase 1 grid in three passes (coarse: steps of 4, 4 averages, commander 4, P1/P4/P8, 4,032 cells; medium: steps of 2, everything else full, 1.16M cells; full: 8.6M cells), skipping finished cells, fsync'ing one JSON line per cell to `landmyth-results/cells.jsonl`, and writing a preliminary `report.md` after each pass (near-optimal regions at T = 6/8/10/15, commander effect, the 36-40 necessity test, 38+10, minimax regret). `status`, `report`, `pack` and `selftest` subcommands. Tight is exact; normal (normal3) uses the lump-hand-g2 library on the same shared graphs. Tested here: kill -9 mid-run plus a torn last line, then resume, gives a file identical to a clean run (672 cells, 0 differing, no duplicates).
 
@@ -177,6 +180,101 @@ Commander cost multiplies the cell count by 6; it changes state counts by only -
 1. Build phase 2 on the shared graph: build the optimal-policy graph once per (cost set, commander cost, scenario) with `model.enumerateActions`, then run backward induction per deck and per horizon over it. The action set does not depend on the deck, only the draw probabilities do.
 2. Use the lump-hand library for tight (error < 0.05% on V and N, 3-4x fewer states), and log the coarsening PREREG already allows: lands/dorks/rocks in steps of 2, and averages in steps of 0.5 for phase 2. The phase 1 rule can still cover the full tight grid exactly.
 3. The normal curve, as defined (5-6 costs), is out of reach for an exact or near-exact optimal policy on any machine available, and for the phase 1 rule beyond small slices. Options to put to ju: (a) fold the normal onto 3 costs (`normal3` in `model.js`, not in PREREG; 28:10:12 at P1: 62M exact states, 22M with lump-hand-g2, between tight and normal; optimal-policy counts not measured); (b) keep normal for the phase 1 rule only, on a coarse slice at P1-P4; (c) evaluate normal decks under policies optimised on tight. Each needs a PREREG change-log entry.
+
+## Phase 2: the optimal policy
+
+Phase 2 replaces part 1's play and mulligan rules with the best possible ones, deck by deck and horizon by horizon, and computes them exactly (no sampling). Same deck model, curves, scenarios and outputs as phase 1.
+
+### What it computes
+
+For every deck, curve, commander cost and scenario, and for every horizon T = 3..15 taken as its own problem (the best play for a 6-turn game is not the best play for a 15-turn one):
+
+- the policy maximising **V0.9** (useful mana spent, discounted 0.9 a turn), and, solved separately, the policy maximising **N** (useful spells cast, raw);
+- under each optimal policy: its optimal value, the other objective's value, useful mana (raw), total mana, unused mana, spells cast, useful spells left in hand, ramp cast, expected commander turn;
+- on pass 1, also the policies optimal for V0.8 and V1.0 (discount sensitivity);
+- the same cell under part 1's rules (computed with phase 1's code), so every cell shows the gain;
+- the optimal mulligans: P(keep) for each hand, and the keep rate by number of lands in hand.
+
+"Optimal" means for this goldfish model: no opponent, all spells of a cost are interchangeable, a land is always worth playing.
+
+### Method
+
+**Backward induction (Bellman).** The game graph contains every state reachable under any *non-dominated* action: play a land if there is one; cast a set of spells, dorks, rocks and the commander such that nothing else in hand is still castable, with rocks first when they pay for themselves. Every other action is worse or equal (exchange argument; `check2.js` gate b confirms it against an independent brute force over every play order with optional land drop). The value of each state is computed backward from the horizon, the best action is kept, then a forward pass under the chosen policy gives the secondary outputs. 13 horizons x 2 objectives = 26 backward passes per deck; one deck's pass touches every edge once.
+
+**One graph, many decks.** As in phase 1, states are written in "cards seen" coordinates, so the graph (states and actions) does not depend on how many lands, dorks, rocks and spells the deck has; only the draw probabilities do. A graph is built once per (curve, commander cost, scenario) and shared by every deck on it (decks solved 4 at a time, interleaved). Graphs are further cut per ramp class: a deck with 4 dorks never needs states with 5 dorks seen, so a graph is built per (dork count, range of rock counts). Same numbers, 2-3x less work.
+
+**Ties.** When several actions are optimal (within 1e-12), the policy takes the one with the larger immediate secondary reward (spells for V, mana for N), then a fixed order; equal keep/mulligan values keep. This only affects which optimal policy the secondary outputs describe.
+
+**Library.** tight: exact. normal3 (the normal curve folded onto 3 costs; see `PREREG-proposed-changes.md`): lump-hand-g2 library, as in phase 1 (gate d).
+
+**Mulligans as optimal stopping.** Hand 1 (7 cards), free mulligan to hand 2 (7 cards), then London: hand 3 is 7 cards with 1 bottomed, hand 4 with 2 bottomed, ... At each hand the policy keeps if the kept hand's value (with the best cards bottomed) is at least the expected value of mulliganing, which is known from the deeper hands. The last hand is always kept. Each hand's value is the exact optimal value of the rest of the game, so the mulligan and the play are optimal together.
+
+**Mulligan depth.** Default depth 3: hands of 7, 7, 6, and a 5-card hand always kept (`--depth D` changes it). Part 1 stopped one level earlier (hand 3 always kept). Each deeper level adds roughly one depth-2 graph of states, so depth costs memory and time linearly:
+
+| tight 3.0, P1, T = 15 | depth 2 (part 1) | 3 (default) | 4 | 5 |
+|---|---|---|---|---|
+| states | 6.6M | 13.6M | 22.3M | 31.9M |
+| 36:5:5 optimal V0.9, T = 3 | 4.45 | 4.77 | 5.01 | 5.15 |
+| same, T = 6 | 12.21 | 12.38 | 12.43 | 12.44 |
+
+Depth matters a lot in very short games (a 5-card hand with 2 lands beats a 6-card hand with 0) and little from T = 8 on: from depth 2 to 3, the median gain over the pass 1 slice is 1.1% at T = 6 and 0.3% at T = 15 (largest 8%, land-light or land-heavy decks at short T). Depth 3 to 4 adds under a third of that. Every cell also stores the optimal value with the forced keep at each shallower depth (`depthV`), so the report shows the depth effect on every deck.
+
+### Gates: `node check2.js` (prints PASS/FAIL)
+
+All run with `--quick` here (about 25 minutes; the full version uses longer horizons). Every phase 2 cell also checks gate a for itself (the report's section 0).
+
+| Gate | Result |
+|---|---|
+| a. optimal >= part 1's rule (tolerance 1e-9), V0.9, N, V0.8, V1.0 | PASS: 7 configurations (tight 2.5-3.5, normal3 3-4, commanders 2-7, P1/P4/P8), 7 decks each, 1,484 checks; smallest margin 0.024 (48:0:0, N, T = 3). On the 1,008-cell pass 1 slice, every cell passes too (78,624 checks, including optimum >= optimal play with part 1's mulligans >= part 1). |
+| b. equal to an independent brute-force expectimax (`brute.js`: every play order, optional land drop, every bottom choice) | PASS: 6 cases (tight 2.5-4.5 and normal3 exact library, commanders 2-7, P1/P2/P4/P5, T = 3-4, mulligan depth 2-5); largest difference 6.8e-13. Brute force beyond T = 4-5 does not finish. |
+| c. monotonicity | PASS: P1 <= P2 <= ... <= P8 (400 comparisons, never decreasing); nondecreasing in T (smallest step 0.98) and in mulligan depth 2 -> 3 (smallest step 0.0066); solving 5 decks together gives the same bits as one at a time. |
+| d. normal3: lump-hand-g2 library vs exact library, optimal values | PASS: 4 configurations (averages 2.5-4, P1/P4/P8), largest relative error V 0.028%, N 0.089% (threshold 0.5%), for 0.6x the states. |
+| e. Karsten's optimum | SKIP: the research notes give his objective only in words (no curve, play or mulligan rules); no web access by instruction. |
+
+### Measured size and speed (4-vCPU reference box; a Mac M5 core is about 1.5x faster)
+
+Optimal graphs, depth 3, T = 15, commander 4, one universal graph (all ramp classes):
+
+| curve | P1 | P4 | P8 |
+|---|---|---|---|
+| tight, one cost (avg 3) | 13.6M states, 0.4 GB, 25 s | 34.7M, 0.9 GB, 47 s | 106M, 3.2 GB, 170-190 s |
+| tight, two costs (avg 3.5) | 182M, 4.9 GB, 380 s (peak 7.9 GB) | ~520M est. | ~1.0G est. (244M by turn 9 in 633 s) |
+| normal3 (lump-hand-g2, avg 3) | ~0.5G est. (54M by turn 11) | ~1.2G est. | ~2.8G est., 60-125 GB |
+
+Per ramp class the graphs are smaller (tight 3.0 P4: 0.01M states without ramp, 30.5M with 12 dorks and 12 rocks, mean over pass 1's decks 9.6M; tight 3.5 P1: 0.25M to 121M). About 30-36 bytes per state while building (states, edges, per-action rewards) plus 16 bytes per deck per state of the largest layer while solving. Build: 2-2.6 us per state, single-threaded per graph. Solve: about 0.14 us per state per deck per objective for all 13 horizons (backward and forward), 4 decks at a time.
+
+The runner (`run.js --phase 2`) estimates every graph's memory before starting it, runs as many graphs at once as memory and cores allow, and skips (and lists) graphs that cannot fit. The estimates come from the measurements above and are recalibrated from `tasks-p2.jsonl` as graphs finish (per graph kind; on the pass 1 slice below, 84 one-cost graphs built at 0.58x the estimate and solved at 1.00x, and 1,008 cells took 77 minutes with 3 threads in 6 GB here; two-cost and normal3 graphs are not calibrated yet).
+
+### Runtime estimates
+
+| | core-days (ref.) | Mac (18 cores, 64 GB, 48 GB used) | cloud (192 cores, 384 GB) |
+|---|---|---|---|
+| pass 1 (4,032 cells, 4 objectives) | 16 | about 2-3 days, without the 28 largest normal3 P8 graphs (352 cells; 60-125 GB each) | about 1-1.5 days, everything |
+| pass 2 as specified (631k cells) | about 1,300 | no | about 75 days: no |
+| pass 2 options | 60-280 | see `PREREG-proposed-changes.md` | 2-6 days |
+
+`node run.js --phase 2 plan --workers N --max-mem GB --ram GB [--pass 2] [--shapes tight] [--scens P1,P4,P8] [--cmds 2,4,7] [--avgs ...]` prints the estimate for any machine and slice without running anything.
+
+### First results (pass 1 slice: tight, averages 3 and 4, P1/P4/P8, commander 4, 1,008 cells)
+
+One-cost tight curves only, so preliminary; the report is `report-p2.md`.
+
+- **Optimal play and mulligans gain a lot over part 1's rule**, mostly at short horizons: V0.9 median +15% at T = 6, +8% at T = 8, +5.6% at T = 10, +3.8% at T = 15 (largest 32%); N about the same. 60-99% of the gain comes from the mulligans: with a free first mulligan, the optimal policy mulligans much more than part 1 (it keeps the first 7 only 30-60% of the time).
+- **The best deck moves to fewer lands and more dorks.** V0.9, average 3: best 40:12:0 at T = 6, 32:12:0 at T = 8, 28:12:0 at T = 10, 24:12:0 at T = 15, about 4 lands fewer than under part 1's rule at T >= 8 (36, 32, 28:8:0). Across contexts the best deck has 2-4 fewer lands; for V the dorks stay at the grid's maximum (12), rocks about unchanged. Near-optimal land ranges widen downward (T = 10: 24-36 vs 28-40).
+- **36-40 lands are not necessary** in any context of the slice (refuted in 6/6 contexts at every T, both objectives): decks with 20-32 lands are within 2% of the best 36-40 deck. Same verdict as under part 1's rule, with the floor 0-4 lands lower.
+- **Optimal mulligans** (36:4:4, tight 3, P1, V, T = 10): keep the first 7 with 3 lands 98% of the time, 4 lands 81%, 2 lands 50%, 5+ never; after the free mulligan, keep 3-4 lands almost always and 2 lands half the time. 40:0:0 keeps exactly 3-5 lands (T = 6: only 4-6). N-optimal policies at T = 15 keep 0-2-land hands and mulligan 3+: N counts spells cast, and late in a long game a hand full of spells is worth more than a land-rich one.
+- **Mulligan depth** (5-card hands allowed vs forced keep at 6): median gain 2.1% at T = 6, 0.3% at T = 15 (largest 13%).
+- **Discount**: the 0.8-optimal best deck has 4-8 more lands than the 0.9 one at T = 15; at 1.0, fewer dorks (0-8 instead of 12).
+
+### Files (phase 2)
+
+| File | What |
+|---|---|
+| `opt.js` | optimal-policy graph builder (`buildOptGraph`), batched backward induction with optimal mulligans (`solveDecks`), part 1 baseline on the same deck (`heuristicBaseline`); CLI for one deck: `node opt.js --deck 36:5:5 --avg 3 --scenario P4 --T 15` |
+| `brute.js` | independent brute-force expectimax (every play order, optional land drop, every bottom choice) for gate b |
+| `phase2.js` | the phase 2 runner behind `node run.js --phase 2` (passes, ramp-class jobs, memory-aware scheduler, report) |
+| `check2.js` | phase 2 gates |
+| `PREREG-proposed-changes.md` | proposed PREREG change-log lines for phase 2 (not applied) |
 
 ## Part 1 notes
 
