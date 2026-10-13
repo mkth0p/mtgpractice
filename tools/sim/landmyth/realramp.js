@@ -135,7 +135,7 @@ function tasksFor(o, done) {
   const comps = new Map();
   for (const m of rows) { comps.set(compKey(m.old), m.old); for (const c of Object.values(m.real)) if (c) comps.set(compKey(c), c); }
   const groups = new Map();
-  let total = 0;
+  let total = 0, skipped = 0;
   for (const shape of o.shapes) for (const avg of o.avgs) for (const cmd of o.cmds) for (const sc of o.scens) for (const c of comps.values()) {
     const deck = deckOf(c, shape, avg, cmd); if (!deck) continue;
     total++;
@@ -150,10 +150,10 @@ function tasksFor(o, done) {
   const tasks = [];
   for (const t of groups.values()) {
     if (estimateGB(t, o.T) <= o.graphMax) { tasks.push(t); continue; }
-    if (o.skipDirect) continue;
+    if (o.skipDirect) { skipped += t.cells.length; continue; }
     for (const c of t.cells) tasks.push(Object.assign({}, t, { key: t.key + '|' + compKey(c.comp) + '|' + c.avg, direct: true, cells: [c] }));
   }
-  return { tasks, total };
+  return { tasks, total, skipped };
 }
 // Memory estimate (GB) of a task: grid.js's estimate for the default deck times a factor per ramp
 // type present beyond it (Sol Ring x2.1 measured on tight 3.5 P4 T = 15; 3-mana rocks and 2-mana
@@ -162,6 +162,7 @@ const XFACTOR = [0.5, 0.5, 2.1, 3, 3]; // factor when the type is absent (dork1,
 function estimateGB(t, T) {
   if (t.direct) return 1;
   let f = 1; for (let i = 0; i < 5; i++) if ((t.pres[i] === '1') === (i >= 2)) f *= XFACTOR[i];
+  if (t.pres === '11111') f *= 1.4; // all five ramp types: measured 5.2 GB against 3.8 estimated (tight 3, P4)
   return G.estimateGB({ shape: t.shape, sc: t.sc, cmd: t.cmd, nCosts: t.nCosts }, T) * f;
 }
 function record(c, deck, sum) {
@@ -227,11 +228,11 @@ async function run(a) {
   fs.mkdirSync(out, { recursive: true });
   const file = path.join(out, 'cells-real.jsonl');
   const done = G.readDone(file);
-  const { tasks, total } = tasksFor(o, done);
+  const { tasks, total, skipped } = tasksFor(o, done);
   const todo = tasks.reduce((x, t) => x + t.cells.length, 0);
   const workers = +(a.workers || Math.max(1, os.cpus().length));
   const memGB = +(a.mem || a['max-mem'] || Math.min(48, Math.floor(0.75 * os.totalmem() / 1024 ** 3)));
-  console.log(`Real-ramp variant: ${total} cells (old and real decks), ${total - todo} done, ${todo} to run in ${tasks.length} graphs, ${workers} workers within ~${memGB} GB -> ${file}`);
+  console.log(`Real-ramp variant: ${total} cells (old and real decks), ${total - todo - skipped} done, ${skipped} left out (--skip-direct), ${todo} to run in ${tasks.length} tasks, ${workers} workers within ~${memGB} GB -> ${file}`);
   const t0 = Date.now();
   await runTasks(tasks, { outFile: file, T: o.T, workers, memGB, verbose: !!a.verbose, onCell: n => { if (n % 50 === 0 || n === todo) process.stdout.write(`\r${n}/${todo} cells, ${((Date.now() - t0) / 60000).toFixed(1)} min   `); } });
   console.log(`\ndone in ${((Date.now() - t0) / 60000).toFixed(1)} min`);
@@ -273,19 +274,19 @@ function report(a) {
   const summary = { necessity: {}, outside: {} };
   // per context: best deck and band per variant, necessity, old best outside realistic region
   const bestOf = (ctx, vk, t) => {
-    let b = -1, bm = null; const xs = [];
-    for (const m of rows) { const c = vk === 'old' ? m.old : m.real[vk]; const v = val(ctx, c, t); if (v == null) continue; xs.push([m, v]); if (v > b) { b = v; bm = m; } }
+    let b = -1, bm = null, missing = 0; const xs = [];
+    for (const m of rows) { const c = vk === 'old' ? m.old : m.real[vk]; if (!c) continue; const v = val(ctx, c, t); if (v == null) { missing++; continue; } xs.push([m, v]); if (v > b) { b = v; bm = m; } }
     if (!bm) return null;
     const thr = b * (1 - DELTA); let lo = 99, hi = 0, cnt = 0;
     for (const [m, v] of xs) if (v >= thr) { lo = Math.min(lo, m.L); hi = Math.max(hi, m.L); cnt++; }
     let bIn = -1, bInM = null; for (const [m, v] of xs) if (m.L >= 36 && m.L <= 40 && v > bIn) { bIn = v; bInM = m; }
     const thrN = bIn - DELTA * b; let below = false, above = false;
     for (const [m, v] of xs) if (v >= thrN) { if (m.L < 36) below = true; if (m.L > 40) above = true; }
-    return { b, bm, lo, hi, cnt, refuted: below || above, below, above, bIn, bInM, xs };
+    return { b, bm, lo, hi, cnt, missing, refuted: below || above, below, above, bIn, bInM, xs };
   };
   p('## 1. Best deck and near-optimal land range, per variant');
   p('');
-  p('Each cell: best deck lands:dorks:rocks, the land counts among near-optimal decks (lo-hi), and, for the default model, ⚠ when its best deck cannot be built from the realistic pool of some profiles (listed under the table).');
+  p('Each cell: best deck lands:dorks:rocks, the land counts among near-optimal decks (lo-hi); for a profile, its best V against the default model\'s best (%); for the default model, ⚠ when its best deck cannot be built from the realistic pool of some profiles (listed under the table). "partial n" = n decks of the profile\'s region not computed yet (too big for this machine; they run on the Mac).');
   for (const ctx of ctxs) {
     p('');
     p(`### ${ctx.shape}, average ${ctx.avg}, commander ${ctx.cmd}, ${ctx.sc}`);
@@ -296,10 +297,13 @@ function report(a) {
       const cellsTxt = TS.map(t => {
         const r = bestOf(ctx, v.key, t); if (!r) return '-';
         let s = `${fmt(r.bm)} (${r.lo}-${r.hi})`;
+        if (v.key !== 'old') { const o0 = bestOf(ctx, 'old', t); if (o0) s += ` ${(100 * (r.b / o0.b - 1)).toFixed(1)}%`; }
+        if (r.missing) s += ` partial ${r.missing}`;
         if (v.key === 'old') {
           const bad = profs.filter(q => q.key !== 'nocap' && !r.bm.real[q.key]).map(q => q.key + (r.bm.pool[q.key] ? '' : '*'));
-          if (bad.length) { s += ' ⚠'; notes.push(`T=${t}: default best ${fmt(r.bm)} not buildable for ${bad.join(', ')}`); }
-          for (const q of profs) { const k = `${q.key}`; summary.outside[k] = summary.outside[k] || [0, 0]; summary.outside[k][1]++; if (!r.bm.real[q.key]) summary.outside[k][0]++; }
+          const down = profs.filter(q => q.key !== 'nocap' && r.bm.real[q.key] && (r.bm.real[q.key][4] + r.bm.real[q.key][5] > 0)).map(q => q.key);
+          if (bad.length || down.length) { s += ' ⚠'; notes.push(`T=${t}: default best ${fmt(r.bm)}` + (bad.length ? ` not buildable for ${bad.join(', ')}` : '') + (down.length ? `${bad.length ? ';' : ''} only with 2-mana dorks or 3-mana rocks for ${down.join(', ')}` : '')); }
+          for (const q of profs) { const k = `${q.key}`, c = r.bm.real[q.key]; summary.outside[k] = summary.outside[k] || [0, 0, 0]; summary.outside[k][1]++; if (!c) summary.outside[k][0]++; else if (c[4] + c[5] > 0) summary.outside[k][2]++; }
         }
         const nk = v.key; summary.necessity[nk] = summary.necessity[nk] || [0, 0, 0, 0]; summary.necessity[nk][1]++; if (r.refuted) summary.necessity[nk][0]++; if (r.below) summary.necessity[nk][2]++; if (r.above) summary.necessity[nk][3]++;
         return s;
@@ -318,12 +322,14 @@ function report(a) {
   p('');
   p('## 3. Default best decks outside a profile\'s realistic region');
   p('');
-  p('| profile | default best deck not buildable | of |'); p('|---|---|---|');
-  for (const q of profs) if (q.key !== 'nocap') { const s = summary.outside[q.key] || [0, 0]; p(`| ${q.key} | ${s[0]} | ${s[1]} |`); }
+  p('"Downgraded": buildable only by playing 2-mana dorks for the dorks past the 1-mana cap (or 3-mana rocks past the 2-mana cap), so it is not the deck the default model scored.');
+  p('');
+  p('| profile | default best deck not buildable | buildable only downgraded | of |'); p('|---|---|---|---|');
+  for (const q of profs) if (q.key !== 'nocap') { const s = summary.outside[q.key] || [0, 0, 0]; p(`| ${q.key} | ${s[0]} | ${s[2]} | ${s[1]} |`); }
   p('');
   p('## 4. Dorks against rocks at equal count');
   p('');
-  p('Gain in V over the no-ramp deck at the same land count, k dorks (k, 0) against k rocks (0, k), at 36 lands. "d/r" = dork gain / rock gain (> 1: dorks better). Real rocks include the Sol Ring; real dorks switch to 2-mana dorks past the profile cap.');
+  p('Gain in V over the no-ramp deck at the same land count, k dorks (k, 0) against k rocks (0, k), at 36 lands. "d/r" = dork gain / rock gain (> 1: dorks better; shown when both gains exceed 0.05). Real rocks include the Sol Ring; real dorks switch to 2-mana dorks past the profile cap.');
   for (const t of [6, 10, 15]) {
     p('');
     p(`### T = ${t}`);
@@ -338,7 +344,7 @@ function report(a) {
         if (b0 == null || vr == null) return '-';
         const gr = vr - b0; if (vd == null) return `n/a / ${gr.toFixed(2)}`;
         const gd = vd - b0;
-        return `${gd.toFixed(2)} / ${gr.toFixed(2)} (${(gd / gr).toFixed(2)})`;
+        return `${gd.toFixed(2)} / ${gr.toFixed(2)}` + (gd > 0.05 && gr > 0.05 ? ` (${(gd / gr).toFixed(2)})` : '');
       });
       p(`| ${ctx.shape} ${ctx.avg} ${ctx.sc} | ${v.key} | ${row.join(' | ')} |`);
     }

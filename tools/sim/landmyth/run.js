@@ -353,6 +353,7 @@ if (A.rocks === 'real') {
   const RR = require('./realramp');
   const a = Object.assign({ avgs: '2.5,3,3.5,4', scens: 'P1,P4,P8' }, A, { out: A.out || 'landmyth-results-real', _: [cmd === 'run' ? 'run' : cmd] });
   if (A['max-mem']) a.mem = A['max-mem'];
+  if (!A['graph-max']) a['graph-max'] = Math.max(4, Math.floor(MEM / 4)); // shared graphs up to a quarter of the memory budget; bigger ones solve deck by deck
   RR.main(a).catch(e => { console.error('\n' + (e && e.message || e)); process.exitCode = 1; });
 } else {
 const fns = { run, status, report: () => report(false), pack, selftest };

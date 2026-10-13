@@ -44,6 +44,8 @@ Each turn: draw; play a land if one is in hand; if the commander is not cast, ca
 | `measure.js` | state-space measurement (heuristic and optimal-policy reachability). |
 | `reductions.js` | state reductions and approximations, each against the exact model. |
 | `measure-results.json`, `reductions-results.json` | the measurements quoted below. |
+| `realramp.js` | the real-ramp variant (off by default): colour profiles, deck mapping, its own runner and report (`node run.js --rocks real`). See "Real-ramp variant" below. |
+| `pool.js`, `pool-caps.json` | the real card pool behind it: Commander-legal rocks and dorks per class for all 32 colour identities. |
 
 ## Running the grid: `run.js` (see RUN.md)
 
