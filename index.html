@@ -91,6 +91,14 @@
   .acts .go:hover { filter: brightness(1.08); }
   .acts .ghost { border: 1px solid var(--line); background: var(--surface-2); }
   .acts .ghost:hover { border-color: var(--c); }
+  .lab { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-items: center; padding: 20px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; box-shadow: 0 2px 6px rgba(0, 0, 0, .06), 0 22px 44px -22px rgba(0, 0, 0, .45); transition: transform .3s var(--ease); }
+  .lab:hover { transform: translateY(-3px); }
+  @media (min-width: 720px) { .lab { grid-template-columns: auto minmax(0, 1fr) auto; } }
+  .lab .grid { display: grid; grid-template-columns: repeat(6, 14px); gap: 2px; }
+  .lab .grid i { width: 14px; height: 14px; border-radius: 3px; background: #2a78d6; }
+  .lab b { display: block; font: 800 1.2rem/1.2 var(--f-display); letter-spacing: -.02em; margin-bottom: 4px; }
+  .lab p { margin: 0; color: var(--muted); font-size: .95rem; max-width: 60ch; }
+  .lab .go2 { font-weight: 700; white-space: nowrap; }
   :focus-visible { outline: 2.5px solid #39c5bb; outline-offset: 2px; }
   footer { color: var(--muted); font-size: .8rem; padding: 28px 0 40px; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
@@ -159,6 +167,12 @@
       </div>
     </article>
   </div>
+  <div class="sec"><h2>The lab</h2><span>Data studies behind the decks</span></div>
+  <a class="lab" href="lab/">
+    <span class="grid" aria-hidden="true"><i style="opacity:0.25"></i><i style="opacity:0.45"></i><i style="opacity:0.7"></i><i style="opacity:0.9"></i><i style="opacity:0.7"></i><i style="opacity:0.45"></i><i style="opacity:0.35"></i><i style="opacity:0.6"></i><i style="opacity:0.95"></i><i style="opacity:1"></i><i style="opacity:0.8"></i><i style="opacity:0.5"></i><i style="opacity:0.2"></i><i style="opacity:0.4"></i><i style="opacity:0.7"></i><i style="opacity:0.85"></i><i style="opacity:0.65"></i><i style="opacity:0.4"></i></span>
+    <span><b>How many mana sources?</b><p>Every mana base from 35 to 55 sources, simulated across deck curves and draw scenarios, with an explorer to dig into the numbers.</p></span>
+    <span class="go2">Open the study →</span>
+  </a>
   <footer>Unofficial fan pages. Magic: The Gathering is © Wizards of the Coast. Card images via Scryfall.</footer>
 </main>
 <script>
