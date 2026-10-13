@@ -1381,6 +1381,69 @@
       this.bump();
       return out;
     }
+    /* Web-slinging: the tapped creatures p could return to cast o (not o itself). */
+    webSlingers(p, o) { return this.battlefield.filter(c => c.controller === p && c.tapped && c !== o && this.isCreature(c)); }
+    /* Rebound: at the beginning of p's next upkeep, p may cast o from exile without paying its mana cost. */
+    addRebound(o, p) {
+      const zc = o.zc;
+      this.log(`${o.def.name} is exiled with rebound.`, { p, cards: [o.def.name] });
+      this.delayed.push({ at: "upkeep", once: true, player: p, controller: p, turn: this.turn + 1, src: o, do: async g => {
+        if (o.zone !== "exile" || o.zc !== zc || p.lost) return;
+        const ok = await g.ask(p, { type: "confirm", prompt: `Rebound: cast ${o.def.name} without paying its mana cost?`, purpose: "rebound", src: o });
+        if (ok) await g.castWithoutPaying(p, o);
+      } });
+    }
+    /* "o connives": its controller draws a card, then discards a card; a nonland discard puts a +1/+1
+       counter on o. Emits "connive" { o, p, card, nonland } (Iron Monger, Ultron, Glorious Purpose). */
+    async connive(o, src) {
+      const p = o.controller || o.owner;
+      if (!p || p.lost) return null;
+      this.draw(p, 1);
+      let card = null;
+      if (p.hand.length) {
+        const pick = await this.ask(p, { type: "cards", prompt: `${o.def.name} connives: discard a card`, options: p.hand.slice(), min: 1, max: 1, purpose: "discard", src: src || o });
+        card = (pick && pick[0]) || p.hand[p.hand.length - 1];
+        if (card && card.zone === "hand") this.discard(p, card); else card = null;
+      }
+      const nonland = !!card && !card.def.types.includes("Land");
+      if (nonland && o.zone === "battlefield") this.addCounters(o, "p1", 1, src || o);
+      this.emit("connive", { o, p, card, nonland });
+      return card;
+    }
+    /* Goad: until by's next turn, o attacks each combat if able, and a player other than by if able. */
+    goad(o, by) {
+      if (!o || o.zone !== "battlefield") return;
+      o.state.goad = { by, turn: this.turn };
+      this.log(`${o.def.name} is goaded by ${by.name}.`, { p: by, cards: [o.def.name] });
+      this.bump();
+    }
+    /* Discover n (or cascade below n with opts.cascade): exile from the top until a nonland card with
+       mana value n or less; p may cast it for free, otherwise it goes to the hand (discover) or the
+       bottom (cascade). The rest go to the bottom in a random order. */
+    async discover(p, n, src, opts) {
+      opts = opts || {};
+      const seen = [];
+      let hit = null;
+      while (p.library.length) {
+        const c = p.library[0];
+        this.moveTo(c, "exile");
+        seen.push(c);
+        if (!c.def.types.includes("Land") && (opts.cascade ? c.def.mv < n : c.def.mv <= n)) { hit = c; break; }
+      }
+      const rest = seen.filter(c => c !== hit);
+      this.shuffleArr(rest);
+      for (const c of rest) if (c.zone === "exile") { this.removeFromZone(c); c.zone = "library"; c.zc++; p.library.push(c); }
+      if (!hit) { this.bump(); return null; }
+      this.log(`${p.name} ${opts.cascade ? "cascades" : "discovers"} into ${hit.def.name}.`, { p, cards: [hit.def.name] });
+      const ok = await this.ask(p, { type: "confirm", prompt: `Cast ${hit.def.name} without paying its mana cost?`, purpose: opts.cascade ? "cascade" : "discover", src: src || hit });
+      if (ok && await this.castWithoutPaying(p, hit)) return hit;
+      if (hit.zone === "exile") {
+        if (opts.cascade) { this.removeFromZone(hit); hit.zone = "library"; hit.zc++; p.library.push(hit); }
+        else this.moveTo(hit, "hand");
+      }
+      this.bump();
+      return hit;
+    }
     /* Put cards from any zone onto the battlefield at once. */
     putOntoBattlefield(list, p, opts) {
       list = [].concat(list).filter(Boolean);
@@ -1408,6 +1471,10 @@
     discard(p, o) {
       if (o.zone !== "hand") return;
       this.moveTo(o, "graveyard");
+      // what was discarded this turn (mayhem, connive payoffs, Doctor Doom)
+      o.discarded = { turn: this.turn, zc: o.zc };
+      if (p.discardT !== this.turn) { p.discardT = this.turn; p.discardN = 0; }
+      p.discardN++;
       this.log(`${p.name} discards ${o.def.name}.`, { p, cards: [o.def.name], kind: "discard" });
       this.emit("discard", { p, o });
     }
@@ -1833,10 +1900,15 @@
       const out = p.hand.slice();
       for (const o of p.command) if (o.isCommander) out.push(o);
       for (const o of p.exile) if (this.playableFromExile(p, o)) out.push(o);
-      for (const o of p.graveyard) if (o.def.flashback || (o.def.castFromGraveyard && o.def.castFromGraveyard(this, p, o))) out.push(o);
+      for (const o of p.graveyard) if (o.def.flashback || (o.def.castFromGraveyard && o.def.castFromGraveyard(this, p, o)) || this.mayhemOk(p, o)) out.push(o);
       return out;
     }
     morphCost(p) { return parseCost("{3}"); }
+    /* Mayhem: a card p discarded this turn may be cast from the graveyard for its mayhem cost. */
+    mayhemOk(p, o) { return !!o.def.mayhem && o.zone === "graveyard" && o.owner === p && !!o.discarded && o.discarded.turn === this.turn && o.discarded.zc === o.zc; }
+    discardedThisTurn(p) { return p.discardT === this.turn ? p.discardN || 0 : 0; }
+    /* Spells p cast this turn that match f (castLog entries: { p, o, name, nc, mv, colors, from }). */
+    castThisTurn(p, f) { return (this.castLog && this.castLog.turn === this.turn ? this.castLog : []).filter(e => e.p === p && (!f || f(e))).length; }
     commanderTax(p, o) { return o.isCommander && o.zone === "command" ? 2 * (p.cmdCasts[o.id] || 0) : 0; }
     /* Total cost of casting o with choices (x, door, alt). */
     spellCost(p, o, ch) {
@@ -1845,6 +1917,7 @@
       let base = d.costObj;
       if (d.doors) base = parseCost(d.doors[ch.door || 0].cost);
       if (o.zone === "graveyard" && d.flashback) base = parseCost(d.flashback);
+      else if (o.zone === "graveyard" && d.mayhem && this.mayhemOk(p, o)) base = parseCost(d.mayhem);
       if (ch.alt && d.altCosts) base = parseCost(d.altCosts[ch.alt - 1].cost || "");
       const c = cloneCost(base);
       // "mana of any type can be spent to cast it" (Hostage Taker, Predators' Hour): its colored symbols take any mana
@@ -1905,7 +1978,7 @@
         if (!this.canPay(p, base, { convoke: conv, spell: o })) continue;
         const xMax = xCount ? this.maxX(p, base, xCount, { convoke: conv, spell: o }) : 0;
         if (xCount && o.def.minX && xMax < o.def.minX) continue;
-        ways.push({ door, xMax, xCount, cost: base, convoke: conv, label: o.def.doors ? o.def.doors[door].name : (o.zone === "graveyard" && o.def.flashback ? "Flashback" : null) });
+        ways.push({ door, xMax, xCount, cost: base, convoke: conv, label: o.def.doors ? o.def.doors[door].name : (o.zone === "graveyard" && o.def.flashback ? "Flashback" : o.zone === "graveyard" && o.def.mayhem && this.mayhemOk(p, o) ? "Mayhem" : null) });
       }
       // alternative costs (Fierce Guardianship, Force of Will...)
       (o.def.altCosts || []).forEach((alt, i) => {
@@ -1916,6 +1989,7 @@
         if (alt.payLife && p.life <= alt.payLife) return;
         if (alt.exileFromHand && !p.hand.some(c => c !== o && alt.exileFromHand.filter(this, c))) return;
         if (alt.sacPermanent && !this.battlefield.some(c => c.controller === p && alt.sacPermanent.filter(this, c, p))) return;
+        if (alt.bounceTapped && !this.webSlingers(p, o).length) return;
         const base = this.spellCost(p, o, { alt: i + 1 });
         if (!this.canPay(p, base, { spell: o })) return;
         ways.push({ door: null, alt: i + 1, xMax: 0, xCount: 0, cost: base, convoke: false, label: alt.label || "Alternative cost" });
@@ -1967,7 +2041,7 @@
       // pay
       const cost = this.spellCost(p, o, { x: item.x, door: item.door, kicked: item.kicked, alt: item.alt });
       const fromZone = o.zone;
-      let altExile = null, altSac = null;
+      let altExile = null, altSac = null, altBounce = null;
       if (item.alt) {
         const alt = d.altCosts[item.alt - 1];
         if (alt.exileFromHand) {
@@ -1982,6 +2056,12 @@
           if (!pick || !opts.includes(pick)) return false;
           altSac = pick;
         }
+        if (alt.bounceTapped) {
+          const opts = this.webSlingers(p, o);
+          const pick = await this.ask(p, { type: "target", prompt: "Web-slinging: return a tapped creature you control to its owner's hand", options: opts, purpose: "webSling", src: o });
+          if (!pick || !opts.includes(pick)) return false;
+          altBounce = pick;
+        }
       }
       if (!this.pay(p, cost, { convoke: way.convoke, spell: o })) { this.log(`${p.name} can't pay for ${d.name}.`, { p }); return false; }
       if (item.alt) {
@@ -1989,7 +2069,10 @@
         if (alt.payLife) this.payLife(p, alt.payLife);
         if (altExile) this.moveTo(altExile, "exile");
         if (altSac && altSac.zone === "battlefield") this.sacrifice(altSac);
+        if (altBounce && altBounce.zone === "battlefield") { item.webMV = this.mvOf(altBounce); item.webSlung = altBounce.def.name; this.bounce(altBounce); }
       }
+      // rebound: cast from the hand, it is exiled as it resolves and cast again for free next upkeep
+      if (d.rebound && fromZone === "hand" && !this.isPermanentCard(o)) item.rebound = true;
       if (o.isCommander && fromZone === "command") p.cmdCasts[o.id] = (p.cmdCasts[o.id] || 0) + 1;
       if (fromZone === "graveyard" && d.flashback) item.exileAfter = true;
       return this.putOnStack(p, o, item);
@@ -2014,7 +2097,7 @@
       if (!d.types.includes("Creature")) p.ncCast = (p.ncCast || 0) + 1; // Deafening Silence, Esper Sentinel
       // spells cast this turn and their colors (Veil of Summer)
       if (!this.castLog || this.castLog.turn !== this.turn) this.castLog = Object.assign([], { turn: this.turn });
-      this.castLog.push({ turn: this.turn, p, colors: [...this.colorsOf(o)] });
+      this.castLog.push({ turn: this.turn, p, colors: [...this.colorsOf(o)], nc: !d.types.includes("Creature"), name: d.name, o, mv: d.mv, from: item.from });
       this.spellsThisTurn = (this.spellsThisTurn || 0) + 1;
       item.storm = this.spellsThisTurn - 1;
       p.stats.cast[d.name] = (p.stats.cast[d.name] || 0) + 1;
@@ -2109,6 +2192,7 @@
         if (item.targets.length && legal.every(x => !x) && specs.every(s => !s.optional)) {
           this.log(`${item.name} has no legal target left and does nothing.`, { cards: [d.name] });
           this.anim("fizzle", { item });
+          item.rebound = false;
           this.finishSpell(item);
           return;
         }
@@ -2118,7 +2202,7 @@
       if (this.isPermanentCard(o) && !item.isCopy) {
         o.zone = "new";
         if (d.aura && item.targets[0]) o.attachedTo = item.targets[0];
-        const eo = { x: item.x, door: item.door, cast: item.free ? "free" : "paid" };
+        const eo = { x: item.x, door: item.door, cast: item.free ? "free" : "paid", web: item.webMV != null ? item.webMV : null, kicked: !!item.kicked, from: item.from };
         // "as this enters" choices (Spark Double's copy); they can change what enters
         if (d.asEnters && !item.faceDown) { try { await d.asEnters(this, p, o, item, eo); } catch (e) { this.warn(e, o); } }
         this.enterMany([{ o, controller: p, opts: eo }]);
@@ -2157,6 +2241,7 @@
       if (o.zone !== "stack") return;
       if (o.cardDef && o.def !== o.cardDef) { o.def = o.cardDef; o.faceDown = null; this.ts++; }
       if (this.isPermanentCard(o)) { o.zone = "graveyard"; o.owner.graveyard.push(o); }
+      else if (item.rebound && !item.countered) { o.zone = "exile"; o.owner.exile.push(o); this.addRebound(o, item.p); }
       else if (item.exileAfter) { o.zone = "exile"; o.owner.exile.push(o); }
       else { o.zone = "graveyard"; o.owner.graveyard.push(o); }
       if (o.isCommander && o.zone !== "command") this.moveTo(o, "command");
@@ -2586,6 +2671,17 @@
         const d = decl.find(x => x.attacker === o);
         if (d) d.target = must; else decl.push({ attacker: o, target: must });
       }
+      // goaded creatures attack, a player other than the goader if able
+      for (const o of candidates) {
+        const gd = o.state.goad;
+        if (!gd || o.state.mustAttack) continue;
+        const players = this.attackTargets(p).filter(t => this.isPlayer(t) && !t.lost);
+        const others = players.filter(t => t !== gd.by);
+        const d = decl.find(x => x.attacker === o);
+        const pick = () => (others.length ? others.slice().sort((a, b) => a.life - b.life)[0] : players[0]);
+        if (d) { if (others.length && this.defenderOf(d.target) === gd.by) d.target = pick(); }
+        else if (players.length) decl.push({ attacker: o, target: pick() });
+      }
       if (!decl.length) { if (this.opts.legacySteps) { this.combat = null; this.phase = "main2"; this.bump(); return; } return this.endCombat(p, true); }
       const tappedNow = [];
       for (const d of decl) {
@@ -3002,6 +3098,7 @@
       p.landsPlayed = 0;
       this.loopHint = null;
       this.effects = this.effects.filter(e => !(e.until === "yourNextTurn" && e.player === p));
+      for (const o of this.battlefield) if (o.state.goad && o.state.goad.by === p) delete o.state.goad;
       this.log(`Turn ${this.turn}: ${p.name}${opts.extra ? " (extra turn)" : ""}.`, { p, kind: "turn", extra: !!opts.extra });
       this.anim("turn", { p });
       // untap (phased-out permanents phase in first)
