@@ -902,6 +902,13 @@
   });
 
   /* ================================================================ artifacts */
+  /* The Scepter's {2} is paid as the ability resolves (rocks before lands); Power Artifact makes it {1}. */
+  function scepterCost(g, o) {
+    let red = 0;
+    for (const s of g.staticSources()) for (const st of g.staticsOf(s)) if (st.artifactAbilityCostMod) red += st.artifactAbilityCostMod(g, s, o, null) || 0;
+    return pc(`{${Math.max(1, 2 - red)}}`);
+  }
+  MK.scepterCost = scepterCost;
   D({
     name: "Isochron Scepter", cost: "{2}", type: "Artifact",
     text: "Imprint — When Isochron Scepter enters, you may exile an instant card with mana value 2 or less from your hand.\n{2}, {T}: You may copy the exiled card. If you do, you may cast the copy without paying its mana cost.",
@@ -921,11 +928,11 @@
     }],
     abilities: [{
       label: "{2}, {T}: Cast a copy of the imprinted card", tap: true,
-      condition: (g, o, p) => !!imprintOf(o) && g.canPay(p, pc("{2}")),
+      condition: (g, o, p) => !!imprintOf(o) && g.canPay(p, scepterCost(g, o)),
       do: async (g, s, ctx) => {
         const card = imprintOf(s), p = ctx.p;
         if (!card) return;
-        const cost = pc("{2}");
+        const cost = scepterCost(g, s);
         const lands = g.controlled(p, x => g.isLand(x)).map(x => x.id);
         const rocksFirst = card.def.name === "Dramatic Reversal" && g.canPay(p, cost, { exclude: lands });
         if (!(rocksFirst ? g.pay(p, cost, { exclude: lands }) : g.pay(p, cost))) { log(g, `${p.name} can't pay {2} for Isochron Scepter.`, p); return; }

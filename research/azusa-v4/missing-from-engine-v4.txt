@@ -1,0 +1,31 @@
+Cards in decklist-v4.txt that the project's game engine does not define (read-only check).
+Repo: /home/claude/mtgpractice at commit b88d68d, folder miku/game/*.js.
+A card counts as defined when a file has  name: "<card>"  (a card object) or a card-helper call such as
+helper(...) at the start of a line, e.g. land("<card>", ...), fetcher("<card>"), karoo(...). Exact name.
+'named elsewhere' = the name string appears (deck lists, AI hints) but no definition was found.
+
+71 distinct names; 24 without a definition
+Arch of Orazca | not found anywhere
+Argothian Elder | not found anywhere
+Ashaya, Soul of the Wild | not found anywhere
+Bonders' Enclave | not found anywhere
+Crucible of Worlds | not found anywhere
+Duskwatch Recruiter | not found anywhere
+Fauna Shaman | not found anywhere
+Glacial Chasm | not found anywhere
+Invasion of Ikoria | not found anywhere
+Jungle Basin | not found anywhere
+Ley Weaver | not found anywhere
+Mariposa Military Base | not found anywhere
+Mind's Eye | not found anywhere
+Nissa, Resurgent Animist | not found anywhere
+Prismatic Vista | not found anywhere
+Quirion Ranger | not found anywhere
+Regrowth | not found anywhere
+Sylvan Safekeeper | not found anywhere
+Tamiyo's Safekeeping | not found anywhere
+Time of Need | not found anywhere
+Utopia Sprawl | not found anywhere
+Wild Growth | not found anywhere
+Wirewood Lodge | not found anywhere
+Yavimaya Hollow | not found anywhere

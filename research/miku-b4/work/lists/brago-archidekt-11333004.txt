@@ -1,0 +1,97 @@
+1 Brago, King Eternal
+1 Adarkar Wastes
+1 Aether Channeler
+1 Altar of the Brood
+1 An Offer You Can't Refuse
+1 Arcane Denial
+1 Arcane Signet
+1 Archaeomancer's Map
+1 Azorius Signet
+1 Candlekeep Sage
+1 Chain of Vapor
+1 Claim Jumper
+1 Command Tower
+1 Consecrated Sphinx
+1 Counterspell
+1 Cryogen Relic
+1 Cyclonic Rift
+1 Deserted Beach
+1 Displacer Kitten
+1 Dour Port-Mage
+1 Dovin's Veto
+1 Eerie Interlude
+1 Elesh Norn, Mother of Machines
+1 Enlightened Tutor
+1 Ephemerate
+1 Exotic Orchard
+1 Farewell
+1 Felidar Guardian
+1 Fellwar Stone
+1 Fierce Guardianship
+1 Flawless Maneuver
+1 Floodfarm Verge
+1 Force of Negation
+1 Force of Will
+1 Gilded Lotus
+1 Glacial Fortress
+1 Glasspool Mimic // Glasspool Shore
+1 Gleaming Bastion
+1 Grand Arbiter Augustin IV
+1 Hallowed Fountain
+1 Helpful Hunter
+1 Hydroelectric Specimen // Hydroelectric Laboratory
+1 Land Tax
+1 Lightning Greaves
+1 Loran of the Third Path
+1 Mulldrifter
+1 Mystic Remora
+1 Otawara, Soaring City
+1 Panharmonicon
+1 Path to Exile
+1 Peregrine Drake
+1 Permission Denied
+1 Peter Parker's Camera
+1 Plagon, Lord of the Beach
+1 Prairie Stream
+1 Preston, the Vanisher
+1 Priest of Ancient Lore
+1 Reliquary Tower
+1 Restoration Angel
+1 Rhystic Study
+1 Sea of Clouds
+1 Seachrome Coast
+1 Sink into Stupor // Soporific Springs
+1 Skyclave Apparition
+1 Skycloud Expanse
+1 Sol Ring
+1 Solemn Simulacrum
+1 Soul Warden
+1 Soulherder
+1 Spirited Companion
+1 Strionic Resonator
+1 Swan Song
+1 Swiftfoot Boots
+1 Swords to Plowshares
+1 Talisman of Progress
+1 Teferi's Protection
+1 Thassa's Oracle
+1 The One Ring
+1 Thought Vessel
+1 Touch the Spirit Realm
+1 Turbulent Shore
+1 Urza's Saga
+1 Wall of Omens
+1 Witch Enchanter // Witch-Blessed Meadow
+1 Wizard Class
+1 Wrath of God
+7 Island
+7 Plains
+# url: https://archidekt.com/decks/11333004
+# title: Miku-dyoooooo
+# author: JH_Goblin
+# updated: 2026-09-26
+# bracket: 4 (Archidekt, author-set)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Brago, King Eternal ; total 100 ; lands 30 (+4 MDFC) ; source API https://archidekt.com/api/decks/11333004/
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 11: Consecrated Sphinx; Cyclonic Rift; Enlightened Tutor; Farewell; Fierce Guardianship; Force of Will; Grand Arbiter Augustin IV; Rhystic Study; Teferi's Protection; Thassa's Oracle; The One Ring

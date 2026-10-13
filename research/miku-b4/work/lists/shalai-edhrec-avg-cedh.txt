@@ -1,0 +1,100 @@
+1 Shalai, Voice of Plenty
+1 Aegis of the Gods
+1 Allosaurus Shepherd
+1 Arcane Signet
+1 Archivist of Oghma
+1 Archon of Emeria
+1 Archon of Valor's Reach
+1 Aura Shards
+1 Avacyn's Pilgrim
+1 Battle Angels of Tyr
+1 Birds of Paradise
+1 Bountiful Promenade
+1 Branchloft Pathway
+1 Bruna, the Fading Light
+1 Brushland
+1 Cavern of Souls
+1 Chord of Calling
+1 City of Brass
+1 Command Tower
+1 Dauntless Dismantler
+1 Defense Grid
+1 Delighted Halfling
+1 Destiny Spinner
+1 Drannith Magistrate
+1 Eiganjo, Seat of the Empire
+1 Eladamri's Call
+1 Eldritch Evolution
+1 Elemental Bond
+1 Elvish Piper
+1 Elvish Spirit Guide
+1 Emergence Zone
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Eternal Witness
+1 Exotic Orchard
+1 Farseek
+1 Fellwar Stone
+1 Flawless Maneuver
+1 Flooded Strand
+1 Forbidden Orchard
+4 Forest
+1 Gaddock Teeg
+1 Gemstone Caverns
+1 Glacial Chasm
+1 Grafdigger's Cage
+1 Grand Abolisher
+1 Green Sun's Zenith
+1 Heliod, Sun-Crowned
+1 Legolas's Quick Reflexes
+1 Linvala, Keeper of Silence
+1 Llanowar Elves
+1 Lotus Petal
+1 Lush Portico
+1 Lyra Dawnbringer
+1 Mana Confluence
+1 Mana Vault
+1 Manglehorn
+1 Minas Tirith
+1 Nature's Claim
+1 Noxious Revival
+1 Overgrown Farmland
+1 Path to Exile
+4 Plains
+1 Prismatic Vista
+1 Ranger-Captain of Eos
+1 Razorverge Thicket
+1 Savannah
+1 Serra's Emissary
+1 Sevinne's Reclamation
+1 Shifting Woodland
+1 Sigarda, Font of Blessings
+1 Silence
+1 Smothering Tithe
+1 Sol Ring
+1 Spike Feeder
+1 Springleaf Drum
+1 Swift Reconfiguration
+1 Swords to Plowshares
+1 Sylvan Library
+1 Sylvan Safekeeper
+1 Temple Garden
+1 Thalia, Guardian of Thraben
+1 Three Visits
+1 Touch the Spirit Realm
+1 Veil of Summer
+1 Verdant Catacombs
+1 Vizier of Remedies
+1 Walking Ballista
+1 Windswept Heath
+1 Wooded Bastion
+1 Wooded Foothills
+1 Worldly Tutor
+1 Wrath of God
+1 Yasharn, Implacable Earth
+# source: https://edhrec.com/average-decks/shalai-voice-of-plenty/cedh (JSON https://json.edhrec.com/pages/average-decks/shalai-voice-of-plenty/cedh.json), accessed 2026-10-08
+# title: Average Deck for Shalai, Voice of Plenty - cEDH ; author EDHREC (aggregate) ; num_decks 2 ; deck save dates 2024-10-26 to 2026-04-29 ; bracket_counts {'3': 90, '4': 26, '2': 124, '1': 5, '5': 2}
+# total 100 ; lands 34 ; BAN 
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 7: Aura Shards; Drannith Magistrate; Enlightened Tutor; Glacial Chasm; Mana Vault; Smothering Tithe; Worldly Tutor
+# types: ['Artifact', 'Land', 'Creature', 'Enchantment', 'Instant', 'Sorcery']
+# NOTE: aggregate of only 2 decks (2024-10-26 and 2026-04-29), which match shalai-moxfield-UodV4Y and shalai-moxfield-of28bO by save date; excluded from frequency counts to avoid double counting

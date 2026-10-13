@@ -1,0 +1,91 @@
+1 Shalai, Voice of Plenty
+1 Abzan Falconer
+1 Ancient Bronze Dragon
+1 Arcane Signet
+1 Archdruid's Charm
+1 Aura Shards
+1 Bastion Protector
+1 Blighted Woodland
+1 Bloom Tender
+1 Bristly Bill, Spine Sower
+1 Byrke, Long Ear of the Law
+1 Canopy Vista
+1 Captain Sisay
+1 Cathars' Crusade
+1 Champion's Helm
+1 Chocobo Knights
+1 Citadel Siege
+1 Command Tower
+1 Damning Verdict
+1 Dawn Charm
+1 Defense of the Heart
+1 Delighted Halfling
+1 Doubling Season
+1 Elspeth, Storm Slayer
+1 Enlightened Tutor
+1 Erode
+1 Esper Sentinel
+1 Exotic Orchard
+1 Farewell
+1 Felidar Retreat
+1 Fortified Village
+1 Generous Gift
+1 Generous Pup
+1 Germination Practicum
+1 Giver of Runes
+1 Grand Abolisher
+1 Gyre Sage
+1 Hardened Scales
+1 High Score
+1 Incubation Druid
+1 Innkeeper's Talent
+1 Krosan Verge
+1 Lae'zel, Vlaakith's Champion
+1 Maze of Ith
+1 Michelangelo, Improviser
+1 Michelangelo, Weirdness to 11
+1 Mirari's Wake
+1 Mossborn Hydra
+1 Mother of Runes
+1 Myriad Landscape
+1 Necklace of Girion
+1 Norn's Choirmaster
+1 Ouroboroid
+1 Path of Ancestry
+1 Path to Exile
+1 Practiced Offense
+1 Primal Vigor
+1 Rogue's Passage
+1 Scythecat Cub
+1 Seedborn Muse
+1 Selesnya Sanctuary
+1 Sigarda, Font of Blessings
+1 Sol Ring
+1 Somberwald Sage
+1 Sphere Grid
+1 Spike Weaver
+1 Storm, Queen of Wakanda
+1 Sungrass Prairie
+1 Swiftfoot Boots
+1 Swords to Plowshares
+1 Temple of Plenty
+1 Temple of the False God
+1 Terrasymbiosis
+1 The Earth Crystal
+1 The Great Henge
+1 The Ozolith
+1 Virtue of Loyalty // Ardenvale Fealty
+1 Vorinclex, Monstrous Raider
+1 Walking Ballista
+1 Worldly Tutor
+10 Forest
+10 Plains
+# url: https://moxfield.com/decks/z_12-vijXkeTyBz-TmZplQ
+# title: Miku, Voice Over All
+# author: Gengartuan
+# updated: 2026-10-06
+# bracket: 4 (Moxfield, author-set; auto 4)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Shalai, Voice of Plenty ; total 100 ; lands 34 ; source API https://api2.moxfield.com/v3/decks/all/z_12-vijXkeTyBz-TmZplQ
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 5: Aura Shards; Enlightened Tutor; Farewell; Seedborn Muse; Worldly Tutor

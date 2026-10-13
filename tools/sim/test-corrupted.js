@@ -253,6 +253,13 @@ const repeat = (g, p, o, idx, n) => g.perform(p, { type: "activate", card: o, id
   { const { g, a, b, c, d } = botTable(); lands(g, a, 1, ["Plains"]); put(g, a, "Devoted Druid"); put(g, a, "Vizier of Remedies"); hand(g, a, "Walking Ballista"); await g.settle();
     await g.mainPhase(a);
     check("bot: Druid + Vizier mana goes into a huge Ballista", [b, c, d].every(q => q.lost), [b.life, c.life, d.life]); }
+  // engine 9: Skullclamp stays off a lone Walking Ballista; Shalai comes down with the Druid's mana
+  { const { g, a } = botTable(); lands(g, a, 2); put(g, a, "Skullclamp"); const wb = put(g, a, "Walking Ballista"); wb.counters.p1 = 1; await g.settle();
+    await g.mainPhase(a);
+    check("bot: Skullclamp isn't put on Walking Ballista", wb.zone === "battlefield", wb.zone); }
+  { const { g, a } = botTable(); lands(g, a, 1, ["Plains"]); put(g, a, "Devoted Druid"); put(g, a, "Vizier of Remedies"); a.deckId = "corrupted"; a.library.length = 40; await g.settle();
+    await g.mainPhase(a);
+    check("bot: Druid + Vizier with no Ballista casts Shalai and pumps", g.creatures(a).some(o => o.def.name === "Shalai, Voice of Plenty") && g.creatures(a).some(o => o.def.name === "Devoted Druid" && (o.counters.p1 || 0) >= 5), g.creatures(a).map(o => o.def.name + ":" + (o.counters.p1 || 0))); }
   { const { g, a, b, c, d } = botTable(); lands(g, a, 5, ["Forest", "Plains", "Forest", "Savannah", "Forest"]); put(g, a, "Archangel of Thune"); hand(g, a, "Eladamri's Call"); lib(g, a, ["Llanowar Elves", "Sol Ring", "Spike Feeder", "Forest"]); await g.settle();
     const life = a.life;
     await g.mainPhase(a);

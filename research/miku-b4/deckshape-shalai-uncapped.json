@@ -1,0 +1,456 @@
+{
+ "list": "decklist-shalai-uncapped.txt",
+ "commander": "Shalai, Voice of Plenty",
+ "lands": [
+  "Gaea's Cradle",
+  "Dryad Arbor",
+  "Ancient Tomb",
+  "Command Tower",
+  "Savannah",
+  "Temple Garden",
+  "Horizon Canopy",
+  "Sunpetal Grove",
+  "Brushland",
+  "Razorverge Thicket",
+  "Windswept Heath",
+  "Flooded Strand",
+  "Wooded Foothills",
+  "Misty Rainforest",
+  "Verdant Catacombs",
+  "Marsh Flats",
+  "Arid Mesa",
+  "Prismatic Vista",
+  "Canopy Vista",
+  "Gavony Township",
+  "Boseiju, Who Endures",
+  "Urza's Saga",
+  "Scattered Groves",
+  "Bountiful Promenade",
+  "Overgrown Farmland",
+  "Forest",
+  "Forest",
+  "Forest",
+  "Forest",
+  "Plains",
+  "Plains",
+  "Plains"
+ ],
+ "ramp": [
+  {
+   "name": "Devoted Druid",
+   "mv": 2,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Crop Rotation",
+   "mv": 1,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Sol Ring",
+   "mv": 1,
+   "fast": true,
+   "net": 2
+  },
+  {
+   "name": "Mana Vault",
+   "mv": 1,
+   "fast": true,
+   "net": 3,
+   "note": "doesn't untap normally: net is its one tap"
+  },
+  {
+   "name": "Chrome Mox",
+   "mv": 0,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Mox Diamond",
+   "mv": 0,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Lotus Petal",
+   "mv": 0,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "mv": 2,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Delighted Halfling",
+   "mv": 1,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Utopia Sprawl",
+   "mv": 1,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Wild Growth",
+   "mv": 1,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "mv": 2,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Three Visits",
+   "mv": 2,
+   "fast": true,
+   "net": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "mv": 3,
+   "fast": false,
+   "net": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "mv": 4,
+   "fast": true,
+   "net": 1
+  }
+ ],
+ "spells": [
+  {
+   "name": "Shalai, Voice of Plenty",
+   "mv": 4
+  },
+  {
+   "name": "Heliod, Sun-Crowned",
+   "mv": 3
+  },
+  {
+   "name": "Walking Ballista",
+   "mv": 0
+  },
+  {
+   "name": "Archangel of Thune",
+   "mv": 5
+  },
+  {
+   "name": "Spike Feeder",
+   "mv": 3
+  },
+  {
+   "name": "Vizier of Remedies",
+   "mv": 2
+  },
+  {
+   "name": "Swift Reconfiguration",
+   "mv": 1
+  },
+  {
+   "name": "Trostani, Selesnya's Voice",
+   "mv": 4
+  },
+  {
+   "name": "Scurry Oak",
+   "mv": 3
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "mv": 8
+  },
+  {
+   "name": "Worldly Tutor",
+   "mv": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "mv": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "mv": 2
+  },
+  {
+   "name": "Chord of Calling",
+   "mv": 3
+  },
+  {
+   "name": "Finale of Devastation",
+   "mv": 2
+  },
+  {
+   "name": "Green Sun's Zenith",
+   "mv": 1
+  },
+  {
+   "name": "Natural Order",
+   "mv": 4
+  },
+  {
+   "name": "Survival of the Fittest",
+   "mv": 2
+  },
+  {
+   "name": "Fauna Shaman",
+   "mv": 2
+  },
+  {
+   "name": "Ranger-Captain of Eos",
+   "mv": 3
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "mv": 3
+  },
+  {
+   "name": "Sylvan Tutor",
+   "mv": 1
+  },
+  {
+   "name": "Eldritch Evolution",
+   "mv": 3
+  },
+  {
+   "name": "Sylvan Library",
+   "mv": 2
+  },
+  {
+   "name": "Esper Sentinel",
+   "mv": 1
+  },
+  {
+   "name": "The One Ring",
+   "mv": 4
+  },
+  {
+   "name": "Archivist of Oghma",
+   "mv": 2
+  },
+  {
+   "name": "Skullclamp",
+   "mv": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "mv": 3
+  },
+  {
+   "name": "Swords to Plowshares",
+   "mv": 1
+  },
+  {
+   "name": "Path to Exile",
+   "mv": 1
+  },
+  {
+   "name": "Generous Gift",
+   "mv": 3
+  },
+  {
+   "name": "Beast Within",
+   "mv": 3
+  },
+  {
+   "name": "Force of Vigor",
+   "mv": 4
+  },
+  {
+   "name": "Aura Shards",
+   "mv": 3
+  },
+  {
+   "name": "Drannith Magistrate",
+   "mv": 2
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "mv": 3
+  },
+  {
+   "name": "Archon of Emeria",
+   "mv": 3
+  },
+  {
+   "name": "Teferi's Protection",
+   "mv": 3
+  },
+  {
+   "name": "Heroic Intervention",
+   "mv": 2
+  },
+  {
+   "name": "Flawless Maneuver",
+   "mv": 3
+  },
+  {
+   "name": "Grand Abolisher",
+   "mv": 2
+  },
+  {
+   "name": "Mother of Runes",
+   "mv": 1
+  },
+  {
+   "name": "Giver of Runes",
+   "mv": 1
+  },
+  {
+   "name": "Veil of Summer",
+   "mv": 1
+  },
+  {
+   "name": "Allosaurus Shepherd",
+   "mv": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "mv": 2
+  },
+  {
+   "name": "Endurance",
+   "mv": 3
+  }
+ ],
+ "draw": [
+  {
+   "name": "Sylvan Library",
+   "extra": 3,
+   "why": "draw two extra each turn and keep one by paying 4 life about half the time from turn 2"
+  },
+  {
+   "name": "Esper Sentinel",
+   "extra": 2,
+   "why": "a card on most opponents' first noncreature spell each turn until it dies or they pay"
+  },
+  {
+   "name": "The One Ring",
+   "extra": 5,
+   "why": "cast turn 3-4; draws 1, 2, 3 on the following turns before the life loss matters"
+  },
+  {
+   "name": "Archivist of Oghma",
+   "extra": 2,
+   "why": "opponents' fetchlands and tutors trigger it about twice by turn 8"
+  },
+  {
+   "name": "Skullclamp",
+   "extra": 4,
+   "why": "equip a 1-toughness creature or token about twice"
+  },
+  {
+   "name": "Eternal Witness",
+   "extra": 1,
+   "why": "returns a card (card advantage, not a draw)"
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "extra": 2,
+   "why": "a repeatable draw effect; about two extra cards by turn 8 (rough default)"
+  },
+  {
+   "name": "Veil of Summer",
+   "extra": 1,
+   "why": "a cantrip: replaces itself"
+  }
+ ],
+ "sinks": [
+  {
+   "name": "Shalai, Voice of Plenty",
+   "cost": "{4}{G}{G}",
+   "what": "Put a +1/+1 counter on each creature you control."
+  },
+  {
+   "name": "Heliod, Sun-Crowned",
+   "cost": "{1}{W}",
+   "what": "Another target creature gains lifelink until end of turn."
+  },
+  {
+   "name": "Walking Ballista",
+   "cost": "{4}",
+   "what": "Put a +1/+1 counter on this creature."
+  },
+  {
+   "name": "Spike Feeder",
+   "cost": "{2}, Remove a +1/+1 counter from this creature",
+   "what": "Put a +1/+1 counter on target creature."
+  },
+  {
+   "name": "Trostani, Selesnya's Voice",
+   "cost": "{1}{G}{W}, {T}",
+   "what": "Populate."
+  },
+  {
+   "name": "Chord of Calling",
+   "cost": "X spell {X}{G}{G}{G}",
+   "what": "X spell"
+  },
+  {
+   "name": "Finale of Devastation",
+   "cost": "X spell {X}{G}{G}",
+   "what": "X spell"
+  },
+  {
+   "name": "Green Sun's Zenith",
+   "cost": "X spell {X}{G}",
+   "what": "X spell"
+  },
+  {
+   "name": "Allosaurus Shepherd",
+   "cost": "{4}{G}{G}",
+   "what": "Until end of turn, each Elf creature you control has base power and toughness 5/5 and becomes a Dinosaur in addition to its other creature types."
+  },
+  {
+   "name": "Destiny Spinner",
+   "cost": "{3}{G}",
+   "what": "Target land you control becomes an X/X Elemental creature with trample and haste until end of turn, where X is the number of enchantments you control. It's still a land."
+  }
+ ],
+ "totals": {
+  "lands": 32,
+  "ramp": 20,
+  "spells": 48,
+  "extra_draws_8_turns": 20,
+  "sinks": 10
+ }
+}

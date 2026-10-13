@@ -1,0 +1,109 @@
+1 Child of Alara
+1 An Offer You Can't Refuse
+1 Ancient Tomb
+1 Arachnogenesis
+1 Arcane Denial
+1 Arid Mesa
+1 Badlands
+1 Bala Ged Recovery // Bala Ged Sanctuary
+1 Bayou
+1 Beseech the Mirror
+1 Blightsteel Colossus
+1 Blood Crypt
+1 Bloodstained Mire
+1 Breeding Pool
+1 Cabal Coffers
+1 Command Tower
+1 Conflux
+1 Counterspell
+1 Crop Rotation
+1 Cruel Tutor
+1 Cyclonic Rift
+1 Damnation
+1 Day of Judgment
+1 Demonic Tutor
+1 Diabolic Tutor
+1 Disrupt Decorum
+1 Enlightened Tutor
+1 Etali, Primal Conqueror // Etali, Primal Sickness
+1 Expedition Map
+1 Exsanguinate
+1 Fabricate
+1 Farewell
+1 Farseek
+1 Fast Forward
+1 Field of the Dead
+1 Flooded Strand
+1 Gaze of Granite
+1 Godless Shrine
+1 Grim Tutor
+1 Hallowed Fountain
+1 High Market
+1 Hour of Promise
+1 Hour of Revelation
+1 Imperial Seal
+1 Inkshield
+1 Kardur, Doomscourge
+1 Mana Drain
+1 Marsh Flats
+1 Mastermind's Acquisition
+1 Misty Rainforest
+1 Mystical Tutor
+1 Nature's Lore
+1 Negate
+1 No Mercy
+1 Oblivion Stone
+1 Open the Way
+1 Overgrown Tomb
+1 Phyrexian Tower
+1 Plateau
+1 Polluted Delta
+1 Ranger's Path
+1 Reflecting Pool
+1 Regrowth
+1 Reins of Power
+1 Rise of the Dark Realms
+1 Rite of Replication
+1 Savannah
+1 Scalding Tarn
+1 Scrubland
+1 Skyshroud Claim
+1 Steam Vents
+1 Stomping Ground
+1 Swan Song
+1 Sylvan Scrying
+1 Taiga
+1 Take the Bait
+1 Taunt from the Rampart
+1 Teferi's Protection
+1 Temple Garden
+1 Tempt with Discovery
+1 The One Ring
+1 Three Visits
+1 Tooth and Nail
+1 Torment of Hailfire
+1 Toxic Deluge
+1 Tropical Island
+1 Tundra
+1 Ugin, the Spirit Dragon
+1 Ulamog, the Infinite Gyre
+1 Underground Sea
+1 Urborg, Tomb of Yawgmoth
+1 Vampiric Tutor
+1 Verdant Catacombs
+1 Volcanic Island
+1 Watery Grave
+1 Windswept Heath
+1 Wooded Foothills
+1 Wrath of God
+1 Xenagos, God of Revels
+1 Yawgmoth's Will
+# url: https://archidekt.com/decks/11931659
+# title: Sweet Child O'Mine
+# author: RsoulZ
+# updated: 2026-09-13
+# bracket: 4 (Archidekt, author-set)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Child of Alara ; total 100 ; lands 37 (+1 MDFC) ; source API https://archidekt.com/api/decks/11931659/
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 12: Ancient Tomb; Crop Rotation; Cyclonic Rift; Demonic Tutor; Enlightened Tutor; Farewell; Field of the Dead; Imperial Seal; Mystical Tutor; Teferi's Protection; The One Ring; Vampiric Tutor

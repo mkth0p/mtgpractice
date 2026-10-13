@@ -1,0 +1,12 @@
+# against candidate c2 (c1 + Archangel of Tithes for Soulherder + Windborn Muse for Elesh Norn), brain of 2026-10-12 evening
+-pili	{"cut":["Grand Architect","Pili-Pala"],"add":["Cloud of Faeries","Solemn Simulacrum"]}
++baird	{"cut":["Venser, Shaper Savant"],"add":["Baird, Steward of Argive"]}
++fair	{"cut":["Island"],"add":["Inventors' Fair"]}
++fm	{"cut":["Cloudshift"],"add":["Forsaken Monument"]}
++petal	{"cut":["Coldsteel Heart"],"add":["Lotus Petal"]}
++stroke	{"cut":["Ephemerate"],"add":["Stroke of Genius"]}
+-drake	{"cut":["Peregrine Drake","Deadeye Navigator"],"add":["Ponder","Preordain"]}
+-flicker	{"cut":["Archaeomancer","Ghostly Flicker"],"add":["Brainstorm","Solitude"]}
+-tomb	{"cut":["Ancient Tomb"],"add":["Island"]}
+-vault	{"cut":["Mana Vault"],"add":["Lotus Petal"]}
+-fetch5	{"cut":["Scalding Tarn","Misty Rainforest","Marsh Flats","Arid Mesa","Polluted Delta"],"add":["Island","Island","Island","Plains","Plains"]}

@@ -1,0 +1,108 @@
+1 Shalai, Voice of Plenty
+1 Agatha's Soul Cauldron
+1 Akroma's Will
+1 Ancient Tomb
+1 Arcane Signet
+1 Archivist of Oghma
+1 Archon of Emeria
+1 Arid Mesa
+1 Aura Shards
+1 Avacyn's Pilgrim
+1 Beast Within
+1 Birds of Paradise
+1 Birthing Pod
+1 Boseiju, Who Endures
+1 Bountiful Promenade
+1 Bristly Bill, Spine Sower
+1 Brushland
+1 Chord of Calling
+1 Chrome Mox
+1 City of Brass
+1 Command Tower
+1 Crop Rotation
+1 Delighted Halfling
+1 Devoted Druid
+1 Drannith Magistrate
+1 Dryad Arbor
+1 Eiganjo, Seat of the Empire
+1 Eladamri's Call
+1 Eldritch Evolution
+1 Emergence Zone
+1 Endurance
+1 Enlightened Tutor
+1 Esper Sentinel
+1 Eternal Witness
+1 Finale of Devastation
+1 Flawless Maneuver
+1 Flooded Strand
+1 Force of Vigor
+1 Gaea's Cradle
+1 Gavony Township
+1 Gemstone Caverns
+1 Ghalta, Primal Hunger
+1 Grand Abolisher
+1 Green Sun's Zenith
+1 Hardened Scales
+1 Haywire Mite
+1 Heliod, Sun-Crowned
+1 Heroic Intervention
+1 Horizon Canopy
+1 Karn's Bastion
+1 Kogla, the Titan Ape
+1 Kutzil, Malamet Exemplar
+1 Lightning Greaves
+1 Loran of the Third Path
+1 Lotus Petal
+1 Mana Confluence
+1 Mana Vault
+1 Marsh Flats
+1 Misty Rainforest
+1 Mox Diamond
+1 Nature's Claim
+1 Nature's Lore
+1 Overgrown Farmland
+1 Path to Exile
+1 Prismatic Vista
+1 Ranger-Captain of Eos
+1 Razorverge Thicket
+1 Recruiter of the Guard
+1 Reflecting Pool
+1 Reprieve
+1 Savannah
+1 Sevinne's Reclamation
+1 Silence
+1 Sol Ring
+1 Solitude
+1 Staff of Domination
+1 Static Prison
+1 Survival of the Fittest
+1 Swift Reconfiguration
+1 Swords to Plowshares
+1 Sylvan Library
+1 Talisman of Unity
+1 Teferi's Protection
+1 Temple Garden
+1 The Great Henge
+1 The One Ring
+1 The Ozolith
+1 Three Visits
+1 Veil of Summer
+1 Verdant Catacombs
+1 Vizier of Remedies
+1 Walking Ballista
+1 White Plume Adventurer
+1 Windswept Heath
+1 Wooded Foothills
+1 Worldly Tutor
+1 Yavimaya, Cradle of Growth
+2 Forest
+1 Plains
+# url: https://moxfield.com/decks/mEqTmCgn70W6PL6fucxRgA
+# title: Arkinator Shalai
+# author: OingusBoingus420
+# updated: 2026-08-13
+# bracket: 4 (Moxfield, author-set; auto 4)
+# kept: yes
+# accessed: 2026-10-10
+# commander(s): Shalai, Voice of Plenty ; total 100 ; lands 32 ; source API https://api2.moxfield.com/v3/decks/all/mEqTmCgn70W6PL6fucxRgA
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-10) 13: Ancient Tomb; Aura Shards; Chrome Mox; Crop Rotation; Drannith Magistrate; Enlightened Tutor; Gaea's Cradle; Mana Vault; Mox Diamond; Survival of the Fittest; Teferi's Protection; The One Ring; Worldly Tutor

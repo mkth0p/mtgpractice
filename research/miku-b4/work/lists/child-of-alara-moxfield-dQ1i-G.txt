@@ -1,0 +1,105 @@
+1 Child of Alara
+1 Alchemist's Refuge
+1 Ancient Tomb
+1 Argothian Enchantress
+1 Arid Mesa
+1 Aura of Silence
+1 Azusa, Lost but Seeking
+1 Bayou
+1 Beacon of Tomorrows
+1 Bloodstained Mire
+1 Breeding Pool
+1 Burgeoning
+1 Cabal Coffers
+1 Capture of Jingzhou
+1 City of Brass
+1 Coalition Relic
+1 Consecrated Sphinx
+1 Cruel Tutor
+1 Dawn's Reflection
+1 Demonic Tutor
+1 Elvish Guidance
+1 Enchantress's Presence
+1 Enlightened Tutor
+1 Exotic Orchard
+1 Exploration
+1 Fellwar Stone
+1 Fertile Ground
+1 Flooded Strand
+1 Godless Shrine
+1 Grand Abolisher
+1 Grand Coliseum
+1 Greater Auramancy
+1 Grim Monolith
+1 Grim Tutor
+1 Hallowed Fountain
+1 Idyllic Tutor
+1 Imperial Seal
+1 Invoke Prejudice
+1 Mana Crypt
+1 Mana Drain
+1 Mana Vault
+1 Marsh Flats
+1 Martyr's Bond
+1 Mesa Enchantress
+1 Mind Unbound
+1 Mind's Eye
+1 Mirri's Guile
+1 Misty Rainforest
+1 Moat
+1 Mystic Remora
+1 Mystical Tutor
+1 Necrologia
+1 Necropotence
+1 Overgrown Tomb
+1 Overgrowth
+1 Personal Tutor
+1 Phyrexian Arena
+1 Polluted Delta
+1 Primeval Titan
+1 Privileged Position
+1 Reflecting Pool
+1 Reliquary Tower
+1 Replenish
+1 Reverse the Sands
+1 Rhystic Study
+1 Savannah
+1 Scalding Tarn
+1 Scrubland
+1 Seedborn Muse
+1 Serra's Sanctum
+1 Snow-Covered Forest
+1 Snow-Covered Island
+1 Snow-Covered Plains
+1 Snow-Covered Swamp
+1 Solitary Confinement
+1 Sterling Grove
+1 Stranglehold
+1 Sylvan Library
+1 Tarnished Citadel
+1 Temple Garden
+1 Temporal Manipulation
+1 Temporal Mastery
+1 Time Warp
+1 Trace of Abundance
+1 Tropical Island
+1 Tundra
+1 Underground River
+1 Underground Sea
+1 Urborg, Tomb of Yawgmoth
+1 Vampiric Tutor
+1 Venser's Journal
+1 Verdant Catacombs
+1 Verduran Enchantress
+1 Vessel of Endless Rest
+1 Vexing Shusher
+1 Wargate
+1 Watery Grave
+1 Wild Growth
+1 Windswept Heath
+1 Wooded Foothills
+# source: https://moxfield.com/decks/dQ1i-GmPb0y_dW6wNQOQ8g (API https://api2.moxfield.com/v3/decks/all/dQ1i-GmPb0y_dW6wNQOQ8g), accessed 2026-10-08
+# title: cEDH - Child of Alara (2011-2009) ; author Paramount_Elite ; updated 2020-08-13 ; Moxfield bracket b5/auto4 ; main 99 ; lands 38 ; MDFC ; BAN Mana Crypt
+# Game Changers (Scryfall is:gamechanger, 53 cards, 2026-10-08) 13: Demonic Tutor; Mana Vault; Seedborn Muse; Necropotence; Mystical Tutor; Imperial Seal; Enlightened Tutor; Vampiric Tutor; Ancient Tomb; Grim Monolith; Consecrated Sphinx; Serra's Sanctum; Rhystic Study
+# tags: 
+# DISCARDED: runs a card banned 2024-09-23 (see BAN field above); kept on disk for reference only, excluded from frequency counts

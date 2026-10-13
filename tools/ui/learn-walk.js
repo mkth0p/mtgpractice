@@ -92,7 +92,7 @@ const SOLVE = {
     p.on("console", m => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) issues.push(`[${vp.tag}] console: ${m.text()}`); });
     p.on("dialog", d => d.accept());
     await p.goto(base.replace("learn/", ""));
-    if (!(await p.$("a.learn[href='learn/']"))) issues.push(`[${vp.tag}] the hub has no Learn Magic card`);
+    if (!(await p.$("a[href='learn/']"))) issues.push(`[${vp.tag}] the hub has no Learn Magic card`);
     if (await p.$("a[href^='storytelling']")) issues.push(`[${vp.tag}] the hub still links the storytelling page`);
     if (shotDir) await p.screenshot({ path: path.join(shotDir, `hub-${vp.tag}.png`) });
     await p.goto(base);
