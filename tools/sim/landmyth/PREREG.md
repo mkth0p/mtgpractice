@@ -16,10 +16,9 @@ Written 2026-10-13, before any part 2 run. Choices marked (ju) were made by ju; 
 
 - 99 cards plus a commander in the command zone. Commander cost is a main factor (ju): every cost from 2 to 7, in all solo results from phase 2 on. Phase 1 validation uses cost 4 to match part 1.
 - Roles in phases 1-2: untapped land; 1-mana dork (taps the turn after it is cast); 2-mana rock (taps at once); non-ramp spells. Phase 3 adds tapped lands, 0-mana ramp, land ramp, draw spells that cost mana, and a mana sink.
-- Spell cost spreads (ju: several spreads): average spell cost 2.0 to 4.5 in steps of 0.25, each under three shapes:
+- Spell cost spreads (ju: several spreads): average spell cost 2.0 to 4.5 in steps of 0.25, each under two shapes:
   - tight: only the two integer costs around the average;
   - normal: a discretised normal around the average, standard deviation 1.0, costs 1 to 8;
-  - barbell: half the spells cheap (1-2), half expensive (5-7), matched to the average.
 - Draws: one card a turn from turn 1 (multiplayer). Extra-draw scenarios P1-P8 on turns 5-8, as in part 1.
 - Mulligans: phase 1 uses part 1's rule (keep 2-5 lands, or 1 land + 2 ramp; first mulligan free, then London). Phase 2 replaces it with the optimal keep/mulligan decision.
 
@@ -71,3 +70,4 @@ All headline results are solo games with no disruption (ju). Disruption is an op
 - 2026-10-13, before any run (ju): ramp range widened from dorks 0-12 / rocks 0-16 / total 20 to dorks 0-15 / rocks 0-20 / total 25. Disruption made explicitly off by default; it is only ever a separate variant.
 - 2026-10-13, before any run (ju): commander cost made a main factor, every cost 2 to 7, instead of 2/4/6 in phase 3.
 - 2026-10-13, before any run (ju, after feedback from a friend who rates decks by spells cast): useful spells cast made a co-primary outcome, ranked separately from discounted useful mana. A real-deck curve shape was considered and not added.
+- 2026-10-13, before any run (ju): barbell curve shape dropped as unrealistic; tight and normal remain.
