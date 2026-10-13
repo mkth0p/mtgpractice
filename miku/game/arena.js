@@ -28,7 +28,7 @@
   // the reference categorical order (dataviz palette), one slot per deck on the rating chart
   const SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"];
   const HOW = { life: "Damage", commander: "Commander damage", poison: "Poison", alt: "Alternate win", library: "Decking", concede: "Concession" };
-  const GROUPS = [["yours", "Your decks"], ["b4", "Bracket 4 bots"], ["precon", "Precons"]];
+  const GROUPS = [["yours", "Your decks"], ["b4", "Bracket 4 bots"], ["b3", "Bracket 3 bots"], ["precon", "Precons"]];
 
   /* ------------------------------------------------------------ state */
   const R = {
