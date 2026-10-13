@@ -1954,6 +1954,7 @@
       if (!sorc && !this.isInstantSpeed(p, o)) return [];
       if (o.def.canCast && !o.def.canCast(this, p, o)) return [];
       if (this.castBlocked(p, o)) return [];
+      if (o.def.modes && o.def.modes.every(m => m.canChoose && !m.canChoose(this, p, o))) return [];
       // no legal target for the normal spell: only an alternative cost with its own targets (cleave) can be cast
       let noTargets = false;
       const needs = (o.def.spell && o.def.spell.targets) || (o.def.aura && o.def.targets);
