@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mana Base Lab</title>
-<meta name="description" content="How many lands and how much ramp does a Commander deck need? A Monte Carlo study of every mana base from 35 to 55 sources, across deck curves and extra-draw scenarios, with an explorer to dig into the numbers.">
+<title>The Land Count Myth</title>
+<meta name="description" content="Do Commander decks really need a fixed number of lands? A Monte Carlo study of every mana base from 35 to 55 sources, across deck curves and extra-draw scenarios, with an explorer to dig into the numbers.">
 <meta name="theme-color" content="#07090c">
 <link rel="icon" href="../miku/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -120,12 +120,13 @@
   th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { font: 600 10px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
   td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  td.n { white-space: nowrap; }
   tr.you td { background: color-mix(in srgb, var(--accent) 12%, transparent); }
   .tbl { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .tag { display: inline-block; font: 600 9px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; padding: 4px 6px; border-radius: 6px; background: var(--accent); color: var(--bg); margin-left: 6px; vertical-align: 1px; }
 
   .line svg { width: 100%; height: auto; display: block; }
-  .two { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+  .two { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); align-items: start; }
   @media (min-width: 860px) { .two { grid-template-columns: 1fr 1fr; } }
   ul.clean { padding-left: 1.1em; margin: 0; }
   ul.clean li { margin: 6px 0; max-width: 70ch; }
@@ -147,18 +148,29 @@
   <div class="wrap">
     <a class="back" href="../">← All decks</a>
     <p class="kicker"><i aria-hidden="true"></i>The lab · mana bases</p>
-    <h1>How many <span>mana sources</span> does a Commander deck need?</h1>
-    <p class="lede">We simulated every mana base from 35 to 55 sources (lands, Llanowar-style dorks and Signet-style rocks) across 11 deck curves and 8 card-draw scenarios. About 190 million simulated games later, here is what holds up.</p>
+    <h1>Do you really need <span>36 lands</span>?</h1>
+    <p class="lede">“Run 36 lands.” “No, 38.” Every Commander player has heard a magic number. We tested it: every mana base from 35 to 55 sources (lands, Llanowar-style dorks and Signet-style rocks), across 11 deck curves and 8 card-draw scenarios, about 190 million simulated games. Short answer: no single land count is required.</p>
   </div>
 </header>
 
 <main class="wrap">
   <div class="tiles">
-    <div class="tile"><b>41–42 <small>sources</small></b><p>The most resilient total for a deck whose spells average 3 to 3.5 mana, whatever the draws.</p></div>
-    <div class="tile"><b>#10 <small>of 434</small></b><p>Where 32 lands + 10 ramp ranks overall. In its worst scenario it still gets 92% of the best deck's mana.</p></div>
-    <div class="tile"><b>&lt; 0.5 <small>mana</small></b><p>How little the lands-versus-ramp split changes over 10 turns once the total is right.</p></div>
-    <div class="tile"><b>46–48 <small>sources</small></b><p>The answer if you only count turns 1 to 8: early ramp is worth more when the game is short.</p></div>
+    <div class="tile"><b>25–47 <small>lands</small></b><p>For a typical deck (spells averaging 3.25 mana), every land count in this range can be built within 1 mana of the best deck over 10 turns.</p></div>
+    <div class="tile"><b>35 → 48 <small>sources</small></b><p>The best total of mana sources climbs as the average spell cost goes from 2 to 4.5. One number can't fit every deck.</p></div>
+    <div class="tile"><b>&lt; 0.5 <small>mana</small></b><p>How little swapping lands for cheap ramp changes over 10 turns, once the total number of sources is right.</p></div>
+    <div class="tile"><b>+4 to +8 <small>sources</small></b><p>How much the best total rises if games are decided by turn 8 instead of turn 10. The answer depends on your table's speed.</p></div>
   </div>
+
+  <section id="myth">
+    <h2>The myth, tested</h2>
+    <p class="sub">For each curve, the range of land counts (and of total sources) whose deck stays within 1 mana of the best one in its worst draw scenario, over 10 turns. 1 mana is about 3% of what a deck spends in that time.</p>
+    <div class="two">
+      <div class="card line"><svg id="band" role="img" aria-label="Near-best range of land counts and of total sources for each average spell cost"></svg><div class="tip" id="tip3"></div></div>
+      <div class="card"><div class="tbl"><table id="band-t"></table></div></div>
+    </div>
+    <div class="verdict"><b>What the data says:</b> for any curve from 3 to 4.5, decks with anywhere from about 25 to 40+ lands reach the top, as long as the total of lands plus ramp is right. The land count is not the rule; the total of mana sources is, and even that moves with the curve and the length of the game.</div>
+    <p>A wide range is not “anything goes”. Outside it, decks either stall for mana or flood. And this model leaves out things that push real decks toward more lands: color requirements, removal that kills mana dorks, and lands that enter tapped. The point is narrower and firmer: a fixed land count, given without knowing the deck's curve and speed, is not backed by the numbers. 24 lands is the lowest we tested, so the bottom of each range may go lower.</p>
+  </section>
 
   <section id="explore">
     <h2>Explore every mana base</h2>
@@ -177,7 +189,7 @@
             <span>Mana behind the best:</span>
             <span class="ramp" id="ramp"></span>
             <span id="ramp-l"></span>
-            <span class="key"><svg viewBox="0 0 14 14"><rect x="1.5" y="1.5" width="11" height="11" fill="none" stroke="var(--pink)" stroke-width="2.5"/></svg>32+10 and 32+12</span>
+            <span class="key"><svg viewBox="0 0 14 14"><rect x="1.5" y="1.5" width="11" height="11" fill="none" stroke="var(--pink)" stroke-width="2.5"/></svg>average B4 and cEDH lists</span>
             <span class="key"><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="4" fill="var(--bg)" stroke="var(--mark-ring)" stroke-width="2"/></svg>best</span>
           </div>
         </div>
@@ -249,14 +261,14 @@
       <li><b>Averages hide the bad games.</b> How often you miss your third land drop says more than the mean.</li>
       <li><b>Smaller gaps:</b> no removal on dorks, no Sol Ring or tapped lands, no colors, a simple mulligan rule.</li>
     </ul>
-    <div class="verdict"><b>Next step:</b> rerun with the real curves of our decks, give early turns more weight, and report how often each base stumbles. Our earlier study found that win rate follows how fast a deck deploys, not how much mana it makes in total.</div>
+    <div class="verdict"><b>Next step:</b> rerun with mixed curves (cheap and expensive spells together), give early turns more weight, and report how often each base stumbles. An earlier study found that win rate follows how fast a deck deploys, not how much mana it makes in total.</div>
   </section>
 
   <section id="studies">
     <h2>Earlier studies</h2>
     <div class="studies">
       <div class="card"><b>Wasted mana</b><p>Across 11 decks in our game engine, win rate against Bracket 4 bots tracked the share of goldfish games won by turn 6 (correlation 0.87), not wasted mana (−0.28) or useful mana (0.39).</p><span class="mono">miku-deck/b4-research/MANA-STUDY.md</span></div>
-      <div class="card"><b>What real lists play</b><p>44 public Bracket 4 lists average 33.7 lands and 10.6 accelerants. 22 cEDH lists average 28.9 lands and 17.5. Our 32 + 10 sits between them.</p><span class="mono">miku-deck/b4-research/MANA-STUDY.md</span></div>
+      <div class="card"><b>What real lists play</b><p>44 public Bracket 4 lists average 33.7 lands and 10.6 accelerants. 22 cEDH lists average 28.9 lands and 17.5. Over 10 turns, the average Bracket 4 base is within 1 mana of the best for any curve from 3 to 4.5.</p><span class="mono">miku-deck/b4-research/MANA-STUDY.md</span></div>
       <div class="card"><b>Analysis methods</b><p>Paired seeds cut the noise of deck benches about 8 times, which is why every deck here plays the same shuffles. The report also rebuilds Karsten's coloured-source tables for 99 cards.</p><span class="mono">research/mtg-analysis-methods/REPORT.md</span></div>
     </div>
   </section>
@@ -267,7 +279,7 @@
 <pre>cd tools/sim/manabase
 node manasim.js sweep --mode avg --games 5000     # every base, fixed curve
 node manasim.js sweep --mode budget --games 5000  # the fixed-budget version
-node manasim.js one --mode avg --config 32:5:5 --budget 3.25 --games 20000
+node manasim.js one --mode avg --config 34:5:6 --budget 3.25 --games 20000
 node analyze.js results-sweep-avg-tight.json --metric useful8</pre>
   </section>
 
@@ -283,7 +295,7 @@ node analyze.js results-sweep-avg-tight.json --metric useful8</pre>
   const C = D.configs; // [lands, ramp]
   const idx = new Map(C.map((c, i) => [c[0] + ':' + c[1], i]));
   const get = (ci, ai, si, f) => D.v[((ci * NA + ai) * NS + si) * NF + f] / 10;
-  const YOU = ['32:10', '32:12'];
+  const REFS = { '34:11': 'avg B4 list', '29:18': 'avg cEDH list' }, YOU = Object.keys(REFS);
   const state = { ai: D.avgs.indexOf(3.25), sc: -1, hz: 0 };
   const fmt = (x, d = 1) => x.toFixed(d);
   const name = c => `${c[0]} lands + ${c[1]} ramp`;
@@ -331,7 +343,7 @@ node analyze.js results-sweep-avg-tight.json --metric useful8</pre>
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   const xOf = r => ml + (r - R0) * cs, yOf = l => mt + (L1 - l) * cs;
   const tip = document.getElementById('tip');
-  let selected = idx.get('32:10');
+  let selected = idx.get('34:11');
 
   function draw() {
     const f = state.hz, ai = state.ai, sc = state.sc;
@@ -409,7 +421,7 @@ node analyze.js results-sweep-avg-tight.json --metric useful8</pre>
     for (const k of YOU) { const i = rk.findIndex(r => C[r.ci][0] + ':' + C[r.ci][1] === k); if (i >= 8) rows.push({ r: rk[i], i }); }
     for (const { r, i } of rows) {
       const c = C[r.ci], you = YOU.includes(c[0] + ':' + c[1]);
-      h += `<tr class="${you ? 'you' : ''}"><td>${i + 1}</td><td>${name(c)}${you ? '<span class="tag">yours</span>' : ''}</td><td class="n">${c[0] + c[1]}</td><td class="n">${fmt(r.g)}</td></tr>`;
+      h += `<tr class="${you ? 'you' : ''}"><td>${i + 1}</td><td>${name(c)}${you ? `<span class="tag">${REFS[c[0] + ':' + c[1]]}</span>` : ''}</td><td class="n">${c[0] + c[1]}</td><td class="n">${fmt(r.g)}</td></tr>`;
     }
     document.getElementById('top').innerHTML = h + '</tbody>';
   }
@@ -444,12 +456,51 @@ node analyze.js results-sweep-avg-tight.json --metric useful8</pre>
     el.addEventListener('pointerleave', () => tip2.classList.remove('on'));
     el.parentNode.style.position = 'relative';
     // table view
-    let h = '<thead><tr><th>Curve</th><th>Best to turn 10</th><th>Best to turn 8</th><th class="n">32+10 rank at this curve</th></tr></thead><tbody>';
+    let h = '<thead><tr><th>Curve</th><th>Best to turn 10</th><th>Best to turn 8</th><th class="n">Avg B4 list rank</th></tr></thead><tbody>';
     D.avgs.forEach((a, ai) => {
-      const rank = ranking(ai, -1, 0).findIndex(r => r.ci === idx.get('32:10')) + 1;
+      const rank = ranking(ai, -1, 0).findIndex(r => r.ci === idx.get('34:11')) + 1;
       h += `<tr><td>${a}</td><td>${series[0][ai].c[0]} + ${series[0][ai].c[1]}</td><td>${series[1][ai].c[0]} + ${series[1][ai].c[1]}</td><td class="n">${rank}</td></tr>`;
     });
     document.getElementById('curve-t').innerHTML = h + '</tbody>';
+  })();
+
+  // ---------- near-best band by curve ----------
+  (function band() {
+    const TH = 1, f = 0;
+    const rows = D.avgs.map((a, ai) => {
+      const ok = C.filter((c, ci) => gap(ci, ai, -1, f) <= TH);
+      const L = ok.map(c => c[0]), T = ok.map(c => c[0] + c[1]);
+      return { a, n: ok.length, l0: Math.min(...L), l1: Math.max(...L), t0: Math.min(...T), t1: Math.max(...T) };
+    });
+    const W3 = 380, rowH = 20, l = 40, r = 14, t = 34, b = 34, H3 = t + rows.length * rowH + b;
+    const xs = v => l + (v - 20) / (56 - 20) * (W3 - l - r);
+    const el = document.getElementById('band'); el.setAttribute('viewBox', `0 0 ${W3} ${H3}`);
+    let s = '';
+    for (let v = 24; v <= 56; v += 8) s += `<line x1="${xs(v)}" x2="${xs(v)}" y1="${t - 6}" y2="${H3 - b}" stroke="var(--grid)"/><text class="axis-t" x="${xs(v)}" y="${H3 - b + 14}" text-anchor="middle">${v}</text>`;
+    s += `<text class="axis-l" x="${l + (W3 - l - r) / 2}" y="${H3 - 6}" text-anchor="middle">Number of cards</text>`;
+    s += `<text class="axis-l" x="4" y="${t - 14}" style="font-size:10px">Curve</text>`;
+    s += `<rect x="${l}" y="6" width="18" height="6" rx="3" fill="var(--s1)"/><text x="${l + 24}" y="12" style="font:600 10.5px var(--f-body);fill:var(--ink-2)">Lands</text>`;
+    s += `<rect x="${l + 80}" y="7" width="18" height="4" rx="2" fill="var(--s2)"/><text x="${l + 104}" y="12" style="font:600 10.5px var(--f-body);fill:var(--ink-2)">Total sources (lands + ramp)</text>`;
+    rows.forEach((o, i) => {
+      const y = t + i * rowH;
+      s += `<text class="axis-t" x="4" y="${y + 12}">${o.a.toFixed(2)}</text>`;
+      s += `<rect x="${xs(o.l0)}" y="${y + 3}" width="${Math.max(4, xs(o.l1) - xs(o.l0))}" height="7" rx="3.5" fill="var(--s1)"/>`;
+      s += `<rect x="${xs(o.t0)}" y="${y + 12}" width="${Math.max(4, xs(o.t1) - xs(o.t0))}" height="4" rx="2" fill="var(--s2)"/>`;
+      s += `<rect data-ri="${i}" x="0" y="${y}" width="${W3}" height="${rowH}" fill="transparent"/>`;
+    });
+    el.innerHTML = s;
+    el.parentNode.style.position = 'relative';
+    const tip3 = document.getElementById('tip3');
+    el.addEventListener('pointermove', e => {
+      const ri = e.target.dataset && e.target.dataset.ri; if (ri == null) { tip3.classList.remove('on'); return; }
+      const o = rows[ri];
+      tip3.innerHTML = `<b>Curve ${o.a}</b><div class="row"><span>Bases within 1 mana</span><span>${o.n}</span></div><div class="row"><span>Lands</span><span>${o.l0}–${o.l1}</span></div><div class="row"><span>Total sources</span><span>${o.t0}–${o.t1}</span></div>`;
+      tip3.classList.add('on'); placeTip(tip3, el.parentNode, e.clientX, e.clientY);
+    });
+    el.addEventListener('pointerleave', () => tip3.classList.remove('on'));
+    let h = '<thead><tr><th>Curve</th><th class="n">Near-best bases</th><th class="n">Lands</th><th class="n">Total sources</th></tr></thead><tbody>';
+    rows.forEach(o => h += `<tr><td>${o.a}</td><td class="n">${o.n}</td><td class="n">${o.l0}–${o.l1}</td><td class="n">${o.t0}–${o.t1}</td></tr>`);
+    document.getElementById('band-t').innerHTML = h + '</tbody>';
   })();
 
   // ---------- scenario table ----------
