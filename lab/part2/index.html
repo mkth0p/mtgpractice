@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Land Count Myth, Part 2</title>
+<meta name="description" content="Part 2 of the land count study: every possible draw of a solo Commander game computed exactly, for every mana base from 20 to 48 lands with dorks and rocks, at every game length from turn 3 to turn 15.">
+<meta name="theme-color" content="#07090c">
+<link rel="icon" href="../../miku/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Martian+Mono:wght@500;600&family=Unbounded:wght@700;800;900&display=swap">
+<style>
+  :root {
+    --bg: #f2efe7; --surface: #fffdf8; --surface-2: #f6f2e8; --ink: #0f1a1a; --ink-2: #33403f; --muted: #5f6b69; --line: #ddd5c6;
+    --accent: #1b8f87; --pink: #d6336f;
+    --s1: #2a78d6; --s2: #eb6834; --s1-soft: rgba(42, 120, 214, .2); --grid: #e4ddd0; --mark-ring: #0f1a1a;
+    --q0: #104281; --q1: #1c5cab; --q2: #2a78d6; --q3: #5598e7; --q4: #86b6ef; --q5: #b7d3f6; --q6: #e3edf9;
+    --f-display: "Unbounded", "Arial Black", system-ui, sans-serif; --f-body: "Instrument Sans", system-ui, sans-serif; --f-mono: "Martian Mono", ui-monospace, Menlo, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #07090c; --surface: #0f141a; --surface-2: #141a21; --ink: #eef3f4; --ink-2: #c3ccd3; --muted: #8b99a4; --line: #1e2730;
+      --accent: #39c5bb; --pink: #ff5c9a;
+      --s1: #3987e5; --s2: #d95926; --s1-soft: rgba(57, 135, 229, .26); --grid: #1e2730; --mark-ring: #eef3f4;
+      --q0: #cde2fb; --q1: #9ec5f4; --q2: #6da7ec; --q3: #3987e5; --q4: #256abf; --q5: #184f95; --q6: #16263a;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #07090c; --surface: #0f141a; --surface-2: #141a21; --ink: #eef3f4; --ink-2: #c3ccd3; --muted: #8b99a4; --line: #1e2730;
+    --accent: #39c5bb; --pink: #ff5c9a;
+    --s1: #3987e5; --s2: #d95926; --s1-soft: rgba(57, 135, 229, .26); --grid: #1e2730; --mark-ring: #eef3f4;
+    --q0: #cde2fb; --q1: #9ec5f4; --q2: #6da7ec; --q3: #3987e5; --q4: #256abf; --q5: #184f95; --q6: #16263a;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--f-body); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: inherit; }
+  .wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  .narrow { max-width: 72ch; }
+
+  .stage { position: relative; overflow: hidden; color: #eef3f4; padding: 22px 0 96px;
+    background:
+      radial-gradient(60% 90% at 12% 0%, rgba(57, 197, 187, .30), transparent 60%),
+      radial-gradient(50% 80% at 92% 10%, rgba(42, 120, 214, .30), transparent 60%),
+      radial-gradient(40% 70% at 60% 110%, rgba(123, 108, 240, .22), transparent 60%),
+      repeating-linear-gradient(90deg, transparent 0 27px, rgba(255, 255, 255, .035) 27px 28px),
+      repeating-linear-gradient(0deg, transparent 0 27px, rgba(255, 255, 255, .035) 27px 28px),
+      #07090c; }
+  .crumbs { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 34px; }
+  .back { display: flex; width: fit-content; align-items: center; gap: 6px; color: #b7c2cc; text-decoration: none; font-size: .9rem; }
+  .back:hover { color: #fff; }
+  .kicker { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 16px; font: 600 11px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: #64e3d8; }
+  .kicker i { width: 8px; height: 8px; border-radius: 2px; background: #3987e5; box-shadow: 0 0 0 4px rgba(57, 135, 229, .25); }
+  h1 { font: 900 clamp(2rem, 7vw, 3.8rem)/1 var(--f-display); margin: 0 0 16px; letter-spacing: -.035em; }
+  h1 span { color: #39c5bb; }
+  .lede { color: #b7c2cc; margin: 0; max-width: 62ch; font-size: 1.05rem; }
+  .lede b { color: #eef3f4; }
+  .pill { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 18px; padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .18); background: rgba(255, 255, 255, .06); font: 600 10.5px/1.3 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: #dfe7ec; }
+  .pill i { width: 8px; height: 8px; border-radius: 50%; background: #f0a640; flex: none; }
+
+  .tiles { position: relative; margin-top: -60px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 18px 16px; box-shadow: 0 2px 6px rgba(0, 0, 0, .05), 0 20px 40px -24px rgba(0, 0, 0, .45); }
+  .tile b { display: block; font: 800 clamp(1.6rem, 5vw, 2.1rem)/1.05 var(--f-display); letter-spacing: -.03em; margin-bottom: 8px; }
+  .tile b small { font-size: .55em; letter-spacing: 0; color: var(--muted); font-weight: 700; }
+  .tile p { margin: 0; color: var(--ink-2); font-size: .94rem; }
+  .banner { margin-top: 16px; display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid #f0a640; border-radius: 14px; padding: 12px 14px; font-size: .92rem; color: var(--ink-2); }
+  .banner b { color: var(--ink); }
+  .banner p { margin: 0; max-width: none; }
+
+  section { margin: 56px 0 0; }
+  h2 { font: 800 clamp(1.3rem, 4vw, 1.7rem)/1.15 var(--f-display); letter-spacing: -.02em; margin: 0 0 10px; }
+  h3 { font: 700 1.05rem/1.3 var(--f-body); margin: 26px 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 18px; max-width: 70ch; }
+  p { max-width: 72ch; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 18px; min-width: 0; }
+  code, .mono { font-family: var(--f-mono); font-size: .82em; }
+  code { background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px; }
+  pre { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; overflow-x: auto; font: 500 .78rem/1.6 var(--f-mono); }
+
+  .controls { display: grid; gap: 12px; margin-bottom: 16px; }
+  @media (min-width: 700px) { .controls.cols { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); } }
+  .ctl { display: grid; gap: 6px; min-width: 0; align-content: start; }
+  .ctl[hidden] { display: none; }
+  .ctl > span { font: 600 10px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .seg { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; align-content: flex-start; }
+  .seg button { appearance: none; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 7px 12px; font: 600 .84rem/1 var(--f-body); cursor: pointer; min-height: 34px; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .seg button:hover:not([aria-pressed="true"]) { border-color: var(--muted); }
+
+  .multi { display: grid; gap: 10px 14px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); position: relative; }
+  @media (min-width: 640px) { .multi { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); } }
+  .multi svg { width: 100%; height: auto; display: block; touch-action: manipulation; }
+  .axis-t { font: 500 10px var(--f-mono); fill: var(--muted); }
+  .axis-l { font: 600 11px var(--f-body); fill: var(--ink-2); }
+  .ptitle { font: 700 13px var(--f-body); fill: var(--ink); }
+  .pn .axis-t { font-size: 11.5px; }
+  .legend { display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); margin: 4px 0 12px; }
+  .ramp { display: flex; border-radius: 4px; overflow: hidden; }
+  .ramp i { width: 22px; height: 12px; display: block; }
+  .ramp i + i { margin-left: 2px; }
+  .key { display: inline-flex; align-items: center; gap: 6px; }
+  .key svg { width: 18px; height: 14px; flex: none; }
+
+  .explorer { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 900px) { .explorer { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); } }
+  .heat { position: relative; }
+  .heat > svg { width: 100%; height: auto; display: block; touch-action: manipulation; margin: 0 auto; }
+  .cell { cursor: pointer; }
+  #heat .axis-t { font-size: 12px; }
+  #heat .axis-l { font-size: 13px; }
+
+  .tip { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 5; min-width: 190px; max-width: 280px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: .82rem; line-height: 1.45; box-shadow: 0 12px 30px -12px rgba(0, 0, 0, .45); opacity: 0; transition: opacity .12s; }
+  .tip.on { opacity: 1; }
+  .tip b { display: block; font-weight: 700; margin-bottom: 4px; }
+  .tip .row { display: flex; justify-content: space-between; gap: 16px; }
+  .tip .row span:last-child { font-family: var(--f-mono); font-size: .9em; text-align: right; }
+
+  .detail { display: grid; gap: 12px; align-content: start; font-size: .92rem; color: var(--ink-2); }
+  .detail .big { font: 800 1.4rem/1.15 var(--f-display); letter-spacing: -.02em; color: var(--ink); display: block; margin: 4px 0 6px; }
+  .facts { display: grid; gap: 0; }
+  .facts .row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+  .facts .row span:last-child { font-family: var(--f-mono); font-size: .82rem; text-align: right; color: var(--ink); }
+
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font: 600 10px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  td.n { white-space: nowrap; }
+  .tbl { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .dim { color: var(--muted); }
+  td.nw, td:first-child { white-space: nowrap; }
+  .note { font-size: .8rem; color: var(--muted); margin: 10px 0 0; }
+  ul.clean { padding-left: 1.1em; margin: 0; }
+  ul.clean li { margin: 6px 0; max-width: 70ch; }
+  .verdict { border-left: 4px solid var(--accent); padding: 4px 0 4px 14px; margin: 14px 0; max-width: 72ch; }
+  .weak li b { color: var(--ink); }
+  details { margin-top: 12px; }
+  summary { cursor: pointer; color: var(--muted); font-size: .88rem; }
+  .soon { border: 1px dashed var(--line); border-radius: 16px; padding: 16px; color: var(--muted); }
+  :focus-visible { outline: 2.5px solid var(--accent); outline-offset: 2px; }
+  footer { color: var(--muted); font-size: .8rem; padding: 40px 0 48px; }
+  #err { display: none; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="stage">
+  <div class="wrap">
+    <div class="crumbs"><a class="back" href="../../">← All decks</a><a class="back" href="../">← Part 1: the Monte Carlo study</a></div>
+    <p class="kicker"><i aria-hidden="true"></i>The lab · mana bases · part 2</p>
+    <h1>The land count myth, <span>part 2</span></h1>
+    <p class="lede" id="lede">Part 1 simulated games at random. Part 2 computes them exactly: every possible draw, with its exact probability, for every mana base on the grid.</p>
+    <div class="pill" id="pill"><i aria-hidden="true"></i><span>Loading results…</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tiles" id="tiles"></div>
+  <div class="banner" id="banner"><p>Loading…</p></div>
+  <div class="banner" id="err" role="alert"></div>
+
+  <section id="length">
+    <h2>Does the answer depend on game length?</h2>
+    <p class="sub">Each panel is one deck curve (the average mana cost of the non-land, non-ramp spells). The line is the best deck's land count if the game ends on that turn; the shaded band is every land count that gets within 2% of it. The pink strip is the “36-40 lands” advice. 20 and 48 lands are the ends of the tested range, so a line pinned there may want even fewer or more.</p>
+    <div class="card">
+      <div class="controls cols">
+        <div class="ctl"><span>Spell curve</span><div class="seg" id="l-curve"></div></div>
+        <div class="ctl"><span>Score</span><div class="seg" id="l-metric"></div></div>
+        <div class="ctl"><span>Show</span><div class="seg" id="l-what"></div></div>
+        <div class="ctl"><span>Extra draws (turns 5-8)</span><div class="seg" id="l-scn"></div></div>
+        <div class="ctl" id="l-cmd-w"><span>Commander cost</span><div class="seg" id="l-cmd"></div></div>
+        <div class="ctl" id="l-play-w"><span>Play</span><div class="seg" id="l-play"></div></div>
+      </div>
+      <div class="legend" id="l-legend"></div>
+      <div class="multi" id="l-multi"><div class="tip" id="l-tip"></div></div>
+      <details><summary>Table view</summary><div class="tbl"><table id="l-table"></table></div></details>
+    </div>
+    <div class="verdict" id="l-verdict"></div>
+  </section>
+
+  <section id="explore">
+    <h2>Explore every mana base</h2>
+    <p class="sub">Each square is a group of decks with the same number of lands (going up) and the same amount of ramp (dorks plus rocks, going across), scored by its best split of dorks and rocks. Darker means closer to the best deck. The outlined area is everything within 2% of the best. Tap or hover a square for its numbers.</p>
+    <div class="card">
+      <div class="controls cols">
+        <div class="ctl"><span>Spell curve</span><div class="seg" id="x-curve"></div></div>
+        <div class="ctl"><span>Score</span><div class="seg" id="x-metric"></div></div>
+        <div class="ctl"><span>Average spell cost</span><div class="seg" id="x-avg"></div></div>
+        <div class="ctl"><span>Game ends on turn</span><div class="seg" id="x-t"></div></div>
+        <div class="ctl"><span>Extra draws (turns 5-8)</span><div class="seg" id="x-scn"></div></div>
+        <div class="ctl" id="x-cmd-w"><span>Commander cost</span><div class="seg" id="x-cmd"></div></div>
+        <div class="ctl" id="x-play-w"><span>Play</span><div class="seg" id="x-play"></div></div>
+      </div>
+      <div class="explorer">
+        <div class="heat">
+          <svg id="heat" role="img" aria-label="Heatmap of each mana base's score as a share of the best deck, by lands and ramp"></svg>
+          <div class="tip" id="x-tip"></div>
+          <div class="legend">
+            <span>Behind the best:</span><span class="ramp" id="x-ramp"></span><span id="x-ramp-l"></span>
+          </div>
+          <div class="legend">
+            <span class="key"><svg viewBox="0 0 18 14"><rect x="2" y="2" width="14" height="10" fill="none" stroke="var(--accent)" stroke-width="2.5"/></svg>within 2%</span>
+            <span class="key"><svg viewBox="0 0 18 14"><rect x="2" y="2" width="14" height="10" fill="none" stroke="var(--pink)" stroke-width="2" stroke-dasharray="3 2"/></svg>36-40 lands</span>
+            <span class="key"><svg viewBox="0 0 18 14"><circle cx="9" cy="7" r="4.5" fill="none" stroke="var(--pink)" stroke-width="2.5"/></svg>average B4 and cEDH lists</span>
+            <span class="key"><svg viewBox="0 0 18 14"><circle cx="9" cy="7" r="4" fill="var(--bg)" stroke="var(--mark-ring)" stroke-width="2"/></svg>best</span>
+          </div>
+        </div>
+        <div class="detail" id="x-detail"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="necessary">
+    <h2>Is 36-40 lands necessary?</h2>
+    <p class="sub">A setting is one curve, average cost, commander cost, draw scenario and game length. The advice is <b>refuted</b> in a setting when some deck with fewer than 36 or more than 40 lands scores within 2% of the best deck that has 36 to 40 lands. That is the test written down before any result (see Method).</p>
+    <div class="card">
+      <div class="controls cols">
+        <div class="ctl"><span>Spell curve</span><div class="seg" id="n-curve"></div></div>
+        <div class="ctl"><span>Score</span><div class="seg" id="n-metric"></div></div>
+        <div class="ctl" id="n-play-w"><span>Play</span><div class="seg" id="n-play"></div></div>
+      </div>
+      <div class="tbl"><table id="n-table"></table></div>
+    </div>
+    <div class="verdict" id="n-verdict"></div>
+    <p id="n-3810"></p>
+  </section>
+
+  <section id="robust">
+    <h2>One deck for every game: robust picks</h2>
+    <p class="sub">You don't know how long the next game lasts or how much you will draw. The robust pick is the deck whose worst shortfall (its <b>regret</b>: how far behind the best deck it is, in %) is smallest across all draw scenarios and game lengths. It is the safe choice, not the best one in any single game.</p>
+    <div class="card">
+      <div class="controls cols">
+        <div class="ctl"><span>Spell curve</span><div class="seg" id="r-curve"></div></div>
+        <div class="ctl"><span>Score</span><div class="seg" id="r-metric"></div></div>
+        <div class="ctl"><span>Game lengths covered</span><div class="seg" id="r-scope"></div></div>
+        <div class="ctl" id="r-cmd-w"><span>Commander cost</span><div class="seg" id="r-cmd"></div></div>
+        <div class="ctl" id="r-play-w"><span>Play</span><div class="seg" id="r-play"></div></div>
+      </div>
+      <div class="tbl"><table id="r-table"></table></div>
+    </div>
+    <div class="verdict" id="r-verdict"></div>
+  </section>
+
+  <section id="split">
+    <h2>Dorks or rocks?</h2>
+    <p class="sub">Dorks cost 1 and tap the turn after. Rocks cost 2 and tap at once. For the best deck in each setting, how its ramp splits, and how much it would lose if all of that ramp were one kind.</p>
+    <div class="card">
+      <div class="controls cols">
+        <div class="ctl"><span>Spell curve</span><div class="seg" id="d-curve"></div></div>
+        <div class="ctl"><span>Score</span><div class="seg" id="d-metric"></div></div>
+        <div class="ctl" id="d-play-w"><span>Play</span><div class="seg" id="d-play"></div></div>
+      </div>
+      <div class="tbl"><table id="d-table"></table></div>
+      <p class="note">Medians over every setting. “Loss if all rocks”: the best deck's lands and amount of ramp, but all of the ramp rocks, in % behind the best (when the grid has that deck). Same for all dorks.</p>
+    </div>
+    <div class="verdict"><b>Big caveat:</b> these are solo games. Nothing kills a dork, destroys a rock or wipes the board. That favours dorks, which are cheaper. Removal comes in a separate, later variant of this study; until then, read this as “cheap ramp beats expensive ramp”, not “play elves over Signets”.</div>
+  </section>
+
+  <section id="commander">
+    <h2>Does commander cost matter?</h2>
+    <div id="c-body"></div>
+  </section>
+
+  <section id="method" class="narrow">
+    <h2>How it works</h2>
+    <ul class="clean">
+      <li><b>Exact, not sampled.</b> Part 1 played thousands of random games per deck. Part 2 lists every reachable game state (cards in library, in hand and on the battlefield) with its exact probability, turn by turn. There is no sampling noise, so a gap between two decks is a fact of the model, not luck.</li>
+      <li><b>The deck:</b> 99 cards plus a commander. Untapped lands, 1-mana dorks (tap the turn after), 2-mana rocks (tap at once) and non-ramp spells. Lands 20 to 48, dorks 0 to 15, rocks 0 to 20, at most 25 ramp. One draw a turn from turn 1; scenarios P1-P8 add 0 to 7 extra cards on turns 5 to 8.</li>
+      <li><b>Two spell curves.</b> <em>Tight</em>: every spell costs one of the two whole numbers around the average (3.5 means half 3s, half 4s). <em>Spread</em>: a bell curve around the average folded onto three costs (average 3: some 2s, many 3s, some 4s).</li>
+      <li><b>Two scores, ranked separately.</b> <b>Useful mana (V)</b>: mana spent on spells and the commander (not on ramp), with each turn counting 10% less than the turn before, because early mana matters more. <b>Spells cast (N)</b>: how many spells (ramp excluded) and the commander you cast by the last turn. Where they disagree is itself a result.</li>
+      <li><b>Game length.</b> Every last turn from 3 to 15 is its own setting: “the game ends on turn T” means only turns 1 to T are scored.</li>
+      <li><b>Near-optimal:</b> within 2% of the best deck's score in the same setting. Every deck in that range is “as good as the best” here.</li>
+      <li><b>Shared game graphs.</b> The game tree under a fixed play rule does not depend on how many lands or dorks a deck has, only the draw odds do. So one graph is built per curve, commander and scenario, and every deck is scored by one pass over it. That is what makes millions of exact solves affordable.</li>
+      <li><b>Checks passed before any result:</b> land-drop odds match the hypergeometric tables to 1e-14; every game of part 1's own code reproduces to 1e-11; part 1's Monte Carlo averages agree within sampling error; probability adds to 1 and totals stay consistent. The spread curve uses a library shortcut measured at under 0.1% error.</li>
+      <li><b>Pre-registered.</b> The tests, the 2% margin, the grid and both scores were written down before the first run, with every later change logged: <a href="https://github.com/mkth0p/mtgpractice/blob/main/tools/sim/landmyth/PREREG.md">PREREG.md</a>. Code and method: <a href="https://github.com/mkth0p/mtgpractice/tree/main/tools/sim/landmyth">tools/sim/landmyth</a>.</li>
+      <li id="m-play"><b>Play rule:</b> for now, part 1's fixed rule (keep 2-5 lands or 1 land and 2 ramp, a free first mulligan; cast ramp first through turn 6, then spend as much mana as possible). Phase 2 replaces it with the best possible play and mulligans, computed exactly.</li>
+    </ul>
+  </section>
+
+  <section id="limits" class="narrow">
+    <h2>What this model leaves out</h2>
+    <ul class="clean weak">
+      <li id="lim-play"><b>Play is a fixed rule, not the best play.</b> A smarter player might want a different deck. Phase 2 computes optimal play and mulligans; this page will show both side by side.</li>
+      <li><b>No opponents.</b> No removal on dorks, no rock or land destruction, no board wipes. A disruption variant comes later and will always be reported separately.</li>
+      <li><b>Only two curve shapes</b>, and the spread one is folded onto three costs (the full bell curve is too large to compute exactly).</li>
+      <li><b>Simple cards.</b> No tapped lands, Sol Ring, colours, card draw that costs mana, or mana sinks yet.</li>
+      <li><b>Coarse grid for now.</b> Until the finer passes land, decks are tested in steps of 4 (or 2) cards, so a best deck or a range can still move by a step.</li>
+    </ul>
+  </section>
+
+  <footer>Unofficial fan pages. Magic: The Gathering is © Wizards of the Coast. Exact model by <a href="https://github.com/mkth0p/mtgpractice/tree/main/tools/sim/landmyth">tools/sim/landmyth</a>. <span id="gen"></span></footer>
+</main>
+
+<script src="data.js?v=1"></script>
+<script>
+(async function () {
+  const D = window.LANDMYTH;
+  const $ = id => document.getElementById(id);
+  function fail(msg) { const e = $('err'); e.style.display = 'flex'; e.innerHTML = '<p>' + msg + '</p>'; $('banner').style.display = 'none'; $('pill').querySelector('span').textContent = 'Data not available'; }
+  if (!D) return fail('The results file (data.js) did not load.');
+  if (typeof DecompressionStream === 'undefined') return fail('This browser cannot unpack the results (it needs DecompressionStream: Chrome 80+, Safari 16.4+, Firefox 113+).');
+
+  // ---------- data ----------
+  async function inflate(blob) {
+    const bin = atob(blob.gz), u = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    const buf = await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+    const f = {};
+    for (const x of blob.fields) f[x.name] = x.type === 'u16' ? new Uint16Array(buf, x.offset, x.length) : new Uint8Array(buf, x.offset, x.length);
+    return f;
+  }
+  let S, G;
+  try { [S, G] = await Promise.all([inflate(D.summary), inflate(D.grid)]); } catch (e) { return fail('The results could not be unpacked: ' + e.message); }
+  G = G.regret;
+
+  const dims = D.dims, Ts = dims.Ts, T0 = Ts[0], NT = Ts.length, MISS = D.meta.missing, BAND = D.meta.band;
+  const NG = dims.gL.length * dims.gR.length;
+  const ctxIdx = new Map(D.ctx.map((c, i) => [c.slice(0, 5).join('|'), i]));
+  const ci = (p, c, cmd, avg, s) => { const k = ctxIdx.get([p, c, cmd, avg, s].join('|')); return k === undefined ? -1 : k; };
+  const si = (c, m, t) => (c * 2 + m) * NT + (t - T0);
+  const get = (field, c, m, t) => S[field][si(c, m, t)];
+  const pct = b => b === MISS ? '–' : (b >= 254 ? '25%+' : (b / 10).toFixed(1) + '%');
+  const LABEL = {
+    curve: { tight: 'Tight', normal3: 'Spread' },
+    metric: ['Useful mana', 'Spells cast'],
+    play: { part1: 'Part 1 rule', optimal: 'Optimal' },
+  };
+  const SCN = { P1: 0, P2: 1, P3: 2, P4: 3, P5: 4, P6: 5, P7: 6, P8: 7 };
+  const XTRA = { P1: 0, P2: 1, P3: 2, P4: 3, P5: 4, P6: 5, P7: 6, P8: 7 };
+  const scnLabel = s => `${s} +${XTRA[s]}`;
+  const avgLabel = a => a.toFixed(2).replace(/0$/, '');
+  const deck = (L, Dk, R) => `${L} lands + ${Dk} dorks + ${R} rocks`;
+  const deckS = (L, Dk, R) => `${L} + ${Dk}d + ${R}r`;
+  const nearest = (arr, x) => arr.reduce((a, b) => Math.abs(b - x) < Math.abs(a - x) ? b : a);
+  const median = a => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.floor((s.length - 1) / 2)] : NaN; };
+  const fmtInt = n => n.toLocaleString('en-US');
+
+  // defaults: a "typical" setting
+  const defAvg = dims.avgs.includes(3.25) ? 3.25 : nearest(dims.avgs, 3);
+  const defCmd = dims.cmds.includes(4) ? 4 : nearest(dims.cmds, 4);
+  const defScn = dims.scens.includes('P4') ? 'P4' : dims.scens[Math.floor(dims.scens.length / 2)];
+  const defCurve = Math.max(0, dims.curves.indexOf('tight'));
+  const defT = dims.xT.includes(10) ? 10 : nearest(dims.xT, 10);
+  const xScnDef = dims.xScen.includes(defScn) ? defScn : dims.xScen[0];
+
+  // ---------- controls ----------
+  function seg(id, items, cur, on, wrapId) {
+    const el = $(id); el.innerHTML = '';
+    if (wrapId) $(wrapId).hidden = items.length < 2;
+    items.forEach(([label, val]) => {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+      b.setAttribute('aria-pressed', String(val === cur));
+      b.onclick = () => { [...el.children].forEach(x => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); on(val); };
+      el.appendChild(b);
+    });
+  }
+  const curveItems = dims.curves.map((c, i) => [LABEL.curve[c] || c, i]);
+  const metricItems = [[LABEL.metric[0], 0], [LABEL.metric[1], 1]];
+  const playItems = dims.plays.map((p, i) => [LABEL.play[p] || p, i]);
+  const cmdItems = dims.cmds.map(c => [String(c), c]);
+
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  function placeTip(t, host, x, y) {
+    const r = host.getBoundingClientRect(), w = t.offsetWidth, h = t.offsetHeight;
+    let left = x - r.left + 14, top = y - r.top + 14;
+    if (left + w > r.width) left = Math.max(0, x - r.left - w - 14);
+    if (top + h > r.height + 40) top = Math.max(-20, y - r.top - h - 14);
+    t.style.left = left + 'px'; t.style.top = top + 'px';
+  }
+
+  // ---------- coverage: pill, banner ----------
+  const cov = D.meta.coverage;
+  const covOf = p => cov.find(c => c.play === p);
+  (function () {
+    const c0 = cov[0], pass = c0.passComplete, next = c0.passes.find(p => p.n === pass + 1);
+    const partial = next && next.done > 0 && next.done < next.total ? `, pass ${next.n} ${(100 * next.done / next.total).toFixed(next.done / next.total < .01 ? 1 : 0)}% in` : '';
+    const prelim = !(pass >= 3 && cov.some(c => c.play === 'optimal'));
+    const plays = cov.map(c => LABEL.play[c.play].toLowerCase()).join(' and ');
+    $('pill').innerHTML = `<i aria-hidden="true"></i><span>${prelim ? 'Preliminary' : 'Final'} · pass ${pass} of 3${partial}</span><span>${fmtInt(c0.cells)} cells</span><span>${cov.length > 1 ? 'part 1 rule + optimal play' : LABEL.play[c0.play].toLowerCase()}</span>`;
+    const grid = c0.passes.find(p => p.n === Math.max(1, pass));
+    const nc = dims.cmds.length, ns = dims.scens.length, na = dims.avgs.length;
+    $('banner').innerHTML = `<p><b>${prelim ? 'Preliminary results.' : 'Results.'}</b> This is pass ${pass} of 3: ${fmtInt(c0.cells)} cells (one cell is one deck in one curve, commander and draw scenario, scored at every game length), with lands, dorks and rocks in steps of ${grid ? grid.step : '?'}, ${na} average costs, ${nc === 1 ? 'a ' + dims.cmds[0] + '-mana commander' : 'commanders costing ' + dims.cmds[0] + ' to ' + dims.cmds[nc - 1]} and ${ns} draw scenarios. `
+      + (cov.some(c => c.play === 'optimal') ? `Both play rules are shown: part 1's fixed rule and the optimal play from phase 2.` : `Play follows part 1's fixed rule; optimal play (phase 2) is being computed.`)
+      + ` Finer passes add decks between the ones here, so a best deck or a range can still move by a step.</p>`;
+    $('gen').textContent = 'Data generated ' + D.meta.generated.slice(0, 10) + '.';
+    if (cov.some(c => c.play === 'optimal')) { $('m-play').innerHTML = '<b>Play rule:</b> results are shown under part 1\'s fixed rule and under optimal play and mulligans (phase 2), computed exactly by backward induction; switch with the “Play” buttons.'; $('lim-play').style.display = 'none'; }
+  })();
+
+  // ---------- headline: tiles and lede ----------
+  (function () {
+    const p = 0;
+    let n = 0, ref = 0, inside = 0, below = 0;
+    D.ctx.forEach((c, k) => { if (c[0] !== p) return; for (let m = 0; m < 2; m++) for (const t of Ts) { const b = get('band', k, m, t); if (!(b & 1)) continue; n++; if (b & 12) ref++; if (b & 4) below++; if (b & 2) inside++; } });
+    const c = ci(p, defCurve, defCmd, defAvg, dims.scens.indexOf(defScn));
+    const lo = get('landLo', c, 0, 10), hi = get('landHi', c, 0, 10);
+    const tA = 6, tB = 15, bA = get('bestL', c, 0, tA), bB = get('bestL', c, 0, tB);
+    // median best land count at turn 6 and turn 15 over every setting
+    const medAt = t => median(D.ctx.map((x, k) => x[0] === p ? get('bestL', k, 0, t) : null).filter(v => v != null));
+    const m6 = medAt(6), m15 = medAt(15);
+    const share = n ? Math.round(100 * ref / n) : 0;
+    const tiles = [
+      [`${share}% <small>of settings</small>`, `where a deck with fewer than 36 or more than 40 lands does as well (within 2%) as the best 36-40 deck. ${fmtInt(ref)} of ${fmtInt(n)}, both scores, every game length.`],
+      [`${lo}–${hi} <small>lands</small>`, `are all within 2% of the best deck for a typical setup: spells averaging ${avgLabel(defAvg)}, a ${defCmd}-mana commander, ${XTRA[defScn]} extra cards, game over on turn 10.`],
+      [`${bA} → ${bB} <small>lands</small>`, `The best land count for that same deck if the game ends on turn ${tA}, then on turn ${tB}.${bB < bA ? ' Longer games want fewer lands and more spells.' : bB > bA ? ' Longer games want more lands.' : ''}`],
+      [`${Math.round(100 * inside / n)}% <small>of settings</small>`, `where the single best deck does run 36 to 40 lands. The advice is not wrong everywhere; it is just not required.`],
+    ];
+    $('tiles').innerHTML = tiles.map(([b, t]) => `<div class="tile"><b>${b}</b><p>${t}</p></div>`).join('');
+    const trend = m15 < m6 - 2 ? `falls as games get longer (median best: ${m6} lands if the game ends on turn 6, ${m15} by turn 15)` : m15 > m6 + 2 ? `rises as games get longer (median best: ${m6} lands at turn 6, ${m15} at turn 15)` : `barely moves with game length (median best: ${m6} lands at turn 6, ${m15} at turn 15)`;
+    $('lede').innerHTML = `Part 1 simulated games at random. Part 2 computes solo games <b>exactly</b>: every possible draw, with its exact probability. Short answer: <b>36-40 lands is ${share === 100 ? 'never' : share >= 80 ? 'almost never' : 'often not'} required.</b> In ${share}% of settings a deck outside that range does just as well, and the best land count ${trend}.`;
+  })();
+
+  // ---------- band charts (small multiples) ----------
+  // rows: [{x, best, lo, hi, alt?, tip}] ; returns svg markup with hit columns data-k
+  function bandPanel({ title, xs, xLabelEvery = 1, yMin, yMax, rows, ref, xName }) {
+    const W = 200, H = 166, l = 30, r = 10, t = 24, b = 30;
+    const xp = i => l + (xs.length === 1 ? (W - l - r) / 2 : i / (xs.length - 1) * (W - l - r));
+    const yp = v => t + (yMax - v) / (yMax - yMin) * (H - t - b);
+    let s = `<text class="ptitle" x="${l}" y="13">${title}</text>`;
+    const step = (yMax - yMin) > 32 ? 12 : 8;
+    for (let v = Math.ceil(yMin / step) * step; v <= yMax; v += step) s += `<line x1="${l}" x2="${W - r}" y1="${yp(v)}" y2="${yp(v)}" stroke="var(--grid)"/><text class="axis-t" x="${l - 5}" y="${yp(v) + 3}" text-anchor="end">${v}</text>`;
+    xs.forEach((x, i) => { if (i % xLabelEvery === 0 || i === xs.length - 1) s += `<text class="axis-t" x="${xp(i)}" y="${H - b + 14}" text-anchor="middle">${x}</text>`; });
+    s += `<text class="axis-t" x="${l + (W - l - r) / 2}" y="${H - 1}" text-anchor="middle" style="font-family:var(--f-body);font-weight:600">${xName}</text>`;
+    if (ref) s += `<rect x="${l}" y="${yp(ref[1])}" width="${W - l - r}" height="${yp(ref[0]) - yp(ref[1])}" fill="var(--pink)" opacity=".16"/>`;
+    const ok = rows.map((o, i) => o && o.best != null ? i : -1).filter(i => i >= 0);
+    if (ok.length) {
+      const up = ok.map(i => `${xp(i)},${yp(rows[i].hi)}`), dn = ok.slice().reverse().map(i => `${xp(i)},${yp(rows[i].lo)}`);
+      s += `<polygon points="${up.concat(dn).join(' ')}" fill="var(--s1-soft)" stroke="none"/>`;
+      if (rows.some(o => o && o.alt != null)) s += `<polyline points="${ok.filter(i => rows[i].alt != null).map(i => `${xp(i)},${yp(rows[i].alt)}`).join(' ')}" fill="none" stroke="var(--s2)" stroke-width="2" stroke-dasharray="4 3"/>`;
+      s += `<polyline points="${ok.map(i => `${xp(i)},${yp(rows[i].best)}`).join(' ')}" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round"/>`;
+      ok.forEach(i => s += `<circle cx="${xp(i)}" cy="${yp(rows[i].best)}" r="${xs.length > 8 ? 2.6 : 3.4}" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>`);
+    }
+    const cw = (W - l - r) / Math.max(1, xs.length - 1);
+    rows.forEach((o, i) => { if (o) s += `<rect data-k="${i}" x="${xp(i) - cw / 2}" y="${t}" width="${cw}" height="${H - t - b}" fill="transparent"/>`; });
+    return { svg: `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${title}">${s}</svg>`, rows };
+  }
+  function multiples(host, tip, panels) {
+    // panels: [{title, ...bandPanel opts}] ; tooltips from rows[k].tip
+    [...host.querySelectorAll('.pn')].forEach(x => x.remove());
+    panels.forEach((p, pi) => {
+      const d = document.createElement('div'); d.className = 'pn'; d.dataset.p = pi;
+      d.innerHTML = bandPanel(p).svg; host.insertBefore(d, tip);
+    });
+    host.onpointermove = e => {
+      const k = e.target.dataset && e.target.dataset.k, pn = e.target.closest && e.target.closest('.pn');
+      if (k == null || !pn) { tip.classList.remove('on'); return; }
+      const o = panels[+pn.dataset.p].rows[+k];
+      tip.innerHTML = o.tip; tip.classList.add('on'); placeTip(tip, host, e.clientX, e.clientY);
+    };
+    host.onpointerleave = () => tip.classList.remove('on');
+  }
+  const legendHTML = (what, alt) => `<span class="key"><svg viewBox="0 0 18 14"><rect x="1" y="3" width="16" height="8" rx="2" fill="var(--s1-soft)"/><line x1="1" x2="17" y1="7" y2="7" stroke="var(--s1)" stroke-width="2"/></svg>best ${what} (line) and within 2% (band)</span>`
+    + (what === 'land count' ? `<span class="key"><svg viewBox="0 0 18 14"><rect x="1" y="3" width="16" height="8" fill="var(--pink)" opacity=".3"/></svg>36-40 lands</span>` : '')
+    + (alt ? `<span class="key"><svg viewBox="0 0 18 14"><line x1="1" x2="17" y1="7" y2="7" stroke="var(--s2)" stroke-width="2" stroke-dasharray="4 3"/></svg>best ${what}, ${alt}</span>` : '');
+
+  function rowFor(c, m, t, what, altC) {
+    if (c < 0) return null;
+    const L = get('bestL', c, m, t), Dk = get('bestD', c, m, t), R = get('bestR', c, m, t);
+    const lands = what === 'lands';
+    const best = lands ? L : L + Dk + R, lo = lands ? get('landLo', c, m, t) : get('srcLo', c, m, t), hi = lands ? get('landHi', c, m, t) : get('srcHi', c, m, t);
+    let alt = null; if (altC >= 0) alt = lands ? get('bestL', altC, m, t) : get('bestL', altC, m, t) + get('bestD', altC, m, t) + get('bestR', altC, m, t);
+    return { best, lo, hi, alt, deck: [L, Dk, R], n: get('nNear', c, m, t), band: get('regBand', c, m, t) };
+  }
+  function tipOf(head, o, what, altName) {
+    return `<b>${head}</b><div class="row"><span>Best deck</span><span>${deckS(...o.deck)}</span></div>`
+      + `<div class="row"><span>Within 2%: ${what === 'lands' ? 'lands' : 'lands + ramp'}</span><span>${o.lo}–${o.hi}</span></div>`
+      + `<div class="row"><span>Decks within 2%</span><span>${o.n}</span></div>`
+      + `<div class="row"><span>Best 36-40 deck behind by</span><span>${pct(o.band)}</span></div>`
+      + (o.alt != null ? `<div class="row"><span>Best, ${altName}</span><span>${o.alt}</span></div>` : '');
+  }
+
+  // ---------- game length ----------
+  const LS = { curve: defCurve, metric: 0, what: 'lands', scn: defScn, cmd: defCmd, play: 0 };
+  function drawLength() {
+    const avgs = dims.avgs.length > 6 ? dims.avgs.filter(a => Math.abs(a * 2 - Math.round(a * 2)) < 1e-9) : dims.avgs;
+    const s = dims.scens.indexOf(LS.scn), other = dims.plays.length > 1 ? 1 - LS.play : -1;
+    const altName = other >= 0 ? LABEL.play[dims.plays[other]].toLowerCase() : '';
+    const what = LS.what, ylo = what === 'lands' ? Math.min(...dims.gL) : 20, yhi = what === 'lands' ? Math.max(...dims.gL) : 72;
+    const panels = avgs.map(a => {
+      const c = ci(LS.play, LS.curve, LS.cmd, a, s), oc = other >= 0 ? ci(other, LS.curve, LS.cmd, a, s) : -1;
+      const rows = Ts.map(t => { const o = rowFor(c, LS.metric, t, what, oc); if (o) o.tip = tipOf(`Spells averaging ${avgLabel(a)}, game ends turn ${t}`, o, what, altName); return o; });
+      return { title: `Average cost ${avgLabel(a)}`, xs: Ts, xLabelEvery: 3, yMin: ylo, yMax: yhi, rows, ref: what === 'lands' ? BAND : null, xName: 'game ends on turn' };
+    });
+    $('l-legend').innerHTML = legendHTML(what === 'lands' ? 'land count' : 'lands + ramp', altName);
+    multiples($('l-multi'), $('l-tip'), panels);
+    // table
+    let h = `<thead><tr><th>Avg cost</th>${Ts.map(t => `<th class="n">T${t}</th>`).join('')}</tr></thead><tbody>`;
+    panels.forEach((p, i) => h += `<tr><td>${avgLabel(avgs[i])}</td>${p.rows.map(o => `<td class="n">${o ? `${o.best} <span class="dim">${o.lo}–${o.hi}</span>` : ''}</td>`).join('')}</tr>`);
+    $('l-table').innerHTML = h + '</tbody>';
+    // verdict from data: best at T6 vs T15 across all avgs/contexts of this curve and metric
+    const gmax = Math.max(...dims.gL), at = t => { const v = median(D.ctx.map((x, k) => x[0] === LS.play && x[1] === LS.curve ? get('bestL', k, LS.metric, t) : null).filter(v => v != null)); return v >= gmax ? v + ' (the most tested)' : v; };
+    const a4 = parseInt(at(4)), a15 = parseInt(at(15));
+    $('l-verdict').innerHTML = `<b>What the data says:</b> with the ${LABEL.curve[dims.curves[LS.curve]].toLowerCase()} curve and the ${LABEL.metric[LS.metric].toLowerCase()} score, the best deck's land count has a median of ${at(4)} if the game ends on turn 4, ${at(8)} on turn 8 and ${at(15)} on turn 15 (all averages, commanders and draw scenarios). ` + (a4 > a15 ? 'Short games reward hitting every land drop; long games reward having spells left to cast. A fixed land count cannot be right for both.' : '');
+  }
+  const lRedraw = k => v => { LS[k] = v; drawLength(); };
+  seg('l-curve', curveItems, LS.curve, lRedraw('curve'));
+  seg('l-metric', metricItems, LS.metric, lRedraw('metric'));
+  seg('l-what', [['Lands', 'lands'], ['Lands + ramp', 'src']], LS.what, lRedraw('what'));
+  seg('l-scn', dims.scens.map(s => [scnLabel(s), s]), LS.scn, lRedraw('scn'));
+  seg('l-cmd', cmdItems, LS.cmd, lRedraw('cmd'), 'l-cmd-w');
+  seg('l-play', playItems, LS.play, lRedraw('play'), 'l-play-w');
+  drawLength();
+
+  // ---------- explorer ----------
+  const XS = { curve: defCurve, metric: 0, avg: defAvg, t: defT, scn: xScnDef, cmd: defCmd, play: 0 };
+  const gL = dims.gL, gR = dims.gR, nL = gL.length, nR = gR.length;
+  const STEPS = [5, 10, 20, 35, 50, 80]; // regret bytes (0.1%): 0.5%, 1%, 2%, 3.5%, 5%, 8%
+  const shade = b => { let k = 0; while (k < STEPS.length && b > STEPS[k]) k++; return 'var(--q' + k + ')'; };
+  $('x-ramp').innerHTML = [0, 1, 2, 3, 4, 5, 6].map(k => `<i style="background:var(--q${k})"></i>`).join('');
+  $('x-ramp-l').textContent = '0 → 8%+';
+  const REFS = [{ L: 34, r: 11, name: 'Average B4 list (34 lands + 11 ramp)', short: 'B4' }, { L: 29, r: 18, name: 'Average cEDH list (29 lands + 18 ramp)', short: 'cEDH' }];
+  let sel = null; // [li, ri]
+  const cs = 26, ml = 42, mt = 8, mb = 40, mr = 8;
+  const W = ml + nR * cs + mr, H = mt + nL * cs + mb;
+  const hsvg = $('heat');
+  hsvg.setAttribute('viewBox', `0 0 ${W} ${H}`); hsvg.style.maxWidth = Math.round(W * 1.5) + 'px';
+  const xOf = ri => ml + ri * cs, yOf = li => mt + (nL - 1 - li) * cs;
+  const fracIdx = (arr, v) => { if (v < arr[0] || v > arr[arr.length - 1]) return null; for (let i = 0; i < arr.length - 1; i++) if (v >= arr[i] && v <= arr[i + 1]) return i + (v - arr[i]) / (arr[i + 1] - arr[i]); return arr.length - 1; };
+  function xCtx() {
+    const c = ci(XS.play, XS.curve, XS.cmd, XS.avg, dims.scens.indexOf(XS.scn));
+    const xi = c >= 0 ? D.grid.ctx[c] : -1; const k = dims.xT.indexOf(XS.t);
+    return { c, off: xi >= 0 && k >= 0 ? ((xi * 2 + XS.metric) * dims.xT.length + k) * NG : -1 };
+  }
+  function drawHeat() {
+    const { c, off } = xCtx();
+    let s = '';
+    gL.forEach((l, li) => { if (nL <= 10 || li % 2 === 0 || li === nL - 1) s += `<text class="axis-t" x="${ml - 6}" y="${yOf(li) + cs / 2 + 3}" text-anchor="end">${l}</text>`; });
+    gR.forEach((r, ri) => { if (nR <= 10 || ri % 2 === 0) s += `<text class="axis-t" x="${xOf(ri) + cs / 2}" y="${H - mb + 16}" text-anchor="middle">${r}</text>`; });
+    s += `<text class="axis-l" x="${ml + nR * cs / 2}" y="${H - 6}" text-anchor="middle">Ramp (dorks + rocks) →</text>`;
+    s += `<text class="axis-l" transform="translate(13 ${mt + nL * cs / 2}) rotate(-90)" text-anchor="middle">Lands →</text>`;
+    if (off < 0) { hsvg.innerHTML = s + `<text class="axis-l" x="${W / 2}" y="${H / 2}" text-anchor="middle">Not computed yet</text>`; drawDetail(); return; }
+    const at = (li, ri) => G[off + li * nR + ri];
+    let best = null;
+    for (let li = 0; li < nL; li++) for (let ri = 0; ri < nR; ri++) {
+      const b = at(li, ri); if (b === MISS) continue;
+      s += `<rect class="cell" data-li="${li}" data-ri="${ri}" x="${xOf(ri) + 1}" y="${yOf(li) + 1}" width="${cs - 2}" height="${cs - 2}" rx="3" fill="${shade(b)}"/>`;
+      if (b === 0 && (!best)) best = [li, ri];
+    }
+    // the best deck from the summary (its lands and ramp total)
+    const bL = get('bestL', c, XS.metric, XS.t), bRt = get('bestD', c, XS.metric, XS.t) + get('bestR', c, XS.metric, XS.t);
+    if (gL.includes(bL) && gR.includes(bRt)) best = [gL.indexOf(bL), gR.indexOf(bRt)];
+    // 2% outline: edges between inside and outside cells
+    const inside = (li, ri) => li >= 0 && li < nL && ri >= 0 && ri < nR && at(li, ri) <= 20;
+    let path = '';
+    for (let li = 0; li < nL; li++) for (let ri = 0; ri < nR; ri++) {
+      if (!inside(li, ri)) continue;
+      const x0 = xOf(ri), y0 = yOf(li), x1 = x0 + cs, y1 = y0 + cs;
+      if (!inside(li + 1, ri)) path += `M${x0} ${y0}H${x1}`;
+      if (!inside(li - 1, ri)) path += `M${x0} ${y1}H${x1}`;
+      if (!inside(li, ri - 1)) path += `M${x0} ${y0}V${y1}`;
+      if (!inside(li, ri + 1)) path += `M${x1} ${y0}V${y1}`;
+    }
+    s += `<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="square" pointer-events="none"/>`;
+    // 36-40 lands box
+    const b0 = fracIdx(gL, BAND[0]), b1 = fracIdx(gL, BAND[1]);
+    if (b0 != null && b1 != null) s += `<rect x="${ml - 2}" y="${yOf(b1) - 1}" width="${nR * cs + 4}" height="${yOf(b0) - yOf(b1) + cs + 2}" rx="4" fill="none" stroke="var(--pink)" stroke-width="2" stroke-dasharray="5 3" pointer-events="none"/>`;
+    // reference lists, at their exact position (between squares when off the grid)
+    for (const ref of REFS) {
+      const fl = fracIdx(gL, ref.L), fr = fracIdx(gR, ref.r); if (fl == null || fr == null) continue;
+      const x = ml + fr * cs + cs / 2, y = mt + (nL - 1 - fl) * cs + cs / 2;
+      s += `<circle cx="${x}" cy="${y}" r="6.5" fill="none" stroke="var(--pink)" stroke-width="2.5" pointer-events="none"/>`;
+      s += `<text x="${x + 9}" y="${y - 7}" style="font:700 9px var(--f-body);fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:3px" pointer-events="none">${ref.short}</text>`;
+    }
+    if (best) s += `<circle cx="${xOf(best[1]) + cs / 2}" cy="${yOf(best[0]) + cs / 2}" r="4.2" fill="var(--bg)" stroke="var(--mark-ring)" stroke-width="2" pointer-events="none"/>`;
+    if (sel && at(sel[0], sel[1]) !== MISS) s += `<rect x="${xOf(sel[1]) + 2.5}" y="${yOf(sel[0]) + 2.5}" width="${cs - 5}" height="${cs - 5}" rx="2" fill="none" stroke="var(--mark-ring)" stroke-width="1.5" stroke-dasharray="2 1.5" pointer-events="none"/>`;
+    hsvg.innerHTML = s;
+    drawDetail();
+  }
+  function cellTip(li, ri) {
+    const { off } = xCtx(); const b = G[off + li * nR + ri];
+    return `<b>${gL[li]} lands + ${gR[ri]} ramp</b><div class="row"><span>Behind the best (best split)</span><span>${pct(b)}</span></div><div class="row"><span>Within 2%?</span><span>${b <= 20 ? 'yes' : 'no'}</span></div>`;
+  }
+  const xtip = $('x-tip');
+  hsvg.addEventListener('pointermove', e => {
+    const d = e.target.dataset; if (!d || d.li == null) { xtip.classList.remove('on'); return; }
+    xtip.innerHTML = cellTip(+d.li, +d.ri); xtip.classList.add('on'); placeTip(xtip, hsvg.parentNode, e.clientX, e.clientY);
+  });
+  hsvg.addEventListener('pointerleave', () => xtip.classList.remove('on'));
+  hsvg.addEventListener('click', e => { const d = e.target.dataset; if (d && d.li != null) { sel = [+d.li, +d.ri]; drawHeat(); } });
+  function drawDetail() {
+    const { c, off } = xCtx(), m = XS.metric, t = XS.t;
+    if (c < 0) { $('x-detail').innerHTML = '<p>This combination is not computed yet.</p>'; return; }
+    const unit = m === 0 ? 'useful mana (discounted)' : 'spells cast';
+    const r3810 = get('reg3810', c, m, t);
+    let h = `<div>Best deck<span class="big">${deck(get('bestL', c, m, t), get('bestD', c, m, t), get('bestR', c, m, t))}</span>scores ${(get('best100', c, m, t) / 100).toFixed(1)} ${unit} by turn ${t}.</div><div class="facts">`;
+    h += `<div class="row"><span>Lands within 2%</span><span>${get('landLo', c, m, t)}–${get('landHi', c, m, t)}</span></div>`;
+    h += `<div class="row"><span>Lands + ramp within 2%</span><span>${get('srcLo', c, m, t)}–${get('srcHi', c, m, t)}</span></div>`;
+    h += `<div class="row"><span>Decks within 2%</span><span>${get('nNear', c, m, t)} of ${D.ctx[c][5]}</span></div>`;
+    h += `<div class="row"><span>Best 36-40 land deck</span><span>${pct(get('regBand', c, m, t))} behind</span></div>`;
+    h += `<div class="row"><span>Best 38 lands + 10 ramp</span><span>${r3810 === MISS ? 'not on this grid' : pct(r3810) + ' behind'}</span></div>`;
+    if (sel && off >= 0) { const b = G[off + sel[0] * nR + sel[1]]; if (b !== MISS) h += `<div class="row"><span>Selected: ${gL[sel[0]]} lands + ${gR[sel[1]]} ramp</span><span>${pct(b)} behind</span></div>`; }
+    h += `</div><p class="dim" style="margin:0;font-size:.82rem">The B4 and cEDH circles mark the average public list from part 1's survey (34 lands + 11 ramp, 29 + 18). When they fall between squares, the grid has no deck at exactly that spot yet.</p>`;
+    $('x-detail').innerHTML = h;
+  }
+  const xRedraw = k => v => { XS[k] = v; drawHeat(); };
+  seg('x-curve', curveItems, XS.curve, xRedraw('curve'));
+  seg('x-metric', metricItems, XS.metric, xRedraw('metric'));
+  seg('x-avg', dims.avgs.map(a => [avgLabel(a), a]), XS.avg, xRedraw('avg'));
+  seg('x-t', dims.xT.map(t => [String(t), t]), XS.t, xRedraw('t'));
+  seg('x-scn', dims.xScen.map(s => [scnLabel(s), s]), XS.scn, xRedraw('scn'));
+  seg('x-cmd', cmdItems, XS.cmd, xRedraw('cmd'), 'x-cmd-w');
+  seg('x-play', playItems, XS.play, xRedraw('play'), 'x-play-w');
+  drawHeat();
+
+  // ---------- necessity ----------
+  const NS_ = { curve: defCurve, metric: 0, play: 0 };
+  function drawNec() {
+    let h = '<thead><tr><th>Game ends</th><th class="n">Settings</th><th class="n">Refuted</th><th class="n">by &lt; 36 lands</th><th class="n">by &gt; 40 lands</th><th class="n">Best deck in 36-40</th><th class="n">Fewest lands within 2%</th></tr></thead><tbody>';
+    let tot = 0, totRef = 0; const early = [0, 0], late = [0, 0];
+    for (const t of Ts) {
+      let n = 0, ref = 0, lo = 0, hi = 0, inside = 0; const few = [];
+      D.ctx.forEach((c, k) => {
+        if (c[0] !== NS_.play || c[1] !== NS_.curve) return;
+        const b = get('band', k, NS_.metric, t); if (!(b & 1)) return;
+        n++; if (b & 12) ref++; if (b & 4) lo++; if (b & 8) hi++; if (b & 2) inside++; few.push(get('landLo', k, NS_.metric, t));
+      });
+      if (!n) continue; tot += n; totRef += ref;
+      if (t <= 6) { early[0] += lo; early[1] += hi; } if (t >= 10) { late[0] += lo; late[1] += hi; }
+      h += `<tr><td>turn ${t}</td><td class="n">${n}</td><td class="n"><b>${ref}</b></td><td class="n">${lo}</td><td class="n">${hi}</td><td class="n">${inside}</td><td class="n">${median(few)} <span class="dim">(min ${Math.min(...few)})</span></td></tr>`;
+    }
+    $('n-table').innerHTML = h + '</tbody>';
+    const side = ([lo, hi]) => hi > lo ? 'decks with <em>more</em> than 40 lands' : lo > hi ? 'decks with <em>fewer</em> than 36 lands' : 'decks on both sides';
+    $('n-verdict').innerHTML = `<b>What the data says:</b> refuted in ${totRef} of ${tot} settings for this curve and score. In short games (ending by turn 6) the refutation mostly comes from ${side(early)}; in long games (turn 10 or later), from ${side(late)}. ` + (totRef >= 0.8 * tot ? 'Either way, 36-40 is one good answer among many, not a requirement.' : 'The advice holds up in the remaining settings.');
+    // 38 + 10
+    let n = 0, ok = 0;
+    D.ctx.forEach((c, k) => { if (c[0] !== NS_.play) return; for (let m = 0; m < 2; m++) for (const t of Ts) { const r = get('reg3810', k, m, t); if (r === MISS) continue; n++; if (r <= 20) ok++; } });
+    $('n-3810').innerHTML = n ? `<b>“38 lands + 10 ramp”</b> is within 2% of the best deck in ${ok} of ${n} settings (${Math.round(100 * ok / n)}%, both curves and scores, best dork/rock split).`
+      : `<b>“38 lands + 10 ramp”</b> (the other popular rule) is not on this grid yet: with steps of 4 there is no 38-land deck. The next pass, in steps of 2, adds it.`;
+  }
+  const nRedraw = k => v => { NS_[k] = v; drawNec(); };
+  seg('n-curve', curveItems, NS_.curve, nRedraw('curve'));
+  seg('n-metric', metricItems, NS_.metric, nRedraw('metric'));
+  seg('n-play', playItems, NS_.play, nRedraw('play'), 'n-play-w');
+  drawNec();
+
+  // ---------- robust picks ----------
+  const RS = { curve: defCurve, metric: 0, scope: 'all', cmd: 'all', play: 0 };
+  function drawRobust() {
+    const rows = D.robust.filter(r => r.play === dims.plays[RS.play] && r.curve === dims.curves[RS.curve] && r.metric === (RS.metric ? 'N' : 'V') && r.scope === RS.scope && String(r.cmd) === String(RS.cmd));
+    let h = '<thead><tr><th>Avg cost</th><th>Most robust deck</th><th class="n">Worst regret</th><th class="n">Average regret</th><th>Runner-up</th><th>Most robust with 36-40 lands</th></tr></thead><tbody>';
+    rows.sort((a, b) => a.avg - b.avg).forEach(r => {
+      const [t0, t1] = r.top, b = r.band;
+      h += `<tr><td>${avgLabel(r.avg)}</td><td class="nw"><b>${deckS(t0[0], t0[1], t0[2])}</b></td><td class="n">${t0[3].toFixed(1)}%</td><td class="n">${t0[4].toFixed(1)}%</td><td class="nw">${deckS(t1[0], t1[1], t1[2])} <span class="dim">${t1[3].toFixed(1)}%</span></td><td class="nw">${b ? `${deckS(b[0], b[1], b[2])} <span class="dim">${b[3].toFixed(1)}%</span>` : '–'}</td></tr>`;
+    });
+    $('r-table').innerHTML = h + '</tbody>';
+    const L = rows.map(r => r.top[0][0]), worse = rows.filter(r => r.band && r.band[3] > r.top[0][3] + 0.05).length;
+    $('r-verdict').innerHTML = rows.length ? `<b>What the data says:</b> the most robust decks run ${Math.min(...L)} to ${Math.max(...L)} lands with this curve and score. For ${worse} of ${rows.length} average costs the best 36-40 land deck has a larger worst-case shortfall than the robust pick. (“28 + 12d + 0r” means 28 lands, 12 dorks, 0 rocks. Each pick is checked in ${rows[0].contexts * (RS.scope === 'all' ? 13 : 7)} settings: ${rows[0].contexts} draw scenario${rows[0].contexts > 1 ? 's' : ''}${RS.cmd === 'all' && dims.cmds.length > 1 ? ' and commander costs' : ''} × game lengths ${RS.scope === 'all' ? '3 to 15' : '6 to 12'}.)` : '';
+  }
+  const rRedraw = k => v => { RS[k] = v; drawRobust(); };
+  seg('r-curve', curveItems, RS.curve, rRedraw('curve'));
+  seg('r-metric', metricItems, RS.metric, rRedraw('metric'));
+  seg('r-scope', [['Turns 3-15', 'all'], ['Turns 6-12', 'mid']], RS.scope, rRedraw('scope'));
+  seg('r-cmd', [['All', 'all']].concat(cmdItems), RS.cmd, rRedraw('cmd'), dims.cmds.length > 1 ? null : 'r-cmd-w');
+  if (dims.cmds.length < 2) $('r-cmd-w').hidden = true;
+  seg('r-play', playItems, RS.play, rRedraw('play'), 'r-play-w');
+  drawRobust();
+
+  // ---------- dorks vs rocks ----------
+  const DS = { curve: defCurve, metric: 0, play: 0 };
+  function drawSplit() {
+    let h = '<thead><tr><th>Game ends</th><th class="n">Settings</th><th class="n">Dorks in best deck</th><th class="n">Rocks in best deck</th><th class="n">More dorks than rocks</th><th class="n">Loss if all rocks</th><th class="n">Loss if all dorks</th></tr></thead><tbody>';
+    for (const t of dims.xT) {
+      const d = [], r = [], lr = [], ld = []; let more = 0, n = 0;
+      D.ctx.forEach((c, k) => {
+        if (c[0] !== DS.play || c[1] !== DS.curve) return;
+        const bd = get('bestD', k, DS.metric, t), br = get('bestR', k, DS.metric, t); n++;
+        d.push(bd); r.push(br); if (bd > br) more++;
+        const a = get('regAllR', k, DS.metric, t), b = get('regAllD', k, DS.metric, t);
+        if (bd + br > 0) { if (a !== MISS) lr.push(a); if (b !== MISS) ld.push(b); }
+      });
+      if (!n) continue;
+      h += `<tr><td>turn ${t}</td><td class="n">${n}</td><td class="n">${median(d)}</td><td class="n">${median(r)}</td><td class="n">${Math.round(100 * more / n)}%</td><td class="n">${lr.length ? pct(median(lr)) : '–'}</td><td class="n">${ld.length ? pct(median(ld)) : '–'}</td></tr>`;
+    }
+    $('d-table').innerHTML = h + '</tbody>';
+  }
+  const dRedraw = k => v => { DS[k] = v; drawSplit(); };
+  seg('d-curve', curveItems, DS.curve, dRedraw('curve'));
+  seg('d-metric', metricItems, DS.metric, dRedraw('metric'));
+  seg('d-play', playItems, DS.play, dRedraw('play'), 'd-play-w');
+  drawSplit();
+
+  // ---------- commander cost ----------
+  (function () {
+    const body = $('c-body');
+    if (dims.cmds.length < 2) {
+      body.innerHTML = `<div class="soon"><b>Coming with the next pass.</b> So far every deck has a ${dims.cmds[0]}-mana commander. The next pass computes every commander cost from 2 to 7, and this section will show how the best land count moves with it.</div>`;
+      return;
+    }
+    body.innerHTML = `<p class="sub">Best land count (line) and land counts within 2% (band) against the commander's cost, one panel per average spell cost.</p>
+      <div class="card"><div class="controls cols">
+        <div class="ctl"><span>Spell curve</span><div class="seg" id="c-curve"></div></div>
+        <div class="ctl"><span>Score</span><div class="seg" id="c-metric"></div></div>
+        <div class="ctl"><span>Game ends on turn</span><div class="seg" id="c-t"></div></div>
+        <div class="ctl"><span>Extra draws (turns 5-8)</span><div class="seg" id="c-scn"></div></div>
+        <div class="ctl" id="c-play-w"><span>Play</span><div class="seg" id="c-play"></div></div>
+      </div><div class="legend" id="c-legend"></div><div class="multi" id="c-multi"><div class="tip" id="c-tip"></div></div></div>`;
+    const CS = { curve: defCurve, metric: 0, t: defT, scn: defScn, play: 0 };
+    function draw() {
+      const avgs = dims.avgs.length > 6 ? dims.avgs.filter(a => Math.abs(a * 2 - Math.round(a * 2)) < 1e-9) : dims.avgs;
+      const s = dims.scens.indexOf(CS.scn);
+      const panels = avgs.map(a => {
+        const rows = dims.cmds.map(cm => { const o = rowFor(ci(CS.play, CS.curve, cm, a, s), CS.metric, CS.t, 'lands', -1); if (o) o.tip = tipOf(`Average ${avgLabel(a)}, ${cm}-mana commander`, o, 'lands', ''); return o; });
+        return { title: `Average cost ${avgLabel(a)}`, xs: dims.cmds, yMin: Math.min(...gL), yMax: Math.max(...gL), rows, ref: BAND, xName: 'commander cost' };
+      });
+      $('c-legend').innerHTML = legendHTML('land count', '');
+      multiples($('c-multi'), $('c-tip'), panels);
+    }
+    const r = k => v => { CS[k] = v; draw(); };
+    seg('c-curve', curveItems, CS.curve, r('curve'));
+    seg('c-metric', metricItems, CS.metric, r('metric'));
+    seg('c-t', dims.xT.map(t => [String(t), t]), CS.t, r('t'));
+    seg('c-scn', dims.scens.map(x => [scnLabel(x), x]), CS.scn, r('scn'));
+    seg('c-play', playItems, CS.play, r('play'), 'c-play-w');
+    draw();
+  })();
+})();
+</script>
+</body>
+</html>
