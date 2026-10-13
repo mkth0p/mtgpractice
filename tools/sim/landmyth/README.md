@@ -210,16 +210,16 @@ What real decks play (EDHREC "Top mana artifacts", read 2026-10-13, edhrec.com/t
 
 **Gates** (`node check.js --only r`): r0 zero-count classes equal the default exactly; r1 land drops against the closed form (24/24, <= 1e-14); r2 exhaustive enumeration against an independent simulator of the rule (4/4, <= 8.4e-11); r3 Monte Carlo with mulligans (5/5, max |z| 2.72); r4 the shared-graph runner against `exact.js` (tight and normal3, <= 5.4e-11). With the variant in place, check.js a, b1, b3, c and the grid selftest print the same output as before, and the 343 committed pass 1 cells recompute with 0 differences.
 
-**Results** (`/mnt/project-files/mana-base-sim/part2/real-rocks/report.md`, coarse grid, commander 4, tight avg 3/3.5 and normal3, P1/P4, T 4-15):
+**Results** (`/mnt/project-files/mana-base-sim/part2/real-rocks/report.md`, coarse grid, commander 4, T 4-15; complete contexts: tight average 3 and 3.5 at P1 and P4, normal3 average 3 and 3.5 at P1):
 
-- The default model's best decks (12-15 one-mana dorks) cannot be built outside green, even from the whole legal pool; in green they need 2-mana dorks past the seventh.
-- Non-green profiles: best decks have no dorks, 36-48 lands and 1-12 rocks. They score about 15% below the default best at T=4, 5-7% at T=6, 2.5% at T=8, about 1% at T=10-12 and 0.3-0.5% at T=15.
-- Green profiles: 6-10 dorks plus Sol Ring, within about -3% to +1.4% of the default best.
-- With only real rocks (nocap) the best decks are the default best plus Sol Ring, 1-5% higher.
-- 36-40 lands is still not necessary in any context or variant. Outside green it is refuted more often by decks with more than 40 lands.
-- Dorks against rocks at 36 lands, T=6: in the default model a dork is worth about twice a rock. With Sol Ring counted, two rocks beat two dorks (d/r 0.7-0.8), four are about even, and from six on dorks win (1.1-1.5). Non-green 2-mana dorks are worth a third to a half of rocks.
+- The default model's best decks (12-15 one-mana dorks) cannot be built outside green, even from the whole legal pool (35 of 36 context x T cases); in green they need 2-mana dorks past the seventh (27-33 of 36).
+- Non-green profiles: best decks have no dorks, 36-48 lands and 1-12 rocks. Against the default best they lose 10-18% at T=4 and 4-8% at T=6. From T=8 they lose 1-3% on tight and are level or slightly ahead on normal3 average 3 (0.1-0.9%).
+- Green profiles: 6-10 dorks plus Sol Ring, within -2.6% to +1.6% of the default best.
+- With only real rocks (nocap) the best decks are the default best plus Sol Ring, 1-5.5% higher.
+- 36-40 lands is still not necessary in any context, for any variant (36/36 refuted each). Outside green it is refuted more often by decks with more than 40 lands (27 of 36) than with fewer than 36 (18).
+- Dorks against rocks at 36 lands, T=6: in the default model a dork is worth about twice a rock (1.8-2.1; normal3 average 3: 3.6-7). With Sol Ring counted, two rocks beat two dorks (d/r 0.66-0.83), four are about even (0.98-1.12), and from six on dorks win (1.1-1.5). Non-green 2-mana dorks are worth a third to a half of rocks.
 
-**Coverage.** Deck groups whose shared graph is too big for this machine (mostly decks with all five ramp classes) were left out with `--skip-direct`; the report marks each profile row "partial n". The full slice runs on the Mac with `node run.js --rocks real` (RUN.md).
+**Coverage.** Deck groups whose shared graph is too big for this machine (mostly decks with all five ramp classes) were left out with `--skip-direct`; the report marks each profile row "partial n" (up to 224 decks of a green profile's region). Normal3 at P4 was only started, so the report leaves those two contexts out. The full slice runs on the Mac with `node run.js --rocks real` (RUN.md).
 
 ## Part 1 notes
 

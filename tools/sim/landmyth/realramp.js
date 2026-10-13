@@ -287,10 +287,15 @@ function report(a) {
   p('## 1. Best deck and near-optimal land range, per variant');
   p('');
   p('Each cell: best deck lands:dorks:rocks, the land counts among near-optimal decks (lo-hi); for a profile, its best V against the default model\'s best (%); for the default model, ⚠ when its best deck cannot be built from the realistic pool of some profiles (listed under the table). "partial n" = n decks of the profile\'s region not computed yet (too big for this machine; they run on the Mac).');
+  // a context counts only when every default-model deck is computed: without them there is nothing to compare against
+  const oldMissing = ctx => rows.filter(m => m.old && val(ctx, m.old, TS[0]) == null).length;
+  const done = ctxs.filter(ctx => oldMissing(ctx) === 0);
   for (const ctx of ctxs) {
     p('');
     p(`### ${ctx.shape}, average ${ctx.avg}, commander ${ctx.cmd}, ${ctx.sc}`);
     p('');
+    const om = oldMissing(ctx);
+    if (om) { p(`Not complete: ${om} of ${rows.filter(m => m.old).length} default-model decks not computed yet, so this context is left out of every table (run the slice again to finish it).`); continue; }
     p(`| variant | ${TS.map(t => `T=${t}`).join(' | ')} |`); p(`|---|${TS.map(() => '---').join('|')}|`);
     const notes = [];
     for (const v of variants) {
@@ -315,7 +320,7 @@ function report(a) {
   p('');
   p('## 2. Is 36-40 lands necessary? (PREREG necessity test, per variant)');
   p('');
-  p(`Refuted in a context when a deck with lands outside 36-40 scores within δ of the best deck inside 36-40. Contexts = ${ctxs.length} x T in {${TS.join(',')}}.`);
+  p(`Refuted in a context when a deck with lands outside 36-40 scores within δ of the best deck inside 36-40. Contexts = ${done.length} x T in {${TS.join(',')}}.`);
   p('');
   p('| variant | refuted | by fewer than 36 | by more than 40 | of |'); p('|---|---|---|---|---|');
   for (const v of variants) { const s = summary.necessity[v.key] || [0, 0, 0, 0]; p(`| ${v.key} | ${s[0]} | ${s[2]} | ${s[3]} | ${s[1]} |`); }
@@ -336,7 +341,7 @@ function report(a) {
     p('');
     const ks = o.dorks.filter(k => k > 0 && o.rocks.includes(k));
     p(`| context | variant | ${ks.map(k => `k=${k}: dorks / rocks (d/r)`).join(' | ')} |`); p(`|---|---|${ks.map(() => '---').join('|')}|`);
-    for (const ctx of ctxs) for (const v of variants) {
+    for (const ctx of done) for (const v of variants) {
       if (!['old', 'nocap', 'G1', 'G3', 'nonG2'].includes(v.key)) continue;
       const row = ks.map(k => {
         const get = (D, R) => { const m = rows.find(x => x.L === 36 && x.D === D && x.R === R); if (!m) return null; return val(ctx, v.key === 'old' ? m.old : m.real[v.key], t); };
