@@ -1720,6 +1720,11 @@
             case "counter": return pickCounter(g, p, opts, req);
             case "populate": case "copy": return tokenPick(g, p, opts);
             case "sacrifice": return pickCheapest(g, p, opts);
+            // web-slinging: return the creature that is cheapest to lose, best of all one with an enters trigger to reuse
+            case "webSling": {
+              const etb = o => (o.def.triggers || []).some(t => t.on === "enters" && t.self) ? 3 : 0;
+              return opts.slice().sort((a, b) => (value(g, a) - etb(a) + (a.isToken ? 50 : 0)) - (value(g, b) - etb(b) + (b.isToken ? 50 : 0)))[0];
+            }
             case "reanimate": return opts.slice().sort((a, b) => cardScore(g, p, b, req) - cardScore(g, p, a, req))[0];
             case "bounceOwnLand": {
               const s = opts.filter(o => o !== src && o.tapped && !o.def.abilities.length).sort((a, b) => (g.isBasic(b) - g.isBasic(a)));

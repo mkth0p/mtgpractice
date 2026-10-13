@@ -279,6 +279,20 @@ Corrupted Miku added a few more:
   `{ level: "win" | "now" | "plan" | "warn" | "info", title, text, cards }`, most urgent first, and
   `checklist` names an entry of `MK_CHECKLISTS`. `alsoOn: ["miku"]` offers a hero deck on another site too.
 
+Marvel decks added a few more (none of them changes an older deck's games):
+- `altCosts: [{ label: "Web-slinging", cost: "{W}", bounceTapped: true }]`: the alternative cost also returns a
+  tapped creature you control to its owner's hand (`purpose: "webSling"`). The resolving permanent sees
+  `opts.web` (that creature's mana value) in `etbCounters(g, o, opts)` and `asEnters`.
+- `rebound: true` on an instant or sorcery: cast from the hand, it is exiled as it resolves and its owner may cast
+  it for free at their next upkeep (`purpose: "rebound"`).
+- `mayhem: "{B}{R}"`: a card discarded this turn may be cast from the graveyard for that cost. `o.discarded`,
+  `g.discardedThisTurn(p)` count the discards.
+- `await g.connive(o, src)` (draw, discard, a nonland discard puts a +1/+1 counter on o; emits `connive`
+  { o, p, card, nonland }), `g.goad(o, by)` (attacks each combat, a player other than `by` if able, until `by`'s
+  next turn), `await g.discover(p, n, src, { cascade })`.
+- `g.castThisTurn(p, e => e.nc)` counts this turn's spells; castLog entries carry `nc` (noncreature), `name`,
+  `o`, `mv` and `from`.
+
 ## Game methods to use in `do`
 
 Queries: `g.creatures(p)`, `g.controlled(p, filter)`, `g.opponents(p)`, `g.isCreature(o)`, `isLand`,
