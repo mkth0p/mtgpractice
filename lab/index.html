@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Land Count Myth</title>
+<meta name="description" content="Do Commander decks really need a fixed number of lands? A Monte Carlo study of every mana base from 35 to 55 sources, across deck curves and extra-draw scenarios, with an explorer to dig into the numbers.">
+<meta name="theme-color" content="#07090c">
+<link rel="icon" href="../miku/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Martian+Mono:wght@500;600&family=Unbounded:wght@700;800;900&display=swap">
+<style>
+  :root {
+    --bg: #f2efe7; --surface: #fffdf8; --surface-2: #f6f2e8; --ink: #0f1a1a; --ink-2: #33403f; --muted: #5f6b69; --line: #ddd5c6;
+    --accent: #1b8f87; --pink: #d6336f;
+    /* chart colors: reference palette slots 1-2 and the blue ramp, light steps */
+    --s1: #2a78d6; --s2: #eb6834; --grid: #e4ddd0; --mark-ring: #0f1a1a;
+    --q0: #104281; --q1: #1c5cab; --q2: #2a78d6; --q3: #5598e7; --q4: #86b6ef; --q5: #b7d3f6; --q6: #e3edf9;
+    --f-display: "Unbounded", "Arial Black", system-ui, sans-serif; --f-body: "Instrument Sans", system-ui, sans-serif; --f-mono: "Martian Mono", ui-monospace, Menlo, monospace;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #07090c; --surface: #0f141a; --surface-2: #141a21; --ink: #eef3f4; --ink-2: #c3ccd3; --muted: #8b99a4; --line: #1e2730;
+      --accent: #39c5bb; --pink: #ff5c9a;
+      --s1: #3987e5; --s2: #d95926; --grid: #1e2730; --mark-ring: #eef3f4;
+      --q0: #cde2fb; --q1: #9ec5f4; --q2: #6da7ec; --q3: #3987e5; --q4: #256abf; --q5: #184f95; --q6: #16263a;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #07090c; --surface: #0f141a; --surface-2: #141a21; --ink: #eef3f4; --ink-2: #c3ccd3; --muted: #8b99a4; --line: #1e2730;
+    --accent: #39c5bb; --pink: #ff5c9a;
+    --s1: #3987e5; --s2: #d95926; --grid: #1e2730; --mark-ring: #eef3f4;
+    --q0: #cde2fb; --q1: #9ec5f4; --q2: #6da7ec; --q3: #3987e5; --q4: #256abf; --q5: #184f95; --q6: #16263a;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--f-body); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  .wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  .narrow { max-width: 72ch; }
+
+  .stage { position: relative; overflow: hidden; color: #eef3f4; padding: 22px 0 96px;
+    background:
+      radial-gradient(60% 90% at 12% 0%, rgba(57, 197, 187, .30), transparent 60%),
+      radial-gradient(50% 80% at 92% 10%, rgba(42, 120, 214, .30), transparent 60%),
+      radial-gradient(40% 70% at 60% 110%, rgba(123, 108, 240, .22), transparent 60%),
+      repeating-linear-gradient(90deg, transparent 0 27px, rgba(255, 255, 255, .035) 27px 28px),
+      repeating-linear-gradient(0deg, transparent 0 27px, rgba(255, 255, 255, .035) 27px 28px),
+      #07090c; }
+  .back { display: flex; width: fit-content; align-items: center; gap: 6px; color: #b7c2cc; text-decoration: none; font-size: .9rem; margin-bottom: 34px; }
+  .back:hover { color: #fff; }
+  .kicker { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 16px; font: 600 11px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: #64e3d8; }
+  .kicker i { width: 8px; height: 8px; border-radius: 2px; background: #3987e5; box-shadow: 0 0 0 4px rgba(57, 135, 229, .25); }
+  h1 { font: 900 clamp(2rem, 7vw, 3.8rem)/1 var(--f-display); margin: 0 0 16px; letter-spacing: -.035em; }
+  h1 span { color: #39c5bb; }
+  .lede { color: #b7c2cc; margin: 0; max-width: 60ch; font-size: 1.05rem; }
+
+  .tiles { position: relative; margin-top: -60px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 18px 16px; box-shadow: 0 2px 6px rgba(0, 0, 0, .05), 0 20px 40px -24px rgba(0, 0, 0, .45); }
+  .tile b { display: block; font: 800 clamp(1.6rem, 5vw, 2.1rem)/1.05 var(--f-display); letter-spacing: -.03em; margin-bottom: 8px; }
+  .tile b small { font-size: .55em; letter-spacing: 0; color: var(--muted); font-weight: 700; }
+  .tile p { margin: 0; color: var(--ink-2); font-size: .94rem; }
+
+  section { margin: 56px 0 0; }
+  h2 { font: 800 clamp(1.3rem, 4vw, 1.7rem)/1.15 var(--f-display); letter-spacing: -.02em; margin: 0 0 10px; }
+  h3 { font: 700 1.05rem/1.3 var(--f-body); margin: 26px 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 18px; max-width: 70ch; }
+  p { max-width: 72ch; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 18px; }
+  code, .mono { font-family: var(--f-mono); font-size: .82em; }
+  code { background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px; }
+  pre { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; overflow-x: auto; font: 500 .78rem/1.6 var(--f-mono); }
+
+  /* controls */
+  .controls { display: grid; gap: 12px; margin-bottom: 16px; }
+  .ctl { display: grid; gap: 6px; }
+  .ctl > span { font: 600 10px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .seg { display: flex; flex-wrap: wrap; gap: 6px; }
+  .seg button { appearance: none; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 7px 12px; font: 600 .84rem/1 var(--f-body); cursor: pointer; min-height: 34px; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .seg button:hover:not([aria-pressed="true"]) { border-color: var(--muted); }
+
+  .explorer { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 900px) { .explorer { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
+  .heat { position: relative; }
+  .heat svg { width: 100%; height: auto; display: block; touch-action: manipulation; }
+  .axis-t { font: 500 10px var(--f-mono); fill: var(--muted); }
+  .axis-l { font: 600 11px var(--f-body); fill: var(--ink-2); }
+  .cell { cursor: pointer; }
+  .legend { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); margin-top: 10px; }
+  .ramp { display: flex; border-radius: 4px; overflow: hidden; }
+  .ramp i { width: 22px; height: 12px; display: block; }
+  .ramp i + i { margin-left: 2px; }
+  .key { display: inline-flex; align-items: center; gap: 6px; }
+  .key svg { width: 14px; height: 14px; }
+
+  .tip { position: absolute; pointer-events: none; z-index: 5; min-width: 190px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: .82rem; line-height: 1.45; box-shadow: 0 12px 30px -12px rgba(0, 0, 0, .45); opacity: 0; transition: opacity .12s; }
+  .tip.on { opacity: 1; }
+  .tip b { display: block; font-weight: 700; margin-bottom: 4px; }
+  .tip .row { display: flex; justify-content: space-between; gap: 16px; }
+  .tip .row span:last-child { font-family: var(--f-mono); font-size: .9em; }
+
+  .detail { display: grid; gap: 12px; align-content: start; }
+  .detail h3 { margin: 0; }
+  .pick { font-size: .92rem; color: var(--ink-2); }
+  .pick .big { font: 800 1.5rem/1.1 var(--f-display); letter-spacing: -.02em; color: var(--ink); display: block; margin: 4px 0 6px; }
+  .bars { display: grid; gap: 5px; }
+  .bar { display: grid; grid-template-columns: 2.4em minmax(0, 1fr) 3.6em; align-items: center; gap: 8px; font-size: .8rem; }
+  .bar .track { height: 12px; background: var(--surface-2); border-radius: 0 4px 4px 0; position: relative; overflow: hidden; }
+  .bar .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--s1); border-radius: 0 4px 4px 0; }
+  .bar .best { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--ink); opacity: .55; }
+  .bar span:last-child { font-family: var(--f-mono); font-size: .9em; text-align: right; color: var(--ink-2); }
+
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font: 600 10px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  td.n { white-space: nowrap; }
+  tr.you td { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .tbl { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tag { display: inline-block; font: 600 9px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; padding: 4px 6px; border-radius: 6px; background: var(--accent); color: var(--bg); margin-left: 6px; vertical-align: 1px; }
+
+  .line svg { width: 100%; height: auto; display: block; }
+  .two { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+  @media (min-width: 860px) { .two { grid-template-columns: 1fr 1fr; } }
+  ul.clean { padding-left: 1.1em; margin: 0; }
+  ul.clean li { margin: 6px 0; max-width: 70ch; }
+  .verdict { border-left: 4px solid var(--accent); padding: 4px 0 4px 14px; margin: 12px 0; }
+  .weak li b { color: var(--ink); }
+  details { margin-top: 12px; }
+  summary { cursor: pointer; color: var(--muted); font-size: .88rem; }
+  .studies { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .studies .card p { margin: 6px 0 0; font-size: .92rem; color: var(--ink-2); }
+  .studies .card b { font-size: 1rem; }
+  .studies .card .mono { color: var(--muted); display: block; margin-top: 10px; font-size: .72rem; }
+  :focus-visible { outline: 2.5px solid var(--accent); outline-offset: 2px; }
+  footer { color: var(--muted); font-size: .8rem; padding: 40px 0 48px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="stage">
+  <div class="wrap">
+    <a class="back" href="../">← All decks</a>
+    <p class="kicker"><i aria-hidden="true"></i>The lab · mana bases</p>
+    <h1>Do you really need <span>36 lands</span>?</h1>
+    <p class="lede">“Run 36 lands.” “No, 38.” Every Commander player has heard a magic number. We tested it: every mana base from 35 to 55 sources (lands, Llanowar-style dorks and Signet-style rocks), across 11 deck curves and 8 card-draw scenarios, about 190 million simulated games. Short answer: no single land count is required.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tiles">
+    <div class="tile"><b>25–47 <small>lands</small></b><p>For a typical deck (spells averaging 3.25 mana), every land count in this range can be built within 1 mana of the best deck over 10 turns.</p></div>
+    <div class="tile"><b>35 → 48 <small>sources</small></b><p>The best total of mana sources climbs as the average spell cost goes from 2 to 4.5. One number can't fit every deck.</p></div>
+    <div class="tile"><b>&lt; 0.5 <small>mana</small></b><p>How little swapping lands for cheap ramp changes over 10 turns, once the total number of sources is right.</p></div>
+    <div class="tile"><b>+4 to +8 <small>sources</small></b><p>How much the best total rises if games are decided by turn 8 instead of turn 10. The answer depends on your table's speed.</p></div>
+  </div>
+
+  <section id="myth">
+    <h2>The myth, tested</h2>
+    <p class="sub">For each curve, the range of land counts (and of total sources) whose deck stays within 1 mana of the best one in its worst draw scenario, over 10 turns. 1 mana is about 3% of what a deck spends in that time.</p>
+    <div class="two">
+      <div class="card line"><svg id="band" role="img" aria-label="Near-best range of land counts and of total sources for each average spell cost"></svg><div class="tip" id="tip3"></div></div>
+      <div class="card"><div class="tbl"><table id="band-t"></table></div></div>
+    </div>
+    <div class="verdict"><b>What the data says:</b> for any curve from 3 to 4.5, decks with anywhere from about 25 to 40+ lands reach the top, as long as the total of lands plus ramp is right. The land count is not the rule; the total of mana sources is, and even that moves with the curve and the length of the game.</div>
+    <p>A wide range is not “anything goes”. Outside it, decks either stall for mana or flood. And this model leaves out things that push real decks toward more lands: color requirements, removal that kills mana dorks, and lands that enter tapped. The point is narrower and firmer: a fixed land count, given without knowing the deck's curve and speed, is not backed by the numbers. 24 lands is the lowest we tested, so the bottom of each range may go lower.</p>
+  </section>
+
+  <section id="explore">
+    <h2>Explore every mana base</h2>
+    <p class="sub">Each square is one deck: lands going up, ramp going across. Darker means closer to the best deck for that curve. Tap or hover a square for its numbers.</p>
+    <div class="card">
+      <div class="controls">
+        <div class="ctl"><span>Average spell cost (the curve)</span><div class="seg" id="c-avg"></div></div>
+        <div class="ctl"><span>Extra draws</span><div class="seg" id="c-scn"></div></div>
+        <div class="ctl"><span>Count mana up to</span><div class="seg" id="c-hz"></div></div>
+      </div>
+      <div class="explorer">
+        <div class="heat">
+          <svg id="heat" role="img" aria-label="Heatmap of mana behind the best deck, by lands and ramp"></svg>
+          <div class="tip" id="tip"></div>
+          <div class="legend">
+            <span>Mana behind the best:</span>
+            <span class="ramp" id="ramp"></span>
+            <span id="ramp-l"></span>
+            <span class="key"><svg viewBox="0 0 14 14"><rect x="1.5" y="1.5" width="11" height="11" fill="none" stroke="var(--pink)" stroke-width="2.5"/></svg>average B4 and cEDH lists</span>
+            <span class="key"><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="4" fill="var(--bg)" stroke="var(--mark-ring)" stroke-width="2"/></svg>best</span>
+          </div>
+        </div>
+        <div class="detail">
+          <div class="pick" id="pick"></div>
+          <div>
+            <h3 id="top-h">Most resilient bases</h3>
+            <div class="tbl"><table id="top"></table></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="curve">
+    <h2>The right total depends on your curve</h2>
+    <p class="sub">The most resilient deck (smallest worst-case gap across the 8 draw scenarios) for each average spell cost. Cheap decks want few sources and no ramp; heavy decks want nearly 50.</p>
+    <div class="two">
+      <div class="card line"><svg id="line" role="img" aria-label="Best total number of sources by average spell cost, counted to turn 10 and to turn 8"></svg><div class="tip" id="tip2"></div></div>
+      <div class="card">
+        <div class="tbl"><table id="curve-t"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="scenarios" class="narrow">
+    <h2>The 8 draw scenarios</h2>
+    <p class="sub">Most decks draw extra cards once their engines are online. The scenarios add cards on turns 5 to 8, from none to 7 extra cards.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Scenario</th><th class="n">T5</th><th class="n">T6</th><th class="n">T7</th><th class="n">T8</th><th class="n">Extra cards</th><th>Best base, all curves</th></tr></thead>
+      <tbody id="scn-t"></tbody>
+    </table></div>
+    <p>With few extra cards, the deck runs out of spells: more lands and less ramp do best. With lots of extra cards, ramp pays off because there is always something to cast. A base around 42 sources is never far from the best in either case, and that is what “resilient” means here.</p>
+  </section>
+
+  <section id="split" class="narrow">
+    <h2>Dorks or rocks?</h2>
+    <p class="sub">A zoom on 45 bases with 20,000 games each, averaged over all curves and scenarios.</p>
+    <div class="tbl"><table id="split-t"></table></div>
+    <p>Dorks come out ahead because they cost 1 mana instead of 2. But nothing in this model kills a creature, so in real games with board wipes, rocks are safer. Treat this table as “cheap ramp beats expensive ramp”, not “play elves over Signets”.</p>
+  </section>
+
+  <section id="budget" class="narrow">
+    <h2>A trap we found: the fixed total budget</h2>
+    <p>The first version fixed the total mana cost of the 99 cards (130 to 230). That sounds fair, but every land you add takes no budget, so the remaining spells get more expensive. Since the model counts all mana as equally useful, a 5-drop scores like two 2.5-drops, and the “winner” runs 47 to 55 lands.</p>
+    <div class="tbl"><table id="budget-t"></table></div>
+    <p>That is why the explorer fixes the <em>average spell cost</em> instead: adding a source then removes a spell of the same size, which is the real trade-off when you build a deck.</p>
+  </section>
+
+  <section id="method" class="narrow">
+    <h2>How the simulation plays</h2>
+    <ul class="clean">
+      <li><b>The deck:</b> 99 cards plus a 4-mana commander. Dorks cost 1 and tap the next turn. Rocks cost 2 and tap right away. Spells all cost the curve's average, rounded up or down so the total is exact.</li>
+      <li><b>The hand:</b> keep 2 to 5 lands (or 1 land and 2 ramp). The first mulligan is free; the second puts a card on the bottom.</li>
+      <li><b>Each turn:</b> draw (everyone draws on turn 1 in multiplayer), play a land, cast the commander as soon as there are 4 mana, cast ramp first through turn 6, then spend as much mana as possible on spells.</li>
+      <li><b>Measured:</b> mana made, mana spent on real spells (the commander counts, ramp doesn't), unused mana, spells cast, and spells stuck in hand, through turn 10 and through turn 8.</li>
+      <li><b>Fair comparison:</b> every deck plays the same shuffles, so small gaps between decks are real, not luck. 5,000 games per deck, curve and scenario.</li>
+      <li><b>Resilience:</b> for each curve and scenario we find the best deck, then measure how far behind every other deck is. The most resilient deck has the smallest gap in its worst scenario.</li>
+    </ul>
+  </section>
+
+  <section id="limits" class="narrow">
+    <h2>What this model gets wrong</h2>
+    <p class="sub">It is a goldfish: no opponents and no real cards. These gaps matter, biggest first.</p>
+    <ul class="clean weak">
+      <li><b>All mana counts the same.</b> Mana on turn 3 matters far more than mana on turn 10, but here they score equally.</li>
+      <li><b>Extra cards are free.</b> Real card draw costs mana, and real decks have mana sinks. Here the hand is nearly empty by turn 10, so “unused mana” is overstated.</li>
+      <li><b>The curve is flat.</b> Every spell costs the same. A real hand stuck with three 6-drops never happens here.</li>
+      <li><b>Averages hide the bad games.</b> How often you miss your third land drop says more than the mean.</li>
+      <li><b>Smaller gaps:</b> no removal on dorks, no Sol Ring or tapped lands, no colors, a simple mulligan rule.</li>
+    </ul>
+    <div class="verdict"><b>Next step:</b> rerun with mixed curves (cheap and expensive spells together), give early turns more weight, and report how often each base stumbles. An earlier study found that win rate follows how fast a deck deploys, not how much mana it makes in total.</div>
+  </section>
+
+  <section id="studies">
+    <h2>Earlier studies</h2>
+    <div class="studies">
+      <div class="card"><b>Wasted mana, Mano-style</b><p>Across 11 decks in our game engine, win rate against Bracket 4 bots tracked the share of goldfish games won by turn 6 (correlation 0.87), not wasted mana (−0.28) or useful mana (0.39).</p><span class="mono">miku-deck/b4-research/MANA-STUDY.md</span></div>
+      <div class="card"><b>What real lists play</b><p>44 public Bracket 4 lists average 33.7 lands and 10.6 accelerants. 22 cEDH lists average 28.9 lands and 17.5. Over 10 turns, the average Bracket 4 base is within 1 mana of the best for any curve from 3 to 4.5.</p><span class="mono">miku-deck/b4-research/MANA-STUDY.md</span></div>
+      <div class="card"><b>Analysis methods</b><p>Paired seeds cut the noise of deck benches about 8 times, which is why every deck here plays the same shuffles. The report also rebuilds Karsten's coloured-source tables for 99 cards.</p><span class="mono">research/mtg-analysis-methods/REPORT.md</span></div>
+    </div>
+  </section>
+
+  <section class="narrow">
+    <h2>Run it yourself</h2>
+    <p>The simulator is plain Node, no install. A full sweep takes about 3 minutes on 4 cores.</p>
+<pre>cd tools/sim/manabase
+node manasim.js sweep --mode avg --games 5000     # every base, fixed curve
+node manasim.js sweep --mode budget --games 5000  # the fixed-budget version
+node manasim.js one --mode avg --config 34:5:6 --budget 3.25 --games 20000
+node analyze.js results-sweep-avg-tight.json --metric useful8</pre>
+  </section>
+
+  <footer>Unofficial fan pages. Magic: The Gathering is © Wizards of the Coast. Simulation by <a href="https://github.com/mkth0p/mtgpractice/tree/main/tools/sim/manabase">tools/sim/manabase</a>.</footer>
+</main>
+
+<script src="mana-data.js?v=1"></script>
+<script>
+(function () {
+  const D = window.MANA_LAB;
+  const SCN = Object.keys(D.scenarios);
+  const NA = D.avgs.length, NS = SCN.length, NF = 4; // fields: useful T10, useful T8, unused, left
+  const C = D.configs; // [lands, ramp]
+  const idx = new Map(C.map((c, i) => [c[0] + ':' + c[1], i]));
+  const get = (ci, ai, si, f) => D.v[((ci * NA + ai) * NS + si) * NF + f] / 10;
+  const REFS = { '34:11': 'avg B4 list', '29:18': 'avg cEDH list' }, YOU = Object.keys(REFS);
+  const state = { ai: D.avgs.indexOf(3.25), sc: -1, hz: 0 };
+  const fmt = (x, d = 1) => x.toFixed(d);
+  const name = c => `${c[0]} lands + ${c[1]} ramp`;
+
+  // best value per (avg, scenario, horizon)
+  function best(ai, si, f) { let b = -1; for (let ci = 0; ci < C.length; ci++) b = Math.max(b, get(ci, ai, si, f)); return b; }
+  const bestCache = {};
+  function bestOf(ai, si, f) { const k = ai + ':' + si + ':' + f; return k in bestCache ? bestCache[k] : (bestCache[k] = best(ai, si, f)); }
+  // gap (mana behind the best) for a config at the current selection; sc -1 = worst case over P1-P8
+  function gap(ci, ai, sc, f) {
+    if (sc >= 0) return bestOf(ai, sc, f) - get(ci, ai, sc, f);
+    let g = 0; for (let s = 0; s < NS; s++) g = Math.max(g, bestOf(ai, s, f) - get(ci, ai, s, f)); return g;
+  }
+  function ranking(ai, sc, f) {
+    return C.map((c, ci) => ({ ci, g: gap(ci, ai, sc, f) })).sort((a, b) => a.g - b.g || C[a.ci][0] + C[a.ci][1] - C[b.ci][0] - C[b.ci][1]);
+  }
+
+  // ---------- controls ----------
+  function seg(el, items, cur, on) {
+    el.innerHTML = '';
+    items.forEach((t, i) => {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = t;
+      b.setAttribute('aria-pressed', String(i === cur));
+      b.onclick = () => { [...el.children].forEach(x => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); on(i); };
+      el.appendChild(b);
+    });
+  }
+  seg(document.getElementById('c-avg'), D.avgs.map(a => a.toFixed(2).replace(/0$/, '')), state.ai, i => { state.ai = i; draw(); });
+  seg(document.getElementById('c-scn'), ['Worst case'].concat(SCN.map(s => s + ' +' + D.scenarios[s].reduce((a, b) => a + b, 0))), 0, i => { state.sc = i - 1; draw(); });
+  seg(document.getElementById('c-hz'), ['Turn 10', 'Turn 8'], 0, i => { state.hz = i; draw(); });
+
+  // ---------- heatmap ----------
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const STEPS = [0.5, 1, 1.5, 2.5, 4, 6]; // gap thresholds
+  function shade(g) { let k = 0; while (k < STEPS.length && g > STEPS[k]) k++; return 'var(--q' + k + ')'; }
+  const ramp = document.getElementById('ramp');
+  ramp.innerHTML = [0, 1, 2, 3, 4, 5, 6].map(k => `<i style="background:var(--q${k})"></i>`).join('');
+  document.getElementById('ramp-l').textContent = '0 → 6+ mana';
+
+  const lands = C.map(c => c[0]), ramps = C.map(c => c[1]);
+  const L0 = Math.min(...lands), L1 = Math.max(...lands), R0 = 0, R1 = Math.max(...ramps);
+  const cs = 14, gapPx = 2, ml = 34, mt = 8, mb = 34, mr = 6;
+  const W = ml + (R1 - R0 + 1) * cs + mr, H = mt + (L1 - L0 + 1) * cs + mb;
+  const svg = document.getElementById('heat');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const xOf = r => ml + (r - R0) * cs, yOf = l => mt + (L1 - l) * cs;
+  const tip = document.getElementById('tip');
+  let selected = idx.get('34:11');
+
+  function draw() {
+    const f = state.hz, ai = state.ai, sc = state.sc;
+    const rk = ranking(ai, sc, f), bestCi = rk[0].ci;
+    let s = '';
+    for (let l = L0; l <= L1; l += 2) s += `<text class="axis-t" x="${ml - 6}" y="${yOf(l) + cs / 2 + 3}" text-anchor="end">${l}</text>`;
+    for (let r = 0; r <= R1; r += 4) s += `<text class="axis-t" x="${xOf(r) + cs / 2}" y="${H - mb + 14}" text-anchor="middle">${r}</text>`;
+    s += `<text class="axis-l" x="${ml + (R1 + 1) * cs / 2}" y="${H - 4}" text-anchor="middle">Ramp (dorks + rocks) →</text>`;
+    s += `<text class="axis-l" transform="translate(10 ${mt + (L1 - L0 + 1) * cs / 2}) rotate(-90)" text-anchor="middle">Lands →</text>`;
+    // total-sources guides
+    for (const N of [35, 42, 55]) {
+      const pts = []; for (let r = 0; r <= R1; r++) { const l = N - r; if (l >= L0 && l <= L1) pts.push([xOf(r) + cs / 2, yOf(l) + cs / 2]); }
+      if (pts.length > 1) s += `<polyline points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="var(--grid)" stroke-width="1" stroke-dasharray="2 3"/>`;
+    }
+    C.forEach((c, ci) => {
+      const g = gap(ci, ai, sc, f);
+      s += `<rect class="cell" data-ci="${ci}" x="${xOf(c[1]) + gapPx / 2}" y="${yOf(c[0]) + gapPx / 2}" width="${cs - gapPx}" height="${cs - gapPx}" rx="2" fill="${shade(g)}"/>`;
+    });
+    for (const k of YOU) { const c = C[idx.get(k)]; s += `<rect x="${xOf(c[1]) - .5}" y="${yOf(c[0]) - .5}" width="${cs + 1}" height="${cs + 1}" rx="3" fill="none" stroke="var(--pink)" stroke-width="2.5" pointer-events="none"/>`; }
+    const bc = C[bestCi]; s += `<circle cx="${xOf(bc[1]) + cs / 2}" cy="${yOf(bc[0]) + cs / 2}" r="3.6" fill="var(--bg)" stroke="var(--mark-ring)" stroke-width="2" pointer-events="none"/>`;
+    const sc_ = C[selected]; s += `<rect x="${xOf(sc_[1]) + 1}" y="${yOf(sc_[0]) + 1}" width="${cs - 2}" height="${cs - 2}" rx="2" fill="none" stroke="var(--mark-ring)" stroke-width="1.5" stroke-dasharray="2 1.5" pointer-events="none"/>`;
+    svg.innerHTML = s;
+    drawTop(rk);
+    drawPick();
+  }
+
+  function cellInfo(ci) {
+    const f = state.hz, ai = state.ai, sc = state.sc, c = C[ci];
+    const scs = sc >= 0 ? [sc] : [...Array(NS).keys()];
+    const mean = k => scs.reduce((t, s) => t + get(ci, ai, s, k), 0) / scs.length;
+    return { c, g: gap(ci, ai, sc, f), useful: mean(f), unused: mean(2), left: mean(3), cmd: D.cmd[ci * NA + ai] };
+  }
+  function tipHtml(ci) {
+    const i = cellInfo(ci), lbl = state.sc >= 0 ? SCN[state.sc] : 'avg of P1–P8';
+    return `<b>${name(i.c)} = ${i.c[0] + i.c[1]}</b>
+      <div class="row"><span>Behind the best${state.sc < 0 ? ' (worst)' : ''}</span><span>${fmt(i.g)}</span></div>
+      <div class="row"><span>Useful mana to T${state.hz ? 8 : 10} (${lbl})</span><span>${fmt(i.useful)}</span></div>
+      <div class="row"><span>Unused mana to T10</span><span>${fmt(i.unused)}</span></div>
+      <div class="row"><span>Spells left in hand T10</span><span>${fmt(i.left)}</span></div>
+      <div class="row"><span>Commander by T4</span><span>${i.cmd}%</span></div>`;
+  }
+  function placeTip(t, host, x, y) {
+    const r = host.getBoundingClientRect(), w = t.offsetWidth, h = t.offsetHeight;
+    let left = x - r.left + 14, top = y - r.top + 14;
+    if (left + w > r.width) left = Math.max(0, x - r.left - w - 14);
+    if (top + h > r.height + 40) top = y - r.top - h - 14;
+    t.style.left = left + 'px'; t.style.top = top + 'px';
+  }
+  svg.addEventListener('pointermove', e => {
+    const ci = e.target.dataset && e.target.dataset.ci; if (ci == null) { tip.classList.remove('on'); return; }
+    tip.innerHTML = tipHtml(+ci); tip.classList.add('on'); placeTip(tip, svg.parentNode, e.clientX, e.clientY);
+  });
+  svg.addEventListener('pointerleave', () => tip.classList.remove('on'));
+  svg.addEventListener('click', e => { const ci = e.target.dataset && e.target.dataset.ci; if (ci != null) { selected = +ci; draw(); } });
+
+  function drawPick() {
+    const i = cellInfo(selected), f = state.hz, ai = state.ai;
+    const rk = ranking(ai, state.sc, f), pos = rk.findIndex(r => r.ci === selected) + 1;
+    let bars = '';
+    for (let s = 0; s < NS; s++) {
+      const v = get(selected, ai, s, f), b = bestOf(ai, s, f), max = bestOf(ai, NS - 1, f) * 1.02;
+      bars += `<div class="bar"><span>${SCN[s]}</span><span class="track"><span class="fill" style="width:${100 * v / max}%"></span><span class="best" style="left:${100 * b / max}%"></span></span><span>${fmt(v)}</span></div>`;
+    }
+    document.getElementById('pick').innerHTML = `Selected (tap a square to change)<span class="big">${name(i.c)}</span>
+      Rank <b>${pos}</b> of ${C.length} · ${fmt(i.g)} mana behind the best${state.sc < 0 ? ' in its worst scenario' : ''} · commander by turn 4 in ${i.cmd}% of games.
+      <div class="bars" style="margin-top:10px" aria-label="Useful mana per scenario; the dark tick is the best deck">${bars}</div>
+      <div style="font-size:.78rem;color:var(--muted);margin-top:4px">Useful mana to turn ${f ? 8 : 10} per scenario. The tick marks the best deck.</div>`;
+  }
+
+  function drawTop(rk) {
+    const f = state.hz, ai = state.ai;
+    document.getElementById('top-h').textContent = `Most resilient bases, curve ${D.avgs[ai]}` + (state.sc >= 0 ? `, ${SCN[state.sc]}` : '');
+    let h = '<thead><tr><th>#</th><th>Base</th><th class="n">Sources</th><th class="n">Behind</th></tr></thead><tbody>';
+    const rows = rk.slice(0, 8).map((r, i) => ({ r, i }));
+    for (const k of YOU) { const i = rk.findIndex(r => C[r.ci][0] + ':' + C[r.ci][1] === k); if (i >= 8) rows.push({ r: rk[i], i }); }
+    for (const { r, i } of rows) {
+      const c = C[r.ci], you = YOU.includes(c[0] + ':' + c[1]);
+      h += `<tr class="${you ? 'you' : ''}"><td>${i + 1}</td><td>${name(c)}${you ? `<span class="tag">${REFS[c[0] + ':' + c[1]]}</span>` : ''}</td><td class="n">${c[0] + c[1]}</td><td class="n">${fmt(r.g)}</td></tr>`;
+    }
+    document.getElementById('top').innerHTML = h + '</tbody>';
+  }
+
+  // ---------- best total by curve (line chart) ----------
+  const series = [0, 1].map(f => D.avgs.map((a, ai) => { const r = ranking(ai, -1, f)[0]; return { a, c: C[r.ci], n: C[r.ci][0] + C[r.ci][1] }; }));
+  (function line() {
+    const W2 = 380, H2 = 270, l = 34, r = 62, t = 20, b = 40;
+    const xs = a => l + (a - 2) / 2.5 * (W2 - l - r), ys = n => t + (56 - n) / (56 - 32) * (H2 - t - b);
+    const el = document.getElementById('line'); el.setAttribute('viewBox', `0 0 ${W2} ${H2}`);
+    let s = '';
+    for (let n = 32; n <= 56; n += 4) s += `<line x1="${l}" x2="${W2 - r}" y1="${ys(n)}" y2="${ys(n)}" stroke="var(--grid)"/><text class="axis-t" x="${l - 8}" y="${ys(n) + 3}" text-anchor="end">${n}</text>`;
+    for (let a = 2; a <= 4.5; a += .5) s += `<text class="axis-t" x="${xs(a)}" y="${H2 - b + 16}" text-anchor="middle">${a.toFixed(1)}</text>`;
+    s += `<text class="axis-l" x="${l + (W2 - l - r) / 2}" y="${H2 - 6}" text-anchor="middle">Average spell cost</text>`;
+    s += `<text class="axis-l" x="${l}" y="${t - 4}" text-anchor="start" style="font-size:10px">Total sources</text>`;
+    const cols = ['var(--s1)', 'var(--s2)'], labels = ['to turn 10', 'to turn 8'];
+    series.forEach((ser, k) => {
+      s += `<polyline points="${ser.map(p => xs(p.a) + ',' + ys(p.n)).join(' ')}" fill="none" stroke="${cols[k]}" stroke-width="2" stroke-linejoin="round" ${k ? 'stroke-dasharray="5 4"' : ''}/>`;
+      ser.forEach(p => s += `<circle cx="${xs(p.a)}" cy="${ys(p.n)}" r="4" fill="${cols[k]}" stroke="var(--surface)" stroke-width="2"/>`);
+      const last = ser[ser.length - 1];
+      s += `<text x="${xs(last.a) + 8}" y="${ys(last.n) + (k ? 12 : -4)}" style="font:600 11px var(--f-body);fill:var(--ink-2)">${labels[k]}</text>`;
+    });
+    D.avgs.forEach((a, ai) => s += `<rect data-ai="${ai}" x="${xs(a) - 12}" y="${t}" width="24" height="${H2 - t - b}" fill="transparent"/>`);
+    el.innerHTML = s;
+    const tip2 = document.getElementById('tip2');
+    el.addEventListener('pointermove', e => {
+      const ai = e.target.dataset && e.target.dataset.ai; if (ai == null) { tip2.classList.remove('on'); return; }
+      const p0 = series[0][ai], p1 = series[1][ai];
+      tip2.innerHTML = `<b>Curve ${p0.a}</b><div class="row"><span>To turn 10</span><span>${name(p0.c)}</span></div><div class="row"><span>To turn 8</span><span>${name(p1.c)}</span></div>`;
+      tip2.classList.add('on'); placeTip(tip2, el.parentNode, e.clientX, e.clientY);
+    });
+    el.addEventListener('pointerleave', () => tip2.classList.remove('on'));
+    el.parentNode.style.position = 'relative';
+    // table view
+    let h = '<thead><tr><th>Curve</th><th>Best to turn 10</th><th>Best to turn 8</th><th class="n">Avg B4 list rank</th></tr></thead><tbody>';
+    D.avgs.forEach((a, ai) => {
+      const rank = ranking(ai, -1, 0).findIndex(r => r.ci === idx.get('34:11')) + 1;
+      h += `<tr><td>${a}</td><td>${series[0][ai].c[0]} + ${series[0][ai].c[1]}</td><td>${series[1][ai].c[0]} + ${series[1][ai].c[1]}</td><td class="n">${rank}</td></tr>`;
+    });
+    document.getElementById('curve-t').innerHTML = h + '</tbody>';
+  })();
+
+  // ---------- near-best band by curve ----------
+  (function band() {
+    const TH = 1, f = 0;
+    const rows = D.avgs.map((a, ai) => {
+      const ok = C.filter((c, ci) => gap(ci, ai, -1, f) <= TH);
+      const L = ok.map(c => c[0]), T = ok.map(c => c[0] + c[1]);
+      return { a, n: ok.length, l0: Math.min(...L), l1: Math.max(...L), t0: Math.min(...T), t1: Math.max(...T) };
+    });
+    const W3 = 380, rowH = 20, l = 40, r = 14, t = 34, b = 34, H3 = t + rows.length * rowH + b;
+    const xs = v => l + (v - 20) / (56 - 20) * (W3 - l - r);
+    const el = document.getElementById('band'); el.setAttribute('viewBox', `0 0 ${W3} ${H3}`);
+    let s = '';
+    for (let v = 24; v <= 56; v += 8) s += `<line x1="${xs(v)}" x2="${xs(v)}" y1="${t - 6}" y2="${H3 - b}" stroke="var(--grid)"/><text class="axis-t" x="${xs(v)}" y="${H3 - b + 14}" text-anchor="middle">${v}</text>`;
+    s += `<text class="axis-l" x="${l + (W3 - l - r) / 2}" y="${H3 - 6}" text-anchor="middle">Number of cards</text>`;
+    s += `<text class="axis-l" x="4" y="${t - 14}" style="font-size:10px">Curve</text>`;
+    s += `<rect x="${l}" y="6" width="18" height="6" rx="3" fill="var(--s1)"/><text x="${l + 24}" y="12" style="font:600 10.5px var(--f-body);fill:var(--ink-2)">Lands</text>`;
+    s += `<rect x="${l + 80}" y="7" width="18" height="4" rx="2" fill="var(--s2)"/><text x="${l + 104}" y="12" style="font:600 10.5px var(--f-body);fill:var(--ink-2)">Total sources (lands + ramp)</text>`;
+    rows.forEach((o, i) => {
+      const y = t + i * rowH;
+      s += `<text class="axis-t" x="4" y="${y + 12}">${o.a.toFixed(2)}</text>`;
+      s += `<rect x="${xs(o.l0)}" y="${y + 3}" width="${Math.max(4, xs(o.l1) - xs(o.l0))}" height="7" rx="3.5" fill="var(--s1)"/>`;
+      s += `<rect x="${xs(o.t0)}" y="${y + 12}" width="${Math.max(4, xs(o.t1) - xs(o.t0))}" height="4" rx="2" fill="var(--s2)"/>`;
+      s += `<rect data-ri="${i}" x="0" y="${y}" width="${W3}" height="${rowH}" fill="transparent"/>`;
+    });
+    el.innerHTML = s;
+    el.parentNode.style.position = 'relative';
+    const tip3 = document.getElementById('tip3');
+    el.addEventListener('pointermove', e => {
+      const ri = e.target.dataset && e.target.dataset.ri; if (ri == null) { tip3.classList.remove('on'); return; }
+      const o = rows[ri];
+      tip3.innerHTML = `<b>Curve ${o.a}</b><div class="row"><span>Bases within 1 mana</span><span>${o.n}</span></div><div class="row"><span>Lands</span><span>${o.l0}–${o.l1}</span></div><div class="row"><span>Total sources</span><span>${o.t0}–${o.t1}</span></div>`;
+      tip3.classList.add('on'); placeTip(tip3, el.parentNode, e.clientX, e.clientY);
+    });
+    el.addEventListener('pointerleave', () => tip3.classList.remove('on'));
+    let h = '<thead><tr><th>Curve</th><th class="n">Near-best bases</th><th class="n">Lands</th><th class="n">Total sources</th></tr></thead><tbody>';
+    rows.forEach(o => h += `<tr><td>${o.a}</td><td class="n">${o.n}</td><td class="n">${o.l0}–${o.l1}</td><td class="n">${o.t0}–${o.t1}</td></tr>`);
+    document.getElementById('band-t').innerHTML = h + '</tbody>';
+  })();
+
+  // ---------- scenario table ----------
+  (function () {
+    let h = '';
+    SCN.forEach((s, si) => {
+      // the base with the most useful mana to turn 10, averaged over every curve
+      let bi = 0, bv = -1;
+      for (let ci = 0; ci < C.length; ci++) { let t = 0; for (let a = 0; a < NA; a++) t += get(ci, a, si, 0); if (t > bv) { bv = t; bi = ci; } }
+      const x = D.scenarios[s], c = C[bi];
+      h += `<tr><td>${s}</td>${x.map(v => `<td class="n">${v}</td>`).join('')}<td class="n">${x.reduce((a, b) => a + b, 0)}</td><td>${c[0]} + ${c[1]}</td></tr>`;
+    });
+    document.getElementById('scn-t').innerHTML = h;
+  })();
+
+  // ---------- dorks vs rocks ----------
+  (function () {
+    const agg = new Map();
+    for (const r of D.split) {
+      const k = `${r.l}:${r.d}:${r.r}`, o = agg.get(k) || { l: r.l, d: r.d, r: r.r, s: 0, n: 0 };
+      o.s += r.u.reduce((a, b) => a + b, 0) / 10; o.n += r.u.length; agg.set(k, o);
+    }
+    const rows = [...agg.values()].filter(o => o.l === 32 && (o.d + o.r === 10 || o.d + o.r === 12));
+    let h = '<thead><tr><th>Base</th><th>Ramp mix</th><th class="n">Useful mana to T10</th></tr></thead><tbody>';
+    rows.sort((a, b) => a.d + a.r - b.d - b.r || b.d - a.d).forEach(o => {
+      const mix = o.r === 0 ? 'all dorks' : o.d === 0 ? 'all rocks' : `${o.d} dorks, ${o.r} rocks`;
+      h += `<tr><td>32 lands + ${o.d + o.r} ramp</td><td>${mix}</td><td class="n">${fmt(o.s / o.n)}</td></tr>`;
+    });
+    document.getElementById('split-t').innerHTML = h + '</tbody>';
+  })();
+
+  // ---------- fixed budget trap ----------
+  (function () {
+    const rows = D.budget.filter(r => r.b === 180).sort((a, b) => a.l - b.l);
+    let h = '<thead><tr><th>Base (budget 180)</th><th class="n">Avg spell cost</th><th class="n">Useful mana</th><th class="n">Spells left in hand</th></tr></thead><tbody>';
+    rows.forEach(r => h += `<tr><td>${r.l} lands + ${r.ramp} ramp</td><td class="n">${r.cmc.toFixed(2)}</td><td class="n">${fmt(r.u / 10)}</td><td class="n">${fmt(r.left / 10)}</td></tr>`);
+    document.getElementById('budget-t').innerHTML = h + '</tbody>';
+  })();
+
+  draw();
+})();
+</script>
+</body>
+</html>
