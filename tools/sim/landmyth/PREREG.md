@@ -30,13 +30,14 @@ Every ending turn T from 3 to 15 is its own scenario. A scenario is (T, extra-dr
 ## Outcomes
 
 - **Primary (ju):** discounted useful mana, V = sum over turns t <= T of 0.9^(t-1) x useful mana spent on turn t. Useful mana is mana spent on non-ramp spells and on the commander. Mana spent on ramp is not useful in itself; it pays off through the mana it makes later.
+- **Co-primary (ju):** useful spells cast, N = number of non-ramp spells plus the commander cast by turn T (ramp spells not counted). It measures how reactive and fluid the deck is. Reported raw and discounted the same way (0.9^(t-1) per spell cast on turn t). Every ranking, near-optimal region and test is run separately for V and for N, and the two are published side by side; where they disagree is a result in itself.
 - The discount 0.9 is fixed here. Results are also reported at 0.8 and 1.0 (no discount) as a sensitivity check.
 - **Also reported for every deck and scenario (ju):** total mana made, useful mana (undiscounted), unused mana, spells cast, useful spells left in hand, with every extra draw counted.
 - **Consistency:** probability of a non-game (fewer than 3 mana sources on turn 4, or two turns in a row with nothing cast), the mean of the worst 10% of games (CVaR), and the turn-by-turn distribution of mana made.
 
 ## Margin (ju)
 
-- δ = 2% of the best deck's V in the same archetype and scenario. Decks within δ are "as good as the best".
+- δ = 2% of the best deck's value (V or N, whichever is being ranked) in the same archetype and scenario. Decks within δ are "as good as the best".
 - Every gap is also reported raw, in mana and in percent, so differences inside δ stay visible (ju).
 - The exact model has no sampling noise, so a gap is a fact, not an estimate. Equivalence tests (TOST with δ) apply only to parts that are sampled: hazards if they are simulated, and the engine cross-check.
 
@@ -69,3 +70,4 @@ All headline results are solo games with no disruption (ju). Disruption is an op
 
 - 2026-10-13, before any run (ju): ramp range widened from dorks 0-12 / rocks 0-16 / total 20 to dorks 0-15 / rocks 0-20 / total 25. Disruption made explicitly off by default; it is only ever a separate variant.
 - 2026-10-13, before any run (ju): commander cost made a main factor, every cost 2 to 7, instead of 2/4/6 in phase 3.
+- 2026-10-13, before any run (ju, after feedback from a friend who rates decks by spells cast): useful spells cast made a co-primary outcome, ranked separately from discounted useful mana. A real-deck curve shape was considered and not added.
