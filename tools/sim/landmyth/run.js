@@ -100,6 +100,12 @@ async function run() {
     const t0 = Date.now(); let n = 0, lastPrint = 0, coreDone = 0;
     const tasks = G.sliceTasks(p);
     const log = fs.openSync(TASKLOG, 'a');
+    // Heartbeat: the first cells only land once a game graph is built (minutes for the big ones), so show it is alive.
+    const beat = setInterval(() => {
+      if (Date.now() - lastPrint < 10000) return;
+      lastPrint = Date.now(); const el = (lastPrint - t0) / 1000;
+      process.stdout.write(`\r  pass ${p.n}: ${n}/${rem.cells} cells, ${hms(el)} elapsed${n ? '' : ', building the first game graphs (normal for the first few minutes)'}      `);
+    }, 10000);
     await G.runTasks(tasks, {
       outFile: CELLS, T, workers: WORKERS, memGB: MEM, done, verbose: !!A.verbose,
       log: x => process.stdout.write(x),
@@ -118,6 +124,7 @@ async function run() {
         fs.writeSync(log, JSON.stringify({ key: task.key, shape: task.shape, cmd: task.cmd, sc: task.sc, cells: stats.cells, estGB: +task.memGB.toFixed(2), estSecs: +est.toFixed(1), secs: +secs.toFixed(1), workers: 1, graphs: stats.graphs, sweepSecs: +stats.sweepSecs.toFixed(1), cpus: os.cpus().length, at: new Date().toISOString() }) + '\n');
       },
     });
+    clearInterval(beat);
     fs.closeSync(log);
     console.log(`\nPass ${p.n} done in ${hms((Date.now() - t0) / 1000)}.`);
     const r = report(true);
