@@ -18,7 +18,7 @@ Written 2026-10-13, before any part 2 run. Choices marked (ju) were made by ju; 
 - Roles in phases 1-2: untapped land; 1-mana dork (taps the turn after it is cast); 2-mana rock (taps at once); non-ramp spells. Phase 3 adds tapped lands, 0-mana ramp, land ramp, draw spells that cost mana, and a mana sink.
 - Spell cost spreads (ju: several spreads): average spell cost 2.0 to 4.5 in steps of 0.25, each under two shapes:
   - tight: only the two integer costs around the average;
-  - normal: a discretised normal around the average, standard deviation 1.0, costs 1 to 8;
+  - normal: a discretised normal around the average (standard deviation 1.0), folded onto three costs, round(average)-1, round(average) and round(average)+1, with the centre re-solved so the mean equals the average (`normal3` in model.js). The unfolded normal (costs 1 to 8) is out of reach for best play on any available machine (see README); it may appear only as a sampled side check, labelled as such.
 - Draws: one card a turn from turn 1 (multiplayer). Extra-draw scenarios P1-P8 on turns 5-8, as in part 1.
 - Mulligans: phase 1 uses part 1's rule (keep 2-5 lands, or 1 land + 2 ramp; first mulligan free, then London). Phase 2 replaces it with the optimal keep/mulligan decision.
 
@@ -71,3 +71,4 @@ All headline results are solo games with no disruption (ju). Disruption is an op
 - 2026-10-13, before any run (ju): commander cost made a main factor, every cost 2 to 7, instead of 2/4/6 in phase 3.
 - 2026-10-13, before any run (ju, after feedback from a friend who rates decks by spells cast): useful spells cast made a co-primary outcome, ranked separately from discounted useful mana. A real-deck curve shape was considered and not added.
 - 2026-10-13, before any run (ju): barbell curve shape dropped as unrealistic; tight and normal remain.
+- 2026-10-13, before any run (ju, decision card): the normal shape is folded onto three costs (normal3), because the full 1-8 normal is computationally out of reach for optimal play (> 64 GB per deck).
