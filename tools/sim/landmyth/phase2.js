@@ -605,7 +605,7 @@ function plan(A, ctx) {
     }
     console.log(`\nPass ${p.n} (${p.name}), depth ${depth}: graph kind, scenario, graphs, cells, peak GB of one graph with one lane, single-thread work on the reference box`);
     for (const [k, r] of [...rows].sort()) console.log(`  ${k.padEnd(8)} ${String(r.graphs).padStart(5)} ${String(r.cells).padStart(8)} ${r.maxGB.toFixed(1).padStart(7)} GB  ${hms(r.core)}${r.maxGB > 0.92 * ram ? '  (too big for this RAM)' : ''}`);
-    const rem = remaining(restrict(p, A), new Set(), { build: 1, solve: 1 }, ctx.WORKERS, ctx.MEM, depth, ram);
+    const rem = remaining(restrict(p, A), new Set(), { of: () => ({ build: 1, solve: 1 }) }, ctx.WORKERS, ctx.MEM, depth, ram);
     console.log(`  total: ${hms(rem.core)} single-thread; about ${hms(rem.wall)} with ${ctx.WORKERS} threads and ${ctx.MEM} GB at reference speed${rem.tooBig.length ? `; ${rem.tooBig.length} graphs too big for this machine` : ''}`);
   }
 }
