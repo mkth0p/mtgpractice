@@ -177,7 +177,8 @@ function buildOptGraph(univ, extra, T, depth = DEFAULT_DEPTH, opts = {}) {
     // decision step: every maximal action
     const X = cur, nX = X.n;
     const B = new KeySet(W, capFor(nX));
-    const off = alloc(Int32Array, nX + 1, sh), m0 = alloc(Uint8Array, nX, sh), xi = alloc(Uint8Array, nX * nLib, sh);
+    // off holds edge positions: the biggest act steps pass 2^31 edges, past Int32 (gave NaN values)
+    const off = alloc(Uint32Array, nX + 1, sh), m0 = alloc(Uint8Array, nX, sh), xi = alloc(Uint8Array, nX * nLib, sh);
     const ech = new GrowI32(nX * 2), eus = new GrowU8(nX * 2), esp = new GrowU8(nX * 2), era = new GrowU8(nX * 2), erc = new GrowU8(nX * 2);
     let s, land, mana0, hR, hD, r, d, cmd, cmdDone;
     const emit = () => {
@@ -219,6 +220,7 @@ function buildOptGraph(univ, extra, T, depth = DEFAULT_DEPTH, opts = {}) {
       if (na > g.maxActs) g.maxActs = na;
     }
     off[nX] = ech.n;
+    if (ech.n > 0xFFFFFFFF) throw new Error(`act step t=${t}: ${ech.n} edges, more than the edge index holds`);
     const fl = alloc(Uint8Array, B.n, sh), lf = alloc(Uint8Array, B.n, sh);
     for (let idx = 0; idx < B.n; idx++) {
       const q = B.state(idx); fl[idx] = (q[B_LAND] === t ? 1 : 0) | (q[CMD] ? 2 : 0);
@@ -371,6 +373,8 @@ function solveDecks(g, decks, opts = {}) {
   // backward pass for horizon H and objective o; leaves the opening values in aP (index = state*K + k).
   // Ties (within REL_TOL) go to the action with the larger immediate secondary reward, then to the
   // first in enumeration order: a fixed convention that does not change any optimal value.
+  // a NaN or infinite value is a solver bug (it once came from an Int32 overflow): stop instead of storing it
+  const bad = (st, x, k, v) => { throw new Error(`non-finite value ${v} at ${st.kind} step t=${st.t}, state ${x}, deck ${decks[k].L}:${decks[k].D}:${decks[k].R}`); };
   function backward(H, o) {
     const t0 = Date.now();
     let toP = aP, frP = bP;
@@ -400,7 +404,7 @@ function solveDecks(g, decks, opts = {}) {
               if (vp > cur + tol || (vp >= cur - tol && sNew > rS[e0 + ba[k]])) { bp[k] = vp; ba[k] = e - e0; }
             }
           }
-          for (let k = 0; k < K; k++) { frP[xb + k] = bp[k]; pl[xb + k] = ba[k]; }
+          for (let k = 0; k < K; k++) { if (!(bp[k] < Infinity)) bad(st, x, k, bp[k]); frP[xb + k] = bp[k]; pl[xb + k] = ba[k]; }
         }
       } else {
         const ch = st.ch, info = st.info, invN = 1 / st.N;
@@ -415,6 +419,7 @@ function solveDecks(g, decks, opts = {}) {
                 if (rem > 0) vp += rem * toP[ch[cb0 + i] * K + k]; else if (rem < 0) { ok = false; break; }
               }
               frP[b + k] = ok ? vp * invN : 0;
+              if (!(frP[b + k] < Infinity)) bad(st, idx, k, frP[b + k]);
             }
             continue;
           }
@@ -425,6 +430,7 @@ function solveDecks(g, decks, opts = {}) {
             const cb = c * K;
             for (let k = 0; k < K; k++) { if (!reach[k]) continue; const p = pr[k * n + i]; if (p !== 0) frP[b + k] += p * toP[cb + k]; }
           }
+          for (let k = 0; k < K; k++) if (!(frP[b + k] < Infinity)) bad(st, idx, k, frP[b + k]);
         }
       }
       const tmp = toP; toP = frP; frP = tmp;

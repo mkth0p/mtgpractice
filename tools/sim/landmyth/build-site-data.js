@@ -72,6 +72,7 @@ function playOf(r, forced) {
 function fromPhase2(r) {
   const at = obj => { const a = new Array(TMAX).fill(0); r.H.forEach((t, i) => { a[t - 1] = obj.value[i]; }); return a; };
   if (!r.N || !Array.isArray(r.N.value)) return null;
+  if (r.V09.value.some(v => v === null) || r.N.value.some(v => v === null)) return null; // a missing value (solver bug): leave the cell out
   return { ...r, V09: at(r.V09), N: at(r.N), play: 'optimal' };
 }
 

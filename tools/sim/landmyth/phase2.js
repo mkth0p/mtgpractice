@@ -529,6 +529,17 @@ function passTotals(done, depth) {
     return { p, total, done: d };
   });
 }
+// Cells written with a missing value (null: NaN or infinity, from the edge-index overflow fixed on
+// 2026-10-14) are removed from the results so the run computes them again.
+function dropBroken(file) {
+  if (!fs.existsSync(file)) return 0;
+  const keep = [], ids = [];
+  Gd.forEachLine(file, line => { const m = /^\{"id":"([^"]+)"/.exec(line); if (m && /"value":\[[^\]]*null/.test(line)) ids.push(m[1]); else keep.push(line); });
+  if (!ids.length) return 0;
+  fs.writeFileSync(file + '.tmp', keep.map(l => l + '\n').join('')); fs.renameSync(file + '.tmp', file);
+  console.log(`Removed ${ids.length} cell(s) with missing values, to compute again: ${ids.slice(0, 3).join(', ')}${ids.length > 3 ? ', ...' : ''}`);
+  return ids.length;
+}
 function readSkipped(f) { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch (e) { return {}; } }
 
 // optional slice of a pass: --shapes tight --scens P1,P4 --cmds 4 --avgs 3,3.5 (intersected with the pass)
@@ -542,6 +553,7 @@ function restrict(p, A) {
 async function run(A, ctx) {
   const F = files(ctx.OUT), depth = +(A.depth || DEPTH);
   fs.mkdirSync(ctx.OUT, { recursive: true });
+  dropBroken(F.cells);
   const done = Gd.readDone(F.cells);
   const last = +(A.pass || 1); // pass 2 only when asked: as specified it is far beyond one machine (see PREREG-proposed-changes.md)
   console.log(`Phase 2 (optimal play and mulligans, mulligan depth ${depth}). Results: ${F.cells}\n${done.size} cells already done. Using up to ${ctx.WORKERS} threads within ~${ctx.MEM} GB of memory.`);
