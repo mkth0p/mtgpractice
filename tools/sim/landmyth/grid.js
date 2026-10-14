@@ -67,6 +67,7 @@ function toUniversal(univ, deck, ds, out) {
     const seen = new Array(univ.G).fill(0);
     for (let j = 0; j < univ.nSp; j++) seen[univ.grp[j]] += deck.K[3 + j] - ds[K_OFF + 3 + j];
     for (let g = 0; g < univ.G; g++) out[K_OFF + 3 + g] = univ.UG[g] - seen[g];
+    for (let i = univ.X0; i < n; i++) out[K_OFF + i] = univ.K[i] - (deck.K[i] - ds[K_OFF + i]); // real-ramp classes
   } else for (let i = 3; i < n; i++) out[K_OFF + i] = univ.K[i] - (deck.K[i] - ds[K_OFF + i]);
   return out;
 }
@@ -93,8 +94,7 @@ function buildGraph(univ, extra, T) {
       };
       for (let idx = 0; idx < cur.n; idx++) {
         const s = cur.state(idx); off[idx] = e;
-        const nTypes = lump ? 3 : n;
-        for (let i = 0; i < nTypes; i++) if (s[K_OFF + i]) {
+        for (let i = 0; i < n; i++) if (s[K_OFF + i] && !(lump && i >= 3 && i < univ.X0)) { // lump: spells drawn by group below
           child.set(s); child[K_OFF + i]--; child[H_OFF + i]++;
           push(nxt.add(child, 0), i, univ.K[i] - s[K_OFF + i], 0, 0); // se = copies of type i already seen
         }
@@ -156,19 +156,19 @@ function sweep(g, univ, deck, T) {
         if (lump) {
           tot.fill(0);
           for (let e = e0; e < e1; e++) {
-            const i = ty[e]; if (i < 3) continue;
+            const i = ty[e]; if (i < 3 || i >= univ.X0) continue;
             const gg = univ.grp[i - 3], Kj = K[i];
             const castG = Math.max(0, se[e] - hg[e]);
             mix[e - e0] = Math.max(0, Kj - hj[e] - castG * Kj / SG[gg]); tot[gg] += mix[e - e0];
           }
           for (let gg = 0; gg < G; gg++) if (tot[gg] <= 0) { // same fallback as exact.js: the deck mix
             tot[gg] = 0;
-            for (let e = e0; e < e1; e++) { const i = ty[e]; if (i >= 3 && univ.grp[i - 3] === gg) { mix[e - e0] = K[i]; tot[gg] += K[i]; } }
+            for (let e = e0; e < e1; e++) { const i = ty[e]; if (i >= 3 && i < univ.X0 && univ.grp[i - 3] === gg) { mix[e - e0] = K[i]; tot[gg] += K[i]; } }
           }
         }
         for (let e = e0; e < e1; e++) {
           const i = ty[e];
-          if (!lump || i < 3) { const k = K[i] - se[e]; if (k > 0) out[ch[e]] += p * k * inv; continue; }
+          if (!lump || i < 3 || i >= univ.X0) { const k = K[i] - se[e]; if (k > 0) out[ch[e]] += p * k * inv; continue; }
           const gg = univ.grp[i - 3], kG = SG[gg] - se[e];
           if (kG > 0 && mix[e - e0] > 0) out[ch[e]] += p * kG * inv * mix[e - e0] / tot[gg];
         }
@@ -230,7 +230,7 @@ function cellRecord(c, deck, sum, method) {
 // A task is a list of cells of one (shape, commander, scenario) that (nearly always) share one cost
 // set. The worker groups them by (cost set, lump grouping), builds each group's graph once and
 // sweeps every deck of the group over it; one graph is held at a time.
-if (!isMainThread) {
+if (!isMainThread && workerData && workerData.task && !workerData.realramp) { // only grid.js's own workers (phase 2 and realramp.js workers load this file as a library)
   const { task, T } = workerData;
   const groups = new Map();
   for (const c of task.cells) {
@@ -449,4 +449,4 @@ async function main() {
 }
 
 if (require.main === module) main().catch(e => { console.error('\n' + e.message); process.exitCode = 1; });
-module.exports = { universalDeck, lumpGroupsOf, buildGraph, sweep, comps, cellsFor, cellId, parseId, deckFor, sliceTasks, taskCells, runTasks, readDone, forEachLine, estimateGB, estimateSecs, selftest };
+module.exports = { universalDeck, lumpGroupsOf, toUniversal, findIdx, KMAX, buildGraph, sweep, comps, cellsFor, cellId, parseId, deckFor, sliceTasks, taskCells, runTasks, readDone, forEachLine, estimateGB, estimateSecs, selftest };

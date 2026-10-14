@@ -70,7 +70,9 @@ function solve(deck, extra, Tmax, opts = {}) {
         for (let i = 0; i < n; i++) N += s[K_OFF + i];
         if (N === 0) { nxt.add(s, p); continue; }
         if (lump) { // approximation: spell costs drawn from the deck's proportions (see README)
-          for (let i = 0; i < 3; i++) {
+          for (let i = 0; i < n; i++) {
+            if (i === 3) i = deck.X0; // non-spell types: land, dork, rock, then any extra ramp classes
+            if (i >= n) break;
             const k = s[K_OFF + i];
             if (!k) continue;
             child.set(s); child[K_OFF + i]--; child[H_OFF + i]++;
@@ -230,12 +232,13 @@ function summarize(sol) {
   return out;
 }
 
-function buildDeck(spec, shape, avg, cmdCost = M.CMD_COST) {
+// ramp (optional): extra ramp classes, see model.js makeDeck (real-ramp variant).
+function buildDeck(spec, shape, avg, cmdCost = M.CMD_COST, ramp = null) {
   const [L, D, R] = spec.split(':').map(Number);
-  const S = M.DECK_SIZE - L - D - R;
+  const S = M.DECK_SIZE - L - D - R - (ramp ? ramp.reduce((x, c) => x + c.count, 0) : 0);
   const c = M.spellCounts(shape, S, avg);
   if (!c) return null;
-  return M.makeDeck(L, D, R, c, cmdCost);
+  return M.makeDeck(L, D, R, c, cmdCost, ramp);
 }
 
 module.exports = { solve, summarize, cvar, buildDeck, GAMMAS };

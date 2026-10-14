@@ -7,7 +7,15 @@
 //   b2) exact.js vs part 1 Monte Carlo (part 1's mulligan()/play(), 200k games), within 3 SE;
 //   b3) commander costs other than 4: exact.js vs a plain Monte Carlo of the same model;
 //   c) sanity: V nondecreasing in T, probability mass 1 every turn, accounting identity.
-// Usage: node check.js [--games 200000] [--games3 100000] [--skip-mc] [--only a,b1,b2,b3,c] [--cfgs 0,1 (b2 subset)] [--b1cfgs 0,8 (b1 subset)]
+// Real-ramp variant (realramp.js; extra ramp classes Sol Ring, 3-mana rocks, 2-mana dorks):
+//   r0) a deck whose extra classes all have count 0 gives exactly the default model's numbers;
+//   r1) land-drop probabilities and keep probability vs the closed-form hypergeometric sums (as a);
+//   r2) exact.js vs an exhaustive enumeration of every opening hand and draw order played by an
+//       independent simulator of the real-ramp rule (written here from the rule text), to 1e-9;
+//   r3) exact.js vs a Monte Carlo of that simulator with mulligans, commander costs 2-7, T = 12;
+//   r4) the shared-graph pass (grid.js, as realramp.js uses it) vs exact.js on real decks.
+// Usage: node check.js [--games 200000] [--games3 100000] [--gamesr 100000] [--skip-mc] [--only a,b1,b2,b3,c,r0,r1,r2,r3,r4] [--cfgs 0,1 (b2 subset)] [--b1cfgs 0,8 (b1 subset)]
+// (the default --only runs a,b1,b2,b3,c as before; the r gates run when named, or all with --only r)
 const os = require('os');
 const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 const M = require('./model');
@@ -41,7 +49,7 @@ function drawsVec(extra, T) { const d = [0]; for (let t = 1; t <= T; t++) d.push
 // Closed form with part 1 mulligans: classify 7-card hands by (lands l, ramp r, spells s=7-l-r).
 // Keep: 2<=l<=5 or (l==1 and r>=2). Third hand: bottom a land iff l>=4 or (s==0 and l>0).
 function closedLandMiss(deck, extra, T, mull) {
-  const { L, D, R, S } = deck; const RR = D + R; const tot = C(99, 7);
+  const { L, D, R, S } = deck; const RR = D + R + (deck.nX ? deck.ramp.reduce((a, c) => a + c.count, 0) : 0); const tot = C(99, 7);
   const hands = [];
   for (let l = 0; l <= 7; l++) for (let r = 0; l + r <= 7; r++) {
     const s = 7 - l - r; const p = C(L, l) * C(RR, r) * C(S, s) / tot;
@@ -323,6 +331,161 @@ function gateB3(games) {
   }
 }
 
+// ---------- r) real-ramp variant ----------
+const RR_CLASSES = [{ name: 'sol', cost: 1, out: 2 }, { name: 'rock3', cost: 3, out: 1 }, { name: 'dork2', cost: 2, out: 1, tapped: true }];
+const realDeck = (spec, shape, avg, cmd, counts) => E.buildDeck(spec, shape, avg, cmd, RR_CLASSES.map((c, i) => Object.assign({}, c, { count: counts[i] })));
+const R_KEYS = ['V09', 'V08', 'V10', 'N09', 'N', 'gen', 'ramp', 'unused', 'rampCast', 'left', 'cmdTurn'];
+
+function gateR0() {
+  const cfgs = [['36:5:5', 'tight', 3.5, 4, 'P4', 15, {}], ['28:10:12', 'tight', 3, 2, 'P8', 12, {}], ['24:12:12', 'tight', 2.25, 7, 'P1', 15, {}],
+    ['40:3:2', 'normal3', 3, 5, 'P1', 10, { lumpSpells: 'hand', lumpGroups: 2 }], ['36:5:5', 'tight', 4, 4, 'P5', 10, { mulligan: false }]];
+  for (const [spec, shape, avg, cmd, sc, T, opt] of cfgs) {
+    const a = E.summarize(E.solve(E.buildDeck(spec, shape, avg, cmd), M.SCENARIOS[sc], T, opt));
+    const b = E.summarize(E.solve(realDeck(spec, shape, avg, cmd, [0, 0, 0]), M.SCENARIOS[sc], T, opt));
+    let md = 0;
+    for (let t = 0; t < T; t++) { for (const k of [...R_KEYS, 'mass']) md = Math.max(md, Math.abs(a[t][k] - b[t][k])); a[t].landMiss.forEach((x, i) => { md = Math.max(md, Math.abs(x - b[t].landMiss[i])); }); }
+    report(`r0 zero-count classes == default ${spec} ${shape} ${avg} cmd${cmd} ${sc} T<=${T}`, md === 0, `max|diff|=${md}`);
+  }
+}
+
+function gateR1() {
+  const decks = [['34:4:5', 'tight', 3, [1, 3, 3]], ['30:0:6', 'tight', 3.5, [1, 6, 4]], ['38:7:0', 'tight', 4, [1, 0, 8]], ['36:0:0', 'normal3', 3, [1, 0, 0]]];
+  for (const [spec, shape, avg, xc] of decks) {
+    const deck = realDeck(spec, shape, avg, 4, xc);
+    for (const sc of ['P1', 'P5', 'P8']) for (const mull of [false, true]) {
+      const T = 6, sol = E.solve(deck, M.SCENARIOS[sc], T, { mulligan: mull, lumpSpells: shape === 'normal3' ? 'hand' : false, lumpGroups: 2 });
+      const ex = []; for (let t = 1; t <= T; t++) ex.push(1 - sol.pt.landOnCurve[t]);
+      const cf = closedLandMiss(deck, M.SCENARIOS[sc], T, mull);
+      let md = 0; ex.forEach((v, i) => { md = Math.max(md, Math.abs(v - cf.miss[i])); });
+      if (mull) { const pk = M.openingStates(deck).filter(o => o.stage === 0).reduce((a, o) => a + o.p, 0); md = Math.max(md, Math.abs(pk - cf.pKeep)); }
+      report(`r1 land-drop real ${spec}+${xc.join('/')} ${shape} ${avg} ${sc} ${mull ? 'mull' : 'nomull'}`, md < 1e-9, `max|diff|=${md.toExponential(2)}`);
+    }
+  }
+}
+
+// Independent simulator of the real-ramp play rule (policy1.js makePolicyX), written from its
+// description, on explicit cards: 'L' land, 'D1' 1-mana dork, 'R2' 2-mana rock, 'S' Sol Ring,
+// 'R3' 3-mana rock, 'D2' 2-mana dork, numbers = spells of that cost. Only bestSpend (part 1's
+// spell choice, already checked by b1) is shared with the model.
+const { bestSpend } = require('./policy1');
+function simReal(hand0, lib, extra, T, cmdCost, maxCmc, acc, w) {
+  const h = Object.assign({ L: 0, D1: 0, R2: 0, S: 0, R3: 0, D2: 0 }, hand0);
+  let lands = 0, rockMana = 0, dorkMana = 0, cmd = false, ptr = 0;
+  let v9 = 0, v8 = 0, n9 = 0, U = 0, N = 0, gen = 0, ramp = 0, rampCast = 0, cmdTurn = T + 1;
+  const cnt = new Int32Array(maxCmc + 1), tk = new Int32Array(maxCmc + 1);
+  for (let t = 1; t <= T; t++) {
+    for (let q = 0; q < M.drawsAt(extra, t); q++) { if (ptr < lib.length) { const c = lib[ptr++]; h[c] = (h[c] || 0) + 1; } }
+    if (h.L > 0) { h.L--; lands++; }
+    let mana = lands + rockMana + dorkMana, made = mana, useful = 0, spells = 0;
+    const rock = (k, cost, out) => { h[k]--; mana += out - cost; made += out; rockMana += out; ramp += cost; rampCast++; };
+    const dork = (k, cost) => { h[k]--; mana -= cost; dorkMana += 1; ramp += cost; rampCast++; };
+    while (h.S > 0 && mana >= 1) rock('S', 1, 2);
+    if (!cmd) {
+      for (;;) {
+        if (h.R2 > 0 && mana >= 2 && mana - 1 >= cmdCost) rock('R2', 2, 1);
+        else if (h.R3 > 0 && mana >= 3 && mana - 2 >= cmdCost) rock('R3', 3, 1);
+        else break;
+      }
+      if (mana >= cmdCost) { mana -= cmdCost; cmd = true; useful += cmdCost; spells++; cmdTurn = t; }
+    }
+    const rampStep = () => {
+      while (h.R2 > 0 && mana >= 2) rock('R2', 2, 1);
+      while (h.R3 > 0 && mana >= 3) rock('R3', 3, 1);
+      while (h.D1 > 0 && mana >= 1) dork('D1', 1);
+      while (h.D2 > 0 && mana >= 2) dork('D2', 2);
+    };
+    if (t <= 6) rampStep();
+    if (mana > 0) {
+      cnt.fill(0); for (let c = 1; c <= maxCmc; c++) cnt[c] = h[c] || 0;
+      const spent = bestSpend(cnt, maxCmc, mana, tk);
+      if (spent > 0) { for (let c = 1; c <= maxCmc; c++) { h[c] = (h[c] || 0) - tk[c]; spells += tk[c]; } useful += spent; mana -= spent; }
+    }
+    if (t > 6) rampStep();
+    v9 += Math.pow(0.9, t - 1) * useful; v8 += Math.pow(0.8, t - 1) * useful; n9 += Math.pow(0.9, t - 1) * spells;
+    U += useful; N += spells; gen += made;
+  }
+  let left = 0; for (let c = 1; c <= maxCmc; c++) left += h[c] || 0;
+  const vals = { V09: v9, V08: v8, V10: U, N09: n9, N, gen, ramp, unused: gen - U - ramp, rampCast, left, cmdTurn };
+  for (const k of R_KEYS) { acc[k][0] += w * vals[k]; acc[k][1] += w * vals[k] * vals[k]; }
+  acc.mass += w;
+}
+function codesOf(deck) { return deck.K.map((_, i) => (i === 0 ? 'L' : i === 1 ? 'D1' : i === 2 ? 'R2' : i < deck.X0 ? deck.costs[i - 3] : ['S', 'R3', 'D2'][i - deck.X0])); }
+function newAcc() { const a = { mass: 0 }; for (const k of R_KEYS) a[k] = [0, 0]; return a; }
+
+function gateR2() {
+  const cfgs = [['30:3:3', 'tight', 3, 4, [1, 3, 3], 'P1', 4], ['32:2:3', 'tight', 3, 2, [1, 2, 3], 'P5', 5], ['28:4:2', 'tight', 2.5, 3, [1, 4, 2], 'P1', 4], ['34:0:4', 'tight', 4, 5, [1, 3, 0], 'P1', 5]];
+  for (const [spec, shape, avg, cmd, xc, sc, T] of cfgs) {
+    const deck = realDeck(spec, shape, avg, cmd, xc), extra = M.SCENARIOS[sc], code = codesOf(deck), K = deck.K, n = K.length;
+    const nDraw = drawsVec(extra, T).reduce((a, b) => a + b, 0);
+    const acc = newAcc(); let nHands = 0;
+    const x = new Array(n).fill(0);
+    (function recH(i, left, wH) {
+      if (i === n) {
+        if (left) return; nHands++;
+        const hand = {}; x.forEach((c, j) => { if (c) hand[code[j]] = (hand[code[j]] || 0) + c; });
+        const lib = K.map((k, j) => k - x[j]), seq = [];
+        (function recD(j, w) {
+          if (j === nDraw) { simReal(hand, seq.slice(), extra, T, cmd, deck.maxCmc, acc, wH * w); return; }
+          const N = 92 - j;
+          for (let q = 0; q < n; q++) if (lib[q] > 0) { const pq = lib[q] / N; lib[q]--; seq.push(code[q]); recD(j + 1, w * pq); seq.pop(); lib[q]++; }
+        })(0, 1);
+        return;
+      }
+      for (let v = 0; v <= Math.min(left, K[i]); v++) { x[i] = v; recH(i + 1, left - v, wH * C(K[i], v)); }
+      x[i] = 0;
+    })(0, 7, 1 / C(99, 7));
+    const ex = E.summarize(E.solve(deck, extra, T, { mulligan: false }))[T - 1];
+    let md = Math.abs(acc.mass - 1), worst = '';
+    for (const k of R_KEYS) { const d = Math.abs(acc[k][0] - ex[k]); if (d > md) { md = d; worst = k; } }
+    report(`r2 enumeration-through-independent-sim ${spec}+${xc.join('/')} ${shape} ${avg} cmd${cmd} ${sc} T=${T} nomull`, md < 1e-9,
+      `${nHands} hands, every draw order; max|diff|=${md.toExponential(2)}${worst ? ' (' + worst + ')' : ''}; V0.9=${ex.V09.toFixed(6)} rampCast=${ex.rampCast.toFixed(6)}`);
+  }
+}
+
+function gateR3(games) {
+  const cfgs = [['34:4:5', 'tight', 3, 4, [1, 3, 3], 'P1'], ['30:7:9', 'tight', 3.5, 2, [1, 2, 0], 'P4'], ['36:0:4', 'tight', 3.5, 6, [1, 4, 4], 'P8'], ['32:0:0', 'tight', 4.25, 7, [1, 6, 6], 'P6'], ['38:3:3', 'tight', 2.75, 3, [1, 0, 2], 'P2']];
+  const T = 12;
+  for (const [spec, shape, avg, cmd, xc, sc] of cfgs) {
+    const deck = realDeck(spec, shape, avg, cmd, xc), extra = M.SCENARIOS[sc], code = codesOf(deck);
+    const cards = []; deck.K.forEach((k, i) => { for (let q = 0; q < k; q++) cards.push(code[i]); });
+    let seed = 1234567 + cmd * 7919; const rnd = () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const shuf = () => { const a = cards.slice(); for (let i = a.length - 1; i > 0; i--) { const j = (rnd() * (i + 1)) | 0; const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
+    const isRamp = c => ['D1', 'R2', 'S', 'R3', 'D2'].includes(c);
+    const acc = newAcc();
+    for (let g = 0; g < games; g++) {
+      let hand, lib;
+      for (let m = 0; m < 3; m++) {
+        const o = shuf(), h = {}; for (let i = 0; i < 7; i++) h[o[i]] = (h[o[i]] || 0) + 1;
+        const l = h.L || 0, r = o.slice(0, 7).filter(isRamp).length;
+        if (m < 2 && ((l >= 2 && l <= 5) || (l === 1 && r >= 2))) { hand = h; lib = o.slice(7); break; }
+        if (m === 2) { // keep 6: a land if 4+ lands, else the most expensive spell, else land, dork, rock, 2-mana dork, 3-mana rock, Sol Ring
+          let b = null;
+          if (l >= 4) b = 'L';
+          else { for (let c = 8; c >= 1 && !b; c--) if (h[c]) b = c; }
+          if (!b) b = ['L', 'D1', 'R2', 'D2', 'R3', 'S'].find(c => h[c]);
+          h[b]--; hand = h; lib = o.slice(7);
+        }
+      }
+      simReal(hand, lib, extra, T, cmd, deck.maxCmc, acc, 1);
+    }
+    const ex = E.summarize(E.solve(deck, extra, T, {}))[T - 1];
+    let maxZ = 0, worst = '';
+    for (const k of R_KEYS) {
+      const m = acc[k][0] / games, se = Math.sqrt(Math.max(0, acc[k][1] / games - m * m) / games);
+      const z = se > 0 ? Math.abs(m - ex[k]) / se : (Math.abs(m - ex[k]) < 1e-12 ? 0 : Infinity);
+      if (z > maxZ) { maxZ = z; worst = `${k} mc=${m.toFixed(4)} exact=${ex[k].toFixed(4)}`; }
+    }
+    report(`r3 monte-carlo independent sim ${spec}+${xc.join('/')} ${shape} ${avg} cmd${cmd} ${sc} T=${T}`, maxZ < 3.5, `${games} games, ${R_KEYS.length} metrics, max|z|=${maxZ.toFixed(2)} [${worst}]; V0.9=${ex.V09.toFixed(4)}`);
+  }
+}
+
+function gateR4() {
+  const lines = []; const log = console.log; console.log = x => lines.push(x);
+  let ok; try { ok = require('./realramp').selftest(); } finally { console.log = log; }
+  for (const l of lines) report(l.replace(/^(PASS|FAIL)\s+/, 'r4 '), l.startsWith('PASS'), '');
+  if (!lines.length) report('r4 realramp selftest', !!ok, '');
+}
+
 // ---------- c) sanity ----------
 function gateC() {
   const decks = [['36:5:5', 'tight', 3, 15], ['30:6:8', 'tight', 3.5, 15], ['42:0:0', 'tight', 4, 15], ['20:12:8', 'tight', 2, 15], ['28:10:12', 'normal', 3, 6]];
@@ -350,12 +513,18 @@ if (!isMainThread) { parentPort.postMessage(mcWorker(workerData)); }
 else (async () => {
   const a = {}; const v = process.argv.slice(2);
   for (let i = 0; i < v.length; i++) if (v[i].startsWith('--')) { const k = v[i].slice(2); if (v[i + 1] && !v[i + 1].startsWith('--')) a[k] = v[++i]; else a[k] = true; }
-  const only = a.only ? a.only.split(',') : ['a', 'b1', 'b2', 'b3', 'c'];
+  let only = a.only ? a.only.split(',') : ['a', 'b1', 'b2', 'b3', 'c'];
+  if (only.includes('r')) only = only.concat(['r0', 'r1', 'r2', 'r3', 'r4']);
   if (only.includes('a')) gateA();
   if (only.includes('b1')) gateB1(a.b1cfgs ? a.b1cfgs.split(',').map(Number) : null);
   if (only.includes('b2') && !a['skip-mc']) await gateB2(+(a.games || 200000), a.cfgs ? a.cfgs.split(',').map(Number) : null);
   if (only.includes('b3')) gateB3(+(a.games3 || 100000));
   if (only.includes('c')) gateC();
+  if (only.includes('r0')) gateR0();
+  if (only.includes('r1')) gateR1();
+  if (only.includes('r2')) gateR2();
+  if (only.includes('r3')) gateR3(+(a.gamesr || 100000));
+  if (only.includes('r4')) gateR4();
   const nf = results.filter(x => !x).length;
   console.log(`\n${results.length - nf}/${results.length} PASS${nf ? `, ${nf} FAIL` : ''}`);
   process.exitCode = nf ? 1 : 0;

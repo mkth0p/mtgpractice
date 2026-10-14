@@ -1,0 +1,5974 @@
+{
+ "generated": "2026-10-13",
+ "source": "Scryfall default-cards bulk dump research/miku-tournament/local/scryfall/default-cards.jsonl.gz (latest released_at in file 2027-04-08); Commander legality and EDHREC rank as recorded in the dump",
+ "rule": "counts per colour identity X = cards with color_identity subset of X (Scryfall id<=X), f:commander, -t:land; clean mana ability as described in pool.js",
+ "queries": {
+  "sol": "f:commander t:artifact -t:creature mv=1 o:\"{T}: Add {C}{C}\"",
+  "mox0": "f:commander t:artifact -t:creature mv=0 o:\"{T}: Add\" -o:sacrifice",
+  "rock2": "f:commander t:artifact -t:creature mv=2 o:\"{T}: Add\" -o:\"enters tapped\"",
+  "rock2t": "f:commander t:artifact -t:creature mv=2 o:\"{T}: Add\" o:\"enters tapped\"",
+  "rock3": "f:commander t:artifact -t:creature mv=3 o:\"{T}: Add\" -o:\"enters tapped\"",
+  "rock4": "f:commander t:artifact -t:creature mv>=4 o:\"{T}: Add\"",
+  "dork1": "f:commander t:creature mv=1 o:\"{T}: Add\"",
+  "dork2": "f:commander t:creature mv=2 o:\"{T}: Add\"",
+  "dork3": "f:commander t:creature mv=3 o:\"{T}: Add\"",
+  "realistic": "and EDHREC rank <= 3000 (Scryfall order:edhrec)"
+ },
+ "ranks": [
+  "all",
+  "rank<=5000",
+  "rank<=3000",
+  "rank<=1500"
+ ],
+ "realisticRank": 3000,
+ "legalCards": 32116,
+ "caps": {
+  "C": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    6,
+    4,
+    2,
+    1
+   ],
+   "dork3": [
+    8,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    9,
+    8,
+    7,
+    6
+   ],
+   "rock2t": [
+    7,
+    3,
+    1,
+    0
+   ],
+   "rock3": [
+    76,
+    28,
+    17,
+    10
+   ],
+   "rock3t": [
+    5,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    17,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    7,
+    2,
+    1,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "W": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    7,
+    5,
+    3,
+    2
+   ],
+   "dork3": [
+    9,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    10,
+    9,
+    7,
+    6
+   ],
+   "rock2t": [
+    8,
+    4,
+    2,
+    1
+   ],
+   "rock3": [
+    81,
+    28,
+    17,
+    10
+   ],
+   "rock3t": [
+    6,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    17,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    8,
+    3,
+    1,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "U": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    9,
+    5,
+    3,
+    2
+   ],
+   "dork3": [
+    8,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    9,
+    8,
+    7,
+    6
+   ],
+   "rock2t": [
+    8,
+    4,
+    2,
+    1
+   ],
+   "rock3": [
+    82,
+    30,
+    18,
+    11
+   ],
+   "rock3t": [
+    5,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    17,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    10,
+    4,
+    3,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WU": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    10,
+    6,
+    4,
+    3
+   ],
+   "dork3": [
+    9,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    12,
+    11,
+    9,
+    8
+   ],
+   "rock2t": [
+    9,
+    5,
+    3,
+    2
+   ],
+   "rock3": [
+    92,
+    30,
+    18,
+    11
+   ],
+   "rock3t": [
+    7,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    17,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    11,
+    5,
+    3,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "B": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    7,
+    5,
+    3,
+    1
+   ],
+   "dork3": [
+    8,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    10,
+    9,
+    8,
+    7
+   ],
+   "rock2t": [
+    8,
+    4,
+    2,
+    1
+   ],
+   "rock3": [
+    80,
+    29,
+    18,
+    10
+   ],
+   "rock3t": [
+    5,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    17,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    7,
+    2,
+    1,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WB": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    8,
+    6,
+    4,
+    2
+   ],
+   "dork3": [
+    9,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    13,
+    12,
+    10,
+    9
+   ],
+   "rock2t": [
+    9,
+    5,
+    3,
+    2
+   ],
+   "rock3": [
+    88,
+    29,
+    18,
+    10
+   ],
+   "rock3t": [
+    6,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    17,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    8,
+    3,
+    1,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "UB": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    10,
+    6,
+    4,
+    2
+   ],
+   "dork3": [
+    8,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    12,
+    11,
+    10,
+    9
+   ],
+   "rock2t": [
+    9,
+    5,
+    3,
+    2
+   ],
+   "rock3": [
+    91,
+    31,
+    19,
+    11
+   ],
+   "rock3t": [
+    6,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    17,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    10,
+    4,
+    3,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WUB": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    11,
+    7,
+    5,
+    3
+   ],
+   "dork3": [
+    9,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    17,
+    16,
+    14,
+    13
+   ],
+   "rock2t": [
+    10,
+    6,
+    4,
+    3
+   ],
+   "rock3": [
+    105,
+    31,
+    19,
+    11
+   ],
+   "rock3t": [
+    8,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    17,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    11,
+    5,
+    3,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "R": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    10,
+    6,
+    3,
+    2
+   ],
+   "dork3": [
+    10,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    9,
+    8,
+    7,
+    6
+   ],
+   "rock2t": [
+    8,
+    4,
+    2,
+    1
+   ],
+   "rock3": [
+    84,
+    32,
+    20,
+    11
+   ],
+   "rock3t": [
+    5,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    8,
+    3,
+    2,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WR": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    11,
+    7,
+    4,
+    3
+   ],
+   "dork3": [
+    11,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    12,
+    11,
+    9,
+    8
+   ],
+   "rock2t": [
+    9,
+    5,
+    3,
+    2
+   ],
+   "rock3": [
+    92,
+    32,
+    20,
+    11
+   ],
+   "rock3t": [
+    6,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    9,
+    4,
+    2,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "UR": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    13,
+    7,
+    4,
+    3
+   ],
+   "dork3": [
+    10,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    11,
+    10,
+    9,
+    8
+   ],
+   "rock2t": [
+    9,
+    5,
+    3,
+    2
+   ],
+   "rock3": [
+    93,
+    34,
+    21,
+    12
+   ],
+   "rock3t": [
+    5,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    11,
+    5,
+    4,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WUR": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    14,
+    8,
+    5,
+    4
+   ],
+   "dork3": [
+    11,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    16,
+    15,
+    13,
+    12
+   ],
+   "rock2t": [
+    10,
+    6,
+    4,
+    3
+   ],
+   "rock3": [
+    108,
+    34,
+    21,
+    12
+   ],
+   "rock3t": [
+    7,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    12,
+    6,
+    4,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "BR": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    11,
+    7,
+    4,
+    2
+   ],
+   "dork3": [
+    10,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    12,
+    11,
+    10,
+    9
+   ],
+   "rock2t": [
+    9,
+    5,
+    3,
+    2
+   ],
+   "rock3": [
+    93,
+    33,
+    21,
+    11
+   ],
+   "rock3t": [
+    6,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    8,
+    3,
+    2,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WBR": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    12,
+    8,
+    5,
+    3
+   ],
+   "dork3": [
+    11,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    17,
+    16,
+    14,
+    13
+   ],
+   "rock2t": [
+    10,
+    6,
+    4,
+    3
+   ],
+   "rock3": [
+    106,
+    33,
+    21,
+    11
+   ],
+   "rock3t": [
+    7,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    12,
+    7,
+    5
+   ],
+   "rock4plus1": [
+    9,
+    4,
+    2,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "UBR": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    14,
+    8,
+    5,
+    3
+   ],
+   "dork3": [
+    10,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    16,
+    15,
+    14,
+    13
+   ],
+   "rock2t": [
+    10,
+    6,
+    4,
+    3
+   ],
+   "rock3": [
+    108,
+    35,
+    22,
+    12
+   ],
+   "rock3t": [
+    7,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    19,
+    13,
+    8,
+    5
+   ],
+   "rock4plus1": [
+    12,
+    5,
+    4,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WUBR": {
+   "dork1": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "dork2": [
+    15,
+    9,
+    6,
+    4
+   ],
+   "dork3": [
+    11,
+    2,
+    1,
+    1
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    23,
+    22,
+    20,
+    19
+   ],
+   "rock2t": [
+    11,
+    7,
+    5,
+    4
+   ],
+   "rock3": [
+    129,
+    35,
+    22,
+    12
+   ],
+   "rock3t": [
+    9,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    19,
+    13,
+    8,
+    5
+   ],
+   "rock4plus1": [
+    13,
+    6,
+    4,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "G": {
+   "dork1": [
+    7,
+    7,
+    7,
+    6
+   ],
+   "dork2": [
+    73,
+    27,
+    16,
+    8
+   ],
+   "dork3": [
+    36,
+    11,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    9,
+    8,
+    7,
+    6
+   ],
+   "rock2t": [
+    8,
+    4,
+    1,
+    0
+   ],
+   "rock3": [
+    82,
+    29,
+    17,
+    10
+   ],
+   "rock3t": [
+    5,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    7,
+    2,
+    1,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WG": {
+   "dork1": [
+    8,
+    8,
+    8,
+    7
+   ],
+   "dork2": [
+    75,
+    28,
+    17,
+    9
+   ],
+   "dork3": [
+    38,
+    12,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    12,
+    11,
+    9,
+    8
+   ],
+   "rock2t": [
+    9,
+    5,
+    2,
+    1
+   ],
+   "rock3": [
+    92,
+    29,
+    17,
+    10
+   ],
+   "rock3t": [
+    7,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    8,
+    3,
+    1,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "UG": {
+   "dork1": [
+    7,
+    7,
+    7,
+    6
+   ],
+   "dork2": [
+    79,
+    29,
+    17,
+    9
+   ],
+   "dork3": [
+    42,
+    12,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    11,
+    10,
+    9,
+    8
+   ],
+   "rock2t": [
+    9,
+    5,
+    2,
+    1
+   ],
+   "rock3": [
+    91,
+    31,
+    18,
+    11
+   ],
+   "rock3t": [
+    5,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    10,
+    4,
+    3,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WUG": {
+   "dork1": [
+    9,
+    9,
+    9,
+    8
+   ],
+   "dork2": [
+    81,
+    30,
+    18,
+    10
+   ],
+   "dork3": [
+    44,
+    13,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    16,
+    15,
+    13,
+    12
+   ],
+   "rock2t": [
+    10,
+    6,
+    3,
+    2
+   ],
+   "rock3": [
+    107,
+    31,
+    18,
+    11
+   ],
+   "rock3t": [
+    8,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    11,
+    5,
+    3,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "BG": {
+   "dork1": [
+    8,
+    8,
+    8,
+    7
+   ],
+   "dork2": [
+    77,
+    29,
+    18,
+    9
+   ],
+   "dork3": [
+    37,
+    11,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    12,
+    11,
+    10,
+    9
+   ],
+   "rock2t": [
+    9,
+    5,
+    2,
+    1
+   ],
+   "rock3": [
+    89,
+    30,
+    18,
+    10
+   ],
+   "rock3t": [
+    5,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    7,
+    2,
+    1,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WBG": {
+   "dork1": [
+    9,
+    9,
+    9,
+    8
+   ],
+   "dork2": [
+    79,
+    30,
+    19,
+    10
+   ],
+   "dork3": [
+    39,
+    12,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    17,
+    16,
+    14,
+    13
+   ],
+   "rock2t": [
+    10,
+    6,
+    3,
+    2
+   ],
+   "rock3": [
+    104,
+    30,
+    18,
+    10
+   ],
+   "rock3t": [
+    7,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    8,
+    3,
+    1,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "UBG": {
+   "dork1": [
+    8,
+    8,
+    8,
+    7
+   ],
+   "dork2": [
+    84,
+    31,
+    19,
+    10
+   ],
+   "dork3": [
+    43,
+    12,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    16,
+    15,
+    14,
+    13
+   ],
+   "rock2t": [
+    10,
+    6,
+    3,
+    2
+   ],
+   "rock3": [
+    105,
+    32,
+    19,
+    11
+   ],
+   "rock3t": [
+    6,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    10,
+    4,
+    3,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WUBG": {
+   "dork1": [
+    10,
+    10,
+    10,
+    9
+   ],
+   "dork2": [
+    86,
+    32,
+    20,
+    11
+   ],
+   "dork3": [
+    45,
+    13,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    23,
+    22,
+    20,
+    19
+   ],
+   "rock2t": [
+    11,
+    7,
+    4,
+    3
+   ],
+   "rock3": [
+    127,
+    32,
+    19,
+    11
+   ],
+   "rock3t": [
+    9,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    18,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    11,
+    5,
+    3,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "RG": {
+   "dork1": [
+    8,
+    7,
+    7,
+    6
+   ],
+   "dork2": [
+    82,
+    33,
+    18,
+    9
+   ],
+   "dork3": [
+    39,
+    11,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    11,
+    10,
+    9,
+    8
+   ],
+   "rock2t": [
+    9,
+    5,
+    2,
+    1
+   ],
+   "rock3": [
+    95,
+    33,
+    20,
+    11
+   ],
+   "rock3t": [
+    6,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    19,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    8,
+    3,
+    2,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WRG": {
+   "dork1": [
+    9,
+    8,
+    8,
+    7
+   ],
+   "dork2": [
+    86,
+    34,
+    19,
+    10
+   ],
+   "dork3": [
+    42,
+    12,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    16,
+    15,
+    13,
+    12
+   ],
+   "rock2t": [
+    10,
+    6,
+    3,
+    2
+   ],
+   "rock3": [
+    109,
+    33,
+    20,
+    11
+   ],
+   "rock3t": [
+    8,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    19,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    9,
+    4,
+    2,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "URG": {
+   "dork1": [
+    8,
+    7,
+    7,
+    6
+   ],
+   "dork2": [
+    89,
+    35,
+    19,
+    10
+   ],
+   "dork3": [
+    45,
+    12,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    15,
+    14,
+    13,
+    12
+   ],
+   "rock2t": [
+    10,
+    6,
+    3,
+    2
+   ],
+   "rock3": [
+    109,
+    35,
+    21,
+    12
+   ],
+   "rock3t": [
+    6,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    19,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    11,
+    5,
+    4,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WURG": {
+   "dork1": [
+    10,
+    9,
+    9,
+    8
+   ],
+   "dork2": [
+    93,
+    36,
+    20,
+    11
+   ],
+   "dork3": [
+    49,
+    13,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    22,
+    21,
+    19,
+    18
+   ],
+   "rock2t": [
+    11,
+    7,
+    4,
+    3
+   ],
+   "rock3": [
+    131,
+    35,
+    21,
+    12
+   ],
+   "rock3t": [
+    9,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    19,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    12,
+    6,
+    4,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "BRG": {
+   "dork1": [
+    10,
+    9,
+    9,
+    8
+   ],
+   "dork2": [
+    86,
+    35,
+    20,
+    10
+   ],
+   "dork3": [
+    40,
+    11,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    16,
+    15,
+    14,
+    13
+   ],
+   "rock2t": [
+    10,
+    6,
+    3,
+    2
+   ],
+   "rock3": [
+    108,
+    34,
+    21,
+    11
+   ],
+   "rock3t": [
+    7,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    19,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    8,
+    3,
+    2,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WBRG": {
+   "dork1": [
+    11,
+    10,
+    10,
+    9
+   ],
+   "dork2": [
+    90,
+    36,
+    21,
+    11
+   ],
+   "dork3": [
+    43,
+    12,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    23,
+    22,
+    20,
+    19
+   ],
+   "rock2t": [
+    11,
+    7,
+    4,
+    3
+   ],
+   "rock3": [
+    129,
+    34,
+    21,
+    11
+   ],
+   "rock3t": [
+    9,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    19,
+    13,
+    8,
+    6
+   ],
+   "rock4plus1": [
+    9,
+    4,
+    2,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "UBRG": {
+   "dork1": [
+    10,
+    9,
+    9,
+    8
+   ],
+   "dork2": [
+    94,
+    37,
+    21,
+    11
+   ],
+   "dork3": [
+    46,
+    12,
+    7,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    22,
+    21,
+    20,
+    19
+   ],
+   "rock2t": [
+    11,
+    7,
+    4,
+    3
+   ],
+   "rock3": [
+    130,
+    36,
+    22,
+    12
+   ],
+   "rock3t": [
+    8,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    20,
+    14,
+    9,
+    6
+   ],
+   "rock4plus1": [
+    12,
+    5,
+    4,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "WUBRG": {
+   "dork1": [
+    12,
+    11,
+    11,
+    10
+   ],
+   "dork2": [
+    98,
+    38,
+    22,
+    12
+   ],
+   "dork3": [
+    52,
+    14,
+    8,
+    5
+   ],
+   "mox0": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "rock2": [
+    31,
+    30,
+    28,
+    27
+   ],
+   "rock2t": [
+    12,
+    8,
+    5,
+    4
+   ],
+   "rock3": [
+    161,
+    36,
+    22,
+    12
+   ],
+   "rock3t": [
+    11,
+    3,
+    2,
+    1
+   ],
+   "rock4": [
+    21,
+    15,
+    10,
+    6
+   ],
+   "rock4plus1": [
+    13,
+    6,
+    4,
+    0
+   ],
+   "sol": [
+    1,
+    1,
+    1,
+    1
+   ]
+  }
+ },
+ "cards": [
+  {
+   "name": "Birds of Paradise",
+   "cls": "dork1",
+   "ci": "G",
+   "rank": 35,
+   "mv": 1,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "cls": "dork1",
+   "ci": "G",
+   "rank": 58,
+   "mv": 1,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Elvish Mystic",
+   "cls": "dork1",
+   "ci": "G",
+   "rank": 102,
+   "mv": 1,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Delighted Halfling",
+   "cls": "dork1",
+   "ci": "G",
+   "rank": 149,
+   "mv": 1,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "cls": "dork1",
+   "ci": "G",
+   "rank": 218,
+   "mv": 1,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "cls": "dork1",
+   "ci": "GW",
+   "rank": 502,
+   "mv": 1,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Ignoble Hierarch",
+   "cls": "dork1",
+   "ci": "BGR",
+   "rank": 536,
+   "mv": 1,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Arbor Elf",
+   "cls": "dork1",
+   "ci": "G",
+   "rank": 604,
+   "mv": 1,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Elves of Deep Shadow",
+   "cls": "dork1",
+   "ci": "BG",
+   "rank": 738,
+   "mv": 1,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "cls": "dork1",
+   "ci": "GUW",
+   "rank": 771,
+   "mv": 1,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Boreal Druid",
+   "cls": "dork1",
+   "ci": "G",
+   "rank": 2454,
+   "mv": 1,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Heartwood Crafter // Soul Tether",
+   "cls": "dork1",
+   "ci": "GR",
+   "rank": 15738,
+   "mv": 1,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "cls": "dork2",
+   "ci": "",
+   "rank": 221,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Fanatic of Rhonas",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 406,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Incubation Druid",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 642,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sanctum Weaver",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 660,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Priest of Titania",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 767,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Gyre Sage",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 841,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Devoted Druid",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 968,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Iron Myr",
+   "cls": "dork2",
+   "ci": "R",
+   "rank": 1246,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Silver Myr",
+   "cls": "dork2",
+   "ci": "U",
+   "rank": 1254,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Gold Myr",
+   "cls": "dork2",
+   "ci": "W",
+   "rank": 1364,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Skull Prophet",
+   "cls": "dork2",
+   "ci": "BG",
+   "rank": 1402,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Twitching Doll",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 1499,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Ilysian Caryatid",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 1774,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Leaden Myr",
+   "cls": "dork2",
+   "ci": "B",
+   "rank": 1821,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sylvan Caryatid",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 1898,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Paradise Druid",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 2080,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Plague Myr",
+   "cls": "dork2",
+   "ci": "",
+   "rank": 2137,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Ruby, Daring Tracker",
+   "cls": "dork2",
+   "ci": "GR",
+   "rank": 2161,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Poison Dart Frog",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 2251,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Bugenhagen, Wise Elder",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 2476,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Nightshade Dryad",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 2795,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Overgrown Battlement",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 2837,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Tangled Florahedron // Tangled Vale",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 3234,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Thornvault Forager",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 3271,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Trailtracker Scout",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 3457,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Copper Myr",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 3589,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Bramble Familiar // Fetch Quest",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 3647,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Scaled Nurturer",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 3696,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Spider Manifestation",
+   "cls": "dork2",
+   "ci": "GR",
+   "rank": 3853,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Hedron Crawler",
+   "cls": "dork2",
+   "ci": "",
+   "rank": 3932,
+   "mv": 2,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Llanowar Loamspeaker",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 3937,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Tender Wildguide",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 4225,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Zhur-Taa Druid",
+   "cls": "dork2",
+   "ci": "GR",
+   "rank": 4246,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Manakin",
+   "cls": "dork2",
+   "ci": "",
+   "rank": 4263,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Armored Scrapgorger",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 4666,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "cls": "dork2",
+   "ci": "GU",
+   "rank": 4700,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sunset Strikemaster",
+   "cls": "dork2",
+   "ci": "R",
+   "rank": 4853,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Wandertale Mentor",
+   "cls": "dork2",
+   "ci": "GR",
+   "rank": 4881,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Torgal, A Fine Hound",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 5217,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Prize Pig",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 5343,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Great Forest Druid",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 5423,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Whisperer of the Wilds",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 5804,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Leafkin Druid",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 5806,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Intrepid Paleontologist",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 5892,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Drover of the Mighty",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 6078,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Raucous Audience",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 6153,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Rattleclaw Mystic",
+   "cls": "dork2",
+   "ci": "GRU",
+   "rank": 6224,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Vine Trellis",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 6229,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Noxious Newt",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 6297,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Zookeeper Mechan",
+   "cls": "dork2",
+   "ci": "R",
+   "rank": 6416,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Radha, Heir to Keld",
+   "cls": "dork2",
+   "ci": "GR",
+   "rank": 6442,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Frog Butler",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 6685,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Harabaz Druid",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 6706,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Overgrown Zealot",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 6802,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Hermitic Herbalist",
+   "cls": "dork2",
+   "ci": "GU",
+   "rank": 6817,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Werebear",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 6819,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Three Tree Rootweaver",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 7363,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Druid of the Cowl",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 7452,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Druid of the Anima",
+   "cls": "dork2",
+   "ci": "GRW",
+   "rank": 7772,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Hardbristle Bandit",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 8236,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Scorned Villager // Moonscarred Werewolf",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 8498,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Wose Pathfinder",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 8716,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Deathcap Cultivator",
+   "cls": "dork2",
+   "ci": "BG",
+   "rank": 9432,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Orochi Merge-Keeper",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 9678,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Quirion Elves",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 10108,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Rootcoil Creeper",
+   "cls": "dork2",
+   "ci": "GU",
+   "rank": 10195,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Urborg Elf",
+   "cls": "dork2",
+   "ci": "BGU",
+   "rank": 10207,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Goobbue Gardener",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 10237,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Intrepid Stablemaster",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 10423,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "H.E.R.B.I.E., Lovable Robot",
+   "cls": "dork2",
+   "ci": "",
+   "rank": 10912,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Leaf Gilder",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 11685,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Animal Attendant",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 12156,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Naga Vitalist",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 13709,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Elfhame Druid",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 14458,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Ulvenwald Captive // Ulvenwald Abomination",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 14506,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Reclusive Taxidermist",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 14595,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sea Scryer",
+   "cls": "dork2",
+   "ci": "U",
+   "rank": 14862,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Rootrider Faun",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 15176,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Orochi Sustainer",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 15267,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Page, Loose Leaf",
+   "cls": "dork2",
+   "ci": "",
+   "rank": 15391,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Llanowar Dead",
+   "cls": "dork2",
+   "ci": "BG",
+   "rank": 15557,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Tunnel Tipster",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 15822,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Undercover Skrull",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 15851,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Wirewood Elf",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 16138,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Heart Warden",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 16167,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Utopia Tree",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 17180,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Golden Hind",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 17298,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Hydraulic Helper",
+   "cls": "dork2",
+   "ci": "U",
+   "rank": 17942,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Steward of Valeron",
+   "cls": "dork2",
+   "ci": "GW",
+   "rank": 17980,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Skyshroud Elf",
+   "cls": "dork2",
+   "ci": "GRW",
+   "rank": 18193,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Woodland Mystic",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 18456,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Magus of the Library",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 18463,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Quirion Explorer",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 18761,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Susan Foreman",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 19116,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Harvester Druid",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 20718,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Black Tom Cassidy",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 21317,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sylvok Explorer",
+   "cls": "dork2",
+   "ci": "G",
+   "rank": 23127,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Quinjet Technician",
+   "cls": "dork2",
+   "ci": "R",
+   "rank": 23351,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Kami of Whispered Hopes",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 403,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Palladium Myr",
+   "cls": "dork3",
+   "ci": "",
+   "rank": 734,
+   "mv": 3,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Elvish Archdruid",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 881,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 1113,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Marwyn, the Nurturer",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 1200,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Llanowar Tribe",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 2222,
+   "mv": 3,
+   "net": 3,
+   "gc": false
+  },
+  {
+   "name": "Esika, God of the Tree // The Prismatic Bridge",
+   "cls": "dork3",
+   "ci": "BGRUW",
+   "rank": 2522,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Elvish Harbinger",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 2872,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Axebane Guardian",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 3282,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Llanowar Visionary",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 3808,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Alloy Myr",
+   "cls": "dork3",
+   "ci": "",
+   "rank": 4029,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Snapping Voidcraw",
+   "cls": "dork3",
+   "ci": "GU",
+   "rank": 4712,
+   "mv": 3,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Heronblade Elite",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 4776,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Atzocan Seer",
+   "cls": "dork3",
+   "ci": "GW",
+   "rank": 4858,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Leyline Prowler",
+   "cls": "dork3",
+   "ci": "BG",
+   "rank": 5205,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sage of the Maze",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 5753,
+   "mv": 3,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Mona Lisa, Science Geek",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 5945,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Undercellar Myconid",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 6573,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Topiary Lecturer",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 7134,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Viridian Joiner",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 7144,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Runadi, Behemoth Caller",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 7782,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Deathbloom Gardener",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 7972,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Scuttlemutt",
+   "cls": "dork3",
+   "ci": "",
+   "rank": 8414,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Oasis Gardener",
+   "cls": "dork3",
+   "ci": "",
+   "rank": 8507,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Gilanra, Caller of Wirewood",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 8712,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Bronze Walrus",
+   "cls": "dork3",
+   "ci": "",
+   "rank": 9186,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Gyre Engineer",
+   "cls": "dork3",
+   "ci": "GU",
+   "rank": 9748,
+   "mv": 3,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Rosethorn Acolyte // Seasonal Ritual",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 9966,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Weaver of Blossoms // Blossom-Clad Werewolf",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 9985,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Opaline Unicorn",
+   "cls": "dork3",
+   "ci": "",
+   "rank": 10783,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Guy in the Chair",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 10922,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Nantuko Elder",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 11630,
+   "mv": 3,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Crystal, Inhuman Princess",
+   "cls": "dork3",
+   "ci": "GRUW",
+   "rank": 11712,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Transdimensional Bovine",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 11770,
+   "mv": 3,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Codie, Vociferous Codex",
+   "cls": "dork3",
+   "ci": "BGRUW",
+   "rank": 11779,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "The Lion-Turtle",
+   "cls": "dork3",
+   "ci": "GU",
+   "rank": 12282,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Fyndhorn Elder",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 12416,
+   "mv": 3,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Foreboding Statue // Forsaken Thresher",
+   "cls": "dork3",
+   "ci": "",
+   "rank": 12981,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Rift Sower",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 13118,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Draconic Disciple",
+   "cls": "dork3",
+   "ci": "GR",
+   "rank": 13270,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Greenweaver Druid",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 13337,
+   "mv": 3,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Knotvine Mystic",
+   "cls": "dork3",
+   "ci": "GRW",
+   "rank": 14617,
+   "mv": 3,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Lifespring Druid",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 16519,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Tower Worker",
+   "cls": "dork3",
+   "ci": "",
+   "rank": 17036,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Silhana Starfletcher",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 17516,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Weaver of Currents",
+   "cls": "dork3",
+   "ci": "GU",
+   "rank": 18176,
+   "mv": 3,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Greenhouse Propagator",
+   "cls": "dork3",
+   "ci": "G",
+   "rank": 19460,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Lullmage's Familiar",
+   "cls": "dork3",
+   "ci": "GU",
+   "rank": 21001,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sisters of the Flame",
+   "cls": "dork3",
+   "ci": "R",
+   "rank": 22880,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Exuberant Firestoker",
+   "cls": "dork3",
+   "ci": "R",
+   "rank": 23593,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sunseed Nurturer",
+   "cls": "dork3",
+   "ci": "W",
+   "rank": 23626,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Avid Reclaimer",
+   "cls": "dork3",
+   "ci": "GU",
+   "rank": 28457,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Chrome Mox",
+   "cls": "mox0",
+   "ci": "",
+   "rank": 156,
+   "mv": 0,
+   "net": 1,
+   "gc": true
+  },
+  {
+   "name": "Mox Amber",
+   "cls": "mox0",
+   "ci": "",
+   "rank": 205,
+   "mv": 0,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Mox Diamond",
+   "cls": "mox0",
+   "ci": "",
+   "rank": 247,
+   "mv": 0,
+   "net": 1,
+   "gc": true
+  },
+  {
+   "name": "Arcane Signet",
+   "cls": "rock2",
+   "ci": "",
+   "rank": 3,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Fellwar Stone",
+   "cls": "rock2",
+   "ci": "",
+   "rank": 17,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Thought Vessel",
+   "cls": "rock2",
+   "ci": "",
+   "rank": 21,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Mind Stone",
+   "cls": "rock2",
+   "ci": "",
+   "rank": 32,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Talisman of Dominance",
+   "cls": "rock2",
+   "ci": "BU",
+   "rank": 93,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Talisman of Creativity",
+   "cls": "rock2",
+   "ci": "RU",
+   "rank": 126,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Talisman of Indulgence",
+   "cls": "rock2",
+   "ci": "BR",
+   "rank": 128,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Talisman of Hierarchy",
+   "cls": "rock2",
+   "ci": "BW",
+   "rank": 135,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Talisman of Progress",
+   "cls": "rock2",
+   "ci": "UW",
+   "rank": 137,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Talisman of Conviction",
+   "cls": "rock2",
+   "ci": "RW",
+   "rank": 150,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Dimir Signet",
+   "cls": "rock2",
+   "ci": "BU",
+   "rank": 158,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Rakdos Signet",
+   "cls": "rock2",
+   "ci": "BR",
+   "rank": 167,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Izzet Signet",
+   "cls": "rock2",
+   "ci": "RU",
+   "rank": 172,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Orzhov Signet",
+   "cls": "rock2",
+   "ci": "BW",
+   "rank": 189,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Azorius Signet",
+   "cls": "rock2",
+   "ci": "UW",
+   "rank": 212,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Boros Signet",
+   "cls": "rock2",
+   "ci": "RW",
+   "rank": 250,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Everflowing Chalice",
+   "cls": "rock2",
+   "ci": "",
+   "rank": 252,
+   "mv": 0,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "cls": "rock2",
+   "ci": "GU",
+   "rank": 483,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Talisman of Resilience",
+   "cls": "rock2",
+   "ci": "BG",
+   "rank": 500,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Liquimetal Torque",
+   "cls": "rock2",
+   "ci": "",
+   "rank": 511,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Talisman of Impulse",
+   "cls": "rock2",
+   "ci": "GR",
+   "rank": 591,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Simic Signet",
+   "cls": "rock2",
+   "ci": "GU",
+   "rank": 625,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Golgari Signet",
+   "cls": "rock2",
+   "ci": "BG",
+   "rank": 721,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Gruul Signet",
+   "cls": "rock2",
+   "ci": "GR",
+   "rank": 825,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "The Soul Stone",
+   "cls": "rock2",
+   "ci": "B",
+   "rank": 891,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Talisman of Unity",
+   "cls": "rock2",
+   "ci": "GW",
+   "rank": 1012,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Selesnya Signet",
+   "cls": "rock2",
+   "ci": "GW",
+   "rank": 1083,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Prismatic Lens",
+   "cls": "rock2",
+   "ci": "",
+   "rank": 1662,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "The Mind Stone",
+   "cls": "rock2",
+   "ci": "W",
+   "rank": 3719,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "The Irencrag",
+   "cls": "rock2",
+   "ci": "",
+   "rank": 3938,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Fractured Powerstone",
+   "cls": "rock2",
+   "ci": "",
+   "rank": 5691,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Charcoal Diamond",
+   "cls": "rock2t",
+   "ci": "B",
+   "rank": 700,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Fire Diamond",
+   "cls": "rock2t",
+   "ci": "R",
+   "rank": 727,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sky Diamond",
+   "cls": "rock2t",
+   "ci": "U",
+   "rank": 813,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Marble Diamond",
+   "cls": "rock2t",
+   "ci": "W",
+   "rank": 1121,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Coldsteel Heart",
+   "cls": "rock2t",
+   "ci": "",
+   "rank": 2110,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Solar Transformer",
+   "cls": "rock2t",
+   "ci": "",
+   "rank": 3242,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Moss Diamond",
+   "cls": "rock2t",
+   "ci": "G",
+   "rank": 4402,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Star Compass",
+   "cls": "rock2t",
+   "ci": "",
+   "rank": 4731,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Ebony Fly",
+   "cls": "rock2t",
+   "ci": "",
+   "rank": 8149,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Guardian Idol",
+   "cls": "rock2t",
+   "ci": "",
+   "rank": 8228,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Planar Atlas",
+   "cls": "rock2t",
+   "ci": "",
+   "rank": 9736,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Obsidian Obelisk",
+   "cls": "rock2t",
+   "ci": "",
+   "rank": 10530,
+   "mv": 2,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Commander's Sphere",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 53,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Chromatic Lantern",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 85,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Patchwork Banner",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 203,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 320,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Cursed Mirror",
+   "cls": "rock3",
+   "ci": "R",
+   "rank": 438,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Relic of Legends",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 533,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Bender's Waterskin",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 550,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Midnight Clock",
+   "cls": "rock3",
+   "ci": "U",
+   "rank": 647,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Heraldic Banner",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 852,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Dragon's Hoard",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 1195,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Patriar's Seal",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 1228,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Pristine Talisman",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 1348,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Replicating Ring",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 1625,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sonic Screwdriver",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 1939,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Darksteel Ingot",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 2077,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Carnelian Orb of Dragonkind",
+   "cls": "rock3",
+   "ci": "R",
+   "rank": 2204,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Glittering Stockpile",
+   "cls": "rock3",
+   "ci": "R",
+   "rank": 2292,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Aetheric Amplifier",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 2318,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Crowded Crypt",
+   "cls": "rock3",
+   "ci": "B",
+   "rank": 2430,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Skyclave Relic",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 2532,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Dragonstorm Globe",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 2895,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Cultivator's Caravan",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 2965,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Firdoch Core",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 3150,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Misleading Signpost",
+   "cls": "rock3",
+   "ci": "U",
+   "rank": 3218,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Coalition Relic",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 3463,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Blitzball",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 3485,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Tablet of Discovery",
+   "cls": "rock3",
+   "ci": "R",
+   "rank": 3591,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Vexing Puzzlebox",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 3648,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Inherited Envelope",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 3879,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Elementalist's Palette",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 3975,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Honor-Worn Shaku",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 4042,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Phial of Galadriel",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 4398,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Jade Orb of Dragonkind",
+   "cls": "rock3",
+   "ci": "G",
+   "rank": 4460,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Luck Bobblehead",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 4498,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Solar Array",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 4561,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Strixhaven Stadium",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 4609,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Unstable Obelisk",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 5044,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Agility Bobblehead",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 5045,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Bounty Board",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 5206,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Progenitor's Icon",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 5323,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "All-Fates Scroll",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 5448,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Bandit's Haul",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 5451,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Endurance Bobblehead",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 5837,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Intelligence Bobblehead",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 5910,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Hourglass of the Lost",
+   "cls": "rock3",
+   "ci": "W",
+   "rank": 5972,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Perception Bobblehead",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 5986,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Charisma Bobblehead",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 5989,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Conversion Apparatus",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 6038,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Strength Bobblehead",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 6081,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Hot Dog Cart",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 6168,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Altar of the Pantheon",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 6230,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "The Celestus",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 6287,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Laser Screwdriver",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 6648,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Lapis Orb of Dragonkind",
+   "cls": "rock3",
+   "ci": "U",
+   "rank": 6780,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Mana Geode",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 6966,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Dimir Keyrune",
+   "cls": "rock3",
+   "ci": "BU",
+   "rank": 7080,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Manalith",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 7186,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Loki's Scepter",
+   "cls": "rock3",
+   "ci": "R",
+   "rank": 7666,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Phyrexian Atlas",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 7861,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Ancient Cornucopia",
+   "cls": "rock3",
+   "ci": "G",
+   "rank": 7918,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Izzet Locket",
+   "cls": "rock3",
+   "ci": "RU",
+   "rank": 8092,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Starting Column",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 8199,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Rakdos Locket",
+   "cls": "rock3",
+   "ci": "BR",
+   "rank": 8489,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Honored Heirloom",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 8502,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Wickersmith's Tools",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 8578,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Dimir Locket",
+   "cls": "rock3",
+   "ci": "BU",
+   "rank": 8635,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Necklace of Girion",
+   "cls": "rock3",
+   "ci": "G",
+   "rank": 8724,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Bonder's Ornament",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 8753,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Model of Unity",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 8774,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Dungeon Map",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 8832,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Gatewatch Beacon",
+   "cls": "rock3",
+   "ci": "W",
+   "rank": 8925,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Weather Maker",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 9242,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Azorius Locket",
+   "cls": "rock3",
+   "ci": "UW",
+   "rank": 9294,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Magnifying Glass",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 9374,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Network Terminal",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 9449,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Boros Locket",
+   "cls": "rock3",
+   "ci": "RW",
+   "rank": 9580,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Forger's Foundry",
+   "cls": "rock3",
+   "ci": "U",
+   "rank": 9612,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Letter of Acceptance",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 9614,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Orzhov Locket",
+   "cls": "rock3",
+   "ci": "BW",
+   "rank": 9723,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Mardu Banner",
+   "cls": "rock3",
+   "ci": "BRW",
+   "rank": 10425,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Boros Cluestone",
+   "cls": "rock3",
+   "ci": "RW",
+   "rank": 10436,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Exploding Barrel",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 10556,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Izzet Cluestone",
+   "cls": "rock3",
+   "ci": "RU",
+   "rank": 10680,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Rakdos Cluestone",
+   "cls": "rock3",
+   "ci": "BR",
+   "rank": 10690,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Dimir Cluestone",
+   "cls": "rock3",
+   "ci": "BU",
+   "rank": 10830,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Potioner's Trove",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 10983,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Seer's Lantern",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 11037,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Raugrin Crystal",
+   "cls": "rock3",
+   "ci": "RUW",
+   "rank": 11170,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Orzhov Cluestone",
+   "cls": "rock3",
+   "ci": "BW",
+   "rank": 11350,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Azorius Cluestone",
+   "cls": "rock3",
+   "ci": "UW",
+   "rank": 11433,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Obelisk of Grixis",
+   "cls": "rock3",
+   "ci": "BRU",
+   "rank": 12259,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Veloheart Bike",
+   "cls": "rock3",
+   "ci": "G",
+   "rank": 12353,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Lantern of Revealing",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 12388,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Azorius Keyrune",
+   "cls": "rock3",
+   "ci": "UW",
+   "rank": 12454,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Eye of Ojer Taq // Apex Observatory",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 12829,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Golgari Locket",
+   "cls": "rock3",
+   "ci": "BG",
+   "rank": 13131,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Jeskai Banner",
+   "cls": "rock3",
+   "ci": "RUW",
+   "rank": 13240,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Savai Crystal",
+   "cls": "rock3",
+   "ci": "BRW",
+   "rank": 13747,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Vessel of Endless Rest",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 13773,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Obelisk of Esper",
+   "cls": "rock3",
+   "ci": "BUW",
+   "rank": 13838,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sunbird Standard // Sunbird Effigy",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 13889,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Haunted Screen",
+   "cls": "rock3",
+   "ci": "BGRUW",
+   "rank": 14218,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Rakdos Keyrune",
+   "cls": "rock3",
+   "ci": "BR",
+   "rank": 14342,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Gruul Locket",
+   "cls": "rock3",
+   "ci": "GR",
+   "rank": 14698,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Simic Locket",
+   "cls": "rock3",
+   "ci": "GU",
+   "rank": 14791,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Golgari Cluestone",
+   "cls": "rock3",
+   "ci": "BG",
+   "rank": 14846,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Selesnya Locket",
+   "cls": "rock3",
+   "ci": "GW",
+   "rank": 14852,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Boros Keyrune",
+   "cls": "rock3",
+   "ci": "RW",
+   "rank": 15225,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Atarka Monument",
+   "cls": "rock3",
+   "ci": "GR",
+   "rank": 15273,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Hierophant's Chalice",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 15458,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Dependable Quinjet",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 15465,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Powerstone Shard",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 15584,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Gruul Cluestone",
+   "cls": "rock3",
+   "ci": "GR",
+   "rank": 15594,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Izzet Keyrune",
+   "cls": "rock3",
+   "ci": "RU",
+   "rank": 15595,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Simic Cluestone",
+   "cls": "rock3",
+   "ci": "GU",
+   "rank": 15699,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Orazca Relic",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 15746,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Selesnya Cluestone",
+   "cls": "rock3",
+   "ci": "GW",
+   "rank": 15813,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Abzan Banner",
+   "cls": "rock3",
+   "ci": "BGW",
+   "rank": 15855,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Vulshok Factory",
+   "cls": "rock3",
+   "ci": "R",
+   "rank": 15865,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Zagoth Crystal",
+   "cls": "rock3",
+   "ci": "BGU",
+   "rank": 15973,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Indatha Crystal",
+   "cls": "rock3",
+   "ci": "BGW",
+   "rank": 16252,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Serum Powder",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 16353,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Golgari Keyrune",
+   "cls": "rock3",
+   "ci": "BG",
+   "rank": 16408,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Ketria Crystal",
+   "cls": "rock3",
+   "ci": "GRU",
+   "rank": 16542,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Infernal Idol",
+   "cls": "rock3",
+   "ci": "B",
+   "rank": 16631,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Orzhov Keyrune",
+   "cls": "rock3",
+   "ci": "BW",
+   "rank": 16935,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Temur Banner",
+   "cls": "rock3",
+   "ci": "GRU",
+   "rank": 16953,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sultai Banner",
+   "cls": "rock3",
+   "ci": "BGU",
+   "rank": 17047,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Fountain of Ichor",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 17143,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Spinning Wheel",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 17868,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Heart of Ramos",
+   "cls": "rock3",
+   "ci": "R",
+   "rank": 18291,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Team Transmitter",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 18438,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Obelisk of Naya",
+   "cls": "rock3",
+   "ci": "GRW",
+   "rank": 18651,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Obelisk of Jund",
+   "cls": "rock3",
+   "ci": "BGR",
+   "rank": 18747,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Eye of Ramos",
+   "cls": "rock3",
+   "ci": "U",
+   "rank": 19146,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Simic Keyrune",
+   "cls": "rock3",
+   "ci": "GU",
+   "rank": 19244,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Selesnya Keyrune",
+   "cls": "rock3",
+   "ci": "GW",
+   "rank": 19403,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Kolaghan Monument",
+   "cls": "rock3",
+   "ci": "BR",
+   "rank": 19478,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Gruul Keyrune",
+   "cls": "rock3",
+   "ci": "GR",
+   "rank": 19687,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Obelisk of Bant",
+   "cls": "rock3",
+   "ci": "GUW",
+   "rank": 19735,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Tigereye Cameo",
+   "cls": "rock3",
+   "ci": "GW",
+   "rank": 19846,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Skull of Ramos",
+   "cls": "rock3",
+   "ci": "B",
+   "rank": 20135,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Starnheim Memento",
+   "cls": "rock3",
+   "ci": "W",
+   "rank": 20309,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Ticket Turbotubes",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 20390,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Silumgar Monument",
+   "cls": "rock3",
+   "ci": "BU",
+   "rank": 20442,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Chronatog Totem",
+   "cls": "rock3",
+   "ci": "U",
+   "rank": 20790,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Tooth of Ramos",
+   "cls": "rock3",
+   "ci": "W",
+   "rank": 20922,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Ojutai Monument",
+   "cls": "rock3",
+   "ci": "UW",
+   "rank": 21004,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Murmuring Volume",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 21664,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Bloodstone Cameo",
+   "cls": "rock3",
+   "ci": "BR",
+   "rank": 22584,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Dromoka Monument",
+   "cls": "rock3",
+   "ci": "GW",
+   "rank": 22695,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Thunder Totem",
+   "cls": "rock3",
+   "ci": "W",
+   "rank": 23014,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Drake-Skull Cameo",
+   "cls": "rock3",
+   "ci": "BU",
+   "rank": 23366,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Phyrexian Totem",
+   "cls": "rock3",
+   "ci": "B",
+   "rank": 24248,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Foriysian Totem",
+   "cls": "rock3",
+   "ci": "R",
+   "rank": 24806,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Horn of Ramos",
+   "cls": "rock3",
+   "ci": "G",
+   "rank": 24827,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sol Grail",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 24872,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Seashell Cameo",
+   "cls": "rock3",
+   "ci": "UW",
+   "rank": 25123,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Mana Prism",
+   "cls": "rock3",
+   "ci": "",
+   "rank": 25204,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Weatherseed Totem",
+   "cls": "rock3",
+   "ci": "G",
+   "rank": 25963,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Troll-Horn Cameo",
+   "cls": "rock3",
+   "ci": "GR",
+   "rank": 28131,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Worn Powerstone",
+   "cls": "rock3t",
+   "ci": "",
+   "rank": 571,
+   "mv": 3,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Glistening Sphere",
+   "cls": "rock3t",
+   "ci": "",
+   "rank": 2883,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Cryptolith Fragment // Aurora of Emrakul",
+   "cls": "rock3t",
+   "ci": "",
+   "rank": 4921,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Wand of the Worldsoul",
+   "cls": "rock3t",
+   "ci": "W",
+   "rank": 5709,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Rotating Fireplace",
+   "cls": "rock3t",
+   "ci": "",
+   "rank": 8555,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Fieldmist Borderpost",
+   "cls": "rock3t",
+   "ci": "UW",
+   "rank": 16198,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Mistvein Borderpost",
+   "cls": "rock3t",
+   "ci": "BU",
+   "rank": 16524,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Veinfire Borderpost",
+   "cls": "rock3t",
+   "ci": "BR",
+   "rank": 17145,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Firewild Borderpost",
+   "cls": "rock3t",
+   "ci": "GR",
+   "rank": 17774,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Wildfield Borderpost",
+   "cls": "rock3t",
+   "ci": "GW",
+   "rank": 19195,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Warden of the Wall",
+   "cls": "rock3t",
+   "ci": "",
+   "rank": 25309,
+   "mv": 3,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Thran Dynamo",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 195,
+   "mv": 4,
+   "net": 3,
+   "gc": false
+  },
+  {
+   "name": "The Great Henge",
+   "cls": "rock4",
+   "ci": "G",
+   "rank": 227,
+   "mv": 9,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Gilded Lotus",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 412,
+   "mv": 5,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Hedron Archive",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 544,
+   "mv": 4,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Chromatic Orrery",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 1253,
+   "mv": 7,
+   "net": 5,
+   "gc": false
+  },
+  {
+   "name": "Coveted Jewel",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 1263,
+   "mv": 6,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "The Eternity Elevator",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 1585,
+   "mv": 5,
+   "net": 3,
+   "gc": false
+  },
+  {
+   "name": "Relic of Sauron",
+   "cls": "rock4",
+   "ci": "BRU",
+   "rank": 1748,
+   "mv": 4,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Dreamstone Hedron",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 1943,
+   "mv": 6,
+   "net": 3,
+   "gc": false
+  },
+  {
+   "name": "Timeless Lotus",
+   "cls": "rock4",
+   "ci": "BGRUW",
+   "rank": 2128,
+   "mv": 5,
+   "net": 5,
+   "gc": false
+  },
+  {
+   "name": "The Mightstone and Weakstone",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 3054,
+   "mv": 5,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Stonespeaker Crystal",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 3134,
+   "mv": 4,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Firemind Vessel",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 4254,
+   "mv": 4,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Ring of the Lucii",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 4328,
+   "mv": 4,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Sisay's Ring",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 4886,
+   "mv": 4,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Arc Reactor",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 5827,
+   "mv": 5,
+   "net": 3,
+   "gc": false
+  },
+  {
+   "name": "Ur-Golem's Eye",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 7631,
+   "mv": 4,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Brass Infiniscope",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 8034,
+   "mv": 4,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Ichor Elixir",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 10907,
+   "mv": 4,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Lavabrink Floodgates",
+   "cls": "rock4",
+   "ci": "R",
+   "rank": 13288,
+   "mv": 4,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Khalni Gem",
+   "cls": "rock4",
+   "ci": "",
+   "rank": 16409,
+   "mv": 4,
+   "net": 2,
+   "gc": false
+  },
+  {
+   "name": "Crystal Skull, Isu Spyglass",
+   "cls": "rock4plus1",
+   "ci": "U",
+   "rank": 1993,
+   "mv": 4,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sceptre of Eternal Glory",
+   "cls": "rock4plus1",
+   "ci": "",
+   "rank": 2363,
+   "mv": 4,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Pyromancer's Goggles",
+   "cls": "rock4plus1",
+   "ci": "R",
+   "rank": 2835,
+   "mv": 5,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Machine God's Effigy",
+   "cls": "rock4plus1",
+   "ci": "U",
+   "rank": 2936,
+   "mv": 4,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "White Auracite",
+   "cls": "rock4plus1",
+   "ci": "W",
+   "rank": 3753,
+   "mv": 4,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "White Lotus Tile",
+   "cls": "rock4plus1",
+   "ci": "",
+   "rank": 3898,
+   "mv": 4,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sarevok's Tome",
+   "cls": "rock4plus1",
+   "ci": "",
+   "rank": 5966,
+   "mv": 4,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Five Hundred Year Diary",
+   "cls": "rock4plus1",
+   "ci": "U",
+   "rank": 6531,
+   "mv": 4,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Tome of the Guildpact",
+   "cls": "rock4plus1",
+   "ci": "",
+   "rank": 6795,
+   "mv": 5,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Bag End Banquet",
+   "cls": "rock4plus1",
+   "ci": "",
+   "rank": 10678,
+   "mv": 6,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Paradise Plume",
+   "cls": "rock4plus1",
+   "ci": "",
+   "rank": 11073,
+   "mv": 4,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Meteorite",
+   "cls": "rock4plus1",
+   "ci": "",
+   "rank": 15523,
+   "mv": 5,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Visage of Bolas",
+   "cls": "rock4plus1",
+   "ci": "BRU",
+   "rank": 17822,
+   "mv": 4,
+   "net": 1,
+   "gc": false
+  },
+  {
+   "name": "Sol Ring",
+   "cls": "sol",
+   "ci": "",
+   "rank": 1,
+   "mv": 1,
+   "net": 2,
+   "gc": false
+  }
+ ],
+ "fixes": {
+  "Arbor Elf": [
+   "dork1",
+   "{T}: Untap target Forest: a 1-mana dork in any deck with Forests"
+  ],
+  "Everflowing Chalice": [
+   "rock2",
+   "mana value 0 but cast for {2} with one charge counter: a 2-mana +1 rock"
+  ],
+  "Sol Talisman": [
+   null,
+   "no mana cost (suspend only)"
+  ],
+  "Mox Tantalite": [
+   null,
+   "no mana cost (suspend 3)"
+  ],
+  "Lotus Bloom": [
+   null,
+   "no mana cost (suspend), one-shot"
+  ],
+  "Joraga Treespeaker": [
+   null,
+   "level up: no mana ability until levelled"
+  ],
+  "Gilded Lotus": [
+   "rock4",
+   "three mana of one colour"
+  ],
+  "Coveted Jewel": [
+   "rock4",
+   "three mana of one colour"
+  ]
+ }
+}

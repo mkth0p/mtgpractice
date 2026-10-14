@@ -295,7 +295,7 @@
   <footer>Unofficial fan pages. Magic: The Gathering is © Wizards of the Coast. Exact model by <a href="https://github.com/mkth0p/mtgpractice/tree/main/tools/sim/landmyth">tools/sim/landmyth</a>. <span id="gen"></span></footer>
 </main>
 
-<script src="data.js?v=1"></script>
+<script src="data.js?v=2"></script>
 <script>
 (async function () {
   const D = window.LANDMYTH;
@@ -340,10 +340,12 @@
   const fmtInt = n => n.toLocaleString('en-US');
 
   // defaults: a "typical" setting
-  const defAvg = dims.avgs.includes(3.25) ? 3.25 : nearest(dims.avgs, 3);
   const defCmd = dims.cmds.includes(4) ? 4 : nearest(dims.cmds, 4);
   const defScn = dims.scens.includes('P4') ? 'P4' : dims.scens[Math.floor(dims.scens.length / 2)];
   const defCurve = Math.max(0, dims.curves.indexOf('tight'));
+  // the average closest to 3.25 that has data for this curve, commander and scenario (part 1 rule)
+  const hasAvg = a => D.ctx.some(c => c[0] === 0 && c[1] === defCurve && c[2] === defCmd && c[3] === a && c[4] === dims.scens.indexOf(defScn));
+  const defAvg = [...dims.avgs].sort((a, b) => Math.abs(a - 3.25) - Math.abs(b - 3.25) || a - b).find(hasAvg) ?? nearest(dims.avgs, 3);
   const defT = dims.xT.includes(10) ? 10 : nearest(dims.xT, 10);
   const xScnDef = dims.xScen.includes(defScn) ? defScn : dims.xScen[0];
 
@@ -384,7 +386,11 @@
     const grid = c0.passes.find(p => p.n === Math.max(1, pass));
     const nc = dims.cmds.length, ns = dims.scens.length, na = dims.avgs.length;
     $('banner').innerHTML = `<p><b>${prelim ? 'Preliminary results.' : 'Results.'}</b> This is pass ${pass} of 3: ${fmtInt(c0.cells)} cells (one cell is one deck in one curve, commander and draw scenario, scored at every game length), with lands, dorks and rocks in steps of ${grid ? grid.step : '?'}, ${na} average costs, ${nc === 1 ? 'a ' + dims.cmds[0] + '-mana commander' : 'commanders costing ' + dims.cmds[0] + ' to ' + dims.cmds[nc - 1]} and ${ns} draw scenarios. `
-      + (cov.some(c => c.play === 'optimal') ? `Both play rules are shown: part 1's fixed rule and the optimal play from phase 2.` : `Play follows part 1's fixed rule; optimal play (phase 2) is being computed.`)
+      + (partial ? `Pass ${next.n} (steps of ${next.step}) is only ${(100 * next.done / next.total).toFixed(next.done / next.total < .01 ? 1 : 0)}% in: it adds commanders, averages and draw scenarios. A setting appears here only once it holds every deck of the coarse grid, and its finer decks fill in as the pass goes on. ` : '')
+      + (cov.some(c => c.play === 'optimal') ? (() => {
+          const oc = D.ctx.filter(c => c[0] === 1), u = f => [...new Set(oc.map(f))].sort((a, b) => a - b);
+          return `Both play rules are shown: part 1's fixed rule and optimal play from phase 2. Optimal play is so far computed only for the ${u(c => c[1]).map(i => dims.curves[i] === 'normal3' ? 'spread' : dims.curves[i]).join(' and ')} curve, average cost ${u(c => c[3]).map(avgLabel).join(' and ')}, a ${u(c => c[2]).join('/')}-mana commander (${fmtInt(cov.find(c => c.play === 'optimal').cells)} cells).`;
+        })() : `Play follows part 1's fixed rule; optimal play (phase 2) is being computed.`)
       + ` Finer passes add decks between the ones here, so a best deck or a range can still move by a step.</p>`;
     $('gen').textContent = 'Data generated ' + D.meta.generated.slice(0, 10) + '.';
     if (cov.some(c => c.play === 'optimal')) { $('m-play').innerHTML = '<b>Play rule:</b> results are shown under part 1\'s fixed rule and under optimal play and mulligans (phase 2), computed exactly by backward induction; switch with the “Play” buttons.'; $('lim-play').style.display = 'none'; }
@@ -697,7 +703,13 @@
         <div class="ctl"><span>Extra draws (turns 5-8)</span><div class="seg" id="c-scn"></div></div>
         <div class="ctl" id="c-play-w"><span>Play</span><div class="seg" id="c-play"></div></div>
       </div><div class="legend" id="c-legend"></div><div class="multi" id="c-multi"><div class="tip" id="c-tip"></div></div></div>`;
-    const CS = { curve: defCurve, metric: 0, t: defT, scn: defScn, play: 0 };
+    // start on the curve and draw scenario that have the most commander costs computed
+    let cBest = { curve: defCurve, scn: defScn, n: -1 };
+    dims.curves.forEach((_, cu) => dims.scens.forEach((sc, si) => {
+      const n = new Set(D.ctx.filter(c => c[0] === 0 && c[1] === cu && c[4] === si).map(c => c[2])).size;
+      if (n > cBest.n || (n === cBest.n && cu === defCurve && sc === defScn)) cBest = { curve: cu, scn: sc, n };
+    }));
+    const CS = { curve: cBest.curve, metric: 0, t: defT, scn: cBest.scn, play: 0 };
     function draw() {
       const avgs = dims.avgs.length > 6 ? dims.avgs.filter(a => Math.abs(a * 2 - Math.round(a * 2)) < 1e-9) : dims.avgs;
       const s = dims.scens.indexOf(CS.scn);
