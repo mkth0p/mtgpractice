@@ -57,7 +57,7 @@ other rule's best land count as a dashed line in the game-length chart.
   highest complete pass, done/total per pass, solver methods per curve).
 - `dims`: `plays`, `curves`, `cmds`, `avgs`, `scens`, `Ts` (3..15), `xT`, `xScen`, and the explorer
   axes `gL` (land counts) and `gR` (total ramp).
-- `ctx`: one row per setting without T: `[play index, curve index, commander, average, scenario index, decks]`.
+- `ctx`: one row per setting without T: `[play index, curve index, commander, average, scenario index, decks, partial]`; partial = 1 for a half-filled optimal-play setting kept by `--partial-optimal` (shown with a warning, left out of every summary across settings and of the robust picks).
 - `summary`: base64 of gzip of planes, field-major, index `(ctx * 2 + metric) * Ts.length + (T - 3)`,
   metric 0 = V (useful mana, discount 0.9), 1 = N (useful spells cast, raw), the same two scores
   `run.js report` ranks. Fields: `bestL/D/R` (best deck), `landLo/Hi` and `srcLo/Hi` (lands, and

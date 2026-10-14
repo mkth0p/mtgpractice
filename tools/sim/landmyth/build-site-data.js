@@ -4,6 +4,7 @@
 //
 //   node build-site-data.js [--play part1|optimal] FILE [FILE ...] [--out ../../../lab/part2/data.js]
 //                           [--xT 4,6,8,10,12,15] [--xScen all|P1,P4,P8] [--date ISO]
+//                           [--keep-partial | --partial-optimal]
 //
 // FILE: a cells.jsonl or cells.jsonl.gz from run.js (one JSON object per line). Several files are
 // merged; a cell seen twice (same play and id) keeps the last copy. --play before a file sets the
@@ -50,6 +51,7 @@ function parseArgs(argv) {
     else if (v === '--xScen') a.xScen = argv[++i];
     else if (v === '--date') a.date = argv[++i];
     else if (v === '--keep-partial') a.keepPartial = true;
+    else if (v === '--partial-optimal') a.partialOptimal = true;
     else if (v.startsWith('--')) throw new Error('unknown option ' + v);
     else a.files.push({ file: path.resolve(v), play });
   }
@@ -72,6 +74,7 @@ function playOf(r, forced) {
 function fromPhase2(r) {
   const at = obj => { const a = new Array(TMAX).fill(0); r.H.forEach((t, i) => { a[t - 1] = obj.value[i]; }); return a; };
   if (!r.N || !Array.isArray(r.N.value)) return null;
+  if (r.V09.value.some(v => v === null) || r.N.value.some(v => v === null)) return null; // a missing value (solver bug): leave the cell out
   return { ...r, V09: at(r.V09), N: at(r.N), play: 'optimal' };
 }
 
@@ -113,7 +116,12 @@ function main(A) {
     if (!A.keepPartial) {
       const coarse = []; for (let L = 20; L <= 48; L += 4) for (let D = 0; D <= 15; D += 4) for (let R = 0; R <= 20; R += 4) if (D + R <= 25) coarse.push(L * 10000 + D * 100 + R);
       let dropped = 0, droppedCells = 0;
-      for (const [k, c] of ctxMap) if (!coarse.every(id => c.ids.has(id))) { ctxMap.delete(k); dropped++; droppedCells += c.L.length; }
+      for (const [k, c] of ctxMap) if (!coarse.every(id => c.ids.has(id))) {
+        // --partial-optimal: keep half-filled optimal-play settings, flagged partial (the page marks them
+        // and leaves them out of every summary across settings)
+        if (A.partialOptimal && c.play === 'optimal') { c.partial = true; continue; }
+        ctxMap.delete(k); dropped++; droppedCells += c.L.length;
+      }
       if (dropped) console.log(`left out ${dropped} settings (${droppedCells} cells) that do not yet hold every coarse-grid deck`);
     }
 
@@ -199,7 +207,7 @@ function main(A) {
     const SCOPES = [{ id: 'all', t0: 3, t1: 15 }, { id: 'mid', t0: 6, t1: 12 }];
     const robust = [];
     for (const play of plays) for (const shape of curves) for (const avg of avgs) {
-      const base = ctxs.map((c, ci) => ({ c, ci })).filter(o => o.c.play === play && o.c.shape === shape && o.c.avg === avg);
+      const base = ctxs.map((c, ci) => ({ c, ci })).filter(o => !o.c.partial && o.c.play === play && o.c.shape === shape && o.c.avg === avg);
       if (!base.length) continue;
       const groups = [{ cmd: 'all', cs: base }];
       const cmdHere = [...new Set(base.map(o => o.c.cmd))].sort(sortNum);
@@ -272,7 +280,7 @@ function main(A) {
       },
       dims: { plays, curves, cmds, avgs, scens, Ts, xT, xScen, gL, gR, metrics: ['V', 'N'] },
       // contexts: [play index, curve index, commander, average, scenario index, decks]
-      ctx: ctxs.map(c => [plays.indexOf(c.play), curves.indexOf(c.shape), c.cmd, c.avg, scens.indexOf(c.sc), c.L.length]),
+      ctx: ctxs.map(c => [plays.indexOf(c.play), curves.indexOf(c.shape), c.cmd, c.avg, scens.indexOf(c.sc), c.L.length, c.partial ? 1 : 0]),
       // summary planes, index (ctx * 2 + metric) * Ts.length + (T - Ts[0])
       summary: { fields: sum.fields, rawBytes: sum.rawBytes, gz: sum.b64 },
       // explorer planes, index ((xctx * 2 + metric) * xT.length + k) * gL.length * gR.length + li * gR.length + ri
