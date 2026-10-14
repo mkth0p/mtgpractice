@@ -49,6 +49,7 @@ function parseArgs(argv) {
     else if (v === '--xT') a.xT = argv[++i].split(',').map(Number);
     else if (v === '--xScen') a.xScen = argv[++i];
     else if (v === '--date') a.date = argv[++i];
+    else if (v === '--keep-partial') a.keepPartial = true;
     else if (v.startsWith('--')) throw new Error('unknown option ' + v);
     else a.files.push({ file: path.resolve(v), play });
   }
@@ -66,6 +67,14 @@ function playOf(r, forced) {
   if (p) return /opt/i.test(p) ? 'optimal' : 'part1';
   return /opt/i.test(r.method || '') ? 'optimal' : 'part1';
 }
+// Phase 2 (run.js --phase 2) stores, per objective, the optimal value for each horizon in H
+// (T = 3..15). Map it to phase 1's layout: arrays indexed T - 1, play = optimal.
+function fromPhase2(r) {
+  const at = obj => { const a = new Array(TMAX).fill(0); r.H.forEach((t, i) => { a[t - 1] = obj.value[i]; }); return a; };
+  if (!r.N || !Array.isArray(r.N.value)) return null;
+  return { ...r, V09: at(r.V09), N: at(r.N), play: 'optimal' };
+}
+
 async function readFile(f, ctxs, stats) {
   const raw = fs.createReadStream(f.file);
   const input = f.file.endsWith('.gz') ? raw.pipe(zlib.createGunzip()) : raw;
@@ -73,7 +82,8 @@ async function readFile(f, ctxs, stats) {
   for await (const line of rl) {
     if (!line) continue;
     let r; try { r = JSON.parse(line); } catch (e) { stats.torn++; continue; }
-    if (!r || !Array.isArray(r.V09) || !Array.isArray(r.N) || r.V09.length < TMAX) { stats.skipped++; continue; }
+    if (r && Array.isArray(r.H) && r.V09 && Array.isArray(r.V09.value)) r = fromPhase2(r);
+    if (!r ||!Array.isArray(r.V09) || !Array.isArray(r.N) || r.V09.length < TMAX) { stats.skipped++; continue; }
     const play = playOf(r, f.play);
     const k = `${play}|${r.shape}|${r.cmd}|${r.avg}|${r.sc}`;
     let c = ctxs.get(k);
@@ -98,6 +108,14 @@ function main(A) {
     const ctxMap = new Map(), stats = { cells: 0, dup: 0, torn: 0, skipped: 0 };
     for (const f of A.files) { await readFile(f, ctxMap, stats); }
     const tRead = Date.now();
+    // A setting is shown only once it holds every deck of the coarse (pass 1) grid: a half-filled
+    // setting's "best deck" is just the best of whatever finished first (--keep-partial keeps them).
+    if (!A.keepPartial) {
+      const coarse = []; for (let L = 20; L <= 48; L += 4) for (let D = 0; D <= 15; D += 4) for (let R = 0; R <= 20; R += 4) if (D + R <= 25) coarse.push(L * 10000 + D * 100 + R);
+      let dropped = 0, droppedCells = 0;
+      for (const [k, c] of ctxMap) if (!coarse.every(id => c.ids.has(id))) { ctxMap.delete(k); dropped++; droppedCells += c.L.length; }
+      if (dropped) console.log(`left out ${dropped} settings (${droppedCells} cells) that do not yet hold every coarse-grid deck`);
+    }
 
     // dimensions, sorted
     const uniq = (f, num = true) => [...new Set([...ctxMap.values()].map(f))].sort(num ? sortNum : undefined);
