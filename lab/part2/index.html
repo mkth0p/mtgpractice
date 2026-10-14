@@ -124,6 +124,7 @@
   .facts { display: grid; gap: 0; }
   .facts .row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); }
   .facts .row span:last-child { font-family: var(--f-mono); font-size: .82rem; text-align: right; color: var(--ink); }
+  .warn { border-left: 4px solid var(--pink); padding: 4px 0 4px 12px; margin: 0 0 12px; }
 
   table { width: 100%; border-collapse: collapse; font-size: .88rem; }
   th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
@@ -295,7 +296,7 @@
   <footer>Unofficial fan pages. Magic: The Gathering is © Wizards of the Coast. Exact model by <a href="https://github.com/mkth0p/mtgpractice/tree/main/tools/sim/landmyth">tools/sim/landmyth</a>. <span id="gen"></span></footer>
 </main>
 
-<script src="data.js?v=2"></script>
+<script src="data.js?v=3"></script>
 <script>
 (async function () {
   const D = window.LANDMYTH;
@@ -317,6 +318,7 @@
   try { [S, G] = await Promise.all([inflate(D.summary), inflate(D.grid)]); } catch (e) { return fail('The results could not be unpacked: ' + e.message); }
   G = G.regret;
 
+  const andList = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
   const dims = D.dims, Ts = dims.Ts, T0 = Ts[0], NT = Ts.length, MISS = D.meta.missing, BAND = D.meta.band;
   const NG = dims.gL.length * dims.gR.length;
   const ctxIdx = new Map(D.ctx.map((c, i) => [c.slice(0, 5).join('|'), i]));
@@ -388,8 +390,8 @@
     $('banner').innerHTML = `<p><b>${prelim ? 'Preliminary results.' : 'Results.'}</b> This is pass ${pass} of 3: ${fmtInt(c0.cells)} cells (one cell is one deck in one curve, commander and draw scenario, scored at every game length), with lands, dorks and rocks in steps of ${grid ? grid.step : '?'}, ${na} average costs, ${nc === 1 ? 'a ' + dims.cmds[0] + '-mana commander' : 'commanders costing ' + dims.cmds[0] + ' to ' + dims.cmds[nc - 1]} and ${ns} draw scenarios. `
       + (partial ? `Pass ${next.n} (steps of ${next.step}) is only ${(100 * next.done / next.total).toFixed(next.done / next.total < .01 ? 1 : 0)}% in: it adds commanders, averages and draw scenarios. A setting appears here only once it holds every deck of the coarse grid, and its finer decks fill in as the pass goes on. ` : '')
       + (cov.some(c => c.play === 'optimal') ? (() => {
-          const oc = D.ctx.filter(c => c[0] === 1), u = f => [...new Set(oc.map(f))].sort((a, b) => a - b);
-          return `Both play rules are shown: part 1's fixed rule and optimal play from phase 2. Optimal play is so far computed only for the ${u(c => c[1]).map(i => dims.curves[i] === 'normal3' ? 'spread' : dims.curves[i]).join(' and ')} curve, average cost ${u(c => c[3]).map(avgLabel).join(' and ')}, a ${u(c => c[2]).join('/')}-mana commander (${fmtInt(cov.find(c => c.play === 'optimal').cells)} cells).`;
+          const oc = D.ctx.filter(c => c[0] === 1), u = f => [...new Set(oc.map(f))].sort((a, b) => a - b), part = [...new Set(oc.filter(c => c[6]).map(c => c[3]))].sort((a, b) => a - b);
+          return `Both play rules are shown: part 1's fixed rule and optimal play from phase 2. Optimal play is so far computed only for the ${u(c => c[1]).map(i => dims.curves[i] === 'normal3' ? 'spread' : dims.curves[i]).join(' and ')} curve, average cost ${andList(u(c => c[3]).map(avgLabel))}, a ${u(c => c[2]).join('/')}-mana commander (${fmtInt(cov.find(c => c.play === 'optimal').cells)} cells).` + (part.length ? ` Average cost ${andList(part.map(avgLabel))} under optimal play ${part.length > 1 ? 'are' : 'is'} still partial (high-ramp decks missing): those settings are marked “partial”, and summaries across settings leave them out.` : '');
         })() : `Play follows part 1's fixed rule; optimal play (phase 2) is being computed.`)
       + ` Finer passes add decks between the ones here, so a best deck or a range can still move by a step.</p>`;
     $('gen').textContent = 'Data generated ' + D.meta.generated.slice(0, 10) + '.';
@@ -400,12 +402,12 @@
   (function () {
     const p = 0;
     let n = 0, ref = 0, inside = 0, below = 0;
-    D.ctx.forEach((c, k) => { if (c[0] !== p) return; for (let m = 0; m < 2; m++) for (const t of Ts) { const b = get('band', k, m, t); if (!(b & 1)) continue; n++; if (b & 12) ref++; if (b & 4) below++; if (b & 2) inside++; } });
+    D.ctx.forEach((c, k) => { if (c[6] || c[0] !== p) return; for (let m = 0; m < 2; m++) for (const t of Ts) { const b = get('band', k, m, t); if (!(b & 1)) continue; n++; if (b & 12) ref++; if (b & 4) below++; if (b & 2) inside++; } });
     const c = ci(p, defCurve, defCmd, defAvg, dims.scens.indexOf(defScn));
     const lo = get('landLo', c, 0, 10), hi = get('landHi', c, 0, 10);
     const tA = 6, tB = 15, bA = get('bestL', c, 0, tA), bB = get('bestL', c, 0, tB);
     // median best land count at turn 6 and turn 15 over every setting
-    const medAt = t => median(D.ctx.map((x, k) => x[0] === p ? get('bestL', k, 0, t) : null).filter(v => v != null));
+    const medAt = t => median(D.ctx.map((x, k) => !x[6] && x[0] === p ? get('bestL', k, 0, t) : null).filter(v => v != null));
     const m6 = medAt(6), m15 = medAt(15);
     const share = n ? Math.round(100 * ref / n) : 0;
     const tiles = [
@@ -487,8 +489,8 @@
     const what = LS.what, ylo = what === 'lands' ? Math.min(...dims.gL) : 20, yhi = what === 'lands' ? Math.max(...dims.gL) : 72;
     const panels = avgs.map(a => {
       const c = ci(LS.play, LS.curve, LS.cmd, a, s), oc = other >= 0 ? ci(other, LS.curve, LS.cmd, a, s) : -1;
-      const rows = Ts.map(t => { const o = rowFor(c, LS.metric, t, what, oc); if (o) o.tip = tipOf(`Spells averaging ${avgLabel(a)}, game ends turn ${t}`, o, what, altName); return o; });
-      return { title: `Average cost ${avgLabel(a)}`, xs: Ts, xLabelEvery: 3, yMin: ylo, yMax: yhi, rows, ref: what === 'lands' ? BAND : null, xName: 'game ends on turn' };
+      const rows = Ts.map(t => { const o = rowFor(c, LS.metric, t, what, oc); if (o) o.tip = tipOf(`Spells averaging ${avgLabel(a)}, game ends turn ${t}`, o, what, altName) + (D.ctx[c][6] ? `<div class="row"><span>Partial</span><span>${D.ctx[c][5]} decks done</span></div>` : ''); return o; });
+      return { title: `Average cost ${avgLabel(a)}${c >= 0 && D.ctx[c][6] ? ' (partial)' : ''}`, xs: Ts, xLabelEvery: 3, yMin: ylo, yMax: yhi, rows, ref: what === 'lands' ? BAND : null, xName: 'game ends on turn' };
     });
     $('l-legend').innerHTML = legendHTML(what === 'lands' ? 'land count' : 'lands + ramp', altName);
     multiples($('l-multi'), $('l-tip'), panels);
@@ -497,7 +499,7 @@
     panels.forEach((p, i) => h += `<tr><td>${avgLabel(avgs[i])}</td>${p.rows.map(o => `<td class="n">${o ? `${o.best} <span class="dim">${o.lo}–${o.hi}</span>` : ''}</td>`).join('')}</tr>`);
     $('l-table').innerHTML = h + '</tbody>';
     // verdict from data: best at T6 vs T15 across all avgs/contexts of this curve and metric
-    const gmax = Math.max(...dims.gL), at = t => { const v = median(D.ctx.map((x, k) => x[0] === LS.play && x[1] === LS.curve ? get('bestL', k, LS.metric, t) : null).filter(v => v != null)); return v >= gmax ? v + ' (the most tested)' : v; };
+    const gmax = Math.max(...dims.gL), at = t => { const v = median(D.ctx.map((x, k) => !x[6] && x[0] === LS.play && x[1] === LS.curve ? get('bestL', k, LS.metric, t) : null).filter(v => v != null)); return v >= gmax ? v + ' (the most tested)' : v; };
     const a4 = parseInt(at(4)), a15 = parseInt(at(15));
     $('l-verdict').innerHTML = `<b>What the data says:</b> with the ${LABEL.curve[dims.curves[LS.curve]].toLowerCase()} curve and the ${LABEL.metric[LS.metric].toLowerCase()} score, the best deck's land count has a median of ${at(4)} if the game ends on turn 4, ${at(8)} on turn 8 and ${at(15)} on turn 15 (all averages, commanders and draw scenarios). ` + (a4 > a15 ? 'Short games reward hitting every land drop; long games reward having spells left to cast. A fixed land count cannot be right for both.' : '');
   }
@@ -591,7 +593,8 @@
     if (c < 0) { $('x-detail').innerHTML = '<p>This combination is not computed yet.</p>'; return; }
     const unit = m === 0 ? 'useful mana (discounted)' : 'spells cast';
     const r3810 = get('reg3810', c, m, t);
-    let h = `<div>Best deck<span class="big">${deck(get('bestL', c, m, t), get('bestD', c, m, t), get('bestR', c, m, t))}</span>scores ${(get('best100', c, m, t) / 100).toFixed(1)} ${unit} by turn ${t}.</div><div class="facts">`;
+    let h = (D.ctx[c][6] ? `<p class="warn"><b>Partial:</b> only ${D.ctx[c][5]} decks of this setting are done, and the missing ones are mostly high-ramp decks. The best deck here is the best of those done, so it can still change.</p>` : '')
+      + `<div>Best deck<span class="big">${deck(get('bestL', c, m, t), get('bestD', c, m, t), get('bestR', c, m, t))}</span>scores ${(get('best100', c, m, t) / 100).toFixed(1)} ${unit} by turn ${t}.</div><div class="facts">`;
     h += `<div class="row"><span>Lands within 2%</span><span>${get('landLo', c, m, t)}–${get('landHi', c, m, t)}</span></div>`;
     h += `<div class="row"><span>Lands + ramp within 2%</span><span>${get('srcLo', c, m, t)}–${get('srcHi', c, m, t)}</span></div>`;
     h += `<div class="row"><span>Decks within 2%</span><span>${get('nNear', c, m, t)} of ${D.ctx[c][5]}</span></div>`;
@@ -619,7 +622,7 @@
     for (const t of Ts) {
       let n = 0, ref = 0, lo = 0, hi = 0, inside = 0; const few = [];
       D.ctx.forEach((c, k) => {
-        if (c[0] !== NS_.play || c[1] !== NS_.curve) return;
+        if (c[6] || c[0] !== NS_.play || c[1] !== NS_.curve) return;
         const b = get('band', k, NS_.metric, t); if (!(b & 1)) return;
         n++; if (b & 12) ref++; if (b & 4) lo++; if (b & 8) hi++; if (b & 2) inside++; few.push(get('landLo', k, NS_.metric, t));
       });
@@ -632,7 +635,7 @@
     $('n-verdict').innerHTML = `<b>What the data says:</b> refuted in ${totRef} of ${tot} settings for this curve and score. In short games (ending by turn 6) the refutation mostly comes from ${side(early)}; in long games (turn 10 or later), from ${side(late)}. ` + (totRef >= 0.8 * tot ? 'Either way, 36-40 is one good answer among many, not a requirement.' : 'The advice holds up in the remaining settings.');
     // 38 + 10
     let n = 0, ok = 0;
-    D.ctx.forEach((c, k) => { if (c[0] !== NS_.play) return; for (let m = 0; m < 2; m++) for (const t of Ts) { const r = get('reg3810', k, m, t); if (r === MISS) continue; n++; if (r <= 20) ok++; } });
+    D.ctx.forEach((c, k) => { if (c[6] || c[0] !== NS_.play) return; for (let m = 0; m < 2; m++) for (const t of Ts) { const r = get('reg3810', k, m, t); if (r === MISS) continue; n++; if (r <= 20) ok++; } });
     $('n-3810').innerHTML = n ? `<b>“38 lands + 10 ramp”</b> is within 2% of the best deck in ${ok} of ${n} settings (${Math.round(100 * ok / n)}%, both curves and scores, best dork/rock split).`
       : `<b>“38 lands + 10 ramp”</b> (the other popular rule) is not on this grid yet: with steps of 4 there is no 38-land deck. The next pass, in steps of 2, adds it.`;
   }
@@ -671,7 +674,7 @@
     for (const t of dims.xT) {
       const d = [], r = [], lr = [], ld = []; let more = 0, n = 0;
       D.ctx.forEach((c, k) => {
-        if (c[0] !== DS.play || c[1] !== DS.curve) return;
+        if (c[6] || c[0] !== DS.play || c[1] !== DS.curve) return;
         const bd = get('bestD', k, DS.metric, t), br = get('bestR', k, DS.metric, t); n++;
         d.push(bd); r.push(br); if (bd > br) more++;
         const a = get('regAllR', k, DS.metric, t), b = get('regAllD', k, DS.metric, t);
