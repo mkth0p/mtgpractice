@@ -381,36 +381,6 @@
     },
   };
 
-  /* The active-control activity for a study: visual search for a T among rotated Ls. It keeps
-     people busy with a cognitive-looking task that does not train reasoning. */
-  T.vsearch = {
-    id: "vsearch", tag: "Study control", name: "Visual search (control activity)", index: "control", short: "Find the T among the Ls, as fast as you can.",
-    models: "Classic visual search (Treisman-style T among L), used as an active-control activity",
-    admin: { kind: "speed", seconds: 120, practiceSeconds: 300 },
-    item: seed => ({ seed }),
-    async render(host, it, ctx) {
-      let right = 0, wrong = 0, n = 0; const log = [];
-      const r = window.IQGEN.rng(it.seed + "|vs");
-      host.innerHTML = `<p class="prompt">Tap the <b>T</b>. If there is none, tap “No T”.</p><div class="stim"><svg viewBox="0 0 300 300" id="vs" style="display:block;width:100%;max-width:360px;margin:0 auto"></svg></div><div class="next"><button type="button" class="btn" id="none">No T</button></div>`;
-      let has = false, t = performance.now();
-      const draw = () => {
-        const size = 8 + Math.min(24, Math.floor(n / 4) * 2); has = r.chance(0.5);
-        const cells = r.sample(Array.from({ length: 36 }, (_, i) => i), size);
-        $("#vs", host).innerHTML = `<rect width="300" height="300" fill="#fff"/>` + cells.map((c, i) => {
-          const x = 25 + (c % 6) * 50 + r.int(-8, 8), y = 25 + Math.floor(c / 6) * 50 + r.int(-8, 8), rot = r.pick([0, 90, 180, 270]);
-          const isT = has && i === 0;
-          const path = isT ? "M-11,-11 L11,-11 M0,-11 L0,11" : "M-11,-11 L-11,11 L11,11";
-          return `<g transform="translate(${x},${y}) rotate(${rot})" data-t="${isT ? 1 : 0}" style="cursor:pointer"><rect x="-16" y="-16" width="32" height="32" fill="transparent"/><path d="${path}" stroke="#111" stroke-width="4" fill="none" stroke-linecap="square"/></g>`;
-        }).join("");
-        $$("#vs g", host).forEach(g => g.onclick = () => answer(g.dataset.t === "1"));
-      };
-      const answer = ok => { ok ? right++ : wrong++; log.push({ ok, rt: Math.round(performance.now() - t) }); t = performance.now(); n++; draw(); };
-      $("#none", host).onclick = () => answer(!has);
-      draw();
-      return new Promise(res => ctx.onTimeout(() => res({ response: log, correct: right, wrong, points: right })));
-    },
-  };
-
   window.IQTASKS = T;
   window.IQUI = { esc, $, $$, sleep, say, speakOK };
 })();
