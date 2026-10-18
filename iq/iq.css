@@ -164,3 +164,11 @@ input[type=text], input[type=number], select, textarea { width: 100%; max-width:
 .pill { display: inline-block; font: 600 11px/1 var(--f-mono); padding: 4px 7px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
 .pill.a { background: var(--accent-soft); color: var(--accent); }
 .foot { padding: 30px 0 50px; color: var(--muted); font-size: .84rem; }
+/* digit symbol matching */
+.dsm-key { grid-template-columns: repeat(6, 1fr); max-width: 360px; }
+.dsm-key div b { border-bottom: 0; border-top: 1.5px solid #333; }
+.dsm-probe { width: 96px; margin: 0 auto 16px; border: 1.5px solid #333; }
+.dsm-probe svg { display: block; width: 100%; height: auto; padding: 6px; }
+.pad button.hit { background: #c62828; color: #fff; border-color: #c62828; }
+.est { border-left: 4px solid var(--accent); }
+.est .big { font: 700 2rem/1.1 var(--f-mono); }

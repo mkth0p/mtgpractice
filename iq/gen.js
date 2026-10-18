@@ -698,6 +698,13 @@
     const digits = []; for (let i = 0; i < 160; i++) { let d; do d = r.int(1, 9); while (d === digits[digits.length - 1]); digits.push(d); }
     return { type: "coding", key, digits };
   };
+  // digit symbol matching (TestMyBrain format): six symbols, two per digit 1-3, key never changes
+  G.genDSM = seed => {
+    const r = rng(seed + "|dsm");
+    const key = r.sample(CODE_GLYPHS, 6), digit = r.shuffle([1, 1, 2, 2, 3, 3]);
+    const probes = []; for (let i = 0; i < 200; i++) { let k; do k = r.int(0, 5); while (k === probes[probes.length - 1]); probes.push(k); }
+    return { type: "dsm", key, digit, probes };
+  };
   // symbol search: two targets, a search group of five; is either target present?
   G.genSymbolSearch = seed => {
     const r = rng(seed + "|ssr");

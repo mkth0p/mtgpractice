@@ -59,6 +59,7 @@
     symspan: { what: "See a sequence of abstract designs, then pick them in the same order from a larger set with look-alikes. Secondary in the WAIS-5 (visual working memory), taken from the WMS-IV.", admin: "WAIS-5 rules are not public. Here: two tries per length, stop when both are wrong.", strategy: li(["Give each design a quick verbal label (“tent”, “hook”).", "Note one distinctive feature per design."]) },
     spatialadd: { what: "Two grids of blue and red dots, one after the other; combine them by a rule, ignoring red. Secondary in the WAIS-5 (visual working memory); the only subtest that requires ignoring a competing distractor.", admin: "WAIS-5 rules are not public. Here: each grid shows for 5 seconds; grids get fuller and red distractors appear from level 3.", strategy: li(["Remember the first grid's blue positions as a shape or as row patterns.", "When the second grid shows, compare cell by cell: shared blue cancels to white."]) },
     arith: { what: "Word problems read aloud, solved in your head. Secondary in the WAIS-5 (quantitative reasoning, expanded fluid); a core Working Memory subtest in the WAIS-IV.", admin: "WAIS-IV: 22 items, <b>30 seconds</b> each, no paper. The problem can be repeated once while the clock keeps running. Start at item 6, stop after 3 misses in a row.", differs: "By default the problem is shown as text, which is easier than hearing it. Turn on “Arithmetic by ear” in Settings for the real format.", strategy: li(["Pull out the numbers and the question before computing.", "Round and correct: 9 × 7 = 70 − 7.", "For rates and work problems, think per unit (per hour, per worker)."]) },
+    dsm: { what: "Six symbols are paired with the digits 1 to 3 (two symbols per digit). A symbol appears; tap its digit. Not a WAIS subtest: it is the TestMyBrain Digit Symbol Matching format, chosen because it has open adult norms (17,507 people aged 18 to 80).", admin: "90 seconds; the key never changes; the chosen digit lights up for 300 ms; score = median time of your correct answers.", differs: "Same format as the source. Use the same device every time: the norms differ a little by device, and the page uses the norms for yours.", strategy: li(["Learn the six pairs in the first few seconds so you stop looking at the key.", "Keep a finger over each of 1, 2 and 3 (or rest three fingers on the keys).", "Errors do not lower the score directly, but rushing into errors does not speed up your correct answers either."]) },
     coding: { what: "A key pairs digits 1 to 9 with symbols; copy the matching symbol under each digit for 120 seconds. A primary Processing Speed subtest and part of the FSIQ in the WAIS-5.", admin: "120 seconds; 135 boxes in the WAIS-IV; no skipping; score = boxes done right.", differs: "You tap the symbol instead of drawing it, so speed is not comparable with paper. The symbols are original designs.", strategy: li(["Learn some pairs by heart in the first seconds; looking up the key is the slow part.", "Do not go back to fix errors."]) },
     symsearch: { what: "Two target symbols and a row of five; decide whether either target appears. A primary Processing Speed subtest in the WAIS-5.", admin: "120 seconds; 60 rows in the WAIS-IV; score = right minus wrong.", differs: "Answer with buttons or keys. Symbols are random original designs.", strategy: li(["Hold both targets in mind, then scan the row once, left to right.", "Wrong answers cost a point: do not guess."]) },
     nsq: { what: "Name as fast as you can how many squares are in each box of an array. New in the WAIS-5 (motor-reduced processing speed).", admin: "WAIS-5 rules are not public; the score is reported as time and errors.", differs: "You tap 1 to 4 instead of saying the number, and the score is boxes right in 60 seconds.", strategy: li(["Recognise small numbers at a glance (subitising) instead of counting."]) },
@@ -69,7 +70,7 @@
   /* ------------------------------------------------------------------------------------------ */
   C.method = `
 <h1>Method and evidence</h1>
-<p class="muted">What this page practises, how close it is to the real tests, and what the research says about gains over time. Full reports with every source are in the project files: <span class="mono">iq-training/research/batteries.md</span> and <span class="mono">iq-training/research/practice-effects.md</span>.</p>
+<p class="muted">What this page practises, how close it is to the real tests, and what the research says about gains over time. Full reports with every source are in the project files: <span class="mono">iq-training/research/batteries.md</span> and <span class="mono">iq-training/research/practice-effects.md</span> and <span class="mono">open-norms.md</span>.</p>
 
 <h2 id="items">1. No real test items</h2>
 <p>Every item here is generated from a seed by original code. Nothing is copied from the WAIS, WASI, Stanford-Binet, Raven's, ICAR or any other test. The generators follow the <b>published format</b> and the <b>documented difficulty rules</b> of each task type. This matters for the paper's validity and for ethics:</p>
@@ -81,7 +82,7 @@ ${li([
 
 <h2 id="batteries">2. The batteries these tasks follow</h2>
 <p><b>WAIS-5</b> (Pearson, 2024): 20 subtests, standardised on 2,020 people aged 16 to 90. Five primary indexes of two subtests each: Verbal Comprehension (Similarities, Vocabulary), Visual Spatial (Block Design, Visual Puzzles), Fluid Reasoning (Matrix Reasoning, Figure Weights), Working Memory (Digit Sequencing, Running Digits) and Processing Speed (Coding, Symbol Search). The <b>FSIQ uses seven</b>: Similarities, Vocabulary, Block Design, Matrix Reasoning, Figure Weights, Digit Sequencing and Coding. About 45 minutes for the FSIQ. New subtests: Running Digits, Set Relations, Naming Speed Quantity, Symbol Span and Spatial Addition.</p>
-<p><b>Scores:</b> raw scores become age-normed scaled scores (mean 10, SD 3), which are summed into index and FSIQ scores (mean 100, SD 15). FSIQ reliability is about .97, with a standard error of measurement of about 3 points. The norm tables are not public, so this page shows <b>raw scores only</b> and never an IQ.</p>
+<p><b>Scores:</b> raw scores become age-normed scaled scores (mean 10, SD 3), which are summed into index and FSIQ scores (mean 100, SD 15). FSIQ reliability is about .97, with a standard error of measurement of about 3 points. The norm tables are not public, so this page never shows a WAIS scaled score or FSIQ. Raw scores are shown for every task, and an IQ-scale estimate from open norms for three tasks (section 5).</p>
 <p><b>Timing and stop rules</b> for the WAIS-5 are not published. Where a task here uses time limits, they are the <b>WAIS-IV</b> ones reported in public sources: Block Design 30/60/120 s, Visual Puzzles 20/30 s, Figure Weights 20/40 s, Arithmetic 30 s, Coding and Symbol Search 120 s, digits at one per second. Matrix Reasoning has no strict limit (about 30 s guide).</p>
 <div class="tscroll"><table>
 <tr><th>Task here</th><th>Real subtest</th><th>Closeness</th></tr>
@@ -115,7 +116,24 @@ ${li([
 <p><b>Are the gains real?</b> The more a subtest measures general intelligence (g), the less it gains on retest (r = −.80; te Nijenhuis, van Vianen &amp; van der Flier 2007). Retest scores also lose measurement invariance: the gains sit in test-specific skills, not in the latent ability (Lievens et al. 2007; Estrada et al. 2015).</p>
 <p><b>Does brain training raise IQ?</b> Working-memory (n-back) training shows g = 0.44 against passive controls but only 0.06 against active controls (Au et al. 2015); about 0.05 on nonverbal ability against treated controls (Melby-Lervåg, Redick &amp; Hulme 2016); and about zero far transfer once placebo and publication bias are handled (Sala et al. 2019). Recruiting people with “brain training raises IQ” adverts alone produced d ≈ 1 after one hour of training (Foroughi et al. 2016). For scale, a real environmental effect: each extra year of education adds about 1 to 5 IQ points (Ritchie &amp; Tucker-Drob 2018).</p>
 
-<h2 id="design">5. Tracking one person over time</h2>
+<h2 id="norms">5. Open norms and the IQ-scale estimate</h2>
+<p>There is no legitimate public source for Wechsler raw-to-scaled tables: they are in Pearson's licensed manuals, and the “norm tables” found online are leaked copies. Open norms exist only for scores that do not depend on the particular items, because the items here are new every time. Those are the longest digit span and the speed of a digit-symbol task. Everything else (matrices, figure weights, arithmetic, sequencing and so on) has no norms that transfer to generated items, so it gets none. Full report: <span class="mono">iq-training/research/open-norms.md</span>.</p>
+<div class="tscroll"><table>
+<tr><th>Task</th><th>Score</th><th>Norm sample</th><th>Mean (SD)</th><th>Retest r</th></tr>
+<tr><td>Digits Forward</td><td>longest list with at least one of two tries right</td><td>Woods et al. 2011: 763 adults aged 18 to 65, spoken digits</td><td>6.35 (1.15)</td><td>.39</td></tr>
+<tr><td>Digits Backward</td><td>same</td><td>same</td><td>4.61 (1.22)</td><td>.67</td></tr>
+<tr><td>Digit Symbol Matching</td><td>median time of correct answers</td><td>Passell et al. 2021: 17,507 web users aged 18 to 80 (mean 36), by device</td><td>1360 ms (355)</td><td>not reported; .70 assumed</td></tr>
+</table></div>
+${li([
+  "<b>Per task:</b> z = (score − mean) / SD, reversed for time. Span is a whole number, so its percentile is the mid-p value (half of the people with exactly your span count as below you). IQ scale = 100 + 15z.",
+  "<b>Uncertainty:</b> the error of one session is √(1 − r) SD from the retest reliability, plus an allowance for the format differences (0.35 SD for spans, which the source read aloud; 0.15 SD for matching, for device effects). The range shown is 90%.",
+  "<b>Composite:</b> the task z scores are added and divided by √(k + k(k − 1)r̄), the standard composite of correlated scores, with r̄ = .45 assumed between the tasks. In the Open-norms estimate full test, spans can run to 12 forward and 10 backward, past the WAIS top lengths (9 and 8), so a long span is measured instead of capped. A span at the top length only gives a lower bound, shown as ≥.",
+  "<b>What it is not:</b> a full-scale IQ. It measures short-term memory and processing speed, which correlate only moderately with a full IQ. A person with a very high full-scale IQ will usually score lower here (regression toward the mean). It is a stable yardstick for <i>you over time</i>, on tasks with outside reference points.",
+  "<b>Practice inflates it.</b> Woods found gains of about 0.3 digits forward and 0.45 backward from simple retesting. Practise these three tasks and the estimate rises with no change in ability, so the honest before/after uses the estimate from your stable baseline, and treats these tasks either as trained tasks or as untrained checks, not both.",
+  "<b>To go further:</b> norms for the other tasks need a sample of people (the cNORM method) or IRT calibration of the generated items; neither can be done with one person.",
+])}
+
+<h2 id="design">6. Tracking one person over time</h2>
 <p>A single-person before/after record (an N-of-1 design) can still be read honestly if it separates three things: the practice effect of retaking tests, what you learn about the specific task types, and any real change.</p>
 ${li([
   "<b>Stable baseline first.</b> Take the full test two or three times before training. Retest gains are about 0.33 SD at the second take and about 0.50 SD by the third, then level off (Scharfen et al. 2018). Your baseline is where the line flattens, not the first take.",
@@ -128,10 +146,10 @@ ${li([
 ])}
 <p><b>What the literature leads you to expect:</b> on the practised formats, large gains are normal (coaching δ ≈ 0.70, and long practice on span or speed tasks can go much further). On an untrained test given independently, retest plus coaching is about +5 to +10 points, and training transfer is about zero against active controls. A full extra year of education is worth about 1 to 5 points. Recovery from a temporary state (sleep loss, heavy drinking, low mental activity) is a different question from raising ability, and can be real.</p>
 
-<h2 id="data">6. Data this page records</h2>
-<p>Every item: task, form, level, response, right or wrong, points, response time in ms, and whether time ran out. Every session: start and end time, settings, the full test it belongs to, and the practice done before it. My data exports everything as JSON and a trial-level CSV. Data stays in this browser until you export it, so export regularly to keep a backup.</p>
+<h2 id="data">7. Data this page records</h2>
+<p>Every item: task, form, level, response, right or wrong, points, response time in ms, and whether time ran out. Every session: start and end time, settings, the full test it belongs to, the practice done before it, the device type and your age if set (both used by the open-norms estimate). My data exports everything as JSON and a trial-level CSV. Data stays in this browser until you export it, so export regularly to keep a backup.</p>
 
-<h2 id="refs">7. Key references</h2>
+<h2 id="refs">8. Key references</h2>
 <ul class="refs">
 <li>Au, J. et al. (2015). Improving fluid intelligence with training on working memory: a meta-analysis. <i>Psychonomic Bulletin &amp; Review</i>, 22, 366–377.</li>
 <li>Carpenter, P. A., Just, M. A. &amp; Shell, P. (1990). What one intelligence test measures: a theoretical account of the processing in the Raven Progressive Matrices Test. <i>Psychological Review</i>, 97, 404–431.</li>
@@ -147,11 +165,13 @@ ${li([
 <li>Krautter, K. et al. (2021). Test preparation in figural matrices tests: focus on the difficult rules. <i>Frontiers in Psychology</i>, 12, 619440.</li>
 <li>Matzen, L. E. et al. (2010). Recreating Raven's: software for systematically generating large numbers of Raven-like matrix problems. <i>Behavior Research Methods</i>, 42, 525–541.</li>
 <li>Melby-Lervåg, M., Redick, T. S. &amp; Hulme, C. (2016). Working memory training does not improve performance on measures of intelligence or other measures of “far transfer”. <i>Perspectives on Psychological Science</i>, 11, 512–534.</li>
+<li>Passell, E. et al. (2021). Cognitive test scores vary with choice of personal digital device. <i>Behavior Research Methods</i>, 53, 2544–2557.</li>
 <li>Ritchie, S. J. &amp; Tucker-Drob, E. M. (2018). How much does education improve intelligence? A meta-analysis. <i>Psychological Science</i>, 29, 1358–1369.</li>
 <li>Sala, G. et al. (2019). Near and far transfer in cognitive training: a second-order meta-analysis. <i>Collabra: Psychology</i>, 5, 18.</li>
 <li>Scharfen, J., Peters, J. M. &amp; Holling, H. (2018). Retest effects in cognitive ability tests: a meta-analysis. <i>Intelligence</i>, 67, 44–66.</li>
 <li>te Nijenhuis, J., van Vianen, A. E. M. &amp; van der Flier, H. (2007). Score gains on g-loaded tests: no g. <i>Intelligence</i>, 35, 283–300.</li>
 <li>Winter, Trudel &amp; Kaufman (2024). <i>Journal of Intelligence</i>, 12(11), 118 (WAIS-5 overview and manual data).</li>
+<li>Woods, D. L. et al. (2011). Improving digit span assessment of short-term verbal memory. <i>Journal of Clinical and Experimental Neuropsychology</i>, 33, 101–111.</li>
 <li>Young, S. R. &amp; Keith, T. Z. (2020). An examination of the convergent validity of the ICAR16 and WAIS-IV. <i>Journal of Psychoeducational Assessment</i>, 38, 1052–1059.</li>
 </ul>
 <p class="small muted">Some page numbers and DOIs still need checking against the originals before submission; the research reports list which.</p>

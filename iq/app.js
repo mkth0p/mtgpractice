@@ -3,7 +3,7 @@
    All data stays in this browser (localStorage) until the person exports it. */
 (function () {
   "use strict";
-  const G = window.IQGEN, T = window.IQTASKS, C = window.IQCONTENT, U = window.IQUI;
+  const G = window.IQGEN, T = window.IQTASKS, C = window.IQCONTENT, U = window.IQUI, NM = window.IQNORMS;
   const { esc, $, $$, sleep } = U;
   const KEY = "iqPractice.v1";
   const app = $("#app");
@@ -22,12 +22,13 @@
     { id: "speed", name: "Processing speed", note: "Simple visual decisions, done quickly and accurately." },
     { id: "verbal", name: "Verbal comprehension", note: "Word knowledge and verbal reasoning; scored by an examiner in the real tests." },
   ];
-  const ORDER = ["matrix", "weights", "series", "puzzle", "blocks", "dsf", "dsb", "dss", "lns", "running", "symspan", "spatialadd", "arith", "coding", "symsearch", "nsq", "similar", "vocab"];
+  const ORDER = ["matrix", "weights", "series", "puzzle", "blocks", "dsf", "dsb", "dss", "lns", "running", "symspan", "spatialadd", "arith", "coding", "dsm", "symsearch", "nsq", "similar", "vocab"];
   /* Every standard test uses a form nobody has seen before: items come from the form's seed, so a
      new form number means new items at the same difficulty steps. Practice never uses form seeds. */
   const nextForm = id => { S.forms[id] = (S.forms[id] || 0) + 1; save(); return String(S.forms[id]); };
   // the full test: the seven tasks behind the WAIS-5 FSIQ, or all ten primary subtests
   const BATTERIES = {
+    estimate: { name: "Open-norms estimate (short)", tasks: ["dsf", "dsb", "dsm"] },
     core: { name: "Core (like the WAIS-5 FSIQ)", tasks: ["similar", "vocab", "blocks", "matrix", "weights", "dss", "coding"] },
     primary: { name: "All primary subtests", tasks: ["similar", "vocab", "blocks", "puzzle", "matrix", "weights", "dss", "running", "coding", "symsearch"] },
     nonverbal: { name: "Nonverbal (no typed answers)", tasks: ["blocks", "puzzle", "matrix", "weights", "dss", "running", "coding", "symsearch"] },
@@ -141,8 +142,10 @@
     let quit = false;
     $("#quit").onclick = () => { quit = true; $("#stage")._abort = true; location.hash = "#/task/" + task.id; };
     if (mode === "test") {
+      // the open-norms full test lets spans run past the WAIS top length, so a long span is measured, not capped
+      const top = S.full && S.full.active && S.full.battery === "estimate" && A.normMax ? A.normMax : A.max;
       let longest = 0;
-      for (let len = A.min; len <= A.max && !quit; len++) {
+      for (let len = A.min; len <= top && !quit; len++) {
         let anyRight = false;
         for (let t = 1; t <= A.trials && !quit; t++) {
           const item = task.item(`form${form}|${task.id}`, len, t);
@@ -156,7 +159,7 @@
         }
         if (!anyRight) break;
       }
-      return { items, raw: items.filter(x => x.correct).length, max: (A.max - A.min + 1) * A.trials, longest };
+      return { items, raw: items.filter(x => x.correct).length, max: (top - A.min + 1) * A.trials, longest, ceiling: top };
     }
     let len = Math.max(A.min, S.levels[task.id] || A.min + 1), streak = 0, best = 0;
     const N = nPractice || 12;
@@ -189,7 +192,9 @@
     if (quit) return null;
     const log = res.response || [];
     const rts = log.map(x => x.rt).sort((a, b) => a - b);
-    return { items: log, raw: res.points, right: res.correct, wrong: res.wrong, seconds, medianRt: rts.length ? rts[Math.floor(rts.length / 2)] : null };
+    const rtc = log.filter(x => x.ok).map(x => x.rt).sort((a, b) => a - b);
+    const med = a => a.length ? (a.length % 2 ? a[(a.length - 1) / 2] : Math.round((a[a.length / 2 - 1] + a[a.length / 2]) / 2)) : null;
+    return { items: log, raw: res.points, right: res.correct, wrong: res.wrong, seconds, medianRt: rts.length ? rts[Math.floor(rts.length / 2)] : null, medianRtc: med(rtc) };
   }
 
   async function runTask(id, mode, form) {
@@ -206,7 +211,7 @@
     if (!out) return;
     // how much this task was practised before this test (for reading gains honestly)
     const before = S.sessions.filter(x => x.task === id && x.mode !== "test");
-    const sess = { id: uid(), task: id, mode, form: mode === "test" ? form : null, started, ended: new Date().toISOString(), fullTest: full ? full.id : null, practiceBefore: mode === "test" ? { sessions: before.length, minutes: Math.round(before.reduce((m, x) => m + (new Date(x.ended) - new Date(x.started)), 0) / 60000) } : null, prefs: { audio: !!S.prefs.audio, arithListen: !!S.prefs.arithListen }, result: out };
+    const sess = { id: uid(), task: id, mode, form: mode === "test" ? form : null, started, ended: new Date().toISOString(), fullTest: full ? full.id : null, device: NM.device(), age: S.prefs.age || null, practiceBefore: mode === "test" ? { sessions: before.length, minutes: Math.round(before.reduce((m, x) => m + (new Date(x.ended) - new Date(x.started)), 0) / 60000) } : null, prefs: { audio: !!S.prefs.audio, arithListen: !!S.prefs.arithListen }, result: out };
     S.sessions.push(sess); save();
     if (full) return fullNext();
     showResult(sess);
@@ -240,7 +245,7 @@
     const A = t.admin;
     const rule = A.kind === "ladder" ? `Items get harder; ${A.perLevel} per level, ${A.levels} levels. Stops after ${A.stopAfter} misses in a row.${A.limit ? ` Time: ${A.limit} s per item${A.softLimit ? " (a guide, not a cut-off)" : ""}.` : A.limitFor ? " Time limit per item grows with difficulty." : ""}`
       : A.kind === "span" ? `Lists get longer, ${A.trials} tries per length, from ${A.min} to ${A.max}. Stops when every try at a length is wrong.`
-      : A.kind === "speed" ? `${A.seconds} seconds; score is the number done right${id === "symsearch" ? " minus the number done wrong" : ""}.` : (A.text || "");
+      : A.kind === "speed" ? `${A.seconds} seconds; score is ${A.metric === "rt" ? "the median time of your correct answers (lower is better)" : `the number done right${id === "symsearch" ? " minus the number done wrong" : ""}`}.` : (A.text || "");
     app.innerHTML = `<div class="wrap">
       <p class="small"><a href="#/">← All tasks</a></p>
       <h1>${esc(t.name)}</h1>
@@ -259,7 +264,24 @@
     const rows = st.tests.concat(st.prac).sort((a, b) => a.started < b.started ? -1 : 1);
     return `<div class="tscroll"><table><tr><th>When</th><th>Mode</th><th>Raw</th><th>Detail</th></tr>${rows.slice(-20).reverse().map(s => `<tr><td>${new Date(s.started).toLocaleString()}</td><td>${s.mode === "test" ? `standard <span class="pill a">form ${s.form}</span>` : "practice"}${s.fullTest ? ` <span class="pill">full test</span>` : ""}</td><td>${s.result.raw}${s.result.max ? ` / ${s.result.max}` : ""}</td><td class="small">${detail(s)}</td></tr>`).join("")}</table></div>`;
   }
-  const detail = s => { const r = s.result; return r.longest !== undefined ? `longest ${r.longest}` : r.seconds ? `${r.right} right, ${r.wrong} wrong${r.medianRt ? `, median ${r.medianRt} ms` : ""}` : r.levelEnd ? `ended at level ${r.levelEnd}` : r.items ? `${r.items.length} items${r.stoppedEarly ? ", stop rule reached" : ""}` : ""; };
+  const detail = s => { const r = s.result; return r.longest !== undefined ? `longest ${r.longest}` : r.seconds ? `${r.right} right, ${r.wrong} wrong${r.medianRtc ? `, median correct ${r.medianRtc} ms` : r.medianRt ? `, median ${r.medianRt} ms` : ""}` : r.levelEnd ? `ended at level ${r.levelEnd}` : r.items ? `${r.items.length} items${r.stoppedEarly ? ", stop rule reached" : ""}` : ""; };
+
+  /* ---------- open-norms estimate ---------- */
+  const ageOf = s => s.age || S.prefs.age || null;
+  const fmt = v => Math.round(v);
+  // the latest standard test of each normed task taken before `when` (or ever)
+  const latestScores = when => NM.IDS.map(id => S.sessions.filter(s => s.task === id && s.mode === "test" && (!when || s.started <= when)).pop()).filter(Boolean).map(s => NM.score(s, ageOf(s))).filter(Boolean);
+  const fullScores = f => S.sessions.filter(s => s.fullTest === f.id && NM.TABLE[s.task]).map(s => NM.score(s, ageOf(s))).filter(Boolean);
+  function estimateCard(c, parts, title) {
+    if (!c) return "";
+    const warn = [...new Set(parts.flatMap(p => p.warn))];
+    return `<div class="card est"><p class="small muted" style="margin:0">${esc(title)} · IQ-scale estimate from open adult norms</p>
+      <div class="big">${c.lowerBound ? "≥ " : ""}${fmt(c.iq)}</div><p class="muted" style="margin-top:0">90% range ${fmt(c.lo)} to ${c.lowerBound ? "above " : ""}${fmt(c.hi)}</p>
+      <div class="tscroll"><table><tr><th>Task</th><th>Your score</th><th>Percentile</th><th>IQ scale</th></tr>${parts.map(p => `<tr><td>${esc(p.name)}</td><td>${p.atMax ? "≥ " : ""}${p.x} ${esc(p.unit)}</td><td>${p.atMax ? "≥ " : ""}${p.pct < 1 ? "<1" : p.pct > 99 ? ">99" : Math.round(p.pct)}</td><td>${p.atMax ? "≥ " : ""}${fmt(p.iq)} <span class="small muted">(${fmt(p.lo)} to ${fmt(p.hi)})</span></td></tr>`).join("")}</table></div>
+      ${warn.length ? `<div class="note warn small">Check: ${esc(warn.join("; "))}. ${warn.some(w => /no age/.test(w)) ? `Set your age in <a href="#/settings">Settings</a>.` : ""}</div>` : ""}
+      ${c.lowerBound ? `<p class="small">You reached the longest list the standard rules give, so the true score is higher than shown.</p>` : ""}
+      <p class="small muted">This covers short-term memory and processing speed only${c.complete ? "" : `, and only ${c.k} of the ${NM.IDS.length} normed tasks`}. It is not a full-scale IQ: memory and speed tasks correlate only moderately with a full IQ, so a person with a very high full-scale IQ usually scores lower here. Scores on tasks you have practised are inflated by practice. <a href="#/method#norms">How this is computed</a>.</p></div>`;
+  }
 
   function showResult(s) {
     const t = T[s.task] || C.verbal[s.task];
@@ -270,7 +292,8 @@
       <h1>${s.mode === "test" ? "Raw score" : "Practice done"}</h1>
       <div class="result-big">${r.raw}${r.max ? `<span class="muted" style="font-size:1rem"> / ${r.max}</span>` : ""}</div>
       <p class="muted">${detail(s)}${last ? ` · previous: ${last.result.raw}` : ""}</p>
-      ${s.mode === "test" ? `<div class="note small">A raw score is not an IQ or a scaled score. Real scaled scores need the publisher's norm tables for your age group, which are not public. Use raw scores to compare yourself with yourself, on different forms.</div>` : ""}
+      ${s.mode === "test" && NM.score(s, ageOf(s)) ? estimateCard(NM.composite([NM.score(s, ageOf(s))]), [NM.score(s, ageOf(s))], "This task alone") : ""}
+      ${s.mode === "test" && !NM.TABLE[s.task] ? `<div class="note small">A raw score is not an IQ or a scaled score. Real scaled scores need the publisher's norm tables for your age group, which are not public. Use raw scores to compare yourself with yourself, on different forms. Only ${NM.IDS.map(id => esc(NM.TABLE[id].name)).join(", ")} have open adult norms (see <a href="#/method#norms">Method</a>).</div>` : ""}
       ${r.items && r.items.length && r.items[0].level !== undefined ? `<div class="tscroll"><table><tr><th>#</th><th>Level</th><th>Result</th><th>Time</th></tr>${r.items.map((x, i) => `<tr><td>${i + 1}</td><td>${x.level}${x.trial ? `.${x.trial}` : ""}</td><td>${x.correct ? "✓" : x.timedOut ? "time" : "✗"}${x.points > 1 ? ` (${x.points} pts)` : ""}</td><td>${(x.rt / 1000).toFixed(1)} s</td></tr>`).join("")}</table></div>` : ""}
       <div class="btns"><a class="btn go" href="#/task/${s.task}">Back to the task</a><a class="btn" href="#/">All tasks</a></div></div>`;
   }
@@ -306,12 +329,14 @@
     $("#skip").onclick = () => { f.queue.shift(); save(); fullNext(); };
     $("#stop").onclick = () => { f.active = false; f.queue = []; save(); fullPage(); };
   }
+  // the score to show for a test: median correct time for the matching task, raw score otherwise
+  const shown = s => s.task === "dsm" && s.result.medianRtc ? s.result.medianRtc : s.result.raw;
   const fullTests = () => (S.fullDone || []).filter(f => S.sessions.some(s => s.fullTest === f.id));
   function fullTable(fulls) {
     const tasksAll = Object.assign({}, T, C.verbal || {});
     const ids = ORDER.filter(id => fulls.some(f => S.sessions.some(s => s.fullTest === f.id && s.task === id)));
-    const cell = (f, id) => { const x = S.sessions.find(s => s.fullTest === f.id && s.task === id); return x ? x.result.raw : "–"; };
-    return `<div class="tscroll"><table><tr><th>Task</th>${fulls.map(f => `<th>#${f.n}<br><span class="small">${new Date(f.started).toLocaleDateString()}</span></th>`).join("")}</tr>${ids.map(id => `<tr><td>${esc(tasksAll[id].name)}</td>${fulls.map(f => `<td>${cell(f, id)}</td>`).join("")}</tr>`).join("")}<tr><td class="muted small">Practice before (hours)</td>${fulls.map(f => `<td class="small muted">${(practiceMinutesBefore(f.started) / 60).toFixed(1)}</td>`).join("")}</tr></table></div>`;
+    const cell = (f, id) => { const x = S.sessions.find(s => s.fullTest === f.id && s.task === id); return x ? shown(x) + (x.task === "dsm" ? " ms" : "") : "–"; };
+    return `<div class="tscroll"><table><tr><th>Task</th>${fulls.map(f => `<th>#${f.n}<br><span class="small">${new Date(f.started).toLocaleDateString()}</span></th>`).join("")}</tr>${ids.map(id => `<tr><td>${esc(tasksAll[id].name)}</td>${fulls.map(f => `<td>${cell(f, id)}</td>`).join("")}</tr>`).join("")}${fulls.some(f => fullScores(f).length) ? `<tr><td><b>Open-norms estimate</b></td>${fulls.map(f => { const c = NM.composite(fullScores(f)); return `<td>${c ? `<b>${c.lowerBound ? "≥" : ""}${fmt(c.iq)}</b><br><span class="small muted">${fmt(c.lo)}–${fmt(c.hi)}</span>` : "–"}</td>`; }).join("")}</tr>` : ""}<tr><td class="muted small">Practice before (hours)</td>${fulls.map(f => `<td class="small muted">${(practiceMinutesBefore(f.started) / 60).toFixed(1)}</td>`).join("")}</tr></table></div>`;
   }
   const practiceMinutesBefore = when => Math.round(S.sessions.filter(s => s.mode !== "test" && s.started < when).reduce((m, s) => m + (new Date(s.ended) - new Date(s.started)), 0) / 60000);
 
@@ -322,9 +347,9 @@
     if (!points.length) return "";
     const xs = points.map(p => p.t), ys = points.map(p => p.y);
     const x0 = Math.min(...xs), x1 = Math.max(...xs) === x0 ? x0 + 864e5 : Math.max(...xs);
-    const ymax = Math.max(opts.max || 0, ...ys) || 1, ymin = 0;
+    const ymax = Math.max(opts.max || 0, ...ys) || 1, ymin = Math.min(opts.min || 0, ...ys);
     const X = t => L + (t - x0) / (x1 - x0) * (W - L - R), Y = v => T0 + (1 - (v - ymin) / (ymax - ymin)) * (H - T0 - B);
-    const ticks = [0, ymax / 2, ymax].map(v => Math.round(v));
+    const ticks = [ymin, (ymin + ymax) / 2, ymax].map(v => Math.round(v));
     const path = points.map((p, i) => `${i ? "L" : "M"}${X(p.t).toFixed(1)},${Y(p.y).toFixed(1)}`).join("");
     return `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.label)}">
       ${ticks.map(v => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${v}</text>`).join("")}
@@ -349,23 +374,30 @@
     app.innerHTML = `<div class="wrap"><h1>My progress</h1>
       <dl class="kv"><dt>Full tests</dt><dd>${fulls.length}</dd><dt>Standard tests</dt><dd>${tests.length}</dd><dt>Practice</dt><dd>${prac.length} sessions, ${(mins / 60).toFixed(1)} hours</dd></dl>
       <div class="btns"><a class="btn go" href="#/full">Take a full test</a><a class="btn" href="#/data">Export my data</a></div>
+      ${(() => {
+        const now = latestScores(), c = NM.composite(now);
+        const occ = fulls.map(f => ({ f, c: NM.composite(fullScores(f)) })).filter(o => o.c);
+        const pts = occ.map(o => ({ t: +new Date(o.f.started), y: Math.round(o.c.iq), full: true, tip: `Full test ${o.f.n}, ${new Date(o.f.started).toLocaleDateString()}: ${fmt(o.c.iq)} (${fmt(o.c.lo)} to ${fmt(o.c.hi)}), ${(practiceMinutesBefore(o.f.started) / 60).toFixed(1)} h practice before` }));
+        return c ? `<h2>IQ-scale estimate</h2>${estimateCard(c, now, "Your latest standard test of each normed task")}${pts.length > 1 ? `<div class="card"><b>Estimate over full tests</b>${lineChart(pts, { label: "Open-norms estimate over full tests", min: 70, max: 145 })}</div>` : ""}`
+          : `<h2>IQ-scale estimate</h2><p class="muted">Take the <a href="#/full">Open-norms estimate</a> full test (Digits Forward, Digits Backward, Digit Symbol Matching, about 10 minutes) to get one.</p>`;
+      })()}
       <h2>Practice per week</h2>${bars}
       ${fulls.length ? `<h2>Full tests</h2>${fullTable(fulls)}` : ""}
       <h2>Standard test scores by task</h2>
       ${ids.length ? "" : `<p class="muted">No standard tests yet. Take a full test, or a standard test from any task page.</p>`}
       ${ids.map(id => {
         const t = tasksAll[id], xs = tests.filter(s => s.task === id).sort((a, b) => a.started < b.started ? -1 : 1);
-        const first = xs[0].result.raw, last = xs[xs.length - 1].result.raw;
-        const pts = xs.map(s => ({ t: +new Date(s.started), y: s.result.raw, full: !!s.fullTest, tip: `${new Date(s.started).toLocaleDateString()}: ${s.result.raw}${s.result.max ? " / " + s.result.max : ""}${s.fullTest ? " (full test)" : ""}${s.practiceBefore ? `, after ${s.practiceBefore.sessions} practice sessions` : ""}` }));
-        return `<div class="card"><b>${esc(t.name)}</b> <span class="small muted">${xs.length} test${xs.length > 1 ? "s" : ""} · first ${first}, latest ${last}${xs.length > 1 ? ` (${last - first >= 0 ? "+" : ""}${last - first})` : ""}</span>${lineChart(pts, { label: t.name + " scores over time", max: xs[0].result.max })}</div>`;
+        const first = shown(xs[0]), last = shown(xs[xs.length - 1]);
+        const pts = xs.map(s => ({ t: +new Date(s.started), y: shown(s), full: !!s.fullTest, tip: `${new Date(s.started).toLocaleDateString()}: ${shown(s)}${id === "dsm" ? " ms (lower is better)" : s.result.max ? " / " + s.result.max : ""}${s.fullTest ? " (full test)" : ""}${s.practiceBefore ? `, after ${s.practiceBefore.sessions} practice sessions` : ""}` }));
+        return `<div class="card"><b>${esc(t.name)}</b> <span class="small muted">${xs.length} test${xs.length > 1 ? "s" : ""} · first ${first}, latest ${last}${xs.length > 1 ? ` (${last - first >= 0 ? "+" : ""}${last - first})` : ""}</span>${id === "dsm" ? `<span class="small muted"> · median correct time in ms, lower is better</span>` : ""}${lineChart(pts, { label: t.name + " scores over time", max: id === "dsm" ? 0 : xs[0].result.max })}</div>`;
       }).join("")}
       <p class="small muted">Filled dots are full tests, open dots single standard tests. Each test uses new items, so some up and down from form to form is expected; look at the trend over several tests. Gains on the tasks you practise are mostly practice effects (see <a href="#/method#practice">Method</a>).</p></div>`;
   }
 
   function trialsCsv(sessions) {
     const q = v => { const s = v === null || v === undefined ? "" : typeof v === "object" ? JSON.stringify(v) : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-    const out = [["session", "full_test", "task", "mode", "form", "started", "practice_before_min", "trial", "level", "try", "correct", "points", "rt_ms", "timed_out", "response", "answer"].join(",")];
-    for (const s of sessions) (s.result.items || []).forEach((x, i) => out.push([s.id, s.fullTest, s.task, s.mode, s.form, s.started, s.practiceBefore ? s.practiceBefore.minutes : "", i + 1, x.level, x.trial, x.correct === undefined ? x.ok : x.correct, x.points, x.rt, x.timedOut, x.response, x.answer].map(q).join(",")));
+    const out = [["session", "full_test", "task", "mode", "form", "started", "practice_before_min", "device", "age", "trial", "level", "try", "correct", "points", "rt_ms", "timed_out", "response", "answer"].join(",")];
+    for (const s of sessions) (s.result.items || []).forEach((x, i) => out.push([s.id, s.fullTest, s.task, s.mode, s.form, s.started, s.practiceBefore ? s.practiceBefore.minutes : "", s.device, s.age, i + 1, x.level, x.trial, x.correct === undefined ? x.ok : x.correct, x.points, x.rt, x.timedOut, x.response, x.answer].map(q).join(",")));
     return out.join("\n");
   }
   function download(name, text, type) {
@@ -394,10 +426,12 @@
       <label class="chk"><input type="checkbox" id="audio" ${P.audio ? "checked" : ""}> <span><b>Read digits and letters aloud</b> while they show. The real span tasks are spoken by the examiner, one item per second. ${U.speakOK() ? "" : "<i>(not supported in this browser)</i>"}</span></label>
       <label class="chk"><input type="checkbox" id="arithListen" ${P.arithListen ? "checked" : ""}> <span><b>Arithmetic by ear:</b> the problem is read aloud and not shown, closer to the real subtest.</span></label>
       <label class="chk"><input type="checkbox" id="practiceTimed" ${P.practiceTimed ? "checked" : ""}> <span><b>Hard time limits in practice</b> (otherwise practice only shows the clock).</span></label>
+      <label class="f" for="age">Your age in years (for the open-norms estimate)</label><input id="age" type="number" min="16" max="99" inputmode="numeric" value="${P.age || ""}" style="max-width:120px">
       <label class="f" for="pn">Items per practice session</label><select id="pn">${[8, 12, 20, 30].map(n => `<option ${+(P.practiceN || 12) === n ? "selected" : ""}>${n}</option>`).join("")}</select>
       </div><p class="small muted">Keep the same settings from test to test; they are saved with each session.</p></div>`;
     ["audio", "arithListen", "practiceTimed"].forEach(k => $("#" + k).onchange = e => { P[k] = e.target.checked; save(); });
     $("#pn").onchange = e => { P.practiceN = +e.target.value; save(); };
+    $("#age").onchange = e => { const a = Math.round(+e.target.value); P.age = a >= 16 && a <= 99 ? a : null; save(); };
   }
 
   function methodPage(anchor) {

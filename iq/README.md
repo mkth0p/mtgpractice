@@ -12,10 +12,14 @@ the site links to it and the page asks search engines not to index it.
   span or speed), how to draw and score an item. `verbal.js` Similarities and Vocabulary
   (typed answers, self-scored in practice, exported for blind rating under standard rules).
 - `content.js` the text of each task page and the Method page. `app.js` router, runners, full test
-  (core/primary/nonverbal batteries), progress charts, export to JSON and trial-level CSV.
+  (open-norms estimate/core/primary/nonverbal batteries), progress charts, export to JSON and trial-level CSV.
+- `norms.js` open adult norms for the three tasks whose score does not depend on the items
+  (longest digit span forward and backward, Digit Symbol Matching median correct time) and the
+  IQ-scale composite with its 90% range. Sources: `research/iq-training/open-norms.md`. No other task
+  gets norms, and nothing claims to be a WAIS score.
 - Every standard test uses a new form number per task (`forms` in storage), so items never repeat.
 - Data stays in `localStorage` (`iqPractice.v1`) until exported.
 
-Tests: `node tools/iq/test-gen.js` (every generator, single right answer) and
+Tests: `node tools/iq/test-gen.js` (every generator, single right answer, norm scoring) and
 `node tools/iq/iq-walk.js [--only matrix,dsf,full] [--shots dir]` (plays every task in Chromium).
 Assets use `?v=` in `index.html`; this section has no service worker.

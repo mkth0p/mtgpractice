@@ -219,7 +219,7 @@
   function spanTask(id, name, mode, short, models) {
     return {
       id, name, index: "memory", short, models, tag: mode === "sequencing" ? "WAIS-5 WMI · FSIQ" : "WAIS-5 secondary",
-      admin: { kind: "span", min: mode === "forward" ? 2 : 2, max: mode === "backward" ? 8 : 9, trials: 2 },
+      admin: { kind: "span", min: 2, max: mode === "backward" ? 8 : 9, normMax: mode === "forward" ? 12 : mode === "backward" ? 10 : null, trials: 2 },
       item: (seed, len, trial) => G.genSpan(seed, mode, len, trial),
       async render(host, it, ctx) {
         host.innerHTML = `<p class="prompt">${{ forward: "Remember the digits in the same order.", backward: "Remember the digits, then give them in reverse order.", sequencing: "Remember the digits, then give them from smallest to largest." }[mode]}</p><div id="s"></div>`;
@@ -341,6 +341,30 @@
         i++; if (i >= it.digits.length) i = 0; draw();
       });
       return new Promise(res => ctx.onTimeout(() => res({ response: log, correct: right, wrong, points: right })));
+    },
+  };
+  T.dsm = {
+    id: "dsm", tag: "open norms", name: "Digit Symbol Matching", index: "speed", short: "Which digit goes with the symbol? Tap 1, 2 or 3, fast.",
+    models: "TestMyBrain Digit Symbol Matching (Passell et al. 2021), a short digit-symbol test with open adult norms; scored by median correct response time",
+    admin: { kind: "speed", seconds: 90, metric: "rt" },
+    item: seed => G.genDSM(seed),
+    async render(host, it, ctx) {
+      let i = 0, right = 0, wrong = 0, busy = false; const log = [];
+      host.innerHTML = `<div class="stim"><div class="dsm-probe" id="pr"></div><div class="code-key dsm-key">${it.key.map((g, k) => `<div>${G.glyphSvg(g, "symbol")}<b>${it.digit[k]}</b></div>`).join("")}</div></div><div class="pad" style="grid-template-columns:repeat(3,minmax(0,72px))">${[1, 2, 3].map(n => `<button type="button" data-n="${n}">${n}</button>`).join("")}</div><p class="small muted" style="text-align:center">Keys 1 to 3 work too.</p>`;
+      const draw = () => { $("#pr", host).innerHTML = G.glyphSvg(it.key[it.probes[i % it.probes.length]], "symbol to match"); t = performance.now(); };
+      let t = 0; draw();
+      const answer = n => {
+        if (busy) return;
+        const ok = n === it.digit[it.probes[i % it.probes.length]]; ok ? right++ : wrong++;
+        log.push({ ok, rt: Math.round(performance.now() - t) }); i++;
+        // the chosen digit is highlighted for 300 ms before the next symbol, as in the source
+        const b = $(`[data-n="${n}"]`, host); busy = true; if (b) b.classList.add("hit");
+        setTimeout(() => { busy = false; if (b) b.classList.remove("hit"); if (host.isConnected) draw(); }, 300);
+      };
+      $$("[data-n]", host).forEach(b => b.onclick = () => answer(+b.dataset.n));
+      const onKey = e => { if (/^[1-3]$/.test(e.key)) answer(+e.key); };
+      document.addEventListener("keydown", onKey);
+      return new Promise(res => ctx.onTimeout(() => { document.removeEventListener("keydown", onKey); res({ response: log, correct: right, wrong, points: right }); }));
     },
   };
   T.symsearch = {

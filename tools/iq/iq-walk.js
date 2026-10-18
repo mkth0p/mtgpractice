@@ -9,7 +9,8 @@ const arg = k => (i => i > 0 ? process.argv[i + 1] : null)(process.argv.indexOf(
 const only = arg("--only") ? arg("--only").split(",") : null;
 const shotDir = arg("--shots");
 const issues = [];
-const SPEED = ["coding", "symsearch", "nsq"];
+const SPEED = ["coding", "dsm", "symsearch", "nsq"];
+const NORMED = ["dsf", "dsb", "dsm"];
 const ALL = ["matrix", "weights", "series", "puzzle", "blocks", "dsf", "dsb", "dss", "lns", "running", "symspan", "spatialadd", "arith", "similar", "vocab"].concat(SPEED);
 
 async function answer(page, wrong) {
@@ -65,9 +66,12 @@ async function playTask(browser, base, id, mode) {
     if (SPEED.includes(id)) {
       if (await page.$("#go")) { await page.click("#go"); continue; }
       // a few answers, then run the clock out
+      const dsm = id === "dsm" ? await page.evaluate(() => window.__iqItem) : null;
       for (let n = 0; n < 6; n++) {
-        const sel = id === "coding" ? ".code-ans button" : id === "symsearch" ? "#yes" : '[data-n="2"]';
+        // matching: the right digit for five symbols, one wrong
+        const sel = id === "coding" ? ".code-ans button" : id === "symsearch" ? "#yes" : dsm ? `[data-n="${n === 4 ? dsm.digit[dsm.probes[n]] % 3 + 1 : dsm.digit[dsm.probes[n]]}"]` : '[data-n="2"]';
         await page.click(sel).catch(() => {});
+        if (dsm) await page.clock.runFor(1000); // response time, then the 300 ms highlight
       }
       await page.clock.fastForward(310000);
       await page.waitForTimeout(300);
@@ -97,7 +101,10 @@ async function playTask(browser, base, id, mode) {
     const got = sess.result.items.filter(x => x.correct).length;
     if (got !== right) issues.push(`${id}/${mode}: ${right} answered right, ${got} scored right`);
   }
+  if (mode === "test" && NORMED.includes(id) && !(await page.$(".est"))) issues.push(`${id}/test: no open-norms estimate on the result page`);
+  if (mode === "test" && !NORMED.includes(id) && (await page.$(".est"))) issues.push(`${id}/test: estimate shown for a task without norms`);
   if (shotDir) await page.screenshot({ path: `${shotDir}/${id}-${mode}.png`, fullPage: true });
+  if (sess && id === "dsm" && mode === "test" && (sess.result.right !== 5 || !(sess.result.medianRtc > 0))) issues.push(`dsm/test: expected 5 right with a median time, got ${sess.result.right}, ${sess.result.medianRtc}`);
   console.log(`${id}/${mode}: ${sess ? `raw ${sess.result.raw}` : "no session"} (${given} answers)`);
   await ctx.close();
 }
@@ -125,6 +132,22 @@ async function fullTest(browser, base) {
   if (inFull.length !== 2 || !inFull.every(s => s.form === "full1")) issues.push(`full test: expected 2 sessions on form full1, got ${JSON.stringify(inFull.map(s => [s.task, s.form]))}`);
   if (!(await page.$$("#app svg.spark")).length) issues.push("full test: progress page has no charts");
   if (shotDir) await page.screenshot({ path: `${shotDir}/progress.png`, fullPage: true });
+  // the open-norms full test: both spans (matching skipped, it needs a real 90 s), then its estimate
+  await page.goto(`${base}#/full`);
+  await page.click("input[value=estimate]");
+  await page.click("#go");
+  for (let step = 0; step < 3000; step++) {
+    if (await page.$("#skip")) { const nm = await page.$eval("h1", e => e.textContent); await page.click(/^Digits/.test(nm) ? "#go" : "#skip"); continue; }
+    if (/My progress/.test(await page.$eval("h1", e => e.textContent).catch(() => ""))) break;
+    const it = await page.evaluate(() => window.__iqItem && !window.__iqItem.__seen ? window.__iqItem : null);
+    if (it && await page.$("#stage .pad")) { await page.evaluate(() => { window.__iqItem.__seen = true; }); await answer(page, it.len > 5); continue; }
+    await page.waitForTimeout(200);
+  }
+  if (!(await page.$(".est"))) issues.push("estimate full test: no estimate on the progress page");
+  if (!/Open-norms estimate/.test(await page.$eval("#app", e => e.innerText))) issues.push("estimate full test: no estimate row in the full-test table");
+  const est = await page.evaluate(() => JSON.parse(localStorage.getItem("iqPractice.v1")).sessions.filter(s => ["dsf", "dsb"].includes(s.task)).slice(-2).map(s => s.result.ceiling));
+  if (est.join() !== "12,10") issues.push(`estimate full test: span ceilings ${est}, expected 12,10`);
+  if (shotDir) await page.screenshot({ path: `${shotDir}/progress-estimate.png`, fullPage: true });
   // single standard tests get new form numbers
   await page.goto(`${base}#/data`);
   const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#exc")]);
@@ -132,7 +155,7 @@ async function fullTest(browser, base) {
   if (csv.length < 10 || !/^session,full_test/.test(csv[0])) issues.push("full test: CSV export looks wrong: " + csv.slice(0, 2).join(" | "));
   const [dj] = await Promise.all([page.waitForEvent("download"), page.click("#exj")]);
   const js = JSON.parse(require("fs").readFileSync(await dj.path(), "utf8"));
-  if (js.data.sessions.length !== 2) issues.push(`full test: JSON has ${js.data.sessions.length} sessions, expected 2`);
+  if (js.data.sessions.length !== 4) issues.push(`full test: JSON has ${js.data.sessions.length} sessions, expected 4`);
   console.log(`full test: ${inFull.length} tasks taken, ${csv.length - 1} trial rows`);
   for (const r of ["#/method", "#/settings", "#/task/matrix", "#/progress", "#/"]) { await page.goto(base + r); await page.waitForTimeout(200); }
   await ctx.close();
