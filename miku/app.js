@@ -20,7 +20,7 @@
   const ALL = CARDS.concat(EXTRA);
   const KEY = D.key || "mikuWiki"; // localStorage prefix
   const SHORT = D.short || "Miku";
-  const V = "42"; // asset version: keep in step with the ?v= links in index.html and sw.js
+  const V = "43"; // asset version: keep in step with the ?v= links in index.html and sw.js
   const byName = new Map(ALL.map(c => [c.name, c]));
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -334,7 +334,7 @@
       c.new ? `<span class="tag new">NEW · upgrade</span>` : "",
       c.b4 ? `<span class="tag new">${esc(D.extraTag || "Upgrade")} · stage ${c.b4}</span>` : "",
       c.gc ? `<span class="tag when">Game Changer</span>` : "",
-      c.miku ? `<span class="tag miku">Miku print: ${esc(c.miku)}</span>` : (c.sld ? `<span class="tag miku">Miku art</span>` : ""),
+      c.miku ? `<span class="tag miku">Miku print: ${esc(c.miku)}</span>` : (c.sld ? `<span class="tag miku">${esc(D.sldLabel || "Miku art")}</span>` : ""),
       c.qty > 1 ? `<span class="tag">× ${c.qty}</span>` : "",
       `<span class="tag">MV ${c.mv}</span>`,
       w.when ? `<span class="tag when">${esc(w.when)}</span>` : ""
@@ -574,7 +574,7 @@
   const cs = { q: "", role: "all", sort: store.get(KEY + ".cards.sort") || "role", view: store.get(KEY + ".cards.view") || "grid" };
   if (!["role", "type", "rating", "mv", "az"].includes(cs.sort)) cs.sort = "role";
   const roleCount = r => r === "extra" ? EXTRA.length : CARDS.filter(c => r === "new" ? c.new : r === "miku" ? c.sld : c.roles.includes(r)).length;
-  const chipDefs = [["all", "All", CARDS.length], ["new", "Upgrades", roleCount("new")], ["extra", D.extraChip || "Upgrade", roleCount("extra")], ["miku", "Miku art", roleCount("miku")]].filter(([k, , n]) => k === "all" || n)
+  const chipDefs = [["all", "All", CARDS.length], ["new", "Upgrades", roleCount("new")], ["extra", D.extraChip || "Upgrade", roleCount("extra")], ["miku", D.sldLabel || "Miku art", roleCount("miku")]].filter(([k, , n]) => k === "all" || n)
     .concat(ROLES.filter(r => r[0] !== "cmd").map(([k, l]) => [k, l, roleCount(k)]).filter(([, , n]) => n));
   $("#roleChips").innerHTML = chipDefs.map(([k, l, n]) => `<button class="chip" type="button" data-role="${k}" aria-pressed="${k === "all"}">${l} <span class="n">${n}</span></button>`).join("");
   $("#roleChips").addEventListener("click", e => {
@@ -1336,20 +1336,30 @@
     const t = c.text || "", ty = c.type || "";
     const cmd = /any color in your commander|any color/.test(t);
     const makes = ([sym, , basic]) => cmd || new RegExp("Add[^.]*\\{" + sym + "\\}").test(t) || ty.includes(basic) || new RegExp("[Ss]earch[^.]*" + basic).test(t) || (c.faces || []).some(f => new RegExp("Add[^.]*\\{" + sym + "\\}").test(f.text || ""));
-    return { g: makes(COL[0]), w: makes(COL[1]) };
+    return { g: makes(COL[0]), w: COL[1] ? makes(COL[1]) : false };
   }
   function renderColors() {
     let g = 0, w = 0, hy = 0;
     CARDS.forEach(c => {
       if (c.cat === "Land") return;
       const costs = c.faces ? c.faces.map(f => f.cost) : [c.cost];
-      costs.forEach(cost => { for (const m of String(cost || "").matchAll(/\{([^}]+)\}/g)) { const s = m[1].toUpperCase(); if (s === COL[0][0]) g += c.qty; else if (s === COL[1][0]) w += c.qty; else if (s.includes("/") && s.split("/").every(x => x === COL[0][0] || x === COL[1][0])) hy += c.qty; } });
+      costs.forEach(cost => { for (const m of String(cost || "").matchAll(/\{([^}]+)\}/g)) { const s = m[1].toUpperCase(); const c1 = (COL[1] || [])[0]; if (s === COL[0][0]) g += c.qty; else if (s === c1) w += c.qty; else if (s.includes("/") && s.split("/").every(x => x === COL[0][0] || x === c1)) hy += c.qty; } });
     });
     const lands = CARDS.filter(c => c.cat === "Land");
     let lg = 0, lw = 0, both = 0, colorless = 0;
     lands.forEach(c => { const k = landColors(c); if (k.g && k.w) both += c.qty; else if (k.g) lg += c.qty; else if (k.w) lw += c.qty; else colorless += c.qty; });
     const rocks = CARDS.filter(c => c.cat !== "Land" && c.roles.includes("ramp") && /Add /.test(c.text || ""));
     const tot = g + w, srcG = lg + both, srcW = lw + both;
+    if (!COL[1]) { // one color: no tug of war, just the counts
+      $("#colorStats").innerHTML = `
+      <div class="eq-card color-card"><div class="eq-head"><b>Colored pips</b><span class="muted mono small">in mana costs</span></div>
+        <div class="big-trio"><div><b>${g}</b><span>${mana("{" + COL[0][0] + "}")} pips</span></div><div><b>${sum(CARDS.filter(c => c.cat !== "Land" && !/\{[A-Z]\}/.test(String(c.cost || "").replace(/\{[0-9XC]\}/g, ""))), c => c.qty)}</b><span>colorless nonland cards</span></div></div>
+        <p class="muted small">${D.pipNote || ""}</p></div>
+      <div class="eq-card color-card"><div class="eq-head"><b>Lands that make ${COL[0][1]}</b><span class="muted mono small">${sum(lands, c => c.qty)} lands</span></div>
+        <ul class="src-list"><li><b class="mono">${srcG}</b> make ${COL[0][1]}</li><li><b class="mono">${colorless}</b> colorless utility lands</li><li><b class="mono">${rocks.length}</b> mana rocks and creatures on top</li></ul></div>`;
+      manaText($("#colorStats"));
+      return;
+    }
     $("#colorStats").innerHTML = `
       <div class="eq-card color-card"><div class="eq-head"><b>Colored pips</b><span class="muted mono small">in mana costs</span></div>
         <div class="tug" role="img" aria-label="${g} ${COL[0][1]} pips and ${w} ${COL[1][1]} pips"><i class="g" style="--w:${(g / tot * 100).toFixed(1)}%"><span>${mana("{" + COL[0][0] + "}")} ${g}</span></i><i class="w" style="--w:${(w / tot * 100).toFixed(1)}%"><span>${w} ${mana("{" + COL[1][0] + "}")}</span></i></div>
@@ -1548,7 +1558,7 @@
 
   /* ---------------------------------------------------------------- Play: the game loads on demand */
   const GAME_BASE = D.gameBase || "game/";
-  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-corrupted.js", "game/checklist-corrupted.js", "game/checklist-cetrata.js", "game/brain-corrupted.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/cards-miku-b4.js", "game/decks-avengers.js", "game/decks-azusa.js", "game/decks-azusa-ashaya.js", "game/decks-cetrata.js", "game/decks-doom.js", "game/decks-edgar.js", "game/decks-etrata4.js", "game/decks-fantastic4.js", "game/decks-ghalta.js", "game/decks-heist.js", "game/decks-krenko.js", "game/decks-spiderverse.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/coach-heist.js", "game/checklist-heist.js", "game/practice.js", "game/train-cetrata.js", "game/train-heist.js", "game/value.js", "game/analysis.js", "game/tournament.js", "game/game-ui.js", "game/arena.js"];
+  const GAME_FILES = ["game/engine.js", "game/cards-miku.js", "game/cards-corrupted.js", "game/checklist-corrupted.js", "game/checklist-cetrata.js", "game/checklist-gstorm.js", "game/brain-corrupted.js", "game/cards-etrata.js", "game/cards-miku-precon.js", "game/cards-miku-b4.js", "game/decks-avengers.js", "game/decks-azusa.js", "game/decks-azusa-ashaya.js", "game/decks-cetrata.js", "game/decks-doom.js", "game/decks-edgar.js", "game/decks-etrata4.js", "game/decks-fantastic4.js", "game/decks-ghalta.js", "game/decks-heist.js", "game/decks-krenko.js", "game/decks-spiderverse.js", "game/decks-talrand.js", "game/decks-urdragon.js", "game/decks-zada.js", "game/precon-ghired.js", "game/precon-isperia.js", "game/precon-kaalia.js", "game/precon-lathril.js", "game/precon-wilhelt.js", "game/ai.js", "game/coach-heist.js", "game/checklist-heist.js", "game/practice.js", "game/train-cetrata.js", "game/train-heist.js", "game/value.js", "game/analysis.js", "game/tournament.js", "game/game-ui.js", "game/arena.js"];
   let gameP = null, gameMounted = false;
   function loadGame() {
     if (gameP) return gameP;
@@ -1690,12 +1700,13 @@
     { id: "miku", name: "Hatsune Miku", sub: "Trostani · Selesnya · B3" },
     { id: "corrupted", name: "Corrupted Miku", sub: "Shalai · Selesnya · B4" },
     { id: "etrata", name: "Etrata", sub: "Etrata · Dimir · B3" },
-    { id: "corrupted-etrata", name: "Corrupted Etrata", sub: "Etrata · Dimir · B4" }
+    { id: "corrupted-etrata", name: "Corrupted Etrata", sub: "Etrata · Dimir · B4" },
+    { id: "goblin-storm", name: "Goblin Storm", sub: "Zada · Mono-red · B3" }
   ];
   (function deckSwitcher() {
     const bar = $(".bar-actions");
     if (!bar) return;
-    const here = (/\/(miku|etrata|corrupted|corrupted-etrata)\//.exec(location.pathname) || [, "miku"])[1];
+    const here = (/\/(miku|etrata|corrupted|corrupted-etrata|goblin-storm)\//.exec(location.pathname) || [, "miku"])[1];
     const btn = document.createElement("button");
     btn.className = "icon-btn"; btn.id = "deckBtn"; btn.type = "button";
     btn.setAttribute("aria-label", "Switch deck"); btn.setAttribute("aria-haspopup", "menu"); btn.setAttribute("aria-expanded", "false");

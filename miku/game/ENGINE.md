@@ -202,6 +202,19 @@ target anyway. Counterspells target `{ kind: "spell", filter: (g, item, p) => it
 Ward: `MK.wardTrigger(n)` in `triggers`, or `ward: n` on a static that applies to the creature. Copy a spell with `await g.copySpell(item, p)`. Cast a card
 for free with `await g.castWithoutPaying(p, card)`.
 
+More cast options (added for Goblin Storm, `decks-zada.js`):
+
+- `altOnly: true` with `altCosts`: the card can only be cast for one of its alternative costs
+  (Great Train Heist's spree modes).
+- `kickerName: "buyback"`: the kicker prompt uses that word. Set `ctx.item.toHand = true` in `do`
+  and the card goes back to its owner's hand as it resolves, unless it was countered (Haze of Rage).
+- `p.flashbackAll = g.turn` gives every instant and sorcery in that player's graveyard flashback
+  for its mana cost this turn (Past in Flames). The cast menu labels it Flashback and exiles the
+  card after.
+- `g.copySpell` emits `"copied"` with `{ p, item, o, of }`, so magecraft (Storm-Kiln Artist)
+  can listen to both `cast` and `copied`. Copies never raise `g.spellsThisTurn`, so storm only
+  counts real casts.
+
 ### Target specs
 
 `{ kind, purpose, prompt, optional, you, opp, other, filter(g, o, p, src), playerFilter(g, pl, p), from, amount }`
