@@ -13,7 +13,7 @@
 (function (root) {
   "use strict";
   const MK = root.MK = root.MK || {};
-  MK.ENGINE_VERSION = 9;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
+  MK.ENGINE_VERSION = 10;   // 3: the bots' attack target is scored once per opponent (no dice inside a sort)
                            // 4: the bots gang-block, chump only where it saves life, pick lands for the colors their hand needs, and counter combo pieces
                            //    and judge the table's threats per attacker; deck brains steer the bots of your decks
                            // 7: morph-cast creatures turn up only for their morph cost; Corrupted Etrata v3 list (legacyMorph)
@@ -39,6 +39,9 @@
                            // 9: the Corrupted Miku bot keeps Skullclamp off its combo pieces, doesn't evoke Endurance for nothing, casts
                            //    Shalai with Devoted Druid's mana, and casts a top-of-library tutor for a missing kill piece in its second
                            //    main phase (legacyCorrupted)
+                           // 10: the Goblin Storm bot plans storm turns (rituals and cheap spells into Grapeshot, Empty the Warrens or the
+                           //    Haze of Rage loop), casts a cantrip on Zada with one other creature, and holds Blasphemous Act unless the
+                           //    table's creatures are far ahead and hurting it (legacyGstorm)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",
