@@ -1933,10 +1933,12 @@
       const out = p.hand.slice();
       for (const o of p.command) if (o.isCommander) out.push(o);
       for (const o of p.exile) if (this.playableFromExile(p, o)) out.push(o);
-      for (const o of p.graveyard) if (o.def.flashback || (o.def.castFromGraveyard && o.def.castFromGraveyard(this, p, o)) || this.mayhemOk(p, o)) out.push(o);
+      for (const o of p.graveyard) if (o.def.flashback || this.grantedFlashback(p, o) || (o.def.castFromGraveyard && o.def.castFromGraveyard(this, p, o)) || this.mayhemOk(p, o)) out.push(o);
       return out;
     }
     morphCost(p) { return parseCost("{3}"); }
+    /* Past in Flames: p's instant and sorcery cards in the graveyard have flashback this turn, for their mana cost. */
+    grantedFlashback(p, o) { return p.flashbackAll === this.turn && o.zone === "graveyard" && o.owner === p && !o.def.flashback && (o.def.types.includes("Instant") || o.def.types.includes("Sorcery")); }
     /* Mayhem: a card p discarded this turn may be cast from the graveyard for its mayhem cost. */
     mayhemOk(p, o) { return !!o.def.mayhem && o.zone === "graveyard" && o.owner === p && !!o.discarded && o.discarded.turn === this.turn && o.discarded.zc === o.zc; }
     discardedThisTurn(p) { return p.discardT === this.turn ? p.discardN || 0 : 0; }
@@ -2004,7 +2006,8 @@
       // morph: cast it face down as a 2/2 for {3}
       if (o.def.morph && o.zone === "hand" && sorc && !noTargets && this.canPay(p, this.morphCost(p))) ways.push({ door: null, xMax: 0, xCount: 0, cost: this.morphCost(p), convoke: false, faceDown: true, label: "Face down" });
       const doors = o.def.doors ? o.def.doors.map((_, i) => i) : [null];
-      for (const door of noTargets ? [] : doors) {
+      // spree (Great Train Heist): only the alternative costs, which are its mode choices
+      for (const door of noTargets || o.def.altOnly ? [] : doors) {
         const ch = { door: door == null ? 0 : door, x: 0 };
         const base = this.spellCost(p, o, ch);
         const conv = this.hasConvoke(p, o);
@@ -2012,7 +2015,7 @@
         if (!this.canPay(p, base, { convoke: conv, spell: o })) continue;
         const xMax = xCount ? this.maxX(p, base, xCount, { convoke: conv, spell: o }) : 0;
         if (xCount && o.def.minX && xMax < o.def.minX) continue;
-        ways.push({ door, xMax, xCount, cost: base, convoke: conv, label: o.def.doors ? o.def.doors[door].name : (o.zone === "graveyard" && o.def.flashback ? "Flashback" : o.zone === "graveyard" && o.def.mayhem && this.mayhemOk(p, o) ? "Mayhem" : null) });
+        ways.push({ door, xMax, xCount, cost: base, convoke: conv, label: o.def.doors ? o.def.doors[door].name : (o.zone === "graveyard" && (o.def.flashback || this.grantedFlashback(p, o)) ? "Flashback" : o.zone === "graveyard" && o.def.mayhem && this.mayhemOk(p, o) ? "Mayhem" : null) });
       }
       // alternative costs (Fierce Guardianship, Force of Will...)
       (o.def.altCosts || []).forEach((alt, i) => {
@@ -2061,7 +2064,7 @@
       // kicker
       if (d.kicker && choice.kicked == null) {
         const kc = addCost(this.spellCost(p, o, { x: item.x }), parseCost(d.kicker));
-        if (this.canPay(p, kc, { convoke: way.convoke, spell: o })) item.kicked = await this.ask(p, { type: "confirm", prompt: `Pay the kicker for ${d.name}?`, purpose: "kicker", src: o });
+        if (this.canPay(p, kc, { convoke: way.convoke, spell: o })) item.kicked = await this.ask(p, { type: "confirm", prompt: `Pay the ${d.kickerName || "kicker"} for ${d.name}?`, purpose: "kicker", src: o });
       } else item.kicked = !!choice.kicked;
       // targets
       const specs = this.spellTargets(o, item);
@@ -2108,7 +2111,7 @@
       // rebound: cast from the hand, it is exiled as it resolves and cast again for free next upkeep
       if (d.rebound && fromZone === "hand" && !this.isPermanentCard(o)) item.rebound = true;
       if (o.isCommander && fromZone === "command") p.cmdCasts[o.id] = (p.cmdCasts[o.id] || 0) + 1;
-      if (fromZone === "graveyard" && d.flashback) item.exileAfter = true;
+      if (fromZone === "graveyard" && (d.flashback || (p.flashbackAll === this.turn && (d.types.includes("Instant") || d.types.includes("Sorcery"))))) item.exileAfter = true;
       return this.putOnStack(p, o, item);
     }
     /* Morph: a face-down 2/2 creature spell for {3}. Nobody else sees what it is. */
@@ -2277,6 +2280,7 @@
       if (this.isPermanentCard(o)) { o.zone = "graveyard"; o.owner.graveyard.push(o); }
       else if (item.rebound && !item.countered) { o.zone = "exile"; o.owner.exile.push(o); this.addRebound(o, item.p); }
       else if (item.exileAfter) { o.zone = "exile"; o.owner.exile.push(o); }
+      else if (item.toHand && !item.countered) { o.zone = "hand"; o.owner.hand.push(o); }   // buyback (Haze of Rage)
       else { o.zone = "graveyard"; o.owner.graveyard.push(o); }
       if (o.isCommander && o.zone !== "command") this.moveTo(o, "command");
       else if (o.zone === "graveyard") this.emit("putInGraveyard", { o, p: o.owner, from: "stack" });
@@ -2315,6 +2319,8 @@
       this.stack.push(copy);
       this.bump();
       this.log(`${p.name} gets a copy of ${item.name}.`, { p, cards: [item.o.def.name] });
+      // "whenever you cast or copy" (magecraft: Storm-Kiln Artist)
+      if (this.listening("copied")) this.emit("copied", { p, item: copy, o: copy.o, of: item });
       return copy;
     }
 

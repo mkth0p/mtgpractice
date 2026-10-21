@@ -62,12 +62,15 @@ const note = (kind, msg, extra) => { const s = `${cur}: ${kind}: ${msg}`; issues
       if (g.over) return "over";
       for (const o of g.battlefield.slice()) if (o.controller === me) { g.removeFromZone(o); o.zone = "exile"; me.exile.push(o); }
       me.hand.length = 0; me.life = 40; me.landsPlayed = 0;
+      g.spellsThisTurn = 0; // every card is tested on the same turn: keep storm counts small
       const put = (p, n) => { const o = g.newObj(MK.get(n), p, "new"); g.enterMany([{ o, controller: p, opts: {} }]); o.sick = false; o.tapped = false; return o; };
       const basics = (me.identity || ["G", "W"]).map(k => ({ W: "Plains", U: "Island", B: "Swamp", R: "Mountain", G: "Forest" })[k]).filter(n => n && MK.defs.has(n));
       for (let i = 0; i < 16; i++) put(me, basics[i % basics.length] || "Plains");
       ["Llanowar Elves", "Soul Warden", "Ajani's Pridemate"].forEach(n => put(me, n));
       if (!g.battlefield.some(o => o.controller !== me && g.isCreature(o))) for (const q of g.players) if (q !== me && !q.lost) put(q, "Llanowar Elves");
-      if (!g.battlefield.some(o => o.controller !== me && (g.isArtifact(o) || g.isEnchantment(o)))) { const q = g.players.find(x => x !== me && !x.lost); put(q, "Sol Ring"); put(q, "Intangible Virtue"); }
+      { const q = g.players.find(x => x !== me && !x.lost);
+        if (!g.battlefield.some(o => o.controller !== me && g.isArtifact(o))) put(q, "Sol Ring");
+        if (!g.battlefield.some(o => o.controller !== me && g.isEnchantment(o))) put(q, "Intangible Virtue"); }
       for (const n of ["Archangel of Thune", "Llanowar Elves", "Hero of Bladehold"]) { const o = g.newObj(MK.get(n), me, "graveyard"); me.graveyard.push(o); }
       g.createToken(me, MK.T.soldier);
       let o = me.commanders.find(c => c.def.name === name);

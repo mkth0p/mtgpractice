@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goblin Storm proxies</title>
+<meta name="description" content="Printable proxies of all 100 cards of the Goblin Storm Secret Lair Commander deck, at real card size on A4 or Letter paper.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://cards.scryfall.io" crossorigin>
+<style>
+  :root {
+    --bg: #f6f1ea; --ink: #23160e; --muted: #6f5d50; --line: #dccfc2; --surface: #fffaf4; --accent: #b4470b; --accent-fill: #ff7a2e; --on-accent: #2a0c00;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #140b06; --ink: #f6e9dd; --muted: #b8a291; --line: #3a271b; --surface: #1f130c; --accent: #ff9a55; }
+  }
+  :root[data-theme="dark"] { --bg: #140b06; --ink: #f6e9dd; --muted: #b8a291; --line: #3a271b; --surface: #1f130c; --accent: #ff9a55; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .bar { position: sticky; top: 0; z-index: 2; background: var(--surface); border-bottom: 1px solid var(--line); padding: 12px 16px; }
+  .bar-in { max-width: 980px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+  .bar h1 { margin: 0; font-size: 18px; flex: 1 1 240px; }
+  .bar h1 a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 14px; display: block; }
+  .bar label { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; }
+  .bar select { font: inherit; padding: 4px 6px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+  .btn { font: 600 14px/1 inherit; padding: 10px 16px; border-radius: 999px; border: 0; background: var(--accent-fill); color: var(--on-accent); cursor: pointer; }
+  .note { max-width: 980px; margin: 14px auto 0; padding: 0 16px; color: var(--muted); font-size: 14px; }
+  .note b { color: var(--ink); }
+  .sheets { padding: 16px 0 40px; display: grid; justify-content: center; gap: 24px; }
+  .sheet { background: #fff; box-shadow: 0 8px 30px -12px rgba(0, 0, 0, .35); display: grid; grid-template-columns: repeat(3, 63mm); grid-auto-rows: 88mm; gap: var(--gap, 0); align-content: center; justify-content: center; width: var(--pw); height: var(--ph); transform-origin: top left; }
+  .wrap-sheet { width: calc(var(--pw) * var(--z)); height: calc(var(--ph) * var(--z)); overflow: hidden; }
+  .wrap-sheet .sheet { transform: scale(var(--z)); }
+  .card { position: relative; width: 63mm; height: 88mm; overflow: hidden; background: #111; outline: .2mm dashed rgba(0, 0, 0, .25); outline-offset: 0; }
+  .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card .t { position: absolute; inset: 0; display: flex; flex-direction: column; background: #fbf6ef; color: #1a120c; border: 2.5mm solid #1b1b1b; border-radius: 3mm; padding: 2.5mm; font: 7.2pt/1.25 Georgia, "Times New Roman", serif; }
+  .t .nm { display: flex; justify-content: space-between; gap: 2mm; font-weight: 700; font-size: 8.4pt; border-bottom: .3mm solid #b9a998; padding-bottom: 1mm; }
+  .t .ty { font-style: italic; border-bottom: .3mm solid #b9a998; padding: 1mm 0; margin-bottom: 1.5mm; }
+  .t .tx { flex: 1; white-space: pre-line; overflow: hidden; }
+  .t .pt { align-self: flex-end; font-weight: 700; font-size: 9pt; border: .3mm solid #1a120c; border-radius: 1.5mm; padding: .3mm 2mm; }
+  .t .ft { font: 5.5pt/1.2 system-ui, sans-serif; color: #7d6b5c; margin-top: 1mm; }
+  .card.tx-only .t { border-color: #8a2a0a; }
+  @media print {
+    body { background: #fff; }
+    .bar, .note { display: none; }
+    .sheets { padding: 0; gap: 0; display: block; }
+    .wrap-sheet { width: auto; height: auto; overflow: visible; }
+    .wrap-sheet .sheet { transform: none; box-shadow: none; break-after: page; }
+    .card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+<style id="paperRule">@page { size: A4 portrait; margin: 0; }</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <h1><a href="./#shop/proxies">← Goblin Storm</a>Printable proxies</h1>
+  <label>Paper <select id="paper"><option value="A4">A4</option><option value="Letter">Letter</option></select></label>
+  <label>Cards <select id="only"><option value="all">All 100</option><option value="nonbasic">Without the 22 Mountains</option><option value="sld">Only the Secret Lair art cards</option></select></label>
+  <label>Gaps <select id="gap"><option value="0">None (cut once)</option><option value="2">2 mm</option></select></label>
+  <button class="btn" type="button" id="print">Print</button>
+</div></header>
+<p class="note" id="note"></p>
+<main class="sheets" id="sheets"></main>
+<script src="cards.js?v=43"></script>
+<script>
+(function () {
+  "use strict";
+  // Real card size: 63 x 88 mm, nine to a page. Print at 100% ("actual size"), not "fit to page".
+  const PAPER = { A4: [210, 297], Letter: [215.9, 279.4] };
+  const MOUNTAIN_ARTS = [["2418", 7], ["2419", 8], ["2420", 7]]; // the three Secret Lair Mountains
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, put: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* no storage */ } } };
+  const CARDS = window.GSTORM_CARDS || [];
+
+  // One entry per physical card: the commander first, then the 99 in list order, Mountains last.
+  function deck(only) {
+    const out = [];
+    for (const c of CARDS) {
+      if (c.name === "Mountain") {
+        if (only === "nonbasic") continue;
+        for (const [no, n] of MOUNTAIN_ARTS) for (let i = 0; i < n; i++) out.push({ c, no });
+        continue;
+      }
+      if (only === "sld" && !c.sld) continue;
+      for (let i = 0; i < (c.qty || 1); i++) out.push({ c, no: c.sldNo || null });
+    }
+    return out;
+  }
+  /* Images: one Scryfall /cards/collection request per 75 cards (two in all) gives the image links,
+     then the images load from Scryfall's image server. The Secret Lair printings are asked for by
+     collector number, the rest by name. A card Scryfall doesn't return shows its text instead. */
+  const imgs = {}; // "sld:2406" or "name:Sol Ring" -> image url
+  const keyOf = x => x.no ? "sld:" + x.no : "name:" + x.c.name;
+  const faceImg = c => (c.image_uris || (c.card_faces && c.card_faces[0].image_uris) || {}).large || null;
+  async function lookup(list) {
+    const want = [...new Map(list.filter(x => !(keyOf(x) in imgs)).map(x => [keyOf(x), x])).values()];
+    for (let i = 0; i < want.length; i += 75) {
+      const part = want.slice(i, i + 75);
+      try {
+        const r = await fetch("https://api.scryfall.com/cards/collection", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ identifiers: part.map(x => x.no ? { set: "sld", collector_number: x.no } : { name: x.c.name }) }) });
+        if (!r.ok) throw new Error("scryfall " + r.status);
+        const j = await r.json();
+        for (const x of part) imgs[keyOf(x)] = null;
+        for (const c of j.data || []) {
+          const k = c.set === "sld" && part.some(x => x.no === c.collector_number) ? "sld:" + c.collector_number : "name:" + c.name;
+          imgs[k] = faceImg(c);
+        }
+      } catch (e) { for (const x of part) if (!(keyOf(x) in imgs)) imgs[keyOf(x)] = null; failed = true; }
+      if (i + 75 < want.length) await new Promise(res => setTimeout(res, 120));
+    }
+  }
+  let failed = false;
+
+  function textCard(c) {
+    return `<div class="t"><div class="nm"><span>${esc(c.name)}</span><span>${esc(c.cost || "")}</span></div><div class="ty">${esc(c.type)}</div><div class="tx">${esc(c.text || "")}</div>${c.pt ? `<div class="pt">${esc(c.pt)}</div>` : ""}<div class="ft">Proxy · Goblin Storm · not for sale</div></div>`;
+  }
+  function cardHTML(x, i) {
+    let src = imgs[keyOf(x)];
+    if (x.no && src === null && ("name:" + x.c.name) in imgs) src = imgs["name:" + x.c.name]; // no Secret Lair image: the default one
+    if (src === undefined) return `<div class="card" data-i="${i}">${textCard(x.c)}</div>`; // still loading
+    if (!src) { missing++; return `<div class="card tx-only" data-i="${i}">${textCard(x.c)}</div>`; }
+    return `<div class="card" data-i="${i}"><img src="${esc(src)}" alt="${esc(x.c.name)}" decoding="async"></div>`;
+  }
+  // An image that doesn't load shows the card's text from cards.js.
+  document.addEventListener("error", e => {
+    const img = e.target;
+    if (!(img instanceof HTMLImageElement)) return;
+    const box = img.closest(".card"); if (!box) return;
+    box.classList.add("tx-only");
+    box.innerHTML = textCard(items[+box.dataset.i].c);
+    missing++; note();
+  }, true);
+
+  let items = [], missing = 0;
+  const pref = { paper: store.get("gstormProxy.paper") || "A4", gap: store.get("gstormProxy.gap") || "0", only: new URLSearchParams(location.search).get("only") || "all" };
+  function note() {
+    const loading = items.some(x => imgs[keyOf(x)] === undefined);
+    const sld = items.filter(x => x.no && imgs[keyOf(x)] !== null).length;
+    $("#note").innerHTML = `<b>${items.length} cards on ${Math.ceil(items.length / 9)} pages.</b> ${loading ? "Loading the card images from Scryfall… " : ""}${sld} use the Secret Lair printing, by collector number; the rest use Scryfall's default image. ${failed ? "Scryfall couldn't be reached, so cards show their text; reload to try again. " : missing ? `${missing} card${missing > 1 ? "s" : ""} had no image, so ${missing > 1 ? "they show" : "it shows"} the card's text instead. ` : ""}Print at 100% or "actual size", not "fit to page", so the cards come out 63 × 88 mm. Proxies are for casual games and playtesting: tell your table before you play, and never sell them.`;
+  }
+  function zoom() {
+    const [w] = PAPER[pref.paper];
+    const px = w * 96 / 25.4, room = Math.min(innerWidth - 32, 900);
+    document.documentElement.style.setProperty("--z", Math.min(1, room / px).toFixed(3));
+  }
+  function render() {
+    items = deck(pref.only); missing = 0;
+    const [w, h] = PAPER[pref.paper];
+    const root = document.documentElement.style;
+    root.setProperty("--pw", w + "mm"); root.setProperty("--ph", h + "mm"); root.setProperty("--gap", pref.gap + "mm");
+    $("#paperRule").textContent = `@page { size: ${pref.paper === "A4" ? "A4" : "letter"} portrait; margin: 0; }`;
+    let html = "";
+    for (let p = 0; p < items.length; p += 9) html += `<div class="wrap-sheet"><section class="sheet" aria-label="Page ${p / 9 + 1}">${items.slice(p, p + 9).map((x, k) => cardHTML(x, p + k)).join("")}</section></div>`;
+    $("#sheets").innerHTML = html;
+    zoom(); note();
+  }
+  async function load() {
+    render();
+    await lookup(items);
+    const noSld = items.filter(x => x.no && imgs[keyOf(x)] === null).map(x => ({ c: x.c, no: null }));
+    if (noSld.length) await lookup(noSld);
+    render();
+  }
+  $("#paper").value = pref.paper; $("#gap").value = pref.gap; $("#only").value = ["all", "nonbasic", "sld"].includes(pref.only) ? pref.only : "all";
+  $("#paper").onchange = e => { pref.paper = e.target.value; store.put("gstormProxy.paper", pref.paper); render(); };
+  $("#gap").onchange = e => { pref.gap = e.target.value; store.put("gstormProxy.gap", pref.gap); render(); };
+  $("#only").onchange = e => { pref.only = e.target.value; history.replaceState(null, "", pref.only === "all" ? location.pathname : "?only=" + pref.only); load(); };
+  $("#print").onclick = () => print();
+  addEventListener("resize", zoom);
+  load();
+})();
+</script>
+</body>
+</html>

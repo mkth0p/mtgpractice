@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Goblin Storm</title>
+<meta name="description" content="Goblin Storm, the 2026 Secret Lair Commander deck led by Zada, Hedron Grinder: a step-by-step guide, every card with rulings, the combos, prices, a play checklist, a quiz, printable proxies and a playable Commander game against bots.">
+<meta name="theme-color" content="#f3f0e8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#07090c" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Goblin Storm">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cards.scryfall.io" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Martian+Mono:wght@400;500;600&family=Unbounded:wght@500;700;800;900&display=swap">
+<link rel="stylesheet" href="../miku/styles.css?v=43">
+<link rel="stylesheet" href="theme.css?v=43">
+<script>try { var t = localStorage.getItem("gstormWiki.theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar" id="topbar">
+  <div class="wrap bar">
+    <a class="brand" href="#guide" aria-label="Goblin Storm, home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="9" class="bm-bg"/><path d="M17.5 5 9 18h6l-2 9 9.5-13.5h-6z" style="fill: var(--teal-fill)"/></svg>
+      <span class="brand-txt"><b>Goblin Storm</b><small>Zada · Mono-red · B3</small></span>
+    </a>
+    <nav class="topnav" aria-label="Sections" data-nav></nav>
+    <div class="bar-actions">
+      <button class="icon-btn" id="searchBtn" type="button" aria-label="Search cards">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch light or dark theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="segbar" id="segbar"><div class="wrap"><div class="seg-track" id="segTrack" role="tablist"></div></div></div>
+</header>
+
+
+<main id="main">
+<!-- ================================================================== GUIDE -->
+<div class="view" id="view-guide" data-view="guide" data-segs="start:Overview,chapters:Chapters,combos:Combos,checklist:Checklist">
+
+  <div class="segment" data-segment="start">
+    <section class="hero" id="overview">
+      <div class="marquee" aria-hidden="true"><div class="marquee-track"><span>Now playing</span><b>Zada, Hedron Grinder</b><span>Secret Lair · 2026</span><b>One spell, one copy per Goblin</b><span>Storm · Mono-red</span><b>Haze of Rage loop</b><span>Now playing</span><b>Zada, Hedron Grinder</b><span>Secret Lair · 2026</span><b>One spell, one copy per Goblin</b><span>Storm · Mono-red</span><b>Haze of Rage loop</b></div></div>
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="kicker"><span class="live-dot" aria-hidden="true"></span>Secret Lair Commander deck · Bracket 3</p>
+          <h1 class="hero-title" aria-label="Goblin Storm"><span class="ht-1">Goblin</span><span class="ht-2" data-t="Storm">Storm</span></h1>
+          <p class="hero-lede">The Secret Lair Commander Deck: Goblin Storm, with new art by Wizard of Barge. <i-c>Zada, Hedron Grinder</i-c> copies every spell you aim at her once for each other creature you control, so a one-mana cantrip with ten Goblins out draws eleven cards. Make Goblins, cast cheap spells on Zada, then finish with storm or a huge attack. Here's the full manual: a guide in steps, every card with rulings, the combos, prices, a checklist to play with, a quiz, printable proxies and a real game to practise against.</p>
+          <ul class="ticket-strip" aria-label="Deck facts">
+            <li class="teal">Bracket 3</li>
+            <li>36 lands</li>
+            <li class="pink">25 Goblins</li>
+            <li>37 new-art cards</li>
+          </ul>
+          <div class="hero-cta">
+            <a class="btn primary" href="#ch-deck-in-60-seconds">Start the guide</a>
+            <a class="btn" href="#quiz">Take the quiz</a>
+            <a class="btn ghost" href="#play"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>Play a game</a>
+          </div>
+        </div>
+        <button class="cmdr" type="button" data-card="Zada, Hedron Grinder">
+          <span class="foil" data-tilt><span class="mini-card" data-art="Zada, Hedron Grinder"></span><span class="shine" aria-hidden="true"></span></span>
+          <span class="cmdr-copy">
+            <span class="label">Commander</span>
+            <span class="cmdr-name">Zada, Hedron Grinder</span>
+            <span class="muted cmdr-desc">{3}{R}, 3/3 Goblin Ally. Whenever you cast an instant or sorcery spell that targets only Zada, copy it for each other creature you control that the spell could target. Each copy targets a different one of those creatures.</span>
+          </span>
+        </button>
+      </div>
+      <div class="wave" aria-hidden="true" id="wave"></div>
+    </section>
+
+    <div class="wrap">
+      <dl class="hero-stats">
+        <div class="stat"><dt><b data-count="100">100</b></dt><dd>cards, 36 lands, 22 of them Mountains</dd></div>
+        <div class="stat"><dt><b data-count="2.6" data-dec="1">2.6</b></dt><dd>average mana value of the nonland cards</dd></div>
+        <div class="stat"><dt><b data-count="10">10</b></dt><dd>spells built to target Zada and get copied</dd></div>
+        <div class="stat"><dt><b data-count="149.99" data-dec="2">149.99</b></dt><dd>US dollars, the Secret Lair price in May 2026</dd></div>
+      </dl>
+
+      <section class="block" id="engine">
+        <div class="section-head">
+          <p class="eyebrow">How the deck wins</p>
+          <h2>Goblins, Zada, copies, storm</h2>
+        </div>
+        <ol class="flow">
+          <li><span class="beat">1</span><div><b>Go wide</b><p><i-c>Krenko, Mob Boss</i-c>, <i-c>Dragon Fodder</i-c>, <i-c>Empty the Warrens</i-c> and <i-c>Siege-Gang Commander</i-c> fill the board with Goblin tokens.</p></div></li>
+          <li><span class="beat">2</span><div><b>Point it at Zada</b><p>Cast <i-c>Expedite</i-c>, <i-c>Crimson Wisps</i-c> or <i-c>Ancestors' Aid</i-c> on <i-c>Zada, Hedron Grinder</i-c>. Every other creature gets a copy: cards, haste, Treasures.</p></div></li>
+          <li><span class="beat">3</span><div><b>Turn it into mana</b><p><i-c>Storm-Kiln Artist</i-c> makes a Treasure for every cast and copy. <i-c>Brightstone Ritual</i-c> and <i-c>Battle Hymn</i-c> pay for the board.</p></div></li>
+          <li><span class="beat">4</span><div><b>Finish</b><p>A big <i-c>Grapeshot</i-c>, a twenty-Goblin <i-c>Empty the Warrens</i-c> with <i-c>Impact Tremors</i-c>, or a <i-c>Haze of Rage</i-c> loop and one attack. See <a href="#guide/combos">the combos</a>.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="block" id="continue">
+        <div class="section-head">
+          <p class="eyebrow">The guide</p>
+          <h2>Learn it track by track</h2>
+          <p class="muted">Nine short chapters, from the deck in 60 seconds to how strong it is. Your place is saved on this device.</p>
+        </div>
+        <div class="resume" id="resume"></div>
+      </section>
+
+      <section class="block" id="quiz-promo">
+        <div class="section-head">
+          <p class="eyebrow">Memorize it</p>
+          <h2>Quiz yourself</h2>
+          <p class="muted">44 questions on Zada, storm, the combos, the cards, the rules and the game plan, plus flashcards for every card. Questions you miss come back more often.</p>
+        </div>
+        <div class="btn-row"><a class="btn primary" href="#quiz">Start the quiz</a><a class="btn" href="#guide/checklist">Open the play checklist</a><a class="btn ghost" href="proxies.html">Print the proxies</a></div>
+      </section>
+
+      <section class="block" id="play-promo">
+        <a class="play-promo" href="#play">
+          <span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="pp-copy"><span class="eyebrow">Live</span><b>Take Goblin Storm to a four-player pod</b><span class="muted">A real Commander game against bots dealt at random. The light bulb counts Zada's copies and your storm, and shows the turn checklist.</span></span>
+          <span class="pp-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span>
+        </a>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="chapters">
+    <div class="wrap">
+      <section class="block" id="chapters">
+        <div class="section-head">
+          <p class="eyebrow">The guide · 9 tracks</p>
+          <h2>Step by step</h2>
+          <p class="muted" id="guideMeta">Tap a track to read it. Each one ends with the next.</p>
+        </div>
+        <ol class="tracklist" id="tracklist"></ol>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="combos">
+    <div class="wrap">
+      <section class="block" id="kills">
+        <div class="section-head">
+          <p class="eyebrow">Combos &amp; kills</p>
+          <h2>How to actually win</h2>
+          <p class="prose">The deck has one two-card loop and a lot of big turns. Build a board, cast the cheap spells on <i-c>Zada, Hedron Grinder</i-c> for cards, mana and haste, then finish with storm or a drain. Tell your table about the Haze of Rage loop before you play.</p>
+        </div>
+        <div data-widget="zadaCalc"></div>
+      </section>
+
+      <section class="block" id="combo-haze">
+        <details class="ticket" open>
+          <summary class="stub"><span class="admit">Combo 1</span><span class="kind">Unbounded power and storm</span><span class="serial mono" aria-hidden="true">No. 01 · Your main phase</span><span class="t-title">Storm-Kiln Artist + Haze of Rage</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <div class="pieces"><button class="chip" type="button" data-card="Storm-Kiln Artist">Storm-Kiln Artist</button><span class="plus">+</span><button class="chip" type="button" data-card="Haze of Rage">Haze of Rage</button></div>
+            <dl class="kv">
+              <dt>You need</dt><dd>Artist on the battlefield, Haze in hand, and three spells already cast this turn (two with <i-c>Ruby Medallion</i-c>).</dd>
+              <dt>Speed</dt><dd>Sorcery. Do it before combat with creatures that can attack.</dd>
+            </dl>
+            <ol class="steps">
+              <li><span>Cast <i-c>Haze of Rage</i-c> with buyback for {3}{R}. Storm copies it once for each spell cast before it.</span></li>
+              <li><span><i-c>Storm-Kiln Artist</i-c> makes a Treasure for the cast and for each copy: 1 + storm. From storm 3 that's 4 Treasures, enough for the next Haze.</span></li>
+              <li><span>Haze goes back to your hand. Cast it again: storm is one higher each time, so every loop gives more power and more spare Treasures.</span></li>
+              <li><span>Stop when the team is big enough, then attack. Spare Treasures can pay for a <i-c>Grapeshot</i-c> at the end.</span></li>
+            </ol>
+            <div class="note warn"><h4>Copies count for Artist, not for storm</h4><p>Artist triggers when you cast or copy a spell, so every storm copy makes a Treasure. Storm counts only spells cast, so the copies don't raise the storm count.</p></div>
+          </div>
+        </details>
+      </section>
+
+      <section class="block" id="combo-storm">
+        <div class="section-head">
+          <p class="eyebrow">Count it out</p>
+          <h2>Storm turns</h2>
+          <p class="muted">Each copy of Grapeshot can hit a different target, each Empty the Warrens copy makes two Goblins, and each Haze of Rage copy pumps the whole team.</p>
+        </div>
+        <div data-widget="stormCalc"></div>
+      </section>
+
+      <section class="block" id="combo-drain">
+        <details class="ticket pinkish">
+          <summary class="stub"><span class="admit">Combo 2</span><span class="kind">Damage as Goblins enter</span><span class="serial mono" aria-hidden="true">No. 02 · Any token turn</span><span class="t-title">Impact Tremors + General Kreat + a token storm</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <div class="pieces"><button class="chip" type="button" data-card="Impact Tremors">Impact Tremors</button><span class="plus">+</span><button class="chip" type="button" data-card="General Kreat, the Boltbringer">General Kreat, the Boltbringer</button><span class="plus">+</span><button class="chip" type="button" data-card="Empty the Warrens">Empty the Warrens</button></div>
+            <ol class="steps">
+              <li><span>Each creature entering under your control is 1 damage to each opponent from <i-c>Impact Tremors</i-c>, and 1 more from <i-c>General Kreat, the Boltbringer</i-c>.</span></li>
+              <li><span>A sixth-spell <i-c>Empty the Warrens</i-c> makes 12 Goblins: 24 damage to every opponent with both out.</span></li>
+              <li><span><i-c>Roaming Throne</i-c> naming Goblin makes Kreat trigger twice. It doesn't copy Impact Tremors, which is an enchantment.</span></li>
+            </ol>
+          </div>
+        </details>
+      </section>
+
+      <section class="block" id="combo-sac">
+        <details class="ticket plain">
+          <summary class="stub"><span class="admit">Combo 3</span><span class="kind">Sacrifice drain</span><span class="serial mono" aria-hidden="true">No. 03 · Instant speed</span><span class="t-title">Goblin Bombardment + Pashalik Mons</span><span class="t-open" aria-hidden="true"></span></summary>
+          <div class="ticket-body">
+            <div class="pieces"><button class="chip" type="button" data-card="Goblin Bombardment">Goblin Bombardment</button><span class="plus">+</span><button class="chip" type="button" data-card="Pashalik Mons">Pashalik Mons</button><span class="plus">+</span><button class="chip" type="button" data-card="Boggart Shenanigans">Boggart Shenanigans</button></div>
+            <ol class="steps">
+              <li><span>Sacrifice a Goblin to <i-c>Goblin Bombardment</i-c>: 1 damage to any target.</span></li>
+              <li><span><i-c>Pashalik Mons</i-c> deals 1 more when a Goblin you control dies, and <i-c>Boggart Shenanigans</i-c> 1 more. That's 3 per Goblin.</span></li>
+              <li><span>Do it in response to a board wipe, or at the end of a turn to finish a player.</span></li>
+            </ol>
+          </div>
+        </details>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="checklist">
+    <div class="wrap">
+      <section class="block" id="checklist">
+        <div class="section-head">
+          <p class="eyebrow">Play with it open</p>
+          <h2>The turn checklist</h2>
+          <p class="muted">What to check at each moment of a game, in order. Tick items as you go; the ticks stay on this device until you clear them. The same list is in the game's Coach panel.</p>
+        </div>
+        <div data-widget="playChecklist"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== QUIZ -->
+<div class="view" id="view-quiz" data-view="quiz">
+  <div class="wrap">
+    <section class="block" id="quiz-sec">
+      <div class="section-head">
+        <p class="eyebrow">Memorize it</p>
+        <h2>Quiz</h2>
+        <p class="muted">Questions you get wrong come back often; ones you know move up a box and show up less. Learned means box 3 or higher. Progress stays on this device.</p>
+      </div>
+      <div data-widget="quiz"></div>
+    </section>
+  </div>
+</div>
+
+<!-- ================================================================== CARDS -->
+<div class="view" id="view-cards" data-view="cards" data-segs="browse:Cards,setlist:Setlist,glossary:Glossary,faq:FAQ">
+  <div class="segment" data-segment="browse">
+    <div class="toolbar" id="toolbar">
+      <div class="wrap">
+        <div class="tool-row">
+          <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="sr">Search cards</span><input id="q" type="search" placeholder="Search names, rules and rulings" autocomplete="off" enterkeyhint="search"><button class="clear" type="button" id="qClear" aria-label="Clear search" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 7l10 10M17 7 7 17"/></svg></button></label>
+          <label class="sort-wrap"><span class="sr">Sort cards</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></svg>
+            <select class="sort" id="sort">
+              <option value="role">Shelves by role</option>
+              <option value="type">Shelves by type</option>
+              <option value="rating">Best first</option>
+              <option value="mv">By mana value</option>
+              <option value="az">A to Z</option>
+            </select>
+          </label>
+          <button class="icon-btn view-toggle" type="button" id="viewToggle" aria-pressed="false" aria-label="Show as a list">
+            <svg class="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="9" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="9" rx="1.5"/><rect x="3.5" y="15.5" width="7" height="5" rx="1.5"/><rect x="13.5" y="15.5" width="7" height="5" rx="1.5"/></svg>
+            <svg class="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+          </button>
+        </div>
+        <div class="chips" id="roleChips" role="group" aria-label="Filter by role"></div>
+      </div>
+    </div>
+    <div class="wrap">
+      <p class="count" id="count" aria-live="polite"></p>
+      <div class="card-list" id="cardList"></div>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="setlist">
+    <div class="wrap">
+      <section class="block" id="setlist-sec">
+        <div class="section-head">
+          <p class="eyebrow">The setlist</p>
+          <h2>All 100 cards</h2>
+          <p class="muted">Tap any card for its full entry.</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" type="button" data-copy="names">Copy decklist</button>
+          <button class="btn" type="button" data-copy="qty">Copy with quantities</button>
+        </div>
+        <div class="setlist" id="setlist"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="glossary">
+    <div class="wrap">
+      <section class="block" id="glossary">
+        <div class="section-head">
+          <p class="eyebrow">Glossary</p>
+          <h2>Every keyword in this deck</h2>
+          <p class="muted">What each term means, and which of your cards use it.</p>
+        </div>
+        <label class="search small-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="sr">Filter the glossary</span><input id="glossQ" type="search" placeholder="Filter terms" autocomplete="off"></label>
+        <div class="gloss" id="gloss"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="faq">
+    <div class="wrap">
+      <section class="block" id="faq">
+        <div class="section-head">
+          <p class="eyebrow">FAQ</p>
+          <h2>Questions people ask about this deck</h2>
+        </div>
+        <div class="faq-list" id="faqList"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== PLAY -->
+<div class="view view-play" id="view-play" data-view="play">
+  <div class="wrap">
+    <div class="play-host" id="playHost">
+      <div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Setting up the table…</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== ARENA -->
+<div class="view view-arena" id="view-arena" data-view="arena" data-segs="setup:New,live:Live,standings:Standings,matchups:Matchups,decks:Decks,games:Games,saved:Saved">
+  <div class="segment" data-segment="setup"><div class="wrap" data-arena="setup"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+  <div class="segment" data-segment="live"><div class="wrap" data-arena="live"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+  <div class="segment" data-segment="standings"><div class="wrap" data-arena="standings"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+  <div class="segment" data-segment="matchups"><div class="wrap" data-arena="matchups"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+  <div class="segment" data-segment="decks"><div class="wrap" data-arena="decks"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+  <div class="segment" data-segment="games"><div class="wrap" data-arena="games"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+  <div class="segment" data-segment="saved"><div class="wrap" data-arena="saved"><div class="play-loading"><span class="pp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><p>Opening the Arena…</p></div></div></div>
+</div>
+
+<!-- ================================================================== STATS -->
+<div class="view" id="view-stats" data-view="stats" data-segs="deck:Deck,odds:Odds,power:Power,you:You">
+  <div class="segment" data-segment="deck">
+    <div class="wrap">
+      <section class="block" id="roll">
+        <div class="section-head">
+          <p class="eyebrow">Piano roll</p>
+          <h2>The whole deck as a score</h2>
+          <p class="muted">Every nonland card is a note: its lane is its role, its position is its mana value. Tap a note to open the card.</p>
+        </div>
+        <div class="roll" id="roll-chart"></div>
+      </section>
+      <section class="block" id="curve">
+        <div class="section-head">
+          <p class="eyebrow">Mana curve</p>
+          <h2>The levels</h2>
+          <p class="muted">Nonland cards by mana value. X costs count as 0 plus their fixed symbols. Tap a bar to list its cards.</p>
+        </div>
+        <div class="split">
+          <div class="eq-card">
+            <div class="eq-head"><b>64 nonland cards</b><span class="muted mono small">peak at 1 mana</span></div>
+            <div class="eq" id="eq" role="group" aria-label="Mana curve"></div>
+            <div class="eq-readout" id="eqReadout" aria-live="polite"></div>
+          </div>
+          <div class="eq-card">
+            <div class="eq-head"><b>Card types</b><span class="muted mono small">100 cards</span></div>
+            <div class="typebars" id="typebars"></div>
+          </div>
+        </div>
+      </section>
+      <section class="block" id="colors">
+        <div class="section-head">
+          <p class="eyebrow">Colors</p>
+          <h2>Pips against sources</h2>
+          <p class="muted">Every colored symbol in the deck is red, so this is just a count.</p>
+        </div>
+        <div class="split" id="colorStats"></div>
+      </section>
+      <section class="block" id="roles">
+        <div class="section-head">
+          <p class="eyebrow">Roles</p>
+          <h2>What the 99 do</h2>
+          <p class="muted">A card can fill more than one role, so the bars add up to more than 99.</p>
+        </div>
+        <div class="typebars roles-bars" id="roleBars"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="odds">
+    <div class="wrap">
+      <section class="block" id="odds">
+        <div class="section-head">
+          <p class="eyebrow">Draw odds</p>
+          <h2>What are the chances?</h2>
+          <p class="muted">Exact odds from the real 99: how likely you are to see a card, or a group of cards, by a given turn.</p>
+        </div>
+        <div data-widget="drawOdds"></div>
+      </section>
+      <section class="block" id="opener">
+        <div class="section-head">
+          <p class="eyebrow">Opening hands</p>
+          <h2>Lands in your first seven</h2>
+          <p class="muted">36 lands in the 99, plus Sol Ring and 13 rituals and mana cards. How often each land count shows up in a fresh seven.</p>
+        </div>
+        <div class="land-odds" id="landOdds"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="segment" data-segment="power">
+    <div class="wrap">
+      <section class="block" id="strength">
+        <div class="section-head">
+          <p class="eyebrow">Strength</p>
+          <h2>A strong Bracket 3 deck</h2>
+          <p class="prose">Bracket 3 is "Upgraded": up to three Game Changers, no mass land destruction, and two-card combos only late in the game. The deck has no Game Changers. The bracket checker on scrollvault.net rates it Bracket 3, 6.2 out of 10, because <i-c>Storm-Kiln Artist</i-c> and <i-c>Haze of Rage</i-c> form a two-card loop. That loop needs three spells first, so it is a late-game combo. Tell your table about it.</p>
+        </div>
+        <div class="power" aria-hidden="true"><div class="power-track"><i style="--from:52%;--to:64%"></i></div><div class="power-scale"><span>1</span><span>casual</span><span>upgraded</span><span>optimized</span><span>cEDH 10</span></div></div>
+        <div class="grid-2">
+          <div class="panel rule keep"><h3>Why it's strong</h3><ul class="prose">
+            <li>Zada turns every cheap spell into a whole-board spell: one <i-c>Expedite</i-c> can draw ten cards.</li>
+            <li>15 Goblin makers and 13 rituals and mana cards: big turns come out of nowhere.</li>
+            <li>Many ways to finish: storm, drains as Goblins enter or die, and huge attacks.</li>
+            <li>Mono-red, 36 lands: the mana is easy.</li></ul></div>
+          <div class="panel rule mull"><h3>What holds it back</h3><ul class="prose">
+            <li>Board wipes hit hard: the deck is mostly 1/1 tokens. Sacrifice them in response.</li>
+            <li>Zada dies to every removal spell, and <i-c>Swiftfoot Boots</i-c> is the only protection.</li>
+            <li>Only one real tutor (<i-c>Goblin Matron</i-c>), so the deck can draw the wrong half.</li>
+            <li>Light interaction: <i-c>Chaos Warp</i-c>, <i-c>Vandalblast</i-c>, <i-c>Blasphemous Act</i-c> and a few damage spells.</li></ul></div>
+        </div>
+      </section>
+
+      <section class="block" id="vsbots">
+        <div class="section-head">
+          <p class="eyebrow">Against real opponents</p>
+          <h2>Goblin Storm against the bots</h2>
+          <p class="muted">Games played by the same engine as the Play tab, with bots on every seat: Goblin Storm against three random precons, and against three random Bracket 4 decks that block, remove and counter.</p>
+        </div>
+        <div class="split" id="botStats"></div>
+      </section>
+    </div>
+  </div>
+  <div class="segment" data-segment="you">
+    <div class="wrap">
+      <section class="block" id="record">
+        <div class="section-head">
+          <p class="eyebrow">Your record</p>
+          <h2>Your games against the bots</h2>
+          <p class="muted">Saved on this device when you finish a game in the Play tab.</p>
+        </div>
+        <div id="myStats"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== SHOP -->
+<div class="view" id="view-shop" data-view="shop" data-segs="buy:Buy it,proxies:Proxies,swaps:Swaps,list:Decklist">
+  <div class="segment" data-segment="buy">
+    <div class="wrap">
+      <section class="block" id="buy">
+        <div class="section-head">
+          <p class="eyebrow">What it costs</p>
+          <h2>The box, and the cards one by one</h2>
+          <p class="prose">The Secret Lair Commander Deck: Goblin Storm went on sale on 18 May 2026 at MagicSecretLair.com for $149.99, one per customer. It has 12 foil cards with new art by Wizard of Barge (Zada, <i-c>Krenko, Mob Boss</i-c>, <i-c>Pashalik Mons</i-c>, <i-c>Brightstone Ritual</i-c>, <i-c>Broadside Bombardiers</i-c>, <i-c>Conspicuous Snoop</i-c>, <i-c>Empty the Warrens</i-c>, <i-c>Grapeshot</i-c>, <i-c>Skirk Prospector</i-c>, <i-c>Roaming Throne</i-c>, <i-c>Skullclamp</i-c>, <i-c>Sol Ring</i-c>), 22 foil borderless Mountains in three new arts, 3 more new-art cards that aren't foil, 63 reprints with the Planeswalker stamp, tokens, a storm counter and a deck box. Below is what each card of the list costs on its own, from Archidekt.</p>
+        </div>
+        <div data-widget="buyList"></div>
+      </section>
+    </div>
+  </div>
+  <div class="segment" data-segment="proxies">
+    <div class="wrap">
+      <section class="block" id="proxies">
+        <div class="section-head">
+          <p class="eyebrow">Print and play</p>
+          <h2>Printable proxies of all 100 cards</h2>
+          <p class="prose">A page with every card at real size, 63 by 88 millimetres, nine to a sheet of A4 or Letter paper. It uses the Secret Lair art where Scryfall has it, and the card's text if an image doesn't load. Cut along the marks and sleeve them in front of a basic land. Proxies are for casual games and playtesting: tell your table before you play.</p>
+        </div>
+        <div class="btn-row"><a class="btn primary" href="proxies.html">Open the proxy page</a><a class="btn" href="proxies.html?only=sld">Only the Secret Lair art cards</a></div>
+      </section>
+    </div>
+  </div>
+  <div class="segment" data-segment="swaps">
+    <div class="wrap">
+      <section class="block" id="swaps">
+        <div class="section-head">
+          <p class="eyebrow">Tuning</p>
+          <h2>What other players change</h2>
+          <p class="prose">From EDHREC's page for this precon, read 20 Oct 2026: the share of decks built from it that cut or add each card. These are what people do, not tested swaps, and the cards added aren't in the game's card pool yet.</p>
+        </div>
+        <div class="grid-2">
+          <div class="panel rule mull"><h3>Most cut</h3><ul class="prose">
+            <li><i-c>Sazacap's Brew</i-c>, 74.6%</li>
+            <li><i-c>Glimpse the Impossible</i-c>, 71.2%</li>
+            <li><i-c>Redcap Gutter-Dweller</i-c>, 69.6%</li>
+            <li><i-c>Quest for the Goblin Lord</i-c>, 59.3%</li>
+            <li><i-c>Idol of Oblivion</i-c>, 56.9%</li>
+            <li>Lands: <i-c>Smoldering Crater</i-c> 43.1%, <i-c>Hidden Volcano</i-c> 41.8%, <i-c>Forgotten Cave</i-c> 34.4%</li></ul></div>
+          <div class="panel rule keep"><h3>Most added</h3><ul class="prose">
+            <li>Reckless Ransacking, 57.9%</li>
+            <li>Moggcatcher, 57.2%</li>
+            <li>Hexing Squelcher, 49.9%</li>
+            <li>Ancestral Anger, 48.0%</li>
+            <li>Impolite Entrance, 45.3%</li>
+            <li>Lands: Sokenzan 15.7%, Three Tree City 14.2%, Nykthos, Shrine to Nyx 13.0%</li></ul></div>
+        </div>
+        <p class="muted small">Reckless Ransacking, Ancestral Anger and Impolite Entrance are cheap spells that target a creature, so Zada copies them. Moggcatcher is a second Goblin tutor. Hexing Squelcher stops opponents countering your spells.</p>
+      </section>
+    </div>
+  </div>
+  <div class="segment" data-segment="list">
+    <div class="wrap">
+      <section class="block" id="setlist-buy">
+        <div class="section-head">
+          <p class="eyebrow">The 100</p>
+          <h2>Goblin Storm, all 100</h2>
+          <p class="muted">The full list is in Cards, under Setlist, with a copy button.</p>
+        </div>
+        <div class="btn-row"><a class="btn primary" href="#cards/setlist">Open the setlist</a></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer class="foot"><div class="wrap">
+  <p>Built for the Secret Lair Commander Deck: Goblin Storm (Zada, Hedron Grinder). Decklist from Wizards of the Coast's decklist article; rules text from the Forge card database, 20 Oct 2026. Also see the <a href="../miku/">Miku deck</a> and the <a href="../etrata/">Etrata deck</a>.</p>
+  <p>Card images and links via Scryfall. Magic: The Gathering is © Wizards of the Coast. This is an unofficial fan page.</p>
+</div></footer>
+
+<nav class="tabbar" id="tabbar" aria-label="Sections"><div class="tabs" data-nav></div></nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" aria-hidden="true">
+  <div class="sheet-bar"><span class="grab" aria-hidden="true"></span><span class="sheet-eyebrow" id="sheetEyebrow"></span><span class="sheet-pos mono" id="sheetPos"></span>
+    <button class="icon-btn close" type="button" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+
+<div class="reader" id="reader" role="dialog" aria-modal="true" aria-labelledby="readerTitle" aria-hidden="true">
+  <div class="reader-bar">
+    <button class="icon-btn" type="button" id="readerClose" aria-label="Back to the chapters"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="reader-now"><span class="mono" id="readerNo"></span><b id="readerBarTitle"></b></div>
+    <span class="mono reader-time" id="readerTime"></span>
+    <div class="scrubber" aria-hidden="true"><i id="readerProgress"></i></div>
+  </div>
+  <div class="reader-body" id="readerBody"></div>
+</div>
+
+<div class="peek" id="peek" aria-hidden="true"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../miku/kit.js?v=43"></script>
+<script src="cards.js?v=43"></script>
+<script src="wiki.js?v=43"></script>
+<script src="guide.js?v=43"></script>
+<script src="glossary.js?v=43"></script>
+<script src="quiz.js?v=43"></script>
+<script src="prices.js?v=43"></script>
+<script src="../miku/game/checklist-gstorm.js?v=43"></script>
+<script src="site.js?v=43"></script>
+<script src="../miku/app.js?v=43"></script>
+</body>
+</html>

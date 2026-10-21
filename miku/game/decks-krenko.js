@@ -1638,23 +1638,7 @@
   tokenSorcery("Hordeling Outburst", "{1}{R}{R}", 3, 7);
   tokenSorcery("Goblin Rally", "{3}{R}{R}", 4, 6);
   tokenSorcery("Dragon Fodder", "{1}{R}", 2, 6);
-
-  function pumpNow(g, p) {
-    if (g.phase !== "main1" || g.active !== p) return false;
-    return g.creatures(p).filter(c => !c.tapped && (!c.sick || g.kw(c, "haste")) && !g.kw(c, "defender")).length >= 6;
-  }
-  D({
-    name: "Krenko's Command", cost: "{1}{R}", type: "Sorcery",
-    text: "Choose one —\n• Create two 1/1 red Goblin creature tokens.\n• Creatures you control get +1/+1 until end of turn.",
-    modes: [
-      { label: "Create two 1/1 red Goblins", do: (g, ctx) => g.createToken(ctx.p, T.goblin, { count: 2 }) },
-      {
-        label: "Creatures you control get +1/+1",
-        do: (g, ctx) => { g.addEffect({ objs: g.creatures(ctx.p), pt: [1, 1] }); g.log(`Creatures ${ctx.p.name} controls get +1/+1.`, { p: ctx.p, cards: ["Krenko's Command"] }); }
-      }
-    ],
-    ai: { priority: 6, mode: (g, p) => (pumpNow(g, p) ? 1 : 0) }
-  });
+  tokenSorcery("Krenko's Command", "{1}{R}", 2, 6);
 
   D({
     name: "Empty the Warrens", cost: "{3}{R}", type: "Sorcery",
