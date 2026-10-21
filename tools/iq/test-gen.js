@@ -53,5 +53,22 @@ for (let lv = 1; lv <= G.ARITH_MAX; lv++) for (let i = 0; i < N; i++) { const a 
 for (let lv = 1; lv <= G.SERIES_MAX; lv++) for (let i = 0; i < N; i++) { const s = G.genSeries("t" + i, lv); if (new Set(s.options).size !== s.options.length || s.options.length < 4) fail("series options", lv, i, J(s)); }
 for (let len = 2; len <= 9; len++) for (const mode of ["forward", "backward", "sequencing"]) { const s = G.genSpan("t", mode, len, 1); if (s.seq.length !== len) fail("span"); }
 for (let len = 2; len <= 8; len++) { const s = G.genLNS("t", len, 1); if (!s || s.seq.length !== len) fail("lns", len); }
+for (let i = 0; i < N; i++) { const d = G.genDSM("t" + i); if (new Set(d.key).size !== 6 || d.digit.slice().sort().join("") !== "112233" || d.probes.some((k, j) => k === d.probes[j - 1])) fail("dsm", i); }
+// open norms: the normal functions and a few hand-checked scores
+{
+  const NM = require("../../iq/norms.js"), near = (a, b, e) => Math.abs(a - b) <= e;
+  if (!near(NM.Phi(1.96), 0.975, 1e-4) || !near(NM.PhiInv(0.975), 1.96, 1e-3) || !near(NM.PhiInv(0.1), -1.2816, 1e-3)) fail("normal cdf");
+  const sc = (task, r, extra) => NM.score(Object.assign({ task, mode: "test", result: r }, extra || {}), 30);
+  const f6 = sc("dsf", { longest: 6 }); // mid-p of span 6 against 6.35 (1.15)
+  const want = NM.PhiInv((NM.Phi((6.5 - 6.35) / 1.15) + NM.Phi((5.5 - 6.35) / 1.15)) / 2);
+  if (!near(f6.z, want, 1e-9) || f6.atMax) fail("dsf score", J(f6));
+  if (!sc("dsf", { longest: 9 }).atMax || sc("dsb", { longest: 7 }).atMax) fail("ceiling flag");
+  const m = sc("dsm", { medianRtc: 1005.3 }), mm = sc("dsm", { medianRtc: 1039.5 }, { device: "mac" });
+  if (!near(m.z, 1, 1e-6) || !near(mm.z, (1342.3 - 1039.5) / 302.3, 1e-9)) fail("dsm score", m.z, mm.z);
+  const c = NM.composite([f6, m]);
+  if (!near(c.z, (f6.z + m.z) / Math.sqrt(2 + 2 * NM.ASSUMED_R), 1e-9) || !(c.lo < c.iq && c.iq < c.hi)) fail("composite", J(c));
+  if (NM.score({ task: "matrix", mode: "test", result: { raw: 20 } }, 30) || NM.score({ task: "dsf", mode: "practice", result: { longest: 6 } }, 30)) fail("scored a task or mode without norms");
+  console.log(`norms: dsf 6 -> IQ scale ${f6.iq.toFixed(1)}, dsm 1005 ms -> ${m.iq.toFixed(1)}, composite ${c.iq.toFixed(1)} (${c.lo.toFixed(0)} to ${c.hi.toFixed(0)})`);
+}
 console.log(fails ? `${fails} failures` : `all generators ok (${Date.now() - t0} ms)`);
 process.exit(fails ? 1 : 0);

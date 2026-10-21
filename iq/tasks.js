@@ -219,7 +219,7 @@
   function spanTask(id, name, mode, short, models) {
     return {
       id, name, index: "memory", short, models, tag: mode === "sequencing" ? "WAIS-5 WMI · FSIQ" : "WAIS-5 secondary",
-      admin: { kind: "span", min: mode === "forward" ? 2 : 2, max: mode === "backward" ? 8 : 9, trials: 2 },
+      admin: { kind: "span", min: 2, max: mode === "backward" ? 8 : 9, normMax: mode === "forward" ? 12 : mode === "backward" ? 10 : null, trials: 2 },
       item: (seed, len, trial) => G.genSpan(seed, mode, len, trial),
       async render(host, it, ctx) {
         host.innerHTML = `<p class="prompt">${{ forward: "Remember the digits in the same order.", backward: "Remember the digits, then give them in reverse order.", sequencing: "Remember the digits, then give them from smallest to largest." }[mode]}</p><div id="s"></div>`;
@@ -343,6 +343,30 @@
       return new Promise(res => ctx.onTimeout(() => res({ response: log, correct: right, wrong, points: right })));
     },
   };
+  T.dsm = {
+    id: "dsm", tag: "open norms", name: "Digit Symbol Matching", index: "speed", short: "Which digit goes with the symbol? Tap 1, 2 or 3, fast.",
+    models: "TestMyBrain Digit Symbol Matching (Passell et al. 2021), a short digit-symbol test with open adult norms; scored by median correct response time",
+    admin: { kind: "speed", seconds: 90, metric: "rt" },
+    item: seed => G.genDSM(seed),
+    async render(host, it, ctx) {
+      let i = 0, right = 0, wrong = 0, busy = false; const log = [];
+      host.innerHTML = `<div class="stim"><div class="dsm-probe" id="pr"></div><div class="code-key dsm-key">${it.key.map((g, k) => `<div>${G.glyphSvg(g, "symbol")}<b>${it.digit[k]}</b></div>`).join("")}</div></div><div class="pad" style="grid-template-columns:repeat(3,minmax(0,72px))">${[1, 2, 3].map(n => `<button type="button" data-n="${n}">${n}</button>`).join("")}</div><p class="small muted" style="text-align:center">Keys 1 to 3 work too.</p>`;
+      const draw = () => { $("#pr", host).innerHTML = G.glyphSvg(it.key[it.probes[i % it.probes.length]], "symbol to match"); t = performance.now(); };
+      let t = 0; draw();
+      const answer = n => {
+        if (busy) return;
+        const ok = n === it.digit[it.probes[i % it.probes.length]]; ok ? right++ : wrong++;
+        log.push({ ok, rt: Math.round(performance.now() - t) }); i++;
+        // the chosen digit is highlighted for 300 ms before the next symbol, as in the source
+        const b = $(`[data-n="${n}"]`, host); busy = true; if (b) b.classList.add("hit");
+        setTimeout(() => { busy = false; if (b) b.classList.remove("hit"); if (host.isConnected) draw(); }, 300);
+      };
+      $$("[data-n]", host).forEach(b => b.onclick = () => answer(+b.dataset.n));
+      const onKey = e => { if (/^[1-3]$/.test(e.key)) answer(+e.key); };
+      document.addEventListener("keydown", onKey);
+      return new Promise(res => ctx.onTimeout(() => { document.removeEventListener("keydown", onKey); res({ response: log, correct: right, wrong, points: right }); }));
+    },
+  };
   T.symsearch = {
     id: "symsearch", tag: "WAIS-5 PSI", name: "Symbol Search", index: "speed", short: "Is either target symbol in the row? Yes or no, fast.",
     models: "Symbol Search (WAIS-5, WAIS-IV)",
@@ -378,36 +402,6 @@
       const onKey = e => { if (/^[1-4]$/.test(e.key)) answer(+e.key); };
       document.addEventListener("keydown", onKey);
       return new Promise(res => ctx.onTimeout(() => { document.removeEventListener("keydown", onKey); res({ response: log, correct: right, wrong, points: right }); }));
-    },
-  };
-
-  /* The active-control activity for a study: visual search for a T among rotated Ls. It keeps
-     people busy with a cognitive-looking task that does not train reasoning. */
-  T.vsearch = {
-    id: "vsearch", tag: "Study control", name: "Visual search (control activity)", index: "control", short: "Find the T among the Ls, as fast as you can.",
-    models: "Classic visual search (Treisman-style T among L), used as an active-control activity",
-    admin: { kind: "speed", seconds: 120, practiceSeconds: 300 },
-    item: seed => ({ seed }),
-    async render(host, it, ctx) {
-      let right = 0, wrong = 0, n = 0; const log = [];
-      const r = window.IQGEN.rng(it.seed + "|vs");
-      host.innerHTML = `<p class="prompt">Tap the <b>T</b>. If there is none, tap “No T”.</p><div class="stim"><svg viewBox="0 0 300 300" id="vs" style="display:block;width:100%;max-width:360px;margin:0 auto"></svg></div><div class="next"><button type="button" class="btn" id="none">No T</button></div>`;
-      let has = false, t = performance.now();
-      const draw = () => {
-        const size = 8 + Math.min(24, Math.floor(n / 4) * 2); has = r.chance(0.5);
-        const cells = r.sample(Array.from({ length: 36 }, (_, i) => i), size);
-        $("#vs", host).innerHTML = `<rect width="300" height="300" fill="#fff"/>` + cells.map((c, i) => {
-          const x = 25 + (c % 6) * 50 + r.int(-8, 8), y = 25 + Math.floor(c / 6) * 50 + r.int(-8, 8), rot = r.pick([0, 90, 180, 270]);
-          const isT = has && i === 0;
-          const path = isT ? "M-11,-11 L11,-11 M0,-11 L0,11" : "M-11,-11 L-11,11 L11,11";
-          return `<g transform="translate(${x},${y}) rotate(${rot})" data-t="${isT ? 1 : 0}" style="cursor:pointer"><rect x="-16" y="-16" width="32" height="32" fill="transparent"/><path d="${path}" stroke="#111" stroke-width="4" fill="none" stroke-linecap="square"/></g>`;
-        }).join("");
-        $$("#vs g", host).forEach(g => g.onclick = () => answer(g.dataset.t === "1"));
-      };
-      const answer = ok => { ok ? right++ : wrong++; log.push({ ok, rt: Math.round(performance.now() - t) }); t = performance.now(); n++; draw(); };
-      $("#none", host).onclick = () => answer(!has);
-      draw();
-      return new Promise(res => ctx.onTimeout(() => res({ response: log, correct: right, wrong, points: right })));
     },
   };
 
