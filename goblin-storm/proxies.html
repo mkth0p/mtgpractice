@@ -28,10 +28,14 @@
   .note { max-width: 980px; margin: 14px auto 0; padding: 0 16px; color: var(--muted); font-size: 14px; }
   .note b { color: var(--ink); }
   .sheets { padding: 16px 0 40px; display: grid; justify-content: center; gap: 24px; }
-  .sheet { background: #fff; box-shadow: 0 8px 30px -12px rgba(0, 0, 0, .35); display: grid; grid-template-columns: repeat(3, 63mm); grid-auto-rows: 88mm; gap: var(--gap, 0); align-content: center; justify-content: center; width: var(--pw); height: var(--ph); transform-origin: top left; }
+  .sheet { background: #fff; box-shadow: 0 8px 30px -12px rgba(0, 0, 0, .35); display: grid; grid-template-columns: repeat(3, 63mm); grid-auto-rows: 88mm; gap: var(--gap, 0); align-content: center; justify-content: center; width: var(--pw); height: var(--ph); transform-origin: top left; position: relative; }
+  .cuts { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+  .cuts .m { stroke: #000; stroke-width: .25; }
+  .cuts .l { stroke: #fff; stroke-width: .35; opacity: .9; }
+  .cuts .l2 { stroke: #000; stroke-width: .12; stroke-dasharray: 1.2 .8; }
   .wrap-sheet { width: calc(var(--pw) * var(--z)); height: calc(var(--ph) * var(--z)); overflow: hidden; }
   .wrap-sheet .sheet { transform: scale(var(--z)); }
-  .card { position: relative; width: 63mm; height: 88mm; overflow: hidden; background: #111; outline: .2mm dashed rgba(0, 0, 0, .25); outline-offset: 0; }
+  .card { position: relative; width: 63mm; height: 88mm; overflow: hidden; background: #111; }
   .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .card .t { position: absolute; inset: 0; display: flex; flex-direction: column; background: #fbf6ef; color: #1a120c; border: 2.5mm solid #1b1b1b; border-radius: 3mm; padding: 2.5mm; font: 7.2pt/1.25 Georgia, "Times New Roman", serif; }
   .t .nm { display: flex; justify-content: space-between; gap: 2mm; font-weight: 700; font-size: 8.4pt; border-bottom: .3mm solid #b9a998; padding-bottom: 1mm; }
@@ -56,12 +60,13 @@
   <h1><a href="./#shop/proxies">← Goblin Storm</a>Printable proxies</h1>
   <label>Paper <select id="paper"><option value="A4">A4</option><option value="Letter">Letter</option></select></label>
   <label>Cards <select id="only"><option value="all">All 100</option><option value="nonbasic">Without the 22 Mountains</option><option value="sld">Only the Secret Lair art cards</option></select></label>
+  <label>Cut lines <select id="cuts"><option value="both">Marks and lines</option><option value="marks">Marks in the margin only</option><option value="none">None</option></select></label>
   <label>Gaps <select id="gap"><option value="0">None (cut once)</option><option value="2">2 mm</option></select></label>
   <button class="btn" type="button" id="print">Print</button>
 </div></header>
 <p class="note" id="note"></p>
 <main class="sheets" id="sheets"></main>
-<script src="cards.js?v=43"></script>
+<script src="cards.js?v=44"></script>
 <script>
 (function () {
   "use strict";
@@ -133,7 +138,7 @@
   }, true);
 
   let items = [], missing = 0;
-  const pref = { paper: store.get("gstormProxy.paper") || "A4", gap: store.get("gstormProxy.gap") || "0", only: new URLSearchParams(location.search).get("only") || "all" };
+  const pref = { paper: store.get("gstormProxy.paper") || "A4", gap: store.get("gstormProxy.gap") || "0", cuts: store.get("gstormProxy.cuts") || "both", only: new URLSearchParams(location.search).get("only") || "all" };
   function note() {
     const loading = items.some(x => imgs[keyOf(x)] === undefined);
     const sld = items.filter(x => x.no && imgs[keyOf(x)] !== null).length;
@@ -144,6 +149,29 @@
     const px = w * 96 / 25.4, room = Math.min(innerWidth - 32, 900);
     document.documentElement.style.setProperty("--z", Math.min(1, room / px).toFixed(3));
   }
+  /* Cut lines for one page, in millimetres: short black marks in the margin at every card edge, which
+     survive the cut, and (with "Marks and lines") a thin line along every edge between cards. The lines
+     are white with a black dash on top, so they show on dark and light art. With gaps, each gap has two. */
+  function cutsSVG(w, h, rows) {
+    if (pref.cuts === "none") return "";
+    const gap = +pref.gap, CW = 63, CH = 88, gw = 3 * CW + 2 * gap, gh = rows * CH + (rows - 1) * gap;
+    const x0 = (w - gw) / 2, y0 = (h - gh) / 2;
+    const xs = [], ys = [];
+    for (let c = 0; c < 3; c++) xs.push(x0 + c * (CW + gap), x0 + c * (CW + gap) + CW);
+    for (let r = 0; r < rows; r++) ys.push(y0 + r * (CH + gap), y0 + r * (CH + gap) + CH);
+    const ux = [...new Set(xs.map(v => +v.toFixed(2)))], uy = [...new Set(ys.map(v => +v.toFixed(2)))];
+    const f = v => v.toFixed(2), line = (cls, a, b, c, d) => `<line class="${cls}" x1="${f(a)}" y1="${f(b)}" x2="${f(c)}" y2="${f(d)}"/>`;
+    let out = "";
+    const top = y0 - 1, bot = y0 + gh + 1, left = x0 - 1, right = x0 + gw + 1;
+    for (const x of ux) out += line("m", x, Math.max(0, top - 8), x, top) + line("m", x, bot, x, Math.min(h, bot + 8));
+    for (const y of uy) out += line("m", Math.max(0, left - 8), y, left, y) + line("m", right, y, Math.min(w, right + 8), y);
+    if (pref.cuts === "both") {
+      const inner = (v, lo, hi) => v > lo + .01 && v < hi - .01; // the outer edges already have marks
+      for (const x of ux) if (inner(x, x0, x0 + gw)) out += line("l", x, y0, x, y0 + gh) + line("l2", x, y0, x, y0 + gh);
+      for (const y of uy) if (inner(y, y0, y0 + gh)) out += line("l", x0, y, x0 + gw, y) + line("l2", x0, y, x0 + gw, y);
+    }
+    return `<svg class="cuts" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">${out}</svg>`;
+  }
   function render() {
     items = deck(pref.only); missing = 0;
     const [w, h] = PAPER[pref.paper];
@@ -151,7 +179,7 @@
     root.setProperty("--pw", w + "mm"); root.setProperty("--ph", h + "mm"); root.setProperty("--gap", pref.gap + "mm");
     $("#paperRule").textContent = `@page { size: ${pref.paper === "A4" ? "A4" : "letter"} portrait; margin: 0; }`;
     let html = "";
-    for (let p = 0; p < items.length; p += 9) html += `<div class="wrap-sheet"><section class="sheet" aria-label="Page ${p / 9 + 1}">${items.slice(p, p + 9).map((x, k) => cardHTML(x, p + k)).join("")}</section></div>`;
+    for (let p = 0; p < items.length; p += 9) { const n = Math.min(9, items.length - p); html += `<div class="wrap-sheet"><section class="sheet" aria-label="Page ${p / 9 + 1}">${cutsSVG(w, h, Math.ceil(n / 3))}${items.slice(p, p + 9).map((x, k) => cardHTML(x, p + k)).join("")}</section></div>`; }
     $("#sheets").innerHTML = html;
     zoom(); note();
   }
@@ -162,8 +190,9 @@
     if (noSld.length) await lookup(noSld);
     render();
   }
-  $("#paper").value = pref.paper; $("#gap").value = pref.gap; $("#only").value = ["all", "nonbasic", "sld"].includes(pref.only) ? pref.only : "all";
+  $("#paper").value = pref.paper; $("#gap").value = pref.gap; $("#cuts").value = ["both", "marks", "none"].includes(pref.cuts) ? pref.cuts : "both"; $("#only").value = ["all", "nonbasic", "sld"].includes(pref.only) ? pref.only : "all";
   $("#paper").onchange = e => { pref.paper = e.target.value; store.put("gstormProxy.paper", pref.paper); render(); };
+  $("#cuts").onchange = e => { pref.cuts = e.target.value; store.put("gstormProxy.cuts", pref.cuts); render(); };
   $("#gap").onchange = e => { pref.gap = e.target.value; store.put("gstormProxy.gap", pref.gap); render(); };
   $("#only").onchange = e => { pref.only = e.target.value; history.replaceState(null, "", pref.only === "all" ? location.pathname : "?only=" + pref.only); load(); };
   $("#print").onclick = () => print();
