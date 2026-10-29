@@ -8,7 +8,7 @@ try { ({ chromium } = require("playwright")); } catch (e) {
   try { ({ chromium } = require(path.join(require("child_process").execSync("npm root -g").toString().trim(), "playwright"))); } catch (e2) { console.error("Playwright is missing: npm i -g playwright"); process.exit(2); }
 }
 const ROOT = path.join(__dirname, "../..");
-const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".webmanifest": "application/json", ".json": "application/json" };
+const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".webmanifest": "application/json", ".json": "application/json" };
 
 function serve() {
   return new Promise(res => {
