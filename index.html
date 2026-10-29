@@ -77,6 +77,11 @@
   .tile .prog { display: block; font-size: .84rem; color: var(--muted); margin-top: 2px; }
   .fan { position: relative; width: 64px; height: 64px; }
   .fan span { position: absolute; left: 50%; top: 50%; width: 32px; height: 44px; margin: -22px 0 0 -16px; border-radius: 5px; border: 2px solid #15130f; display: grid; place-items: center; font-size: 15px; box-shadow: 0 6px 12px -6px rgba(0, 0, 0, .7); }
+  .pcs { position: relative; width: 64px; height: 64px; border-radius: 16px; background: radial-gradient(circle at 40% 30%, #3a2a55, #120e1b); }
+  .pcs img { position: absolute; height: auto; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .6)); }
+  .pcs img:nth-child(1) { width: 40px; left: 4px; top: 30px; }
+  .pcs img:nth-child(2) { width: 26px; right: 6px; top: 8px; }
+  .pcs img:nth-child(3) { width: 22px; left: 10px; top: 8px; }
   .fan span:nth-child(1) { background: linear-gradient(160deg, #6fd39a, #2f9a57); transform: translate(-16px, 4px) rotate(-14deg); }
   .fan span:nth-child(2) { background: linear-gradient(160deg, #fff4cf, #e9dfbd); transform: translate(0, -3px); z-index: 1; }
   .fan span:nth-child(3) { background: linear-gradient(160deg, #ff9b84, #e2553b); transform: translate(16px, 4px) rotate(14deg); }
@@ -175,24 +180,32 @@
   </div>
   <div class="dots" id="dots"></div>
   </div>
-  <div class="sec"><h2>Also here</h2><span>A course for new players, and the data behind the decks</span></div>
+  <div class="sec"><h2>Also here</h2><span>Courses for new players, and the data behind the decks</span></div>
   <div class="more">
     <a class="tile" href="learn/" style="--c:#39c5bb">
       <span class="fan" aria-hidden="true"><span>🌳</span><span>👼</span><span>🔥</span></span>
       <span><b>New to Magic? Learn from zero</b><p>Tiny lessons, one idea at a time, with things to tap and try. No maths needed.</p><span class="go2" id="learn-cta">Start learning →</span><span class="prog" id="learn-prog"></span></span>
+    </a>
+    <a class="tile" href="arcs/" style="--c:#e09a2e">
+      <span class="pcs" aria-hidden="true"><img src="arcs/img/ship-red.png" alt=""><img src="arcs/img/city-blue.png" alt=""><img src="arcs/img/res-fuel.png" alt=""></span>
+      <span><b>Learn to play Arcs</b><p>The space board game by Leder Games, from zero: the base game in short lessons with the real pieces, quizzes and a cheat sheet.</p><span class="go2" id="arcs-cta">Start learning →</span><span class="prog" id="arcs-prog"></span></span>
     </a>
     <a class="tile lab" href="lab/" style="--c:#2a78d6">
       <span class="grid" aria-hidden="true"><i style="opacity:0.25"></i><i style="opacity:0.45"></i><i style="opacity:0.7"></i><i style="opacity:0.9"></i><i style="opacity:0.7"></i><i style="opacity:0.45"></i><i style="opacity:0.35"></i><i style="opacity:0.6"></i><i style="opacity:0.95"></i><i style="opacity:1"></i><i style="opacity:0.8"></i><i style="opacity:0.5"></i><i style="opacity:0.2"></i><i style="opacity:0.4"></i><i style="opacity:0.7"></i><i style="opacity:0.85"></i><i style="opacity:0.65"></i><i style="opacity:0.4"></i></span>
       <span><b>Do you really need 36 lands?</b><p>The land count myth, tested: every mana base from 35 to 55 sources, simulated across deck curves and draw scenarios, with an explorer to dig into the numbers.</p><span class="go2">Open the study →</span></span>
     </a>
   </div>
-  <footer>Unofficial fan pages. Magic: The Gathering is © Wizards of the Coast. Card images via Scryfall.</footer>
+  <footer>Unofficial fan pages. Magic: The Gathering is © Wizards of the Coast. Card images via Scryfall. Arcs is © Leder Games.</footer>
 </main>
 <script>
   // Show where the visitor is in the course, if they started it.
   try {
     const p = JSON.parse(localStorage.getItem("learnMagic.v1") || "{}"), n = Object.keys(p.done || {}).length;
     if (n) { document.getElementById("learn-prog").textContent = n + (n === 1 ? " lesson" : " lessons") + " done so far"; document.getElementById("learn-cta").textContent = "Continue learning →"; }
+  } catch (e) { /* no storage: keep the default text */ }
+  try {
+    const p = JSON.parse(localStorage.getItem("learnArcs.v1") || "{}"), n = Object.keys(p.done || {}).length;
+    if (n) { document.getElementById("arcs-prog").textContent = n + (n === 1 ? " lesson" : " lessons") + " done so far"; document.getElementById("arcs-cta").textContent = "Continue learning →"; }
   } catch (e) { /* no storage: keep the default text */ }
 
   // Deck carousel: arrows step one card, dots show and jump to where you are.
