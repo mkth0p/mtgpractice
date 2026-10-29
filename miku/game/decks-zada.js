@@ -396,6 +396,13 @@
   }, note ? { note } : {}));
   hasteDraw("Expedite", "{R}", "Target creature gains haste until end of turn.\nDraw a card.");
   hasteDraw("Crimson Wisps", "{R}", "Target creature becomes red and gains haste until end of turn.\nDraw a card.");
+  // an upgrade (2026-10-29), not in the precon: a sorcery, so only on our own turn
+  D({
+    name: "Impolite Entrance", cost: "{R}", type: "Sorcery",
+    text: "Target creature gains trample and haste until end of turn.\nDraw a card.",
+    spell: { targets: [{ kind: "creature", purpose: "help", prompt: "Impolite Entrance" }], do: (g, ctx) => { if (ctx.legal[0]) g.grant([ctx.targets[0]], ["trample", "haste"]); g.draw(ctx.p, 1); } },
+    ai: { priority: 5, target: helpTarget, cast: zadaCast(1, (g, p, o, ctx) => (g.creatures(p).some(c => c.sick && !g.kw(c, "haste") && g.abilitiesOf(c).some(e => e.ab.krenkoMake)) ? 22 : p.hand.length <= 2 ? 8 : false)) }
+  });
   D({
     name: "Fists of Flame", cost: "{1}{R}", type: "Instant",
     text: "Draw a card. Until end of turn, target creature gains trample and gets +1/+0 for each card you've drawn this turn.",
@@ -973,7 +980,7 @@
     // 2. a spell on Zada, after a cheap token spell when the mana covers both
     const z = named(g, p, ZADA);
     if (z) {
-      const zHand = ["Ancestors' Aid", "Expedite", "Crimson Wisps", "Renegade Tactics", "Witch's Mark", "Daring Discovery"].map(cast).filter(Boolean);
+      const zHand = ["Ancestors' Aid", "Expedite", "Crimson Wisps", "Impolite Entrance", "Renegade Tactics", "Witch's Mark", "Daring Discovery"].map(cast).filter(Boolean);
       if (zHand.length) {
         for (const n of ["Krenko's Command", "Dragon Fodder", "Mogg War Marshal", "Empty the Warrens"]) {
           const t = cast(n);
@@ -981,8 +988,8 @@
         }
       }
       const n = zadaCopies(g, p, z);
-      const order = ["Ancestors' Aid", "Daring Discovery", "Witch's Mark", "Expedite", "Crimson Wisps", "Renegade Tactics", "Fists of Flame", "Wild Ride"];
-      const minFor = { "Ancestors' Aid": 2, "Daring Discovery": 2, "Witch's Mark": 2, "Expedite": 2, "Crimson Wisps": 2, "Renegade Tactics": 2, "Fists of Flame": 4, "Wild Ride": 4 };
+      const order = ["Ancestors' Aid", "Daring Discovery", "Witch's Mark", "Expedite", "Crimson Wisps", "Impolite Entrance", "Renegade Tactics", "Fists of Flame", "Wild Ride"];
+      const minFor = { "Ancestors' Aid": 2, "Daring Discovery": 2, "Witch's Mark": 2, "Expedite": 2, "Crimson Wisps": 2, "Impolite Entrance": 1, "Renegade Tactics": 2, "Fists of Flame": 4, "Wild Ride": 4 };
       // engine 10: a cantrip on Zada already draws two with one other creature
       if (!legacy(g)) Object.assign(minFor, { "Expedite": 1, "Crimson Wisps": 1, "Renegade Tactics": 1 });
       for (const name of order) {
@@ -1016,7 +1023,7 @@
     const z = named(g, p, ZADA);
     const castable = n => p.hand.some(c => c.def.name === n && g.castOptions(p, c).length > 0);
     const s = g.spellsThisTurn || 0;
-    const zSpells = ["Expedite", "Crimson Wisps", "Renegade Tactics", "Fists of Flame", "Ancestors' Aid", "Wild Ride", "Witch's Mark", "Daring Discovery"];
+    const zSpells = ["Expedite", "Crimson Wisps", "Impolite Entrance", "Renegade Tactics", "Fists of Flame", "Ancestors' Aid", "Wild Ride", "Witch's Mark", "Daring Discovery"];
     if (z && main) {
       const n = zadaCopies(g, p, z);
       const ready = zSpells.filter(castable);

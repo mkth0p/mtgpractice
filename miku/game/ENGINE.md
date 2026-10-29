@@ -306,6 +306,14 @@ Marvel decks added a few more (none of them changes an older deck's games):
 - `g.castThisTurn(p, e => e.nc)` counts this turn's spells; castLog entries carry `nc` (noncreature), `name`,
   `o`, `mv` and `from`.
 
+The Goblin Storm upgrade cards (`cards-gstorm.js`) added a few more (none of them changes an older deck's games):
+- A static with `abilityHaste: (g, s, o) => bool` lets o's {T} abilities ignore summoning sickness
+  (Thousand-Year Elixir); `g.abilityHaste(o)` tests it.
+- `wardLife: n` on a static that applies to a creature is "Ward—Pay n life" (Hexing Squelcher);
+  `MK.wardLifeTrigger(n)` is the trigger form.
+- `ai.counterFits(g, q, top)` on a counterspell tells the bots which spells it can answer (Red Elemental
+  Blast only counters blue ones, so a modal card no longer looks like it fits everything).
+
 ## Game methods to use in `do`
 
 Queries: `g.creatures(p)`, `g.controlled(p, filter)`, `g.opponents(p)`, `g.isCreature(o)`, `isLand`,

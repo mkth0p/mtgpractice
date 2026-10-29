@@ -1487,6 +1487,8 @@
     /* The counterspell can target that spell (Dispel, An Offer You Can't Refuse, Wash Away). */
     function counterFits(g, q, act, top) {
       const d = act.card.def;
+      // a card that knows which spells it answers (Red Elemental Blast: blue ones)
+      if (d.ai && d.ai.counterFits) return !!d.ai.counterFits(g, q, top);
       if (d.modes) return true;
       const specs = act.alt && d.altCosts && d.altCosts[act.alt - 1].targets ? d.altCosts[act.alt - 1].targets : ((d.spell && d.spell.targets) || []);
       const spec = specs[0];

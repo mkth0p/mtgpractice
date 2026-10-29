@@ -213,6 +213,22 @@
     }
   });
 
+  /* "Ward—Pay N life" (Hexing Squelcher): the targeting player pays N life or the spell or ability is countered. */
+  MK.wardLifeTrigger = n => ({
+    on: "becameTarget", self: true, when: (g, s, ev) => ev.p !== s.controller && !!ev.item,
+    do: async (g, s, ev) => {
+      const q = ev.p, item = ev.item;
+      if (!g.stack.includes(item) || q.lost) return;
+      let paid = false;
+      if (q.life > n) {
+        const ok = await g.ask(q, { type: "confirm", prompt: `Ward: pay ${n} life, or ${item.name} is countered`, src: s, purpose: "wardLifePay" });
+        if (ok) paid = g.payLife(q, n);
+      }
+      if (paid) g.log(`${q.name} pays ${n} life for ward.`, { p: q, cards: [s.def.name] });
+      else { g.log(`${q.name} doesn't pay life for ward.`, { p: q, cards: [s.def.name] }); g.counterSpell(item, s); }
+    }
+  });
+
   /* ============================================================ face-down permanents
      Cloak, manifest, manifest dread and morph put a card onto the battlefield face down: a nameless,
      colorless 2/2 creature with no creature types (a cloaked one also has ward {2}). The object keeps
@@ -554,6 +570,12 @@
     /* "Can't activate abilities" (Grand Abolisher, Linvala, Keeper of Silence): statics with cantActivate. */
     activateBlocked(p, o, ab) {
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantActivate && st.cantActivate(this, s, p, o, ab)) return true;
+      return false;
+    }
+    /* "You may activate abilities of creatures you control as though those creatures had haste"
+       (Thousand-Year Elixir): a static with abilityHaste(g, s, o). */
+    abilityHaste(o) {
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.abilityHaste && st.abilityHaste(this, s, o)) return true;
       return false;
     }
     uncounterable(item) {
@@ -1565,7 +1587,7 @@
         for (const ab of abs) {
           if (stops.length && stops.some(([s, st]) => st.cantActivate(this, s, p, o, ab))) continue;
           if (ab.tap && o.tapped) continue;
-          if (ab.tap && !ab.ignoreSick && this.isCreature(o) && o.sick && !this.kw(o, "haste")) continue;
+          if (ab.tap && !ab.ignoreSick && this.isCreature(o) && o.sick && !this.kw(o, "haste") && !this.abilityHaste(o)) continue;
           if (ab.condition && !ab.condition(this, o)) continue;
           if (ab.noAuto) continue;
           if (ab.onlyFor && ab.onlyFor !== (forWhat || "spell")) continue;
@@ -2193,9 +2215,13 @@
         this.emit("becameTarget", { o: t, p: item.p, item });
         // ward a static ability gives (Brotherhood Regalia's equipped creature)
         if (item.p !== t.controller) {
-          let n = 0;
-          for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.ward && st.applies && st.applies(this, s, t)) n = Math.max(n, st.ward);
+          let n = 0, life = 0;
+          for (const s of this.staticSources()) for (const st of this.staticsOf(s)) {
+            if (st.ward && st.applies && st.applies(this, s, t)) n = Math.max(n, st.ward);
+            if (st.wardLife && st.applies && st.applies(this, s, t)) life = Math.max(life, st.wardLife);
+          }
           if (n > 0) { const tr = MK.wardTrigger(n); this.pending.push({ src: t, tr, ev: { o: t, p: item.p, item }, controller: t.controller }); }
+          if (life > 0) { const tr = MK.wardLifeTrigger(life); this.pending.push({ src: t, tr, ev: { o: t, p: item.p, item }, controller: t.controller }); }
         }
       }
     }
@@ -2404,7 +2430,7 @@
       if (ab.once && o.state["once" + entry.key] === this.turn) return false;
       if (ab.tap) {
         if (o.tapped) return false;
-        if (this.isCreature(o) && o.sick && !this.kw(o, "haste")) return false;
+        if (this.isCreature(o) && o.sick && !this.kw(o, "haste") && !this.abilityHaste(o)) return false;
       }
       if (ab.untapSelf && !o.tapped) return false;
       if (ab.condition && !ab.condition(this, o, p)) return false;

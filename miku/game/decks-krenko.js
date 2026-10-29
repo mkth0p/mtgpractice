@@ -15,7 +15,7 @@
   /* ================================================================ helpers */
   const KRENKO = "Krenko, Mob Boss", KIKI = "Kiki-Jiki, Mirror Breaker", CONSCRIPTS = "Zealous Conscripts";
   const BOMB = "Goblin Bombardment", TWIN = "Splinter Twin", STAFF = "Thornbite Staff";
-  const HASTE_GEAR = ["Swiftfoot Boots", "Lightning Greaves"];
+  const HASTE_GEAR = ["Swiftfoot Boots", "Lightning Greaves"], STING = "Sting, the Glinting Dagger";
   const mine = (s, o) => o.controller === s.controller;
   const trig = spec => Object.assign({ trigger: true }, spec);
   const isGoblin = (g, o) => g.hasSub(o, "Goblin");
@@ -498,11 +498,17 @@
       stop: g2 => g2.opponents(p).length === 0 };
   }
 
-  /* Lightning Greaves or Swiftfoot Boots belong on Krenko. */
+  /* Lightning Greaves or Swiftfoot Boots belong on Krenko. Sting goes on him first: it untaps him
+     at every combat, and Greaves' shroud would stop its equip. */
   function hasteGearPlan(g, p, win, acts) {
     if (win !== "main1") return null;
     const kr = g.battlefield.find(o => o.controller === p && o.owner === p && o.def.name === KRENKO);
     if (!kr || !g.canTarget(p, kr)) return null;
+    const sting = mineNamed(g, p, STING);
+    if (sting && sting.attachedTo !== kr) {
+      const act = findAct(acts, a => a.type === "activate" && a.card === sting && /^Equip/.test(a.ab.label || ""));
+      if (act) { M(p).equipTo = kr; return { type: "activate", card: sting, idx: act.idx, presetScript: [kr], tag: "sting" }; }
+    }
     if (g.battlefield.some(e => e.attachedTo === kr && HASTE_GEAR.includes(e.def.name))) return null;
     for (const nm of HASTE_GEAR) {
       const eq = mineNamed(g, p, nm);
