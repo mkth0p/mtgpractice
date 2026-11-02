@@ -69,6 +69,8 @@
   /* the course and the lab: two quiet tiles below the decks */
   .more { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
   @media (min-width: 720px) { .more { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  /* an odd last tile takes the whole row instead of leaving a hole */
+  @media (min-width: 720px) { .more > .tile:last-child:nth-child(odd) { grid-column: 1 / -1; } }
   .tile { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: center; padding: 20px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; box-shadow: 0 2px 6px rgba(0, 0, 0, .06), 0 22px 44px -22px rgba(0, 0, 0, .45); transition: transform .3s var(--ease), border-color .3s; }
   .tile:hover { transform: translateY(-3px); border-color: var(--c); }
   .tile b { display: block; font: 800 1.15rem/1.2 var(--f-display); letter-spacing: -.02em; margin-bottom: 4px; }
@@ -82,6 +84,9 @@
   .pcs img:nth-child(1) { width: 40px; left: 4px; top: 30px; }
   .pcs img:nth-child(2) { width: 26px; right: 6px; top: 8px; }
   .pcs img:nth-child(3) { width: 22px; left: 10px; top: 8px; }
+  .tile .ic { width: 64px; height: 64px; border-radius: 16px; display: block; }
+  .tile.st { --c: #b45309; }
+  @media (prefers-color-scheme: dark) { .tile.st { --c: #ffa53a; } }
   .fan span:nth-child(1) { background: linear-gradient(160deg, #6fd39a, #2f9a57); transform: translate(-16px, 4px) rotate(-14deg); }
   .fan span:nth-child(2) { background: linear-gradient(160deg, #fff4cf, #e9dfbd); transform: translate(0, -3px); z-index: 1; }
   .fan span:nth-child(3) { background: linear-gradient(160deg, #ff9b84, #e2553b); transform: translate(16px, 4px) rotate(14deg); }
@@ -180,7 +185,7 @@
   </div>
   <div class="dots" id="dots"></div>
   </div>
-  <div class="sec"><h2>Also here</h2><span>Courses for new players, the data behind the decks, and the next commander</span></div>
+  <div class="sec"><h2>Also here</h2><span>Courses for new players, a prerelease guide, the data behind the decks, and the next commander</span></div>
   <div class="more">
     <a class="tile" href="learn/" style="--c:#39c5bb">
       <span class="fan" aria-hidden="true"><span>🌳</span><span>👼</span><span>🔥</span></span>
@@ -193,6 +198,10 @@
     <a class="tile" href="commanders/" style="--c:#8f82ff">
       <span class="fan" aria-hidden="true"><span>💎</span><span>🧭</span><span>🃏</span></span>
       <span><b>Hidden gem commanders</b><p>20 underplayed commanders that can run a very high Bracket 4 deck, and a quiz that picks the one that suits you.</p><span class="go2">Take the quiz →</span></span>
+    </a>
+    <a class="tile st" href="star-trek/" lang="fr">
+      <img class="ic" src="star-trek/icon.svg" alt="" width="64" height="64">
+      <span><b>Star Trek en 2HG</b><p>Notre guide pour la prerelease Star Trek en Troll à 2 têtes : les règles 2HG, les 306 cartes avec nos notes, le build en 40 min et un mode entraînement pour ouvrir des pools</p><span class="go2">Ouvrir le guide →</span></span>
     </a>
     <a class="tile lab" href="lab/" style="--c:#2a78d6">
       <span class="grid" aria-hidden="true"><i style="opacity:0.25"></i><i style="opacity:0.45"></i><i style="opacity:0.7"></i><i style="opacity:0.9"></i><i style="opacity:0.7"></i><i style="opacity:0.45"></i><i style="opacity:0.35"></i><i style="opacity:0.6"></i><i style="opacity:0.95"></i><i style="opacity:1"></i><i style="opacity:0.8"></i><i style="opacity:0.5"></i><i style="opacity:0.2"></i><i style="opacity:0.4"></i><i style="opacity:0.7"></i><i style="opacity:0.85"></i><i style="opacity:0.65"></i><i style="opacity:0.4"></i></span>
