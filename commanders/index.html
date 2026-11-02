@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hidden Gem Commanders</title>
+<meta name="description" content="20 underplayed commanders that can run a very high Bracket 4 deck, each under 5,000 EDHREC decks, with their combos checked on Commander Spellbook, plus a personality quiz that picks the one that suits you.">
+<meta name="theme-color" content="#07090c">
+<link rel="icon" href="../miku/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Martian+Mono:wght@500;600&family=Unbounded:wght@700;800;900&display=swap">
+<style>
+  :root {
+    --bg: #f2efe7; --surface: #fffdf8; --surface-2: #f6f2e8; --ink: #0f1a1a; --ink-2: #33403f; --muted: #5f6b69; --line: #ddd5c6;
+    --accent: #6a58e0; --on-accent: #fff; --gold: #b7791f;
+    --W: #f3ecd2; --U: #3d8ee0; --B: #4a4250; --R: #e2553b; --G: #2f9a57; --C: #b9b3a9;
+    --f-display: "Unbounded", "Arial Black", system-ui, sans-serif; --f-body: "Instrument Sans", system-ui, sans-serif; --f-mono: "Martian Mono", ui-monospace, Menlo, monospace;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #07090c; --surface: #0f141a; --surface-2: #141a21; --ink: #eef3f4; --ink-2: #c3ccd3; --muted: #8b99a4; --line: #1e2730; --accent: #8f82ff; --on-accent: #0b0820; --gold: #f0b54a; --B: #8a7f93; color-scheme: dark; }
+  }
+  :root[data-theme="dark"] { --bg: #07090c; --surface: #0f141a; --surface-2: #141a21; --ink: #eef3f4; --ink-2: #c3ccd3; --muted: #8b99a4; --line: #1e2730; --accent: #8f82ff; --on-accent: #0b0820; --gold: #f0b54a; --B: #8a7f93; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--f-body); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  button { font: inherit; color: inherit; }
+  .wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  :focus-visible { outline: 2.5px solid var(--accent); outline-offset: 2px; }
+
+  /* stage */
+  .stage { position: relative; overflow: hidden; color: #eef3f4; padding: 22px 0 64px;
+    background:
+      radial-gradient(60% 90% at 10% 0%, rgba(123, 108, 240, .34), transparent 60%),
+      radial-gradient(50% 80% at 95% 15%, rgba(240, 181, 74, .22), transparent 60%),
+      radial-gradient(40% 70% at 55% 115%, rgba(57, 197, 187, .2), transparent 60%),
+      repeating-linear-gradient(0deg, transparent 0 27px, rgba(255, 255, 255, .03) 27px 28px), #07090c; }
+  .back { display: inline-block; color: #9fb0bd; text-decoration: none; font-size: .9rem; margin-bottom: 30px; }
+  .back:hover { color: #fff; }
+  .kicker { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 16px; font: 600 11px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: #b5abff; }
+  .kicker i { width: 8px; height: 8px; border-radius: 50%; background: #f0b54a; box-shadow: 0 0 0 4px rgba(240, 181, 74, .2); }
+  h1 { font: 900 clamp(2rem, 7vw, 4rem)/1 var(--f-display); margin: 0 0 16px; letter-spacing: -.035em; }
+  h1 span { color: #b5abff; }
+  .lede { color: #b7c2cc; margin: 0 0 24px; max-width: 60ch; font-size: 1.05rem; }
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 22px; border-radius: 999px; border: 0; font-weight: 700; text-decoration: none; cursor: pointer; transition: transform .15s, filter .2s, background .2s, border-color .2s; }
+  .btn:active { transform: scale(.97); }
+  .btn.main { background: var(--accent); color: var(--on-accent); }
+  .stage .btn.main { background: #8f82ff; color: #0b0820; }
+  .btn.main:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border: 1px solid var(--line); }
+  .stage .btn.ghost { border-color: rgba(255, 255, 255, .22); color: #eef3f4; }
+  .btn.ghost:hover { border-color: var(--accent); }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 26px; color: #9fb0bd; font-size: .88rem; }
+  .facts b { color: #eef3f4; font-family: var(--f-mono); font-weight: 600; }
+
+  .sec { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 44px 0 14px; }
+  .sec h2 { font: 800 1.4rem/1.2 var(--f-display); letter-spacing: -.02em; margin: 0; }
+  .sec span { color: var(--muted); font-size: .93rem; }
+  .note { color: var(--muted); font-size: .9rem; max-width: 72ch; margin: 0 0 16px; }
+
+  /* quiz */
+  .quiz { margin-top: -34px; position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 22px; box-shadow: 0 2px 6px rgba(0, 0, 0, .06), 0 26px 50px -26px rgba(0, 0, 0, .5); }
+  .qtop { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .qtop .bar { flex: 1; height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+  .qtop .bar i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 99px; transition: width .35s var(--ease); }
+  .qtop .count { font: 600 12px/1 var(--f-mono); color: var(--muted); white-space: nowrap; }
+  .qtitle { font: 800 clamp(1.15rem, 3.4vw, 1.5rem)/1.25 var(--f-display); letter-spacing: -.02em; margin: 4px 0 6px; }
+  .qhelp { color: var(--muted); margin: 0 0 16px; font-size: .93rem; }
+  .opts { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 720px) { .opts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .opt { text-align: left; display: grid; gap: 2px; padding: 14px 16px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--surface-2); cursor: pointer; transition: border-color .2s, background .2s, transform .15s; }
+  .opt:hover { border-color: var(--accent); }
+  .opt:active { transform: scale(.99); }
+  .opt b { font-weight: 700; }
+  .opt small { color: var(--muted); font-size: .86rem; }
+  .opt[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+  .colors { display: flex; flex-wrap: wrap; gap: 10px; }
+  .colors .opt { grid-template-columns: auto auto; align-items: center; gap: 10px; padding: 12px 16px; }
+  .qnav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .link { background: none; border: 0; padding: 6px 0; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font-size: .92rem; }
+  .link:hover { color: var(--ink); }
+  .btn[disabled] { opacity: .4; cursor: default; }
+
+  /* results */
+  .res-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .winner { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+  @media (min-width: 760px) { .winner { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); } }
+  .winner .art { border-radius: 18px; }
+  .winner h3 { font: 900 clamp(1.4rem, 4vw, 2rem)/1.1 var(--f-display); letter-spacing: -.03em; margin: 6px 0 8px; }
+  .why { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .why li { display: flex; gap: 10px; align-items: baseline; }
+  .why li::before { content: "✦"; color: var(--accent); }
+  .runners { display: grid; gap: 10px; margin-top: 18px; }
+  .runner { display: grid; grid-template-columns: 2.2em minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; }
+  .runner:hover { border-color: var(--accent); }
+  .runner .n { font: 700 13px/1 var(--f-mono); color: var(--muted); text-align: center; }
+  .runner .meter { width: 90px; height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
+  .runner .meter i { display: block; height: 100%; background: var(--accent); }
+  .pct { font: 600 12px/1 var(--f-mono); color: var(--muted); }
+
+  /* filters */
+  .tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: .9rem; font-weight: 600; }
+  .chip[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--surface)); }
+  .tools select { height: 38px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 0 14px; font: 600 .9rem var(--f-body); margin-left: auto; }
+  .shown { color: var(--muted); font-size: .88rem; }
+
+  /* cards */
+  .grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 680px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1000px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .cmd { display: flex; flex-direction: column; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; box-shadow: 0 2px 6px rgba(0, 0, 0, .05), 0 18px 40px -24px rgba(0, 0, 0, .45); scroll-margin-top: 16px; }
+  .cmd.hit { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent), 0 18px 40px -24px rgba(0, 0, 0, .45); }
+  .art { position: relative; aspect-ratio: 16 / 9; display: block; overflow: hidden; background: linear-gradient(135deg, var(--c1, #6a58e0), var(--c2, #10151b)); }
+  .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 25%; }
+  .art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7, 9, 12, .3), transparent 35%, transparent 55%, rgba(7, 9, 12, .65)); }
+  .art .tag { position: absolute; z-index: 1; font: 600 10px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; padding: 6px 8px; border-radius: 7px; background: rgba(7, 9, 12, .74); color: #eef3f4; border: 1px solid rgba(255, 255, 255, .16); }
+  .art .tag.decks { left: 10px; bottom: 10px; }
+  .art .tag.rank { right: 10px; top: 10px; }
+  .art .initials { position: absolute; inset: 0; display: grid; place-items: center; font: 900 2.4rem/1 var(--f-display); color: rgba(255, 255, 255, .5); }
+  .cbody { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px 18px; flex: 1; }
+  .cname { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .cname b { font: 800 1.08rem/1.2 var(--f-display); letter-spacing: -.02em; }
+  .hook { color: var(--ink-2); margin: 0; font-weight: 600; }
+  .ctype { font: 500 11px/1.3 var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .stats { display: flex; gap: 14px; flex-wrap: wrap; margin: 4px 0 2px; font-size: .84rem; color: var(--muted); }
+  .dots { letter-spacing: 2px; color: var(--gold); }
+  .dots s { text-decoration: none; color: var(--line); }
+  details { margin-top: auto; border-top: 1px solid var(--line); padding-top: 10px; }
+  summary { cursor: pointer; font-weight: 700; color: var(--accent); list-style: none; padding: 4px 0; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: " ▾"; }
+  details[open] summary::after { content: " ▴"; }
+  .blk { margin: 10px 0 0; }
+  .blk h4 { margin: 0 0 4px; font: 600 11px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .blk p { margin: 0; font-size: .93rem; }
+  .oracle { white-space: pre-line; font-size: .9rem; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+  .combo { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); border-radius: 12px; padding: 10px 12px; font-size: .9rem; }
+  .combo + .combo { margin-top: 8px; }
+  .combo a { color: var(--accent); font-weight: 700; }
+  .warn { border-left: 3px solid var(--gold); padding-left: 10px; }
+  .links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; font-size: .88rem; }
+  .links a { color: var(--accent); font-weight: 600; }
+
+  .ms { display: inline-grid; place-items: center; width: 1.25em; height: 1.25em; border-radius: 50%; font: 700 .7em/1 var(--f-mono); color: #111; vertical-align: -.15em; margin: 0 1px; box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .25); background: var(--C); }
+  .ms.W { background: var(--W); } .ms.U { background: var(--U); color: #fff; } .ms.B { background: #4a4250; color: #fff; } .ms.R { background: var(--R); color: #fff; } .ms.G { background: var(--G); color: #fff; }
+  .pips { white-space: nowrap; }
+  .cpip { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0, 0, 0, .25); }
+
+  .method { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 18px 20px; font-size: .93rem; }
+  .method ul { margin: 8px 0 0; padding-left: 20px; }
+  .method li { margin: 4px 0; }
+  footer { color: var(--muted); font-size: .8rem; padding: 32px 0 44px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="stage">
+  <div class="wrap">
+    <a class="back" href="../">← All decks</a>
+    <p class="kicker"><i aria-hidden="true"></i>Bracket 4 · under 5,000 decks</p>
+    <h1>Hidden gem <span>commanders</span></h1>
+    <p class="lede">Twenty commanders that can run a very high Bracket 4 deck but that few people play. Each one is a real combo piece or engine, not just a set of colors. Take the quiz to find the one that suits you, then we build the deck.</p>
+    <div class="cta"><a class="btn main" href="#quiz">Take the quiz</a><a class="btn ghost" href="#list">Browse all 20</a></div>
+    <div class="facts"><span><b id="f-n">20</b> commanders</span><span><b id="f-med">–</b> median EDHREC decks</span><span><b>2026-11-02</b> counts checked</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="quiz" id="quiz" aria-live="polite"></section>
+
+  <div class="sec" id="list"><h2>The twenty</h2><span>Tap a card for its text, its combo and the catch</span></div>
+  <div class="tools" id="tools"></div>
+  <div class="grid" id="grid"></div>
+
+  <div class="sec"><h2>How this list was made</h2></div>
+  <div class="method">
+    <ul>
+      <li><b>Underplayed:</b> every commander has fewer than 5,000 decks on its EDHREC page (read on 2026-11-02). About 60 were checked. Popular ones like Codie, Sisay, Obeka, Hashaton, Alania, Kilo and Kefka were dropped for being over that line.</li>
+      <li><b>Very high Bracket 4:</b> the commander has to be the engine or a combo piece. Colors-only commanders, copied cEDH shells and hard stax plans were left out; where a card leans that way, its card says so.</li>
+      <li><b>Combos:</b> taken from Commander Spellbook searches (deck counts are theirs), and each one was checked by hand to fit the commander's colors. Lines that needed off-color cards were dropped.</li>
+      <li><b>Card text:</b> from the Card-Forge card database.</li>
+      <li><b>Power dots</b> (out of 5) are our own read of each commander's Bracket 4 ceiling. Nothing was simulated, and prices were not checked yet.</li>
+      <li>No Marvel cards.</li>
+    </ul>
+  </div>
+  <footer>Unofficial fan page. Magic: The Gathering is © Wizards of the Coast. Card images via Scryfall. Deck counts via EDHREC, combos via Commander Spellbook.</footer>
+</main>
+
+<script src="data.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>
