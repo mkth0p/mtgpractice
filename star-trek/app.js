@@ -48,8 +48,8 @@
       <div class="sh-title"><h3 id="sh-name">${esc(c.name)}</h3>${c.cost ? pips(c.cost) : ""}</div>
       <p class="sh-type">${esc(c.type)}${c.pt ? ` · <b>${esc(c.pt)}</b>` : ""}</p>
       <div class="sh-text" lang="en">${oracle(c.text)}</div>
-      ${blind ? `<p class="sh-blind">Nos notes sont cachées pendant l'entraînement. Coche "Montrer nos notes" pour les voir</p>` :
-        `<div class="sh-gr"><div>Notre note 2HG ${badge(c.g)}</div><div>MTGAZone ${c.z == null ? `<b class="gb">pas noté</b>` : badge(c.z)}</div></div>
+      ${blind ? `<p class="sh-blind">Mes notes sont cachées pendant l'entraînement, coche "Montrer mes notes" pour les voir</p>` :
+        `<div class="sh-gr"><div>Ma note 2HG ${badge(c.g)}</div><div>MTGAZone ${c.z == null ? `<b class="gb">pas noté</b>` : badge(c.z)}</div></div>
       <p class="sh-note">${withPips(c.note)}</p>`}
       <a class="sh-sf" href="https://scryfall.com/search?q=${encodeURIComponent(`!"${c.name}" set:trk`)}" target="_blank" rel="noopener">Voir la carte sur Scryfall ↗</a>
       </div>`;
@@ -86,7 +86,7 @@
   function exRender() {
     const list = exList(), more = $("#ex-more");
     $("#ex-count").textContent = list.length === 1 ? "1 carte" : `${list.length} cartes`;
-    $("#ex-list").innerHTML = list.slice(0, ex.shown).map(row).join("") || `<li class="none">Aucune carte avec ces filtres</li>`;
+    $("#ex-list").innerHTML = list.slice(0, ex.shown).map(row).join("") || `<li class="none">Y a rien avec ces filtres</li>`;
     more.hidden = list.length <= ex.shown;
     more.textContent = `Voir les ${list.length - ex.shown} autres`;
   }
@@ -201,11 +201,11 @@
   function renderYou() {
     const a = $("#pr-a").value, b = $("#pr-b").value, out = $("#pr-you");
     if (!cur || !a || !b) { out.textContent = ""; return; }
-    if (a === b) { out.textContent = "Choisissez 2 paires différentes"; return; }
+    if (a === b) { out.textContent = "Choisis 2 paires différentes"; return; }
     const s = cur.splits.find(x => (x.A === a && x.B === b) || (x.A === b && x.B === a)), best = cur.splits[0];
     const gap = best.v - s.v, rank = 1 + cur.splits.filter(x => x.v > s.v + 1e-9).length;
-    out.innerHTML = `Votre split : <b>${s.v.toFixed(1)}</b> points. ` + (gap < 0.05 ? "Même note que le best du sim, gg" :
-      `${rank}e sur 45, à ${gap.toFixed(1)} du best (${(gap / 46).toFixed(2)} par carte). ${gap / 46 < 0.05 ? "Autant dire pareil, c'est la curve et le removal qui décident" : "Le sim trouve mieux, regardez son split"}`);
+    out.innerHTML = `Ton split : <b>${s.v.toFixed(1)}</b> points. ` + (gap < 0.05 ? "Même note que le best du sim, gg" :
+      `${rank}e sur 45, à ${gap.toFixed(1)} du best (${(gap / 46).toFixed(2)} par carte). ${gap / 46 < 0.05 ? "Autant dire pareil, c'est la curve et le removal qui décident" : "Le sim trouve mieux, check son split"}`);
   }
   function deckBlock(pair, picks, v) {
     const bodies = picks.filter(c => c.body).length, rem = picks.filter(c => c.removal).length;
@@ -219,7 +219,7 @@
     const shared = [...best.A].filter(x => best.B.includes(x)).map(x => NAMES[x]);
     const ties = cur.splits.filter(x => best.v - x.v < 0.05).length;
     $("#pr-res").innerHTML = `<div class="res"><p>Le best du sim : <b>${pairName(best.A)} + ${pairName(best.B)}</b>, ${best.v.toFixed(1)} points. ` +
-      (shared.length ? `Les 2 decks partagent le ${shared.join(" et le ")}. ` : "") + `Couleur${dropped.length > 1 ? "s" : ""} laissée${dropped.length > 1 ? "s" : ""} de côté : ${dropped.join(" et ")}</p>
+      (shared.length ? `Les 2 decks partagent le ${shared.join(" et le ")}. ` : "") + `Couleur${dropped.length > 1 ? "s" : ""} droppée${dropped.length > 1 ? "s" : ""} : ${dropped.join(" et ")}</p>
       ${ties > 1 ? `<p>${ties} splits font la même note, donc là c'est la curve, le removal par deck et le plan d'équipe qui tranchent</p>` : ""}
       <div class="res-decks">${deckBlock(best.A, best.pa, best.va)}${deckBlock(best.B, best.pb, best.vb)}</div>
       <p><b>Les suivants</b></p><ol class="alts">${cur.splits.slice(1, 4).map(s => `<li>${pairName(s.A)} + ${pairName(s.B)} : ${s.v.toFixed(1)} (${best.v - s.v < 0.05 ? "pareil" : "−" + (best.v - s.v).toFixed(1)})</li>`).join("")}</ol></div>`;
@@ -249,7 +249,7 @@
       clock.textContent = fmt(now);
       let k = 0;
       PH.forEach((p, i) => { if (el >= p[0]) k = i; });
-      const txt = now <= 0 ? "Temps écoulé, on présente les decks" : `${PH[k][0]}-${PH[k + 1] ? PH[k + 1][0] : 40} min · ${PH[k][1]}`;
+      const txt = now <= 0 ? "Temps écoulé, on montre les decks" : `${PH[k][0]}-${PH[k + 1] ? PH[k + 1][0] : 40} min · ${PH[k][1]}`;
       if (phase.textContent !== txt) phase.textContent = txt;
       fill.style.width = (100 * (TOTAL - now) / TOTAL) + "%";
       box.classList.toggle("done", now <= 0);
