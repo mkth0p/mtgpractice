@@ -39,8 +39,8 @@ const ab = (g, o, f) => g.abilitiesOf(o).find(e => f(e.ab));
 const tokens = (g, p) => g.creatures(p).filter(c => c.isToken).length;
 
 (async () => {
-  // every card of both lists is defined
-  for (const f of ["krenko-high-b3.txt", "krenko-b4.txt"]) {
+  // every card of each list is defined
+  for (const f of ["krenko-high-b3.txt", "krenko-high-b3-v2.txt", "krenko-b4.txt"]) {
     const file = path.join(__dirname, "gstorm/lists", f);
     const names = fs.readFileSync(file, "utf8").split("\n").map(l => l.match(/^\d+\s+(.+)$/)).filter(Boolean).map(m => m[1]);
     const missing = names.filter(n => !MK.get(n));
@@ -205,6 +205,40 @@ const tokens = (g, p) => g.creatures(p).filter(c => c.isToken).length;
     await g.cast(a, hand(g, a, "Impolite Entrance"), { targets: [z] }); await g.settle();
     check("Impolite Entrance on Zada with 3 others draws 4", a.hand.length === before + 4, a.hand.length - before);
     check("Impolite Entrance: tokens get haste and trample", g.creatures(a).filter(c => c.isToken).every(c => g.kw(c, "haste") && g.kw(c, "trample"))); }
+
+  // Hall of the Bandit Lord: 3 life, and Krenko cast with its mana has haste
+  { const { g, a } = table(); lands(g, a, 3); const hall = put(g, a, "Hall of the Bandit Lord"); hall.tapped = false; await g.settle();
+    const life = a.life, kr = a.commanders[0];
+    await g.cast(a, kr, {}); await g.settle();
+    check("Hall of the Bandit Lord: Krenko resolves", kr.zone === "battlefield", kr.zone);
+    check("Hall of the Bandit Lord: tapped and 3 life paid", hall.tapped && a.life === life - 3, [hall.tapped, a.life]);
+    check("Hall of the Bandit Lord: Krenko has haste", g.kw(kr, "haste"));
+    const make = ab(g, kr, x => x.krenkoMake);
+    check("Hall of the Bandit Lord: Krenko can tap now", g.canActivate(a, kr, make)); }
+  { const { g, a } = table(); lands(g, a, 3); const hall = put(g, a, "Hall of the Bandit Lord"); hall.tapped = false; await g.settle();
+    await g.cast(a, hand(g, a, "Goblin Instigator"), {}); await g.settle();
+    check("Hall of the Bandit Lord: not spent on a creature without a {T} ability", !hall.tapped && a.life === 40, [hall.tapped, a.life]); }
+  // Rising of the Day: haste for all, +1/+0 for legends; Mass Hysteria gives everyone haste
+  { const { g, a, b } = table(); lands(g, a, 2); const kr = commander(g, a); kr.sick = true; const t = goblins(g, a, 1)[0]; put(g, a, "Rising of the Day"); await g.settle();
+    check("Rising of the Day: Krenko and tokens have haste", g.kw(kr, "haste") && g.kw(t, "haste"));
+    check("Rising of the Day: Krenko gets +1/+0, tokens don't", g.power(kr) === 4 && g.power(t) === 1, [g.power(kr), g.power(t)]);
+    const theirs = put(g, b, "Goblin Instigator");
+    check("Rising of the Day: not opponents' creatures", !g.kw(theirs, "haste")); }
+  { const { g, a, b } = table(); const theirs = put(g, b, "Goblin Instigator"); put(g, a, "Mass Hysteria"); await g.settle();
+    check("Mass Hysteria: every creature has haste", g.kw(theirs, "haste")); }
+
+  // the Goblin Storm bot loops Krenko with Skirk Prospector once a haste source stays (Goblin Warchief)
+  { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 2); const kr = commander(g, a); kr.tapped = true; a.cmdCasts[kr.id] = 1;
+    put(g, a, "Skirk Prospector"); put(g, a, "Goblin Warchief"); goblins(g, a, 10); await g.settle();
+    const before = g.creatures(a).length;
+    await g.mainPhase(a);
+    check("Skirk loop: Krenko recast at least twice", (a.cmdCasts[kr.id] || 0) >= 3, a.cmdCasts[kr.id]);
+    check("Skirk loop: Krenko ends on the battlefield", kr.zone === "battlefield", kr.zone);
+    check("Skirk loop: far more Goblins", g.creatures(a).length >= before * 3, [before, g.creatures(a).length]); }
+  { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 2); const kr = commander(g, a); kr.tapped = true; a.cmdCasts[kr.id] = 1;
+    put(g, a, "Skirk Prospector"); goblins(g, a, 10); await g.settle();
+    await g.mainPhase(a);
+    check("Skirk loop: not without a haste source that stays", kr.zone === "battlefield" && a.cmdCasts[kr.id] === 1, [kr.zone, a.cmdCasts[kr.id]]); }
 
   console.log(`${passed} passed, ${failed} failed`);
   process.exit(failed ? 1 : 0);

@@ -313,6 +313,14 @@ The Goblin Storm upgrade cards (`cards-gstorm.js`) added a few more (none of the
   `MK.wardLifeTrigger(n)` is the trigger form.
 - `ai.counterFits(g, q, top)` on a counterspell tells the bots which spells it can answer (Red Elemental
   Blast only counters blue ones, so a modal card no longer looks like it fits everything).
+- Hall of the Bandit Lord's mana ability uses `spellOnly` (the bots spend it only on a creature spell
+  with a {T} ability) and `after` (pay 3 life, arm the land); a `cast` trigger remembers the next creature
+  spell and an `enters` trigger gives that creature haste for the game. Rising of the Day and Mass Hysteria
+  are plain haste statics.
+- The Goblin Storm brain (`decks-zada.js`, `skirkLoop`) runs the Krenko + Skirk Prospector loop when a
+  haste source is out: tap Krenko, sacrifice him to Skirk (he goes to the command zone), sacrifice Goblins
+  for the tax, recast him and tap him again. It stops at 40 Goblins or 6 laps and keeps at least half the
+  Goblins it had, and the sacrifice choice never picks Skirk or the haste piece.
 
 ## Game methods to use in `do`
 

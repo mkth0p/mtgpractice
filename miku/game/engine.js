@@ -41,7 +41,8 @@
                            //    main phase (legacyCorrupted)
                            // 10: the Goblin Storm bot plans storm turns (rituals and cheap spells into Grapeshot, Empty the Warrens or the
                            //    Haze of Rage loop), casts a cantrip on Zada with one other creature, and holds Blasphemous Act unless the
-                           //    table's creatures are far ahead and hurting it (legacyGstorm)
+                           //    table's creatures are far ahead and hurting it, and loops Krenko with Skirk Prospector once a haste
+                           //    source is out (legacyGstorm)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",

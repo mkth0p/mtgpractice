@@ -957,6 +957,48 @@
     }
     return undefined;
   }
+  /* Krenko in command with Skirk Prospector out and a haste source that stays when Krenko leaves
+     (Warchief, Chieftain, Fervor, Rising of the Day, Mass Hysteria, Thousand-Year Elixir): once Krenko
+     has made his Goblins, sacrifice him to Skirk, sacrifice Goblins for the rest of his cost, recast
+     him and tap him again. Each lap doubles what is left, so the bot goes while that beats what it has. */
+  const KRENKO = "Krenko, Mob Boss", SKIRK = "Skirk Prospector";
+  const LOOP_HASTE = ["Goblin Warchief", "Goblin Chieftain", "Fervor", "Rising of the Day", "Thousand-Year Elixir"];
+  const loopHaste = (g, p) => LOOP_HASTE.some(n => named(g, p, n)) || g.battlefield.some(o => o.def.name === "Mass Hysteria");
+  function skirkLoop(g, p, win, acts) {
+    if (legacy(g) || g.active !== p || (win !== "main1" && win !== "main2") || g.stack.length) return null;
+    const skirk = named(g, p, SKIRK), kr = p.commanders.find(o => o.def.name === KRENKO);
+    if (!skirk || !kr || !loopHaste(g, p)) return null;
+    const m = M(p), lap = m.skirk && m.skirk.turn === g.turn ? m.skirk : null;
+    const skirkAct = acts.find(a => a.type === "activate" && a.card === skirk);
+    if (lap && kr.zone === "command") {
+      if (acts.some(a => a.type === "cast" && a.card === kr)) return { type: "cast", card: kr, tag: "skirk-recast", maxTries: 30 };
+      const need = 4 + g.commanderTax(p, kr) - manaLeft(g, p);
+      if (need > 0 && skirkAct) { lap.sac = null; return { type: "activate", card: skirk, idx: skirkAct.idx, repeat: need, tag: "skirk-mana", maxTries: 30 }; }
+      return null;
+    }
+    if (kr.zone !== "battlefield" || kr.controller !== p) return null;
+    if (lap && !kr.tapped) {
+      const make = acts.find(a => a.type === "activate" && a.card === kr && a.ab.krenkoMake);
+      return make ? { type: "activate", card: kr, idx: make.idx, tag: "skirk-krenko-tap", maxTries: 30 } : null;
+    }
+    if (!kr.tapped || !skirkAct || (lap && lap.laps >= 6)) return null;
+    // Goblins after the lap: what's left once Krenko and the sacrifices for his cost are gone, plus Krenko, doubled.
+    // Past 40 Goblins another lap adds nothing a person would need (and the table slows to a crawl).
+    const gobs = g.creatures(p).filter(c => isGoblin(g, c)).length;
+    if (gobs >= 40) return null;
+    const sacs = Math.max(0, 4 + 2 * (p.cmdCasts[kr.id] || 0) - manaLeft(g, p) - 1);
+    if (gobs - sacs < 4 || 2 * (gobs - sacs) < gobs + 4) return null;
+    m.skirk = { turn: g.turn, sac: kr, laps: (lap ? lap.laps : 0) + 1 };
+    return { type: "activate", card: skirk, idx: skirkAct.idx, tag: "skirk-krenko", maxTries: 30 };
+  }
+  // what Skirk Prospector sacrifices: Krenko when a lap starts, else the cheapest Goblin (not Skirk or the haste source)
+  function skirkChoose(g, p, req) {
+    if (legacy(g) || req.purpose !== "sacrifice" || !req.src || req.src.def.name !== SKIRK || !req.options || !req.options.length) return undefined;
+    const m = M(p), lap = m.skirk && m.skirk.turn === g.turn ? m.skirk : null;
+    if (lap && lap.sac && req.options.includes(lap.sac)) { const k = lap.sac; lap.sac = null; return k; }
+    const keep = c => (c.def.name === SKIRK || LOOP_HASTE.includes(c.def.name) ? 50 : 0) + keepScore(g, p, c);
+    return req.options.slice().sort((a, b) => keep(a) - keep(b))[0];
+  }
   function brain(g, p, o, ctx) {
     const win = ctx.window, acts = ctx.actions || [];
     if (g.active !== p || (win !== "main1" && win !== "main2")) return null;
@@ -1082,8 +1124,8 @@
   MK.GSTORM_AI = { brain, coachTips, zadaCopies, stormTurn, blasphemousOk, outletPlan, perSac };
   // the deck's brain for the shared cards: Blasphemous Act waits for a real reason (engine 10)
   (MK.DECK_BRAINS = MK.DECK_BRAINS || {})["goblin-storm"] = {
-    plan: outletPlan,
-    choose: outletChoose,
+    plan: (g, p, ctx) => skirkLoop(g, p, ctx.window, ctx.actions || []) || outletPlan(g, p, ctx),
+    choose: (g, p, req) => { const k = skirkChoose(g, p, req); return k === undefined ? outletChoose(g, p, req) : k; },
     castOk: (g, p, card) => (card.def.name === "Blasphemous Act" && !legacy(g) ? blasphemousOk(g, p) : undefined)
   };
   (MK.HERO_DECKS = MK.HERO_DECKS || []).push(MK.GSTORM_DECK);

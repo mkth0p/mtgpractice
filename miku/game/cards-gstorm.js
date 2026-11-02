@@ -510,6 +510,50 @@
       }
     }]
   });
+  /* Hall of the Bandit Lord: the {C} is armed when it is tapped, the next creature spell its
+     controller casts is marked, and that creature gains haste as it enters. */
+  const hallWants = card => card.def.types.includes("Creature") && (card.def.abilities || []).some(a => a.tap);
+  D({
+    name: "Hall of the Bandit Lord", type: "Legendary Land", cost: "", etbTapped: true,
+    text: "Hall of the Bandit Lord enters tapped.\n{T}, Pay 3 life: Add {C}. If that mana is spent on a creature spell, it gains haste.",
+    note: "The bots spend its mana only on creature spells with a {T} ability (Krenko first), so they don't pay 3 life for nothing. The haste comes from the next creature spell cast after it is tapped.",
+    mana: [{
+      tap: true, produce: "C",
+      condition: (g, o) => o.controller.life > 3,
+      spellOnly: (g, card) => hallWants(card),
+      after: (g, o) => { g.payLife(o.controller, 3); o.state.armed = true; }
+    }],
+    triggers: [
+      {
+        on: "cast", when: (g, s, ev) => {
+          if (ev.p === s.controller && s.state.armed) { s.state.armed = false; if (ev.o.def.types.includes("Creature")) s.state.hasteFor = { id: ev.o.id, turn: g.turn }; }
+          return false;
+        }
+      },
+      {
+        on: "enters", when: (g, s, ev) => {
+          const h = s.state.hasteFor;
+          if (h && ev.o && ev.o.id === h.id && h.turn === g.turn) { s.state.hasteFor = null; g.addEffect({ objs: [ev.o], kw: ["haste"], until: "game" }); }
+          return false;
+        }
+      }
+    ]
+  });
+  D({
+    name: "Rising of the Day", cost: "{2}{R}", type: "Enchantment",
+    text: "Creatures you control have haste.\nLegendary creatures you control get +1/+0.",
+    statics: [
+      { applies: (g, s, o) => o.controller === s.controller && g.isCreature(o), kw: ["haste"] },
+      { applies: (g, s, o) => o.controller === s.controller && g.isCreature(o) && o.def.supertypes.includes("Legendary"), pt: [1, 0] }
+    ],
+    ai: { priority: 7 }
+  });
+  D({
+    name: "Mass Hysteria", cost: "{R}", type: "Enchantment",
+    text: "All creatures have haste.",
+    statics: [{ applies: (g, s, o) => g.isCreature(o), kw: ["haste"] }],
+    ai: { priority: 6 }
+  });
   function commonType(g, p) {
     const n = {};
     for (const c of p.library.concat(p.hand, p.command, g.creatures(p))) for (const t of (c.def.types.includes("Creature") ? c.def.subtypes : [])) n[t] = (n[t] || 0) + 1;
