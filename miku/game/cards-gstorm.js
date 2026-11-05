@@ -554,6 +554,29 @@
     statics: [{ applies: (g, s, o) => g.isCreature(o), kw: ["haste"] }],
     ai: { priority: 6 }
   });
+  D({
+    name: "Reiterate", cost: "{1}{R}{R}", type: "Instant",
+    kicker: "{3}", kickerName: "buyback",
+    holdPriority: true,
+    text: "Buyback {3} (You may pay an additional {3} as you cast this spell. If you do, put this card into your hand as it resolves.)\nCopy target instant or sorcery spell. You may choose new targets for the copy.",
+    note: "Buyback is asked like a kicker. You can cast it in response to your own spell: the game stops for you after you cast an instant or sorcery while Reiterate can be cast.",
+    spell: {
+      targets: [{ kind: "spell", purpose: "copy", prompt: "Copy target instant or sorcery spell", filter: (g, item) => item.kind === "spell" && g.isInstantOrSorcery(item.o) }],
+      do: async (g, ctx) => {
+        const it = ctx.targets[0];
+        if (ctx.legal[0] && it && g.stack.includes(it)) await g.copySpell(it, ctx.p);
+        if (ctx.kicked && !ctx.item.isCopy) ctx.item.toHand = true;
+      }
+    },
+    ai: { priority: 1, cast: () => false }
+  });
+  D({
+    name: "Mycosynth Lattice", cost: "{6}", type: "Artifact",
+    text: "All permanents are artifacts in addition to their other types.\nAll cards that aren't on the battlefield, spells, and permanents are colorless.\nPlayers may spend mana as though it were mana of any color.",
+    note: "Only the first line is in the game: every permanent is an artifact (so an overloaded Vandalblast destroys everything the opponents have). Colors and colored mana work as usual.",
+    statics: [{ applies: () => true, addTypes: ["Artifact"] }],
+    ai: { priority: 8 }
+  });
   function commonType(g, p) {
     const n = {};
     for (const c of p.library.concat(p.hand, p.command, g.creatures(p))) for (const t of (c.def.types.includes("Creature") ? c.def.subtypes : [])) n[t] = (n[t] || 0) + 1;

@@ -240,6 +240,50 @@ const tokens = (g, p) => g.creatures(p).filter(c => c.isToken).length;
     await g.mainPhase(a);
     check("Skirk loop: not without a haste source that stays", kr.zone === "battlefield" && a.cmdCasts[kr.id] === 1, [kr.zone, a.cmdCasts[kr.id]]); }
 
+  // the Skirk loop with Howlsquad Heavy, and with Lightning Greaves equipped again each lap
+  { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 2); const kr = commander(g, a); kr.tapped = true; a.cmdCasts[kr.id] = 1;
+    put(g, a, "Skirk Prospector"); put(g, a, "Howlsquad Heavy"); goblins(g, a, 10); await g.settle();
+    await g.mainPhase(a);
+    check("Skirk loop: runs with Howlsquad Heavy", (a.cmdCasts[kr.id] || 0) >= 3, a.cmdCasts[kr.id]); }
+  { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 2); const kr = commander(g, a); kr.tapped = true; a.cmdCasts[kr.id] = 1;
+    put(g, a, "Skirk Prospector"); const gr = put(g, a, "Lightning Greaves"); goblins(g, a, 10); await g.settle();
+    const before = g.creatures(a).length;
+    await g.mainPhase(a);
+    check("Skirk loop: runs with Lightning Greaves, equipped each lap", (a.cmdCasts[kr.id] || 0) >= 3 && g.creatures(a).length >= before * 2, [a.cmdCasts[kr.id], before, g.creatures(a).length, gr.attachedTo && gr.attachedTo.def.name]); }
+  { const { g, a, b } = table(); a.deckId = "goblin-storm"; lands(g, a, 2); const kr = commander(g, a); kr.tapped = true; a.cmdCasts[kr.id] = 1;
+    put(g, a, "Skirk Prospector"); put(g, a, "Goblin Warchief"); put(g, a, "Impact Tremors"); goblins(g, a, 10); await g.settle();
+    await g.mainPhase(a);
+    check("Skirk loop with Impact Tremors: the table is dead", g.players.slice(1).every(q => q.lost), g.players.slice(1).map(q => q.life)); }
+  // Goblin Matron finds Skirk Prospector when Krenko and a haste source are there
+  { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 3); commander(g, a); put(g, a, "Goblin Warchief");
+    for (const n of ["Goblin King", "Skirk Prospector", "Siege-Gang Commander"]) { const o = g.newObj(MK.get(n), a, "library"); a.library.unshift(o); }
+    await g.settle();
+    await g.cast(a, hand(g, a, "Goblin Matron"), {}); await g.settle();
+    check("Goblin Matron: fetches Skirk Prospector for the loop", a.hand.some(c => c.def.name === "Skirk Prospector"), a.hand.map(c => c.def.name)); }
+  // Reiterate with buyback loops Jeska's Will while it waits on the stack
+  { const { g, a, b } = table(); a.deckId = "goblin-storm"; lands(g, a, 9); commander(g, a); hand(g, a, "Jeska's Will"); hand(g, a, "Reiterate");
+    for (let i = 0; i < 7; i++) hand(g, b, "Plains");
+    await g.settle();
+    await g.mainPhase(a);
+    check("Reiterate + Jeska's Will: Reiterate cast again and again", (g.spellsThisTurn || 0) >= 10, g.spellsThisTurn);
+    check("Reiterate + Jeska's Will: Reiterate comes back to hand", a.hand.some(c => c.def.name === "Reiterate"));
+    check("Reiterate + Jeska's Will: stops with cards left to draw", a.library.length >= 6, a.library.length); }
+  { const { g, a, b } = table(); a.deckId = "goblin-storm"; lands(g, a, 9); commander(g, a); hand(g, a, "Jeska's Will"); hand(g, a, "Reiterate");
+    for (let i = 0; i < 4; i++) hand(g, b, "Plains");
+    await g.settle();
+    const jw = a.hand.find(c => c.def.name === "Jeska's Will");
+    await g.cast(a, jw, { targets: [b] }); await g.settle();
+    check("Reiterate: not looped when the biggest hand is too small", (g.spellsThisTurn || 0) <= 2, g.spellsThisTurn); }
+  // Mycosynth Lattice: everything is an artifact, and an overloaded Vandalblast clears the opponents
+  { const { g, a, b } = table(); a.deckId = "goblin-storm"; lands(g, a, 11); commander(g, a); const pl = put(g, b, "Plains"); const bear = put(g, b, "Goblin Instigator"); await g.settle();
+    hand(g, a, "Mycosynth Lattice"); hand(g, a, "Vandalblast"); await g.settle();
+    await g.mainPhase(a);
+    check("Mycosynth Lattice: cast with Vandalblast in hand", g.battlefield.some(o => o.def.name === "Mycosynth Lattice"));
+    check("Lattice + Vandalblast: the opponent's land and creature are destroyed", pl.zone !== "battlefield" && bear.zone !== "battlefield", [pl.zone, bear.zone]);
+    check("Lattice + Vandalblast: our lands stay", g.battlefield.filter(o => o.controller === a && o.def.name === "Mountain").length === 11); }
+  { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 11); const lat = hand(g, a, "Mycosynth Lattice"); await g.settle();
+    check("Mycosynth Lattice: held without Vandalblast", MK.DECK_BRAINS["goblin-storm"].castOk(g, a, lat) === false); }
+
   console.log(`${passed} passed, ${failed} failed`);
   process.exit(failed ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });

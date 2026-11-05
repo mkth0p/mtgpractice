@@ -958,12 +958,18 @@
     return undefined;
   }
   /* Krenko in command with Skirk Prospector out and a haste source that stays when Krenko leaves
-     (Warchief, Chieftain, Fervor, Rising of the Day, Mass Hysteria, Thousand-Year Elixir): once Krenko
-     has made his Goblins, sacrifice him to Skirk, sacrifice Goblins for the rest of his cost, recast
-     him and tap him again. Each lap doubles what is left, so the bot goes while that beats what it has. */
+     (Warchief, Chieftain, Howlsquad Heavy, Fervor, Rising of the Day, Mass Hysteria, Thousand-Year Elixir,
+     or Greaves or Boots equipped again each lap): once Krenko has made his Goblins, sacrifice him to Skirk,
+     sacrifice Goblins for the rest of his cost, recast him and tap him again. Each lap doubles what is left,
+     so the bot goes while that beats what it has. With Impact Tremors, Purphoros, General Kreat or Goblin
+     Bombardment out the Goblins are the kill, so it keeps going until the table is dead (150 Goblins at most);
+     without one it stops at 60 hasty Goblins. */
   const KRENKO = "Krenko, Mob Boss", SKIRK = "Skirk Prospector";
-  const LOOP_HASTE = ["Goblin Warchief", "Goblin Chieftain", "Fervor", "Rising of the Day", "Thousand-Year Elixir"];
-  const loopHaste = (g, p) => LOOP_HASTE.some(n => named(g, p, n)) || g.battlefield.some(o => o.def.name === "Mass Hysteria");
+  const LOOP_HASTE = ["Goblin Warchief", "Goblin Chieftain", "Howlsquad Heavy", "Fervor", "Rising of the Day", "Thousand-Year Elixir"];
+  const LOOP_GEAR = ["Lightning Greaves", "Swiftfoot Boots"];
+  const LOOP_KILL = ["Impact Tremors", "Purphoros, God of the Forge", "General Kreat, the Boltbringer", "Goblin Bombardment"];
+  const loopHaste = (g, p) => LOOP_HASTE.some(n => named(g, p, n)) || LOOP_GEAR.some(n => named(g, p, n)) || g.battlefield.some(o => o.def.name === "Mass Hysteria");
+  const equipAct = (acts, eq) => acts.find(a => a.type === "activate" && a.card === eq && /^Equip/.test(a.ab.label || ""));
   function skirkLoop(g, p, win, acts) {
     if (legacy(g) || g.active !== p || (win !== "main1" && win !== "main2") || g.stack.length) return null;
     const skirk = named(g, p, SKIRK), kr = p.commanders.find(o => o.def.name === KRENKO);
@@ -971,33 +977,137 @@
     const m = M(p), lap = m.skirk && m.skirk.turn === g.turn ? m.skirk : null;
     const skirkAct = acts.find(a => a.type === "activate" && a.card === skirk);
     if (lap && kr.zone === "command") {
-      if (acts.some(a => a.type === "cast" && a.card === kr)) return { type: "cast", card: kr, tag: "skirk-recast", maxTries: 30 };
+      if (acts.some(a => a.type === "cast" && a.card === kr)) return { type: "cast", card: kr, tag: "skirk-recast", maxTries: 40 };
       const need = 4 + g.commanderTax(p, kr) - manaLeft(g, p);
-      if (need > 0 && skirkAct) { lap.sac = null; return { type: "activate", card: skirk, idx: skirkAct.idx, repeat: need, tag: "skirk-mana", maxTries: 30 }; }
+      if (need > 0 && skirkAct) { lap.sac = null; return { type: "activate", card: skirk, idx: skirkAct.idx, repeat: need, tag: "skirk-mana", maxTries: 40 }; }
       return null;
     }
     if (kr.zone !== "battlefield" || kr.controller !== p) return null;
     if (lap && !kr.tapped) {
       const make = acts.find(a => a.type === "activate" && a.card === kr && a.ab.krenkoMake);
-      return make ? { type: "activate", card: kr, idx: make.idx, tag: "skirk-krenko-tap", maxTries: 30 } : null;
+      if (make) return { type: "activate", card: kr, idx: make.idx, tag: "skirk-krenko-tap", maxTries: 40 };
+      // no haste that stays: Greaves (or Boots, paid with a Goblin) goes back on him
+      for (const n of LOOP_GEAR) {
+        const eq = named(g, p, n), ea = eq && eq.attachedTo !== kr && equipAct(acts, eq);
+        if (ea) { lap.equip = kr; return { type: "activate", card: eq, idx: ea.idx, tag: "skirk-equip", maxTries: 40 }; }
+        if (eq && eq.attachedTo !== kr && n === "Swiftfoot Boots" && skirkAct && manaLeft(g, p) < 1) { lap.sac = null; return { type: "activate", card: skirk, idx: skirkAct.idx, tag: "skirk-mana", maxTries: 40 }; }
+      }
+      return null;
     }
-    if (!kr.tapped || !skirkAct || (lap && lap.laps >= 6)) return null;
+    const killing = LOOP_KILL.some(n => named(g, p, n));
+    if (!kr.tapped || !skirkAct || (lap && lap.laps >= (killing ? 12 : 8))) return null;
     // Goblins after the lap: what's left once Krenko and the sacrifices for his cost are gone, plus Krenko, doubled.
-    // Past 40 Goblins another lap adds nothing a person would need (and the table slows to a crawl).
     const gobs = g.creatures(p).filter(c => isGoblin(g, c)).length;
-    if (gobs >= 40) return null;
+    if (gobs >= (killing ? 150 : 60)) return null;
     const sacs = Math.max(0, 4 + 2 * (p.cmdCasts[kr.id] || 0) - manaLeft(g, p) - 1);
     if (gobs - sacs < 4 || 2 * (gobs - sacs) < gobs + 4) return null;
     m.skirk = { turn: g.turn, sac: kr, laps: (lap ? lap.laps : 0) + 1 };
-    return { type: "activate", card: skirk, idx: skirkAct.idx, tag: "skirk-krenko", maxTries: 30 };
+    return { type: "activate", card: skirk, idx: skirkAct.idx, tag: "skirk-krenko", maxTries: 40 };
   }
-  // what Skirk Prospector sacrifices: Krenko when a lap starts, else the cheapest Goblin (not Skirk or the haste source)
+  // what Skirk Prospector sacrifices: Krenko when a lap starts, else the cheapest Goblin (not Skirk or the haste source);
+  // Greaves or Boots go on Krenko during a lap
   function skirkChoose(g, p, req) {
-    if (legacy(g) || req.purpose !== "sacrifice" || !req.src || req.src.def.name !== SKIRK || !req.options || !req.options.length) return undefined;
+    if (legacy(g) || !req.src || !req.options || !req.options.length) return undefined;
     const m = M(p), lap = m.skirk && m.skirk.turn === g.turn ? m.skirk : null;
+    if (lap && lap.equip && LOOP_GEAR.includes(req.src.def.name) && req.options.includes(lap.equip)) { const k = lap.equip; lap.equip = null; return k; }
+    if (req.purpose !== "sacrifice" || req.src.def.name !== SKIRK) return undefined;
     if (lap && lap.sac && req.options.includes(lap.sac)) { const k = lap.sac; lap.sac = null; return k; }
     const keep = c => (c.def.name === SKIRK || LOOP_HASTE.includes(c.def.name) ? 50 : 0) + keepScore(g, p, c);
     return req.options.slice().sort((a, b) => keep(a) - keep(b))[0];
+  }
+  /* Goblin Matron (or any tutor that asks) finds the missing piece of the Skirk loop: Skirk once Krenko
+     and a haste source that stays are there, or the haste source once Skirk is. */
+  function comboTutor(g, p, req) {
+    const k = comboPick(g, p, req);
+    // g.search asks for a list of cards (Scheming Symmetry), the deck's own tutors for one
+    return k === undefined ? undefined : req.type === "cards" ? [k] : k;
+  }
+  function comboPick(g, p, req) {
+    if (legacy(g) || req.purpose !== "tutor" || !req.options || !p.commanders.some(o => o.def.name === KRENKO)) return undefined;
+    const opt = n => req.options.find(c => c.def.name === n);
+    const have = n => !!named(g, p, n) || p.hand.some(c => c.def.name === n);
+    const haste = LOOP_HASTE.concat(LOOP_GEAR, ["Mass Hysteria"]).some(have);
+    if (!have(SKIRK) && opt(SKIRK) && haste) return opt(SKIRK);
+    if (have(SKIRK) && !haste) for (const n of ["Goblin Warchief", "Goblin Chieftain", "Howlsquad Heavy"]) if (opt(n)) return opt(n);
+    // any-card tutors (Gamble): the other half of Reiterate + Jeska's Will or Lattice + Vandalblast
+    const pairs = [["Reiterate", "Jeska's Will"], ["Mycosynth Lattice", "Vandalblast"]];
+    for (const [x, y] of pairs) { if (have(x) && !have(y) && opt(y)) return opt(y); if (have(y) && !have(x) && opt(x)) return opt(x); }
+    return undefined;
+  }
+
+  /* Reiterate with buyback copies our Jeska's Will while the original waits on the stack. Each copy adds
+     {R} per card in the biggest hand (and exiles three cards to play), so with six or more cards there
+     the buyback pays for itself and every cast adds one to storm. The bot sets it up with 9 mana (Jeska's
+     Will plus the first Reiterate), loops up to 30 times, then spends it all (bigTurn). Reiterate also
+     copies a Goblin War Strike once more per buyback it can pay for. */
+  const JW = "Jeska's Will", REIT = "Reiterate", LATTICE = "Mycosynth Lattice";
+  const reitOf = (g, p) => { const m = M(p); if (!m.reit || m.reit.turn !== g.turn) m.reit = { turn: g.turn, laps: 0 }; return m.reit; };
+  const biggestHand = (g, p) => Math.max(0, ...g.opponents(p).map(q => q.hand.length));
+  function ownPlan(g, p, ctx) {
+    if (legacy(g) || ctx.window !== "own") return null;
+    const top = ctx.top, a = (ctx.actions || []).find(x => x.type === "cast" && x.card.def.name === REIT);
+    if (!top || top.p !== p || top.isCopy || !a) return null;
+    const r = reitOf(g, p);
+    if (r.laps >= 30) return null;
+    const card = a.card, kick = g.canPay(p, g.spellCost(p, card, { kicked: true }), { spell: card });
+    const nm = top.o.def.name;
+    if (nm === JW) {
+      // every copy also exiles three: keep some cards to draw in case the turn doesn't win
+      if (top.jeskaBoth && p.library.length <= 12) return null;
+      const most = biggestHand(g, p);
+      if (most >= 6 && kick) { r.laps++; return { type: "cast", card, kicked: true, targets: [top], tag: "reiterate-jeska", maxTries: 40 }; }
+      if (most >= 4 && !kick && !r.laps) { r.laps++; return { type: "cast", card, kicked: false, targets: [top], tag: "reiterate-jeska", maxTries: 40 }; }
+      return null;
+    }
+    if (nm === "Goblin War Strike" && top.targets[0] && g.isPlayer(top.targets[0]) && !top.targets[0].lost) {
+      const gobs = g.battlefield.filter(o => o.controller === p && isGoblin(g, o)).length;
+      if (gobs >= 4) { r.laps++; return { type: "cast", card, kicked: kick, targets: [top], tag: "reiterate-strike", maxTries: 40 }; }
+    }
+    return null;
+  }
+  // main phase: cast Jeska's Will when Reiterate can loop it
+  function jeskaSetup(g, p, win, acts) {
+    if (legacy(g) || g.active !== p || (win !== "main1" && win !== "main2") || g.stack.length) return null;
+    const jw = acts.find(a => a.type === "cast" && a.card.def.name === JW && !a.alt);
+    if (!jw || !p.hand.some(c => c.def.name === REIT) || biggestHand(g, p) < 6) return null;
+    if (manaLeft(g, p) < jw.card.def.mv + 6) return null;
+    reitOf(g, p);
+    return { type: "cast", card: jw.card, tag: "jeska-reiterate", maxTries: 3 };
+  }
+  // after the Reiterate loop: damage-per-Goblin pieces first, then Krenko, bodies and token spells, Grapeshot last
+  const BIG_SKIP = [REIT, "Deflecting Swat", "Tibalt's Trickery", "Red Elemental Blast", "Pyroblast", "Chaos Warp", "Abrade", "Vandalblast"];
+  function bigTurn(g, p, win, acts) {
+    if (legacy(g) || g.active !== p || (win !== "main1" && win !== "main2") || g.stack.length) return null;
+    const m = M(p);
+    if (!m.reit || m.reit.turn !== g.turn || m.reit.laps < 2) return null;
+    const s = g.spellsThisTurn || 0, low = Math.min(...g.opponents(p).map(q => q.life));
+    const rank = a => {
+      const c = a.card, n = c.def.name, ai = c.def.ai || {};
+      if (BIG_SKIP.includes(n) || ai.counter || ai.protection) return null;
+      if (n === "Grapeshot") return s + 1 >= low ? 0 : 9;
+      if (LOOP_KILL.includes(n)) return 1;
+      if (c.isCommander || LOOP_HASTE.includes(n) || n === "Mass Hysteria") return 2;
+      if (n === JW) return 3;
+      if (n === "Empty the Warrens") return 6;
+      if (c.def.types.includes("Creature")) return 4;
+      return c.def.types.includes("Sorcery") || c.def.types.includes("Instant") ? 5 : 4;
+    };
+    const opts = acts.filter(a => a.type === "cast" && !a.alt && rank(a) != null).sort((x, y) => rank(x) - rank(y));
+    return opts.length ? { type: "cast", card: opts[0].card, tag: "big-turn", maxTries: 3 } : null;
+  }
+  /* Mycosynth Lattice makes every permanent an artifact, so an overloaded Vandalblast destroys everything the
+     opponents have (Krenko's brain casts it). The bot casts Lattice only with Vandalblast in hand, and
+     with mana for both this turn unless it is late. */
+  function latticeBlast(g, p, win, acts) {
+    if (legacy(g) || g.active !== p || (win !== "main1" && win !== "main2") || g.stack.length || !g.battlefield.some(o => o.def.name === LATTICE)) return null;
+    const over = acts.find(a => a.type === "cast" && a.card.def.name === "Vandalblast" && a.alt === 1);
+    const theirs = g.battlefield.filter(o => o.controller !== p).length;
+    return over && theirs >= 3 ? { type: "cast", card: over.card, alt: 1, targets: [null], tag: "lattice-vandal" } : null;
+  }
+  function latticeOk(g, p, card) {
+    if (legacy(g) || card.def.name !== LATTICE) return undefined;
+    if (!p.hand.some(c => c.def.name === "Vandalblast")) return false;
+    return manaLeft(g, p) >= 11 || g.round >= 8 ? undefined : false;
   }
   function brain(g, p, o, ctx) {
     const win = ctx.window, acts = ctx.actions || [];
@@ -1124,9 +1234,15 @@
   MK.GSTORM_AI = { brain, coachTips, zadaCopies, stormTurn, blasphemousOk, outletPlan, perSac };
   // the deck's brain for the shared cards: Blasphemous Act waits for a real reason (engine 10)
   (MK.DECK_BRAINS = MK.DECK_BRAINS || {})["goblin-storm"] = {
-    plan: (g, p, ctx) => skirkLoop(g, p, ctx.window, ctx.actions || []) || outletPlan(g, p, ctx),
-    choose: (g, p, req) => { const k = skirkChoose(g, p, req); return k === undefined ? outletChoose(g, p, req) : k; },
-    castOk: (g, p, card) => (card.def.name === "Blasphemous Act" && !legacy(g) ? blasphemousOk(g, p) : undefined)
+    plan: (g, p, ctx) => ownPlan(g, p, ctx) || skirkLoop(g, p, ctx.window, ctx.actions || []) || jeskaSetup(g, p, ctx.window, ctx.actions || []) ||
+      latticeBlast(g, p, ctx.window, ctx.actions || []) || bigTurn(g, p, ctx.window, ctx.actions || []) || outletPlan(g, p, ctx),
+    choose: (g, p, req) => {
+      let k = skirkChoose(g, p, req);
+      if (k === undefined) k = comboTutor(g, p, req);
+      if (k === undefined && req.purpose === "jeskaMode" && !legacy(g) && p.hand.some(c => c.def.name === REIT) && req.target && req.target.hand.length >= 6) k = "mana";
+      return k === undefined ? outletChoose(g, p, req) : k;
+    },
+    castOk: (g, p, card) => (card.def.name === "Blasphemous Act" && !legacy(g) ? blasphemousOk(g, p) : latticeOk(g, p, card))
   };
   (MK.HERO_DECKS = MK.HERO_DECKS || []).push(MK.GSTORM_DECK);
   (MK.BOT_DECKS = MK.BOT_DECKS || []).push(MK.GSTORM_DECK);

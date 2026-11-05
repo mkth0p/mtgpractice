@@ -318,9 +318,21 @@ The Goblin Storm upgrade cards (`cards-gstorm.js`) added a few more (none of the
   spell and an `enters` trigger gives that creature haste for the game. Rising of the Day and Mass Hysteria
   are plain haste statics.
 - The Goblin Storm brain (`decks-zada.js`, `skirkLoop`) runs the Krenko + Skirk Prospector loop when a
-  haste source is out: tap Krenko, sacrifice him to Skirk (he goes to the command zone), sacrifice Goblins
-  for the tax, recast him and tap him again. It stops at 40 Goblins or 6 laps and keeps at least half the
-  Goblins it had, and the sacrifice choice never picks Skirk or the haste piece.
+  haste source stays out (Warchief, Chieftain, Howlsquad Heavy, Fervor, Rising of the Day, Mass Hysteria,
+  Thousand-Year Elixir, or Greaves/Boots equipped again each lap): tap Krenko, sacrifice him to Skirk (he
+  goes to the command zone), sacrifice Goblins for the tax, recast him and tap him again. With Impact
+  Tremors, Purphoros, General Kreat or Goblin Bombardment out it goes until the table is dead (150 Goblins
+  or 12 laps at most), otherwise it stops at 60 Goblins or 8 laps. The sacrifice choice never picks Skirk
+  or the haste piece, and tutors (`comboTutor`) find the missing Skirk or haste piece, or the other half of
+  Reiterate + Jeska's Will and Mycosynth Lattice + Vandalblast.
+- A caster can answer their own spell with a card marked `holdPriority: true` (Reiterate): `resolveDown`
+  asks the caster first (`g.askOwn`, window `"own"`, only when such a card can be cast), so no other game
+  changes. A bot only acts there through its deck brain's `plan` (`ctx.top` is the spell). The Goblin
+  Storm brain casts Jeska's Will with 9 mana when Reiterate is in hand and an opponent holds 6+ cards, copies
+  it with buyback up to 30 times (`ownPlan`, stopping with 12 cards left in the library), then spends the
+  mana (`bigTurn`: damage-per-Goblin pieces, Krenko and haste, bodies, Grapeshot last).
+- Mycosynth Lattice is an `addTypes: ["Artifact"]` static on every permanent; the bot casts it only with
+  Vandalblast in hand (and 11 mana, or from round 8), then overloads Vandalblast (`latticeBlast`).
 
 ## Game methods to use in `do`
 

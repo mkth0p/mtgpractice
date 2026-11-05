@@ -41,8 +41,8 @@
                            //    main phase (legacyCorrupted)
                            // 10: the Goblin Storm bot plans storm turns (rituals and cheap spells into Grapeshot, Empty the Warrens or the
                            //    Haze of Rage loop), casts a cantrip on Zada with one other creature, and holds Blasphemous Act unless the
-                           //    table's creatures are far ahead and hurting it, and loops Krenko with Skirk Prospector once a haste
-                           //    source is out (legacyGstorm)
+                           //    table's creatures are far ahead and hurting it, loops Krenko with Skirk Prospector once a haste
+                           //    source is out, loops Reiterate on Jeska's Will and overloads Vandalblast under Mycosynth Lattice (legacyGstorm)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",
@@ -754,6 +754,18 @@
         const top = this.stack[this.stack.length - 1];
         // inside a repeated loop (Druid ×N) the table shortcuts: no windows for its abilities and triggers
         if (!(this.quiet && top.kind !== "spell") && asked < 80) {
+          // the caster may answer their own spell, only with a card that says so (Reiterate copying Jeska's
+          // Will) and only while one can be cast, so no other game changes
+          if (top.kind === "spell" && top.p && !top.p.lost) {
+            const own = await this.askOwn(top.p, top);
+            if (this.over) return;
+            if (own) {
+              asked++;
+              const ok = await this.perform(top.p, own);
+              if (this.over) return;
+              if (ok || !top.p.agent.bot) continue;
+            }
+          }
           let acted = false;
           for (const q of this.orderFrom(top.p).slice(1)) {
             if (q.lost || this.over) continue;
@@ -2235,6 +2247,13 @@
       const base = this.stack.indexOf(item);
       if (base < 0) return;
       await this.resolveDown(base);
+    }
+    async askOwn(p, top) {
+      if (!p.agent || !p.agent.respond || !p.hand.some(c => c.def.holdPriority)) return null;
+      const acts = this.legalActions(p, { instant: true }).filter(a => a.type === "cast" && a.card.def.holdPriority);
+      if (!acts.length) return null;
+      const act = await p.agent.respond(this, p, { window: "own", top, actions: acts, turnOf: this.active });
+      return act && act.type !== "pass" ? act : null;
     }
     async askRespond(q, ctx) {
       if (!q.agent.respond) return null;
