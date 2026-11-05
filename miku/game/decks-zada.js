@@ -774,6 +774,182 @@
     }
     return null;
   }
+  // games recorded before engine 10 replay with the first bot (no storm turns, Zada spells from 2 copies, any Blasphemous Act)
+  const legacy = g => !!(g.opts && g.opts.legacyGstorm);
+  const FINISHERS = ["Grapeshot", "Empty the Warrens"];
+  // net red mana a ritual adds, as it would resolve now (it costs its mana value)
+  const RITUALS = {
+    "Seething Song": () => 5,
+    "Brightstone Ritual": (g, p) => g.battlefield.filter(o => isGoblin(g, o)).length,
+    "Battle Hymn": (g, p) => g.creatures(p).length,
+    "Mana Geyser": (g, p) => g.battlefield.filter(x => x.controller !== p && g.isLand(x) && x.tapped).length
+  };
+  // cheap spells a storm turn can spend on raising the count (they do something on their own too; no discard spells)
+  const FODDER = ["Expedite", "Crimson Wisps", "Renegade Tactics", "Krenko's Command", "Dragon Fodder", "Ancestors' Aid", "Witch's Mark", "Fists of Flame", "Wild Ride", HAZE];
+  /* A storm turn: count the mana in play and in the rituals, the cheap spells that raise the storm
+     count and the finishers, and go when Grapeshot kills someone, Empty the Warrens makes a real army
+     (or pings someone out with Impact Tremors and Kreat), or the Haze loop with Storm-Kiln Artist can
+     start. Then cast the pieces in order: rituals when the mana is short, cheap spells, finishers last. */
+  function stormTurn(g, p, acts, win) {
+    const m = M(p);
+    const cast = n => acts.find(a => a.type === "cast" && a.card.def.name === n && !a.alt) || null;
+    const inH = n => p.hand.filter(c => c.def.name === n);
+    const fin = FINISHERS.filter(n => inH(n).length);
+    const loop = named(g, p, ARTIST) && inH(HAZE).length && win === "main1";
+    // without Artist, Haze of Rage is a pump before combat: each copy is +1/+0 on every attacker
+    const att = g.creatures(p).filter(c => !c.tapped && (!c.sick || g.kw(c, "haste"))).length;
+    const pump = !loop && inH(HAZE).length && win === "main1" && att >= 3;
+    if (!fin.length && !loop && !pump) return null;
+    const s = g.spellsThisTurn || 0;
+    const medal = g.battlefield.some(x => x.controller === p && x.def.name === "Ruby Medallion") ? 1 : 0;
+    const cost = c => Math.max(c.def.name === "Empty the Warrens" ? 1 : c.def.mv > 0 ? 1 : 0, c.def.mv - medal);
+    let mana = manaLeft(g, p);
+    const finCost = fin.reduce((t, n) => t + cost(inH(n)[0]), 0) + (pump ? cost(inH(HAZE)[0]) : 0);
+    // rituals first in the count (only the ones that add more than they cost), then the cheapest spells
+    const rit = Object.keys(RITUALS).flatMap(inH).map(c => ({ c, net: RITUALS[c.def.name](g, p) - cost(c) })).filter(r => r.net > 0);
+    let plan = 0;
+    for (const r of rit) if (mana >= cost(r.c)) { mana += r.net; plan++; }
+    const fodder = FODDER.flatMap(inH).filter(c => !(c.def.name === HAZE && (loop || pump))).sort((a, b) => cost(a) - cost(b));
+    for (const c of fodder) if (mana - finCost >= cost(c)) { mana -= cost(c); plan++; }
+    const st = s + plan; // storm count when the first finisher is cast
+    const opps = g.opponents(p).filter(q => !q.lost);
+    const low = lowestLife(opps);
+    const pingers = (named(g, p, "Impact Tremors") ? 1 : 0) + (named(g, p, "General Kreat, the Boltbringer") ? (named(g, p, "Roaming Throne") && named(g, p, "Roaming Throne").state.chosenType === "Goblin" ? 2 : 1) : 0);
+    const hasE = fin.includes("Empty the Warrens"), hasG = fin.includes("Grapeshot");
+    const gob = hasE ? 2 * (st + 1) : 0;
+    const grape = hasG ? st + 1 + (hasE ? 1 : 0) : 0;
+    const enough = mana >= finCost;
+    let go = m.stormTurn === g.turn;
+    if (!go && enough && low) {
+      if (hasG && grape + gob * pingers >= low.life) go = true;                   // someone dies
+      else if (hasE && gob * pingers >= low.life) go = true;
+      else if (hasE && win === "main1" && gob >= 10) go = true;                   // a real army
+      else if (hasE && win === "main2" && gob >= 8) go = true;
+      else if (hasG && win === "main2" && grape >= 8 && !hasE) go = !!opps.find(q => q.life <= grape + 4) && p.hand.length <= 3;
+    }
+    if (!go && loop) go = s + plan >= 3 && enough;
+    if (!go && pump && enough) go = (st + 1) * att >= 12;
+    if (!go) return null;
+    m.stormTurn = g.turn;
+    // the next piece
+    const avail = manaLeft(g, p);
+    const restCost = fodder.filter(c => cast(c.def.name)).reduce((t, c) => t + cost(c), 0) + finCost;
+    for (const r of rit) { const a = cast(r.c.def.name); if (a && avail < restCost) return { type: "cast", card: a.card, tag: "storm-ritual" }; }
+    for (const c of fodder) {
+      const a = cast(c.def.name);
+      if (!a || avail - cost(c) < finCost) continue;
+      const z = named(g, p, ZADA), specs = g.spellTargets(a.card, {});
+      if (z && specs.length && g.legalTarget(p, specs[0], z, a.card) && /Expedite|Crimson Wisps|Renegade Tactics|Ancestors' Aid|Witch's Mark|Fists of Flame|Wild Ride/.test(c.def.name)) return { type: "cast", card: a.card, targets: specs.map((sp, i) => (i === 0 ? z : null)), tag: "storm-zada" };
+      return { type: "cast", card: a.card, tag: "storm-fodder" };
+    }
+    for (const r of rit) { const a = cast(r.c.def.name); if (a) return { type: "cast", card: a.card, tag: "storm-ritual" }; }
+    const e = cast("Empty the Warrens"); if (e) return { type: "cast", card: e.card, tag: "storm-finish" };
+    const hz = pump && cast(HAZE);
+    if (hz) return { type: "cast", card: hz.card, kicked: g.canPay(p, g.spellCost(p, hz.card, { kicked: true }), { spell: hz.card }), tag: "storm-pump" };
+    const gr = cast("Grapeshot"); if (gr) return { type: "cast", card: gr.card, tag: "storm-finish" };
+    return null;
+  }
+  /* Blasphemous Act kills Zada too: only when the table's creatures are far ahead of ours and
+     they're hurting us. */
+  function blasphemousOk(g, p) {
+    const hit = c => g.isCreature(c) && !g.kw(c, "indestructible");
+    const v = c => value(g, c) + (c.def.name === ZADA ? 10 : 0);
+    const mine = g.battlefield.filter(c => c.controller === p && hit(c)).reduce((t, c) => t + v(c), 0);
+    const theirs = g.battlefield.filter(c => c.controller !== p && hit(c));
+    const tv = theirs.reduce((t, c) => t + value(g, c), 0), tp = theirs.reduce((t, c) => t + Math.max(0, g.power(c)), 0);
+    return tv >= 16 && tv >= mine * 2 + 8 && (p.life <= 25 || tp >= 14);
+  }
+  /* Goblin Bombardment, the deck's sacrifice outlet (engine 10). Each Goblin sacrificed is 1 damage
+     from Bombardment, 1 more from Pashalik Mons (twice with Roaming Throne naming Goblin) and 1 from
+     Boggart Shenanigans. The bot cashes the board in when that kills an opponent, when a wipe or a
+     removal spell would take the creatures anyway, and for creatures that die in this combat. */
+  const OUTLET = "Goblin Bombardment";
+  function perSac(g, p, c) {
+    let n = 1;
+    if (isGoblin(g, c)) {
+      const mons = named(g, p, "Pashalik Mons"), rt = named(g, p, "Roaming Throne");
+      if (mons) n += rt && rt.state.chosenType === "Goblin" && c !== mons ? 2 : 1;
+      if (named(g, p, "Boggart Shenanigans")) n += 1;
+    }
+    return n;
+  }
+  function keepScore(g, p, c) {
+    if (c.def.name === ZADA) return 100;
+    if (c.def.name === "Pashalik Mons") return 60;
+    if (["Krenko, Mob Boss", ARTIST, "General Kreat, the Boltbringer", "Goblin Chieftain", "Goblin Warchief"].includes(c.def.name)) return 30 + value(g, c);
+    return (c.isToken ? 0 : 5) + value(g, c);
+  }
+  function outletOf(g, p) { return named(g, p, OUTLET); }
+  function outletPlan(g, p, ctx) {
+    const bomb = outletOf(g, p);
+    if (!bomb || legacy(g)) return null;
+    const m = M(p), win = ctx.window;
+    const fodder = () => g.creatures(p).slice().sort((a, b) => keepScore(g, p, a) - keepScore(g, p, b));
+    const foes = g.opponents(p).filter(q => !q.lost && !g.playerHexproof(q));
+    const act = (n, stop) => ({ type: "activate", card: bomb, idx: 0, repeat: n, maxTries: 3, stop });
+    // 1. lethal: fling Goblins (never Zada) at the opponent closest to dying
+    {
+      const list = fodder().filter(c => c.def.name !== ZADA);
+      for (const q of foes.slice().sort((a, b) => a.life - b.life)) {
+        let dmg = 0, n = 0;
+        for (const c of list) { dmg += perSac(g, p, c); n++; if (dmg >= q.life) break; }
+        if (dmg >= q.life && n <= list.length) {
+          Object.assign(m, { focus: q, focusTurn: g.turn, dying: null });
+          return act(n + 1, () => q.lost);
+        }
+      }
+    }
+    const low = lowestLife(foes);
+    // 2. an opponent's wipe or removal on the stack
+    const top = g.stack[g.stack.length - 1];
+    if (top && top.p !== p && !top.countered && top.o && (win === "stack" || win === "ability")) {
+      const d = top.o.def, A = MK.AI;
+      const mass = d.ai && d.ai.wipe ? { hit: g.creatures(p).filter(c => !g.kw(c, "indestructible")) } : (A && A.massHarm ? A.massHarm(g, p, top) : null);
+      const dying = mass && mass.hit ? mass.hit.filter(c => g.isCreature(c) && c.controller === p && c.zone === "battlefield") : [];
+      if (dying.length >= 2) {
+        Object.assign(m, { focus: low, focusTurn: g.turn, dying: new Set(dying.map(c => c.id)) });
+        const zc = new Map(dying.map(c => [c.id, c.zc]));
+        return act(dying.length, () => !dying.some(c => c.zone === "battlefield" && c.zc === zc.get(c.id)));
+      }
+      const specs = top.kind === "spell" ? g.spellTargets(top.o, top) : [];
+      const hit = (top.targets || []).find((t, i) => t && !g.isPlayer(t) && t.zone === "battlefield" && t.controller === p && g.isCreature(t) && specs[i] && specs[i].purpose === "harm" && !g.kw(t, "indestructible"));
+      if (hit) { Object.assign(m, { focus: low, focusTurn: g.turn, dying: new Set([hit.id]) }); return act(1); }
+    }
+    // 3. after blocks: creatures of ours that die in this combat anyway
+    if (g.combat && win === "blockers") {
+      const dies = [];
+      for (const c of g.creatures(p)) {
+        if (!c.combat || g.kw(c, "indestructible")) continue;
+        const foesOn = c.combat.blocking ? [c.combat.blocking] : (c.combat.blockedBy || []);
+        const hurt = foesOn.reduce((t, x) => t + Math.max(0, g.power(x)), 0);
+        if (foesOn.length && hurt >= g.toughness(c) - (c.damage || 0) && c.def.name !== ZADA) dies.push(c);
+      }
+      if (dies.length) {
+        Object.assign(m, { focus: low, focusTurn: g.turn, dying: new Set(dies.map(c => c.id)) });
+        const zc = new Map(dies.map(c => [c.id, c.zc]));
+        return act(dies.length, () => !dies.some(c => c.zone === "battlefield" && c.zc === zc.get(c.id)));
+      }
+    }
+    return null;
+  }
+  // which creature to sacrifice, and where the damage goes
+  function outletChoose(g, p, req) {
+    if (legacy(g) || !req.src) return undefined;
+    const m = M(p), name = req.src.def && req.src.def.name;
+    if (req.purpose === "sacrifice" && name === OUTLET && req.options && req.options.length) {
+      const opts = req.options.slice().sort((a, b) => keepScore(g, p, a) - keepScore(g, p, b));
+      if (m.dying && m.focusTurn === g.turn) { const d = opts.find(c => m.dying.has(c.id)); if (d) return d; }
+      return opts[0];
+    }
+    if ((name === OUTLET || name === "Pashalik Mons" || name === "Boggart Shenanigans") && (req.type === "target" || req.type === "player") && req.options) {
+      const f = m.focus && m.focusTurn === g.turn && !m.focus.lost && req.options.includes(m.focus) ? m.focus : null;
+      if (f) return f;
+      const opp = req.options.filter(x => g.isPlayer(x) && x !== p && !x.lost);
+      const kill = opp.filter(q => q.life <= 1)[0];
+      return kill || undefined;
+    }
+    return undefined;
+  }
   function brain(g, p, o, ctx) {
     const win = ctx.window, acts = ctx.actions || [];
     if (g.active !== p || (win !== "main1" && win !== "main2")) return null;
@@ -792,6 +968,8 @@
         return { type: "cast", card: haze.card, kicked: true, tag: "haze-loop" };
       }
     }
+    // 1b. a storm turn, once it's worth it (engine 10)
+    if (!legacy(g)) { const st = stormTurn(g, p, acts, win); if (st) return st; }
     // 2. a spell on Zada, after a cheap token spell when the mana covers both
     const z = named(g, p, ZADA);
     if (z) {
@@ -805,6 +983,8 @@
       const n = zadaCopies(g, p, z);
       const order = ["Ancestors' Aid", "Daring Discovery", "Witch's Mark", "Expedite", "Crimson Wisps", "Renegade Tactics", "Fists of Flame", "Wild Ride"];
       const minFor = { "Ancestors' Aid": 2, "Daring Discovery": 2, "Witch's Mark": 2, "Expedite": 2, "Crimson Wisps": 2, "Renegade Tactics": 2, "Fists of Flame": 4, "Wild Ride": 4 };
+      // engine 10: a cantrip on Zada already draws two with one other creature
+      if (!legacy(g)) Object.assign(minFor, { "Expedite": 1, "Crimson Wisps": 1, "Renegade Tactics": 1 });
       for (const name of order) {
         const a = cast(name);
         if (!a || n < minFor[name]) continue;
@@ -892,7 +1072,13 @@
     list: LIST,
     coach: { tips: coachTips, checklist: "gstorm" }
   };
-  MK.GSTORM_AI = { brain, coachTips, zadaCopies };
+  MK.GSTORM_AI = { brain, coachTips, zadaCopies, stormTurn, blasphemousOk, outletPlan, perSac };
+  // the deck's brain for the shared cards: Blasphemous Act waits for a real reason (engine 10)
+  (MK.DECK_BRAINS = MK.DECK_BRAINS || {})["goblin-storm"] = {
+    plan: outletPlan,
+    choose: outletChoose,
+    castOk: (g, p, card) => (card.def.name === "Blasphemous Act" && !legacy(g) ? blasphemousOk(g, p) : undefined)
+  };
   (MK.HERO_DECKS = MK.HERO_DECKS || []).push(MK.GSTORM_DECK);
   (MK.BOT_DECKS = MK.BOT_DECKS || []).push(MK.GSTORM_DECK);
 })(typeof window !== "undefined" ? window : globalThis);
