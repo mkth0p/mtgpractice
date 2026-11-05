@@ -41,7 +41,10 @@
                            //    main phase (legacyCorrupted)
                            // 10: the Goblin Storm bot plans storm turns (rituals and cheap spells into Grapeshot, Empty the Warrens or the
                            //    Haze of Rage loop), casts a cantrip on Zada with one other creature, and holds Blasphemous Act unless the
-                           //    table's creatures are far ahead and hurting it (legacyGstorm)
+                           //    table's creatures are far ahead and hurting it, loops Krenko with Skirk Prospector once a haste
+                           //    source is out, loops Reiterate on Jeska's Will and overloads Vandalblast under Mycosynth Lattice, loops
+                           //    Thornbite Staff on Krenko with any sacrifice outlet, makes enough Kiki-Jiki copies for the table, tutors
+                           //    the missing combo piece, and spreads a wide attack so each player gets just enough (legacyGstorm)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",
@@ -210,6 +213,22 @@
       }
       if (paid) g.log(`${q.name} pays {${n}} for ward.`, { p: q, cards: [s.def.name] });
       else { g.log(`${q.name} doesn't pay for ward.`, { p: q, cards: [s.def.name] }); g.counterSpell(item, s); }
+    }
+  });
+
+  /* "Ward—Pay N life" (Hexing Squelcher): the targeting player pays N life or the spell or ability is countered. */
+  MK.wardLifeTrigger = n => ({
+    on: "becameTarget", self: true, when: (g, s, ev) => ev.p !== s.controller && !!ev.item,
+    do: async (g, s, ev) => {
+      const q = ev.p, item = ev.item;
+      if (!g.stack.includes(item) || q.lost) return;
+      let paid = false;
+      if (q.life > n) {
+        const ok = await g.ask(q, { type: "confirm", prompt: `Ward: pay ${n} life, or ${item.name} is countered`, src: s, purpose: "wardLifePay" });
+        if (ok) paid = g.payLife(q, n);
+      }
+      if (paid) g.log(`${q.name} pays ${n} life for ward.`, { p: q, cards: [s.def.name] });
+      else { g.log(`${q.name} doesn't pay life for ward.`, { p: q, cards: [s.def.name] }); g.counterSpell(item, s); }
     }
   });
 
@@ -556,6 +575,12 @@
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.cantActivate && st.cantActivate(this, s, p, o, ab)) return true;
       return false;
     }
+    /* "You may activate abilities of creatures you control as though those creatures had haste"
+       (Thousand-Year Elixir): a static with abilityHaste(g, s, o). */
+    abilityHaste(o) {
+      for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.abilityHaste && st.abilityHaste(this, s, o)) return true;
+      return false;
+    }
     uncounterable(item) {
       if (item.p && item.p.noCounterTurn === this.turn) return true; // Veil of Summer
       for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.uncounterable && st.uncounterable(this, s, item)) return true;
@@ -731,6 +756,18 @@
         const top = this.stack[this.stack.length - 1];
         // inside a repeated loop (Druid ×N) the table shortcuts: no windows for its abilities and triggers
         if (!(this.quiet && top.kind !== "spell") && asked < 80) {
+          // the caster may answer their own spell, only with a card that says so (Reiterate copying Jeska's
+          // Will) and only while one can be cast, so no other game changes
+          if (top.kind === "spell" && top.p && !top.p.lost) {
+            const own = await this.askOwn(top.p, top);
+            if (this.over) return;
+            if (own) {
+              asked++;
+              const ok = await this.perform(top.p, own);
+              if (this.over) return;
+              if (ok || !top.p.agent.bot) continue;
+            }
+          }
           let acted = false;
           for (const q of this.orderFrom(top.p).slice(1)) {
             if (q.lost || this.over) continue;
@@ -1565,7 +1602,7 @@
         for (const ab of abs) {
           if (stops.length && stops.some(([s, st]) => st.cantActivate(this, s, p, o, ab))) continue;
           if (ab.tap && o.tapped) continue;
-          if (ab.tap && !ab.ignoreSick && this.isCreature(o) && o.sick && !this.kw(o, "haste")) continue;
+          if (ab.tap && !ab.ignoreSick && this.isCreature(o) && o.sick && !this.kw(o, "haste") && !this.abilityHaste(o)) continue;
           if (ab.condition && !ab.condition(this, o)) continue;
           if (ab.noAuto) continue;
           if (ab.onlyFor && ab.onlyFor !== (forWhat || "spell")) continue;
@@ -2193,9 +2230,13 @@
         this.emit("becameTarget", { o: t, p: item.p, item });
         // ward a static ability gives (Brotherhood Regalia's equipped creature)
         if (item.p !== t.controller) {
-          let n = 0;
-          for (const s of this.staticSources()) for (const st of this.staticsOf(s)) if (st.ward && st.applies && st.applies(this, s, t)) n = Math.max(n, st.ward);
+          let n = 0, life = 0;
+          for (const s of this.staticSources()) for (const st of this.staticsOf(s)) {
+            if (st.ward && st.applies && st.applies(this, s, t)) n = Math.max(n, st.ward);
+            if (st.wardLife && st.applies && st.applies(this, s, t)) life = Math.max(life, st.wardLife);
+          }
           if (n > 0) { const tr = MK.wardTrigger(n); this.pending.push({ src: t, tr, ev: { o: t, p: item.p, item }, controller: t.controller }); }
+          if (life > 0) { const tr = MK.wardLifeTrigger(life); this.pending.push({ src: t, tr, ev: { o: t, p: item.p, item }, controller: t.controller }); }
         }
       }
     }
@@ -2208,6 +2249,13 @@
       const base = this.stack.indexOf(item);
       if (base < 0) return;
       await this.resolveDown(base);
+    }
+    async askOwn(p, top) {
+      if (!p.agent || !p.agent.respond || !p.hand.some(c => c.def.holdPriority)) return null;
+      const acts = this.legalActions(p, { instant: true }).filter(a => a.type === "cast" && a.card.def.holdPriority);
+      if (!acts.length) return null;
+      const act = await p.agent.respond(this, p, { window: "own", top, actions: acts, turnOf: this.active });
+      return act && act.type !== "pass" ? act : null;
     }
     async askRespond(q, ctx) {
       if (!q.agent.respond) return null;
@@ -2404,7 +2452,7 @@
       if (ab.once && o.state["once" + entry.key] === this.turn) return false;
       if (ab.tap) {
         if (o.tapped) return false;
-        if (this.isCreature(o) && o.sick && !this.kw(o, "haste")) return false;
+        if (this.isCreature(o) && o.sick && !this.kw(o, "haste") && !this.abilityHaste(o)) return false;
       }
       if (ab.untapSelf && !o.tapped) return false;
       if (ab.condition && !ab.condition(this, o, p)) return false;

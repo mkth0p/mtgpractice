@@ -871,11 +871,11 @@
 
     /* ---------------- deck plans: def.ai.plan(g, p, o, {window, actions}) returns an action or null.
        A deck's own brain (deckBrain) plans first. */
-    function runPlans(g, p, win, acts) {
+    function runPlans(g, p, win, acts, top) {
       const br = brainOf(p);
       if (br && br.plan) {
         let a = null;
-        try { a = br.plan(g, p, { window: win, actions: acts }); } catch (e) { if (g.warn) g.warn(e); a = null; }
+        try { a = br.plan(g, p, { window: win, actions: acts, top }); } catch (e) { if (g.warn) g.warn(e); a = null; }
         if (a) {
           const key = `brain:${a.type}:${a.card && a.card.id}:${a.idx}:${a.alt}`;
           const n = mem.tried.get(key) || 0;
@@ -1487,6 +1487,8 @@
     /* The counterspell can target that spell (Dispel, An Offer You Can't Refuse, Wash Away). */
     function counterFits(g, q, act, top) {
       const d = act.card.def;
+      // a card that knows which spells it answers (Red Elemental Blast: blue ones)
+      if (d.ai && d.ai.counterFits) return !!d.ai.counterFits(g, q, top);
       if (d.modes) return true;
       const specs = act.alt && d.altCosts && d.altCosts[act.alt - 1].targets ? d.altCosts[act.alt - 1].targets : ((d.spell && d.spell.targets) || []);
       const spec = specs[0];
@@ -1515,8 +1517,10 @@
       resetTurn(g);
       const acts = ctx.actions || [];
       const win = ctx.window;
-      const planned = runPlans(g, q, win, acts);
+      const planned = runPlans(g, q, win, acts, ctx.top);
       if (planned) return planned;
+      // our own spell on the stack (a card like Reiterate): only a plan answers it
+      if (win === "own") return null;
       // winning abilities
       for (const a of acts) if (a.type === "activate" && a.ab.ai && a.ab.ai.first) {
         const u = abilityUse(g, q, a, win, ctx.turnOf);

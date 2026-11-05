@@ -306,6 +306,51 @@ Marvel decks added a few more (none of them changes an older deck's games):
 - `g.castThisTurn(p, e => e.nc)` counts this turn's spells; castLog entries carry `nc` (noncreature), `name`,
   `o`, `mv` and `from`.
 
+The Goblin Storm upgrade cards (`cards-gstorm.js`) added a few more (none of them changes an older deck's games):
+- A static with `abilityHaste: (g, s, o) => bool` lets o's {T} abilities ignore summoning sickness
+  (Thousand-Year Elixir); `g.abilityHaste(o)` tests it.
+- `wardLife: n` on a static that applies to a creature is "Ward—Pay n life" (Hexing Squelcher);
+  `MK.wardLifeTrigger(n)` is the trigger form.
+- `ai.counterFits(g, q, top)` on a counterspell tells the bots which spells it can answer (Red Elemental
+  Blast only counters blue ones, so a modal card no longer looks like it fits everything).
+- Hall of the Bandit Lord's mana ability uses `spellOnly` (the bots spend it only on a creature spell
+  with a {T} ability) and `after` (pay 3 life, arm the land); a `cast` trigger remembers the next creature
+  spell and an `enters` trigger gives that creature haste for the game. Rising of the Day and Mass Hysteria
+  are plain haste statics.
+- The Goblin Storm brain (`decks-zada.js`, `skirkLoop`) runs the Krenko + Skirk Prospector loop when a
+  haste source stays out (Warchief, Chieftain, Howlsquad Heavy, Fervor, Rising of the Day, Mass Hysteria,
+  Thousand-Year Elixir, or Greaves/Boots equipped again each lap): tap Krenko, sacrifice him to Skirk (he
+  goes to the command zone), sacrifice Goblins for the tax, recast him and tap him again. With Impact
+  Tremors, Purphoros, General Kreat or Goblin Bombardment out it goes until the table is dead (150 Goblins
+  or 12 laps at most). Otherwise it stops at 60 Goblins or 8 laps, or, once every Goblin has haste, at
+  enough Goblins to swing through the table (`swarmCap`: its life plus one per untapped blocker, a fifth
+  more, 150 at most). The sacrifice choice never picks Skirk or the haste piece.
+- Tutors (`comboTutor`, `COMBOS`) fetch the one missing piece of a combo: Skirk or a lasting haste source,
+  Kiki-Jiki or Splinter Twin + Zealous Conscripts, Thornbite Staff + an outlet, Reiterate + Jeska's Will,
+  Mycosynth Lattice + Vandalblast.
+- Thornbite Staff (`staffPlan`): with an outlet out the bot equips the Staff to Krenko; with a mana outlet
+  (Skirk, Phyrexian Altar, Ashnod's Altar) it taps Krenko, sacrifices one Goblin to untap him, and repeats.
+  With Impact Tremors, Purphoros or Kreat each batch hurts the table; with every Goblin hasty it stops at
+  `swarmCap`; otherwise it grows to about twice the table's life and pings with the Staff. Goblin
+  Bombardment's version stays in Krenko's own brain.
+- The Kiki-Jiki + Zealous Conscripts loop with nothing that deals damage per creature makes enough hasty
+  3/3 copies for the table's life and blockers instead of 24 (`conscriptsSwarm` in `decks-krenko.js`, only
+  for the Goblin Storm deck).
+- A wide attack (`swarmAttack`, the brain's `attack`): the generic attack scores a hit on a player the swing
+  already kills as if they had 1 life left, so a big swarm piled onto the weakest player. The brain lines
+  the opponents up from the cheapest to kill (life, plus one attacker per untapped blocker) and gives each
+  just enough attackers, tokens first; Krenko, Skirk, Kiki-Jiki and the haste sources only go in when the
+  whole table dies, and leftover tokens stay home when the survivors could kill the hero. With no kill the
+  generic attack decides.
+- A caster can answer their own spell with a card marked `holdPriority: true` (Reiterate): `resolveDown`
+  asks the caster first (`g.askOwn`, window `"own"`, only when such a card can be cast), so no other game
+  changes. A bot only acts there through its deck brain's `plan` (`ctx.top` is the spell). The Goblin
+  Storm brain casts Jeska's Will with 9 mana when Reiterate is in hand and an opponent holds 6+ cards, copies
+  it with buyback up to 30 times (`ownPlan`, stopping with 12 cards left in the library), then spends the
+  mana (`bigTurn`: damage-per-Goblin pieces, Krenko and haste, bodies, Grapeshot last).
+- Mycosynth Lattice is an `addTypes: ["Artifact"]` static on every permanent; the bot casts it only with
+  Vandalblast in hand (and 11 mana, or from round 8), then overloads Vandalblast (`latticeBlast`).
+
 ## Game methods to use in `do`
 
 Queries: `g.creatures(p)`, `g.controlled(p, filter)`, `g.opponents(p)`, `g.isCreature(o)`, `isLand`,
