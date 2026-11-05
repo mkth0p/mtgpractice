@@ -994,7 +994,11 @@
       return null;
     }
     if (kr.zone !== "battlefield" || kr.controller !== p) return null;
+    // Thornbite Staff on Krenko loops without paying his tax: staffPlan runs that one
+    const st = named(g, p, "Thornbite Staff");
+    if (st && st.attachedTo === kr) return null;
     if (lap && !kr.tapped) {
+      if (g.creatures(p).length >= 300) return null;
       const make = acts.find(a => a.type === "activate" && a.card === kr && a.ab.krenkoMake);
       if (make) return { type: "activate", card: kr, idx: make.idx, tag: "skirk-krenko-tap", maxTries: 40 };
       // no haste that stays: Greaves (or Boots, paid with a Goblin) goes back on him
@@ -1287,7 +1291,7 @@
     const make = acts.find(a => a.type === "activate" && a.card === kr && a.ab.krenkoMake);
     // a sacrifice that leaves Krenko alone makes no progress: he'd only make one Goblin back
     const sac = () => (outAct && fodder.length && gobs >= 3 ? { type: "activate", card: outlet, idx: outAct.idx, tag: "staff-sac", maxTries: 1000 } : null);
-    const tapKr = () => (make ? { type: "activate", card: kr, idx: make.idx, tag: "staff-krenko", maxTries: 1000 } : null);
+    const tapKr = () => (make && gobs < 400 ? { type: "activate", card: kr, idx: make.idx, tag: "staff-krenko", maxTries: 1000 } : null);
     const kill = ENTER_DMG.some(n => named(g, p, n));
     if (kill) return ready ? tapKr() : gobs < 400 ? sac() : null;
     const anthem = LOOP_ANTHEM.some(n => named(g, p, n)) || g.battlefield.some(o => o.def.name === "Mass Hysteria");

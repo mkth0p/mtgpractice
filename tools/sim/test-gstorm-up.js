@@ -314,6 +314,14 @@ const tokens = (g, p) => g.creatures(p).filter(c => c.isToken).length;
     check(`Thornbite Staff + ${outlet}: equipped to Krenko`, st.attachedTo && st.attachedTo.def.name === KRENKO, st.attachedTo && st.attachedTo.def.name);
     check(`Thornbite Staff + ${outlet}: the table is dead`, g.players.slice(1).every(q => q.lost), g.players.slice(1).map(q => q.life));
   }
+  // the Skirk loop and the Staff loop don't feed each other (Krenko tapped by one, untapped by the other, forever)
+  { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 22); const kr = commander(g, a); kr.tapped = true; a.cmdCasts[kr.id] = 1;
+    put(g, a, "Skirk Prospector"); put(g, a, "Goblin Warchief"); goblins(g, a, 10); const st = put(g, a, "Thornbite Staff"); st.attachedTo = kr; await g.settle();
+    await g.mainPhase(a);
+    g.phase = "main2"; await g.mainPhase(a);
+    const n = g.creatures(a).length;
+    check("Skirk loop then Thornbite Staff: the turn ends with a sane board", n > 20 && n < 1000, n);
+    check("Skirk loop then Thornbite Staff: the Staff pings", g.players.slice(1).some(q => q.life < 40 || q.lost), g.players.slice(1).map(q => q.life)); }
   // Kiki-Jiki + Zealous Conscripts with nothing that deals damage: enough hasty copies for the whole table
   { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 2); commander(g, a); put(g, a, "Kiki-Jiki, Mirror Breaker"); put(g, a, "Zealous Conscripts"); await g.settle();
     await g.mainPhase(a);
