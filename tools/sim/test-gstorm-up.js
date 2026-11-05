@@ -40,7 +40,7 @@ const tokens = (g, p) => g.creatures(p).filter(c => c.isToken).length;
 
 (async () => {
   // every card of each list is defined
-  for (const f of ["krenko-high-b3.txt", "krenko-high-b3-v2.txt", "krenko-b4.txt"]) {
+  for (const f of ["krenko-high-b3.txt", "krenko-high-b3-v2.txt", "krenko-high-b3-v3.txt", "krenko-b4.txt"]) {
     const file = path.join(__dirname, "gstorm/lists", f);
     const names = fs.readFileSync(file, "utf8").split("\n").map(l => l.match(/^\d+\s+(.+)$/)).filter(Boolean).map(m => m[1]);
     const missing = names.filter(n => !MK.get(n));
