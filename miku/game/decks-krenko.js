@@ -314,6 +314,14 @@
       stop: () => !doomed.some(c => c.zone === "battlefield" && c.controller === p) };
   }
 
+  /* Engine 10, the Goblin Storm deck with Krenko in command (legacyGstorm): with no damage per creature out, the
+     Kiki-Jiki loop makes enough hasty 3/3 copies to swing through the whole table (its life, plus one copy
+     per untapped blocker, a fifth more for room) instead of a fixed 24. */
+  const gstorm10 = (g, p) => p.deckId === "goblin-storm" && !(g.opts && g.opts.legacyGstorm);
+  function conscriptsSwarm(g, p) {
+    const need = g.opponents(p).reduce((s, q) => s + Math.max(0, q.life) / 3 + g.creatures(q).filter(c => !c.tapped).length, 0);
+    return Math.max(24, Math.ceil(need * 1.2) + 2);
+  }
   /* The infinite combos. */
   function comboPlan(g, p, win, acts) {
     const opps = g.opponents(p);
@@ -344,7 +352,7 @@
       }
       let n = 0;
       if (loop && kill && m.loops < 12) n = bombHere ? 24 : Math.ceil(maxLife / perEnter) + 1;
-      else if (loop && myTurnish && m.loops === 0) n = 24;
+      else if (loop && myTurnish && m.loops === 0) n = gstorm10(g, p) ? conscriptsSwarm(g, p) : 24;
       n = Math.min(n, 80);
       if (n > 0) {
         m.loops++;

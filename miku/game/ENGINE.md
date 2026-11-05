@@ -322,9 +322,26 @@ The Goblin Storm upgrade cards (`cards-gstorm.js`) added a few more (none of the
   Thousand-Year Elixir, or Greaves/Boots equipped again each lap): tap Krenko, sacrifice him to Skirk (he
   goes to the command zone), sacrifice Goblins for the tax, recast him and tap him again. With Impact
   Tremors, Purphoros, General Kreat or Goblin Bombardment out it goes until the table is dead (150 Goblins
-  or 12 laps at most), otherwise it stops at 60 Goblins or 8 laps. The sacrifice choice never picks Skirk
-  or the haste piece, and tutors (`comboTutor`) find the missing Skirk or haste piece, or the other half of
-  Reiterate + Jeska's Will and Mycosynth Lattice + Vandalblast.
+  or 12 laps at most). Otherwise it stops at 60 Goblins or 8 laps, or, once every Goblin has haste, at
+  enough Goblins to swing through the table (`swarmCap`: its life plus one per untapped blocker, a fifth
+  more, 150 at most). The sacrifice choice never picks Skirk or the haste piece.
+- Tutors (`comboTutor`, `COMBOS`) fetch the one missing piece of a combo: Skirk or a lasting haste source,
+  Kiki-Jiki or Splinter Twin + Zealous Conscripts, Thornbite Staff + an outlet, Reiterate + Jeska's Will,
+  Mycosynth Lattice + Vandalblast.
+- Thornbite Staff (`staffPlan`): with an outlet out the bot equips the Staff to Krenko; with a mana outlet
+  (Skirk, Phyrexian Altar, Ashnod's Altar) it taps Krenko, sacrifices one Goblin to untap him, and repeats.
+  With Impact Tremors, Purphoros or Kreat each batch hurts the table; with every Goblin hasty it stops at
+  `swarmCap`; otherwise it grows to about twice the table's life and pings with the Staff. Goblin
+  Bombardment's version stays in Krenko's own brain.
+- The Kiki-Jiki + Zealous Conscripts loop with nothing that deals damage per creature makes enough hasty
+  3/3 copies for the table's life and blockers instead of 24 (`conscriptsSwarm` in `decks-krenko.js`, only
+  for the Goblin Storm deck).
+- A wide attack (`swarmAttack`, the brain's `attack`): the generic attack scores a hit on a player the swing
+  already kills as if they had 1 life left, so a big swarm piled onto the weakest player. The brain lines
+  the opponents up from the cheapest to kill (life, plus one attacker per untapped blocker) and gives each
+  just enough attackers, tokens first; Krenko, Skirk, Kiki-Jiki and the haste sources only go in when the
+  whole table dies, and leftover tokens stay home when the survivors could kill the hero. With no kill the
+  generic attack decides.
 - A caster can answer their own spell with a card marked `holdPriority: true` (Reiterate): `resolveDown`
   asks the caster first (`g.askOwn`, window `"own"`, only when such a card can be cast), so no other game
   changes. A bot only acts there through its deck brain's `plan` (`ctx.top` is the spell). The Goblin

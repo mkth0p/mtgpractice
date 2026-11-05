@@ -284,6 +284,53 @@ const tokens = (g, p) => g.creatures(p).filter(c => c.isToken).length;
   { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 11); const lat = hand(g, a, "Mycosynth Lattice"); await g.settle();
     check("Mycosynth Lattice: held without Vandalblast", MK.DECK_BRAINS["goblin-storm"].castOk(g, a, lat) === false); }
 
+  // the swarm attack: just enough Goblins at each player, so 66 hasty Goblins kill three players at 20
+  { const { g, a, b, c, d } = table(); a.deckId = "goblin-storm"; commander(g, a); for (const q of [b, c, d]) q.life = 20;
+    const t = goblins(g, a, 66); for (const o of t) o.sick = false; await g.settle();
+    const br = MK.DECK_BRAINS["goblin-storm"];
+    const r = br.attack(g, a, t, [b, c, d]);
+    const at = q => r && r.decl.filter(x => x.target === q).length;
+    check("swarm attack: each player gets lethal", !!r && [b, c, d].every(q => at(q) >= 20), r && [at(b), at(c), at(d)]); }
+  { const { g, a, b, c, d } = table(); a.deckId = "goblin-storm"; commander(g, a); b.life = 10; c.life = 40; d.life = 40;
+    put(g, c, "Goblin Instigator");
+    const t = goblins(g, a, 30); for (const o of t) o.sick = false; await g.settle();
+    const r = MK.DECK_BRAINS["goblin-storm"].attack(g, a, t, [b, c, d]);
+    const at = q => r && r.decl.filter(x => x.target === q).length;
+    check("swarm attack: kills the low player, the rest at the next one", !!r && at(b) >= 10 && at(b) <= 12 && at(d) + at(c) >= 18, r && [at(b), at(c), at(d)]); }
+  { const { g, a, b, c, d } = table(); a.deckId = "goblin-storm"; commander(g, a);
+    const t = goblins(g, a, 30); for (const o of t) o.sick = false; await g.settle();
+    check("swarm attack: no kill, the generic attack decides", MK.DECK_BRAINS["goblin-storm"].attack(g, a, t, [b, c, d]) === null); }
+  // Skirk loop with every Goblin hasty: it grows to enough to swing through the table, not 60
+  { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 2); const kr = commander(g, a); kr.tapped = true; a.cmdCasts[kr.id] = 1;
+    put(g, a, "Skirk Prospector"); put(g, a, "Goblin Warchief"); goblins(g, a, 10); await g.settle();
+    await g.mainPhase(a);
+    const gobs = g.creatures(a).filter(c => g.hasSub(c, "Goblin")).length;
+    check("Skirk loop with Warchief: enough hasty Goblins for 120 life", gobs >= 120, gobs); }
+  // Thornbite Staff on Krenko with a mana outlet: equipped, then the table dies
+  for (const outlet of ["Skirk Prospector", "Ashnod's Altar", "Phyrexian Altar"]) {
+    const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 8); commander(g, a);
+    const st = put(g, a, "Thornbite Staff"); put(g, a, outlet); put(g, a, "Mogg Fanatic"); await g.settle();
+    await g.mainPhase(a);
+    check(`Thornbite Staff + ${outlet}: equipped to Krenko`, st.attachedTo && st.attachedTo.def.name === KRENKO, st.attachedTo && st.attachedTo.def.name);
+    check(`Thornbite Staff + ${outlet}: the table is dead`, g.players.slice(1).every(q => q.lost), g.players.slice(1).map(q => q.life));
+  }
+  // Kiki-Jiki + Zealous Conscripts with nothing that deals damage: enough hasty copies for the whole table
+  { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 2); commander(g, a); put(g, a, "Kiki-Jiki, Mirror Breaker"); put(g, a, "Zealous Conscripts"); await g.settle();
+    await g.mainPhase(a);
+    const copies = g.creatures(a).filter(c => c.def.name === "Zealous Conscripts").length - 1;
+    check("Kiki-Jiki loop: 3/3 copies for 120 life", copies >= 40, copies); }
+  // tutors finish a combo: Imperial Recruiter finds Kiki-Jiki for Zealous Conscripts, Gamble an outlet for the Staff
+  { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 3); commander(g, a); hand(g, a, "Zealous Conscripts");
+    for (const n of ["Goblin Matron", "Kiki-Jiki, Mirror Breaker", "Skirk Prospector"]) { const o = g.newObj(MK.get(n), a, "library"); a.library.unshift(o); }
+    await g.settle();
+    await g.cast(a, hand(g, a, "Imperial Recruiter"), {}); await g.settle();
+    check("Imperial Recruiter: fetches Kiki-Jiki for Zealous Conscripts", a.hand.some(c => c.def.name === "Kiki-Jiki, Mirror Breaker"), a.hand.map(c => c.def.name)); }
+  { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 3); commander(g, a); put(g, a, "Thornbite Staff");
+    for (const n of ["Sol Ring", "Phyrexian Altar", "Goblin Warchief"]) { const o = g.newObj(MK.get(n), a, "library"); a.library.unshift(o); }
+    await g.settle();
+    const pick = MK.DECK_BRAINS["goblin-storm"].choose(g, a, { type: "target", purpose: "tutor", options: a.library.slice(0, 3), src: a.hand[0] || a.commanders[0] });
+    check("Gamble: fetches a sacrifice outlet for the Staff", pick && pick.def.name === "Phyrexian Altar", pick && pick.def.name); }
+
   console.log(`${passed} passed, ${failed} failed`);
   process.exit(failed ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });
