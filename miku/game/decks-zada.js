@@ -82,10 +82,26 @@
   /* A creature spell target: Zada when she's out with company (every other creature is a copy). */
   function zadaFor(g, p, req) {
     const z = req.options.find(o => o && o.def && o.def.name === ZADA && o.controller === p);
-    if (z && others(g, p, z).length >= 1) return z;
+    if (z && others(g, p, z).length >= 1 && libraryRoom(g, p, req.src, z)) return z;
     return undefined;
   }
-  const helpTarget = (g, p, req) => (req.purpose === "help" ? zadaFor(g, p, req) : undefined);
+  /* Cards each copy takes from our library (a draw, Witch's Mark's two, a discover). Zada copies are
+     mandatory, so with a short library the bots aim these spells elsewhere instead of drawing out
+     (engine 10: 4% of the precon's games were lost to an empty library). */
+  const LIB_PER_COPY = { "Expedite": 1, "Crimson Wisps": 1, "Renegade Tactics": 1, "Impolite Entrance": 1, "Fists of Flame": 1, "Witch's Mark": 2, "Daring Discovery": 3 };
+  function libraryRoom(g, p, card, z) {
+    const per = card && card.def ? LIB_PER_COPY[card.def.name] || 0 : 0;
+    if (!per || legacy(g)) return true;
+    return p.library.length >= (zadaCopies(g, p, z) + 1) * per + 5;
+  }
+  const helpTarget = (g, p, req) => {
+    if (req.purpose !== "help") return undefined;
+    const z = zadaFor(g, p, req);
+    if (z || legacy(g)) return z;
+    // a short library: another of our creatures, so Zada makes no copies
+    const zz = req.options.find(o => o && o.def && o.def.name === ZADA && o.controller === p);
+    return zz && !libraryRoom(g, p, req.src, zz) ? req.options.find(o => o !== zz && o.controller === p && g.isCreature(o)) || undefined : undefined;
+  };
   /* How many copies Zada makes for this spell now. */
   function zadaCopies(g, p, z, spellCard) {
     if (!z) return 0;
@@ -99,7 +115,7 @@
       const z = named(g, p, ZADA);
       if (z && (ctx.window === "main1" || ctx.window === "main2") && g.active === p) {
         const n = zadaCopies(g, p, z, o);
-        if (n >= min) return 30 + n * 3;
+        if (n >= min && libraryRoom(g, p, o, z)) return 30 + n * 3;
       }
       return alone ? alone(g, p, o, ctx) : false;
     };
@@ -396,6 +412,13 @@
   }, note ? { note } : {}));
   hasteDraw("Expedite", "{R}", "Target creature gains haste until end of turn.\nDraw a card.");
   hasteDraw("Crimson Wisps", "{R}", "Target creature becomes red and gains haste until end of turn.\nDraw a card.");
+  // an upgrade (2026-10-29), not in the precon: a sorcery, so only on our own turn
+  D({
+    name: "Impolite Entrance", cost: "{R}", type: "Sorcery",
+    text: "Target creature gains trample and haste until end of turn.\nDraw a card.",
+    spell: { targets: [{ kind: "creature", purpose: "help", prompt: "Impolite Entrance" }], do: (g, ctx) => { if (ctx.legal[0]) g.grant([ctx.targets[0]], ["trample", "haste"]); g.draw(ctx.p, 1); } },
+    ai: { priority: 5, target: helpTarget, cast: zadaCast(1, (g, p, o, ctx) => (g.creatures(p).some(c => c.sick && !g.kw(c, "haste") && g.abilitiesOf(c).some(e => e.ab.krenkoMake)) ? 22 : p.hand.length <= 2 ? 8 : false)) }
+  });
   D({
     name: "Fists of Flame", cost: "{1}{R}", type: "Instant",
     text: "Draw a card. Until end of turn, target creature gains trample and gets +1/+0 for each card you've drawn this turn.",
@@ -604,7 +627,7 @@
     },
     ai: {
       priority: 4, target: helpTarget,
-      cards: (g, p, req) => (req.purpose === "discard" ? [req.options.filter(c => c.def.types.includes("Land")).pop() || req.options.slice().sort((a, b) => a.def.mv - b.def.mv)[0]].filter(Boolean) : null),
+      cards: (g, p, req) => (req.purpose !== "discard" ? null : !legacy(g) && p.library.length < 8 ? [] : [req.options.filter(c => c.def.types.includes("Land")).pop() || req.options.slice().sort((a, b) => a.def.mv - b.def.mv)[0]].filter(Boolean)),
       cast: zadaCast(2, (g, p, o, ctx) => (ctx.window === "main2" && p.hand.length >= 6 ? 4 : false))
     }
   });
@@ -805,12 +828,18 @@
     const cost = c => Math.max(c.def.name === "Empty the Warrens" ? 1 : c.def.mv > 0 ? 1 : 0, c.def.mv - medal);
     let mana = manaLeft(g, p);
     const finCost = fin.reduce((t, n) => t + cost(inH(n)[0]), 0) + (pump ? cost(inH(HAZE)[0]) : 0);
-    // rituals first in the count (only the ones that add more than they cost), then the cheapest spells
-    const rit = Object.keys(RITUALS).flatMap(inH).map(c => ({ c, net: RITUALS[c.def.name](g, p) - cost(c) })).filter(r => r.net > 0);
+    // Storm-Kiln Artist makes a Treasure for each instant or sorcery we cast
+    const artists = g.battlefield.filter(o => o.controller === p && o.def.name === ARTIST).length;
+    const treas = c => (c.def.types.includes("Instant") || c.def.types.includes("Sorcery") ? artists : 0);
+    // rituals first in the count (the ones that pay for themselves count as free storm), then the cheapest
+    // spells, then cheap creatures and other permanents in hand: any spell raises the count
+    const rit = Object.keys(RITUALS).flatMap(inH).map(c => ({ c, net: RITUALS[c.def.name](g, p) - cost(c) + treas(c) })).filter(r => r.net >= 0);
     let plan = 0;
     for (const r of rit) if (mana >= cost(r.c)) { mana += r.net; plan++; }
     const fodder = FODDER.flatMap(inH).filter(c => !(c.def.name === HAZE && (loop || pump))).sort((a, b) => cost(a) - cost(b));
-    for (const c of fodder) if (mana - finCost >= cost(c)) { mana -= cost(c); plan++; }
+    for (const c of fodder) if (mana - finCost >= cost(c)) { mana -= cost(c) - treas(c); plan++; }
+    const extras = acts.filter(a => a.type === "cast" && !a.alt && a.card.zone === "hand" && stormExtra(g, p, a.card) && !fodder.includes(a.card)).map(a => a.card).sort((a, b) => cost(a) - cost(b));
+    for (const c of extras) if (mana - finCost >= cost(c)) { mana -= cost(c) - treas(c); plan++; }
     const st = s + plan; // storm count when the first finisher is cast
     const opps = g.opponents(p).filter(q => !q.lost);
     const low = lowestLife(opps);
@@ -839,8 +868,12 @@
       const a = cast(c.def.name);
       if (!a || avail - cost(c) < finCost) continue;
       const z = named(g, p, ZADA), specs = g.spellTargets(a.card, {});
-      if (z && specs.length && g.legalTarget(p, specs[0], z, a.card) && /Expedite|Crimson Wisps|Renegade Tactics|Ancestors' Aid|Witch's Mark|Fists of Flame|Wild Ride/.test(c.def.name)) return { type: "cast", card: a.card, targets: specs.map((sp, i) => (i === 0 ? z : null)), tag: "storm-zada" };
+      if (z && specs.length && g.legalTarget(p, specs[0], z, a.card) && libraryRoom(g, p, a.card, z) && /Expedite|Crimson Wisps|Renegade Tactics|Ancestors' Aid|Witch's Mark|Fists of Flame|Wild Ride/.test(c.def.name)) return { type: "cast", card: a.card, targets: specs.map((sp, i) => (i === 0 ? z : null)), tag: "storm-zada" };
       return { type: "cast", card: a.card, tag: "storm-fodder" };
+    }
+    for (const c of extras) {
+      const a = acts.find(x => x.type === "cast" && !x.alt && x.card === c);
+      if (a && avail - cost(c) >= finCost) return { type: "cast", card: c, tag: "storm-extra" };
     }
     for (const r of rit) { const a = cast(r.c.def.name); if (a) return { type: "cast", card: a.card, tag: "storm-ritual" }; }
     const e = cast("Empty the Warrens"); if (e) return { type: "cast", card: e.card, tag: "storm-finish" };
@@ -848,6 +881,16 @@
     if (hz) return { type: "cast", card: hz.card, kicked: g.canPay(p, g.spellCost(p, hz.card, { kicked: true }), { spell: hz.card }), tag: "storm-pump" };
     const gr = cast("Grapeshot"); if (gr) return { type: "cast", card: gr.card, tag: "storm-finish" };
     return null;
+  }
+  /* Other cards a storm turn casts before its finisher, for the count: cheap creatures, artifacts and
+     enchantments, and Faithless Looting. Not the ones a deck's brain holds back. */
+  function stormExtra(g, p, c) {
+    const d = c.def;
+    if (FINISHERS.includes(d.name) || RITUALS[d.name] || FODDER.includes(d.name) || d.types.includes("Land") || /\{X\}/.test(d.cost || "")) return false;
+    if (d.mv > 3 || (d.ai && (d.ai.counter || d.ai.protection))) return false;
+    const db = MK.DECK_BRAINS && MK.DECK_BRAINS[p.deckId];
+    if (db && db.castOk && db.castOk(g, p, c) === false) return false;
+    return d.name === "Faithless Looting" || ["Creature", "Artifact", "Enchantment"].some(t => d.types.includes(t));
   }
   /* Blasphemous Act kills Zada too: only when the table's creatures are far ahead of ours and
      they're hurting us. */
@@ -950,6 +993,181 @@
     }
     return undefined;
   }
+  /* Krenko in command with Skirk Prospector out and a haste source that stays when Krenko leaves
+     (Warchief, Chieftain, Howlsquad Heavy, Fervor, Rising of the Day, Mass Hysteria, Thousand-Year Elixir,
+     or Greaves or Boots equipped again each lap): once Krenko has made his Goblins, sacrifice him to Skirk,
+     sacrifice Goblins for the rest of his cost, recast him and tap him again. Each lap doubles what is left,
+     so the bot goes while that beats what it has. With Impact Tremors, Purphoros, General Kreat or Goblin
+     Bombardment out the Goblins are the kill, so it keeps going until the table is dead (150 Goblins at most);
+     without one it stops at 60 Goblins, or at enough to swing through the table once every Goblin has haste
+     (swarmCap). */
+  const KRENKO = "Krenko, Mob Boss", SKIRK = "Skirk Prospector";
+  const LOOP_HASTE = ["Goblin Warchief", "Goblin Chieftain", "Howlsquad Heavy", "Fervor", "Rising of the Day", "Thousand-Year Elixir"];
+  const LOOP_GEAR = ["Lightning Greaves", "Swiftfoot Boots"];
+  const LOOP_KILL = ["Impact Tremors", "Purphoros, God of the Forge", "General Kreat, the Boltbringer", "Goblin Bombardment"];
+  const loopHaste = (g, p) => LOOP_HASTE.some(n => named(g, p, n)) || LOOP_GEAR.some(n => named(g, p, n)) || g.battlefield.some(o => o.def.name === "Mass Hysteria");
+  /* With no kill piece the loop stops at 60 Goblins, or, once every Goblin has haste (Warchief, Chieftain,
+     Howlsquad Heavy, Fervor, Rising of the Day, Mass Hysteria), at enough to swing through the whole table:
+     its life plus one Goblin per untapped blocker, with a fifth more for room (150 at most). */
+  const LOOP_ANTHEM = ["Goblin Warchief", "Goblin Chieftain", "Howlsquad Heavy", "Fervor", "Rising of the Day"];
+  function swarmCap(g, p) {
+    const anthem = LOOP_ANTHEM.some(n => named(g, p, n)) || g.battlefield.some(o => o.def.name === "Mass Hysteria");
+    if (!anthem) return 60;
+    const need = g.opponents(p).reduce((s, q) => s + Math.max(0, q.life) + g.creatures(q).filter(c => !c.tapped).length, 0);
+    return Math.min(150, Math.max(60, Math.ceil(need * 1.2) + 6));
+  }
+  const equipAct = (acts, eq) => acts.find(a => a.type === "activate" && a.card === eq && /^Equip/.test(a.ab.label || ""));
+  function skirkLoop(g, p, win, acts) {
+    if (legacy(g) || g.active !== p || (win !== "main1" && win !== "main2") || g.stack.length) return null;
+    const skirk = named(g, p, SKIRK), kr = p.commanders.find(o => o.def.name === KRENKO);
+    if (!skirk || !kr || !loopHaste(g, p)) return null;
+    const m = M(p), lap = m.skirk && m.skirk.turn === g.turn ? m.skirk : null;
+    const skirkAct = acts.find(a => a.type === "activate" && a.card === skirk);
+    if (lap && kr.zone === "command") {
+      if (acts.some(a => a.type === "cast" && a.card === kr)) return { type: "cast", card: kr, tag: "skirk-recast", maxTries: 40 };
+      const need = 4 + g.commanderTax(p, kr) - manaLeft(g, p);
+      if (need > 0 && skirkAct) { lap.sac = null; return { type: "activate", card: skirk, idx: skirkAct.idx, repeat: need, tag: "skirk-mana", maxTries: 40 }; }
+      return null;
+    }
+    if (kr.zone !== "battlefield" || kr.controller !== p) return null;
+    // Thornbite Staff on Krenko loops without paying his tax: staffPlan runs that one
+    const st = named(g, p, "Thornbite Staff");
+    if (st && st.attachedTo === kr) return null;
+    if (lap && !kr.tapped) {
+      if (g.creatures(p).length >= 300) return null;
+      const make = acts.find(a => a.type === "activate" && a.card === kr && a.ab.krenkoMake);
+      if (make) return { type: "activate", card: kr, idx: make.idx, tag: "skirk-krenko-tap", maxTries: 40 };
+      // no haste that stays: Greaves (or Boots, paid with a Goblin) goes back on him
+      for (const n of LOOP_GEAR) {
+        const eq = named(g, p, n), ea = eq && eq.attachedTo !== kr && equipAct(acts, eq);
+        if (ea) { lap.equip = kr; return { type: "activate", card: eq, idx: ea.idx, tag: "skirk-equip", maxTries: 40 }; }
+        if (eq && eq.attachedTo !== kr && n === "Swiftfoot Boots" && skirkAct && manaLeft(g, p) < 1) { lap.sac = null; return { type: "activate", card: skirk, idx: skirkAct.idx, tag: "skirk-mana", maxTries: 40 }; }
+      }
+      return null;
+    }
+    const killing = LOOP_KILL.some(n => named(g, p, n));
+    if (!kr.tapped || !skirkAct || (lap && lap.laps >= (killing ? 12 : 8))) return null;
+    // Goblins after the lap: what's left once Krenko and the sacrifices for his cost are gone, plus Krenko, doubled.
+    const gobs = g.creatures(p).filter(c => isGoblin(g, c)).length;
+    if (gobs >= (killing ? 150 : swarmCap(g, p))) return null;
+    const sacs = Math.max(0, 4 + 2 * (p.cmdCasts[kr.id] || 0) - manaLeft(g, p) - 1);
+    if (gobs - sacs < 4 || 2 * (gobs - sacs) < gobs + 4) return null;
+    m.skirk = { turn: g.turn, sac: kr, laps: (lap ? lap.laps : 0) + 1 };
+    return { type: "activate", card: skirk, idx: skirkAct.idx, tag: "skirk-krenko", maxTries: 40 };
+  }
+  // what Skirk Prospector sacrifices: Krenko when a lap starts, else the cheapest Goblin (not Skirk or the haste source);
+  // Greaves or Boots go on Krenko during a lap
+  function skirkChoose(g, p, req) {
+    if (legacy(g) || !req.src || !req.options || !req.options.length) return undefined;
+    const m = M(p), lap = m.skirk && m.skirk.turn === g.turn ? m.skirk : null;
+    if (lap && lap.equip && LOOP_GEAR.includes(req.src.def.name) && req.options.includes(lap.equip)) { const k = lap.equip; lap.equip = null; return k; }
+    if (req.purpose !== "sacrifice" || req.src.def.name !== SKIRK) return undefined;
+    if (lap && lap.sac && req.options.includes(lap.sac)) { const k = lap.sac; lap.sac = null; return k; }
+    const keep = c => (c.def.name === SKIRK || LOOP_HASTE.includes(c.def.name) ? 50 : 0) + keepScore(g, p, c);
+    return req.options.slice().sort((a, b) => keep(a) - keep(b))[0];
+  }
+  /* Goblin Matron, Imperial Recruiter, Gamble (any tutor that asks) find the missing piece of a combo (COMBOS). */
+  function comboTutor(g, p, req) {
+    const k = comboPick(g, p, req);
+    // g.search asks for a list of cards (Scheming Symmetry), the deck's own tutors for one
+    return k === undefined ? undefined : req.type === "cards" ? [k] : k;
+  }
+  /* The combos a tutor can finish, each a list of slots (any one card fills a slot); Krenko is in command.
+     A tutor fetches the first card (in slot order: lasting haste before equipment) that fills the one missing
+     slot of the first combo that lacks only one. */
+  const COMBOS = () => [
+    [[SKIRK], LOOP_HASTE.concat(LOOP_GEAR, ["Mass Hysteria"])],
+    [["Kiki-Jiki, Mirror Breaker", "Splinter Twin"], ["Zealous Conscripts"]],
+    [["Thornbite Staff"], [SKIRK, "Phyrexian Altar", "Ashnod's Altar", "Goblin Bombardment"]],
+    [["Reiterate"], ["Jeska's Will"]],
+    [["Mycosynth Lattice"], ["Vandalblast"]]
+  ];
+  function comboPick(g, p, req) {
+    if (legacy(g) || req.purpose !== "tutor" || !req.options || !p.commanders.some(o => o.def.name === KRENKO)) return undefined;
+    const have = n => !!named(g, p, n) || p.hand.some(c => c.def.name === n);
+    for (const slots of COMBOS()) {
+      const missing = slots.filter(sl => !sl.some(have));
+      if (missing.length !== 1) continue;
+      const fits = req.options.filter(c => missing[0].includes(c.def.name)).sort((a, b) => missing[0].indexOf(a.def.name) - missing[0].indexOf(b.def.name));
+      if (fits.length) return fits[0];
+    }
+    return undefined;
+  }
+
+  /* Reiterate with buyback copies our Jeska's Will while the original waits on the stack. Each copy adds
+     {R} per card in the biggest hand (and exiles three cards to play), so with six or more cards there
+     the buyback pays for itself and every cast adds one to storm. The bot sets it up with 9 mana (Jeska's
+     Will plus the first Reiterate), loops up to 30 times, then spends it all (bigTurn). Reiterate also
+     copies a Goblin War Strike once more per buyback it can pay for. */
+  const JW = "Jeska's Will", REIT = "Reiterate", LATTICE = "Mycosynth Lattice";
+  const reitOf = (g, p) => { const m = M(p); if (!m.reit || m.reit.turn !== g.turn) m.reit = { turn: g.turn, laps: 0 }; return m.reit; };
+  const biggestHand = (g, p) => Math.max(0, ...g.opponents(p).map(q => q.hand.length));
+  function ownPlan(g, p, ctx) {
+    if (legacy(g) || ctx.window !== "own") return null;
+    const top = ctx.top, a = (ctx.actions || []).find(x => x.type === "cast" && x.card.def.name === REIT);
+    if (!top || top.p !== p || top.isCopy || !a) return null;
+    const r = reitOf(g, p);
+    if (r.laps >= 30) return null;
+    const card = a.card, kick = g.canPay(p, g.spellCost(p, card, { kicked: true }), { spell: card });
+    const nm = top.o.def.name;
+    if (nm === JW) {
+      // every copy also exiles three: keep some cards to draw in case the turn doesn't win
+      if (top.jeskaBoth && p.library.length <= 12) return null;
+      const most = biggestHand(g, p);
+      if (most >= 6 && kick) { r.laps++; return { type: "cast", card, kicked: true, targets: [top], tag: "reiterate-jeska", maxTries: 40 }; }
+      if (most >= 4 && !kick && !r.laps) { r.laps++; return { type: "cast", card, kicked: false, targets: [top], tag: "reiterate-jeska", maxTries: 40 }; }
+      return null;
+    }
+    if (nm === "Goblin War Strike" && top.targets[0] && g.isPlayer(top.targets[0]) && !top.targets[0].lost) {
+      const gobs = g.battlefield.filter(o => o.controller === p && isGoblin(g, o)).length;
+      if (gobs >= 4) { r.laps++; return { type: "cast", card, kicked: kick, targets: [top], tag: "reiterate-strike", maxTries: 40 }; }
+    }
+    return null;
+  }
+  // main phase: cast Jeska's Will when Reiterate can loop it
+  function jeskaSetup(g, p, win, acts) {
+    if (legacy(g) || g.active !== p || (win !== "main1" && win !== "main2") || g.stack.length) return null;
+    const jw = acts.find(a => a.type === "cast" && a.card.def.name === JW && !a.alt);
+    if (!jw || !p.hand.some(c => c.def.name === REIT) || biggestHand(g, p) < 6) return null;
+    if (manaLeft(g, p) < jw.card.def.mv + 6) return null;
+    reitOf(g, p);
+    return { type: "cast", card: jw.card, tag: "jeska-reiterate", maxTries: 3 };
+  }
+  // after the Reiterate loop: damage-per-Goblin pieces first, then Krenko, bodies and token spells, Grapeshot last
+  const BIG_SKIP = [REIT, "Deflecting Swat", "Tibalt's Trickery", "Red Elemental Blast", "Pyroblast", "Chaos Warp", "Abrade", "Vandalblast"];
+  function bigTurn(g, p, win, acts) {
+    if (legacy(g) || g.active !== p || (win !== "main1" && win !== "main2") || g.stack.length) return null;
+    const m = M(p);
+    if (!m.reit || m.reit.turn !== g.turn || m.reit.laps < 2) return null;
+    const s = g.spellsThisTurn || 0, low = Math.min(...g.opponents(p).map(q => q.life));
+    const rank = a => {
+      const c = a.card, n = c.def.name, ai = c.def.ai || {};
+      if (BIG_SKIP.includes(n) || ai.counter || ai.protection) return null;
+      if (n === "Grapeshot") return s + 1 >= low ? 0 : 9;
+      if (LOOP_KILL.includes(n)) return 1;
+      if (c.isCommander || LOOP_HASTE.includes(n) || n === "Mass Hysteria") return 2;
+      if (n === JW) return 3;
+      if (n === "Empty the Warrens") return 6;
+      if (c.def.types.includes("Creature")) return 4;
+      return c.def.types.includes("Sorcery") || c.def.types.includes("Instant") ? 5 : 4;
+    };
+    const opts = acts.filter(a => a.type === "cast" && !a.alt && rank(a) != null).sort((x, y) => rank(x) - rank(y));
+    return opts.length ? { type: "cast", card: opts[0].card, tag: "big-turn", maxTries: 3 } : null;
+  }
+  /* Mycosynth Lattice makes every permanent an artifact, so an overloaded Vandalblast destroys everything the
+     opponents have (Krenko's brain casts it). The bot casts Lattice only with Vandalblast in hand, and
+     with mana for both this turn unless it is late. */
+  function latticeBlast(g, p, win, acts) {
+    if (legacy(g) || g.active !== p || (win !== "main1" && win !== "main2") || g.stack.length || !g.battlefield.some(o => o.def.name === LATTICE)) return null;
+    const over = acts.find(a => a.type === "cast" && a.card.def.name === "Vandalblast" && a.alt === 1);
+    const theirs = g.battlefield.filter(o => o.controller !== p).length;
+    return over && theirs >= 3 ? { type: "cast", card: over.card, alt: 1, targets: [null], tag: "lattice-vandal" } : null;
+  }
+  function latticeOk(g, p, card) {
+    if (legacy(g) || card.def.name !== LATTICE) return undefined;
+    if (!p.hand.some(c => c.def.name === "Vandalblast")) return false;
+    return manaLeft(g, p) >= 11 || g.round >= 8 ? undefined : false;
+  }
   function brain(g, p, o, ctx) {
     const win = ctx.window, acts = ctx.actions || [];
     if (g.active !== p || (win !== "main1" && win !== "main2")) return null;
@@ -973,7 +1191,7 @@
     // 2. a spell on Zada, after a cheap token spell when the mana covers both
     const z = named(g, p, ZADA);
     if (z) {
-      const zHand = ["Ancestors' Aid", "Expedite", "Crimson Wisps", "Renegade Tactics", "Witch's Mark", "Daring Discovery"].map(cast).filter(Boolean);
+      const zHand = ["Ancestors' Aid", "Expedite", "Crimson Wisps", "Impolite Entrance", "Renegade Tactics", "Witch's Mark", "Daring Discovery"].map(cast).filter(Boolean);
       if (zHand.length) {
         for (const n of ["Krenko's Command", "Dragon Fodder", "Mogg War Marshal", "Empty the Warrens"]) {
           const t = cast(n);
@@ -981,13 +1199,13 @@
         }
       }
       const n = zadaCopies(g, p, z);
-      const order = ["Ancestors' Aid", "Daring Discovery", "Witch's Mark", "Expedite", "Crimson Wisps", "Renegade Tactics", "Fists of Flame", "Wild Ride"];
-      const minFor = { "Ancestors' Aid": 2, "Daring Discovery": 2, "Witch's Mark": 2, "Expedite": 2, "Crimson Wisps": 2, "Renegade Tactics": 2, "Fists of Flame": 4, "Wild Ride": 4 };
+      const order = ["Ancestors' Aid", "Daring Discovery", "Witch's Mark", "Expedite", "Crimson Wisps", "Impolite Entrance", "Renegade Tactics", "Fists of Flame", "Wild Ride"];
+      const minFor = { "Ancestors' Aid": 2, "Daring Discovery": 2, "Witch's Mark": 2, "Expedite": 2, "Crimson Wisps": 2, "Impolite Entrance": 1, "Renegade Tactics": 2, "Fists of Flame": 4, "Wild Ride": 4 };
       // engine 10: a cantrip on Zada already draws two with one other creature
       if (!legacy(g)) Object.assign(minFor, { "Expedite": 1, "Crimson Wisps": 1, "Renegade Tactics": 1 });
       for (const name of order) {
         const a = cast(name);
-        if (!a || n < minFor[name]) continue;
+        if (!a || n < minFor[name] || !libraryRoom(g, p, a.card, z)) continue;
         if ((name === "Wild Ride" || name === "Fists of Flame") && win !== "main1") continue;
         const specs = g.spellTargets(a.card, {});
         const targets = specs.map((sp, i) => (i === 0 ? z : null));
@@ -1016,7 +1234,7 @@
     const z = named(g, p, ZADA);
     const castable = n => p.hand.some(c => c.def.name === n && g.castOptions(p, c).length > 0);
     const s = g.spellsThisTurn || 0;
-    const zSpells = ["Expedite", "Crimson Wisps", "Renegade Tactics", "Fists of Flame", "Ancestors' Aid", "Wild Ride", "Witch's Mark", "Daring Discovery"];
+    const zSpells = ["Expedite", "Crimson Wisps", "Impolite Entrance", "Renegade Tactics", "Fists of Flame", "Ancestors' Aid", "Wild Ride", "Witch's Mark", "Daring Discovery"];
     if (z && main) {
       const n = zadaCopies(g, p, z);
       const ready = zSpells.filter(castable);
@@ -1074,10 +1292,155 @@
   };
   MK.GSTORM_AI = { brain, coachTips, zadaCopies, stormTurn, blasphemousOk, outletPlan, perSac };
   // the deck's brain for the shared cards: Blasphemous Act waits for a real reason (engine 10)
+  /* Thornbite Staff on Krenko with a free sacrifice outlet (Skirk Prospector, Phyrexian Altar, Ashnod's Altar):
+     every Goblin that dies untaps Krenko, so tap him, sacrifice one Goblin, tap him again. With Impact Tremors,
+     Purphoros or General Kreat each batch hurts the table. With every Goblin hasty the bot stops at enough to
+     swing through the table. Otherwise it grows to about twice the table's life, then pings with the Staff,
+     paying {2} from the sacrifices (each death untaps Krenko again). With Goblin Bombardment, Krenko's own
+     brain runs the loop. The bot equips the Staff to Krenko ({4}) once an outlet is out. */
+  const STAFF = "Thornbite Staff", MANA_OUTLETS = [SKIRK, "Phyrexian Altar", "Ashnod's Altar"];
+  const ENTER_DMG = ["Impact Tremors", "Purphoros, God of the Forge", "General Kreat, the Boltbringer"];
+  function staffPlan(g, p, win, acts) {
+    if (legacy(g) || g.active !== p || (win !== "main1" && win !== "main2") || g.stack.length) return null;
+    const kr = named(g, p, KRENKO), staff = named(g, p, STAFF);
+    if (!kr || !staff || !p.commanders.includes(kr)) return null;
+    const outlet = MANA_OUTLETS.map(n => named(g, p, n)).find(Boolean);
+    const bomb = named(g, p, OUTLET);
+    if (!outlet && !bomb) return null;
+    const ready = !kr.tapped && (!kr.sick || g.kw(kr, "haste"));
+    if (staff.attachedTo !== kr) {
+      // equip when Krenko can start the loop now, or there is nothing better to do with the mana
+      const ea = equipAct(acts, staff);
+      if (!ea || (!ready && win !== "main2")) return null;
+      M(p).staffEquip = { turn: g.turn, to: kr };
+      return { type: "activate", card: staff, idx: ea.idx, tag: "staff-equip", maxTries: 2 };
+    }
+    if (!outlet) return null;      // Goblin Bombardment: Krenko's brain (comboPlan) runs it
+    const foes = g.opponents(p).filter(q => !q.lost && !g.playerHexproof(q));
+    if (!foes.length) return null;
+    const m = M(p);
+    if (!m.staff || m.staff.turn !== g.turn) m.staff = { turn: g.turn, n: 0 };
+    if (m.staff.n++ > 900) return null;
+    const gobs = g.creatures(p).filter(c => isGoblin(g, c)).length;
+    const fodder = g.creatures(p).filter(c => c !== kr && c.def.name !== SKIRK && (outlet.def.name !== SKIRK || isGoblin(g, c)) && !LOOP_HASTE.includes(c.def.name));
+    const outAct = acts.find(a => a.type === "activate" && a.card === outlet);
+    const make = acts.find(a => a.type === "activate" && a.card === kr && a.ab.krenkoMake);
+    // a sacrifice that leaves Krenko alone makes no progress: he'd only make one Goblin back
+    const sac = () => (outAct && fodder.length && gobs >= 3 ? { type: "activate", card: outlet, idx: outAct.idx, tag: "staff-sac", maxTries: 1000 } : null);
+    const tapKr = () => (make && gobs < 400 ? { type: "activate", card: kr, idx: make.idx, tag: "staff-krenko", maxTries: 1000 } : null);
+    const kill = ENTER_DMG.some(n => named(g, p, n));
+    if (kill) return ready ? tapKr() : gobs < 400 ? sac() : null;
+    const anthem = LOOP_ANTHEM.some(n => named(g, p, n)) || g.battlefield.some(o => o.def.name === "Mass Hysteria");
+    if (anthem && win === "main1") {
+      if (gobs >= swarmCap(g, p)) return null;
+      return ready ? tapKr() : sac();
+    }
+    const life = foes.reduce((s, q) => s + q.life, 0);
+    const per = outlet.def.name === "Ashnod's Altar" ? 1 : 2;
+    if (gobs < Math.min(300, life * per + 8)) return ready ? tapKr() : sac();
+    const ping = acts.find(a => a.type === "activate" && a.card === staff && a.ab.staffPing);
+    if (ready && ping) { m.staffVictim = { turn: g.turn, q: foes.slice().sort((a, b) => a.life - b.life)[0] }; return { type: "activate", card: staff, idx: ping.idx, tag: "staff-ping", maxTries: 1000 }; }
+    return sac();
+  }
+  function staffChoose(g, p, req) {
+    if (legacy(g) || !req.src || req.src.def.name !== STAFF || !req.options) return undefined;
+    const m = M(p);
+    if (req.purpose !== "harm" && m.staffEquip && m.staffEquip.turn === g.turn && req.options.includes(m.staffEquip.to)) { const k = m.staffEquip.to; m.staffEquip = null; return k; }
+    if (req.purpose !== "harm") return undefined;
+    if (!m.staffVictim || m.staffVictim.turn !== g.turn) return undefined;
+    const v = !m.staffVictim.q.lost && req.options.includes(m.staffVictim.q) ? m.staffVictim.q : null;
+    return v || req.options.filter(x => g.isPlayer(x) && x !== p && !x.lost).sort((a, b) => a.life - b.life)[0] || undefined;
+  }
+  /* A wide attack (Krenko in command): the generic attack scores a hit on a player the swing already kills
+     as if they had 1 life left, so 70 Goblins all went at the weakest player and two others lived. Here the
+     opponents are lined up from the cheapest to kill (life, plus one attacker per untapped blocker) and each
+     gets just enough attackers, tokens first. The engine pieces (Krenko, Skirk Prospector, Kiki-Jiki, the
+     haste sources) only go in when the whole table dies. With no kill at all the generic attack decides. */
+  const SWARM_KEEP = [KRENKO, SKIRK, "Kiki-Jiki, Mirror Breaker", "Zealous Conscripts", "Goblin Sharpshooter", "Purphoros, God of the Forge"].concat(LOOP_HASTE);
+  function swarmAttack(g, p, cands, targets) {
+    if (legacy(g) || !p.commanders.some(o => o.def.name === KRENKO)) return null;
+    const att = cands.filter(a => g.power(a) > 0 && !(a.def.mana && a.def.mana.length && g.power(a) <= 1));
+    const opps = g.opponents(p).filter(q => !q.lost && targets.includes(q));
+    if (att.length < 6 || !opps.length) return null;
+    const pow = a => Math.max(0, g.power(a));
+    const avg = att.reduce((s, a) => s + pow(a), 0) / att.length;
+    // a blocker stops one attacker: count it as the average attacker, plus a little room
+    const need = q => q.life + g.creatures(q).filter(c => !c.tapped).length * avg + 1;
+    const order = opps.slice().sort((a, b) => need(a) - need(b));
+    const plan = (pool) => {
+      const left = pool.slice().sort((a, b) => (a.isToken === b.isToken ? pow(a) - pow(b) : a.isToken ? -1 : 1));
+      const decl = [], killed = [];
+      for (const q of order) {
+        let sum = 0; const sent = [];
+        while (left.length && sum < need(q)) { const a = left.shift(); sent.push(a); sum += pow(a); }
+        if (sum < need(q)) { left.unshift(...sent); break; }
+        killed.push(q);
+        for (const a of sent) decl.push({ attacker: a, target: q });
+      }
+      return { decl, killed, left };
+    };
+    const all = plan(att);
+    if (all.killed.length === opps.length) {
+      // every seat dies: the spare attackers pile on the hardest one
+      for (const a of all.left) decl0(all, a, order[order.length - 1]);
+      return { decl: all.decl };
+    }
+    const spare = att.filter(a => a.isToken || a.state.dieAtEnd || (!SWARM_KEEP.includes(a.def.name) && !a.isCommander));
+    const some = plan(spare);
+    if (!some.killed.length) return null;
+    // the rest of the expendable attackers go at the next player in line, unless the survivors' creatures
+    // could kill us next turn: then they stay home to block
+    const next = order.find(q => !some.killed.includes(q));
+    const back = Math.max(0, ...opps.filter(q => !some.killed.includes(q)).map(q => g.creatures(q).reduce((t, c) => t + Math.max(0, g.power(c)), 0)));
+    if (next && p.life > back * 1.2 + 4) for (const a of some.left) decl0(some, a, next);
+    return { decl: some.decl };
+  }
+  /* After the generic attack is planned (engine 10): an attacker that a defender can block with a
+     creature that kills it and survives stays home, when that defender has a blocker for every attacker
+     sent at them and the swing can't kill them. The generic attack sends the whole team at a runaway
+     leader "even at some cost", and 1/1 Goblins sent into a bigger board only fed it. */
+  function attackAfter(g, p, decl) {
+    if (legacy(g)) return null;
+    const by = new Map(), out = [];
+    for (const d of decl) {
+      const q = d.target;
+      if (!g.isPlayer(q)) { out.push(d); continue; }
+      if (!by.has(q)) by.set(q, []);
+      by.get(q).push(d);
+    }
+    for (const [q, ds] of by) {
+      const bl = g.creatures(q).filter(c => !c.tapped);
+      const dmg = ds.reduce((t, d) => t + Math.max(0, g.power(d.attacker)), 0);
+      if (bl.length < ds.length || dmg - bl.length >= q.life) { out.push(...ds); continue; }
+      for (const d of ds) {
+        const a = d.attacker;
+        const eaten = !g.kw(a, "indestructible") && bl.some(b => { if (!g.canBlock(b, a)) return false; const f = AI().fight(g, a, b); return f.aDies && !f.bDies; });
+        if (!eaten) out.push(d);
+      }
+    }
+    return out;
+  }
+  /* Zada from the command zone waits for company: alone she's a 3/3 that eats the removal and goes
+     back up in cost. She comes down once another creature is out, or with a spell to aim at her. */
+  function zadaOk(g, p, card) {
+    if (legacy(g) || !card.isCommander || card.zone !== "command" || g.creatures(p).length) return undefined;
+    return p.hand.some(c => LIB_PER_COPY[c.def.name] || ["Ancestors' Aid", "Wild Ride"].includes(c.def.name)) ? undefined : false;
+  }
+  const decl0 = (r, a, q) => r.decl.push({ attacker: a, target: q });
   (MK.DECK_BRAINS = MK.DECK_BRAINS || {})["goblin-storm"] = {
-    plan: outletPlan,
-    choose: outletChoose,
-    castOk: (g, p, card) => (card.def.name === "Blasphemous Act" && !legacy(g) ? blasphemousOk(g, p) : undefined)
+    attack: (g, p, cands, targets) => swarmAttack(g, p, cands, targets),
+    attackAfter: (g, p, decl) => attackAfter(g, p, decl),
+    plan: (g, p, ctx) => ownPlan(g, p, ctx) || skirkLoop(g, p, ctx.window, ctx.actions || []) || staffPlan(g, p, ctx.window, ctx.actions || []) ||
+      jeskaSetup(g, p, ctx.window, ctx.actions || []) ||
+      latticeBlast(g, p, ctx.window, ctx.actions || []) || bigTurn(g, p, ctx.window, ctx.actions || []) || outletPlan(g, p, ctx),
+    choose: (g, p, req) => {
+      let k = skirkChoose(g, p, req);
+      if (k === undefined) k = staffChoose(g, p, req);
+      if (k === undefined) k = comboTutor(g, p, req);
+      if (k === undefined && req.purpose === "jeskaMode" && !legacy(g) && p.hand.some(c => c.def.name === REIT) && req.target && req.target.hand.length >= 6) k = "mana";
+      return k === undefined ? outletChoose(g, p, req) : k;
+    },
+    castOk: (g, p, card) => (card.def.name === "Blasphemous Act" && !legacy(g) ? blasphemousOk(g, p) : card.def.name === ZADA ? zadaOk(g, p, card) : latticeOk(g, p, card))
   };
   (MK.HERO_DECKS = MK.HERO_DECKS || []).push(MK.GSTORM_DECK);
   (MK.BOT_DECKS = MK.BOT_DECKS || []).push(MK.GSTORM_DECK);

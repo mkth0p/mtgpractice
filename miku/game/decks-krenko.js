@@ -15,7 +15,7 @@
   /* ================================================================ helpers */
   const KRENKO = "Krenko, Mob Boss", KIKI = "Kiki-Jiki, Mirror Breaker", CONSCRIPTS = "Zealous Conscripts";
   const BOMB = "Goblin Bombardment", TWIN = "Splinter Twin", STAFF = "Thornbite Staff";
-  const HASTE_GEAR = ["Swiftfoot Boots", "Lightning Greaves"];
+  const HASTE_GEAR = ["Swiftfoot Boots", "Lightning Greaves"], STING = "Sting, the Glinting Dagger";
   const mine = (s, o) => o.controller === s.controller;
   const trig = spec => Object.assign({ trigger: true }, spec);
   const isGoblin = (g, o) => g.hasSub(o, "Goblin");
@@ -314,6 +314,14 @@
       stop: () => !doomed.some(c => c.zone === "battlefield" && c.controller === p) };
   }
 
+  /* Engine 10, the Goblin Storm deck with Krenko in command (legacyGstorm): with no damage per creature out, the
+     Kiki-Jiki loop makes enough hasty 3/3 copies to swing through the whole table (its life, plus one copy
+     per untapped blocker, a fifth more for room) instead of a fixed 24. */
+  const gstorm10 = (g, p) => p.deckId === "goblin-storm" && !(g.opts && g.opts.legacyGstorm);
+  function conscriptsSwarm(g, p) {
+    const need = g.opponents(p).reduce((s, q) => s + Math.max(0, q.life) / 3 + g.creatures(q).filter(c => !c.tapped).length, 0);
+    return Math.max(24, Math.ceil(need * 1.2) + 2);
+  }
   /* The infinite combos. */
   function comboPlan(g, p, win, acts) {
     const opps = g.opponents(p);
@@ -344,7 +352,7 @@
       }
       let n = 0;
       if (loop && kill && m.loops < 12) n = bombHere ? 24 : Math.ceil(maxLife / perEnter) + 1;
-      else if (loop && myTurnish && m.loops === 0) n = 24;
+      else if (loop && myTurnish && m.loops === 0) n = gstorm10(g, p) ? conscriptsSwarm(g, p) : 24;
       n = Math.min(n, 80);
       if (n > 0) {
         m.loops++;
@@ -498,11 +506,17 @@
       stop: g2 => g2.opponents(p).length === 0 };
   }
 
-  /* Lightning Greaves or Swiftfoot Boots belong on Krenko. */
+  /* Lightning Greaves or Swiftfoot Boots belong on Krenko. Sting goes on him first: it untaps him
+     at every combat, and Greaves' shroud would stop its equip. */
   function hasteGearPlan(g, p, win, acts) {
     if (win !== "main1") return null;
     const kr = g.battlefield.find(o => o.controller === p && o.owner === p && o.def.name === KRENKO);
     if (!kr || !g.canTarget(p, kr)) return null;
+    const sting = mineNamed(g, p, STING);
+    if (sting && sting.attachedTo !== kr) {
+      const act = findAct(acts, a => a.type === "activate" && a.card === sting && /^Equip/.test(a.ab.label || ""));
+      if (act) { M(p).equipTo = kr; return { type: "activate", card: sting, idx: act.idx, presetScript: [kr], tag: "sting" }; }
+    }
     if (g.battlefield.some(e => e.attachedTo === kr && HASTE_GEAR.includes(e.def.name))) return null;
     for (const nm of HASTE_GEAR) {
       const eq = mineNamed(g, p, nm);
