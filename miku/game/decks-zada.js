@@ -82,10 +82,26 @@
   /* A creature spell target: Zada when she's out with company (every other creature is a copy). */
   function zadaFor(g, p, req) {
     const z = req.options.find(o => o && o.def && o.def.name === ZADA && o.controller === p);
-    if (z && others(g, p, z).length >= 1) return z;
+    if (z && others(g, p, z).length >= 1 && libraryRoom(g, p, req.src, z)) return z;
     return undefined;
   }
-  const helpTarget = (g, p, req) => (req.purpose === "help" ? zadaFor(g, p, req) : undefined);
+  /* Cards each copy takes from our library (a draw, Witch's Mark's two, a discover). Zada copies are
+     mandatory, so with a short library the bots aim these spells elsewhere instead of drawing out
+     (engine 10: 4% of the precon's games were lost to an empty library). */
+  const LIB_PER_COPY = { "Expedite": 1, "Crimson Wisps": 1, "Renegade Tactics": 1, "Impolite Entrance": 1, "Fists of Flame": 1, "Witch's Mark": 2, "Daring Discovery": 3 };
+  function libraryRoom(g, p, card, z) {
+    const per = card && card.def ? LIB_PER_COPY[card.def.name] || 0 : 0;
+    if (!per || legacy(g)) return true;
+    return p.library.length >= (zadaCopies(g, p, z) + 1) * per + 5;
+  }
+  const helpTarget = (g, p, req) => {
+    if (req.purpose !== "help") return undefined;
+    const z = zadaFor(g, p, req);
+    if (z || legacy(g)) return z;
+    // a short library: another of our creatures, so Zada makes no copies
+    const zz = req.options.find(o => o && o.def && o.def.name === ZADA && o.controller === p);
+    return zz && !libraryRoom(g, p, req.src, zz) ? req.options.find(o => o !== zz && o.controller === p && g.isCreature(o)) || undefined : undefined;
+  };
   /* How many copies Zada makes for this spell now. */
   function zadaCopies(g, p, z, spellCard) {
     if (!z) return 0;
@@ -99,7 +115,7 @@
       const z = named(g, p, ZADA);
       if (z && (ctx.window === "main1" || ctx.window === "main2") && g.active === p) {
         const n = zadaCopies(g, p, z, o);
-        if (n >= min) return 30 + n * 3;
+        if (n >= min && libraryRoom(g, p, o, z)) return 30 + n * 3;
       }
       return alone ? alone(g, p, o, ctx) : false;
     };
@@ -611,7 +627,7 @@
     },
     ai: {
       priority: 4, target: helpTarget,
-      cards: (g, p, req) => (req.purpose === "discard" ? [req.options.filter(c => c.def.types.includes("Land")).pop() || req.options.slice().sort((a, b) => a.def.mv - b.def.mv)[0]].filter(Boolean) : null),
+      cards: (g, p, req) => (req.purpose !== "discard" ? null : !legacy(g) && p.library.length < 8 ? [] : [req.options.filter(c => c.def.types.includes("Land")).pop() || req.options.slice().sort((a, b) => a.def.mv - b.def.mv)[0]].filter(Boolean)),
       cast: zadaCast(2, (g, p, o, ctx) => (ctx.window === "main2" && p.hand.length >= 6 ? 4 : false))
     }
   });
@@ -812,12 +828,18 @@
     const cost = c => Math.max(c.def.name === "Empty the Warrens" ? 1 : c.def.mv > 0 ? 1 : 0, c.def.mv - medal);
     let mana = manaLeft(g, p);
     const finCost = fin.reduce((t, n) => t + cost(inH(n)[0]), 0) + (pump ? cost(inH(HAZE)[0]) : 0);
-    // rituals first in the count (only the ones that add more than they cost), then the cheapest spells
-    const rit = Object.keys(RITUALS).flatMap(inH).map(c => ({ c, net: RITUALS[c.def.name](g, p) - cost(c) })).filter(r => r.net > 0);
+    // Storm-Kiln Artist makes a Treasure for each instant or sorcery we cast
+    const artists = g.battlefield.filter(o => o.controller === p && o.def.name === ARTIST).length;
+    const treas = c => (c.def.types.includes("Instant") || c.def.types.includes("Sorcery") ? artists : 0);
+    // rituals first in the count (the ones that pay for themselves count as free storm), then the cheapest
+    // spells, then cheap creatures and other permanents in hand: any spell raises the count
+    const rit = Object.keys(RITUALS).flatMap(inH).map(c => ({ c, net: RITUALS[c.def.name](g, p) - cost(c) + treas(c) })).filter(r => r.net >= 0);
     let plan = 0;
     for (const r of rit) if (mana >= cost(r.c)) { mana += r.net; plan++; }
     const fodder = FODDER.flatMap(inH).filter(c => !(c.def.name === HAZE && (loop || pump))).sort((a, b) => cost(a) - cost(b));
-    for (const c of fodder) if (mana - finCost >= cost(c)) { mana -= cost(c); plan++; }
+    for (const c of fodder) if (mana - finCost >= cost(c)) { mana -= cost(c) - treas(c); plan++; }
+    const extras = acts.filter(a => a.type === "cast" && !a.alt && a.card.zone === "hand" && stormExtra(g, p, a.card) && !fodder.includes(a.card)).map(a => a.card).sort((a, b) => cost(a) - cost(b));
+    for (const c of extras) if (mana - finCost >= cost(c)) { mana -= cost(c) - treas(c); plan++; }
     const st = s + plan; // storm count when the first finisher is cast
     const opps = g.opponents(p).filter(q => !q.lost);
     const low = lowestLife(opps);
@@ -846,8 +868,12 @@
       const a = cast(c.def.name);
       if (!a || avail - cost(c) < finCost) continue;
       const z = named(g, p, ZADA), specs = g.spellTargets(a.card, {});
-      if (z && specs.length && g.legalTarget(p, specs[0], z, a.card) && /Expedite|Crimson Wisps|Renegade Tactics|Ancestors' Aid|Witch's Mark|Fists of Flame|Wild Ride/.test(c.def.name)) return { type: "cast", card: a.card, targets: specs.map((sp, i) => (i === 0 ? z : null)), tag: "storm-zada" };
+      if (z && specs.length && g.legalTarget(p, specs[0], z, a.card) && libraryRoom(g, p, a.card, z) && /Expedite|Crimson Wisps|Renegade Tactics|Ancestors' Aid|Witch's Mark|Fists of Flame|Wild Ride/.test(c.def.name)) return { type: "cast", card: a.card, targets: specs.map((sp, i) => (i === 0 ? z : null)), tag: "storm-zada" };
       return { type: "cast", card: a.card, tag: "storm-fodder" };
+    }
+    for (const c of extras) {
+      const a = acts.find(x => x.type === "cast" && !x.alt && x.card === c);
+      if (a && avail - cost(c) >= finCost) return { type: "cast", card: c, tag: "storm-extra" };
     }
     for (const r of rit) { const a = cast(r.c.def.name); if (a) return { type: "cast", card: a.card, tag: "storm-ritual" }; }
     const e = cast("Empty the Warrens"); if (e) return { type: "cast", card: e.card, tag: "storm-finish" };
@@ -855,6 +881,16 @@
     if (hz) return { type: "cast", card: hz.card, kicked: g.canPay(p, g.spellCost(p, hz.card, { kicked: true }), { spell: hz.card }), tag: "storm-pump" };
     const gr = cast("Grapeshot"); if (gr) return { type: "cast", card: gr.card, tag: "storm-finish" };
     return null;
+  }
+  /* Other cards a storm turn casts before its finisher, for the count: cheap creatures, artifacts and
+     enchantments, and Faithless Looting. Not the ones a deck's brain holds back. */
+  function stormExtra(g, p, c) {
+    const d = c.def;
+    if (FINISHERS.includes(d.name) || RITUALS[d.name] || FODDER.includes(d.name) || d.types.includes("Land") || /\{X\}/.test(d.cost || "")) return false;
+    if (d.mv > 3 || (d.ai && (d.ai.counter || d.ai.protection))) return false;
+    const db = MK.DECK_BRAINS && MK.DECK_BRAINS[p.deckId];
+    if (db && db.castOk && db.castOk(g, p, c) === false) return false;
+    return d.name === "Faithless Looting" || ["Creature", "Artifact", "Enchantment"].some(t => d.types.includes(t));
   }
   /* Blasphemous Act kills Zada too: only when the table's creatures are far ahead of ours and
      they're hurting us. */
@@ -1169,7 +1205,7 @@
       if (!legacy(g)) Object.assign(minFor, { "Expedite": 1, "Crimson Wisps": 1, "Renegade Tactics": 1 });
       for (const name of order) {
         const a = cast(name);
-        if (!a || n < minFor[name]) continue;
+        if (!a || n < minFor[name] || !libraryRoom(g, p, a.card, z)) continue;
         if ((name === "Wild Ride" || name === "Fists of Flame") && win !== "main1") continue;
         const specs = g.spellTargets(a.card, {});
         const targets = specs.map((sp, i) => (i === 0 ? z : null));
@@ -1359,9 +1395,41 @@
     if (next && p.life > back * 1.2 + 4) for (const a of some.left) decl0(some, a, next);
     return { decl: some.decl };
   }
+  /* After the generic attack is planned (engine 10): an attacker that a defender can block with a
+     creature that kills it and survives stays home, when that defender has a blocker for every attacker
+     sent at them and the swing can't kill them. The generic attack sends the whole team at a runaway
+     leader "even at some cost", and 1/1 Goblins sent into a bigger board only fed it. */
+  function attackAfter(g, p, decl) {
+    if (legacy(g)) return null;
+    const by = new Map(), out = [];
+    for (const d of decl) {
+      const q = d.target;
+      if (!g.isPlayer(q)) { out.push(d); continue; }
+      if (!by.has(q)) by.set(q, []);
+      by.get(q).push(d);
+    }
+    for (const [q, ds] of by) {
+      const bl = g.creatures(q).filter(c => !c.tapped);
+      const dmg = ds.reduce((t, d) => t + Math.max(0, g.power(d.attacker)), 0);
+      if (bl.length < ds.length || dmg - bl.length >= q.life) { out.push(...ds); continue; }
+      for (const d of ds) {
+        const a = d.attacker;
+        const eaten = !g.kw(a, "indestructible") && bl.some(b => { if (!g.canBlock(b, a)) return false; const f = AI().fight(g, a, b); return f.aDies && !f.bDies; });
+        if (!eaten) out.push(d);
+      }
+    }
+    return out;
+  }
+  /* Zada from the command zone waits for company: alone she's a 3/3 that eats the removal and goes
+     back up in cost. She comes down once another creature is out, or with a spell to aim at her. */
+  function zadaOk(g, p, card) {
+    if (legacy(g) || !card.isCommander || card.zone !== "command" || g.creatures(p).length) return undefined;
+    return p.hand.some(c => LIB_PER_COPY[c.def.name] || ["Ancestors' Aid", "Wild Ride"].includes(c.def.name)) ? undefined : false;
+  }
   const decl0 = (r, a, q) => r.decl.push({ attacker: a, target: q });
   (MK.DECK_BRAINS = MK.DECK_BRAINS || {})["goblin-storm"] = {
     attack: (g, p, cands, targets) => swarmAttack(g, p, cands, targets),
+    attackAfter: (g, p, decl) => attackAfter(g, p, decl),
     plan: (g, p, ctx) => ownPlan(g, p, ctx) || skirkLoop(g, p, ctx.window, ctx.actions || []) || staffPlan(g, p, ctx.window, ctx.actions || []) ||
       jeskaSetup(g, p, ctx.window, ctx.actions || []) ||
       latticeBlast(g, p, ctx.window, ctx.actions || []) || bigTurn(g, p, ctx.window, ctx.actions || []) || outletPlan(g, p, ctx),
@@ -1372,7 +1440,7 @@
       if (k === undefined && req.purpose === "jeskaMode" && !legacy(g) && p.hand.some(c => c.def.name === REIT) && req.target && req.target.hand.length >= 6) k = "mana";
       return k === undefined ? outletChoose(g, p, req) : k;
     },
-    castOk: (g, p, card) => (card.def.name === "Blasphemous Act" && !legacy(g) ? blasphemousOk(g, p) : latticeOk(g, p, card))
+    castOk: (g, p, card) => (card.def.name === "Blasphemous Act" && !legacy(g) ? blasphemousOk(g, p) : card.def.name === ZADA ? zadaOk(g, p, card) : latticeOk(g, p, card))
   };
   (MK.HERO_DECKS = MK.HERO_DECKS || []).push(MK.GSTORM_DECK);
   (MK.BOT_DECKS = MK.BOT_DECKS || []).push(MK.GSTORM_DECK);

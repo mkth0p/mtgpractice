@@ -156,6 +156,61 @@ const treasures = (g, p) => g.battlefield.filter(o => o.controller === p && o.de
     }
     check("bot: storm turn kills the opponent at 3 (Seething Song, Expedite, Grapeshot)", b.lost || b.life <= 0, { life: b.life, storm: g.spellsThisTurn }); }
 
+  // the storm count includes cheap creatures and rituals that pay for themselves (engine 10)
+  { const { g, a, b } = table(); a.deckId = "goblin-storm"; lands(g, a, 5); goblins(g, a, 1); await g.settle(); b.life = 4;
+    for (const n of ["Grapeshot", "Goblin Bushwhacker", "Searslicer Goblin", "Brightstone Ritual", "Mogg War Marshal"]) hand(g, a, n);
+    let guard = 0;
+    while (guard++ < 12 && !b.lost) {
+      const act = MK.GSTORM_AI.stormTurn(g, a, g.legalActions(a), "main1");
+      if (!act) break;
+      await g.perform(a, act); await g.settle();
+    }
+    check("bot: storm turn counts cheap creatures and a free ritual (Grapeshot at 4 life)", b.lost || b.life <= 0, { life: b.life, storm: g.spellsThisTurn });
+    check("bot: the storm turn cast the creatures", ["Goblin Bushwhacker", "Searslicer Goblin"].every(n => !a.hand.some(c => c.def.name === n))); }
+
+  // Zada copies with a short library: the bot doesn't draw itself out
+  { const { g, a } = table(); a.deckId = "goblin-storm"; lands(g, a, 3); const z = zada(g, a); goblins(g, a, 8); await g.settle();
+    hand(g, a, "Expedite");
+    a.library.length = 6;
+    const ex = a.hand.find(c => c.def.name === "Expedite");
+    const req = { type: "target", purpose: "help", options: g.creatures(a), src: ex, spec: g.spellTargets(ex, {})[0] };
+    const t = ex.def.ai.target(g, a, req);
+    check("bot: short library, Expedite goes on another creature", t && t !== z, t && t.def.name);
+    check("bot: short library, no Zada cast hint for Expedite", !ex.def.ai.cast(g, a, ex, { window: "main1" }));
+    a.library.length = 60;
+    check("bot: full library, Expedite goes on Zada", ex.def.ai.target(g, a, req) === z);
+    const wm = MK.get("Witch's Mark");
+    a.library.length = 5;
+    check("bot: short library, Witch's Mark discards nothing", Array.isArray(wm.ai.cards(g, a, { purpose: "discard", options: a.hand.slice() })) && wm.ai.cards(g, a, { purpose: "discard", options: a.hand.slice() }).length === 0); }
+
+  // the attack filter: Goblins don't run into a board that blocks and eats each of them
+  { const { g, a, b } = table(); a.deckId = "goblin-storm"; const gs = goblins(g, a, 4); await g.settle();
+    for (let i = 0; i < 4; i++) put(g, b, "Ajani's Pridemate");
+    const br = MK.DECK_BRAINS["goblin-storm"];
+    const decl = gs.map(o => ({ attacker: o, target: b }));
+    check("bot: four 1/1s into four 2/2s stay home", br.attackAfter(g, a, decl).length === 0, br.attackAfter(g, a, decl).length);
+    for (const o of g.creatures(b)) g.pump(o, 0, 3);
+    for (const o of gs) g.pump(o, 2, 0);
+    b.life = 3;
+    check("bot: they go when the swing can kill", br.attackAfter(g, a, decl).length === 4);
+    b.life = 40;
+    check("bot: 3/1s into 2/5s stay home", br.attackAfter(g, a, decl).length === 0);
+    b.life = 40; goblins(g, a, 2); const all = g.creatures(a).map(o => ({ attacker: o, target: b }));
+    check("bot: more attackers than blockers all go", br.attackAfter(g, a, all).length === 6); }
+
+  // Zada waits in the command zone with no other creature and no spell for her
+  { const { g, a } = table(); a.deckId = "goblin-storm"; await g.settle();
+    const br = MK.DECK_BRAINS["goblin-storm"], z = a.commanders[0];
+    check("bot: Zada waits alone", br.castOk(g, a, z) === false);
+    hand(g, a, "Expedite");
+    check("bot: Zada comes down with a spell for her", br.castOk(g, a, z) !== false);
+    a.hand.length = 0; goblins(g, a, 1);
+    check("bot: Zada comes down with company", br.castOk(g, a, z) !== false);
+    g.opts.legacyGstorm = true;
+    a.hand.length = 0; for (const c of g.creatures(a)) { g.removeFromZone(c); }
+    check("bot: engine 9 games cast her as before", br.castOk(g, a, z) !== false);
+    g.opts.legacyGstorm = false; }
+
   // the coach speaks up with Zada out and a cantrip in hand
   { const { g, a } = table(); lands(g, a, 2); zada(g, a); goblins(g, a, 3); hand(g, a, "Expedite"); await g.settle();
     const tips = MK.GSTORM_DECK.coach.tips(g, a);

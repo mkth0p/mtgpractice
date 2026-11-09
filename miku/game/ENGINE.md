@@ -342,6 +342,22 @@ The Goblin Storm upgrade cards (`cards-gstorm.js`) added a few more (none of the
   just enough attackers, tokens first; Krenko, Skirk, Kiki-Jiki and the haste sources only go in when the
   whole table dies, and leftover tokens stay home when the survivors could kill the hero. With no kill the
   generic attack decides.
+- The Zada precon's bot (engine 10, `decks-zada.js`):
+  - The storm turn (`stormTurn`) counts every spell it can cast before the finisher: rituals that pay for
+    themselves (Brightstone Ritual with one Goblin out, any ritual with Storm-Kiln Artist's Treasure),
+    the cheap Zada spells, and cheap creatures, artifacts and enchantments in hand (`stormExtra`, mana
+    value 3 or less, not ones a deck's brain holds back). It casts them before Grapeshot or Empty the
+    Warrens. Before, a Grapeshot that killed someone at 4 life was left in hand.
+  - Zada's copies are mandatory, and each copy of a cantrip draws (Witch's Mark draws two, Daring
+    Discovery digs about three). With fewer than (copies + 1) × that + 5 cards in the library
+    (`libraryRoom`), the bot aims the spell at another creature or holds it, and Witch's Mark skips its
+    discard below 8 cards. Before, 4% of the precon's games were lost to an empty library.
+  - Zada waits in the command zone while we control no creature, unless a spell to aim at her is in hand
+    (`zadaOk`, the brain's `castOk`).
+  - A deck brain's `attackAfter(g, p, decl)` (in `ai.js`, after the generic attack) can call attackers
+    back. The Goblin Storm brain keeps home an attacker that a blocker kills and survives, when that
+    defender has a blocker for every attacker sent at them and the swing can't kill them (the generic
+    attack sends the whole team at a runaway leader "even at some cost").
 - A caster can answer their own spell with a card marked `holdPriority: true` (Reiterate): `resolveDown`
   asks the caster first (`g.askOwn`, window `"own"`, only when such a card can be cast), so no other game
   changes. A bot only acts there through its deck brain's `plan` (`ctx.top` is the spell). The Goblin

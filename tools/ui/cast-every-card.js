@@ -76,6 +76,8 @@ const note = (kind, msg, extra) => { const s = `${cur}: ${kind}: ${msg}`; issues
       let o = me.commanders.find(c => c.def.name === name);
       if (o && o.zone !== "command") return "commander not in the command zone";
       if (!o) { o = g.newObj(MK.get(name), me, "hand"); me.hand.push(o); }
+      // a card with an extra cost from the hand (Sazacap's Brew discards a card) gets a land to pay it
+      if (o.def.canCast && !o.def.canCast(g, me, o)) me.hand.push(g.newObj(MK.get(basics[0] || "Plains"), me, "hand"));
       g.settle();
       t.canCache = null; t.render();
       return "ok:" + o.id;

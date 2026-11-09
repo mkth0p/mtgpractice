@@ -1166,6 +1166,8 @@
       // a deck's own plan (ai.attackPlan) can replace the whole attack
       const planned = deckHook(g, p, "attackPlan", { candidates, targets, decl, skill, aggro, casual });
       if (planned) decl = planned;
+      // the deck's brain can call back attackers from the planned attack (attackAfter)
+      if (br && br.attackAfter) { let r = null; try { r = br.attackAfter(g, p, decl); } catch (e) { if (g.warn) g.warn(e); r = null; } if (Array.isArray(r)) decl = r; }
       // remember the player we sent the most at (casual tables spread their attacks)
       const count = new Map();
       for (const d of decl) { const tq = g.defenderOf(d.target); count.set(tq, (count.get(tq) || 0) + 1); }

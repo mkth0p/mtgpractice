@@ -44,7 +44,9 @@
                            //    table's creatures are far ahead and hurting it, loops Krenko with Skirk Prospector once a haste
                            //    source is out, loops Reiterate on Jeska's Will and overloads Vandalblast under Mycosynth Lattice, loops
                            //    Thornbite Staff on Krenko with any sacrifice outlet, makes enough Kiki-Jiki copies for the table, tutors
-                           //    the missing combo piece, and spreads a wide attack so each player gets just enough (legacyGstorm)
+                           //    the missing combo piece, and spreads a wide attack so each player gets just enough; its storm count
+                           //    includes cheap creatures and free rituals, Zada spells don't draw it out of cards, Zada waits for
+                           //    company, and Goblins don't attack into a board that blocks and eats each of them (legacyGstorm)
 
   MK.SIMPLIFICATIONS = [
     "Mana is paid for you from your untapped lands and mana sources, so you never tap lands by hand.",
