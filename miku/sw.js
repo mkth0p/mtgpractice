@@ -1,7 +1,7 @@
 /* Offline support for the Miku deck wiki: the page works at a game store with no signal.
    Site files: network first, cache as fallback. Fonts and card images: cache first. */
-const VERSION = "miku-v43";
-const V = "?v=43";
+const VERSION = "miku-v44";
+const V = "?v=44";
 const GAME = ["engine.js", "cards-miku.js", "cards-corrupted.js", "checklist-corrupted.js", "checklist-cetrata.js", "checklist-gstorm.js", "brain-corrupted.js", "cards-etrata.js", "cards-miku-precon.js", "cards-miku-b4.js", "decks-avengers.js", "decks-azusa.js", "decks-azusa-ashaya.js", "decks-cetrata.js", "decks-doom.js", "decks-edgar.js", "decks-etrata4.js", "decks-fantastic4.js", "decks-ghalta.js", "decks-heist.js", "decks-krenko.js", "decks-spiderverse.js", "decks-talrand.js", "decks-urdragon.js", "decks-zada.js", "precon-ghired.js", "precon-isperia.js", "precon-kaalia.js", "precon-lathril.js", "precon-wilhelt.js", "ai.js", "coach-heist.js", "checklist-heist.js", "practice.js", "practice-worker.js", "train-cetrata.js", "train-heist.js", "value.js", "analysis.js", "tournament.js", "tournament-worker.js", "game-ui.js", "arena.js", "game.css", "arena.css"].map(f => "./game/" + f + V);
 const CORE = ["./", "./index.html", "./icon.svg", "./manifest.webmanifest"]
   .concat(["styles.css", "kit.js", "cards.js", "azusa.js", "wiki.js", "guide.js", "app.js"].map(f => "./" + f + V), GAME);
