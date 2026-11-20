@@ -82,6 +82,7 @@
     var big = n > 0 ? 'J−' + n : n === 0 ? 'Jour J' : 'Passé';
     var html = '<div class="stack-lg">';
     if (today <= INTERRO.date) html += interroHtml(today);
+    html += '<a class="card chapcard" href="#zero" style="border:2px solid currentColor"><span class="eyebrow">Contrôle chapitres III et IV</span><b>Partir de zéro : 15 leçons</b><span class="small muted">Variables aléatoires, estimation, intervalles de confiance, tests, khi-deux (TD IV ex. 11 à 14). Idée, exemple corrigé, puis questions vérifiées.</span></a>';
     html += '<section class="card exam-card stack">' +
       '<svg class="bell" viewBox="0 0 180 110" aria-hidden="true"><path d="M0 108 C40 108 55 8 90 8 S140 108 180 108" fill="none" stroke="currentColor" stroke-width="3"/></svg>' +
       '<p class="eyebrow" style="color:inherit;opacity:.75">Devoir écrit · Outils Mathématiques 3</p>' +
@@ -140,7 +141,7 @@
   /* ================= COURS ================= */
   OM.route('cours', function (v, args) {
     if (args.length) return chapterView(v, +args[0]);
-    var html = '<div class="view-title"><p class="eyebrow">Polycopié ARAC72 · 72 pages</p><h1>Cours</h1><p class="muted">Chaque fiche reprend tout le chapitre du poly : définitions, formules, méthodes et pièges.</p></div><div class="stack">';
+    var html = '<a class="card chapcard flat" href="#zero" style="margin-bottom:12px"><b>Partir de zéro : chapitres III et IV</b><span class="small muted">15 leçons guidées avec questions vérifiées.</span></a><div class="view-title"><p class="eyebrow">Polycopié ARAC72 · 72 pages</p><h1>Cours</h1><p class="muted">Chaque fiche reprend tout le chapitre du poly : définitions, formules, méthodes et pièges.</p></div><div class="stack">';
     OM.chapters.forEach(function (c) {
       html += '<a class="card chapcard flat" href="#cours-' + c.id + '"><div class="row"><span class="rn">' + c.num + '</span><b style="flex:1">' + esc(c.title) + '</b><span class="chip ghost">' + esc(c.pages) + '</span></div><span class="small muted">' + esc(c.summary || '') + '</span></a>';
     });

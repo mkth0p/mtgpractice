@@ -16,7 +16,7 @@
     id: 4, num: 'IV', short: 'Inférence', title: 'Statistiques inférentielles', pages: 'poly p. 37–50', sessions: 'séances 5 à 7',
     summary: 'Estimation ponctuelle (variance corrigée), intervalles de confiance d\'une moyenne et d\'une proportion, tests d\'hypothèses, test du khi-deux.',
     intro: 'Passer d\'un échantillon à la population : estimer, encadrer avec un niveau de confiance, décider avec un risque α.',
-    tdNote: 'Pas encore de feuille de TD sur Moodle pour ce chapitre : voici les exemples du poly, complétés, et des exercices types. La page sera mise à jour quand le TD sera publié.',
+    tdNote: 'Brochure TD IV (séances 6 et 7), exercices 1 à 14 corrigés, puis les exemples du poly A à F.',
     cours: [
       { h: 'Estimation ponctuelle', html: `
         <p>La statistique inférentielle tire des conclusions sur une population entière à partir d'un échantillon de n valeurs (x<sub>1</sub>, …, x<sub>n</sub>), en mesurant l'incertitude. Plus l'échantillon est grand et bien choisi, plus l'estimation est proche de la réalité (loi des grands nombres), mais il reste toujours une marge d'erreur.</p>
@@ -73,6 +73,104 @@
       '<b>Student :</b> lis la colonne « risque α en bilatéral » pour un intervalle de confiance, avec n − 1 degrés de liberté.',
       '<b>Ne pas rejeter H<sub>0</sub> ne prouve pas H<sub>0</sub></b> : on dit qu\'on n\'a pas assez de preuves pour la rejeter.',
       '<b>Khi-deux :</b> on divise par l\'effectif attendu E, pas par l\'observé O.'
+    ],
+    td: [
+      { n: 1, t: 'Taux de cholestérol de 100 employés', tags: 'moyenne · écart-type corrigé · IC · taille d\'échantillon', src: 'brochure TD IV, séances 6 et 7',
+        e: `<p>Le staff médical d'une grande entreprise relève le taux de cholestérol (en cg) de 100 employés tirés au sort.</p>${tbl([['Centre de classe', '120', '160', '200', '240', '280', '320'], ['Effectif', '9', '22', '25', '21', '16', '7']], { side: true })}`,
+        q: [
+          { q: 'Moyenne m<sub>e</sub> de l\'échantillon ?', a: 213.6, d: 1, r: 'm<sub>e</sub> = 213,6 cg', sol: ['Σn<sub>i</sub>x<sub>i</sub> = 1 080 + 3 520 + 5 000 + 5 040 + 4 480 + 2 240 = 21 360.', 'm<sub>e</sub> = 21 360 / 100 = 213,6.'] },
+          { q: 'Écart-type σ<sub>e</sub> de l\'échantillon (divisé par n), au centième ?', a: 55.78, d: 2, r: 'σ<sub>e</sub> ≈ 55,78', sol: ['Σn<sub>i</sub>x<sub>i</sub>² / 100 = 48 736 ; V = 48 736 − 213,6² = 3 111,04.', 'σ<sub>e</sub> = √3 111,04 ≈ 55,78.'] },
+          { q: 'Estimations pour toute l\'entreprise : moyenne et écart-type corrigé σ̂ (au centième) ?', a: [213.6, 56.06], l: ['moyenne', 'σ̂'], d: [1, 2], r: 'm ≈ 213,6 ; σ̂ ≈ 56,06', sol: ['La moyenne s\'estime par m<sub>e</sub> = 213,6.', 'σ̂ = √(100/99) × 55,78 ≈ 56,06.'] },
+          { q: 'Intervalle de confiance de la moyenne au risque 5 % (bornes au centième) ?', a: [202.61, 224.59], l: ['borne basse', 'borne haute'], d: 2, tol: 0.02, r: 'IC 95 % : [202,61 ; 224,59]', sol: ['Marge = 1,96 × 56,06 / √100 ≈ 10,99.', 'IC = [213,6 − 10,99 ; 213,6 + 10,99] = [202,61 ; 224,59].'] },
+          { q: 'Taille minimale d\'échantillon pour une amplitude de l\'IC inférieure à 10 ?', a: 483, d: 0, tol: 1, sol: ['Amplitude = 2 × 1,96 × σ̂/√n &lt; 10 ⇔ √n &gt; 2 × 1,96 × 56,06/10 ≈ 21,97.', 'n &gt; 482,9, donc n = 483.'] }
+        ] },
+      { n: 2, t: 'Sondage : 52 voix sur 100', tags: 'IC d\'une proportion · taille d\'échantillon',
+        e: '<p>Lors d\'un sondage portant sur 100 personnes, 52 indiquent qu\'elles voteront pour A.</p>',
+        q: [
+          { q: 'Intervalle de confiance à 95 % de la proportion de votes pour A (au millième) ?', a: [0.422, 0.618], l: ['borne basse', 'borne haute'], d: 3, r: 'IC 95 % : [0,422 ; 0,618]', sol: ['f = 0,52 ; √(0,52 × 0,48/100) ≈ 0,0500 ; marge = 1,96 × 0,0500 ≈ 0,098.', 'IC ≈ [0,422 ; 0,618].'] },
+          { q: 'Que peut-on conclure ?', c: ['A gagnera l\'élection', 'On ne peut pas conclure : 0,5 est dans l\'intervalle', 'A perdra l\'élection'], a: 1, sol: ['L\'intervalle contient 0,5 : A peut aussi bien être sous 50 % que dessus.'] },
+          { q: 'Avec la même fréquence 0,52, taille minimale de l\'échantillon pour conclure à la victoire de A ?', a: 2398, d: 0, tol: 2, sol: ['Il faut 0,52 − 1,96 √(0,2496/n) &gt; 0,5, soit √n &gt; 1,96 × 0,4996 / 0,02 ≈ 48,96.', 'n &gt; 2 397,2, donc n = 2 398.'] }
+        ] },
+      { n: 3, t: 'Satisfaction de la cantine', tags: 'estimation ponctuelle', opt: true,
+        e: '<p>Un sondage sur 80 salariés tirés au hasard parmi 1 319 : 52 sont satisfaits de la cantine.</p>',
+        q: [
+          { q: 'Estimation ponctuelle de la proportion de salariés satisfaits ?', a: 0.65, d: 2, sol: ['f = 52/80 = 0,65.'] },
+          { q: 'Même question avec 65 satisfaits sur 95 (à 10<sup>−2</sup>) ?', a: 0.68, d: 2, sol: ['f = 65/95 ≈ 0,68.'] }
+        ] },
+      { n: 4, t: 'Médicament contre la migraine', tags: 'deux IC de proportions',
+        e: '<p>Deux groupes de 100 personnes. Groupe A (médicament) : 68 voient leur migraine diminuer. Groupe B (placebo) : 56.</p>',
+        q: [
+          { q: 'IC à 95 % pour le groupe A (au millième) ?', a: [0.589, 0.771], l: ['borne basse', 'borne haute'], d: 3, r: 'A : [0,589 ; 0,771]', sol: ['f = 0,68 ; marge = 1,96 √(0,68 × 0,32/100) ≈ 0,0914.', '[0,589 ; 0,771].'] },
+          { q: 'IC à 95 % pour le groupe B (au millième) ?', a: [0.463, 0.657], l: ['borne basse', 'borne haute'], d: 3, r: 'B : [0,463 ; 0,657]', sol: ['f = 0,56 ; marge = 1,96 √(0,56 × 0,44/100) ≈ 0,0973.', '[0,463 ; 0,657].'] },
+          { q: 'Conclusion sur l\'efficacité du médicament ?', c: ['Le médicament est efficace', 'On ne peut pas conclure : les deux intervalles se chevauchent'], a: 1, sol: ['[0,589 ; 0,657] est commun aux deux intervalles : la différence peut venir du hasard.'] },
+          { q: 'Taille minimale de chaque groupe pour que les intervalles ne se chevauchent plus (mêmes fréquences) ?', a: 248, d: 0, tol: 1, sol: ['Il faut 0,68 − 1,96 √(0,2176/n) &gt; 0,56 + 1,96 √(0,2464/n).', '1,96 (0,4665 + 0,4964)/√n &lt; 0,12 ⇒ √n &gt; 15,73 ⇒ n &gt; 247,3, donc n = 248.'] }
+        ] },
+      { n: 5, t: '10 000 personnes, 7,5 % à soigner', tags: 'IC d\'une proportion', opt: true,
+        e: '<p>Sur un échantillon de 10 000 personnes, le taux de personnes à soigner est de 7,5 %. Donner un intervalle dans lequel on est « sûr » à 95 % de trouver le nombre de personnes à soigner sur les 10 000.</p>',
+        q: [
+          { q: 'Intervalle pour le nombre de personnes (bornes à l\'unité) ?', a: [698, 802], l: ['borne basse', 'borne haute'], d: 0, tol: 1, sol: ['Marge = 1,96 √(0,075 × 0,925/10 000) ≈ 0,00516.', 'IC des proportions ≈ [0,0698 ; 0,0802], soit entre environ 698 et 802 personnes.'] }
+        ] },
+      { n: 6, t: 'Redressage de tôles soudées', tags: 'classes · IC · taille d\'échantillon', opt: true,
+        e: `<p>Durée x<sub>i</sub> (heures) de redressage de 50 tôles. Arrondis à 10<sup>−2</sup>.</p>${tbl([['Durée', '[0;10[', '[10;20[', '[20;30[', '[30;40[', '[40;50[', '[50;60[', '[60;70['], ['n<sub>i</sub>', '1', '4', '8', '20', '12', '3', '2']], { side: true })}`,
+        q: [
+          { q: 'Moyenne et écart-type de l\'échantillon (divisé par n) ?', a: [36, 12.21], l: ['moyenne', 'écart-type'], d: [2, 2], r: 'x̄ = 36 h ; σ ≈ 12,21 h', sol: ['Centres 5, 15, …, 65 ; Σn<sub>i</sub>c<sub>i</sub> = 1 800, x̄ = 36.', 'Σn<sub>i</sub>c<sub>i</sub>²/50 = 1 445 ; V = 1 445 − 1 296 = 149 ; σ ≈ 12,21.'] },
+          { q: 'IC à 95 % de la durée moyenne m (bornes au centième) ?', a: [32.58, 39.42], l: ['borne basse', 'borne haute'], d: 2, tol: 0.02, r: 'IC : [32,58 ; 39,42]', sol: ['σ̂ = √(50/49) × 12,21 ≈ 12,33 ; marge = 1,96 × 12,33/√50 ≈ 3,42.', 'IC = [32,58 ; 39,42].'] },
+          { q: 'Taille de l\'échantillon pour une amplitude de 3 heures au risque 5 % ?', a: 260, d: 0, tol: 1, sol: ['2 × 1,96 × 12,33/√n = 3 ⇒ √n ≈ 16,11 ⇒ n ≈ 259,6, donc n = 260.'] }
+        ] },
+      { n: 7, t: 'Au moins 80 % de clients satisfaits ?', tags: 'IC · test unilatéral d\'une proportion',
+        e: '<p>Sur 400 clients, 300 se déclarent satisfaits. La direction affirme : « au moins 80 % de nos clients sont satisfaits ».</p>',
+        q: [
+          { q: 'IC à 95 % de la proportion de satisfaits (au millième) ?', a: [0.708, 0.792], l: ['borne basse', 'borne haute'], d: 3, r: 'IC : [0,708 ; 0,792]', sol: ['f = 0,75 ; marge = 1,96 √(0,75 × 0,25/400) ≈ 0,0424.', '[0,708 ; 0,792].'] },
+          { q: 'Test unilatéral, H<sub>0</sub> : p = 0,8 ; H<sub>1</sub> : p &lt; 0,8 ; risque 5 %. Borne de la zone d\'acceptation (au millième) ?', a: 0.767, d: 3, sol: ['0,8 − 1,645 √(0,8 × 0,2/400) = 0,8 − 1,645 × 0,02 = 0,767.'] },
+          { q: 'Conclusion ?', c: ['L\'affirmation tient', 'On rejette l\'affirmation de la direction'], a: 1, sol: ['f = 0,75 &lt; 0,767 (et 0,8 est hors de l\'IC) : on rejette H<sub>0</sub> au risque 5 %.'] }
+        ] },
+      { n: 8, t: 'Temps d\'attente du service client', tags: 'test sur une moyenne', opt: true,
+        e: '<p>50 appels : attente moyenne 5,3 min, écart-type estimé 1,2 min. Peut-on dire, à 95 %, que le temps moyen est inférieur à 5 minutes ?</p>',
+        q: [
+          { q: 'Zone d\'acceptation bilatérale autour de 5 min, au risque 5 % (au centième) ?', a: [4.67, 5.33], l: ['borne basse', 'borne haute'], d: 2, sol: ['Marge = 1,96 × 1,2/√50 ≈ 0,33.', '[4,67 ; 5,33].'] },
+          { q: 'Conclusion ?', c: ['Oui, le temps moyen est inférieur à 5 min', 'Non : 5,3 est même au-dessus de 5, rien ne montre une moyenne inférieure à 5 min'], a: 1, sol: ['x̄ = 5,3 &gt; 5 : l\'échantillon ne va pas dans le sens de « moins de 5 min ». 5,3 est dans la zone [4,67 ; 5,33] : on ne rejette pas m = 5.'] }
+        ] },
+      { n: 9, t: 'Autonomie des batteries : 12 heures ?', tags: 'test bilatéral sur une moyenne',
+        e: '<p>Un fabricant annonce 12 h d\'autonomie moyenne. Sur 40 batteries : moyenne 11,5 h, écart-type estimé 1,8 h. Niveau de confiance 90 %.</p>',
+        q: [
+          { q: 'Zone d\'acceptation de H<sub>0</sub> : m = 12, au risque 10 % (au centième) ?', a: [11.53, 12.47], l: ['borne basse', 'borne haute'], d: 2, sol: ['z = 1,645 ; σ/√n = 1,8/√40 ≈ 0,285 ; marge ≈ 0,47.', '[11,53 ; 12,47].'] },
+          { q: 'Décision ?', c: ['On ne rejette pas l\'affirmation', 'On remet en cause l\'affirmation du fabricant'], a: 1, sol: ['11,5 &lt; 11,53 : hors de la zone, on rejette H<sub>0</sub> au risque 10 % (de justesse).'] }
+        ] },
+      { n: 10, t: '90 % de réussite à l\'examen ?', tags: 'test bilatéral sur une proportion',
+        e: '<p>Un professeur affirme que 90 % des élèves réussissent son examen. Sur 200 élèves, 170 réussissent. Niveau de confiance 95 %.</p>',
+        q: [
+          { q: 'Zone d\'acceptation de H<sub>0</sub> : p = 0,9 (au millième) ?', a: [0.858, 0.942], l: ['borne basse', 'borne haute'], d: 3, sol: ['√(0,9 × 0,1/200) ≈ 0,0212 ; marge = 1,96 × 0,0212 ≈ 0,0416.', '[0,858 ; 0,942].'] },
+          { q: 'f = 0,85. Décision ?', c: ['On ne peut pas contester', 'On peut contester l\'affirmation du professeur'], a: 1, sol: ['0,85 &lt; 0,858 : on rejette H<sub>0</sub> au risque 5 %.'] }
+        ] },
+      { n: 11, t: 'Bonbons : cinq saveurs en proportions égales ?', tags: 'khi-deux d\'ajustement',
+        e: `<p>10 sacs de 100 bonbons, cinq saveurs. Test du khi-deux : les saveurs sont-elles en proportions égales ?</p>${tbl([['Saveur', 'Pomme', 'Citron', 'Cerise', 'Orange', 'Raisin'], ['Observé', '180', '250', '120', '225', '225']], { side: true })}`,
+        q: [
+          { q: 'Effectif attendu par saveur ?', a: 200, d: 1, r: 'E = 200', sol: ['1 000 / 5 = 200. n ≥ 50 et tous les E ≥ 5 : test valable.'] },
+          { q: 'χ² ?', a: 52.75, d: 2, r: 'χ² = 52,75', sol: ['2 + 12,5 + 32 + 3,125 + 3,125 = 52,75.'] },
+          { q: 'Degrés de liberté et valeur critique à 5 % ?', a: [4, 9.488], l: ['ddl', 'valeur critique'], d: [0, 3], sol: ['5 − 1 = 4 ddl ; table : 9,488.'] },
+          { q: 'Conclusion ?', c: ['Proportions égales plausibles', 'On rejette H<sub>0</sub> : saveurs pas en proportions égales'], a: 1, sol: ['52,75 &gt; 9,488 : on rejette H<sub>0</sub> au risque 5 %.'] }
+        ] },
+      { n: 12, t: 'Type de film et achat de snacks', tags: 'khi-deux d\'indépendance',
+        e: `<p>600 spectateurs. Le type de film et l'achat de snacks sont-ils liés ?</p>${tbl([['Film', 'Snacks', 'Pas de snack', 'Total'], ['Action', '50', '75', '125'], ['Comédie', '125', '175', '300'], ['Familial', '90', '30', '120'], ['Horreur', '45', '10', '55'], ['Total', '310', '290', '600']], { side: true })}`,
+        q: [
+          { q: 'Effectif attendu (Familial, snacks) ?', a: 62, d: 2, r: 'E(Familial, snacks) = 62', sol: ['120 × 310 / 600 = 62.', tbl([['Attendus', 'Snacks', 'Pas de snack'], ['Action', '64,58', '60,42'], ['Comédie', '155', '145'], ['Familial', '62', '58'], ['Horreur', '28,42', '26,58']], { side: true })] },
+          { q: 'χ² (au centième) ?', a: 65.01, d: 2, tol: 0.1, r: 'χ² ≈ 65,01', sol: ['3,29 + 3,52 + 5,81 + 6,21 + 12,65 + 13,52 + 9,68 + 10,35 ≈ 65,01.'] },
+          { q: 'Degrés de liberté et valeur critique à 5 % ?', a: [3, 7.815], l: ['ddl', 'valeur critique'], d: [0, 3], sol: ['(4 − 1)(2 − 1) = 3 ; table : 7,815.'] },
+          { q: 'Conclusion ?', c: ['Film et snacks indépendants', 'On rejette H<sub>0</sub> : film et snacks sont liés'], a: 1, sol: ['65,01 &gt; 7,815 : on rejette l\'indépendance au risque 5 %.'] }
+        ] },
+      { n: 13, t: 'Genre et préférence de produit', tags: 'khi-deux d\'indépendance',
+        e: `${tbl([['', 'Produit A', 'Produit B', 'Total'], ['Homme', '30', '10', '40'], ['Femme', '20', '30', '50'], ['Total', '50', '40', '90']], { side: true })}<p>Test du khi-deux d'indépendance.</p>`,
+        q: [
+          { q: 'Effectif attendu (Homme, A), au centième ?', a: 22.22, d: 2, sol: ['40 × 50 / 90 ≈ 22,22. Puis 17,78 ; 27,78 ; 22,22.'] },
+          { q: 'χ² (au centième) ?', a: 11.025, d: 2, tol: 0.03, sol: ['60,49/22,22 + 60,49/17,78 + 60,49/27,78 + 60,49/22,22 ≈ 2,72 + 3,40 + 2,18 + 2,72 ≈ 11,03.'] },
+          { q: 'Conclusion (1 ddl, valeur critique 3,841) ?', c: ['Genre et préférence indépendants', 'On rejette H<sub>0</sub> : genre et préférence sont liés'], a: 1, sol: ['11,03 &gt; 3,841 : on rejette H<sub>0</sub> au risque 5 %.'] }
+        ] },
+      { n: 14, t: 'Couleurs des voitures vendues', tags: 'khi-deux d\'ajustement',
+        e: `<p>Attendu : rouge 30 %, bleu 40 %, vert 20 %, blanc 10 %. Sur 500 voitures :</p>${tbl([['Couleur', 'Rouge', 'Bleu', 'Vert', 'Blanc'], ['Observé', '150', '200', '100', '50']], { side: true })}`,
+        q: [
+          { q: 'χ² ?', a: 0, d: 2, sol: ['Attendus : 150, 200, 100, 50 : exactement les observés.', 'χ² = 0.'] },
+          { q: 'Conclusion (3 ddl, valeur critique 7,815) ?', c: ['Ventes conformes au plan : on ne rejette pas H<sub>0</sub>', 'On rejette H<sub>0</sub>'], a: 0, sol: ['0 ≤ 7,815 : on ne rejette pas H<sub>0</sub>.'] }
+        ] }
     ],
     ex: [
       { n: 'A', t: 'Le dé est-il équilibré ?', tags: 'khi-deux d\'ajustement', src: 'exemple du poly p. 47–48',
