@@ -247,7 +247,7 @@
   OM.route('zero', function (v, args) {
     if (args.length) return lesson(v, +args[0]);
     var tot = L.reduce(function (a, l) { return a + l.min; }, 0);
-    var html = '<div class="view-title"><p class="eyebrow">Chapitres III et IV · 15 leçons</p><h1>Partir de zéro</h1><p class="muted">15 leçons dans l\'ordre. Chacune : l\'idée, un exemple corrigé, ce qu\'il faut retenir, puis des questions vérifiées tout de suite. Le khi-deux (TD IV ex. 11 à 14) est à la fin.</p></div><div class="stack-lg">';
+    var html = '<div class="view-title"><p class="eyebrow">Chapitres III et IV · 15 leçons</p><h1>Partir de zéro</h1><p class="muted">15 leçons dans l\'ordre. Chacune : l\'idée, un exemple corrigé, ce qu\'il faut retenir, puis des questions vérifiées tout de suite. Le khi-deux (TD IV ex. 11 à 14) est à la fin. Pour tout revoir d\'un coup : <a href="#recap">fiche récap</a>.</p></div><div class="stack-lg">';
     [3, 4].forEach(function (ch) {
       html += '<section class="stack"><h2>' + (ch === 3 ? 'III · Variables aléatoires' : 'IV · Statistiques inférentielles') + '</h2><ul class="exlist">';
       L.filter(function (l) { return l.ch === ch; }).forEach(function (l) {
