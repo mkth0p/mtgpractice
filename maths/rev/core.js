@@ -418,7 +418,7 @@
   /* ---------- router ---------- */
   var routes = {};
   OM.route = function (name, fn) { routes[name] = fn; };
-  var TABS = { accueil: 'accueil', cours: 'cours', express: 'cours', td: 'td', quiz: 'quiz', examen: 'quiz', tables: 'tables', outils: 'tables' };
+  var TABS = { accueil: 'accueil', cours: 'cours', express: 'cours', td: 'td', quiz: 'quiz', examen: 'quiz', tables: 'tables', outils: 'tables', zero: 'cours' };
   function render() {
     var h = (location.hash || '#accueil').slice(1) || 'accueil';
     var parts = h.split('-'), base = parts[0];
