@@ -137,7 +137,7 @@
       ] },
 
     /* ===================== CHAPITRE IV ===================== */
-    { ch: 4, h: 'Échantillon et estimation : n ou n − 1 ?', min: 20, cours: 'cours-4', td: 'td-4-E',
+    { ch: 4, h: 'Échantillon et estimation : n ou n − 1 ?', min: 20, cours: 'cours-4', td: 'td-4-1',
       idee: `<p>On ne peut pas mesurer toute la population (tous les employés, toutes les pièces). On prend un <strong>échantillon</strong> de n individus et on <strong>estime</strong> :</p>
         <ul><li>la moyenne m de la population par la moyenne de l'échantillon ${XB} ;</li>
         <li>une proportion p par la fréquence observée f = (nombre de cas) / n ;</li>
@@ -153,7 +153,7 @@
         { q: 'Sondage : 52 personnes sur 100 voteront A. Estimation ponctuelle de p ?', a: 0.52, d: 2, sol: ['f = 52/100 = 0,52.'] }
       ] },
 
-    { ch: 4, h: 'Intervalle de confiance d\'une moyenne', min: 30, cours: 'cours-4', td: 'td-4-C',
+    { ch: 4, h: 'Intervalle de confiance d\'une moyenne', min: 30, cours: 'cours-4', td: 'td-4-1',
       idee: `<p>Au lieu d'une seule valeur, on donne un intervalle qui contient la vraie moyenne avec une confiance de 95 % (risque α = 5 %). Toujours : <strong>estimation ± marge</strong>.</p>
         ${MB('[ ' + XB + ' − z ' + F('σ', '√n') + ' ; ' + XB + ' + z ' + F('σ', '√n') + ' ]')}
         ${tbl([['Confiance', '90 %', '95 %', '99 %'], ['z', '1,645', '1,96', '2,576']], { side: true })}
@@ -170,7 +170,7 @@
         { q: 'σ = 20, à 95 %. Taille minimale n pour une amplitude inférieure à 5 ?', a: 246, d: 0, sol: ['n &gt; (2 × 1,96 × 20/5)² = 15,68² ≈ 245,9.', 'Donc n = 246.'] }
       ] },
 
-    { ch: 4, h: 'Intervalle de confiance d\'une proportion', min: 25, cours: 'cours-4', td: 'td-4-D',
+    { ch: 4, h: 'Intervalle de confiance d\'une proportion', min: 25, cours: 'cours-4', td: 'td-4-2',
       idee: `<p>Même principe avec une fréquence f observée sur n individus (conditions : n ≥ 30, nf ≥ 5, n(1 − f) ≥ 5) :</p>
         ${MB('[ f − z ' + R(F('f(1 − f)', 'n')) + ' ; f + z ' + R(F('f(1 − f)', 'n')) + ' ]')}
         <p>Pour conclure, regarde si une valeur clé (50 %, 80 %…) est <strong>dans</strong> l'intervalle (on ne peut pas trancher) ou <strong>dehors</strong> (on peut conclure).</p>`,
@@ -184,7 +184,7 @@
         { q: 'La direction dit « 80 % de satisfaits ». 0,80 est-il dans [0,708 ; 0,792] ?', c: ['Oui, on ne peut rien contester', 'Non, l\'échantillon contredit les 80 %'], a: 1, sol: ['0,80 &gt; 0,792 : la valeur annoncée est hors de l\'intervalle.'] }
       ] },
 
-    { ch: 4, h: 'Tests d\'hypothèses : moyenne et proportion', min: 30, cours: 'cours-4', td: 'td-4-F',
+    { ch: 4, h: 'Tests d\'hypothèses : moyenne et proportion', min: 30, cours: 'cours-4', td: 'td-4-9',
       idee: `<p>On veut savoir si une affirmation (« autonomie de 12 h », « 90 % de réussite ») tient face à un échantillon. Méthode en 5 temps :</p>
         <ol><li><strong>H<sub>0</sub></strong> : l'affirmation (m = m<sub>0</sub> ou p = p<sub>0</sub>). <strong>H<sub>1</sub></strong> : le contraire (m ≠ m<sub>0</sub> en bilatéral ; m &lt; m<sub>0</sub> ou m &gt; m<sub>0</sub> en unilatéral).</li>
         <li><strong>Zone d'acceptation</strong> autour de la valeur annoncée, calculée en supposant H<sub>0</sub> vraie :
@@ -203,7 +203,7 @@
         { q: 'TD IV ex. 7 en unilatéral : H<sub>0</sub> p = 0,8, H<sub>1</sub> p &lt; 0,8, n = 400, risque 5 %. Borne basse de la zone d\'acceptation (au millième) ?', a: 0.767, d: 3, sol: ['√(0,8 × 0,2/400) = 0,02 ; 0,8 − 1,645 × 0,02 = 0,767.', 'f = 0,75 &lt; 0,767 : on rejette « au moins 80 % de satisfaits ».'] }
       ] },
 
-    { ch: 4, h: 'Khi-deux d\'ajustement (TD ex. 11 et 14)', min: 30, cours: 'cours-4', td: 'td-4-A',
+    { ch: 4, h: 'Khi-deux d\'ajustement (TD ex. 11 et 14)', min: 30, cours: 'cours-4', td: 'td-4-11',
       idee: `<p>Le test du <strong>khi-deux</strong> compare des effectifs <strong>observés O</strong> à des effectifs <strong>attendus E</strong> (ce qu'on aurait si H<sub>0</sub> était vraie).</p>
         <p><strong>Ajustement</strong> : <em>une seule</em> variable (faces d'un dé, saveurs, couleurs). Les données suivent-elles la répartition annoncée ?</p>
         ${MB('χ² = Σ ' + F('(O − E)²', 'E') + '        ddl = nombre de catégories − 1')}
@@ -220,7 +220,7 @@
         { q: '<b>TD ex. 14.</b> Attendu : rouge 30 %, bleu 40 %, vert 20 %, blanc 10 % ; 500 voitures ; observé 150, 200, 100, 50. Calcule χ².', a: 0, d: 2, sol: ['E = 500 × 0,30 = 150 ; 500 × 0,40 = 200 ; 100 ; 50.', 'Tous les O sont égaux aux E : χ² = 0.', 'ddl = 3, valeur critique 7,815 : 0 ≤ 7,815, on ne rejette pas H<sub>0</sub>. Les ventes sont conformes au plan marketing.'] }
       ] },
 
-    { ch: 4, h: 'Khi-deux d\'indépendance (TD ex. 12 et 13)', min: 35, cours: 'cours-4', td: 'td-4-B',
+    { ch: 4, h: 'Khi-deux d\'indépendance (TD ex. 12 et 13)', min: 35, cours: 'cours-4', td: 'td-4-12',
       idee: `<p><strong>Indépendance</strong> : <em>deux</em> variables dans un tableau à double entrée (type de film × snacks). H<sub>0</sub> : les deux variables ne sont <strong>pas liées</strong>. H<sub>1</sub> : elles sont liées.</p>
         ${MB('E = ' + F('total ligne × total colonne', 'total général') + '        ddl = (lignes − 1) × (colonnes − 1)')}
         <p>Ensuite, comme toujours : χ² = Σ(O − E)²/E sur <strong>toutes</strong> les cases, puis comparaison avec la table.</p>`,
