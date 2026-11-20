@@ -132,6 +132,30 @@ const treasures = (g, p) => g.battlefield.filter(o => o.controller === p && o.de
     goblins(g, a, 3); await g.settle();
     check("Kreat: 3 Goblins entering deal 3 to each opponent", life - b.life === 3, life - b.life); }
 
+  // the bot: Goblin Bombardment flings Goblins at an opponent it can kill, and keeps Zada
+  { const { g, a, b } = table(); a.deckId = "goblin-storm"; const z = zada(g, a); put(g, a, "Goblin Bombardment"); goblins(g, a, 4); await g.settle();
+    b.life = 4;
+    const plan = MK.DECK_BRAINS["goblin-storm"].plan(g, a, { window: "main1", actions: g.legalActions(a) });
+    check("bot: Bombardment plan for lethal", plan && plan.type === "activate" && plan.card.def.name === "Goblin Bombardment", plan && plan.type);
+    const req = { type: "target", purpose: "sacrifice", options: g.creatures(a), src: plan.card };
+    check("bot: sacrifices a token, not Zada", MK.DECK_BRAINS["goblin-storm"].choose(g, a, req) !== z);
+    check("bot: no lethal at 40 life", (b.life = 40, !MK.DECK_BRAINS["goblin-storm"].plan(g, a, { window: "main1", actions: g.legalActions(a) }))); }
+
+  // the bot holds Blasphemous Act when it would mostly kill its own board
+  { const { g, a, b } = table(); zada(g, a); goblins(g, a, 3); put(g, b, "Llanowar Elves"); await g.settle();
+    check("bot: holds Blasphemous Act against one Elf", MK.GSTORM_AI.blasphemousOk(g, a) === false); }
+
+  // the bot's storm turn: rituals and cheap spells, then a lethal Grapeshot
+  { const { g, a, b } = table(); lands(g, a, 4); goblins(g, a, 1); await g.settle(); b.life = 3;
+    for (const n of ["Grapeshot", "Seething Song", "Expedite"]) hand(g, a, n);
+    let guard = 0;
+    while (guard++ < 10 && !b.lost) {
+      const act = MK.GSTORM_AI.stormTurn(g, a, g.legalActions(a), "main1");
+      if (!act) break;
+      await g.perform(a, act); await g.settle();
+    }
+    check("bot: storm turn kills the opponent at 3 (Seething Song, Expedite, Grapeshot)", b.lost || b.life <= 0, { life: b.life, storm: g.spellsThisTurn }); }
+
   // the coach speaks up with Zada out and a cantrip in hand
   { const { g, a } = table(); lands(g, a, 2); zada(g, a); goblins(g, a, 3); hand(g, a, "Expedite"); await g.settle();
     const tips = MK.GSTORM_DECK.coach.tips(g, a);
